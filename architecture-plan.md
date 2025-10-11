@@ -361,3 +361,62 @@ school-management-system/
 
 ---
 *Last Updated: October 11, 2025*
+
+
+
+
+1. Online Admission Portal
+
+Online application form
+
+Document uploads
+
+Admission approval workflow
+
+💳 2. Online Payment Integration
+
+Payment gateway integration (e.g., Stripe, PayPal, bKash, Nagad, Rocket, etc.)
+
+Automated invoice generation
+
+Transaction history
+
+4. Mobile App / Progressive Web App
+
+Student/parent app for tracking attendance, fees, and results
+
+Push notifications
+
+5. Academic Calendar & Event Management
+
+Manage holidays, exams, and school events
+
+Sync with Google Calendar or ICS
+
+6. Certificate Generation
+
+Automated creation of transfer, merit, and participation certificates
+
+Custom design templates
+
+🧮 13. Analytics & Insights
+
+Performance analytics (students, teachers, departments)
+
+Predictive insights (AI-based optional)
+
+🧾 11. Payroll & HR Management
+
+Salary generation and payslips
+
+Leave management
+
+Employee attendance
+
+🔐 12. Security & Backup
+
+Data backup (manual/auto)
+
+Role-based permissions
+
+Audit logs
