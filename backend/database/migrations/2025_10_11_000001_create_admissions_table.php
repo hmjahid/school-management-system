@@ -13,6 +13,10 @@ class CreateAdmissionsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('admissions')) {
+            return;
+        }
+        
         Schema::create('admissions', function (Blueprint $table) {
             $table->id();
             
@@ -94,8 +98,19 @@ class CreateAdmissionsTable extends Migration
             $table->index(['application_number', 'status', 'email', 'phone']);
         });
         
-        // Add fulltext index for search
-        DB::statement('ALTER TABLE admissions ADD FULLTEXT fulltext_index (first_name, last_name, email, phone, father_name, mother_name)');
+        // Add fulltext index for search (only for MySQL/PostgreSQL)
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE admissions ADD FULLTEXT fulltext_index (first_name, last_name, email, phone, father_name, mother_name)');
+        } else {
+            // Add regular indexes for SQLite
+            Schema::table('admissions', function (Blueprint $table) {
+                $table->index(['first_name', 'last_name'], 'admissions_name_search');
+                $table->index('email');
+                $table->index('phone');
+                $table->index('father_name');
+                $table->index('mother_name');
+            });
+        }
     }
 
     /**
@@ -105,6 +120,23 @@ class CreateAdmissionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('admissions');
+        if (Schema::hasTable('admissions')) {
+            // Drop the fulltext index if it exists (MySQL/PostgreSQL)
+            if (DB::connection()->getDriverName() !== 'sqlite') {
+                DB::statement('ALTER TABLE admissions DROP INDEX fulltext_index');
+            } else {
+                // Drop the SQLite indexes
+                Schema::table('admissions', function (Blueprint $table) {
+                    $table->dropIndex('admissions_name_search');
+                    $table->dropIndex('admissions_email_index');
+                    $table->dropIndex('admissions_phone_index');
+                    $table->dropIndex('admissions_father_name_index');
+                    $table->dropIndex('admissions_mother_name_index');
+                });
+            }
+            
+            // Drop the table
+            Schema::dropIfExists('admissions');
+        }
     }
 }

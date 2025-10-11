@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('payment_gateways')) {
+            return;
+        }
+        
         Schema::create('payment_gateways', function (Blueprint $table) {
             $table->id();
             
@@ -78,8 +82,16 @@ return new class extends Migration
             $table->index(['is_active', 'is_online', 'type']);
         });
         
-        // Add fulltext index for search
-        DB::statement('ALTER TABLE payment_gateways ADD FULLTEXT fulltext_index (name, code, description)');
+        // Add fulltext index for search (only for MySQL/PostgreSQL)
+        if (DB::connection()->getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE payment_gateways ADD FULLTEXT fulltext_index (name, code, description)');
+        } else {
+            // Add regular indexes for SQLite
+            Schema::table('payment_gateways', function (Blueprint $table) {
+                $table->index('name');
+                $table->index('code');
+            });
+        }
     }
 
     /**
@@ -87,6 +99,20 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('payment_gateways');
+        if (Schema::hasTable('payment_gateways')) {
+            // Drop the fulltext index if it exists (MySQL/PostgreSQL)
+            if (DB::connection()->getDriverName() !== 'sqlite') {
+                DB::statement('ALTER TABLE payment_gateways DROP INDEX fulltext_index');
+            } else {
+                // Drop the SQLite indexes
+                Schema::table('payment_gateways', function (Blueprint $table) {
+                    $table->dropIndex('payment_gateways_name_index');
+                    $table->dropIndex('payment_gateways_code_index');
+                });
+            }
+            
+            // Drop the table
+            Schema::dropIfExists('payment_gateways');
+        }
     }
 };

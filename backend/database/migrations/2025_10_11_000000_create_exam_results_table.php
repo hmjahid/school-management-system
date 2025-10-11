@@ -13,6 +13,10 @@ class CreateExamResultsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('exam_results')) {
+            return;
+        }
+        
         Schema::create('exam_results', function (Blueprint $table) {
             $table->id();
             $table->foreignId('exam_id')->constrained()->onDelete('cascade');
@@ -70,6 +74,17 @@ class CreateExamResultsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('exam_results');
+        if (Schema::hasTable('exam_results')) {
+            Schema::table('exam_results', function (Blueprint $table) {
+                $table->dropForeign(['exam_id']);
+                $table->dropForeign(['student_id']);
+                $table->dropForeign(['submitted_by']);
+                $table->dropForeign(['reviewed_by']);
+                $table->dropForeign(['published_by']);
+                $table->dropForeign(['unpublished_by']);
+            });
+            
+            Schema::dropIfExists('exam_results');
+        }
     }
 }

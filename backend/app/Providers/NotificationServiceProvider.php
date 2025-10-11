@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\NotificationService;
 use App\Services\NotificationDeliveryService;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Event;
@@ -18,6 +19,12 @@ class NotificationServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        // Bind the NotificationService
+        $this->app->singleton(NotificationService::class, function ($app) {
+            return new NotificationService();
+        });
+
+        // Bind the NotificationDeliveryService
         $this->app->singleton(NotificationDeliveryService::class, function ($app) {
             return new NotificationDeliveryService(
                 $app->make('sms'),
@@ -27,6 +34,7 @@ class NotificationServiceProvider extends ServiceProvider
 
         // Register the notification facade
         $this->app->alias(NotificationDeliveryService::class, 'notification');
+        $this->app->alias(NotificationService::class, 'notification.service');
     }
 
     /**

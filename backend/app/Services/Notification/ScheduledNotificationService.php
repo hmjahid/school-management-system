@@ -3,7 +3,7 @@
 namespace App\Services\Notification;
 
 use App\Models\ScheduledNotification;
-use App\Services\Notification\NotificationService;
+use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 

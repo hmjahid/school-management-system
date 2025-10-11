@@ -713,16 +713,24 @@ class NotificationService
      */
     protected function createSmsDriver()
     {
-        return app(\App\Services\Channels\SmsChannel::class);
+        return new \App\Services\Channels\SmsChannel(
+            app(\App\Contracts\SmsService::class)
+        );
     }
 
     /**
      * Create a broadcast driver instance.
      *
-     * @return \Illuminate\Broadcasting\BroadcastManager
+     * @return \Illuminate\Broadcasting\BroadcastManager|null
      */
     protected function createBroadcastDriver()
     {
-        return app('broadcaster');
+        try {
+            return app('broadcaster');
+        } catch (\Exception $e) {
+            // Log the error if needed
+            \Illuminate\Support\Facades\Log::warning('Broadcast driver not available: ' . $e->getMessage());
+            return null;
+        }
     }
 }

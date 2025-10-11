@@ -1,32 +1,53 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useEffect, useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
+import api from '../services/api';
+import { AuthContext } from '../contexts/AuthContext';
 
 export default function DashboardPage() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const { logout } = useContext(AuthContext);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const response = await axios.get('/api/user');
+                const response = await api.get('/auth/me');
                 setUser(response.data);
             } catch (error) {
-                console.error(error);
+                console.error('Failed to fetch user:', error);
+                toast.error('Failed to load user data');
+                // If unauthorized, redirect to login
+                if (error.response?.status === 401) {
+                    navigate('/login');
+                }
             } finally {
                 setLoading(false);
             }
         };
 
         fetchUser();
-    }, []);
+    }, [navigate]);
 
     const handleLogout = async () => {
-        await axios.post('/api/logout');
-        window.location.href = '/login';
+        try {
+            await api.post('/auth/logout');
+            await logout();
+            toast.success('Successfully logged out');
+            navigate('/login');
+        } catch (error) {
+            console.error('Logout failed:', error);
+            toast.error('Logout failed. Please try again.');
+        }
     };
 
     if (loading) {
-        return <div>Loading...</div>;
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        );
     }
 
     return (

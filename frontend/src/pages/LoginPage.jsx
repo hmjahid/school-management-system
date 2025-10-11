@@ -1,27 +1,36 @@
-import { useState } from 'react';
-import axios from '../lib/axios';
-import { Link } from 'react-router-dom';
+import { useState, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
+import { AuthContext } from '../contexts/AuthContext';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState(null);
+    const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const { login } = useContext(AuthContext);
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // Basic validation
+        if (!email || !password) {
+            setError('Please enter both email and password');
+            return;
+        }
+
         setLoading(true);
-        setError(null);
+        setError('');
 
         try {
-            await axios.post('/api/login', { email, password });
-            window.location.href = '/dashboard';
+            await login(email, password);
+            toast.success('Login successful!');
+            navigate('/dashboard');
         } catch (error) {
-            if (error.response?.data?.message) {
-                setError(error.response.data.message);
-            } else {
-                setError('An unexpected error occurred.');
-            }
+            console.error('Login error:', error);
+            setError(error.message || 'Failed to log in. Please check your credentials.');
+            toast.error(error.message || 'Login failed');
         } finally {
             setLoading(false);
         }
