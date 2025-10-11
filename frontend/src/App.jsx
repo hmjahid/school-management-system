@@ -7,14 +7,15 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import PrivateRoute from './routes/PrivateRoute';
 import RegisterPage from './pages/RegisterPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import Layout from './components/layout/Layout';
 import LoadingSpinner from './components/common/LoadingSpinner';
 import feeRoutes from './routes/feeRoutes';
 
 // Layout for authentication pages (login, register, etc.)
 const AuthLayout = ({ children }) => (
-  <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-    <div className="w-full max-w-md">
+  <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 w-full">
+    <div className="w-full">
       {children}
     </div>
   </div>
@@ -42,6 +43,14 @@ const AppRoutes = () => {
       element: (
         <AuthLayout>
           <RegisterPage />
+        </AuthLayout>
+      ),
+    },
+    {
+      path: '/forgot-password',
+      element: (
+        <AuthLayout>
+          <ForgotPasswordPage />
         </AuthLayout>
       ),
     },
