@@ -400,6 +400,231 @@ class ExamController extends Controller
     }
 
     /**
+     * Get exam results.
+     *
+     * @param  \App\Models\Exam  $exam
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function results(Exam $exam, Request $request)
+    {
+        $this->authorize('viewResults', $exam);
+
+        $query = $exam->results()
+            ->with([
+                'student.user',
+                'submittedBy.user',
+                'reviewedBy.user',
+                'publishedBy.user',
+                'latestRemark'
+            ]);
+
+        // Apply filters
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->has('is_published')) {
+            $query->where('is_published', filter_var($request->is_published, FILTER_VALIDATE_BOOLEAN));
+        }
+
+        if ($request->has('student_id')) {
+            $query->where('student_id', $request->student_id);
+        }
+
+        // Apply search
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('grade', 'like', "%{$search}%")
+                  ->orWhere('remarks', 'like', "%{$search}%")
+                  ->orWhere('review_remarks', 'like', "%{$search}%")
+                  ->orWhereHas('student.user', function($q) use ($search) {
+                      $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Apply sorting
+        $sortField = $request->input('sort_field', 'obtained_marks');
+        $sortOrder = $request->input('sort_order', 'desc');
+        
+        if (in_array($sortField, ['obtained_marks', 'grade_point', 'created_at', 'updated_at'])) {
+            $query->orderBy($sortField, $sortOrder);
+        } elseif ($sortField === 'student') {
+            $query->join('students', 'exam_results.student_id', '=', 'students.id')
+                  ->join('users', 'students.user_id', '=', 'users.id')
+                  ->orderBy('users.name', $sortOrder)
+                  ->select('exam_results.*');
+        }
+
+        $perPage = $request->per_page ?? 20;
+        $results = $query->paginate($perPage);
+
+        return response()->json([
+            'data' => $results,
+            'meta' => [
+                'total' => $results->total(),
+                'per_page' => $results->perPage(),
+                'current_page' => $results->currentPage(),
+                'last_page' => $results->lastPage(),
+            ]
+        ]);
+    }
+
+    /**
+     * Submit exam result.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Exam  $exam
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function submitResult(Request $request, Exam $exam)
+    {
+        $this->authorize('submitResult', $exam);
+
+        $validated = $request->validate([
+            'student_id' => 'required|exists:students,id',
+            'obtained_marks' => 'required|numeric|min:0|max:' . $exam->total_marks,
+            'grade' => 'nullable|string|max:10',
+            'grade_point' => 'nullable|numeric|min:0|max:4',
+            'remarks' => 'nullable|string|max:500',
+            'status' => 'required|in:pending,passed,failed,absent,malpractice',
+            'review_remarks' => 'nullable|string|max:500',
+        ]);
+
+        // Add additional data
+        $validated['exam_id'] = $exam->id;
+        $validated['submitted_by'] = auth()->user()->staff->id;
+        $validated['submitted_at'] = now();
+
+        // If reviewer is different from submitter
+        if (auth()->user()->can('review_exam_results')) {
+            $validated['reviewed_by'] = auth()->user()->staff->id;
+            $validated['reviewed_at'] = now();
+            $validated['is_published'] = $request->input('is_published', false);
+            
+            if ($validated['is_published']) {
+                $validated['published_by'] = auth()->user()->staff->id;
+                $validated['published_at'] = now();
+            }
+        }
+
+        // Create or update the result
+        $result = $exam->results()->updateOrCreate(
+            ['student_id' => $validated['student_id']],
+            $validated
+        );
+
+        // Add remark if provided
+        if (!empty($validated['review_remarks'])) {
+            $result->remarks()->create([
+                'remarks' => $validated['review_remarks'],
+                'created_by' => auth()->id(),
+            ]);
+        }
+
+        // Update exam status if needed
+        $this->updateExamStatus($exam);
+
+        return response()->json([
+            'message' => 'Exam result submitted successfully',
+            'data' => $result->load(['student.user', 'submittedBy.user'])
+        ], 201);
+    }
+
+    /**
+     * Update exam result.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Exam  $exam
+     * @param  int  $resultId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateResult(Request $request, Exam $exam, $resultId)
+    {
+        $this->authorize('updateResult', $exam);
+
+        $result = $exam->results()->findOrFail($resultId);
+
+        $validated = $request->validate([
+            'obtained_marks' => 'required|numeric|min:0|max:' . $exam->total_marks,
+            'grade' => 'nullable|string|max:10',
+            'grade_point' => 'nullable|numeric|min:0|max:4',
+            'remarks' => 'nullable|string|max:500',
+            'status' => 'required|in:pending,passed,failed,absent,malpractice',
+            'review_remarks' => 'nullable|string|max:500',
+            'is_published' => 'boolean',
+        ]);
+
+        // Update result
+        $result->update([
+            'obtained_marks' => $validated['obtained_marks'],
+            'grade' => $validated['grade'] ?? null,
+            'grade_point' => $validated['grade_point'] ?? null,
+            'remarks' => $validated['remarks'] ?? null,
+            'status' => $validated['status'],
+            'reviewed_by' => auth()->user()->staff->id,
+            'reviewed_at' => now(),
+            'review_remarks' => $validated['review_remarks'] ?? null,
+        ]);
+
+        // Handle publication status
+        if (isset($validated['is_published'])) {
+            if ($validated['is_published'] && !$result->is_published) {
+                $result->publish(auth()->user()->staff->id, 'Published via result update');
+            } elseif (!$validated['is_published'] && $result->is_published) {
+                $result->unpublish(auth()->user()->staff->id, 'Unpublished via result update');
+            }
+        }
+
+        // Add remark if provided
+        if (!empty($validated['review_remarks'])) {
+            $result->remarks()->create([
+                'remarks' => $validated['review_remarks'],
+                'created_by' => auth()->id(),
+            ]);
+        }
+
+        // Update exam status if needed
+        $this->updateExamStatus($exam);
+
+        return response()->json([
+            'message' => 'Exam result updated successfully',
+            'data' => $result->fresh(['student.user', 'submittedBy.user', 'reviewedBy.user'])
+        ]);
+    }
+
+    /**
+     * Update exam status based on results.
+     *
+     * @param  \App\Models\Exam  $exam
+     * @return void
+     */
+    protected function updateExamStatus(Exam $exam)
+    {
+        $totalStudents = $exam->batch->students()->count();
+        $submittedResults = $exam->results()->count();
+        $publishedResults = $exam->results()->where('is_published', true)->count();
+
+        // If all results are submitted, mark exam as completed
+        if ($submittedResults >= $totalStudents) {
+            $exam->update(['status' => Exam::STATUS_COMPLETED]);
+        }
+
+        // If all results are published, mark exam as published
+        if ($publishedResults >= $totalStudents) {
+            $exam->update([
+                'status' => Exam::STATUS_PUBLISHED,
+                'is_published' => true,
+                'publish_date' => now(),
+                'publish_remarks' => 'Auto-published: All results published',
+            ]);
+        }
+    }
+
+    /**
      * Get filter options for exams.
      *
      * @return \Illuminate\Http\JsonResponse

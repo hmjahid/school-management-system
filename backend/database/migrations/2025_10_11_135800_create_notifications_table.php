@@ -1,0 +1,78 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up()
+    {
+        Schema::create('notifications', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('type');
+            $table->morphs('notifiable');
+            $table->text('data');
+            $table->timestamp('read_at')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('notification_preferences', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('notification_type');
+            $table->boolean('email')->default(true);
+            $table->boolean('sms')->default(false);
+            $table->boolean('push')->default(true);
+            $table->boolean('in_app')->default(true);
+            $table->timestamps();
+
+            $table->unique(['user_id', 'notification_type']);
+        });
+
+        Schema::create('notification_templates', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('key')->unique();
+            $table->string('subject');
+            $table->text('content');
+            $table->text('sms_content')->nullable();
+            $table->text('in_app_content')->nullable();
+            $table->json('variables')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
+        });
+
+        Schema::create('notification_logs', function (Blueprint $table) {
+            $table->id();
+            $table->string('type');
+            $table->morphs('notifiable');
+            $table->text('content');
+            $table->string('channel');
+            $table->string('status')->default('pending');
+            $table->text('error_message')->nullable();
+            $table->timestamp('sent_at')->nullable();
+            $table->timestamp('delivered_at')->nullable();
+            $table->timestamp('opened_at')->nullable();
+            $table->json('metadata')->nullable();
+            $table->timestamps();
+            $table->index(['notifiable_type', 'notifiable_id']);
+            $table->index('type');
+            $table->index('status');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down()
+    {
+        Schema::dropIfExists('notifications');
+        Schema::dropIfExists('notification_preferences');
+        Schema::dropIfExists('notification_templates');
+        Schema::dropIfExists('notification_logs');
+    }
+};
