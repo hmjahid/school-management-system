@@ -1,72 +1,74 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import galleryService from '../services/galleryService';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import { toast } from 'react-hot-toast';
 
 const GalleryPage = () => {
-  // Sample gallery data - this will be replaced with dynamic data from the backend
-  const galleryCategories = [
-    { id: 'all', name: 'All' },
-    { id: 'events', name: 'Events' },
-    { id: 'sports', name: 'Sports' },
-    { id: 'academics', name: 'Academics' },
-    { id: 'cultural', name: 'Cultural' },
-  ];
-
-  const galleryItems = [
-    {
-      id: 1,
-      title: 'Annual Day Celebration',
-      category: 'events',
-      image: '/images/gallery/event1.jpg',
-      date: 'October 10, 2023',
-      featured: true
-    },
-    {
-      id: 2,
-      title: 'Sports Day 2023',
-      category: 'sports',
-      image: '/images/gallery/sports1.jpg',
-      date: 'September 25, 2023',
-      featured: true
-    },
-    {
-      id: 3,
-      title: 'Science Exhibition',
-      category: 'academics',
-      image: '/images/gallery/academic1.jpg',
-      date: 'September 15, 2023'
-    },
-    {
-      id: 4,
-      title: 'Cultural Fest',
-      category: 'cultural',
-      image: '/images/gallery/cultural1.jpg',
-      date: 'August 30, 2023'
-    },
-    {
-      id: 5,
-      title: 'Independence Day',
-      category: 'events',
-      image: '/images/gallery/event2.jpg',
-      date: 'August 15, 2023'
-    },
-    {
-      id: 6,
-      title: 'Basketball Tournament',
-      category: 'sports',
-      image: '/images/gallery/sports2.jpg',
-      date: 'July 20, 2023'
-    },
-    // Add more gallery items as needed
-  ];
-
+  const [galleryItems, setGalleryItems] = useState([]);
+  const [galleryCategories, setGalleryCategories] = useState([{ id: 'all', name: 'All' }]);
   const [activeCategory, setActiveCategory] = useState('all');
   const [selectedImage, setSelectedImage] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  useEffect(() => {
+    const fetchGalleryData = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Fetch gallery items
+        const itemsResponse = await galleryService.getGalleryItems();
+        
+        // Fetch categories
+        const categoriesResponse = await galleryService.getGalleryCategories();
+        
+        if (itemsResponse.success && categoriesResponse.success) {
+          setGalleryItems(itemsResponse.data);
+          // Add 'all' category to the beginning of categories
+          setGalleryCategories([
+            { id: 'all', name: 'All' },
+            ...categoriesResponse.data
+          ]);
+        } else {
+          // Fallback to sample data if API fails
+          const fallbackData = galleryService.getFallbackData();
+          setGalleryItems(fallbackData.items);
+          setGalleryCategories(fallbackData.categories);
+          toast.error('Using sample data. Could not connect to server.');
+        }
+      } catch (err) {
+        console.error('Error fetching gallery data:', err);
+        setError('Failed to load gallery. Please try again later.');
+        // Fallback to sample data
+        const fallbackData = galleryService.getFallbackData();
+        setGalleryItems(fallbackData.items);
+        setGalleryCategories(fallbackData.categories);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchGalleryData();
+  }, []);
+
+  // Filter items based on selected category
   const filteredItems = activeCategory === 'all' 
     ? galleryItems 
     : galleryItems.filter(item => item.category === activeCategory);
 
-  const featuredItems = galleryItems.filter(item => item.featured);
+  // Get featured items (first 2 items for the featured section)
+  const featuredItems = galleryItems.filter(item => item.featured).slice(0, 2);
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  // Loading and error states are already handled above
 
   return (
     <div className="min-h-screen bg-white">
@@ -83,9 +85,19 @@ const GalleryPage = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-12">
-        {/* Featured Gallery */}
-        {featuredItems.length > 0 && (
-          <section className="mb-16">
+        {isLoading ? (
+          <div className="flex justify-center items-center py-20">
+            <LoadingSpinner size="large" />
+          </div>
+        ) : error ? (
+          <div className="text-center py-12 text-red-500">
+            <p>{error}</p>
+          </div>
+        ) : (
+          <>
+            {/* Featured Gallery */}
+            {featuredItems.length > 0 && (
+              <section className="mb-16">
             <h2 className="text-2xl font-semibold mb-6">Featured</h2>
             <div className="grid md:grid-cols-2 gap-6">
               {featuredItems.map((item) => (
@@ -99,6 +111,11 @@ const GalleryPage = () => {
                       src={item.image} 
                       alt={item.title}
                       className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = '/images/placeholder-gallery.jpg';
+                      }}
                     />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-6">
@@ -107,14 +124,14 @@ const GalleryPage = () => {
                         {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
                       </span>
                       <h3 className="text-xl font-semibold text-white">{item.title}</h3>
-                      <p className="text-blue-100 text-sm">{item.date}</p>
+                      <p className="text-blue-100 text-sm">{formatDate(item.date)}</p>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-          </section>
-        )}
+              </section>
+            )}
 
         {/* Gallery Categories */}
         <section className="mb-12">
@@ -164,6 +181,8 @@ const GalleryPage = () => {
             </div>
           )}
         </section>
+          </>
+        )}
       </main>
 
       {/* Image Modal */}

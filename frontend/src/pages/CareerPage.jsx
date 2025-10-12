@@ -1,107 +1,96 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { FaBriefcase, FaMapMarkerAlt, FaCalendarAlt, FaExternalLinkAlt } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  FaBriefcase, 
+  FaMapMarkerAlt, 
+  FaCalendarAlt, 
+  FaExternalLinkAlt,
+  FaClock,
+  FaGraduationCap,
+  FaMoneyBillWave
+} from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import careerService from '../services/careerService';
+import { toast } from 'react-hot-toast';
 
 const CareerPage = () => {
   const [jobs, setJobs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({
+    status: 'active',
+    department: ''
+  });
+  const [categories, setCategories] = useState([]);
 
+  // Fetch job listings and categories
   useEffect(() => {
-    // In a real application, this would fetch from your API
-    const fetchJobs = async () => {
+    const fetchData = async () => {
       try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 800));
+        setIsLoading(true);
         
-        // Sample job data - in a real app, this would come from your API
-        const sampleJobs = [
-          {
-            id: 1,
-            title: 'Mathematics Teacher',
-            type: 'Full-time',
-            location: 'Dhaka, Bangladesh',
-            department: 'High School',
-            postedDate: '2023-11-01',
-            deadline: '2023-12-15',
-            description: 'We are looking for an experienced Mathematics teacher to join our high school department.',
-            requirements: [
-              'Master\'s degree in Mathematics or related field',
-              'B.Ed or equivalent teaching certification',
-              'Minimum 3 years of teaching experience',
-              'Strong knowledge of curriculum standards'
-            ],
-            responsibilities: [
-              'Develop and deliver engaging math lessons',
-              'Assess and evaluate student progress',
-              'Participate in school events and meetings',
-              'Collaborate with other faculty members'
-            ]
-          },
-          {
-            id: 2,
-            title: 'Science Laboratory Assistant',
-            type: 'Part-time',
-            location: 'Dhaka, Bangladesh',
-            department: 'Science Department',
-            postedDate: '2023-11-05',
-            deadline: '2023-12-10',
-            description: 'Assist in the preparation and maintenance of science laboratories.',
-            requirements: [
-              'Bachelor\'s degree in a science-related field',
-              'Previous lab experience preferred',
-              'Knowledge of lab safety procedures',
-              'Attention to detail'
-            ],
-            responsibilities: [
-              'Prepare laboratory equipment and materials',
-              'Maintain inventory of supplies',
-              'Ensure lab safety standards are met',
-              'Assist teachers during lab sessions'
-            ]
-          },
-          {
-            id: 3,
-            title: 'School Counselor',
-            type: 'Full-time',
-            location: 'Dhaka, Bangladesh',
-            department: 'Student Services',
-            postedDate: '2023-11-10',
-            deadline: '2023-12-20',
-            description: 'Provide guidance and support to students in their academic and personal development.',
-            requirements: [
-              'Master\'s degree in Counseling or related field',
-              'Counseling certification',
-              'Experience in an educational setting',
-              'Strong communication skills'
-            ],
-            responsibilities: [
-              'Provide individual and group counseling',
-              'Develop student success plans',
-              'Collaborate with teachers and parents',
-              'Organize career guidance programs'
-            ]
-          }
-        ];
+        // Fetch active job listings
+        const jobsResponse = await careerService.getJobListings({ 
+          status: 'active',
+          ...filters
+        });
+        
+        // Fetch job categories
+        const categoriesResponse = await careerService.getJobCategories();
 
-        setJobs(sampleJobs);
-        setIsLoading(false);
+        if (jobsResponse.success) {
+          setJobs(jobsResponse.data);
+        } else {
+          // Fallback to sample data if API fails
+          const fallbackData = careerService.getFallbackData();
+          setJobs(fallbackData.jobs);
+          setCategories(fallbackData.categories);
+          toast.error('Using sample data. Could not connect to server.');
+        }
+
+        if (categoriesResponse.success) {
+          setCategories(categoriesResponse.data);
+        }
+        
       } catch (err) {
-        console.error('Error fetching job listings:', err);
-        setError('Failed to load job listings. Please try again later.');
+        console.error('Error fetching career data:', err);
+        setError('Failed to load career information. Please try again later.');
+        
+        // Fallback to sample data
+        const fallbackData = careerService.getFallbackData();
+        setJobs(fallbackData.jobs);
+        setCategories(fallbackData.categories);
+      } finally {
         setIsLoading(false);
       }
     };
 
-    fetchJobs();
-  }, []);
+    fetchData();
+  }, [filters]);
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
   const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
+
+  // Get unique departments from jobs
+  const departmentOptions = [
+    { id: '', name: 'All Departments' },
+    ...categories.map(cat => ({
+      id: cat.id,
+      name: cat.name
+    }))
+  ];
 
   if (isLoading) {
     return (
@@ -150,10 +139,49 @@ const CareerPage = () => {
 
       {/* Job Listings */}
       <div className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-            Current Openings
-          </h2>
+        <div className="max-w-6xl mx-auto">
+          <motion.div 
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">
+              Current Openings
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Join our team of dedicated educators and staff members committed to excellence in education.
+            </p>
+          </motion.div>
+
+          {/* Filters */}
+          <motion.div 
+            className="bg-white p-4 rounded-lg shadow-sm mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <div className="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-4 md:space-y-0">
+              <div className="flex-1">
+                <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-1">
+                  Filter by Department
+                </label>
+                <select
+                  id="department"
+                  name="department"
+                  value={filters.department}
+                  onChange={handleFilterChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                >
+                  {departmentOptions.map(option => (
+                    <option key={option.id} value={option.id}>
+                      {option.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </motion.div>
           
           {jobs.length === 0 ? (
             <div className="text-center py-12">
@@ -171,26 +199,45 @@ const CareerPage = () => {
                 >
                   <div className="p-6">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                      <div>
+                      <div className="flex-1">
                         <h3 className="text-xl font-bold text-gray-800">{job.title}</h3>
                         <div className="flex flex-wrap items-center mt-2 text-sm text-gray-600">
-                          <span className="flex items-center mr-4">
-                            <FaBriefcase className="mr-1" />
+                          <span className="flex items-center mr-4 mb-1">
+                            <FaBriefcase className="mr-1 text-blue-500" />
                             {job.type}
                           </span>
-                          <span className="flex items-center mr-4">
-                            <FaMapMarkerAlt className="mr-1" />
-                            {job.location}
+                          <span className="flex items-center mr-4 mb-1">
+                            <FaMapMarkerAlt className="mr-1 text-blue-500" />
+                            {job.location || 'Not specified'}
                           </span>
-                          <span className="flex items-center">
-                            <FaCalendarAlt className="mr-1" />
+                          <span className="flex items-center mr-4 mb-1">
+                            <FaCalendarAlt className="mr-1 text-blue-500" />
                             Posted: {formatDate(job.postedDate)}
                           </span>
+                          {job.deadline && (
+                            <span className="flex items-center mr-4 mb-1">
+                              <FaClock className="mr-1 text-red-500" />
+                              Apply by: {formatDate(job.deadline)}
+                            </span>
+                          )}
                         </div>
-                        <div className="mt-2">
-                          <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                            {job.department}
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <span className="inline-flex items-center bg-blue-50 text-blue-800 text-xs px-3 py-1 rounded-full">
+                            <FaGraduationCap className="mr-1" />
+                            {job.education || 'Education not specified'}
                           </span>
+                          {job.experience && (
+                            <span className="inline-flex items-center bg-green-50 text-green-800 text-xs px-3 py-1 rounded-full">
+                              <FaBriefcase className="mr-1" />
+                              {job.experience}
+                            </span>
+                          )}
+                          {job.salary && (
+                            <span className="inline-flex items-center bg-purple-50 text-purple-800 text-xs px-3 py-1 rounded-full">
+                              <FaMoneyBillWave className="mr-1" />
+                              {job.salary}
+                            </span>
+                          )}
                         </div>
                       </div>
                       <div className="mt-4 md:mt-0">

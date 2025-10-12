@@ -32,6 +32,20 @@ Route::prefix('website')->group(function () {
     Route::get('/sitemap', [\App\Http\Controllers\Api\LegalController::class, 'getSitemap']);
     Route::get('/home', [\App\Http\Controllers\Api\LegalController::class, 'getHome']);
     
+    // Gallery routes
+    Route::prefix('gallery')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Api\Website\GalleryController::class, 'index']);
+        Route::get('/categories', [\App\Http\Controllers\Api\Website\GalleryController::class, 'getCategories']);
+    });
+    
+    // Career routes
+    Route::prefix('careers')->group(function () {
+        Route::get('/jobs', [\App\Http\Controllers\Api\Website\CareerController::class, 'getJobs']);
+        Route::get('/jobs/{id}', [\App\Http\Controllers\Api\Website\CareerController::class, 'getJobDetails']);
+        Route::post('/applications', [\App\Http\Controllers\Api\Website\CareerController::class, 'submitApplication']);
+        Route::get('/categories', [\App\Http\Controllers\Api\Website\CareerController::class, 'getCategories']);
+    });
+    
     // Public website settings
     Route::get('/settings', [\App\Http\Controllers\Admin\WebsiteSettingController::class, 'publicSettings']);
 });
