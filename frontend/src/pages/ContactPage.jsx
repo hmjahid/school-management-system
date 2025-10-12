@@ -55,25 +55,6 @@ const ContactPage = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="bg-blue-600 text-white p-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <Link to="/" className="text-2xl font-bold">School Name</Link>
-          <div className="space-x-4">
-            <Link to="/" className="hover:underline">Home</Link>
-            <Link to="/about" className="hover:underline">About</Link>
-            <Link to="/academics" className="hover:underline">Academics</Link>
-            <Link to="/admissions" className="hover:underline">Admissions</Link>
-            <Link to="/news" className="hover:underline">News & Events</Link>
-            <Link to="/gallery" className="hover:underline">Gallery</Link>
-            <Link to="/contact" className="font-semibold border-b-2 border-white">Contact</Link>
-            <Link to="/login" className="bg-white text-blue-600 px-4 py-2 rounded-md font-medium hover:bg-blue-50 transition-colors">
-              Login
-            </Link>
-          </div>
-        </div>
-      </nav>
-
       {/* Hero Section */}
       <div className="bg-blue-50 py-16">
         <div className="container mx-auto px-4 text-center">

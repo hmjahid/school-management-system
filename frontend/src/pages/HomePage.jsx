@@ -1,93 +1,349 @@
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { FaGraduationCap, FaChalkboardTeacher, FaBook, FaUsers, FaQuoteLeft, FaStar } from 'react-icons/fa';
+
+// Sample data - Replace with API calls in production
+const features = [
+  {
+    icon: <FaGraduationCap className="w-10 h-10 text-blue-600" />,
+    title: 'Experienced Faculty',
+    description: 'Our dedicated team of educators brings years of experience and expertise to the classroom.'
+  },
+  {
+    icon: <FaChalkboardTeacher className="w-10 h-10 text-blue-600" />,
+    title: 'Modern Facilities',
+    description: 'State-of-the-art classrooms and laboratories to support innovative learning.'
+  },
+  {
+    icon: <FaBook className="w-10 h-10 text-blue-600" />,
+    title: 'Comprehensive Curriculum',
+    description: 'A well-rounded curriculum that prepares students for future challenges.'
+  },
+  {
+    icon: <FaUsers className="w-10 h-10 text-blue-600" />,
+    title: 'Inclusive Community',
+    description: 'A diverse and welcoming environment that celebrates every student.'
+  }
+];
+
+const testimonials = [
+  {
+    id: 1,
+    name: 'Sarah Johnson',
+    role: 'Parent',
+    content: 'The school has provided an excellent learning environment for my child. The teachers are dedicated and caring.',
+    rating: 5
+  },
+  {
+    id: 2,
+    name: 'Michael Chen',
+    role: 'Alumnus',
+    content: 'The education I received here laid a strong foundation for my university studies and career.',
+    rating: 5
+  },
+  {
+    id: 3,
+    name: 'Priya Patel',
+    role: 'Student',
+    content: 'I love the extracurricular activities and the supportive community at this school.',
+    rating: 4
+  }
+];
+
+const latestNews = [
+  {
+    id: 1,
+    title: 'Annual Science Fair 2025',
+    date: 'October 15, 2025',
+    excerpt: 'Join us for our annual science fair showcasing innovative student projects.',
+    image: '/images/science-fair.jpg'
+  },
+  {
+    id: 2,
+    title: 'New Sports Complex Inauguration',
+    date: 'November 1, 2025',
+    excerpt: 'Our new state-of-the-art sports complex is now open for students and staff.',
+    image: '/images/sports-complex.jpg'
+  },
+  {
+    id: 3,
+    title: 'Scholarship Program 2025',
+    date: 'December 10, 2025',
+    excerpt: 'Applications are now open for our merit-based scholarship program.',
+    image: '/images/scholarship.jpg'
+  }
+];
+
+const statistics = [
+  { number: '95%', label: 'Graduation Rate' },
+  { number: '50+', label: 'Qualified Teachers' },
+  { number: '1000+', label: 'Students Enrolled' },
+  { number: '25', label: 'Years of Excellence' }
+];
 
 const HomePage = () => {
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="bg-blue-600 text-white p-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold">School Name</h1>
-          <div className="space-x-4">
-            <Link to="/" className="hover:underline">Home</Link>
-            <Link to="/about" className="hover:underline">About</Link>
-            <Link to="/contact" className="hover:underline">Contact</Link>
-            <Link 
-              to="/login" 
-              className="bg-white text-blue-600 px-4 py-2 rounded-md font-medium hover:bg-blue-50 transition-colors"
+    <div className="bg-white">
+      {/* Hero Section */}
+      <section className="relative bg-blue-800 text-white overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+          <img 
+            src="/images/hero-bg.jpg" 
+            alt="Students in classroom" 
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+          <div className="text-center">
+            <motion.h1 
+              className="text-4xl md:text-6xl font-bold mb-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
             >
-              Login
-            </Link>
+              Shaping Future Leaders Through Excellence in Education
+            </motion.h1>
+            <motion.p 
+              className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              Empowering students with knowledge, skills, and values to succeed in a rapidly changing world.
+            </motion.p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+              >
+                <Link
+                  to="/admissions"
+                  className="inline-block bg-orange-500 hover:bg-orange-600 text-white font-semibold px-8 py-4 rounded-md text-lg transition-colors duration-300"
+                >
+                  Apply for Admission
+                </Link>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.6 }}
+              >
+                <Link
+                  to="/about"
+                  className="inline-block bg-transparent hover:bg-white/10 text-white border-2 border-white font-semibold px-8 py-3.5 rounded-md text-lg transition-colors duration-300"
+                >
+                  Learn More
+                </Link>
+              </motion.div>
+            </div>
           </div>
         </div>
-      </nav>
+      </section>
 
-      {/* Hero Section */}
-      <div className="bg-blue-50 py-20">
-        <div className="container mx-auto text-center px-4">
-          <h1 className="text-5xl font-bold text-gray-800 mb-6">Welcome to Our School</h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Providing quality education and fostering academic excellence for a better tomorrow.
-          </p>
-          <div className="space-x-4">
+      {/* Features Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose Our School?</h2>
+            <div className="w-20 h-1 bg-orange-500 mx-auto"></div>
+            <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
+              We are committed to providing a nurturing environment that fosters academic excellence and personal growth.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
+              <motion.div 
+                key={index}
+                className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+                whileHover={{ y: -5 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4 mx-auto">
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-semibold text-center mb-2">{feature.title}</h3>
+                <p className="text-gray-600 text-center">{feature.description}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Statistics Section */}
+      <section className="bg-blue-900 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {statistics.map((stat, index) => (
+              <motion.div 
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <div className="text-4xl font-bold mb-2">{stat.number}</div>
+                <div className="text-blue-200">{stat.label}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">What Parents & Students Say</h2>
+            <div className="w-20 h-1 bg-orange-500 mx-auto"></div>
+          </div>
+          
+          <div className="max-w-4xl mx-auto">
+            {testimonials.map((testimonial, index) => (
+              <motion.div 
+                key={testimonial.id}
+                className={`bg-gray-50 p-8 rounded-lg shadow-md ${currentTestimonial === index ? 'block' : 'hidden'}`}
+                initial={{ opacity: 0 }}
+                animate={{ 
+                  opacity: currentTestimonial === index ? 1 : 0,
+                  y: currentTestimonial === index ? 0 : 20
+                }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="text-orange-500 text-4xl mb-4">
+                  <FaQuoteLeft />
+                </div>
+                <p className="text-lg text-gray-700 mb-6">{testimonial.content}</p>
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-xl mr-4">
+                    {testimonial.name.charAt(0)}
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">{testimonial.name}</h4>
+                    <p className="text-gray-600">{testimonial.role}</p>
+                  </div>
+                  <div className="ml-auto flex">
+                    {[...Array(5)].map((_, i) => (
+                      <FaStar 
+                        key={i} 
+                        className={`w-5 h-5 ${i < testimonial.rating ? 'text-yellow-400' : 'text-gray-300'}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+            <div className="flex justify-center mt-8 space-x-2">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentTestimonial(index)}
+                  className={`w-3 h-3 rounded-full ${currentTestimonial === index ? 'bg-blue-600' : 'bg-gray-300'}`}
+                  aria-label={`Go to testimonial ${index + 1}`}
+                ></button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Latest News Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900">Latest News & Events</h2>
+              <div className="w-20 h-1 bg-orange-500 mt-2"></div>
+            </div>
             <Link 
-              to="/admissions" 
-              className="bg-blue-600 text-white px-8 py-3 rounded-md font-medium text-lg hover:bg-blue-700 transition-colors"
+              to="/news" 
+              className="text-blue-600 hover:text-blue-800 font-medium flex items-center"
+            >
+              View All News
+              <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {latestNews.map((news) => (
+              <motion.div 
+                key={news.id}
+                className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
+                whileHover={{ y: -5 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="h-48 bg-gray-200 overflow-hidden">
+                  <img 
+                    src={news.image} 
+                    alt={news.title} 
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="p-6">
+                  <div className="text-sm text-gray-500 mb-2">{news.date}</div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{news.title}</h3>
+                  <p className="text-gray-600 mb-4">{news.excerpt}</p>
+                  <Link 
+                    to={`/news/${news.id}`} 
+                    className="text-blue-600 hover:text-blue-800 font-medium inline-flex items-center"
+                  >
+                    Read More
+                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section className="bg-blue-700 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold mb-6">Ready to Join Our Community?</h2>
+          <p className="text-xl mb-8 max-w-3xl mx-auto">
+            Take the first step towards an exceptional educational journey for your child.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Link
+              to="/admissions"
+              className="bg-white text-blue-700 hover:bg-gray-100 font-semibold px-8 py-3 rounded-md text-lg transition-colors duration-300 inline-block"
             >
               Apply Now
             </Link>
-            <Link 
-              to="/about" 
-              className="bg-white text-blue-600 border border-blue-600 px-8 py-3 rounded-md font-medium text-lg hover:bg-blue-50 transition-colors"
+            <Link
+              to="/contact"
+              className="bg-transparent hover:bg-white/10 border-2 border-white font-semibold px-8 py-3 rounded-md text-lg transition-colors duration-300 inline-block"
             >
-              Learn More
+              Contact Us
             </Link>
           </div>
         </div>
-      </div>
-
-      {/* Quick Links Section */}
-      <div className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Our School</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-              <h3 className="text-xl font-semibold mb-3">Academics</h3>
-              <p className="text-gray-600 mb-4">Explore our comprehensive academic programs and curriculum.</p>
-              <Link to="/academics" className="text-blue-600 hover:underline">Learn more →</Link>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-              <h3 className="text-xl font-semibold mb-3">Admissions</h3>
-              <p className="text-gray-600 mb-4">Start your journey with us. Apply online today.</p>
-              <Link to="/admissions" className="text-blue-600 hover:underline">Apply now →</Link>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-              <h3 className="text-xl font-semibold mb-3">Contact Us</h3>
-              <p className="text-gray-600 mb-4">Get in touch with our administration team.</p>
-              <Link to="/contact" className="text-blue-600 hover:underline">Contact us →</Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="bg-gray-800 text-white py-8">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <h3 className="text-xl font-bold">School Name</h3>
-              <p className="text-gray-400">Providing quality education since 1990</p>
-            </div>
-            <div className="flex space-x-4">
-              <Link to="/privacy" className="text-gray-400 hover:text-white">Privacy Policy</Link>
-              <Link to="/terms" className="text-gray-400 hover:text-white">Terms of Service</Link>
-              <Link to="/contact" className="text-gray-400 hover:text-white">Contact Us</Link>
-            </div>
-          </div>
-          <div className="mt-8 text-center text-gray-400 text-sm">
-            © {new Date().getFullYear()} School Name. All rights reserved.
-          </div>
-        </div>
-      </footer>
+      </section>
     </div>
   );
 };

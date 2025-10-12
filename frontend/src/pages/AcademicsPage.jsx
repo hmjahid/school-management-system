@@ -9,25 +9,6 @@ const AcademicsPage = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="bg-blue-600 text-white p-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <Link to="/" className="text-2xl font-bold">School Name</Link>
-          <div className="space-x-4">
-            <Link to="/" className="hover:underline">Home</Link>
-            <Link to="/about" className="hover:underline">About</Link>
-            <Link to="/academics" className="font-semibold border-b-2 border-white">Academics</Link>
-            <Link to="/admissions" className="hover:underline">Admissions</Link>
-            <Link to="/news" className="hover:underline">News & Events</Link>
-            <Link to="/gallery" className="hover:underline">Gallery</Link>
-            <Link to="/contact" className="hover:underline">Contact</Link>
-            <Link to="/login" className="bg-white text-blue-600 px-4 py-2 rounded-md font-medium hover:bg-blue-50 transition-colors">
-              Login
-            </Link>
-          </div>
-        </div>
-      </nav>
-
       {/* Main Content */}
       <main className="container mx-auto px-4 py-12">
         <h1 className="text-4xl font-bold text-center mb-8">Academics</h1>
@@ -79,7 +60,7 @@ const AcademicsPage = () => {
             </div>
           </div>
           <div className="mt-8 text-center text-gray-400 text-sm">
-            © {new Date().getFullYear()} School Name. All rights reserved.
+            &copy; {new Date().getFullYear()} School Name. All rights reserved.
           </div>
         </div>
       </footer>

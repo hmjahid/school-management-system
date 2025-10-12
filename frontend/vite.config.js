@@ -8,8 +8,9 @@ export default defineConfig({
     host: true, // Allow access from outside the container
     proxy: {
       '/api': {
-        target: 'http://nginx:80',
+        target: 'http://localhost:3000',
         changeOrigin: true,
+        secure: false,
       },
     },
   },
