@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           
           // Fetch user data
-          const response = await api.get('/auth/me');
+          const response = await api.get('/user');
           setUser(response.data);
         }
       } catch (error) {
@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
   // Login function
   const login = async (email, password) => {
     try {
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post('/login', { email, password });
       const { token, user } = response.data;
       
       // Store token and set auth header

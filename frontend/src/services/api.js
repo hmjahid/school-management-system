@@ -3,7 +3,7 @@ import { toast } from 'react-hot-toast';
 
 // Create axios instance with base URL and headers
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001/api',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -41,12 +41,18 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     // Handle success messages if present in response
-    if (response.data?.message) {
+    if (response?.data?.message) {
       toast.success(response.data.message);
     }
     return response;
   },
   async (error) => {
+    // Handle case where error is undefined or doesn't have config
+    if (!error || !error.config) {
+      toast.error('Network error. Please check your connection.');
+      return Promise.reject(error || new Error('Network error'));
+    }
+
     const originalRequest = error.config;
     
     // Handle token expiration (401) with refresh token flow
@@ -54,20 +60,38 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       
       try {
-        // Attempt to refresh token
+        // Check if we have a refresh token
         const refreshToken = localStorage.getItem('refresh_token');
-        if (refreshToken) {
-          const response = await axios.post(
-            `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'}/auth/refresh`,
-            { refresh_token: refreshToken }
-          );
+        
+        if (!refreshToken) {
+          // No refresh token available, redirect to login
+          window.location.href = '/login';
+          return Promise.reject(new Error('No refresh token available'));
+        }
+
+        // Attempt to refresh token
+        const response = await axios({
+          method: 'post',
+          url: `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001/api'}/auth/refresh`,
+          data: { refresh_token: refreshToken },
+          skipAuthRefresh: true // Prevent infinite loop
+        });
+        
+        if (response.data?.token) {
+          const { token, refresh_token: newRefreshToken } = response.data;
           
-          const { token, refresh_token } = response.data;
+          // Store the new tokens
           localStorage.setItem('token', token);
-          localStorage.setItem('refresh_token', refresh_token);
+          if (newRefreshToken) {
+            localStorage.setItem('refresh_token', newRefreshToken);
+          }
           
-          // Update the Authorization header
-          originalRequest.headers.Authorization = `Bearer ${token}`;
+          // Update the Authorization header for the original request
+          if (originalRequest?.headers) {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+          }
+          
+          // Retry the original request with new token
           return api(originalRequest);
         }
       } catch (refreshError) {

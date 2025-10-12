@@ -31,20 +31,13 @@ import LoadingSpinner from './components/common/LoadingSpinner';
 import PrivateRoute from './routes/PrivateRoute';
 import feeRoutes from './routes/feeRoutes';
 
-// Using WebsiteLayout for all pages including auth to maintain consistent header
+// Layout for authentication pages (login, register, etc.)
 const AuthLayout = ({ children }) => (
-  <WebsiteLayout>
-    <div className="min-h-[60vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            {window.location.pathname.includes('login') ? 'Sign in to your account' : 'Create a new account'}
-          </h2>
-        </div>
-        {children}
-      </div>
+  <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 w-full">
+    <div className="w-full">
+      {children}
     </div>
-  </WebsiteLayout>
+  </div>
 );
 
 // Main app routes with WebSocket connection
