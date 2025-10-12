@@ -8,7 +8,7 @@ export default defineConfig({
     host: true, // Allow access from outside the container
     proxy: {
       '/api': {
-        target: 'http://localhost:8002',
+        target: 'http://localhost:8001',
         changeOrigin: true,
         secure: false,
       },
