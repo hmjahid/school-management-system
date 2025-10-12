@@ -11,6 +11,9 @@ import WebsiteLayout from './components/website/WebsiteLayout';
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
 import AcademicsPage from './pages/AcademicsPage';
+import CurriculumPage from './pages/academics/CurriculumPage';
+import ProgramsPage from './pages/academics/ProgramsPage';
+import FacultyPage from './pages/academics/FacultyPage';
 import AdmissionsPage from './pages/AdmissionsPage';
 import NewsEventsPage from './pages/NewsEventsPage';
 import GalleryPage from './pages/GalleryPage';
@@ -58,6 +61,18 @@ const AppRoutes = () => {
         {
           path: '/academics',
           element: <AcademicsPage />,
+        },
+        {
+          path: '/academics/curriculum',
+          element: <CurriculumPage />,
+        },
+        {
+          path: '/academics/programs',
+          element: <ProgramsPage />,
+        },
+        {
+          path: '/academics/faculty',
+          element: <FacultyPage />,
         },
         {
           path: '/admissions',

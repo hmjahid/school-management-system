@@ -1,55 +1,75 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaGraduationCap, FaChalkboardTeacher, FaBook, FaUsers, FaQuoteLeft, FaStar } from 'react-icons/fa';
+import { FaGraduationCap, FaChalkboardTeacher, FaBook, FaUsers, FaQuoteLeft, FaStar, FaArrowRight } from 'react-icons/fa';
+import useWebsiteContent from '../hooks/useWebsiteContent';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 
-// Sample data - Replace with API calls in production
-const features = [
-  {
-    icon: <FaGraduationCap className="w-10 h-10 text-blue-600" />,
-    title: 'Experienced Faculty',
-    description: 'Our dedicated team of educators brings years of experience and expertise to the classroom.'
+// Default content that will be used if API call fails or content is not available
+const defaultContent = {
+  hero: {
+    title: 'Welcome to Our School',
+    subtitle: 'Nurturing young minds for a brighter future',
+    ctaText: 'Learn More',
+    ctaLink: '/about',
+    backgroundImage: '/images/hero-bg.jpg'
   },
-  {
-    icon: <FaChalkboardTeacher className="w-10 h-10 text-blue-600" />,
-    title: 'Modern Facilities',
-    description: 'State-of-the-art classrooms and laboratories to support innovative learning.'
+  features: [
+    {
+      title: 'Experienced Faculty',
+      description: 'Our dedicated team of educators brings years of experience and expertise to the classroom.',
+      icon: 'FaGraduationCap'
+    },
+    {
+      title: 'Modern Facilities',
+      description: 'State-of-the-art classrooms and laboratories to support innovative learning.',
+      icon: 'FaChalkboardTeacher'
+    },
+    {
+      title: 'Comprehensive Curriculum',
+      description: 'A well-rounded curriculum that prepares students for future challenges.',
+      icon: 'FaBook'
+    },
+    {
+      title: 'Inclusive Community',
+      description: 'A diverse and welcoming environment that celebrates every student.',
+      icon: 'FaUsers'
+    }
+  ],
+  about: {
+    title: 'About Our School',
+    description: 'We are committed to providing a nurturing environment where students can grow academically, socially, and emotionally. Our experienced faculty and comprehensive programs ensure that every student reaches their full potential.',
+    image: '/images/school-building.jpg'
   },
-  {
-    icon: <FaBook className="w-10 h-10 text-blue-600" />,
-    title: 'Comprehensive Curriculum',
-    description: 'A well-rounded curriculum that prepares students for future challenges.'
-  },
-  {
-    icon: <FaUsers className="w-10 h-10 text-blue-600" />,
-    title: 'Inclusive Community',
-    description: 'A diverse and welcoming environment that celebrates every student.'
-  }
-];
+  testimonials: [
+    {
+      name: 'Sarah Johnson',
+      role: 'Parent',
+      content: 'The school has provided an excellent learning environment for my child. The teachers are dedicated and caring.',
+      rating: 5
+    },
+    {
+      name: 'Michael Chen',
+      role: 'Alumnus',
+      content: 'The education I received here laid a strong foundation for my university studies and career.',
+      rating: 5
+    },
+    {
+      name: 'Priya Patel',
+      role: 'Student',
+      content: 'I love the extracurricular activities and the supportive community at this school.',
+      rating: 4
+    }
+  ]
+};
 
-const testimonials = [
-  {
-    id: 1,
-    name: 'Sarah Johnson',
-    role: 'Parent',
-    content: 'The school has provided an excellent learning environment for my child. The teachers are dedicated and caring.',
-    rating: 5
-  },
-  {
-    id: 2,
-    name: 'Michael Chen',
-    role: 'Alumnus',
-    content: 'The education I received here laid a strong foundation for my university studies and career.',
-    rating: 5
-  },
-  {
-    id: 3,
-    name: 'Priya Patel',
-    role: 'Student',
-    content: 'I love the extracurricular activities and the supportive community at this school.',
-    rating: 4
-  }
-];
+// Icon mapping for dynamic icon rendering
+const iconComponents = {
+  FaGraduationCap: FaGraduationCap,
+  FaChalkboardTeacher: FaChalkboardTeacher,
+  FaBook: FaBook,
+  FaUsers: FaUsers
+};
 
 const latestNews = [
   {
@@ -83,14 +103,54 @@ const statistics = [
 ];
 
 const HomePage = () => {
-  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  // Use the useWebsiteContent hook to fetch and manage home page content
+  const { content, loading, error } = useWebsiteContent('home', defaultContent);
+  const [currentTestimonial, setCurrentTestimonial] = React.useState(0);
 
-  useEffect(() => {
+  // Auto-rotate testimonials
+  React.useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+      setCurrentTestimonial(prev => 
+        prev === (content?.testimonials?.length - 1) ? 0 : prev + 1
+      );
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [content?.testimonials?.length]);
+
+  // Show loading state
+  if (loading && !content) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="large" />
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center p-6 max-w-md mx-auto">
+          <div className="text-red-500 text-2xl mb-4">Error Loading Content</div>
+          <p className="text-gray-600 mb-6">{error.message || 'Failed to load page content. Please try again later.'}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Destructure content with default values to prevent errors
+  const {
+    hero = {},
+    features = [],
+    about = {},
+    testimonials = []
+  } = content?.content || {};
 
   return (
     <div className="bg-white">

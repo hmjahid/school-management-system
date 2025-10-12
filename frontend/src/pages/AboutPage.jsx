@@ -1,31 +1,83 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { FaAward, FaGraduationCap, FaUsers, FaBookOpen, FaSchool, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
 import { GiTeacher } from 'react-icons/gi';
-import axios from 'axios';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import useWebsiteContent from '../hooks/useWebsiteContent';
 
 const AboutPage = () => {
-  const [content, setContent] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // Default content structure that matches the backend model
+  const defaultContent = {
+    school_name: 'Our School',
+    tagline: 'Nurturing minds, building character',
+    about_summary: 'A leading educational institution committed to excellence in education and character development.',
+    mission: 'To empower students to achieve their full potential through a balanced education that fosters intellectual growth, character development, and a lifelong love of learning.',
+    vision: 'To be a leading educational institution that inspires and prepares students to become responsible global citizens and future leaders.',
+    core_values: [
+      'Excellence in Education',
+      'Integrity and Respect',
+      'Diversity and Inclusion',
+      'Innovation and Creativity',
+      'Community Engagement'
+    ],
+    contact_info: {
+      address: '123 Education Street, City, Country',
+      phone: '+1 (555) 123-4567',
+      email: 'info@school.edu',
+      website: 'www.school.edu'
+    },
+    social_links: {
+      facebook: '#',
+      twitter: '#',
+      instagram: '#',
+      linkedin: '#'
+    }
+  };
 
-  useEffect(() => {
-    const fetchContent = async () => {
-      try {
-        const response = await axios.get('/api/website/about');
-        setContent(response.data);
-      } catch (err) {
-        console.error('Error fetching about content:', err);
-        setError('Failed to load content. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Use the useWebsiteContent hook to fetch and manage about page content
+  const { content, loading, error } = useWebsiteContent('about', defaultContent);
 
-    fetchContent();
-  }, []);
+  // Destructure content with default values to prevent errors
+  const {
+    school_name = 'Our School',
+    tagline = 'Nurturing minds, building character',
+    about_summary = 'A leading educational institution committed to excellence in education and character development.',
+    mission: missionText = 'To empower students to achieve their full potential through a balanced education that fosters intellectual growth, character development, and a lifelong love of learning.',
+    vision: visionText = 'To be a leading educational institution that inspires and prepares students to become responsible global citizens and future leaders.',
+    core_values = [
+      'Excellence in Education',
+      'Integrity and Respect',
+      'Diversity and Inclusion',
+      'Innovation and Creativity'
+    ],
+    contact_info: contactInfo = {},
+    social_links: socialLinks = {}
+  } = content || defaultContent;
+  
+  const { 
+    address = '123 Education Street, City, Country',
+    phone = '+1 (555) 123-4567',
+    email = 'info@school.edu',
+    website = 'www.school.edu'
+  } = contactInfo;
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-red-600">{error}</div>
+      </div>
+    );
+  }
+
+  // Default leadership team data
   const leadershipTeam = [
     {
       name: 'Dr. Sarah Johnson',
@@ -46,74 +98,6 @@ const AboutPage = () => {
       image: '/images/head-academics.jpg'
     }
   ];
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <LoadingSpinner />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="text-red-600">{error}</div>
-      </div>
-    );
-  }
-
-  // Destructure content with default values to prevent errors if content is null
-  const {
-    hero = { title: 'About Our School', subtitle: 'Nurturing minds, building character, and shaping futures since 1995' },
-    mission = 'To empower students to become compassionate, confident, and capable individuals who are prepared to meet the challenges of a rapidly changing world with integrity and purpose.',
-    vision = 'To be a beacon of educational excellence, innovation, and character development, where every student discovers their unique potential and is inspired to make a positive impact in their community and beyond.',
-    history = { text: 'Founded in 1995, our school began as a small educational institution with just 50 students and a handful of dedicated teachers. Over the years, we have grown into a thriving learning community that serves over 1,000 students from diverse backgrounds.' },
-    values = [
-      {
-        title: 'Excellence',
-        description: 'We strive for the highest standards in academics, character development, and personal growth.'
-      },
-      {
-        title: 'Community',
-        description: 'We foster a supportive and inclusive environment that values diversity and collaboration.'
-      },
-      {
-        title: 'Lifelong Learning',
-        description: 'We cultivate curiosity and a love for learning that extends beyond the classroom.'
-      }
-    ],
-    stats = [
-      { number: '25+', label: 'Years of Excellence' },
-      { number: '1000+', label: 'Students Enrolled' },
-      { number: '80+', label: 'Qualified Staff' },
-      { number: '95%', label: 'Graduation Rate' }
-    ],
-    leadership = [
-      {
-        name: 'Dr. Sarah Johnson',
-        role: 'Principal',
-        bio: 'With over 20 years of experience in education, Dr. Johnson leads our school with vision and dedication to academic excellence.'
-      },
-      {
-        name: 'Michael Chen',
-        role: 'Vice Principal',
-        bio: 'A passionate educator with expertise in curriculum development and student engagement strategies.'
-      },
-      {
-        name: 'Priya Patel',
-        role: 'Head of Academics',
-        bio: 'Committed to fostering innovative teaching methods and supporting our teaching staff in delivering exceptional education.'
-      }
-    ],
-    contact = {
-      address: '123 Education Street\nCity, State 12345',
-      phone: '+1 (555) 123-4567',
-      email: 'info@schoolname.edu',
-      admissionEmail: 'admissions@schoolname.edu',
-      hours: 'Mon-Fri, 8:00 AM - 4:00 PM'
-    }
-  } = content || {};
   
   // Helper function to render line breaks in text
   const renderTextWithLineBreaks = (text) => {
@@ -125,155 +109,133 @@ const AboutPage = () => {
   return (
     <div className="bg-white">
       {/* Hero Section */}
-      <section className="relative bg-blue-800 text-white overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-black opacity-60"></div>
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-600 to-blue-900 opacity-70"></div>
+      <div className="relative bg-gray-900 text-white">
+        <div className="absolute inset-0 bg-gray-800">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900 to-transparent opacity-75"></div>
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
-          <div className="text-center">
-            <motion.h1 
-              className="text-4xl md:text-6xl font-bold mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              {hero.title}
-            </motion.h1>
-            <motion.p 
-              className="text-xl md:text-2xl max-w-3xl mx-auto"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
-              {hero.subtitle}
-            </motion.p>
-          </div>
+        <div className="relative max-w-7xl mx-auto py-24 px-4 sm:py-32 sm:px-6 lg:px-8">
+          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
+            About {school_name}
+          </h1>
+          <p className="mt-6 text-xl text-blue-100 max-w-3xl">
+            {tagline}
+          </p>
         </div>
-      </section>
+      </div>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-gray-50">
+      {/* About Section */}
+      <div className="py-16 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {stats.map((stat, index) => (
-              <motion.div 
-                key={index}
-                className="bg-white p-6 rounded-lg shadow-md"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 mx-auto">
-                  {stat.label === 'Years of Excellence' ? (
-                    <FaSchool className="w-8 h-8 text-blue-600" />
-                  ) : stat.label === 'Students Enrolled' ? (
-                    <FaUsers className="w-8 h-8 text-blue-600" />
-                  ) : stat.label === 'Qualified Staff' ? (
-                    <GiTeacher className="w-8 h-8 text-blue-600" />
-                  ) : (
-                    <FaGraduationCap className="w-8 h-8 text-blue-600" />
-                  )}
-                </div>
-                <div className="text-3xl font-bold text-gray-900 mb-1">{stat.number}</div>
-                <div className="text-gray-600">{stat.label}</div>
-              </motion.div>
-            ))}
+          <div className="lg:grid lg:grid-cols-2 lg:gap-8 items-center">
+            <div className="relative lg:row-start-1 lg:col-start-2">
+              <div className="relative text-base mx-auto max-w-prose lg:max-w-none">
+                <figure>
+                  <div className="aspect-w-12 aspect-h-7 lg:aspect-none">
+                    <img
+                      className="rounded-lg shadow-lg object-cover object-center"
+                      src={"/images/school-building.jpg"}
+                      alt={school_name}
+                      width={1184}
+                      height={1376}
+                    />
+                  </div>
+                </figure>
+              </div>
+            </div>
+            <div className="mt-8 lg:mt-0">
+              <div className="text-base max-w-prose mx-auto lg:max-w-none">
+                <h2 className="text-3xl font-extrabold text-gray-900 mb-4">
+                  Our Story
+                </h2>
+                <p className="text-lg text-gray-600">
+                  {about_summary}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* Mission & Vision */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="lg:grid lg:grid-cols-2 lg:gap-16 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="mb-12 lg:mb-0"
-            >
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
-              <div className="text-lg text-gray-600 space-y-4">
-                {renderTextWithLineBreaks(mission)}
-              </div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-blue-50 p-8 rounded-lg"
-            >
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Vision</h2>
-              <div className="text-lg text-gray-600">
-                {renderTextWithLineBreaks(vision)}
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Our Values */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Core Values</h2>
+          <div className="lg:text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Mission & Vision</h2>
             <div className="w-20 h-1 bg-blue-600 mx-auto"></div>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
-            {values.map((value, index) => (
-              <motion.div 
-                key={index}
-                className="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
-                whileHover={{ y: -5 }}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-6 mx-auto">
-                  {value.title === 'Excellence' ? (
-                    <FaAward className="w-6 h-6 text-white" />
-                  ) : value.title === 'Community' ? (
-                    <FaUsers className="w-6 h-6 text-white" />
-                  ) : (
-                    <FaBookOpen className="w-6 h-6 text-white" />
-                  )}
-                </div>
-                <h3 className="text-xl font-semibold text-center mb-3">{value.title}</h3>
-                <p className="text-gray-600 text-center">{value.description}</p>
-              </motion.div>
-            ))}
+          <div className="grid md:grid-cols-2 gap-8">
+            <motion.div 
+              className="bg-white p-8 rounded-lg shadow-md"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
+              <div className="text-lg text-gray-600 space-y-4">
+                {missionText}
+              </div>
+            </motion.div>
+            <motion.div 
+              className="bg-white p-8 rounded-lg shadow-md"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Vision</h2>
+              <div className="text-lg text-gray-600">
+                {visionText}
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* History */}
-      <section className="py-16">
+      {/* Core Values */}
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
-            className="bg-white rounded-lg shadow-lg overflow-hidden"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="md:flex">
-              <div className="md:flex-shrink-0 md:w-1/3 bg-gray-100">
-                <div className="h-full bg-cover bg-center" style={{ backgroundImage: 'url(/images/school-history.jpg)', minHeight: '300px' }}></div>
-              </div>
-              <div className="p-8 md:w-2/3">
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">Our History</h2>
-                <div className="text-lg text-gray-600">
-                  {renderTextWithLineBreaks(history.text)}
-                </div>
-              </div>
+          <div className="text-center">
+            <h2 className="text-base text-blue-600 font-semibold tracking-wide uppercase">What We Believe In</h2>
+            <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+              Our Core Values
+            </p>
+            <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
+              The foundation of our educational philosophy
+            </p>
+          </div>
+
+          <div className="mt-10">
+            <div className="space-y-10 md:space-y-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-x-8 md:gap-y-10">
+              {core_values.map((value, index) => {
+                // Map value names to corresponding icons
+                const valueIcons = [
+                  FaAward,          // Excellence in Education
+                  FaUsers,          // Integrity and Respect
+                  FaBookOpen,       // Diversity and Inclusion
+                  GiTeacher,        // Innovation and Creativity
+                  FaGraduationCap,  // Community Engagement
+                  FaSchool          // Default
+                ];
+                
+                const Icon = valueIcons[index] || valueIcons[valueIcons.length - 1];
+                
+                return (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="bg-gray-50 p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-300 border border-gray-100"
+                  >
+                    <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white mb-4">
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900">{value}</h3>
+                  </motion.div>
+                );
+              })}
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -349,7 +311,8 @@ const AboutPage = () => {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-1">Visit Us</h3>
-                <p className="text-gray-600 whitespace-pre-line">{contact.address}</p>
+                <p className="text-gray-600 whitespace-pre-line">123 Education Street
+City, State 12345</p>
               </div>
             </div>
             <div className="flex items-start">
@@ -359,8 +322,9 @@ const AboutPage = () => {
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-1">Call Us</h3>
                 <p className="text-gray-600">
-                  {contact.phone}<br />
-                  {contact.hours}
+                  +1 (555) 123-4567
+                  <br />
+                  Mon-Fri, 8:00 AM - 4:00 PM
                 </p>
               </div>
             </div>
@@ -371,8 +335,9 @@ const AboutPage = () => {
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-1">Email Us</h3>
                 <p className="text-gray-600">
-                  {contact.email}<br />
-                  {contact.admissionEmail}
+                  info@schoolname.edu
+                  <br />
+                  admissions@schoolname.edu
                 </p>
               </div>
             </div>
