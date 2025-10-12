@@ -26,6 +26,12 @@ Route::prefix('website')->group(function () {
     Route::get('/about', [\App\Http\Controllers\Api\Website\AboutContentController::class, 'index']);
     Route::get('/contact', [\App\Http\Controllers\Api\Website\AboutContentController::class, 'contact']);
     
+    // Legal pages
+    Route::get('/legal/terms', [\App\Http\Controllers\Api\LegalController::class, 'getTerms']);
+    Route::get('/legal/privacy', [\App\Http\Controllers\Api\LegalController::class, 'getPrivacy']);
+    Route::get('/sitemap', [\App\Http\Controllers\Api\LegalController::class, 'getSitemap']);
+    Route::get('/home', [\App\Http\Controllers\Api\LegalController::class, 'getHome']);
+    
     // Public website settings
     Route::get('/settings', [\App\Http\Controllers\Admin\WebsiteSettingController::class, 'publicSettings']);
 });

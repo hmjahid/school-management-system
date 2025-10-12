@@ -1,7 +1,55 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import useWebsiteContent from '../hooks/useWebsiteContent';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import { submitContactForm } from '../services/contactService';
+
+// Default content in case the API is not available
+const defaultContent = {
+  pageTitle: 'Contact Us',
+  heroTitle: 'Get in Touch',
+  heroSubtitle: 'We\'d love to hear from you. Reach out to us with any questions or feedback.',
+  contactInfo: {
+    address: '123 School Street, Education City, 1001',
+    email: 'info@schoolname.edu',
+    phone: '+1 (555) 123-4567',
+    hours: 'Monday - Friday: 8:00 AM - 4:00 PM',
+    admissionEmail: 'admission@schoolname.edu.bd'
+  },
+  formTitle: 'Send us a Message',
+  formSubtitle: 'Fill out the form below and we\'ll get back to you as soon as possible.'
+};
 
 const ContactPage = () => {
+  // Fetch content from the backend with error boundary
+  const { content, loading, error } = useWebsiteContent('contact', defaultContent);
+
+  // Show loading state
+  if (loading && !content) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="large" />
+      </div>
+    );
+  }
+
+  // Show error state with fallback to default content
+  useEffect(() => {
+    if (error) {
+      console.error('Error loading contact page content:', error);
+      // You could add a toast notification here if desired
+    }
+  }, [error]);
+
+  // Safely get content with fallbacks
+  const pageContent = {
+    ...defaultContent,
+    ...content,
+    contactInfo: {
+      ...defaultContent.contactInfo,
+      ...(content?.contactInfo || {})
+    }
+  };
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -23,30 +71,56 @@ const ContactPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Basic client-side validation
+    if (!formData.name || !formData.email || !formData.message) {
+      setSubmitStatus({
+        success: false,
+        message: 'Please fill in all required fields.'
+      });
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setSubmitStatus({
+        success: false,
+        message: 'Please enter a valid email address.'
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
-      // TODO: Replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const result = await submitContactForm(formData);
       
-      setSubmitStatus({
-        success: true,
-        message: 'Your message has been sent successfully! We will get back to you soon.'
-      });
-      
-      // Reset form
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: ''
-      });
-      
+      if (result?.success) {
+        setSubmitStatus({
+          success: true,
+          message: result.message || 'Your message has been sent successfully! We will get back to you soon.'
+        });
+        
+        // Reset form on successful submission
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          subject: '',
+          message: ''
+        });
+      } else {
+        setSubmitStatus({
+          success: false,
+          message: result?.error || 'Failed to send message. Please try again.'
+        });
+      }
     } catch (error) {
+      console.error('Unexpected error in form submission:', error);
       setSubmitStatus({
         success: false,
-        message: 'An error occurred while sending your message. Please try again later.'
+        message: 'An unexpected error occurred. Please try again later.'
       });
     } finally {
       setIsSubmitting(false);
@@ -54,12 +128,12 @@ const ContactPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="bg-blue-50 py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">Contact Us</h1>
-          <p className="text-xl text-gray-600">We'd love to hear from you</p>
+      <div className="bg-blue-700 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h1 className="text-4xl font-bold mb-2">{pageContent.heroTitle}</h1>
+          <p className="text-xl text-blue-100">{pageContent.heroSubtitle}</p>
         </div>
       </div>
 
@@ -79,9 +153,8 @@ const ContactPage = () => {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900">Our Location</h3>
-                  <p className="mt-1 text-gray-600">123 Education Street, Academic District</p>
-                  <p className="text-gray-600">Dhaka 1212, Bangladesh</p>
+                  <h3 className="text-lg font-medium text-gray-900">Address</h3>
+                  <p className="mt-2 text-gray-600">{pageContent.contactInfo.address}</p>
                 </div>
               </div>
 
@@ -92,9 +165,8 @@ const ContactPage = () => {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900">Phone Number</h3>
-                  <p className="mt-1 text-gray-600">+880 1234 567890</p>
-                  <p className="text-gray-600">+880 1234 567891</p>
+                  <h3 className="text-lg font-medium text-gray-900">Phone</h3>
+                  <p className="mt-2 text-gray-600">{pageContent.contactInfo.phone}</p>
                 </div>
               </div>
 
@@ -105,9 +177,8 @@ const ContactPage = () => {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900">Email Address</h3>
-                  <p className="mt-1 text-gray-600">info@schoolname.edu.bd</p>
-                  <p className="text-gray-600">admission@schoolname.edu.bd</p>
+                  <h3 className="text-lg font-medium text-gray-900">Email</h3>
+                  <p className="mt-2 text-gray-600">{pageContent.contactInfo.email}</p>
                 </div>
               </div>
 
@@ -118,9 +189,8 @@ const ContactPage = () => {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900">Opening Hours</h3>
-                  <p className="mt-1 text-gray-600">Sunday - Thursday: 8:00 AM - 5:00 PM</p>
-                  <p className="text-gray-600">Friday & Saturday: Closed</p>
+                  <h3 className="text-lg font-medium text-gray-900">Office Hours</h3>
+                  <p className="mt-2 text-gray-600">{pageContent.contactInfo.hours}</p>
                 </div>
               </div>
             </div>
@@ -152,8 +222,9 @@ const ContactPage = () => {
           </div>
 
           {/* Contact Form */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold mb-6">Send Us a Message</h2>
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl font-bold mb-6">{pageContent.formTitle}</h2>
+            <p className="text-gray-600 mb-8">{pageContent.formSubtitle}</p>
             
             {submitStatus && (
               <div className={`p-4 mb-6 rounded-md ${submitStatus.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>

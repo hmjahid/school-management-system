@@ -1,11 +1,46 @@
 import { motion } from 'framer-motion';
-import { FaCalendarAlt, FaBook, FaGraduationCap, FaFlask, FaPalette, FaChartLine, FaLaptopCode, FaGlobe } from 'react-icons/fa';
-import useWebsiteContent from '../../hooks/useWebsiteContent';
+import { FaGraduationCap, FaFlask, FaLaptopCode, FaPalette, FaGlobe, FaChartLine } from 'react-icons/fa';
+import { useEffect, useState } from 'react';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import academicService from '../../services/academicService';
 
 const ProgramsPage = () => {
-  // Default content in case the API is not available
-  const defaultContent = {
+  const [pageData, setPageData] = useState({
+    content: null,
+    isLoading: true,
+    error: null
+  });
+
+  useEffect(() => {
+    const fetchPrograms = async () => {
+      try {
+        const { success, data, error } = await academicService.getAcademicContent('academics/programs');
+        
+        if (success) {
+          setPageData(prev => ({
+            ...prev,
+            content: data,
+            isLoading: false,
+            error: null
+          }));
+        } else {
+          throw new Error(error || 'Failed to load programs data');
+        }
+      } catch (err) {
+        console.error('Error fetching programs:', err);
+        setPageData(prev => ({
+          ...prev,
+          isLoading: false,
+          error: err.message || 'An unexpected error occurred'
+        }));
+      }
+    };
+
+    fetchPrograms();
+  }, []);
+
+  // Default content in case the API is not available and no sample data is found
+  const defaultContent = pageData.content || {
     pageTitle: 'Academic Programs',
     heroTitle: 'Explore Our Programs',
     heroSubtitle: 'Comprehensive educational pathways to nurture every student\'s potential',
@@ -74,8 +109,8 @@ const ProgramsPage = () => {
     ]
   };
 
-  // Fetch content from the backend
-  const { content, loading, error } = useWebsiteContent('academics/programs', defaultContent);
+  // Use pageData for content and state management
+  const content = pageData.content || defaultContent;
 
   // Icon mapping
   const iconComponents = {
@@ -88,7 +123,7 @@ const ProgramsPage = () => {
   };
 
   // Show loading state
-  if (loading && !content) {
+  if (pageData.isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner size="large" />
@@ -96,19 +131,15 @@ const ProgramsPage = () => {
     );
   }
 
-  // Show error state
-  if (error) {
+  if (pageData.error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center p-6 max-w-md mx-auto">
-          <div className="text-red-500 text-2xl mb-4">Error Loading Content</div>
-          <p className="text-gray-600 mb-6">Failed to load program information. Please try again later.</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          >
-            Retry
-          </button>
+      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-red-600 mb-4">Error Loading Content</h1>
+            <p className="text-lg text-gray-600">We're having trouble loading the programs information. Using sample data instead.</p>
+            <p className="text-sm text-gray-500 mt-2">Error: {pageData.error}</p>
+          </div>
         </div>
       </div>
     );

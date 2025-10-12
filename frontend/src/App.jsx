@@ -18,6 +18,9 @@ import AdmissionsPage from './pages/AdmissionsPage';
 import NewsEventsPage from './pages/NewsEventsPage';
 import GalleryPage from './pages/GalleryPage';
 import ContactPage from './pages/ContactPage';
+import TermsOfServicePage from './pages/TermsOfServicePage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import SitemapPage from './pages/SitemapPage';
 
 // Auth Pages
 import LoginPage from './pages/LoginPage';
@@ -50,46 +53,19 @@ const AppRoutes = () => {
     {
       element: <WebsiteLayout />,
       children: [
-        {
-          path: '/',
-          element: <HomePage />,
-        },
-        {
-          path: '/about',
-          element: <AboutPage />,
-        },
-        {
-          path: '/academics',
-          element: <AcademicsPage />,
-        },
-        {
-          path: '/academics/curriculum',
-          element: <CurriculumPage />,
-        },
-        {
-          path: '/academics/programs',
-          element: <ProgramsPage />,
-        },
-        {
-          path: '/academics/faculty',
-          element: <FacultyPage />,
-        },
-        {
-          path: '/admissions',
-          element: <AdmissionsPage />,
-        },
-        {
-          path: '/news',
-          element: <NewsEventsPage />,
-        },
-        {
-          path: '/gallery',
-          element: <GalleryPage />,
-        },
-        {
-          path: '/contact',
-          element: <ContactPage />,
-        },
+        { path: '/', element: <HomePage /> },
+        { path: '/about', element: <AboutPage /> },
+        { path: '/academics', element: <AcademicsPage /> },
+        { path: '/academics/curriculum', element: <CurriculumPage /> },
+        { path: '/academics/programs', element: <ProgramsPage /> },
+        { path: '/academics/faculty', element: <FacultyPage /> },
+        { path: '/admissions', element: <AdmissionsPage /> },
+        { path: '/news', element: <NewsEventsPage /> },
+        { path: '/gallery', element: <GalleryPage /> },
+        { path: '/contact', element: <ContactPage /> },
+        { path: '/terms', element: <TermsOfServicePage /> },
+        { path: '/privacy', element: <PrivacyPolicyPage /> },
+        { path: '/sitemap', element: <SitemapPage /> },
       ],
     },
     {

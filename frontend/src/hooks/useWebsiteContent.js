@@ -8,23 +8,42 @@ export const useWebsiteContent = (page, initialContent = {}) => {
 
   const fetchContent = async () => {
     try {
+      console.log(`[useWebsiteContent] Fetching content for page: ${page}`);
       setLoading(true);
+      setError(null);
+      
       // If we have initial content, use it immediately for better UX
-      if (Object.keys(initialContent).length > 0) {
+      if (initialContent && Object.keys(initialContent).length > 0) {
+        console.log('[useWebsiteContent] Using initial content while loading');
         setContent(initialContent);
       }
       
       // Try to fetch fresh content from the server
+      console.log(`[useWebsiteContent] Making API call for ${page}`);
       const data = await websiteContentService.getPageContent(page);
+      console.log(`[useWebsiteContent] Received response for ${page}:`, data);
       
-      // Only update if we got valid data back
-      if (data && typeof data === 'object' && Object.keys(data).length > 0) {
-        setContent(data);
-        setError(null);
-      } else if (Object.keys(initialContent).length === 0) {
-        // Only show error if we don't have initial content
-        setError('No content available');
+      // Check if we got valid data back
+      if (data) {
+        // If data is an object with content, use it
+        if (typeof data === 'object' && Object.keys(data).length > 0) {
+          console.log(`[useWebsiteContent] Updating content for ${page} with fresh data`);
+          setContent(data);
+          setError(null);
+          return; // Exit early on success
+        } 
+        // If data is an empty object but we have initial content, use that
+        else if (initialContent && Object.keys(initialContent).length > 0) {
+          console.log(`[useWebsiteContent] Empty response, using initial content for ${page}`);
+          setContent(initialContent);
+          setError('Using default content (no data from server)');
+          return;
+        }
       }
+      
+      // If we get here, we don't have valid data or initial content
+      console.warn(`[useWebsiteContent] No valid content available for ${page}`);
+      setError('No content available');
     } catch (err) {
       console.warn(`Using fallback content for ${page}:`, err.message);
       // Don't show error if we have initial content to display

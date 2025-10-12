@@ -7,7 +7,7 @@ const Footer = () => {
   return (
     <footer className="bg-gray-900 text-white pt-12 pb-6">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
           {/* About School */}
           <div>
             <h3 className="text-xl font-bold mb-4 text-orange-400">About Us</h3>
@@ -40,6 +40,17 @@ const Footer = () => {
               <li><Link to="/news" className="text-gray-300 hover:text-white transition-colors">News & Events</Link></li>
               <li><Link to="/gallery" className="text-gray-300 hover:text-white transition-colors">Photo Gallery</Link></li>
               <li><Link to="/contact" className="text-gray-300 hover:text-white transition-colors">Contact Us</Link></li>
+            </ul>
+          </div>
+
+          {/* Legal Links */}
+          <div>
+            <h3 className="text-xl font-bold mb-4 text-orange-400">Legal</h3>
+            <ul className="space-y-2">
+              <li><Link to="/terms" className="text-gray-300 hover:text-white transition-colors">Terms of Service</Link></li>
+              <li><Link to="/privacy" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/sitemap" className="text-gray-300 hover:text-white transition-colors">Sitemap</Link></li>
+              <li><Link to="/accessibility" className="text-gray-300 hover:text-white transition-colors">Accessibility</Link></li>
             </ul>
           </div>
 
@@ -94,7 +105,7 @@ const Footer = () => {
               &copy; {currentYear} EDUCare School. All rights reserved.
             </p>
             <div className="flex space-x-6">
-              <Link to="/privacy-policy" className="text-gray-400 hover:text-white text-sm transition-colors">
+              <Link to="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">
                 Privacy Policy
               </Link>
               <Link to="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">
