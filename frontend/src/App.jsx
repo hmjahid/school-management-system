@@ -3,19 +3,39 @@ import { Suspense } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { WebSocketProvider } from './contexts/WebSocketContext';
 import { AuthProvider } from './contexts/AuthContext';
+
+// Public Pages
+import HomePage from './pages/HomePage';
+import AboutPage from './pages/AboutPage';
+import AcademicsPage from './pages/AcademicsPage';
+import AdmissionsPage from './pages/AdmissionsPage';
+import NewsEventsPage from './pages/NewsEventsPage';
+import GalleryPage from './pages/GalleryPage';
+import ContactPage from './pages/ContactPage';
+
+// Auth Pages
 import LoginPage from './pages/LoginPage';
-import DashboardPage from './pages/DashboardPage';
-import PrivateRoute from './routes/PrivateRoute';
 import RegisterPage from './pages/RegisterPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
+
+// Admin Pages
+import DashboardPage from './pages/DashboardPage';
+import WebsiteContentPage from './pages/admin/WebsiteContentPage';
 import Layout from './components/layout/Layout';
 import LoadingSpinner from './components/common/LoadingSpinner';
+import PrivateRoute from './routes/PrivateRoute';
 import feeRoutes from './routes/feeRoutes';
 
 // Layout for authentication pages (login, register, etc.)
 const AuthLayout = ({ children }) => (
   <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 w-full">
-    <div className="w-full">
+    <div className="w-full max-w-md">
+      <div className="text-center mb-8">
+        <Link to="/" className="inline-block">
+          <h1 className="text-3xl font-bold text-blue-600">School Name</h1>
+        </Link>
+        <p className="mt-2 text-gray-600">Welcome back! Please sign in to your account.</p>
+      </div>
       {children}
     </div>
   </div>
@@ -23,12 +43,35 @@ const AuthLayout = ({ children }) => (
 
 // Main app routes with WebSocket connection
 const AppRoutes = () => {
-  // WebSocket connection is managed by the WebSocketProvider
-  // All child components can use the useWebSocket hook to interact with the WebSocket
   const routes = useRoutes([
+    // Public routes
     {
       path: '/',
-      element: <Navigate to="/dashboard" replace />,
+      element: <HomePage />,
+    },
+    {
+      path: '/about',
+      element: <AboutPage />,
+    },
+    {
+      path: '/academics',
+      element: <AcademicsPage />,
+    },
+    {
+      path: '/admissions',
+      element: <AdmissionsPage />,
+    },
+    {
+      path: '/news',
+      element: <NewsEventsPage />,
+    },
+    {
+      path: '/gallery',
+      element: <GalleryPage />,
+    },
+    {
+      path: '/contact',
+      element: <ContactPage />,
     },
     {
       path: '/login',
@@ -54,10 +97,8 @@ const AppRoutes = () => {
         </AuthLayout>
       ),
     },
-    {
-      path: '*',
-      element: <Navigate to="/" replace />,
-    },
+    
+    // Protected admin routes
     {
       element: (
         <PrivateRoute>
@@ -69,8 +110,18 @@ const AppRoutes = () => {
           path: '/dashboard',
           element: <DashboardPage />,
         },
+        {
+          path: '/admin/website',
+          element: <WebsiteContentPage />,
+        },
         ...feeRoutes,
       ],
+    },
+    
+    // Catch-all route for 404s - redirect to home
+    {
+      path: '*',
+      element: <Navigate to="/" replace />,
     },
   ]);
 
