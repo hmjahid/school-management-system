@@ -13,21 +13,54 @@ export const AuthProvider = ({ children }) => {
   // Check for existing session on initial load
   useEffect(() => {
     const checkAuth = async () => {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
+      // Safely set auth header
       try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          // Set the auth token for all requests
+        if (api?.defaults?.headers?.common) {
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          
-          // Fetch user data
-          const response = await api.get('/user');
+        }
+      } catch (headerError) {
+        console.error('Error setting auth header:', headerError);
+      }
+
+      try {
+        // Fetch user data using the /me endpoint
+        const response = await api.get('/me').catch(err => {
+          console.error('User fetch error:', err);
+          throw err;
+        });
+
+        if (response?.status === 200 && response?.data) {
           setUser(response.data);
+        } else {
+          throw new Error('Invalid user data received');
         }
       } catch (error) {
         console.error('Auth check failed:', error);
-        // Clear invalid token
+        
+        // Clear invalid token and auth header
         localStorage.removeItem('token');
-        delete api.defaults.headers.common['Authorization'];
+        try {
+          if (api?.defaults?.headers?.common?.['Authorization']) {
+            delete api.defaults.headers.common['Authorization'];
+          }
+        } catch (headerError) {
+          console.error('Error clearing auth header:', headerError);
+        }
+        
+        setUser(null);
+        
+        // Only redirect if this is a 401 error
+        if (error.response?.status === 401) {
+          navigate('/login');
+        }
       } finally {
         setLoading(false);
       }
@@ -39,16 +72,63 @@ export const AuthProvider = ({ children }) => {
   // Login function
   const login = async (email, password) => {
     try {
+      // Make the login request
       const response = await api.post('/login', { email, password });
-      const { token, user } = response.data;
+      
+      // Log the full response for debugging
+      console.log('Login response:', {
+        status: response?.status,
+        data: response?.data,
+        headers: response?.headers ? Object.keys(response.headers) : 'No headers'
+      });
+      
+      // Check if response and data exist
+      if (!response || !response.data) {
+        throw new Error('No data received from server');
+      }
+      
+      // Extract token and user data safely
+      const token = response.data?.token || response.data?.access_token;
+      const user = response.data?.user || response.data;
+      
+      if (!token) {
+        throw new Error('No authentication token found in response');
+      }
       
       // Store token and set auth header
       localStorage.setItem('token', token);
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      
+      // Set the authorization header safely
+      if (api && api.defaults && api.defaults.headers && api.defaults.headers.common) {
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      } else {
+        console.warn('Could not set auth header - api defaults not properly initialized');
+      }
       
       // Update user state
-      setUser(user);
-      toast.success('Logged in successfully!');
+      if (user) {
+        setUser(user);
+        
+        // Redirect based on user role
+        const redirectPath = user.role === 'admin' ? '/admin/dashboard' : '/dashboard';
+        console.log('Redirecting to:', redirectPath);
+        navigate(redirectPath);
+      } else {
+        // If no user data, try to fetch it
+        try {
+          const userResponse = await api.get('/user');
+          if (userResponse?.data) {
+            setUser(userResponse.data);
+            navigate('/dashboard');
+          } else {
+            throw new Error('Failed to fetch user data');
+          }
+        } catch (userError) {
+          console.error('Error fetching user data:', userError);
+          throw new Error('Login successful but could not load user profile');
+        }
+      }
+      
       return user;
     } catch (error) {
       console.error('Login failed:', error);

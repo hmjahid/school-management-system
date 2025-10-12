@@ -25,12 +25,12 @@ export default function LoginPage() {
 
         try {
             await login(email, password);
-            toast.success('Login successful!');
-            navigate('/dashboard');
+            // No need to navigate here, AuthContext will handle the redirect
         } catch (error) {
             console.error('Login error:', error);
-            setError(error.message || 'Failed to log in. Please check your credentials.');
-            toast.error(error.message || 'Login failed');
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to log in. Please check your credentials.';
+            setError(errorMessage);
+            toast.error(errorMessage);
         } finally {
             setLoading(false);
         }

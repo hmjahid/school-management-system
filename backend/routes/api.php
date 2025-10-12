@@ -40,66 +40,71 @@ Route::prefix('website')->group(function () {
 require __DIR__.'/admissions.php';
 
 // Protected routes
-Route::middleware(['auth:sanctum', 'admin'])->group(function () {
-    // Admin website content management
-    Route::prefix('admin/website')->group(function () {
-        // Update about content
-        Route::put('/about', [\App\Http\Controllers\Api\Website\AboutContentController::class, 'update']);
-        
-        // Upload logo and favicon
-        Route::post('/logo', [\App\Http\Controllers\Api\Website\AboutContentController::class, 'uploadLogo']);
-        Route::post('/favicon', [\App\Http\Controllers\Api\Website\AboutContentController::class, 'uploadFavicon']);
-        
-        // Website settings management
-        Route::prefix('settings')->group(function () {
-            Route::get('/', [\App\Http\Controllers\Admin\WebsiteSettingController::class, 'index']);
-            Route::put('/', [\App\Http\Controllers\Admin\WebsiteSettingController::class, 'update']);
-        });
-    });
+Route::middleware(['auth:sanctum'])->group(function () {
+    // Get current user
+    Route::get('/me', [AuthController::class, 'me']);
+    
     // User routes
     Route::get('/user', function (Request $request) {
         return $request->user()->load('roles');
     });
+    
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me', [AuthController::class, 'me']);
 
-    // Exam Module Routes
-    Route::prefix('exams')->group(function () {
-        // List all exams (with filters)
-        Route::get('/', [ExamController::class, 'index']);
-        
-        // Create new exam (admin/teacher)
-        Route::post('/', [ExamController::class, 'store'])
-            ->middleware('permission:create_exams');
-        
-        // Get single exam details
-        Route::get('/{exam}', [ExamController::class, 'show']);
-        
-        // Update exam (admin/teacher)
-        Route::put('/{exam}', [ExamController::class, 'update'])
-            ->middleware('permission:edit_exams');
-        
-        // Delete exam (admin)
-        Route::delete('/{exam}', [ExamController::class, 'destroy'])
-            ->middleware('permission:delete_exams');
-        
-        // Publish exam (admin/teacher)
-        Route::post('/{exam}/publish', [ExamController::class, 'publish'])
-            ->middleware('permission:publish_exams');
-        
-        // Unpublish exam (admin/teacher)
-        Route::post('/{exam}/unpublish', [ExamController::class, 'unpublish'])
-            ->middleware('permission:publish_exams');
-        
-        // Get exam results
-        Route::get('/{exam}/results', [ExamController::class, 'results']);
-        
-        // Submit exam result (teacher)
-        Route::post('/{exam}/results', [ExamController::class, 'submitResult'])
-            ->middleware('permission:submit_exam_results');
-        
-        // Update exam result (teacher)
-        Route::put('/{exam}/results/{result}', [ExamController::class, 'updateResult'])
-            ->middleware('permission:edit_exam_results');
+    // Admin-only routes
+    Route::middleware(['admin'])->group(function () {
+        // Admin website content management
+        Route::prefix('admin/website')->group(function () {
+            // Update about content
+            Route::put('/about', [\App\Http\Controllers\Api\Website\AboutContentController::class, 'update']);
+            
+            // Upload logo and favicon
+            Route::post('/logo', [\App\Http\Controllers\Api\Website\AboutContentController::class, 'uploadLogo']);
+            Route::post('/favicon', [\App\Http\Controllers\Api\Website\AboutContentController::class, 'uploadFavicon']);
+            
+            // Website settings management
+            Route::prefix('settings')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Admin\WebsiteSettingController::class, 'index']);
+                Route::put('/', [\App\Http\Controllers\Admin\WebsiteSettingController::class, 'update']);
+            });
+        });
+
+        // Exam Module Routes (admin only)
+        Route::prefix('exams')->group(function () {
+            // List all exams (with filters)
+            Route::get('/', [ExamController::class, 'index']);
+            
+            // Create new exam
+            Route::post('/', [ExamController::class, 'store']);
+            
+            // Get single exam details
+            Route::get('/{exam}', [ExamController::class, 'show']);
+            
+            // Update exam
+            Route::put('/{exam}', [ExamController::class, 'update']);
+            
+            // Delete exam
+            Route::delete('/{exam}', [ExamController::class, 'destroy']);
+            
+            // Publish exam
+            Route::post('/{exam}/publish', [ExamController::class, 'publish']);
+            
+            // Unpublish exam
+            Route::post('/{exam}/unpublish', [ExamController::class, 'unpublish']);
+            
+            // Get exam results
+            Route::get('/{exam}/results', [ExamController::class, 'results']);
+            
+            // Submit exam result
+            Route::post('/{exam}/results', [ExamController::class, 'submitResult']);
+            
+            // Update exam result
+            Route::put('/{exam}/results/{result}', [ExamController::class, 'updateResult']);
+        });
+    });
+
+    // Teacher routes
+    Route::middleware(['permission:manage_exams'])->group(function () {
+        // Teacher-specific exam routes can be added here
     });
 });

@@ -13,9 +13,17 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Initialize defaults if they don't exist
+api.defaults = api.defaults || {};
+api.defaults.headers = api.defaults.headers || {};
+api.defaults.headers.common = api.defaults.headers.common || {};
+
 // Request interceptor to add auth token and handle common headers
 api.interceptors.request.use(
   (config) => {
+    // Ensure headers exist
+    config.headers = config.headers || {};
+    
     // Add auth token if available
     const token = localStorage.getItem('token');
     if (token) {
@@ -48,6 +56,18 @@ api.interceptors.response.use(
   },
   async (error) => {
     // Handle case where error is undefined or doesn't have config
+    if (!error) {
+      const errorMessage = 'No response from server. Please check your internet connection.';
+      toast.error(errorMessage);
+      return Promise.reject(new Error(errorMessage));
+    }
+
+    // Handle case where error.response is undefined
+    if (!error.response) {
+      const errorMessage = error.message || 'Network error. Please check your connection and try again.';
+      toast.error(errorMessage);
+      return Promise.reject(new Error(errorMessage));
+    }
     if (!error || !error.config) {
       toast.error('Network error. Please check your connection.');
       return Promise.reject(error || new Error('Network error'));
@@ -119,40 +139,7 @@ api.interceptors.response.use(
   }
 );
 
-// Helper functions for common HTTP methods
-const apiService = {
-  get: (url, params = {}, config = {}) => 
-    api.get(url, { params, ...config }),
-  
-  post: (url, data = {}, config = {}) => 
-    api.post(url, data, config),
-  
-  put: (url, data = {}, config = {}) => 
-    api.put(url, data, config),
-  
-  patch: (url, data = {}, config = {}) => 
-    api.patch(url, data, config),
-  
-  delete: (url, config = {}) => 
-    api.delete(url, config),
-  
-  // File upload helper
-  upload: (url, file, fieldName = 'file', data = {}, config = {}) => {
-    const formData = new FormData();
-    formData.append(fieldName, file);
-    
-    // Append additional data to formData
-    Object.entries(data).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
-    
-    return api.post(url, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      ...config,
-    });
-  },
-};
+// Helper functions
 
-export default apiService;
+// Export the axios instance directly
+export default api;
