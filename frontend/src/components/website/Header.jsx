@@ -104,6 +104,14 @@ const Header = () => {
                 Gallery
               </NavLink>
               <NavLink 
+                to="/careers" 
+                className={({ isActive }) => 
+                  `px-4 py-2 font-medium rounded-md hover:bg-blue-50 hover:text-blue-700 transition-colors ${isActive ? 'text-blue-700' : 'text-gray-700'}`
+                }
+              >
+                Careers
+              </NavLink>
+              <NavLink 
                 to="/contact" 
                 className={({ isActive }) => 
                   `px-4 py-2 font-medium rounded-md hover:bg-blue-50 hover:text-blue-700 transition-colors ${isActive ? 'text-blue-700' : 'text-gray-700'}`

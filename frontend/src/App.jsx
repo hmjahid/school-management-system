@@ -21,6 +21,7 @@ import ContactPage from './pages/ContactPage';
 import TermsOfServicePage from './pages/TermsOfServicePage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import SitemapPage from './pages/SitemapPage';
+import CareerPage from './pages/CareerPage';
 
 // Auth Pages
 import LoginPage from './pages/LoginPage';
@@ -66,6 +67,7 @@ const AppRoutes = () => {
         { path: '/terms', element: <TermsOfServicePage /> },
         { path: '/privacy', element: <PrivacyPolicyPage /> },
         { path: '/sitemap', element: <SitemapPage /> },
+        { path: '/careers', element: <CareerPage /> },
       ],
     },
     {
