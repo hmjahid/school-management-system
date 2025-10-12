@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { FaCalendarAlt, FaBook, FaGraduationCap, FaFlask, FaPalette, FaChartLine } from 'react-icons/fa';
+import { FaCalendarAlt, FaBook, FaGraduationCap, FaFlask, FaPalette, FaChartLine, FaLaptopCode, FaGlobe } from 'react-icons/fa';
 import useWebsiteContent from '../../hooks/useWebsiteContent';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 
