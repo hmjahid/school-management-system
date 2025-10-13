@@ -68,6 +68,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Admin routes
     Route::prefix('admin')->group(function () {
-        Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index']);
+        // Dashboard routes
+        Route::get('/dashboard', [\App\Http\Controllers\Api\Admin\DashboardController::class, 'index']);
+        
+        // Widget configuration routes
+        Route::prefix('widgets')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Api\Admin\DashboardController::class, 'getWidgetConfig']);
+            Route::post('/', [\App\Http\Controllers\Api\Admin\DashboardController::class, 'saveWidgetConfig']);
+            Route::post('/reset', [\App\Http\Controllers\Api\Admin\DashboardController::class, 'resetWidgetConfig']);
+        });
     });
 });

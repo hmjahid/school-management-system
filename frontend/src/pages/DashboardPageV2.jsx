@@ -1,86 +1,70 @@
-import { useEffect, useState, useContext, Suspense } from 'react';
+import { useEffect, useState, useContext, Suspense, useCallback } from 'react';
 import { useNavigate, Outlet } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { motion } from 'framer-motion';
-import { useQuery } from '@tanstack/react-query';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { 
+  PlusIcon, 
+  Cog6ToothIcon, 
+  ArrowsPointingOutIcon,
+  XMarkIcon,
+  ArrowPathIcon
+} from '@heroicons/react/24/outline';
+
 import api from '../services/api';
 import { AuthContext } from '../contexts/AuthContext';
+import { useWidgets } from '../contexts/WidgetContext';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import EnhancedAdminDashboard from './dashboard/EnhancedAdminDashboard';
+import WidgetSettingsModal from '../components/dashboard/WidgetSettingsModal';
+import WidgetContainer from '../components/dashboard/WidgetContainer';
 
-// Import AdminDashboard
-import AdminDashboard from './dashboard/AdminDashboard';
+// Widget components
+import QuickStatsWidget from '../components/widgets/QuickStatsWidget';
+import RevenueChartWidget from '../components/widgets/RevenueChartWidget';
+import RecentActivityWidget from '../components/widgets/RecentActivityWidget';
+import UpcomingEventsWidget from '../components/widgets/UpcomingEventsWidget';
+import ClassDistributionWidget from '../components/widgets/ClassDistributionWidget';
+import PerformanceMetricsWidget from '../components/widgets/PerformanceMetricsWidget';
 
-// Lazy load other dashboard components to improve initial load performance
-const TeacherDashboard = () => (
-  <div className="p-6 max-w-6xl mx-auto">
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Teacher Dashboard</h2>
-        <p className="text-gray-600 dark:text-gray-300">Welcome back!</p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[1, 2, 3].map((item) => (
-          <div key={item} className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
-            <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-3/4 mb-3"></div>
-            <div className="h-3 bg-gray-200 dark:bg-gray-600 rounded w-1/2"></div>
-          </div>
-        ))}
-      </div>
+// Widget component mapping
+const widgetComponents = {
+  quick_stats: QuickStatsWidget,
+  revenue_chart: RevenueChartWidget,
+  recent_activity: RecentActivityWidget,
+  upcoming_events: UpcomingEventsWidget,
+  class_distribution: ClassDistributionWidget,
+  performance_metrics: PerformanceMetricsWidget,
+};
+
+// Get the appropriate widget component based on widget type
+const getWidgetComponent = (widgetId) => {
+  return widgetComponents[widgetId] || (() => (
+    <div className="p-4 text-center text-gray-500">
+      Widget "{widgetId}" not found
     </div>
-  </div>
-);
-
-const StudentDashboard = () => (
-  <div className="p-6 max-w-6xl mx-auto">
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Student Dashboard</h2>
-        <p className="text-gray-600 dark:text-gray-300">Welcome back!</p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border border-blue-100 dark:border-blue-900/30">
-          <h3 className="font-medium text-blue-800 dark:text-blue-200 mb-2">My Classes</h3>
-          <p className="text-blue-600 dark:text-blue-300 text-3xl font-bold">5</p>
-        </div>
-        <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg border border-green-100 dark:border-green-900/30">
-          <h3 className="font-medium text-green-800 dark:text-green-200 mb-2">Assignments Due</h3>
-          <p className="text-green-600 dark:text-green-300 text-3xl font-bold">3</p>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-const ParentDashboard = () => (
-  <div className="p-6 max-w-6xl mx-auto">
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Parent Dashboard</h2>
-        <p className="text-gray-600 dark:text-gray-300">Welcome back!</p>
-      </div>
-      <div className="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg border border-yellow-100 dark:border-yellow-900/30">
-        <h3 className="font-medium text-yellow-800 dark:text-yellow-200 mb-4">My Children</h3>
-        <div className="space-y-4">
-          {[1, 2].map((child) => (
-            <div key={child} className="flex items-center p-3 bg-white dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
-              <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-600 mr-3"></div>
-              <div>
-                <p className="font-medium text-gray-800 dark:text-gray-200">Student {child} Name</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Grade {5 + child}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  </div>
-);
+  ));
+};
 
 export default function DashboardPageV2() {
     const [user, setUser] = useState(null);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [isFullscreen, setIsFullscreen] = useState(false);
     const { logout } = useContext(AuthContext);
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const { 
+      widgets, 
+      enabledWidgets, 
+      allWidgets, 
+      isLoading: isLoadingWidgets, 
+      error: widgetsError, 
+      saveWidgets, 
+      resetWidgets, 
+      updateWidget, 
+      toggleWidget, 
+      reorderWidgets 
+    } = useWidgets();
 
     // Fetch user data using React Query for better data management
     console.log('Starting to fetch user data...');
@@ -171,11 +155,56 @@ export default function DashboardPageV2() {
         }
     };
 
+    // Toggle edit mode
+    const toggleEditMode = () => {
+      setIsEditing(!isEditing);
+    };
+
+    // Toggle fullscreen mode
+    const toggleFullscreen = () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.error(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+      setIsFullscreen(!isFullscreen);
+    };
+
+    // Handle widget reordering
+    const handleDragEnd = (result) => {
+      if (!result.destination) return;
+      
+      const items = Array.from(enabledWidgets);
+      const [reorderedItem] = items.splice(result.source.index, 1);
+      items.splice(result.destination.index, 0, reorderedItem);
+      
+      // Update widget positions
+      const updatedWidgets = { ...widgets };
+      items.forEach((widget, index) => {
+        updatedWidgets[widget.id] = {
+          ...updatedWidgets[widget.id],
+          position: index + 1
+        };
+      });
+      
+      saveWidgets(updatedWidgets);
+    };
+
+    // Refresh dashboard data
+    const refreshDashboard = async () => {
+      await queryClient.invalidateQueries(['dashboardData']);
+      toast.success('Dashboard refreshed');
+    };
+
     // Debug loading and error states
     console.log('Loading state:', isLoading, 'Error:', error);
     
     // Show loading state
-    if (isLoading) {
+    if (isLoading || isLoadingWidgets) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
                 <div className="text-center">
@@ -187,7 +216,7 @@ export default function DashboardPageV2() {
     }
 
     // Error state
-    if (error && !user) {
+    if ((error || widgetsError) && !user) {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
                 <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-red-200 dark:border-red-900/30">
@@ -249,135 +278,153 @@ export default function DashboardPageV2() {
             }
         }
     }
-    
-    // Helper function to check roles that handles multiple formats
-    const hasRole = (roleName) => {
-        if (!user) return false;
-        
-        // Handle case where roles is an array of role objects
-        if (Array.isArray(user.roles)) {
-            return user.roles.some(role => {
-                // Handle role as object with name property
-                if (role && typeof role === 'object') {
-                    const roleValue = role.name || role.role;
-                    return roleValue?.toLowerCase() === roleName.toLowerCase();
-                }
-                // Handle role as string in array
-                if (typeof role === 'string') {
-                    return role.toLowerCase() === roleName.toLowerCase();
-                }
-                return false;
-            });
-        }
-        
-        // Handle case where user has a single role string
-        if (typeof user.role === 'string') {
-            return user.role.toLowerCase() === roleName.toLowerCase();
-        }
-        
-        // Handle case where role is a direct property with name
-        if (user.role?.name) {
-            return user.role.name.toLowerCase() === roleName.toLowerCase();
-        }
-        
-        return false;
-    };
-    
-    // Check user roles
-    const isAdmin = hasRole('admin');
-    const isTeacher = hasRole('teacher');
-    const isStudent = hasRole('student');
-    const isParent = hasRole('parent');
-    
-    // Debug role detection
-    console.log('Role check - isAdmin:', isAdmin, 'isTeacher:', isTeacher, 'isStudent:', isStudent, 'isParent:', isParent);
 
-    // Render the appropriate dashboard based on user role
-    const renderDashboard = () => {
-        console.log('=== RENDER DASHBOARD ===');
-        console.log('User object in renderDashboard:', user);
-        console.log('Role checks - isAdmin:', isAdmin, 'isTeacher:', isTeacher, 'isStudent:', isStudent, 'isParent:', isParent);
-        
-        if (!user) {
-            console.log('No user data available');
-            return (
-                <div className="flex items-center justify-center min-h-screen">
-                    <LoadingSpinner size="lg" text="Loading user data..." />
-                </div>
-            );
-        }
-
-        // Check for admin role first
-        if (isAdmin) {
-            console.log('Rendering Admin Dashboard - isAdmin:', isAdmin);
-            console.log('AdminDashboard component:', AdminDashboard);
-            return (
-                <div className="w-full">
-                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500">
-                        <p className="text-blue-800 dark:text-blue-200">Admin Dashboard Wrapper - Start</p>
-                        <AdminDashboard />
-                        <p className="text-blue-800 dark:text-blue-200">Admin Dashboard Wrapper - End</p>
-                    </div>
-                </div>
-            );
-        }
-        
-        // Other role-based dashboards
-        if (isTeacher) {
-            console.log('Rendering Teacher Dashboard');
-            return <TeacherDashboard />;
-        } else if (isStudent) {
-            console.log('Rendering Student Dashboard');
-            return <StudentDashboard />;
-        } else if (isParent) {
-            console.log('Rendering Parent Dashboard');
-            return <ParentDashboard />;
-        }
-        
-        console.log('No matching role found. Available roles:', user.roles);
-
-        // Default dashboard for users with no specific role
+    // Render the widget grid
+    const renderWidgets = () => {
+      if (!enabledWidgets || enabledWidgets.length === 0) {
         return (
-            <div className="p-6 max-w-4xl mx-auto">
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
-                    <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Welcome, {user?.name || 'User'}!</h2>
-                    <p className="text-gray-600 dark:text-gray-300 mb-4">
-                        You don't have any specific role assigned. Please contact the administrator to get the appropriate access.
-                    </p>
-                    <div className="bg-yellow-50 dark:bg-yellow-900/10 border-l-4 border-yellow-400 dark:border-yellow-500 p-4 rounded-r">
-                        <div className="flex">
-                            <div className="flex-shrink-0">
-                                <svg className="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                </svg>
-                            </div>
-                            <div className="ml-3">
-                                <p className="text-sm text-yellow-700 dark:text-yellow-200">
-                                    <span className="font-medium">Notice:</span> Your account doesn't have any assigned roles. Some features may be limited.
-                                </p>
-                                <div className="mt-2 p-2 bg-white/50 dark:bg-gray-800/50 rounded">
-                                    <p className="text-xs text-gray-600 dark:text-gray-400">
-                                        <strong>Debug Info:</strong> User roles: {JSON.stringify(user.roles || [user.role].filter(Boolean))}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          <div className="col-span-full text-center py-12">
+            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-gray-100 dark:bg-gray-700">
+              <PlusIcon className="h-6 w-6 text-gray-400" />
             </div>
+            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No widgets</h3>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Get started by adding some widgets to your dashboard.
+            </p>
+            <div className="mt-6">
+              <button
+                type="button"
+                onClick={() => setIsSettingsOpen(true)}
+                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                <PlusIcon className="-ml-1 mr-2 h-5 w-5" />
+                Add Widgets
+              </button>
+            </div>
+          </div>
         );
+      }
+
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {enabledWidgets.map((widget) => {
+            const WidgetComponent = getWidgetComponent(widget.id);
+            return (
+              <WidgetContainer
+                key={widget.id}
+                widget={widget}
+                isEditing={isEditing}
+                onEdit={() => {
+                  // Handle edit click
+                  console.log('Edit widget:', widget.id);
+                }}
+                onRemove={async (widgetId) => {
+                  await toggleWidget(widgetId);
+                }}
+              >
+                <WidgetComponent widget={widget} />
+              </WidgetContainer>
+            );
+          })}
+        </div>
+      );
+    };
+
+    // Render the dashboard header
+    const renderHeader = () => {
+      return (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              {user?.name ? `${user.name}'s Dashboard` : 'Dashboard'}
+            </h1>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Welcome back! Here's what's happening with your school.
+            </p>
+          </div>
+          <div className="mt-4 sm:mt-0 flex space-x-3">
+            <button
+              type="button"
+              onClick={refreshDashboard}
+              className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              title="Refresh dashboard"
+            >
+              <ArrowPathIcon className="h-4 w-4 mr-1.5" />
+              <span className="hidden sm:inline">Refresh</span>
+            </button>
+            
+            <button
+              type="button"
+              onClick={toggleEditMode}
+              className={`inline-flex items-center px-3 py-1.5 border ${
+                isEditing 
+                  ? 'border-indigo-500 text-indigo-700 dark:text-indigo-200 bg-indigo-50 dark:bg-indigo-900/30' 
+                  : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
+              } shadow-sm text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+            >
+              <Cog6ToothIcon className="h-4 w-4 mr-1.5" />
+              <span className="hidden sm:inline">{isEditing ? 'Done' : 'Edit'}</span>
+            </button>
+            
+            <button
+              type="button"
+              onClick={toggleFullscreen}
+              className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+            >
+              <ArrowsPointingOutIcon className="h-4 w-4" />
+              <span className="sr-only">{isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}</span>
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => setIsSettingsOpen(true)}
+              className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              <PlusIcon className="h-4 w-4 mr-1.5" />
+              <span className="hidden sm:inline">Add Widget</span>
+            </button>
+          </div>
+        </div>
+      );
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-            <Suspense fallback={
-                <div className="flex items-center justify-center min-h-screen">
-                    <LoadingSpinner size="lg" />
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200 p-4 sm:p-6">
+        <div className="max-w-7xl mx-auto">
+          {renderHeader()}
+          {renderWidgets()}
+          
+          {/* Widget Settings Modal */}
+          <WidgetSettingsModal
+            isOpen={isSettingsOpen}
+            onClose={() => setIsSettingsOpen(false)}
+            widgets={widgets}
+            onSave={saveWidgets}
+            onReset={resetWidgets}
+          />
+          
+          {/* Debug info - only show in development */}
+          {import.meta.env.DEV && (
+            <div className="mt-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs text-gray-600 dark:text-gray-400">
+              <div className="font-medium mb-2">Debug Info:</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <div className="font-medium">User:</div>
+                  <pre className="mt-1 p-2 bg-white dark:bg-gray-700 rounded overflow-auto max-h-40">
+                    {JSON.stringify(user, null, 2)}
+                  </pre>
                 </div>
-            }>
-                {renderDashboard()}
-                <Outlet />
-            </Suspense>
+                <div>
+                  <div className="font-medium">Widgets:</div>
+                  <pre className="mt-1 p-2 bg-white dark:bg-gray-700 rounded overflow-auto max-h-40">
+                    {JSON.stringify(enabledWidgets, null, 2)}
+                  </pre>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
+      </div>
     );
 }
