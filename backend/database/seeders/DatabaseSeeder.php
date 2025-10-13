@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             NewsSeeder::class,
             GallerySeeder::class,
             CareerSeeder::class,
+            EventsTableSeeder::class, // Add test events
         ]);
     }
 }

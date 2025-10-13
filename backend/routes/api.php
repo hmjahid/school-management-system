@@ -28,9 +28,9 @@ Route::prefix('academics')->group(function () {
 // News and Events routes
 Route::prefix('news')->group(function () {
     Route::get('/', [\App\Http\Controllers\Api\NewsController::class, 'index']);
-    Route::get('/{id}', [\App\Http\Controllers\Api\NewsController::class, 'show']);
     Route::get('/categories', [\App\Http\Controllers\Api\NewsController::class, 'categories']);
     Route::get('/upcoming-events', [\App\Http\Controllers\Api\NewsController::class, 'upcomingEvents']);
+    Route::get('/{id}', [\App\Http\Controllers\Api\NewsController::class, 'show']);
 });
 
 // Website content routes

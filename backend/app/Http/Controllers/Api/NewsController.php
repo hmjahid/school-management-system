@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\News;
+use App\Models\Event;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -94,12 +96,31 @@ class NewsController extends Controller
     {
         $limit = $request->get('limit', 3);
         
-        $events = News::where('is_published', true)
-            ->where('is_event', true)
-            ->where('event_date', '>=', now())
-            ->orderBy('event_date', 'asc')
+        $events = Event::with('createdBy')
+            ->where('start_date', '>=', Carbon::now())
+            ->where('status', 'published')
+            ->orderBy('start_date', 'asc')
             ->limit($limit)
-            ->get();
+            ->get()
+            ->map(function ($event) {
+                return [
+                    'id' => $event->id,
+                    'title' => $event->title,
+                    'description' => $event->description,
+                    'date' => $event->start_date->toIso8601String(),
+                    'endDate' => $event->end_date ? $event->end_date->toIso8601String() : null,
+                    'location' => $event->location,
+                    'organizer' => $event->createdBy ? $event->createdBy->name : 'School Administration',
+                    'imageUrl' => $event->image ? asset('storage/' . $event->image) : null,
+                    'isVirtual' => (bool) $event->is_virtual,
+                    'meetingUrl' => $event->meeting_url,
+                    'registrationDeadline' => $event->registration_deadline?->toIso8601String(),
+                    'attendeeCount' => $event->attendees()->count(),
+                    'maxAttendees' => $event->max_attendees,
+                    'isRegistrationOpen' => $event->isRegistrationOpen(),
+                    'isFull' => $event->isFull(),
+                ];
+            });
             
         return response()->json([
             'success' => true,
