@@ -45,7 +45,7 @@ class NotificationService extends EventEmitter {
     }
 
     try {
-      const eventSourceUrl = `${process.env.REACT_APP_API_URL}/api/notifications/stream`;
+      const eventSourceUrl = `${import.meta.env.VITE_API_URL}/api/notifications/stream`;
       this.eventSource = new EventSource(eventSourceUrl, {
         withCredentials: true
       });

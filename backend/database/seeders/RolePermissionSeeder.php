@@ -47,6 +47,20 @@ class RolePermissionSeeder extends Seeder
 
         // Define permissions
         $permissions = [
+            // Gallery Permissions
+            'view gallery',
+            'create gallery',
+            'edit gallery',
+            'delete gallery',
+            
+            // Career Permissions
+            'view careers',
+            'create careers',
+            'edit careers',
+            'delete careers',
+            'view job applications',
+            'manage job applications',
+            
             // User Management
             'view_users' => 'View users',
             'create_users' => 'Create users',

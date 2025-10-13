@@ -29,8 +29,16 @@ export const WebSocketProvider = ({ children, autoConnect = true }) => {
 
   // Initialize WebSocket connection
   useEffect(() => {
-    if (autoConnect && isAuthenticated) {
+    // Only attempt to connect if WebSocket is supported and we're in production
+    // or if explicitly enabled in development
+    const isWebSocketEnabled = import.meta.env.VITE_ENABLE_WEBSOCKET === 'true';
+    const isProduction = import.meta.env.PROD;
+    
+    if (autoConnect && isAuthenticated && (isProduction || isWebSocketEnabled)) {
+      console.log('Attempting to connect to WebSocket...');
       connect();
+    } else if (!isProduction && !isWebSocketEnabled) {
+      console.log('WebSocket connection disabled in development. Set VITE_ENABLE_WEBSOCKET=true in .env to enable.');
     }
 
     return () => {

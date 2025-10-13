@@ -8,7 +8,7 @@ const careerService = {
    */
   async getJobListings(filters = {}) {
     try {
-      const response = await api.get('/website/careers/jobs', { params: filters });
+      const response = await api.get('/careers', { params: filters });
       return {
         success: true,
         data: response.data.data || [],
@@ -33,7 +33,7 @@ const careerService = {
    */
   async getJobDetails(jobId) {
     try {
-      const response = await api.get(`/website/careers/jobs/${jobId}`);
+      const response = await api.get(`/careers/${jobId}`);
       return {
         success: true,
         data: response.data.data || null,
@@ -70,7 +70,7 @@ const careerService = {
         }
       });
 
-      const response = await api.post('/website/careers/applications', formData, {
+      const response = await api.post('/careers/apply', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -102,10 +102,21 @@ const careerService = {
    */
   async getJobCategories() {
     try {
-      const response = await api.get('/website/careers/categories');
+      // For now, we'll return the categories from the job listings
+      const response = await api.get('/careers');
+      const jobs = response.data.data || [];
+      
+      // Extract unique job types
+      const categories = [...new Set(jobs.map(job => job.type))]
+        .filter(type => type)
+        .map(type => ({
+          id: type.toLowerCase().replace(/\s+/g, '-'),
+          name: type
+        }));
+      
       return {
         success: true,
-        data: response.data.data || [],
+        data: categories,
         error: null
       };
     } catch (error) {

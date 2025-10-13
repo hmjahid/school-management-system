@@ -21,12 +21,38 @@ class AdmissionSeeder extends Seeder
     public function run()
     {
         // Create test user if not exists
+        // Create or get the staff role
+        $staffRole = \Spatie\Permission\Models\Role::firstOrCreate(
+            ['name' => 'staff'],
+            [
+                'guard_name' => 'web',
+                'created_at' => now(),
+                'updated_at' => now()
+            ]
+        );
+        
+        // Ensure the role has the necessary permissions
+        $permissions = [
+            'view admissions',
+            'create admissions',
+            'edit admissions',
+            'delete admissions',
+            'view students',
+            'create students',
+            'edit students'
+        ];
+        
+        foreach ($permissions as $permission) {
+            $staffRole->givePermissionTo($permission);
+        }
+        
         $user = User::firstOrCreate(
             ['email' => 'admission@example.com'],
             [
                 'name' => 'Admission Officer',
                 'password' => Hash::make('password'),
                 'email_verified_at' => now(),
+                'role_id' => $staffRole->id,
             ]
         );
 

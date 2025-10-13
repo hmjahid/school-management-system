@@ -2,7 +2,8 @@ import React, { Suspense, useEffect } from 'react';
 import { Routes, Route, Navigate, useRoutes, Link, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { WebSocketProvider } from './contexts/WebSocketContext';
-import { AuthProvider } from './contexts/AuthContext_debug';
+import { AuthProvider } from './contexts/AuthContext';
+import DebugInfoSimple from './components/DebugInfoSimple';
 
 // Layouts
 import WebsiteLayout from './components/website/WebsiteLayout';
@@ -47,12 +48,15 @@ const AuthLayout = ({ children }) => (
   </div>
 );
 
-// Debug component to log router changes
+// Debug component to log router changes (optional)
 const DebugRouter = ({ children }) => {
   const location = useLocation();
   
   useEffect(() => {
-    console.log('[Router] Current path:', location.pathname);
+    // Only log in development
+    if (import.meta.env.MODE === 'development') {
+      console.log('[Router] Current path:', location.pathname);
+    }
   }, [location]);
   
   return children;
@@ -106,7 +110,19 @@ const AppRoutes = () => {
       ),
     },
     
-    // Protected admin routes
+    // Protected admin routes - Dashboard
+    {
+      path: '/dashboard/*',
+      element: (
+        <PrivateRoute>
+          <DebugRouter>
+            <EnhancedDashboardRouter />
+          </DebugRouter>
+        </PrivateRoute>
+      )
+    },
+    
+    // Other protected admin routes
     {
       element: (
         <PrivateRoute>
@@ -116,10 +132,6 @@ const AppRoutes = () => {
         </PrivateRoute>
       ),
       children: [
-        { 
-          path: '/dashboard/*', 
-          element: <EnhancedDashboardRouter />
-        },
         { path: '/admin/website/content', element: <WebsiteContentPage /> },
         { path: '/admin/website/about', element: <AboutContentPage /> },
         { path: '/admin/website/settings', element: <WebsiteSettingsPage /> },

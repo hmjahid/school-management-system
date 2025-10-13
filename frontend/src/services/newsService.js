@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Use the environment variable if it exists, otherwise default to local development server
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 // Sample data to use when the backend is not available
 const SAMPLE_NEWS = [
@@ -190,7 +190,7 @@ export const getNewsById = async (id) => {
  */
 export const getUpcomingEvents = async (limit = 3) => {
   try {
-    const response = await axios.get(`${API_URL}/events/upcoming?limit=${limit}`, {
+    const response = await axios.get(`${API_URL}/news/upcoming-events?limit=${limit}`, {
       // Don't throw an error for 404 responses
       validateStatus: (status) => status >= 200 && status < 300 || status === 404
     });

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Use the same API URL as other services for consistency
-const API_BASE_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:8001/api'}/website`;
+// Base URL for website content API
+const API_BASE_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/website-content`;
 
 export const websiteContentService = {
   /**

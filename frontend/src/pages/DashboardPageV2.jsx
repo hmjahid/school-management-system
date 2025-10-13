@@ -80,6 +80,7 @@ export default function DashboardPageV2() {
     const navigate = useNavigate();
 
     // Fetch user data using React Query for better data management
+    console.log('Starting to fetch user data...');
     const { data: userData, isLoading, error } = useQuery({
         queryKey: ['currentUser'],
         queryFn: async () => {
@@ -94,9 +95,11 @@ export default function DashboardPageV2() {
             });
             
             if (!response?.data) {
+                console.error('No user data in response:', response);
                 throw new Error('No user data received');
             }
             
+            console.log('User data received:', response.data);
             return response.data;
         },
         retry: 1,
@@ -141,6 +144,9 @@ export default function DashboardPageV2() {
         }
     };
 
+    // Debug loading and error states
+    console.log('Loading state:', isLoading, 'Error:', error);
+    
     // Show loading state
     if (isLoading) {
         return (
@@ -195,11 +201,17 @@ export default function DashboardPageV2() {
         );
     }
 
+    // Debug user data and roles
+    console.log('Current user data:', user);
+    console.log('User roles:', user?.roles);
+    
     // Determine user role and render appropriate dashboard
-    const isAdmin = user?.roles?.some(role => role.name === 'admin');
-    const isTeacher = user?.roles?.some(role => role.name === 'teacher');
-    const isStudent = user?.roles?.some(role => role.name === 'student');
-    const isParent = user?.roles?.some(role => role.name === 'parent');
+    const isAdmin = user?.roles?.some(role => role.name === 'admin' || role === 'admin');
+    const isTeacher = user?.roles?.some(role => role.name === 'teacher' || role === 'teacher');
+    const isStudent = user?.roles?.some(role => role.name === 'student' || role === 'student');
+    const isParent = user?.roles?.some(role => role.name === 'parent' || role === 'parent');
+    
+    console.log('Role check - isAdmin:', isAdmin, 'isTeacher:', isTeacher, 'isStudent:', isStudent, 'isParent:', isParent);
 
     // Render the appropriate dashboard based on user role
     const renderDashboard = () => {

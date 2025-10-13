@@ -18,21 +18,29 @@ const GalleryPage = () => {
       try {
         setIsLoading(true);
         
-        // Fetch gallery items
-        const itemsResponse = await galleryService.getGalleryItems();
+        // Fetch gallery items and categories in parallel
+        const [itemsResponse, categoriesResponse] = await Promise.all([
+          galleryService.getGalleryItems(),
+          galleryService.getGalleryCategories()
+        ]);
         
-        // Fetch categories
-        const categoriesResponse = await galleryService.getGalleryCategories();
+        if (itemsResponse.success) {
+          setGalleryItems(Array.isArray(itemsResponse.data) ? itemsResponse.data : []);
+        }
         
-        if (itemsResponse.success && categoriesResponse.success) {
-          setGalleryItems(itemsResponse.data);
-          // Add 'all' category to the beginning of categories
+        if (categoriesResponse.success) {
+          const categories = Array.isArray(categoriesResponse.data) ? categoriesResponse.data : [];
+          // Remove any existing 'all' category to prevent duplicates
+          const filteredCategories = categories.filter(cat => cat.id !== 'all');
+          // Add 'all' category at the beginning
           setGalleryCategories([
             { id: 'all', name: 'All' },
-            ...categoriesResponse.data
+            ...filteredCategories
           ]);
-        } else {
-          // Fallback to sample data if API fails
+        }
+        
+        if (!itemsResponse.success || !categoriesResponse.success) {
+          // Fallback to sample data if any API fails
           const fallbackData = galleryService.getFallbackData();
           setGalleryItems(fallbackData.items);
           setGalleryCategories(fallbackData.categories);

@@ -10,6 +10,36 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // Helper function to normalize user data
+  const normalizeUserData = (userData) => {
+    // Check for role in different possible locations
+    let userRole = userData.role || 
+                  (userData.roles && userData.roles[0]) || 
+                  (userData.roles && userData.roles.name) ||
+                  (userData.role_id && `role_${userData.role_id}`) ||
+                  'user';
+    
+    // Ensure roles is an array
+    let userRoles = [];
+    if (Array.isArray(userData.roles)) {
+      userRoles = [...userData.roles];
+    } else if (userData.roles && typeof userData.roles === 'object') {
+      // Handle case where roles might be an object with role data
+      userRoles = [userData.roles.name || 'user'];
+    } else if (userData.role) {
+      userRoles = [userData.role];
+    } else if (userData.role_id) {
+      userRoles = [`role_${userData.role_id}`];
+    }
+    
+    // Return normalized user data
+    return {
+      ...userData,
+      role: userRole,
+      roles: userRoles
+    };
+  };
+
   // Check for existing session on initial load
   useEffect(() => {
     const checkAuth = async () => {
@@ -38,7 +68,9 @@ export const AuthProvider = ({ children }) => {
         });
 
         if (response?.status === 200 && response?.data) {
-          setUser(response.data);
+          // Normalize user data
+          const normalizedUser = normalizeUserData(response.data);
+          setUser(normalizedUser);
         } else {
           throw new Error('Invalid user data received');
         }
@@ -73,7 +105,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       // Make the login request
-      const response = await api.post('/login', { email, password });
+      const response = await api.post('/auth/login', { email, password });
       
       // Log the full response for debugging
       console.log('Login response:', {
@@ -107,18 +139,21 @@ export const AuthProvider = ({ children }) => {
       
       // Update user state
       if (user) {
-        setUser(user);
+        // Normalize user data
+        const normalizedUser = normalizeUserData(user);
+        setUser(normalizedUser);
         
-        // Redirect based on user role
-        const redirectPath = user.role === 'admin' ? '/admin/dashboard' : '/dashboard';
-        console.log('Redirecting to:', redirectPath);
-        navigate(redirectPath);
+        // Redirect to dashboard - let the router handle the specific role-based path
+        console.log('Redirecting to:', '/dashboard');
+        navigate('/dashboard');
       } else {
         // If no user data, try to fetch it
         try {
           const userResponse = await api.get('/user');
           if (userResponse?.data) {
-            setUser(userResponse.data);
+            // Normalize user data
+            const normalizedUser = normalizeUserData(userResponse.data);
+            setUser(normalizedUser);
             navigate('/dashboard');
           } else {
             throw new Error('Failed to fetch user data');
@@ -158,16 +193,48 @@ export const AuthProvider = ({ children }) => {
     }));
   };
 
-  // Check if user has required role
+  // Check if user has required role (case-insensitive)
   const hasRole = (requiredRole) => {
     if (!user) return false;
-    return user.roles?.includes(requiredRole);
+    
+    // Convert required role to lowercase for case-insensitive comparison
+    const requiredRoleLower = String(requiredRole).toLowerCase().trim();
+    
+    // Check if user has the required role (case-insensitive)
+    const checkRole = (role) => {
+      if (!role) return false;
+      
+      // Handle role as string
+      if (typeof role === 'string') {
+        return role.toLowerCase() === requiredRoleLower;
+      }
+      
+      // Handle role as object with name or role property
+      if (role && typeof role === 'object') {
+        const roleName = (role.name || role.role || '').toLowerCase();
+        return roleName === requiredRoleLower;
+      }
+      
+      return false;
+    };
+    
+    // Check legacy role property (string)
+    if (user.role && checkRole(user.role)) {
+      return true;
+    }
+    
+    // Check roles array
+    if (Array.isArray(user.roles)) {
+      return user.roles.some(role => checkRole(role));
+    }
+    
+    return false;
   };
 
   // Check if user has any of the required roles
   const hasAnyRole = (requiredRoles = []) => {
     if (!user) return false;
-    return requiredRoles.some(role => user.roles?.includes(role));
+    return requiredRoles.some(role => hasRole(role));
   };
 
   return (

@@ -33,7 +33,7 @@ class ErrorBoundary extends React.Component {
                 We're sorry, but an unexpected error occurred. Our team has been notified.
               </p>
               
-              {process.env.NODE_ENV === 'development' && (
+              
                 <details className="text-left bg-gray-50 p-4 rounded-md mb-6 overflow-auto max-h-60">
                   <summary className="font-medium text-gray-700 cursor-pointer mb-2">
                     Error Details
@@ -44,7 +44,7 @@ class ErrorBoundary extends React.Component {
                     {this.state.errorInfo?.componentStack}
                   </pre>
                 </details>
-              )}
+
               
               <div className="flex justify-center space-x-4">
                 <button

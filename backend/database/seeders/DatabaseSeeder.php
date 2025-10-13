@@ -17,6 +17,9 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             AdmissionSeeder::class,
             PaymentGatewaySeeder::class,
+            NewsSeeder::class,
+            GallerySeeder::class,
+            CareerSeeder::class,
         ]);
     }
 }

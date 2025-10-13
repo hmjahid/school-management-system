@@ -1,63 +1,75 @@
 import api from './api';
 
-// Dashboard Statistics
-export const fetchDashboardStats = async () => {
-  const endpoint = '/api/admin/dashboard';
-  
-  // Mock data to use when the API is not available
-  const mockData = {
-    stats: {
-      totalStudents: 1200,
-      totalTeachers: 85,
-      totalClasses: 42,
-      totalRevenue: 125000,
-      attendanceRate: 92.5,
-      pendingAssignments: 15,
-      upcomingEvents: 3,
-      recentActivity: []
+// Enhanced mock data with realistic values
+const mockDashboardData = {
+  stats: {
+    totalStudents: 1245,
+    totalTeachers: 87,
+    totalClasses: 45,
+    totalRevenue: 128500,
+    attendanceRate: 94.2,
+    pendingAssignments: 12,
+    upcomingEvents: 5,
+    recentActivity: [
+      { id: 1, type: 'assignment', message: 'New assignment posted in Math 101', time: '2 hours ago' },
+      { id: 2, type: 'announcement', message: 'School will be closed on Friday', time: '1 day ago' },
+      { id: 3, type: 'grade', message: 'Your grade has been updated in Science', time: '2 days ago' },
+    ]
+  },
+  charts: {
+    monthlyRevenue: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      data: [65000, 59000, 80000, 81000, 125000, 125000, 118000, 132000, 110000, 128500, 140000, 150000]
     },
-    charts: {
-      monthlyRevenue: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        data: [65000, 59000, 80000, 81000, 125000, 125000]
-      },
-      studentPerformance: {
-        labels: ['A', 'B', 'C', 'D', 'F'],
-        data: [25, 35, 20, 15, 5]
-      }
-    }
-  };
-
-  // Check if we're in development mode
-  const isDevelopment = import.meta.env.MODE === 'development';
-  
-  // In development, we'll use mock data by default but still try the API
-  if (isDevelopment) {
-    try {
-      const response = await api.get(endpoint);
-      console.log('Successfully fetched dashboard data from API');
-      return response.data.data || response.data;
-    } catch (error) {
-      console.warn(`Could not fetch dashboard data from ${endpoint}, using mock data.`);
-      console.warn('To fix this, ensure your backend API is running and the endpoint is correct.');
-      return mockData;
+    studentPerformance: {
+      labels: ['A', 'B', 'C', 'D', 'F'],
+      data: [28, 38, 22, 9, 3]
+    },
+    attendanceTrend: {
+      labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+      data: [92, 94, 95, 96]
     }
   }
+};
+
+// Dashboard Statistics
+export const fetchDashboardStats = async () => {
+  const endpoint = '/admin/dashboard';
+  const isDevelopment = import.meta.env.MODE === 'development';
+  const debugMode = import.meta.env.VITE_DEBUG_API === 'true';
   
-  // In production, try the API first, then fall back to mock data
   try {
-    const response = await api.get(endpoint);
-    return response.data.data || response.data;
-  } catch (error) {
-    console.error('Error fetching dashboard stats:', error);
+    if (debugMode) console.log('Fetching dashboard data from:', endpoint);
     
-    if (error.response?.status === 404) {
-      console.warn('Dashboard endpoint not found, using mock data');
-      return mockData;
+    // Try to fetch from the real API
+    const response = await api.get(endpoint);
+    
+    if (debugMode) console.log('Dashboard API response:', response);
+    
+    // Handle different response structures
+    if (response.data && response.data.data) {
+      return response.data.data;
+    } else if (response.data) {
+      return response.data;
+    }
+    return response;
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error);
+    
+    // In development, use mock data if the API is not available
+    if (isDevelopment) {
+      console.warn('Using mock dashboard data due to error');
+      return mockDashboardData;
     }
     
-    console.error('Failed to fetch dashboard data:', error.message);
-    throw error;
+    // In production, only use mock data for 404 errors
+    if (error.response && error.response.status === 404) {
+      console.warn('Using mock dashboard data (404 from server)');
+      return mockDashboardData;
+    } else {
+      console.error('Failed to fetch dashboard data:', error);
+      throw error;
+    }
   }
 };
 

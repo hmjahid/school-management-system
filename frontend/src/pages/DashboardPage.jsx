@@ -120,7 +120,13 @@ export default function DashboardPage() {
                             <div className="p-6 bg-white border-4 border-gray-200 border-dashed rounded-lg">
                                 <h2 className="text-xl font-bold">Welcome, {user?.name || 'User'}</h2>
                                 <p>Your role is: {user?.roles?.length > 0 
-                                    ? user.roles.map(role => role.name || role).join(', ')
+                                    ? user.roles.map(role => {
+                                        if (typeof role === 'string') return role;
+                                        if (typeof role === 'object' && role !== null) {
+                                            return role.name || role.role || 'unknown';
+                                        }
+                                        return 'unknown';
+                                    }).join(', ')
                                     : user?.role || 'No role assigned'}
                                 </p>
                                 <button

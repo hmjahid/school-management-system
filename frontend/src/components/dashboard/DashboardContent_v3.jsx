@@ -41,7 +41,7 @@ const ActivityItem = ({ title, description, timestamp }) => (
 export default function DashboardContent() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    const { logout } = useContext(AuthContext);
+    const { logout, user: authUser } = useContext(AuthContext);
     const navigate = useNavigate();
     
     // Use our custom dashboard hook
@@ -52,47 +52,38 @@ export default function DashboardContent() {
         
         const fetchUser = async () => {
             try {
-                const response = await api.get('/me', {
-                    timeout: 10000,
-                    validateStatus: (status) => status < 500,
-                    headers: {
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache',
-                        'Expires': '0'
+                if (authUser) {
+                    if (isMounted) {
+                        setUser(authUser);
+                        setLoading(false);
                     }
-                });
-
-                if (!isMounted) return;
-
-                if (response?.data) {
-                    setUser(response.data);
                 } else {
-                    throw new Error('No user data received');
+                    // If no authUser in context, try to fetch it
+                    const response = await api.get('/user');
+                    if (isMounted && response.data) {
+                        setUser(response.data);
+                        setLoading(false);
+                    }
                 }
-            } catch (error) {
-                if (!isMounted) return;
-                console.error('Failed to fetch user:', error);
-                
-                // Default fallback user object
-                const fallbackUser = { 
-                    name: 'Guest User', 
-                    role: 'user',
-                    roles: [{ name: 'user' }],
-                    email: 'guest@example.com'
-                };
-                
-                setUser(fallbackUser);
-                
-                if (error.response?.status === 401) {
-                    toast.error('Your session has expired. Please log in again.');
-                    logout();
-                    navigate('/login');
-                } else {
-                    toast.error('Failed to load user data. Using limited functionality.');
-                }
-            } finally {
+            } catch (err) {
+                console.error('Error fetching user:', err);
                 if (isMounted) {
                     setLoading(false);
+                    
+                    // If we get a 401, redirect to login
+                    if (err.response?.status === 401) {
+                        toast.error('Your session has expired. Please log in again.');
+                        logout();
+                        navigate('/login');
+                    } else {
+                        // For other errors, use a fallback user
+                        setUser({
+                            name: 'Guest User',
+                            email: 'guest@example.com',
+                            role: 'guest',
+                            roles: [{ name: 'guest' }]
+                        });
+                    }
                 }
             }
         };
@@ -102,37 +93,37 @@ export default function DashboardContent() {
         return () => {
             isMounted = false;
         };
-    }, [logout, navigate]);
+    }, [authUser, logout, navigate]);
 
-    if (loading || isLoading) {
+    // Handle loading state
+    if (isLoading || loading) {
         return (
-            <div className="flex items-center justify-center min-h-[50vh]">
+            <div className="flex justify-center items-center h-64">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                <span className="ml-4 text-gray-700 dark:text-gray-300">Loading dashboard data...</span>
             </div>
         );
     }
 
+    // Handle error state
     if (error) {
+        console.error('Dashboard error:', error);
         return (
-            <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 my-6 rounded-r">
-                <div className="flex">
-                    <div className="flex-shrink-0">
-                        <svg className="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                        </svg>
-                    </div>
-                    <div className="ml-3">
-                        <p className="text-sm font-medium text-red-800 dark:text-red-200">
-                            Error loading dashboard data
-                        </p>
-                        <p className="mt-1 text-sm text-red-700 dark:text-red-300">
-                            {error.message || 'Please try refreshing the page.'}
-                        </p>
-                    </div>
-                </div>
+            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                <h3 className="text-lg font-medium text-red-800 dark:text-red-200">Error Loading Dashboard</h3>
+                <p className="mt-2 text-red-700 dark:text-red-300">
+                    {error.message || 'Failed to load dashboard data. Please try again later.'}
+                </p>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                >
+                    Retry
+                </button>
             </div>
         );
     }
+
 
     return (
         <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
