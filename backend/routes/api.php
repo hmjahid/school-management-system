@@ -13,6 +13,13 @@ use App\Http\Controllers\Api\ApiController;
 // Public routes
 Route::get('/', [ApiController::class, 'index']);
 
+// Academic routes
+Route::prefix('academics')->group(function () {
+    Route::get('/curriculum', [\App\Http\Controllers\Api\AcademicController::class, 'getCurriculum']);
+    Route::get('/programs', [\App\Http\Controllers\Api\AcademicController::class, 'getPrograms']);
+    Route::get('/faculty', [\App\Http\Controllers\Api\AcademicController::class, 'getFaculty']);
+});
+
 // News and Events routes
 Route::prefix('news')->group(function () {
     Route::get('/', [\App\Http\Controllers\Api\NewsController::class, 'index']);

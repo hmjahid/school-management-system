@@ -29,4 +29,26 @@ class ApiController extends Controller
             ]
         ]);
     }
+
+    /**
+     * Return a success JSON response
+     *
+     * @param mixed $data
+     * @param string|null $message
+     * @param int $statusCode
+     * @return JsonResponse
+     */
+    protected function successResponse($data, ?string $message = null, int $statusCode = 200): JsonResponse
+    {
+        $response = [
+            'success' => true,
+            'data' => $data,
+        ];
+
+        if ($message) {
+            $response['message'] = $message;
+        }
+
+        return response()->json($response, $statusCode);
+    }
 }

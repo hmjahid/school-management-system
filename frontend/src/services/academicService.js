@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api';
 
 // Sample data to use when the backend is not available
 const SAMPLE_ACADEMIC_CONTENT = {
