@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect, lazy } from 'react';
 import { Routes, Route, Navigate, useRoutes, Link, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { WebSocketProvider } from './contexts/WebSocketContext';
@@ -30,7 +30,7 @@ import RegisterPage from './pages/RegisterPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 
 // Dashboard and Admin Pages
-import EnhancedDashboardRouter from './routes/EnhancedDashboardRouter_v7'; // Using debug router
+import EnhancedDashboardRouter from './routes/EnhancedDashboardRouter';
 import WebsiteContentPage from './pages/admin/WebsiteContentPage';
 import AboutContentPage from './pages/admin/AboutContentPage';
 import WebsiteSettingsPage from './pages/admin/WebsiteSettingsPage';

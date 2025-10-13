@@ -13,6 +13,11 @@ use App\Http\Controllers\Api\ApiController;
 // Public routes
 Route::get('/', [ApiController::class, 'index']);
 
+// Admin routes
+Route::middleware(['auth:api'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\Api\Admin\DashboardController::class, 'index']);
+});
+
 // Academic routes
 Route::prefix('academics')->group(function () {
     Route::get('/curriculum', [\App\Http\Controllers\Api\AcademicController::class, 'getCurriculum']);

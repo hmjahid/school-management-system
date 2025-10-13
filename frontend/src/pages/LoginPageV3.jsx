@@ -13,25 +13,38 @@ export default function LoginPage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log('[LoginPage] Form submitted');
         
         // Basic validation
         if (!email || !password) {
-            setError('Please enter both email and password');
+            const errMsg = !email && !password 
+                ? 'Please enter both email and password' 
+                : !email ? 'Please enter your email' : 'Please enter your password';
+            console.log('[LoginPage] Validation failed:', errMsg);
+            setError(errMsg);
             return;
         }
 
+        console.log('[LoginPage] Attempting login with:', { email });
         setLoading(true);
         setError('');
 
         try {
+            console.log('[LoginPage] Calling login function');
             await login(email, password);
+            console.log('[LoginPage] Login successful, redirecting...');
             // No need to navigate here, AuthContext will handle the redirect
         } catch (error) {
-            console.error('Login error:', error);
+            console.error('[LoginPage] Login error:', {
+                message: error.message,
+                response: error.response?.data,
+                stack: error.stack
+            });
             const errorMessage = error.response?.data?.message || error.message || 'Failed to log in. Please check your credentials.';
             setError(errorMessage);
             toast.error(errorMessage);
         } finally {
+            console.log('[LoginPage] Login attempt completed');
             setLoading(false);
         }
     };

@@ -18,6 +18,14 @@ api.defaults.headers.common = api.defaults.headers.common || {};
 
 api.interceptors.request.use(
   (config) => {
+    console.log('[API] Request:', {
+      url: config.url,
+      method: config.method,
+      data: config.data,
+      headers: config.headers,
+      params: config.params
+    });
+    
     if (config.url?.includes('/refresh-token') || config.skipAuthRefresh) {
       return config;
     }
@@ -26,6 +34,9 @@ api.interceptors.request.use(
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('[API] Added auth token to request');
+    } else {
+      console.log('[API] No auth token found in localStorage');
     }
 
     if (config.method === 'get') {
@@ -34,11 +45,21 @@ api.interceptors.request.use(
 
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    console.error('[API] Request error:', error);
+    return Promise.reject(error);
+  }
 );
 
 api.interceptors.response.use(
   (response) => {
+    console.log('[API] Response:', {
+      url: response.config.url,
+      status: response.status,
+      data: response.data,
+      headers: response.headers
+    });
+    
     if (response?.data?.message) {
       toast.success(response.data.message);
     }

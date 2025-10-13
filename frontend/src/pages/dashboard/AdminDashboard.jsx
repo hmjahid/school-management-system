@@ -56,18 +56,22 @@ const AdminDashboard = () => {
 
         // Try to fetch from API first
         try {
+          console.log("[AdminDashboard] Making API call to /admin/dashboard");
           const response = await api.get("/admin/dashboard", {
             timeout: 10000,
             headers: {
               "Cache-Control": "no-cache",
+              "Authorization": `Bearer ${localStorage.getItem('token')}` // Ensure auth token is sent
             },
           });
 
+          console.log("[AdminDashboard] API Response Status:", response.status);
           console.log("[AdminDashboard] Dashboard data received:", response.data);
 
           if (!isMounted) return;
 
           if (response.data) {
+            console.log("[AdminDashboard] Setting dashboard data");
             setDashboardData(response.data);
             setError(null);
             return;
@@ -276,6 +280,9 @@ const AdminDashboard = () => {
     };
   }, []);
 
+  // Debug: log render state to help diagnose empty dashboard
+  console.log('[AdminDashboard] Render state:', { isLoading, error, dashboardData, apiBase: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001/api' });
+
   const StatCard = ({
     icon: Icon,
     title,
@@ -366,15 +373,19 @@ const AdminDashboard = () => {
   };
 
   if (isLoading) {
+    console.log("[AdminDashboard] Rendering loading state");
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-500"></div>
-        <p className="text-gray-600 font-medium">Loading dashboard data...</p>
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
   }
 
   if (!dashboardData) {
+    console.log("[AdminDashboard] Dashboard data before render:", dashboardData);
+    // Use an empty fallback object instead of referencing `mockData` which is out of scope here
+    const data = dashboardData || {};
+    console.log("[AdminDashboard] Data being used for render:", data);
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center">
         <div className="p-4 bg-red-50 text-red-700 rounded-lg max-w-md">
@@ -388,6 +399,19 @@ const AdminDashboard = () => {
           >
             Retry
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  // If there's an error but dashboardData exists, show a banner in the page header
+  if (error && !dashboardData) {
+    console.log("[AdminDashboard] Rendering error state without data:", error);
+    return (
+      <div className="p-6">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">Error: </strong>
+          <span className="block sm:inline">{error}</span>
         </div>
       </div>
     );

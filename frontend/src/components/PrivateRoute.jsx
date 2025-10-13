@@ -1,29 +1,33 @@
 import { Navigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useContext, useEffect, useState } from 'react';
+import { AuthContext } from '../contexts/AuthContext';
+import LoadingSpinner from './common/LoadingSpinner';
 
 export default function PrivateRoute({ children }) {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const { user, loading } = useContext(AuthContext);
+    const [isClient, setIsClient] = useState(false);
 
+    // This effect ensures we're on the client side before rendering
     useEffect(() => {
-        const checkAuth = async () => {
-            try {
-                await axios.get('/api/user');
-                setIsAuthenticated(true);
-            } catch (error) {
-                setIsAuthenticated(false);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        checkAuth();
+        setIsClient(true);
     }, []);
 
-    if (loading) {
-        return <div>Loading...</div>;
+    // Show loading state while checking authentication
+    if (loading || !isClient) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <LoadingSpinner size="lg" text="Checking authentication..." />
+            </div>
+        );
     }
 
-    return isAuthenticated ? children : <Navigate to="/login" />;
+    // If not authenticated, redirect to login
+    if (!user) {
+        console.log('[PrivateRoute] User not authenticated, redirecting to login');
+        return <Navigate to="/login" replace />;
+    }
+
+    // User is authenticated, render the protected content
+    console.log('[PrivateRoute] User is authenticated, rendering protected content');
+    return children;
 }

@@ -5,15 +5,18 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 /**
  * A wrapper for routes that require authentication
  */
-const PrivateRoute = () => {
+const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
     return <LoadingSpinner fullScreen />;
   }
-  
-  // If authorized, render the child routes, otherwise redirect to login
-  return user ? <Outlet /> : <Navigate to="/login" replace />;
+
+  // If not authenticated, redirect to login
+  if (!user) return <Navigate to="/login" replace />;
+
+  // If children are provided directly, render them (used in App.jsx), otherwise render nested routes via Outlet
+  return children ? children : <Outlet />;
 };
 
 export default PrivateRoute;

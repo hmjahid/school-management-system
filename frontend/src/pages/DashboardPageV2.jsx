@@ -8,6 +8,9 @@ import { AuthContext } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import EnhancedAdminDashboard from './dashboard/EnhancedAdminDashboard';
 
+// Import AdminDashboard
+import AdminDashboard from './dashboard/AdminDashboard';
+
 // Lazy load other dashboard components to improve initial load performance
 const TeacherDashboard = () => (
   <div className="p-6 max-w-6xl mx-auto">
@@ -84,23 +87,47 @@ export default function DashboardPageV2() {
     const { data: userData, isLoading, error } = useQuery({
         queryKey: ['currentUser'],
         queryFn: async () => {
-            const response = await api.get('/me', {
-                timeout: 10000,
-                validateStatus: (status) => status < 500,
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache',
-                    'Expires': '0'
+            try {
+                console.log('Making request to /me endpoint...');
+                const response = await api.get('/me', {
+                    timeout: 10000,
+                    validateStatus: (status) => status < 500,
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                console.log('Response from /me:', response);
+                
+                if (!response?.data) {
+                    console.error('No user data in response:', response);
+                    throw new Error('No user data received');
                 }
-            });
-            
-            if (!response?.data) {
-                console.error('No user data in response:', response);
-                throw new Error('No user data received');
+                
+                // Ensure the user has a roles array
+                const userData = response.data;
+                if (!userData.roles && userData.role) {
+                    userData.roles = [userData.role];
+                }
+                
+                console.log('User data processed:', userData);
+                return userData;
+            } catch (error) {
+                console.error('Error in /me request:', error);
+                if (error.response) {
+                    console.error('Response data:', error.response.data);
+                    console.error('Response status:', error.response.status);
+                    console.error('Response headers:', error.response.headers);
+                } else if (error.request) {
+                    console.error('No response received:', error.request);
+                } else {
+                    console.error('Error setting up request:', error.message);
+                }
+                throw error;
             }
-            
-            console.log('User data received:', response.data);
-            return response.data;
         },
         retry: 1,
         staleTime: 5 * 60 * 1000, // 5 minutes
@@ -201,37 +228,117 @@ export default function DashboardPageV2() {
         );
     }
 
-    // Debug user data and roles
-    console.log('Current user data:', user);
-    console.log('User roles:', user?.roles);
+    // Debug user data and roles with detailed inspection
+    console.log('=== DEBUG: Current User Data ===');
+    console.log('Full user object:', JSON.parse(JSON.stringify(user || {})));
+    console.log('User roles (direct):', user?.roles);
+    console.log('User role (direct):', user?.role);
     
-    // Determine user role and render appropriate dashboard
-    const isAdmin = user?.roles?.some(role => role.name === 'admin' || role === 'admin');
-    const isTeacher = user?.roles?.some(role => role.name === 'teacher' || role === 'teacher');
-    const isStudent = user?.roles?.some(role => role.name === 'student' || role === 'student');
-    const isParent = user?.roles?.some(role => role.name === 'parent' || role === 'parent');
+    // Log all properties of the user object
+    if (user) {
+        console.log('User object properties:', Object.keys(user));
+        if (user.roles && Array.isArray(user.roles)) {
+            console.log('Roles array:', user.roles);
+            console.log('First role (if array):', user.roles[0]);
+            console.log('First role type:', typeof user.roles[0]);
+            if (user.roles[0]) {
+                console.log('First role properties:', Object.keys(user.roles[0]));
+                console.log('First role name:', user.roles[0].name);
+            } else {
+                console.log('No roles in the roles array');
+            }
+        }
+    }
     
+    // Helper function to check roles that handles multiple formats
+    const hasRole = (roleName) => {
+        if (!user) return false;
+        
+        // Handle case where roles is an array of role objects
+        if (Array.isArray(user.roles)) {
+            return user.roles.some(role => {
+                // Handle role as object with name property
+                if (role && typeof role === 'object') {
+                    const roleValue = role.name || role.role;
+                    return roleValue?.toLowerCase() === roleName.toLowerCase();
+                }
+                // Handle role as string in array
+                if (typeof role === 'string') {
+                    return role.toLowerCase() === roleName.toLowerCase();
+                }
+                return false;
+            });
+        }
+        
+        // Handle case where user has a single role string
+        if (typeof user.role === 'string') {
+            return user.role.toLowerCase() === roleName.toLowerCase();
+        }
+        
+        // Handle case where role is a direct property with name
+        if (user.role?.name) {
+            return user.role.name.toLowerCase() === roleName.toLowerCase();
+        }
+        
+        return false;
+    };
+    
+    // Check user roles
+    const isAdmin = hasRole('admin');
+    const isTeacher = hasRole('teacher');
+    const isStudent = hasRole('student');
+    const isParent = hasRole('parent');
+    
+    // Debug role detection
     console.log('Role check - isAdmin:', isAdmin, 'isTeacher:', isTeacher, 'isStudent:', isStudent, 'isParent:', isParent);
 
     // Render the appropriate dashboard based on user role
     const renderDashboard = () => {
+        console.log('=== RENDER DASHBOARD ===');
+        console.log('User object in renderDashboard:', user);
+        console.log('Role checks - isAdmin:', isAdmin, 'isTeacher:', isTeacher, 'isStudent:', isStudent, 'isParent:', isParent);
+        
+        if (!user) {
+            console.log('No user data available');
+            return (
+                <div className="flex items-center justify-center min-h-screen">
+                    <LoadingSpinner size="lg" text="Loading user data..." />
+                </div>
+            );
+        }
+
+        // Check for admin role first
         if (isAdmin) {
-            return <EnhancedAdminDashboard user={user} />;
-        } else if (isTeacher) {
+            console.log('Rendering Admin Dashboard - isAdmin:', isAdmin);
+            console.log('AdminDashboard component:', AdminDashboard);
+            return (
+                <div className="w-full">
+                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500">
+                        <p className="text-blue-800 dark:text-blue-200">Admin Dashboard Wrapper - Start</p>
+                        <AdminDashboard />
+                        <p className="text-blue-800 dark:text-blue-200">Admin Dashboard Wrapper - End</p>
+                    </div>
+                </div>
+            );
+        }
+        
+        // Other role-based dashboards
+        if (isTeacher) {
+            console.log('Rendering Teacher Dashboard');
             return <TeacherDashboard />;
         } else if (isStudent) {
+            console.log('Rendering Student Dashboard');
             return <StudentDashboard />;
         } else if (isParent) {
+            console.log('Rendering Parent Dashboard');
             return <ParentDashboard />;
         }
+        
+        console.log('No matching role found. Available roles:', user.roles);
 
         // Default dashboard for users with no specific role
         return (
-            <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="p-6 max-w-4xl mx-auto"
-            >
+            <div className="p-6 max-w-4xl mx-auto">
                 <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
                     <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Welcome, {user?.name || 'User'}!</h2>
                     <p className="text-gray-600 dark:text-gray-300 mb-4">
@@ -248,11 +355,16 @@ export default function DashboardPageV2() {
                                 <p className="text-sm text-yellow-700 dark:text-yellow-200">
                                     <span className="font-medium">Notice:</span> Your account doesn't have any assigned roles. Some features may be limited.
                                 </p>
+                                <div className="mt-2 p-2 bg-white/50 dark:bg-gray-800/50 rounded">
+                                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                                        <strong>Debug Info:</strong> User roles: {JSON.stringify(user.roles || [user.role].filter(Boolean))}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </motion.div>
+            </div>
         );
     };
 

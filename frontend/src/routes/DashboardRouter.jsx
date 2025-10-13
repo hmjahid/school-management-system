@@ -10,19 +10,63 @@ import NotFound from '../pages/NotFound';
 
 const DashboardRouter = () => {
   const { user } = useAuth();
+  
+  // Simple log to check if component is rendered
+  console.log('DashboardRouter rendered');
+  console.log('[DashboardRouter] Current user:', user);
+  console.log('[DashboardRouter] User roles:', user?.roles);
 
   // If no user is logged in, redirect to login
   if (!user) {
+    console.log('[DashboardRouter] No user found, redirecting to login');
     return <Navigate to="/login" replace />;
   }
 
+  // Helper function to check if user has a specific role
+  const hasRole = (roleName) => {
+    if (!user?.roles) return false;
+    
+    // Handle both array of roles and direct role property
+    const roles = Array.isArray(user.roles) ? user.roles : [user.role];
+    
+    return roles.some(role => {
+      // Handle role as object with name property
+      if (role && typeof role === 'object') {
+        return (role.name || '').toLowerCase() === roleName.toLowerCase();
+      }
+      // Handle role as string
+      if (typeof role === 'string') {
+        return role.toLowerCase() === roleName.toLowerCase();
+      }
+      return false;
+    });
+  };
+
   // Determine the default dashboard based on user role
   const getDefaultDashboard = () => {
-    if (user.roles?.includes('admin')) return 'admin';
-    if (user.roles?.includes('teacher')) return 'teacher';
-    if (user.roles?.includes('student')) return 'student';
-    if (user.roles?.includes('parent')) return 'parent';
-    if (user.roles?.includes('staff')) return 'staff';
+    console.log('[DashboardRouter] Determining dashboard for user:', user);
+    console.log('[DashboardRouter] User roles:', user.roles);
+    
+    if (hasRole('admin')) {
+      console.log('[DashboardRouter] User has admin role');
+      return 'admin';
+    }
+    if (hasRole('teacher')) {
+      console.log('[DashboardRouter] User has teacher role');
+      return 'teacher';
+    }
+    if (hasRole('student')) {
+      console.log('[DashboardRouter] User has student role');
+      return 'student';
+    }
+    if (hasRole('parent')) {
+      console.log('[DashboardRouter] User has parent role');
+      return 'parent';
+    }
+    if (hasRole('staff')) {
+      console.log('[DashboardRouter] User has staff role');
+      return 'staff';
+    }
     return 'not-found';
   };
 

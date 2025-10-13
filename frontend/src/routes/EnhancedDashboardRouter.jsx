@@ -13,20 +13,67 @@ const StaffDashboard = lazy(() => import('../pages/dashboard/StaffDashboard'));
 const NotFound = lazy(() => import('../pages/NotFound'));
 
 const EnhancedDashboardRouter = () => {
+  console.log('[EnhancedDashboardRouter] Component mounted');
   const { user } = useAuth();
+  
+  console.log('[EnhancedDashboardRouter] User from useAuth:', user);
 
   // If no user is logged in, redirect to login
   if (!user) {
+    console.log('[EnhancedDashboardRouter] No user found, redirecting to login');
+    console.log('[EnhancedDashboardRouter] Dashboard router called without user');
+    console.log('[EnhancedDashboardRouter] Dashboard router called');
     return <Navigate to="/login" replace />;
   }
 
+  // Helper function to check if user has a specific role
+  const hasRole = (roleName) => {
+    if (!user?.roles) return false;
+    
+    // Handle both array of roles and direct role property
+    const roles = Array.isArray(user.roles) ? user.roles : [user.role];
+    
+    return roles.some(role => {
+      // Handle role as object with name property
+      if (role && typeof role === 'object') {
+        return (role.name || '').toLowerCase() === roleName.toLowerCase();
+      }
+      // Handle role as string
+      if (typeof role === 'string') {
+        return role.toLowerCase() === roleName.toLowerCase();
+      }
+      return false;
+    });
+  };
+
   // Determine the default dashboard based on user role
   const getDefaultDashboard = () => {
-    if (user.roles?.includes('admin')) return 'admin';
-    if (user.roles?.includes('teacher')) return 'teacher';
-    if (user.roles?.includes('student')) return 'student';
-    if (user.roles?.includes('parent')) return 'parent';
-    if (user.roles?.includes('staff')) return 'staff';
+    console.log('[EnhancedDashboardRouter] Determining dashboard for user:', user);
+    console.log('[EnhancedDashboardRouter] User roles:', user.roles);
+    console.log('[EnhancedDashboardRouter] Dashboard router called for user:', user);
+    console.log('[EnhancedDashboardRouter] Dashboard router called');
+    
+    if (hasRole('admin')) {
+      console.log('[EnhancedDashboardRouter] User has admin role');
+      return 'admin';
+    }
+    if (hasRole('teacher')) {
+      console.log('[EnhancedDashboardRouter] User has teacher role');
+      return 'teacher';
+    }
+    if (hasRole('student')) {
+      console.log('[EnhancedDashboardRouter] User has student role');
+      return 'student';
+    }
+    if (hasRole('parent')) {
+      console.log('[EnhancedDashboardRouter] User has parent role');
+      return 'parent';
+    }
+    if (hasRole('staff')) {
+      console.log('[EnhancedDashboardRouter] User has staff role');
+      return 'staff';
+    }
+    console.log('[EnhancedDashboardRouter] No matching role found');
     return 'not-found';
   };
 
@@ -43,7 +90,7 @@ const EnhancedDashboardRouter = () => {
         <Route 
           path="admin/*" 
           element={
-            user.roles?.includes('admin') ? (
+            hasRole('admin') ? (
               <EnhancedAdminDashboard user={user} />
             ) : (
               <Navigate to="/dashboard/unauthorized" replace />
@@ -55,7 +102,7 @@ const EnhancedDashboardRouter = () => {
         <Route 
           path="student/*" 
           element={
-            user.roles?.includes('student') ? (
+            hasRole('student') ? (
               <StudentDashboard user={user} />
             ) : (
               <Navigate to="/dashboard/unauthorized" replace />
@@ -67,7 +114,7 @@ const EnhancedDashboardRouter = () => {
         <Route 
           path="teacher/*" 
           element={
-            user.roles?.includes('teacher') ? (
+            hasRole('teacher') ? (
               <TeacherDashboard user={user} />
             ) : (
               <Navigate to="/dashboard/unauthorized" replace />
@@ -79,7 +126,7 @@ const EnhancedDashboardRouter = () => {
         <Route 
           path="parent/*" 
           element={
-            user.roles?.includes('parent') ? (
+            hasRole('parent') ? (
               <ParentDashboard user={user} />
             ) : (
               <Navigate to="/dashboard/unauthorized" replace />
@@ -91,7 +138,7 @@ const EnhancedDashboardRouter = () => {
         <Route 
           path="staff/*" 
           element={
-            user.roles?.includes('staff') ? (
+            hasRole('staff') ? (
               <StaffDashboard user={user} />
             ) : (
               <Navigate to="/dashboard/unauthorized" replace />

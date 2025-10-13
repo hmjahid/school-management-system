@@ -12,25 +12,45 @@ export const AuthProvider = ({ children }) => {
 
   // Helper function to normalize user data
   const normalizeUserData = (userData) => {
-    // Check for role in different possible locations
-    let userRole = userData.role || 
-                  (userData.roles && userData.roles[0]) || 
-                  (userData.roles && userData.roles.name) ||
-                  (userData.role_id && `role_${userData.role_id}`) ||
-                  'user';
+    console.log('[AuthContext] Normalizing user data:', userData);
     
-    // Ensure roles is an array
+    // Extract roles from different possible locations
     let userRoles = [];
+    
+    // Case 1: roles is an array of role objects
     if (Array.isArray(userData.roles)) {
-      userRoles = [...userData.roles];
-    } else if (userData.roles && typeof userData.roles === 'object') {
-      // Handle case where roles might be an object with role data
-      userRoles = [userData.roles.name || 'user'];
-    } else if (userData.role) {
-      userRoles = [userData.role];
-    } else if (userData.role_id) {
-      userRoles = [`role_${userData.role_id}`];
+      userRoles = userData.roles.map(role => {
+        if (typeof role === 'object' && role !== null) {
+          return role.name || role.role || 'user';
+        }
+        return role; // in case it's already a string
+      });
+      console.log('[AuthContext] Extracted roles from roles array:', userRoles);
+    } 
+    // Case 2: roles is a single role object
+    else if (userData.roles && typeof userData.roles === 'object') {
+      userRoles = [userData.roles.name || userData.roles.role || 'user'];
+      console.log('[AuthContext] Extracted role from roles object:', userRoles);
     }
+    // Case 3: role is a direct property
+    else if (userData.role) {
+      userRoles = [userData.role];
+      console.log('[AuthContext] Extracted role from role property:', userRoles);
+    }
+    // Case 4: role_id is available
+    else if (userData.role_id) {
+      userRoles = [`role_${userData.role_id}`];
+      console.log('[AuthContext] Extracted role from role_id:', userRoles);
+    }
+    
+    // Determine the primary role (first role in the array or 'user' as fallback)
+    const userRole = userRoles[0] || 'user';
+    
+    console.log('[AuthContext] Final normalized data:', {
+      ...userData,
+      role: userRole,
+      roles: userRoles
+    });
     
     // Return normalized user data
     return {
@@ -61,16 +81,41 @@ export const AuthProvider = ({ children }) => {
       }
 
       try {
+        console.log('[AuthContext] Fetching user data from /me endpoint...');
         // Fetch user data using the /me endpoint
         const response = await api.get('/me').catch(err => {
-          console.error('User fetch error:', err);
+          console.error('[AuthContext] User fetch error:', err);
+          console.error('[AuthContext] Error response:', err.response?.data);
           throw err;
         });
 
+        console.log('[AuthContext] Raw response from /me:', {
+          status: response.status,
+          data: response.data,
+          headers: response.headers
+        });
+
         if (response?.status === 200 && response?.data) {
-          // Normalize user data
-          const normalizedUser = normalizeUserData(response.data);
-          setUser(normalizedUser);
+          console.log('[AuthContext] Raw user data before normalization:', JSON.parse(JSON.stringify(response.data)));
+        
+        // Log all properties including non-enumerable ones
+        const allProps = {};
+        const userObj = response.data;
+        Object.getOwnPropertyNames(userObj).forEach(prop => {
+          allProps[prop] = userObj[prop];
+        });
+        console.log('[AuthContext] All user properties:', allProps);
+        
+        // Check for roles in different possible locations
+        console.log('[AuthContext] Checking for roles in response...');
+        console.log('user.roles:', userObj.roles);
+        console.log('user.role:', userObj.role);
+        console.log('user.role_id:', userObj.role_id);
+        
+        // Normalize user data
+        const normalizedUser = normalizeUserData(response.data);
+        console.log('[AuthContext] Normalized user data:', JSON.parse(JSON.stringify(normalizedUser)));
+        setUser(normalizedUser);
         } else {
           throw new Error('Invalid user data received');
         }
@@ -103,27 +148,72 @@ export const AuthProvider = ({ children }) => {
 
   // Login function
   const login = async (email, password) => {
+    console.log('[AuthContext] Login function called with email:', email);
     try {
+      console.log('[AuthContext] Making login request to /auth/login');
       // Make the login request
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post('/auth/login', { 
+        email: email.trim(),
+        password: password
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        withCredentials: true
+      })
+      .catch(error => {
+        console.error('[AuthContext] Login API error:', {
+          message: error.message,
+          response: error.response?.data,
+          status: error.response?.status,
+          headers: error.response?.headers,
+          config: {
+            url: error.config?.url,
+            method: error.config?.method,
+            data: error.config?.data,
+            headers: error.config?.headers
+          }
+        });
+        throw error; // Re-throw to be caught by the outer catch
+      });
       
       // Log the full response for debugging
-      console.log('Login response:', {
+      console.log('[AuthContext] Login response received:', {
         status: response?.status,
-        data: response?.data,
-        headers: response?.headers ? Object.keys(response.headers) : 'No headers'
+        data: response?.data || 'No data',  // Show full response data
+        hasToken: !!(response?.data?.token || response?.data?.access_token),
+        hasUser: !!response?.data?.user,
+        headers: response?.headers ? Object.keys(response.headers) : 'No headers',
+        responseKeys: response?.data ? Object.keys(response.data) : 'No data keys',
+        userData: response?.data?.user || 'No user data in response',
+        fullResponse: response  // Include full response for debugging
       });
       
       // Check if response and data exist
       if (!response || !response.data) {
+        console.error('[AuthContext] No data received in response');
         throw new Error('No data received from server');
       }
       
-      // Extract token and user data safely
-      const token = response.data?.token || response.data?.access_token;
-      const user = response.data?.user || response.data;
+      // Extract token and user data from response
+      const token = response.data?.access_token;
+      // User data is at the root level of the response
+      const user = response.data?.id ? response.data : response.data?.user;
+      
+      console.log('[AuthContext] Extracted token and user:', {
+        hasToken: !!token,
+        userData: user ? {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          roles: user.roles || user.role ? [user.role].flat() : 'No roles'
+        } : 'No user data'
+      });
       
       if (!token) {
+        console.error('[AuthContext] No authentication token found in response');
         throw new Error('No authentication token found in response');
       }
       
@@ -137,14 +227,28 @@ export const AuthProvider = ({ children }) => {
         console.warn('Could not set auth header - api defaults not properly initialized');
       }
       
+      // Set the authorization header safely
+      if (api && api.defaults && api.defaults.headers && api.defaults.headers.common) {
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      } else {
+        console.warn('Could not set auth header - api defaults not properly initialized');
+      }
+      
       // Update user state
       if (user) {
         // Normalize user data
         const normalizedUser = normalizeUserData(user);
+        console.log('[AuthContext] Normalized user data:', {
+          id: normalizedUser.id,
+          name: normalizedUser.name,
+          roles: normalizedUser.roles,
+          hasAdminRole: normalizedUser.roles?.includes('admin')
+        });
+        
         setUser(normalizedUser);
         
         // Redirect to dashboard - let the router handle the specific role-based path
-        console.log('Redirecting to:', '/dashboard');
+        console.log('[AuthContext] Login successful, redirecting to /dashboard');
         navigate('/dashboard');
       } else {
         // If no user data, try to fetch it
@@ -238,6 +342,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
+    // Debug log to surface auth state each render
+    (console.log('[AuthContext] Provider render', { user, loading }),
     <AuthContext.Provider
       value={{
         user,
@@ -251,7 +357,7 @@ export const AuthProvider = ({ children }) => {
       }}
     >
       {children}
-    </AuthContext.Provider>
+    </AuthContext.Provider>)
   );
 };
 

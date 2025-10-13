@@ -63,12 +63,22 @@ const ProtectedRoute = ({ children }) => {
   // Debug logging
   useEffect(() => {
     console.group('ProtectedRoute Debug');
-    console.log('Auth State:', { isAuthenticated, loading, user });
+    console.log('Auth State:', { 
+      isAuthenticated, 
+      loading, 
+      user: user ? { 
+        id: user.id, 
+        name: user.name, 
+        roles: user.roles || [user.role].filter(Boolean),
+        hasAdminRole: user.roles?.includes('admin') || user.role === 'admin'
+      } : 'No user data' 
+    });
     console.log('Current Path:', location.pathname);
     console.groupEnd();
   }, [isAuthenticated, loading, user, location.pathname]);
 
   if (loading) {
+    console.log('[ProtectedRoute] Loading user data...');
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner size="lg" text="Checking authentication..." />
@@ -81,11 +91,12 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  console.log('[ProtectedRoute] User authenticated, rendering children');
   return <ErrorBoundary>{children}</ErrorBoundary>;
 }
 
 const EnhancedDashboardRouter = () => {
-  console.log('Rendering EnhancedDashboardRouter');
+  console.log('[EnhancedDashboardRouter] Rendering...');
   
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -103,7 +114,11 @@ const EnhancedDashboardRouter = () => {
               path="/*"
               element={
                 <ProtectedRoute>
-                  <DashboardPageV2 />
+                  <div className="p-4 border border-dashed border-blue-500 rounded-lg m-4">
+                    <h2 className="text-lg font-bold text-blue-600 mb-2">Debug Info:</h2>
+                    <p className="text-sm text-gray-600">Rendering DashboardPageV2</p>
+                    <DashboardPageV2 />
+                  </div>
                 </ProtectedRoute>
               }
             />
