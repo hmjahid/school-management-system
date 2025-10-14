@@ -10,6 +10,7 @@ use App\Models\Activity;
 use App\Models\Event;
 use App\Models\Assignment;
 use App\Models\User;
+use App\Models\UserWidgetPreference;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\Cache;
