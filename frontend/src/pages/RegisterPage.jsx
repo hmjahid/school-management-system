@@ -42,7 +42,7 @@ export default function RegisterPage() {
         <div className="min-h-screen bg-gray-50 flex">
             {/* Form panel */}
             <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12">
-                <div className="w-full max-w-md">
+                <div className="w-full">
                     <div className="text-center mb-10">
                         <h2 className="text-3xl font-bold text-gray-800">Create Your Account</h2>
                         <p className="text-gray-500 mt-2">Join our community and get started.</p>

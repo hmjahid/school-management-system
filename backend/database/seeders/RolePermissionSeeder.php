@@ -86,6 +86,16 @@ class RolePermissionSeeder extends Seeder
             'promote_students' => 'Promote students',
             'view_student_details' => 'View student details',
             'export_student_data' => 'Export student data',
+            'view_students' => 'View students',
+            'create_students' => 'Create students',
+            'edit_students' => 'Edit students',
+            'delete_students' => 'Delete students',
+            
+            // Admission Management
+            'view_admissions' => 'View admissions',
+            'create_admissions' => 'Create admissions',
+            'edit_admissions' => 'Edit admissions',
+            'delete_admissions' => 'Delete admissions',
 
             // Teacher Management
             'manage_teachers' => 'Manage teachers',

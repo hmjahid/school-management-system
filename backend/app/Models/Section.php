@@ -14,44 +14,34 @@ class Section extends Model
 
     protected $fillable = [
         'name',
-        'code',
-        'class_id',
-        'teacher_id',
-        'academic_session_id',
+        'slug',
         'capacity',
-        'room_number',
+        'description',
         'is_active',
-        'notes',
+        'class_teacher_id',
+        'academic_year_id',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'capacity' => 'integer',
-        'academic_session_id' => 'integer',
+        'academic_year_id' => 'integer',
     ];
-
-    /**
-     * Get the class that owns the section.
-     */
-    public function class(): BelongsTo
-    {
-        return $this->belongsTo(SchoolClass::class, 'class_id');
-    }
 
     /**
      * Get the class teacher for the section.
      */
-    public function teacher(): BelongsTo
+    public function classTeacher(): BelongsTo
     {
-        return $this->belongsTo(Teacher::class, 'teacher_id');
+        return $this->belongsTo(User::class, 'class_teacher_id');
     }
 
     /**
      * Get the academic session for the section.
      */
-    public function academicSession(): BelongsTo
+    public function academicYear(): BelongsTo
     {
-        return $this->belongsTo(AcademicSession::class, 'academic_session_id');
+        return $this->belongsTo(AcademicYear::class, 'academic_year_id');
     }
 
     /**

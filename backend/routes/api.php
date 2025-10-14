@@ -49,6 +49,18 @@ Route::prefix('careers')->group(function () {
     Route::post('/apply', [\App\Http\Controllers\Api\CareerController::class, 'apply']);
 });
 
+// Teacher routes
+Route::middleware('auth:sanctum')->prefix('teacher')->group(function () {
+    // Get all classes for the authenticated teacher
+    Route::get('/classes', [\App\Http\Controllers\Api\TeacherController::class, 'getTeacherClasses']);
+    
+    // Get students in a specific class
+    Route::get('/classes/{classId}/students', [\App\Http\Controllers\Api\TeacherController::class, 'getClassStudents']);
+    
+    // Get grades for students in a specific class
+    Route::get('/classes/{classId}/grades', [\App\Http\Controllers\Api\TeacherController::class, 'getClassGrades']);
+});
+
 // Auth routes
 Route::prefix('auth')->group(function () {
     Route::post('/login', [\App\Http\Controllers\Auth\AuthController::class, 'login']);

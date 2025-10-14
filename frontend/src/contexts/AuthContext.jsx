@@ -197,9 +197,21 @@ export const AuthProvider = ({ children }) => {
         throw new Error('No data received from server');
       }
       
-      // Extract token and user data from response
-      const token = response.data?.access_token;
-      // User data is at the root level of the response
+      // Extract token from different possible response formats
+      const token = response.data?.access_token || 
+                  response.data?.token || 
+                  response.data?.data?.access_token || 
+                  response.data?.data?.token;
+
+      console.log('[AuthContext] Extracted token:', {
+        hasToken: !!token,
+        fromAccessToken: !!response.data?.access_token,
+        fromToken: !!response.data?.token,
+        fromDataAccessToken: !!response.data?.data?.access_token,
+        fromDataToken: !!response.data?.data?.token
+      });
+      
+      // User data is at the root level of the response or in a user object
       const user = response.data?.id ? response.data : response.data?.user;
       
       console.log('[AuthContext] Extracted token and user:', {

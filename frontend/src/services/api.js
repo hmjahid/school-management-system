@@ -18,25 +18,38 @@ api.defaults.headers.common = api.defaults.headers.common || {};
 
 api.interceptors.request.use(
   (config) => {
-    console.log('[API] Request:', {
-      url: config.url,
-      method: config.method,
-      data: config.data,
-      headers: config.headers,
-      params: config.params
-    });
+    // Skip logging for token refresh requests to prevent token leakage in logs
+    const isAuthRequest = config.url?.includes('auth/');
     
-    if (config.url?.includes('/refresh-token') || config.skipAuthRefresh) {
+    if (!isAuthRequest) {
+      console.log('[API] Request:', {
+        url: config.url,
+        method: config.method,
+        data: config.data,
+        headers: config.headers,
+        params: config.params
+      });
+    }
+    
+    // Skip auth header for login/register/refresh-token endpoints
+    if (config.url?.includes('/auth/') || config.skipAuthRefresh) {
       return config;
     }
 
     config.headers = config.headers || {};
     const token = localStorage.getItem('token');
+    
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-      console.log('[API] Added auth token to request');
+      // Ensure the token is properly formatted (remove any quotes if present)
+      const cleanToken = token.replace(/^['"]|['"]$/g, '');
+      config.headers.Authorization = `Bearer ${cleanToken}`;
+      
+      if (!isAuthRequest) {
+        console.log('[API] Added auth token to request headers');
+      }
     } else {
-      console.log('[API] No auth token found in localStorage');
+      console.warn('[API] No auth token found in localStorage');
+      // Don't throw here, let the server handle unauthorized requests
     }
 
     if (config.method === 'get') {

@@ -33,13 +33,13 @@ class AdmissionSeeder extends Seeder
         
         // Ensure the role has the necessary permissions
         $permissions = [
-            'view admissions',
-            'create admissions',
-            'edit admissions',
-            'delete admissions',
-            'view students',
-            'create students',
-            'edit students'
+            'view_admissions',
+            'create_admissions',
+            'edit_admissions',
+            'delete_admissions',
+            'view_students',
+            'create_students',
+            'edit_students'
         ];
         
         foreach ($permissions as $permission) {
@@ -65,17 +65,42 @@ class AdmissionSeeder extends Seeder
         $academicSession = AcademicSession::firstOrCreate(
             ['name' => '2024-2025'],
             [
+                'code' => 'AY2024-25',
                 'start_date' => '2024-01-01',
                 'end_date' => '2024-12-31',
+                'is_active' => true,
                 'is_current' => true,
+                'status' => 'active',
+                'description' => 'Academic Year 2024-2025'
+            ]
+        );
+
+        // Get or create a school class
+        $schoolClass = \App\Models\SchoolClass::firstOrCreate(
+            ['name' => 'Class I'],
+            [
+                'code' => 'C1',
+                'description' => 'First Grade',
+                'grade_level' => 1,
+                'academic_session_id' => $academicSession->id,
+                'max_students' => 40,
+                'is_active' => true,
+                'monthly_fee' => 1000.00,
+                'admission_fee' => 500.00,
+                'exam_fee' => 200.00,
+                'other_fees' => 100.00,
             ]
         );
 
         // Get or create batch
         $batch = Batch::firstOrCreate(
-            ['name' => 'Class I', 'academic_session_id' => $academicSession->id],
             [
-                'description' => 'First Grade',
+                'name' => 'Class I - A', 
+                'academic_session_id' => $academicSession->id,
+                'school_class_id' => $schoolClass->id
+            ],
+            [
+                'description' => 'First Grade - Section A',
                 'start_date' => '2024-01-01',
                 'end_date' => '2024-12-31',
                 'capacity' => 40,
@@ -215,15 +240,76 @@ class AdmissionSeeder extends Seeder
                 $updates['enrolled_at'] = $now->copy()->subDays(rand(1, 5));
                 $updates['approved_by'] = $admission->created_by;
                 
+                // Create a user for the student
+                $user = User::create([
+                    'name' => $admission->first_name . ' ' . $admission->last_name,
+                    'email' => $admission->email,
+                    'password' => bcrypt('password'), // Default password
+                    'role_id' => 4, // Assuming 4 is the role_id for students
+                    'email_verified_at' => now(),
+                ]);
+                
+                // Assign the student role to the user
+                $user->assignRole('student');
+                
+                // Get a random school class ID
+                $schoolClass = \App\Models\SchoolClass::inRandomOrder()->first();
+                
+                if (!$schoolClass) {
+                    // If no school class exists, create one
+                    $schoolClass = \App\Models\SchoolClass::create([
+                        'name' => 'Class ' . rand(1, 12) . chr(64 + rand(1, 3)), // Random class like "5A", "10B", etc.
+                        'code' => 'CLS' . rand(100, 999),
+                        'description' => 'Sample class for testing',
+                        'grade_level' => rand(1, 12),
+                        'is_active' => true,
+                    ]);
+                }
+                
+                // Get or create guardian role
+                $guardianRole = \Spatie\Permission\Models\Role::firstOrCreate(
+                    ['name' => 'guardian'],
+                    ['guard_name' => 'web']
+                );
+                
+                // Create a guardian user
+                $guardianUser = \App\Models\User::create([
+                    'name' => $admission->father_name,
+                    'email' => 'guardian_' . $admission->email,
+                    'password' => bcrypt('password'),
+                    'role_id' => $guardianRole->id,
+                    'email_verified_at' => now(),
+                ]);
+                
+                // Create guardian record
+                $guardian = \App\Models\Guardian::create([
+                    'user_id' => $guardianUser->id,
+                    'relation_type' => 'father',
+                    'occupation' => $admission->father_occupation,
+                    'company_name' => 'N/A',
+                    'office_phone' => $admission->phone,
+                    'emergency_contact_name' => $admission->father_name,
+                    'emergency_contact_phone' => $admission->phone,
+                    'emergency_contact_relation' => 'Father',
+                    'is_primary' => true,
+                ]);
+                
+                // Assign the guardian role to the user
+                $guardianUser->assignRole('guardian');
+                
                 // Create a student record for enrolled admission
                 $admission->student()->create([
+                    'user_id' => $user->id,
                     'admission_id' => $admission->id,
-                    'roll_number' => 'STD' . rand(1000, 9999),
+                    'guardian_id' => $guardian->id,
+                    'admission_no' => 'ADM' . $admission->id,
+                    'school_class_id' => $schoolClass->id,
+                    'roll_no' => 'STD' . rand(1000, 9999),
                     'admission_date' => now()->subDays(rand(1, 5)),
                     'first_name' => $admission->first_name,
                     'last_name' => $admission->last_name,
                     'gender' => $admission->gender,
-                    'date_of_birth' => $admission->date_of_birth,
+                    'dob' => $admission->date_of_birth,
                     'blood_group' => $admission->blood_group,
                     'religion' => $admission->religion,
                     'nationality' => $admission->nationality,

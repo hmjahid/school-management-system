@@ -58,7 +58,7 @@ import feeRoutes from './routes/feeRoutes';
 // Layout for authentication pages (login, register, etc.)
 const AuthLayout = ({ children }) => (
   <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 w-full">
-    <div className="w-full max-w-md">
+    <div className="w-full">
       {children}
     </div>
   </div>

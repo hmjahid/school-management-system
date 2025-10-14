@@ -1,14 +1,17 @@
 import api from './api';
 
 const teacherService = {
-  // Get all classes for a teacher
-  async getTeacherClasses(teacherId) {
+  // Get all classes for the authenticated teacher
+  async getTeacherClasses() {
     try {
-      const response = await api.get(`/api/teachers/${teacherId}/classes`);
+      // The backend will use the authenticated user's token to identify the teacher
+      const response = await api.get('/teacher/classes');
+      console.log('Teacher classes response:', response);
       return response.data;
     } catch (error) {
       console.error('Error fetching teacher classes:', error);
-      throw error;
+      // Return empty array instead of throwing to prevent UI errors
+      return [];
     }
   },
 
@@ -26,11 +29,12 @@ const teacherService = {
   // Get class students
   async getClassStudents(classId) {
     try {
-      const response = await api.get(`/api/classes/${classId}/students`);
+      const response = await api.get(`/api/teacher/classes/${classId}/students`);
       return response.data;
     } catch (error) {
       console.error('Error fetching class students:', error);
-      throw error;
+      // Return empty array instead of throwing to prevent UI errors
+      return [];
     }
   },
 
@@ -62,11 +66,12 @@ const teacherService = {
   async getClassGrades(classId, examId = null) {
     try {
       const params = examId ? { exam_id: examId } : {};
-      const response = await api.get(`/api/classes/${classId}/grades`, { params });
+      const response = await api.get(`/api/teacher/classes/${classId}/grades`, { params });
       return response.data;
     } catch (error) {
       console.error('Error fetching grades:', error);
-      throw error;
+      // Return empty array instead of throwing to prevent UI errors
+      return [];
     }
   },
 
