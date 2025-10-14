@@ -3,13 +3,11 @@ import { useAuth } from '../contexts/AuthContext';
 import { Suspense, lazy } from 'react';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
-// Lazy load dashboard components for better performance
+// Import ModernDashboard directly instead of using lazy loading
+import ModernDashboard from '../pages/dashboard/ModernDashboard';
+
+// Lazy load other components
 const DashboardLayout = lazy(() => import('../components/dashboard/DashboardLayout'));
-const EnhancedAdminDashboard = lazy(() => import('../pages/dashboard/EnhancedAdminDashboard'));
-const StudentDashboard = lazy(() => import('../pages/dashboard/StudentDashboard'));
-const TeacherDashboard = lazy(() => import('../pages/dashboard/TeacherDashboard'));
-const ParentDashboard = lazy(() => import('../pages/dashboard/ParentDashboard'));
-const StaffDashboard = lazy(() => import('../pages/dashboard/StaffDashboard'));
 const NotFound = lazy(() => import('../pages/NotFound'));
 
 const EnhancedDashboardRouter = () => {
@@ -86,62 +84,14 @@ const EnhancedDashboardRouter = () => {
           element={<Navigate to={`/dashboard/${getDefaultDashboard()}`} replace />} 
         />
         
-        {/* Admin Dashboard */}
+        {/* Modern Dashboard for all roles */}
         <Route 
-          path="admin/*" 
+          path=":role/*" 
           element={
-            hasRole('admin') ? (
-              <EnhancedAdminDashboard user={user} />
+            user ? (
+              <ModernDashboard user={user} />
             ) : (
-              <Navigate to="/dashboard/unauthorized" replace />
-            )
-          } 
-        />
-        
-        {/* Student Dashboard */}
-        <Route 
-          path="student/*" 
-          element={
-            hasRole('student') ? (
-              <StudentDashboard user={user} />
-            ) : (
-              <Navigate to="/dashboard/unauthorized" replace />
-            )
-          } 
-        />
-        
-        {/* Teacher Dashboard */}
-        <Route 
-          path="teacher/*" 
-          element={
-            hasRole('teacher') ? (
-              <TeacherDashboard user={user} />
-            ) : (
-              <Navigate to="/dashboard/unauthorized" replace />
-            )
-          } 
-        />
-        
-        {/* Parent Dashboard */}
-        <Route 
-          path="parent/*" 
-          element={
-            hasRole('parent') ? (
-              <ParentDashboard user={user} />
-            ) : (
-              <Navigate to="/dashboard/unauthorized" replace />
-            )
-          } 
-        />
-        
-        {/* Staff Dashboard */}
-        <Route 
-          path="staff/*" 
-          element={
-            hasRole('staff') ? (
-              <StaffDashboard user={user} />
-            ) : (
-              <Navigate to="/dashboard/unauthorized" replace />
+              <Navigate to="/login" replace />
             )
           } 
         />
@@ -150,13 +100,13 @@ const EnhancedDashboardRouter = () => {
         <Route 
           path="unauthorized" 
           element={
-            <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
-              <div className="p-8 bg-white dark:bg-gray-800 rounded-lg shadow-md text-center">
-                <h2 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">Access Denied</h2>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">You don't have permission to access this dashboard.</p>
+            <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
+              <div className="text-center">
+                <h2 className="text-2xl font-bold text-red-600 mb-2">Access Denied</h2>
+                <p className="text-gray-600">You don't have permission to view this page.</p>
                 <button 
-                  onClick={() => window.history.back()}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  onClick={() => window.history.back()} 
+                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >
                   Go Back
                 </button>
@@ -165,15 +115,8 @@ const EnhancedDashboardRouter = () => {
           } 
         />
         
-        {/* 404 Not Found */}
-        <Route 
-          path="*" 
-          element={
-            <Suspense fallback={<LoadingSpinner size="lg" />}>
-              <NotFound />
-            </Suspense>
-          } 
-        />
+        {/* 404 - Keep this at the end */}
+        <Route path="*" element={<Navigate to="/404" replace />} />
       </Routes>
     </Suspense>
   );

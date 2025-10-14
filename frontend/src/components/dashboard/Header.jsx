@@ -1,13 +1,28 @@
 import { useState, useEffect } from 'react';
-import { FiMenu, FiBell, FiSearch, FiUser } from 'react-icons/fi';
+import { FiMenu, FiBell, FiSearch, FiUser, FiLogOut } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
+import { toast } from 'react-hot-toast';
 
 const Header = ({ toggleSidebar }) => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      await logout();
+      toast.success('Logged out successfully');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      toast.error('Failed to log out. Please try again.');
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   // Mock notifications - replace with actual API call
   useEffect(() => {
@@ -133,12 +148,14 @@ const Header = ({ toggleSidebar }) => {
                   >
                     Settings
                   </a>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  <button
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 focus:outline-none flex items-center"
                   >
-                    Logout
-                  </a>
+                    <FiLogOut className="mr-2 h-4 w-4" />
+                    {isLoggingOut ? 'Logging out...' : 'Logout'}
+                  </button>
                 </div>
               </div>
             )}

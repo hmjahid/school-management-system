@@ -1,9 +1,9 @@
-import React, { Suspense, useEffect, lazy } from 'react';
-import { Routes, Route, Navigate, useRoutes, Link, useLocation } from 'react-router-dom';
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { WebSocketProvider } from './contexts/WebSocketContext';
 import { AuthProvider } from './contexts/AuthContext';
-import DebugInfoSimple from './components/DebugInfoSimple';
+import LoadingSpinner from './components/common/LoadingSpinner';
 
 // Layouts
 import WebsiteLayout from './components/website/WebsiteLayout';
@@ -53,140 +53,93 @@ import WebsiteContentPage from './pages/admin/WebsiteContentPage';
 import AboutContentPage from './pages/admin/AboutContentPage';
 import WebsiteSettingsPage from './pages/admin/WebsiteSettingsPage';
 import Layout from './components/layout/Layout';
-import LoadingSpinner from './components/common/LoadingSpinner';
 import PrivateRoute from './routes/PrivateRoute';
 import feeRoutes from './routes/feeRoutes';
 
 // Layout for authentication pages (login, register, etc.)
 const AuthLayout = ({ children }) => (
   <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 w-full">
-    <div className="w-full">
+    <div className="w-full max-w-md">
       {children}
     </div>
   </div>
 );
 
-// Debug component to log router changes (optional)
-const DebugRouter = ({ children }) => {
-  const location = useLocation();
-  
-  useEffect(() => {
-    // Only log in development
-    if (import.meta.env.MODE === 'development') {
-      console.log('[Router] Current path:', location.pathname);
-    }
-  }, [location]);
-  
-  return children;
-};
-
 // Main app routes with WebSocket connection
 const AppRoutes = () => {
-  const routes = useRoutes([
-    // Public routes with WebsiteLayout
-    {
-      element: <WebsiteLayout />,
-      children: [
-        { path: '/', element: <HomePage /> },
-        { path: '/about', element: <AboutPage /> },
-        { path: '/academics', element: <AcademicsPage /> },
-        { path: '/academics/curriculum', element: <CurriculumPage /> },
-        { path: '/academics/programs', element: <ProgramsPage /> },
-        { path: '/academics/faculty', element: <FacultyPage /> },
-        { path: '/admissions', element: <AdmissionsPage /> },
-        { path: '/news', element: <NewsEventsPage /> },
-        { path: '/gallery', element: <GalleryPage /> },
-        { path: '/contact', element: <ContactPage /> },
-        { path: '/terms', element: <TermsOfServicePage /> },
-        { path: '/privacy', element: <PrivacyPolicyPage /> },
-        { path: '/sitemap', element: <SitemapPage /> },
-        { path: '/careers', element: <CareerPage /> },
-      ],
-    },
-    {
-      path: '/login',
-      element: (
-        <PublicRoute>
-          <AuthLayout>
-            <LoginPage />
-          </AuthLayout>
-        </PublicRoute>
-      ),
-    },
-    {
-      path: '/register',
-      element: (
-        <PublicRoute>
-          <AuthLayout>
-            <RegisterPage />
-          </AuthLayout>
-        </PublicRoute>
-      ),
-    },
-    {
-      path: '/forgot-password',
-      element: (
-        <PublicRoute>
-          <AuthLayout>
-            <ForgotPasswordPage />
-          </AuthLayout>
-        </PublicRoute>
-      ),
-    },
-    
-    // Protected admin routes - Dashboard
-    {
-      path: '/dashboard/*',
-      element: (
-        <PrivateRoute>
-          <DebugRouter>
-            <EnhancedDashboardRouter />
-          </DebugRouter>
-        </PrivateRoute>
-      )
-    },
-    
-    // Other protected admin routes
-    {
-      element: (
-        <PrivateRoute>
-          <DebugRouter>
-            <Layout />
-          </DebugRouter>
-        </PrivateRoute>
-      ),
-      children: [
-        { path: '/admin/website/content', element: <WebsiteContentPage /> },
-        { path: '/admin/website/about', element: <AboutContentPage /> },
-        { path: '/admin/website/settings', element: <WebsiteSettingsPage /> },
-        ...feeRoutes,
-      ],
-    },
-    
-    // Error boundary route
-    {
-      path: '/error',
-      element: (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full text-center">
-            <h1 className="text-2xl font-bold text-red-600 mb-4">Oops! Something went wrong</h1>
-            <p className="text-gray-700 mb-6">We're having trouble loading the page. Please try again later.</p>
-            <Link 
-              to="/" 
-              className="inline-block bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"
-            >
-              Return Home
-            </Link>
-          </div>
-        </div>
-      ),
-    },
-    
-    // Redirect any unknown routes to home
-    { path: '*', element: <Navigate to="/" replace /> },
-  ]);
+  return (
+    <Routes>
+      {/* Public routes with WebsiteLayout */}
+      <Route element={<WebsiteLayout />}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/academics" element={<AcademicsPage />} />
+        <Route path="/academics/curriculum" element={<CurriculumPage />} />
+        <Route path="/academics/programs" element={<ProgramsPage />} />
+        <Route path="/academics/faculty" element={<FacultyPage />} />
+        <Route path="/admissions" element={<AdmissionsPage />} />
+        <Route path="/news" element={<NewsEventsPage />} />
+        <Route path="/gallery" element={<GalleryPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/terms" element={<TermsOfServicePage />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/sitemap" element={<SitemapPage />} />
+        <Route path="/careers" element={<CareerPage />} />
+      </Route>
 
-  return routes;
+      {/* Auth routes */}
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <AuthLayout>
+              <LoginPage />
+            </AuthLayout>
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <PublicRoute>
+            <AuthLayout>
+              <RegisterPage />
+            </AuthLayout>
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/forgot-password"
+        element={
+          <PublicRoute>
+            <AuthLayout>
+              <ForgotPasswordPage />
+            </AuthLayout>
+          </PublicRoute>
+        }
+      />
+
+      {/* Dashboard routes - All dashboard routes are handled by EnhancedDashboardRouter */}
+      <Route
+        path="/dashboard/*"
+        element={
+          <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center">
+              <LoadingSpinner size="lg" />
+            </div>
+          }>
+            <EnhancedDashboardRouter />
+          </Suspense>
+        }
+      />
+
+      {/* Redirect root to home */}
+      <Route path="/" element={<Navigate to="/" replace />} />
+      
+      {/* 404 - Keep this at the end */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
 };
 
 // Error boundary component
@@ -202,71 +155,78 @@ class ErrorBoundary extends React.Component {
   }
 
   static getDerivedStateFromError(error) {
-    console.error('Error caught by error boundary:', error);
-    return { 
-      hasError: true,
-      error: error
-    };
+    return { hasError: true, error };
   }
 
   componentDidCatch(error, errorInfo) {
     console.error('Error caught by error boundary:', error, errorInfo);
-    this.setState({
-      error: error,
-      errorInfo: errorInfo
-    });
+    this.setState({ errorInfo });
   }
 
   toggleDetails = () => {
     this.setState(prevState => ({
       showDetails: !prevState.showDetails
     }));
-  };
+  }
 
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-gray-100 p-4 flex items-center justify-center">
-          <div className="bg-white p-8 rounded-lg shadow-lg max-w-2xl w-full">
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+          <div className="max-w-2xl w-full bg-white rounded-xl shadow-lg p-6">
             <div className="text-center">
-              <div className="text-6xl mb-4">⚠️</div>
-              <h1 className="text-2xl font-bold text-red-600 mb-2">Oops! Something went wrong</h1>
-              <p className="text-gray-700 mb-6">
-                We're having trouble loading the page. Please try again later.
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                <svg
+                  className="h-6 w-6 text-red-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+              <h2 className="mt-3 text-2xl font-bold text-gray-900">
+                Something went wrong!
+              </h2>
+              <p className="mt-2 text-gray-600">
+                We're sorry, but an unexpected error occurred. Our team has been notified.
               </p>
-              
-              <button
-                onClick={this.toggleDetails}
-                className="text-blue-600 hover:text-blue-800 text-sm font-medium mb-4"
-              >
-                {this.state.showDetails ? 'Hide details' : 'Show details'}
-              </button>
-              
-              {this.state.showDetails && (
-                <div className="bg-gray-50 p-4 rounded-md text-left text-sm text-gray-600 font-mono overflow-auto max-h-64">
-                  <p className="font-semibold mb-2">Error details:</p>
-                  <pre className="whitespace-pre-wrap">
-                    {this.state.error && this.state.error.toString()}
-                  </pre>
-                  
-                  {this.state.errorInfo && this.state.errorInfo.componentStack && (
-                    <>
-                      <p className="font-semibold mt-4 mb-2">Component stack:</p>
-                      <pre className="whitespace-pre-wrap text-xs">
-                        {this.state.errorInfo.componentStack}
-                      </pre>
-                    </>
-                  )}
-                </div>
-              )}
               
               <div className="mt-6">
                 <button
                   onClick={() => window.location.reload()}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   Reload Page
                 </button>
+                
+                <button
+                  onClick={this.toggleDetails}
+                  className="ml-3 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  {this.state.showDetails ? 'Hide Details' : 'Show Details'}
+                </button>
+                
+                {this.state.showDetails && (
+                  <div className="mt-4 p-4 bg-gray-50 rounded-md overflow-auto max-h-64">
+                    <p className="text-sm font-medium text-gray-900 mb-2">Error details:</p>
+                    <pre className="text-xs text-red-600">
+                      {this.state.error && this.state.error.toString()}
+                      {this.state.errorInfo && this.state.errorInfo.componentStack}
+                    </pre>
+                  </div>
+                )}
+              </div>
+              
+              <div className="mt-8">
+                <p className="text-sm text-gray-500">
+                  If the problem persists, please contact support.
+                </p>
               </div>
             </div>
           </div>
@@ -279,23 +239,40 @@ class ErrorBoundary extends React.Component {
 }
 
 // Main App component
-function App() {
+const App = () => {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <div className="min-h-screen bg-white dark:bg-gray-900">
-          <Suspense fallback={
-            <div className="flex items-center justify-center min-h-screen">
-              <LoadingSpinner size="lg" />
-            </div>
-          }>
-            <AppRoutes />
-          </Suspense>
-          <Toaster position="top-right" />
-        </div>
-      </AuthProvider>
+      <WebSocketProvider>
+        <AuthProvider>
+          <Toaster 
+            position="top-right"
+            toastOptions={{
+              duration: 5000,
+              style: {
+                borderRadius: '0.5rem',
+                background: '#fff',
+                color: '#1f2937',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+              },
+              success: {
+                iconTheme: {
+                  primary: '#10B981',
+                  secondary: '#fff',
+                },
+              },
+              error: {
+                iconTheme: {
+                  primary: '#EF4444',
+                  secondary: '#fff',
+                },
+              },
+            }}
+          />
+          <AppRoutes />
+        </AuthProvider>
+      </WebSocketProvider>
     </ErrorBoundary>
   );
-}
+};
 
 export default App;
