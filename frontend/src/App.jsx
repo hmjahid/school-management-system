@@ -25,9 +25,27 @@ import SitemapPage from './pages/SitemapPage';
 import CareerPage from './pages/CareerPage';
 
 // Auth Pages
-import LoginPage from './pages/LoginPageV3';
+import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import { useAuth } from './contexts/AuthContext';
+
+// Component to handle public routes (login, register, etc.)
+const PublicRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return <LoadingSpinner fullScreen />;
+  }
+
+  if (user) {
+    // Redirect to dashboard if user is already logged in
+    return <Navigate to="/dashboard" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
 
 // Dashboard and Admin Pages
 import EnhancedDashboardRouter from './routes/EnhancedDashboardRouter';
@@ -88,25 +106,31 @@ const AppRoutes = () => {
     {
       path: '/login',
       element: (
-        <AuthLayout>
-          <LoginPage />
-        </AuthLayout>
+        <PublicRoute>
+          <AuthLayout>
+            <LoginPage />
+          </AuthLayout>
+        </PublicRoute>
       ),
     },
     {
       path: '/register',
       element: (
-        <AuthLayout>
-          <RegisterPage />
-        </AuthLayout>
+        <PublicRoute>
+          <AuthLayout>
+            <RegisterPage />
+          </AuthLayout>
+        </PublicRoute>
       ),
     },
     {
       path: '/forgot-password',
       element: (
-        <AuthLayout>
-          <ForgotPasswordPage />
-        </AuthLayout>
+        <PublicRoute>
+          <AuthLayout>
+            <ForgotPasswordPage />
+          </AuthLayout>
+        </PublicRoute>
       ),
     },
     

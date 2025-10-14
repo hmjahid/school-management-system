@@ -1,15 +1,29 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { AuthContext } from '../contexts/AuthContext';
+import { getDashboardRoute } from '../utils/roleUtils';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { login } = useContext(AuthContext);
+    const { login, user, loading: authLoading } = useContext(AuthContext);
     const navigate = useNavigate();
+
+    // Redirect if already logged in
+    useEffect(() => {
+        if (user && !authLoading) {
+            const dashboardRoute = getDashboardRoute(user);
+            navigate(dashboardRoute);
+        }
+    }, [user, authLoading, navigate]);
+
+    // Show loading state while checking auth
+    if (authLoading) {
+        return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
