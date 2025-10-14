@@ -1,8 +1,7 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { WebSocketProvider } from './contexts/WebSocketContext';
-import { AuthProvider } from './contexts/AuthContext';
+import { TeacherProvider } from './contexts/TeacherContext';
 import LoadingSpinner from './components/common/LoadingSpinner';
 
 // Layouts
@@ -25,7 +24,7 @@ import SitemapPage from './pages/SitemapPage';
 import CareerPage from './pages/CareerPage';
 
 // Auth Pages
-import LoginPage from './pages/LoginPage';
+import LoginPageV3 from './pages/LoginPageV3';
 import RegisterPage from './pages/RegisterPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import { useAuth } from './contexts/AuthContext';
@@ -48,7 +47,7 @@ const PublicRoute = ({ children }) => {
 };
 
 // Dashboard and Admin Pages
-import EnhancedDashboardRouter from './routes/EnhancedDashboardRouter';
+import ModernDashboardRouter from './routes/ModernDashboardRouter';
 import WebsiteContentPage from './pages/admin/WebsiteContentPage';
 import AboutContentPage from './pages/admin/AboutContentPage';
 import WebsiteSettingsPage from './pages/admin/WebsiteSettingsPage';
@@ -92,9 +91,7 @@ const AppRoutes = () => {
         path="/login"
         element={
           <PublicRoute>
-            <AuthLayout>
-              <LoginPage />
-            </AuthLayout>
+            <LoginPageV3 />
           </PublicRoute>
         }
       />
@@ -119,7 +116,7 @@ const AppRoutes = () => {
         }
       />
 
-      {/* Dashboard routes - All dashboard routes are handled by EnhancedDashboardRouter */}
+      {/* Dashboard routes - Using ModernDashboardRouter for the modern UI */}
       <Route
         path="/dashboard/*"
         element={
@@ -128,7 +125,7 @@ const AppRoutes = () => {
               <LoadingSpinner size="lg" />
             </div>
           }>
-            <EnhancedDashboardRouter />
+            <ModernDashboardRouter />
           </Suspense>
         }
       />
@@ -242,35 +239,33 @@ class ErrorBoundary extends React.Component {
 const App = () => {
   return (
     <ErrorBoundary>
-      <WebSocketProvider>
-        <AuthProvider>
-          <Toaster 
-            position="top-right"
-            toastOptions={{
-              duration: 5000,
-              style: {
-                borderRadius: '0.5rem',
-                background: '#fff',
-                color: '#1f2937',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+      <TeacherProvider>
+        <Toaster 
+          position="top-right"
+          toastOptions={{
+            duration: 5000,
+            style: {
+              borderRadius: '0.5rem',
+              background: '#fff',
+              color: '#1f2937',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            },
+            success: {
+              iconTheme: {
+                primary: '#10B981',
+                secondary: '#fff',
               },
-              success: {
-                iconTheme: {
-                  primary: '#10B981',
-                  secondary: '#fff',
-                },
+            },
+            error: {
+              iconTheme: {
+                primary: '#EF4444',
+                secondary: '#fff',
               },
-              error: {
-                iconTheme: {
-                  primary: '#EF4444',
-                  secondary: '#fff',
-                },
-              },
-            }}
-          />
-          <AppRoutes />
-        </AuthProvider>
-      </WebSocketProvider>
+            },
+          }}
+        />
+        <AppRoutes />
+      </TeacherProvider>
     </ErrorBoundary>
   );
 };

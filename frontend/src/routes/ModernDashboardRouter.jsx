@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import DashboardLayout from '../components/dashboard/modern/DashboardLayout';
 import ModernDashboard from '../pages/dashboard/ModernDashboard';
 import ProfilePage from '../pages/ProfilePage';
-import NotFoundPage from '../pages/NotFoundPage';
+import NotFoundPage from "../pages/NotFoundPage";
 
 // Admin Routes
 import UsersPage from '../pages/admin/UsersPage';
@@ -11,6 +11,20 @@ import ClassesPage from '../pages/admin/ClassesPage';
 import FinancePage from '../pages/admin/FinancePage';
 import ReportsPage from '../pages/admin/ReportsPage';
 import SettingsPage from '../pages/admin/SettingsPage';
+
+// Settings Subpages
+import GeneralSettings from '../pages/admin/settings/GeneralSettings';
+import SecuritySettings from '../pages/admin/settings/SecuritySettings';
+import EmailSettings from '../pages/admin/settings/EmailSettings';
+import NotificationSettings from '../pages/admin/settings/NotificationSettings';
+import PaymentSettings from '../pages/admin/settings/PaymentSettings';
+import BackupSettings from '../pages/admin/settings/BackupSettings';
+
+// CMS Components
+import CmsPages from '../pages/admin/cms/Pages';
+import CmsNews from '../pages/admin/cms/News';
+import CmsEvents from '../pages/admin/cms/Events';
+import CmsGallery from '../pages/admin/cms/Gallery';
 
 // Teacher Routes
 import TeacherClassesPage from '../pages/teacher/ClassesPage';
@@ -44,11 +58,53 @@ const ModernDashboardRouter = () => {
           <>
             <Route index element={<ModernDashboard />} />
             <Route path="dashboard" element={<ModernDashboard />} />
-            <Route path="users/*" element={<UsersPage />} />
-            <Route path="classes/*" element={<ClassesPage />} />
-            <Route path="finance/*" element={<FinancePage />} />
-            <Route path="reports/*" element={<ReportsPage />} />
-            <Route path="settings/*" element={<SettingsPage />} />
+            
+            {/* User Management */}
+            <Route path="users" element={<UsersPage />} />
+            <Route path="users/students" element={<UsersPage type="students" />} />
+            <Route path="users/teachers" element={<UsersPage type="teachers" />} />
+            <Route path="users/parents" element={<UsersPage type="parents" />} />
+            
+            {/* Class Management */}
+            <Route path="classes" element={<ClassesPage />} />
+            <Route path="classes/sections" element={<ClassesPage showSections />} />
+            
+            {/* Finance */}
+            <Route path="finance" element={<FinancePage />}>
+              <Route index element={<FinancePage tab="overview" />} />
+              <Route path="fees" element={<FinancePage tab="fees" />} />
+              <Route path="payments" element={<FinancePage tab="payments" />} />
+              <Route path="expenses" element={<FinancePage tab="expenses" />} />
+            </Route>
+            
+            {/* Reports */}
+            <Route path="reports" element={<ReportsPage />}>
+              <Route index element={<ReportsPage tab="overview" />} />
+              <Route path="attendance" element={<ReportsPage tab="attendance" />} />
+              <Route path="exams" element={<ReportsPage tab="exams" />} />
+              <Route path="finance" element={<ReportsPage tab="finance" />} />
+            </Route>
+            
+            {/* Settings */}
+            <Route path="settings" element={<SettingsPage />}>
+              <Route index element={<Navigate to="general" replace />} />
+              <Route path="general" element={<GeneralSettings />} />
+              <Route path="security" element={<SecuritySettings />} />
+              <Route path="email" element={<EmailSettings />} />
+              <Route path="notifications" element={<NotificationSettings />} />
+              <Route path="payments" element={<PaymentSettings />} />
+              <Route path="backup" element={<BackupSettings />} />
+            </Route>
+            
+            {/* CMS */}
+            <Route path="cms">
+              <Route index element={<Navigate to="pages" replace />} />
+              <Route path="pages" element={<CmsPages />} />
+              <Route path="news" element={<CmsNews />} />
+              <Route path="events" element={<CmsEvents />} />
+              <Route path="gallery" element={<CmsGallery />} />
+            </Route>
+            
             <Route path="profile" element={<ProfilePage />} />
           </>
         );
@@ -68,10 +124,41 @@ const ModernDashboardRouter = () => {
           <>
             <Route index element={<ModernDashboard />} />
             <Route path="dashboard" element={<ModernDashboard />} />
+            
+            {/* Student Schedule */}
             <Route path="schedule" element={<StudentSchedulePage />} />
-            <Route path="grades" element={<StudentGradesPage />} />
-            <Route path="assignments" element={<AssignmentsPage />} />
-            <Route path="profile" element={<ProfilePage />} />
+            
+            {/* Student Grades */}
+            <Route path="grades" element={<StudentGradesPage />}>
+              <Route index element={<StudentGradesPage tab="overview" />} />
+              <Route path="subject/:subjectId" element={<StudentGradesPage tab="subject" />} />
+              <Route path="term/:termId" element={<StudentGradesPage tab="term" />} />
+            </Route>
+            
+            {/* Student Assignments */}
+            <Route path="assignments" element={<AssignmentsPage />}>
+              <Route index element={<AssignmentsPage tab="all" />} />
+              <Route path="pending" element={<AssignmentsPage tab="pending" />} />
+              <Route path="submitted" element={<AssignmentsPage tab="submitted" />} />
+              <Route path="graded" element={<AssignmentsPage tab="graded" />} />
+              <Route path="overdue" element={<AssignmentsPage tab="overdue" />} />
+              <Route path="assignment/:assignmentId" element={<AssignmentsPage tab="details" />} />
+            </Route>
+            
+            {/* Student Profile */}
+            <Route path="profile" element={<ProfilePage />}>
+              <Route index element={<ProfilePage tab="personal" />} />
+              <Route path="settings" element={<ProfilePage tab="settings" />} />
+              <Route path="notifications" element={<ProfilePage tab="notifications" />} />
+            </Route>
+            
+            {/* Student Resources */}
+            <Route path="resources" element={<div>Student Resources</div>}>
+              <Route index element={<div>Resources Overview</div>} />
+              <Route path="documents" element={<div>Documents</div>} />
+              <Route path="timetable" element={<div>Class Timetable</div>} />
+              <Route path="library" element={<div>Digital Library</div>} />
+            </Route>
           </>
         );
       case 'parent':
