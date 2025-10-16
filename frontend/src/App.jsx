@@ -7,6 +7,9 @@ import LoadingSpinner from './components/common/LoadingSpinner';
 // Layouts
 import WebsiteLayout from './components/website/WebsiteLayout';
 
+// Test Component
+import FormikTest from './FormikTest';
+
 // Public Pages
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
@@ -84,6 +87,8 @@ const AppRoutes = () => {
         <Route path="/privacy" element={<PrivacyPolicyPage />} />
         <Route path="/sitemap" element={<SitemapPage />} />
         <Route path="/careers" element={<CareerPage />} />
+        {/* Test Route - Remove in production */}
+        <Route path="/test-formik" element={<FormikTest />} />
       </Route>
 
       {/* Auth routes */}

@@ -6,6 +6,7 @@ import StudentDashboard from '../pages/dashboard/StudentDashboard';
 import TeacherDashboard from '../pages/dashboard/TeacherDashboard';
 import ParentDashboard from '../pages/dashboard/ParentDashboard';
 import StaffDashboard from '../pages/dashboard/StaffDashboard';
+import CMS from '../pages/dashboard/cms';
 import NotFound from '../pages/NotFound';
 
 const DashboardRouter = () => {
@@ -166,6 +167,14 @@ const DashboardRouter = () => {
           </div>
         } 
       />
+      
+      {/* Admin Routes */}
+      {hasRole('admin') && (
+        <>
+          <Route path="admin" element={<AdminDashboard />} />
+          <Route path="cms/*" element={<CMS />} />
+        </>
+      )}
       
       {/* 404 Not Found */}
       <Route path="*" element={<NotFound />} />

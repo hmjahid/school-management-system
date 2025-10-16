@@ -21,10 +21,7 @@ import PaymentSettings from '../pages/admin/settings/PaymentSettings';
 import BackupSettings from '../pages/admin/settings/BackupSettings';
 
 // CMS Components
-import CmsPages from '../pages/admin/cms/Pages';
-import CmsNews from '../pages/admin/cms/News';
-import CmsEvents from '../pages/admin/cms/Events';
-import CmsGallery from '../pages/admin/cms/Gallery';
+import CMS from '../pages/dashboard/cms';
 
 // Teacher Routes
 import TeacherClassesPage from '../pages/teacher/ClassesPage';
@@ -85,6 +82,9 @@ const ModernDashboardRouter = () => {
               <Route path="finance" element={<ReportsPage tab="finance" />} />
             </Route>
             
+            {/* CMS */}
+            <Route path="cms/*" element={<CMS />} />
+            
             {/* Settings */}
             <Route path="settings" element={<SettingsPage />}>
               <Route index element={<Navigate to="general" replace />} />
@@ -94,15 +94,6 @@ const ModernDashboardRouter = () => {
               <Route path="notifications" element={<NotificationSettings />} />
               <Route path="payments" element={<PaymentSettings />} />
               <Route path="backup" element={<BackupSettings />} />
-            </Route>
-            
-            {/* CMS */}
-            <Route path="cms">
-              <Route index element={<Navigate to="pages" replace />} />
-              <Route path="pages" element={<CmsPages />} />
-              <Route path="news" element={<CmsNews />} />
-              <Route path="events" element={<CmsEvents />} />
-              <Route path="gallery" element={<CmsGallery />} />
             </Route>
             
             <Route path="profile" element={<ProfilePage />} />
