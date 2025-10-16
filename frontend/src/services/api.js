@@ -21,7 +21,7 @@ api.interceptors.request.use(
     // Skip logging for token refresh requests to prevent token leakage in logs
     const isAuthRequest = config.url?.includes('auth/');
     
-    if (!isAuthRequest) {
+    if (!isAuthRequest && import.meta.env.DEV) {
       console.log('[API] Request:', {
         url: config.url,
         method: config.method,
@@ -37,18 +37,21 @@ api.interceptors.request.use(
     }
 
     config.headers = config.headers || {};
-    const token = localStorage.getItem('token');
+    // Check multiple possible keys for stored auth token
+    const token = localStorage.getItem('token') || localStorage.getItem('access_token') || localStorage.getItem('accessToken');
     
     if (token) {
       // Ensure the token is properly formatted (remove any quotes if present)
       const cleanToken = token.replace(/^['"]|['"]$/g, '');
       config.headers.Authorization = `Bearer ${cleanToken}`;
       
-      if (!isAuthRequest) {
+      if (!isAuthRequest && import.meta.env.DEV) {
         console.log('[API] Added auth token to request headers');
       }
     } else {
-      console.warn('[API] No auth token found in localStorage');
+      if (import.meta.env.DEV) {
+        console.debug('[API] No auth token found in localStorage (checked: token, access_token, accessToken)');
+      }
       // Don't throw here, let the server handle unauthorized requests
     }
 
@@ -59,19 +62,21 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
-    console.error('[API] Request error:', error);
+    if (import.meta.env.DEV) console.error('[API] Request error:', error);
     return Promise.reject(error);
   }
 );
 
 api.interceptors.response.use(
   (response) => {
-    console.log('[API] Response:', {
-      url: response.config.url,
-      status: response.status,
-      data: response.data,
-      headers: response.headers
-    });
+    if (import.meta.env.DEV) {
+      console.log('[API] Response:', {
+        url: response.config.url,
+        status: response.status,
+        data: response.data,
+        headers: response.headers
+      });
+    }
     
     if (response?.data?.message) {
       toast.success(response.data.message);
@@ -79,6 +84,8 @@ api.interceptors.response.use(
     return response;
   },
   async (error) => {
+    if (import.meta.env.DEV) console.error(error);
+    // keep original handler behavior
     if (!error) {
       toast.error('No response from server. Please check your internet connection.');
       return Promise.reject(new Error('No response from server'));
@@ -122,7 +129,7 @@ api.interceptors.response.use(
           return api(originalRequest);
         }
       } catch (refreshError) {
-        console.error('Token refresh failed:', refreshError);
+        if (import.meta.env.DEV) console.error('Token refresh failed:', refreshError);
       }
       
       localStorage.removeItem('token');

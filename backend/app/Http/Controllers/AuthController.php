@@ -43,14 +43,26 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
+        // Attempt to authenticate the user
+        $credentials = $request->only('email', 'password');
+
+        if (!Auth::attempt($credentials)) {
             return response()->json([
                 'message' => 'Invalid login details'
             ], 401);
         }
 
-        $user = User::where('email', $request['email'])->firstOrFail();
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        if (! $user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        /** @var \Laravel\Sanctum\NewAccessToken $accessToken */
+        $accessToken = $user->createToken('auth_token');
+
+        $token = $accessToken->plainTextToken;
 
         return response()->json([
            'access_token' => $token,
