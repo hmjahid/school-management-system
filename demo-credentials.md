@@ -1,5 +1,28 @@
 # Demo Credentials for Testing
 
+
+
+
+Admin Accounts
+Super Admin
+Email: admin@school.com
+Password: password
+School Administrator
+Email: principal@school.com
+Password: principal123
+Teacher Accounts
+Senior Teacher
+Email: teacher.john@school.com
+Password: teach1234
+Junior Teacher
+Email: teacher.sarah@school.com
+Password: teach5678
+
+
+
+
+
+
 ## Admin Accounts
 
 ### Super Admin
