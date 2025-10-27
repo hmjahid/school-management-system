@@ -50,7 +50,7 @@ const PublicRoute = ({ children }) => {
 };
 
 // Dashboard and Admin Pages
-import ModernDashboardRouter from './routes/ModernDashboardRouter';
+import EnhancedDashboardRouter from './routes/EnhancedDashboardRouter_v7';
 import WebsiteContentPage from './pages/admin/WebsiteContentPage';
 import AboutContentPage from './pages/admin/AboutContentPage';
 import WebsiteSettingsPage from './pages/admin/WebsiteSettingsPage';
@@ -130,7 +130,7 @@ const AppRoutes = () => {
               <LoadingSpinner size="lg" />
             </div>
           }>
-            <ModernDashboardRouter />
+            <EnhancedDashboardRouter />
           </Suspense>
         }
       />

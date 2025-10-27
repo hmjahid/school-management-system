@@ -4,12 +4,20 @@ import { useAuth } from '../contexts/AuthContext';
 import { Suspense, lazy, useEffect } from 'react';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { Toaster } from 'react-hot-toast';
+import { DashboardProvider } from '../contexts/DashboardContext';
 
-// Lazy load the main dashboard component with error boundary
-const DashboardPageV2 = lazy(() => 
-  import('../pages/DashboardPageV2').catch(error => {
-    console.error('Failed to load DashboardPageV2:', error);
+// Lazy load components
+const EnhancedAdminDashboard = lazy(() => 
+  import('../pages/dashboard/EnhancedAdminDashboard').catch(error => {
+    console.error('Failed to load EnhancedAdminDashboard:', error);
     return { default: () => <div className="text-red-500 p-4">Failed to load dashboard. Please refresh the page.</div> };
+  })
+);
+
+const EnhancedDashboardLayout = lazy(() =>
+  import('../components/dashboard/EnhancedDashboardLayout').catch(error => {
+    console.error('Failed to load EnhancedDashboardLayout:', error);
+    return { default: ({ children }) => <div className="p-4">{children}</div> };
   })
 );
 
@@ -114,11 +122,11 @@ const EnhancedDashboardRouter = () => {
               path="/*"
               element={
                 <ProtectedRoute>
-                  <div className="p-4 border border-dashed border-blue-500 rounded-lg m-4">
-                    <h2 className="text-lg font-bold text-blue-600 mb-2">Debug Info:</h2>
-                    <p className="text-sm text-gray-600">Rendering DashboardPageV2</p>
-                    <DashboardPageV2 />
-                  </div>
+                  <DashboardProvider>
+                    <EnhancedDashboardLayout>
+                      <EnhancedAdminDashboard />
+                    </EnhancedDashboardLayout>
+                  </DashboardProvider>
                 </ProtectedRoute>
               }
             />
