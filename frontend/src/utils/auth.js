@@ -3,12 +3,22 @@
  * Provides helper functions for managing authentication tokens and user sessions
  */
 
+// Token storage keys
+const AUTH_TOKEN_KEY = 'auth_token';
+const REFRESH_TOKEN_KEY = 'refresh_token';
+const TOKEN_EXPIRY_KEY = 'token_expiry';
+const USER_DATA_KEY = 'user_data';
+
+// Session timeout (30 minutes of inactivity)
+const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes in milliseconds
+let sessionTimer = null;
+
 /**
  * Get the current authentication token from localStorage
  * @returns {string|null} The authentication token or null if not found
  */
 export const getAuthToken = () => {
-  return localStorage.getItem('token');
+  return localStorage.getItem(AUTH_TOKEN_KEY);
 };
 
 /**
@@ -16,18 +26,35 @@ export const getAuthToken = () => {
  * @returns {string|null} The refresh token or null if not found
  */
 export const getRefreshToken = () => {
-  return localStorage.getItem('refresh_token');
+  return localStorage.getItem(REFRESH_TOKEN_KEY);
 };
 
 /**
- * Set the authentication token in localStorage
- * @param {string} token - The JWT token to store
+ * Get the token expiry timestamp
+ * @returns {number|null} The token expiry timestamp or null if not found
  */
-export const setAuthToken = (token) => {
+const getTokenExpiry = () => {
+  const expiry = localStorage.getItem(TOKEN_EXPIRY_KEY);
+  return expiry ? parseInt(expiry, 10) : null;
+};
+
+/**
+ * Set the authentication token and its expiry in localStorage
+ * @param {string} token - The JWT token to store
+ * @param {number} expiresIn - Token expiration time in seconds
+ */
+export const setAuthToken = (token, expiresIn = 3600) => {
   if (token) {
-    localStorage.setItem('token', token);
+    localStorage.setItem(AUTH_TOKEN_KEY, token);
+    // Calculate expiry time (current time + expiresIn seconds)
+    const expiryTime = Date.now() + (expiresIn * 1000);
+    localStorage.setItem(TOKEN_EXPIRY_KEY, expiryTime.toString());
+    
+    // Reset the session timer
+    resetSessionTimer();
   } else {
-    localStorage.removeItem('token');
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem(TOKEN_EXPIRY_KEY);
   }
 };
 
@@ -37,59 +64,118 @@ export const setAuthToken = (token) => {
  */
 export const setRefreshToken = (refreshToken) => {
   if (refreshToken) {
-    localStorage.setItem('refresh_token', refreshToken);
+    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
   } else {
-    localStorage.removeItem('refresh_token');
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
   }
 };
 
 /**
- * Remove all authentication tokens from localStorage
+ * Store user data in localStorage
+ * @param {Object} userData - The user data to store
  */
-export const clearAuthTokens = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('refresh_token');
+export const setUserData = (userData) => {
+  if (userData) {
+    localStorage.setItem(USER_DATA_KEY, JSON.stringify(userData));
+  } else {
+    localStorage.removeItem(USER_DATA_KEY);
+  }
+};
+
+/**
+ * Get user data from localStorage
+ * @returns {Object|null} The stored user data or null if not found
+ */
+export const getUserData = () => {
+  const userData = localStorage.getItem(USER_DATA_KEY);
+  return userData ? JSON.parse(userData) : null;
+};
+
+/**
+ * Remove all authentication data from localStorage
+ */
+export const clearAuthData = () => {
+  localStorage.removeItem(AUTH_TOKEN_KEY);
+  localStorage.removeItem(REFRESH_TOKEN_KEY);
+  localStorage.removeItem(TOKEN_EXPIRY_KEY);
+  localStorage.removeItem(USER_DATA_KEY);
+  
+  // Clear any active session timer
+  if (sessionTimer) {
+    clearTimeout(sessionTimer);
+    sessionTimer = null;
+  }
+};
+
+/**
+ * Reset the session timer
+ */
+const resetSessionTimer = () => {
+  if (sessionTimer) {
+    clearTimeout(sessionTimer);
+  }
+  
+  // Set a new timer that will trigger when the session expires
+  sessionTimer = setTimeout(() => {
+    // When session times out, clear auth data and redirect to login
+    clearAuthData();
+    
+    // Only redirect if we're not already on the login page
+    if (!window.location.pathname.includes('/login')) {
+      window.location.href = '/login?session_expired=true';
+    }
+  }, SESSION_TIMEOUT);
 };
 
 /**
  * Check if the user is currently authenticated
- * @returns {boolean} True if a valid token exists
+ * @returns {boolean} True if a valid token exists and is not expired
  */
 export const isAuthenticated = () => {
   const token = getAuthToken();
   if (!token) return false;
   
-  // Check if token is expired (JWT format: header.payload.signature)
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.exp * 1000 > Date.now();
-  } catch (e) {
-    console.error('Error parsing token:', e);
+  // Check if token is expired
+  const expiry = getTokenExpiry();
+  if (!expiry || expiry <= Date.now()) {
     return false;
   }
+  
+  // Reset the session timer on activity
+  resetSessionTimer();
+  
+  return true;
 };
 
 /**
- * Get the current user's information from the token
+ * Get the current user's information
  * @returns {Object|null} User information or null if not available
  */
 export const getCurrentUser = () => {
-  const token = getAuthToken();
-  if (!token) return null;
+  // First try to get from localStorage
+  let userData = getUserData();
   
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return {
-      id: payload.sub,
-      email: payload.email,
-      roles: payload.roles || [],
-      name: payload.name,
-      // Add any other user properties you store in the token
-    };
-  } catch (e) {
-    console.error('Error parsing user from token:', e);
-    return null;
+  // If not in localStorage but we have a token, try to extract from token
+  if (!userData) {
+    const token = getAuthToken();
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        userData = {
+          id: payload.sub,
+          email: payload.email,
+          roles: payload.roles || [],
+          name: payload.name,
+        };
+        // Cache the user data
+        setUserData(userData);
+      } catch (e) {
+        console.error('Error parsing user from token:', e);
+      }
+    }
   }
+  
+  return userData;
 };
 
 /**

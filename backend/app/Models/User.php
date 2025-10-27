@@ -8,50 +8,16 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Laravel\Sanctum\NewAccessToken;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
-
-    /**
-     * Get the role that owns the user.
-     */
-    public function role(): BelongsTo
-    {
-        return $this->belongsTo(Role::class);
-    }
-
-    /**
-     * Check if the user has a specific permission.
-     */
-    public function hasPermission(string $permissionName): bool
-    {
-        if ($this->role && $this->role->hasPermission($permissionName)) {
-            return true;
-        }
-        
-        return $this->hasPermissionTo($permissionName);
-    }
-
-    /**
-     * Check if the user has any of the given permissions.
-     */
-    public function hasAnyPermission($permissions): bool
-    {
-        if (is_array($permissions)) {
-            foreach ($permissions as $permission) {
-                if ($this->hasPermission($permission)) {
-                    return true;
-                }
-            }
-        } else {
-            return $this->hasPermission($permissions);
-        }
-        
-        return false;
-    }
 
     /**
      * The attributes that are mass assignable.
@@ -101,6 +67,117 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
     ];
+
+    /**
+     * Get the role that owns the user.
+     */
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * Get the refresh tokens for the user.
+     */
+    public function refreshTokens(): HasMany
+    {
+        return $this->hasMany(RefreshToken::class);
+    }
+
+    /**
+     * Check if the user has a specific permission.
+     */
+    public function hasPermission(string $permissionName): bool
+    {
+        if ($this->role && $this->role->hasPermission($permissionName)) {
+            return true;
+        }
+        
+        return $this->hasPermissionTo($permissionName);
+    }
+
+    /**
+     * Create a new access token and refresh token for the user.
+     *
+     * @param  string  $name
+     * @param  array  $abilities
+     * @param  \DateTimeInterface|null  $accessTokenExpiresAt
+     * @param  \DateTimeInterface|null  $refreshTokenExpiresAt
+     * @return array
+     */
+    public function createTokenPair(string $name = 'auth_token', array $abilities = ['*'], 
+        ?\DateTimeInterface $accessTokenExpiresAt = null, ?\DateTimeInterface $refreshTokenExpiresAt = null): array
+    {
+        $accessToken = $this->createToken($name, $abilities, $accessTokenExpiresAt);
+        
+        $refreshToken = $this->refreshTokens()->create([
+            'token' => hash('sha256', $plainTextRefreshToken = Str::random(80)),
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'expires_at' => $refreshTokenExpiresAt ?? now()->addDays(config('sanctum.refresh_token_expiration', 30)),
+        ]);
+
+        return [
+            'access_token' => $accessToken->plainTextToken,
+            'refresh_token' => $plainTextRefreshToken,
+            'token_type' => 'Bearer',
+            'expires_in' => $accessTokenExpiresAt 
+                ? now()->diffInSeconds($accessTokenExpiresAt) 
+                : config('sanctum.expiration', 60) * 60,
+        ];
+    }
+
+    /**
+     * Revoke all of the user's tokens and refresh tokens.
+     *
+     * @return $this
+     */
+    public function revokeAllTokens(): static
+    {
+        $this->tokens()->delete();
+        $this->refreshTokens()->delete();
+
+        return $this;
+    }
+
+    /**
+     * Revoke all tokens for the user except for the current one.
+     *
+     * @param  \Laravel\Sanctum\PersonalAccessToken  $currentToken
+     * @return $this
+     */
+    public function revokeOtherTokens($currentToken): static
+    {
+        $this->tokens()
+            ->where('id', '!=', $currentToken->id)
+            ->delete();
+            
+        $this->refreshTokens()
+            ->where('id', '!=', $currentToken->id)
+            ->delete();
+
+        return $this;
+    }
+
+    /**
+     * Check if the user has any of the given permissions.
+     */
+    public function hasAnyPermission($permissions): bool
+    {
+        if (is_array($permissions)) {
+            foreach ($permissions as $permission) {
+                if ($this->hasPermission($permission)) {
+                    return true;
+                }
+            }
+        } else {
+            return $this->hasPermission($permissions);
+        }
+        
+        return false;
+    }
+
+
     
     /**
      * Get the URL to the user's profile photo.

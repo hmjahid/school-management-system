@@ -18,7 +18,7 @@ return [
     |
     */
 
-    'driver' => env('SESSION_DRIVER', 'database'),
+    'driver' => env('SESSION_DRIVER', 'file'),
 
     /*
     |--------------------------------------------------------------------------
@@ -32,9 +32,10 @@ return [
     |
     */
 
-    'lifetime' => (int) env('SESSION_LIFETIME', 120),
+    'lifetime' => (int) env('SESSION_LIFETIME', 120), // 2 hours
 
     'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', false),
+    'lottery' => [2, 100], // 2% chance of garbage collection on each request
 
     /*
     |--------------------------------------------------------------------------
@@ -143,7 +144,11 @@ return [
     |
     */
 
-    'path' => env('SESSION_PATH', '/'),
+    'path' => '/',
+    'domain' => env('SESSION_DOMAIN', null),
+    'secure' => env('SESSION_SECURE_COOKIE', false),
+    'http_only' => true,
+    'same_site' => 'lax',
 
     /*
     |--------------------------------------------------------------------------

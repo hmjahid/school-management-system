@@ -1,20 +1,111 @@
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
+// Create axios instance with default config
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
     'X-Requested-With': 'XMLHttpRequest',
   },
   timeout: 30000,
-  withCredentials: true,
+  withCredentials: true, // Important for cookies, authorization headers with HTTPS
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
 });
 
+// Helper function to log request details
+const logRequest = (config) => {
+  if (process.env.NODE_ENV === 'development') {
+    console.groupCollapsed(`%c ${config.method?.toUpperCase()} ${config.url}`, 'color: #4CAF50; font-weight: bold');
+    console.log('Request:', {
+      url: config.url,
+      method: config.method,
+      headers: config.headers,
+      params: config.params,
+      data: config.data,
+    });
+    console.groupEnd();
+  }
+  return config;
+};
+
+// Helper function to log response details
+const logResponse = (response) => {
+  if (process.env.NODE_ENV === 'development') {
+    console.groupCollapsed(`%c ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`, 
+      `color: ${response.status >= 200 && response.status < 300 ? '#4CAF50' : '#FF5722'}; font-weight: bold`
+    );
+    console.log('Response:', {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers,
+      data: response.data,
+      config: response.config,
+    });
+    console.groupEnd();
+  }
+  return response;
+};
+
+// Helper function to log error details
+const logError = (error) => {
+  if (process.env.NODE_ENV === 'development') {
+    console.groupCollapsed(`%c ERROR ${error.config?.method?.toUpperCase()} ${error.config?.url}`, 
+      'color: #FF0000; font-weight: bold'
+    );
+    
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error('Response Error:', {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        headers: error.response.headers,
+        data: error.response.data,
+        config: error.config,
+      });
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error('Request Error:', {
+        message: error.message,
+        request: error.request,
+        config: error.config,
+      });
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.error('Error:', {
+        message: error.message,
+        stack: error.stack,
+        config: error.config,
+      });
+    }
+    
+    console.groupEnd();
+  }
+  return Promise.reject(error);
+};
+
+// Ensure defaults exist
 api.defaults = api.defaults || {};
 api.defaults.headers = api.defaults.headers || {};
 api.defaults.headers.common = api.defaults.headers.common || {};
+
+// Add request interceptor for logging
+api.interceptors.request.use(
+  config => logRequest(config),
+  error => {
+    console.error('Request interceptor error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for logging
+api.interceptors.response.use(
+  response => logResponse(response),
+  error => logError(error)
+);
 
 api.interceptors.request.use(
   (config) => {

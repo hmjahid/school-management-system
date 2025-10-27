@@ -92,24 +92,62 @@ class AuthController extends Controller
     }
 
     /**
-     * Login user and create token
+     * Login user and create tokens
      */
     public function login(Request $request)
     {
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        try {
+            $request->validate([
+                'email' => 'required|email',
+                'password' => 'required',
+                'remember_me' => 'boolean'
+            ]);
+
+            $credentials = $request->only('email', 'password');
+
+            if (!Auth::attempt($credentials, $request->boolean('remember_me'))) {
+                return response()->json([
+                    'message' => 'Invalid login details'
+                ], 401);
+            }
+
+            $user = User::where('email', $request->email)->firstOrFail();
+            
+            // Create token pair with expiration
+            $tokenExpiration = $request->remember_me 
+                ? now()->addDays(config('sanctum.remember_token_expiration', 30))
+                : now()->addMinutes(config('sanctum.expiration', 60));
+                
+            $tokenData = $user->createTokenPair(
+                'auth_token',
+                ['*'],
+                $tokenExpiration
+            );
+
+            // Update last login timestamp
+            $user->update(['last_login_at' => now()]);
+
             return response()->json([
-                'message' => 'Invalid login details'
-            ], 401);
+                'access_token' => $tokenData['access_token'],
+                'refresh_token' => $tokenData['refresh_token'],
+                'token_type' => $tokenData['token_type'],
+                'expires_in' => $tokenData['expires_in'],
+                'user' => $user->load('roles')
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Login failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'ip' => $request->ip(),
+                'email' => $request->email
+            ]);
+            
+            return response()->json([
+                'message' => 'Login failed. Please try again.',
+                'error' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
         }
-
-        $user = User::where('email', $request->email)->firstOrFail();
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-            'user' => $user->load('roles')
-        ]);
     }
 
     /**
@@ -121,15 +159,132 @@ class AuthController extends Controller
     }
 
     /**
-     * Logout user (Revoke the token)
+     * Logout user (Revoke all tokens)
      */
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        try {
+            $user = $request->user();
+            
+            // Invalidate all tokens for this user
+            $user->revokeAllTokens();
+            
+            // Clear the session
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            
+            return response()->json([
+                'message' => 'Successfully logged out',
+                'session_cleared' => true
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Logout failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => $request->user()?->id
+            ]);
+            
+            return response()->json([
+                'message' => 'Error during logout',
+                'error' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
+        }
+    }
+
+    /**
+     * Refresh the access token using refresh token with rotation
+     */
+    public function refreshToken(Request $request)
+    {
+        try {
+            $request->validate([
+                'refresh_token' => 'required|string',
+            ]);
+
+            // Get the current user
+            $user = $request->user();
+            
+            // Find the refresh token
+            $refreshToken = $user->refreshTokens()
+                ->where('token', hash('sha256', $request->refresh_token))
+                ->where('expires_at', '>', now())
+                ->first();
+
+            if (!$refreshToken) {
+                throw new \Illuminate\Auth\AuthenticationException('Invalid or expired refresh token');
+            }
+            
+            // Mark the old refresh token as used
+            $refreshToken->markAsUsed();
+            
+            // Create new token pair
+            $tokenData = $user->createTokenPair(
+                'auth_token',
+                ['*'],
+                now()->addMinutes(config('sanctum.expiration', 60)),
+                now()->addDays(config('sanctum.refresh_token_expiration', 30))
+            );
+            
+            // Log the refresh event
+            \Log::info('Token refreshed', [
+                'user_id' => $user->id,
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ]);
+            
+            return response()->json([
+                'access_token' => $tokenData['access_token'],
+                'refresh_token' => $tokenData['refresh_token'],
+                'token_type' => $tokenData['token_type'],
+                'expires_in' => $tokenData['expires_in'],
+                'user' => $user->load('roles')
+            ]);
+            
+        } catch (\Exception $e) {
+            $userId = $request->user()?->id;
+            
+            // Log the error with context
+            \Log::error('Token refresh failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'user_id' => $userId
+            ]);
+            
+            // Invalidate all user's sessions on security exception
+            if ($e instanceof \Illuminate\Auth\AuthenticationException && $userId) {
+                $user = User::find($userId);
+                if ($user) {
+                    $user->revokeAllTokens();
+                }
+            }
+            
+            return response()->json([
+                'message' => 'Failed to refresh token. Please log in again.',
+                'error' => config('app.debug') ? $e->getMessage() : null,
+                'requires_login' => true
+            ], 401);
+        }
+    }
+    
+    /**
+     * Create a new refresh token for the user
+     */
+    protected function createRefreshToken($user)
+    {
+        $token = \Illuminate\Support\Str::random(80);
         
-        return response()->json([
-            'message' => 'Successfully logged out'
+        $user->refreshTokens()->create([
+            'token' => hash('sha256', $token),
+            'expires_at' => now()->addDays(config('sanctum.refresh_token_expiration', 30)),
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent()
         ]);
+        
+        return $token;
     }
 
     /**

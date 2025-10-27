@@ -47,7 +47,43 @@ return [
     |
     */
 
-    'expiration' => null,
+    /*
+    |--------------------------------------------------------------------------
+    | Token Expiration
+    |--------------------------------------------------------------------------
+    |
+    | This value controls the number of minutes until an issued access token
+    | will be considered expired. This will be used when creating new tokens
+    | if no explicit expiration is provided.
+    |
+    */
+
+    'expiration' => env('SANCTUM_TOKEN_EXPIRATION', 60), // 1 hour
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Refresh Token Expiration
+    |--------------------------------------------------------------------------
+    |
+    | This value controls the number of days until a refresh token will be
+    | considered expired. This is used when creating new refresh tokens.
+    |
+    */
+    
+    'refresh_token_expiration' => env('SANCTUM_REFRESH_TOKEN_EXPIRATION', 30), // 30 days
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Remember Me Token Expiration
+    |--------------------------------------------------------------------------
+    |
+    | This value controls the number of days until a "remember me" token
+    | will be considered expired. This is used when the user checks
+    | "remember me" during login.
+    |
+    */
+    
+    'remember_token_expiration' => env('SANCTUM_REMEMBER_TOKEN_EXPIRATION', 30), // 30 days
 
     /*
     |--------------------------------------------------------------------------
