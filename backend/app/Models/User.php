@@ -9,6 +9,8 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Permission\Exceptions\PermissionDoesNotExist;
+use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -17,7 +19,9 @@ use Laravel\Sanctum\NewAccessToken;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable, HasPermissions, HasRoles {
+        HasPermissions::hasPermissionTo as spatieHasPermissionTo;
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -69,11 +73,12 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the role that owns the user.
+     * Spatie role linked by users.role_id.
+     * Named schoolRole because the users.role string column would shadow a "role" relationship.
      */
-    public function role(): BelongsTo
+    public function schoolRole(): BelongsTo
     {
-        return $this->belongsTo(Role::class);
+        return $this->belongsTo(Role::class, 'role_id');
     }
 
     /**
@@ -85,14 +90,30 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if the user has a specific permission.
+     * Spatie throws if the permission name is not defined for the guard; treat as denied.
+     */
+    public function hasPermissionTo($permission, $guardName = null): bool
+    {
+        try {
+            return $this->spatieHasPermissionTo($permission, $guardName);
+        } catch (PermissionDoesNotExist) {
+            return false;
+        }
+    }
+
+    /**
+     * Check if the user has a specific permission (custom + Spatie).
      */
     public function hasPermission(string $permissionName): bool
     {
-        if ($this->role && $this->role->hasPermission($permissionName)) {
-            return true;
+        try {
+            if ($this->schoolRole?->hasPermissionTo($permissionName)) {
+                return true;
+            }
+        } catch (PermissionDoesNotExist) {
+            // Missing permission name in DB; fall through to user-level check.
         }
-        
+
         return $this->hasPermissionTo($permissionName);
     }
 

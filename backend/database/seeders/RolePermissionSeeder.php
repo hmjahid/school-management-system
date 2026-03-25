@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Permission as SpatiePermission;
 
 class RolePermissionSeeder extends Seeder
 {
@@ -97,10 +96,22 @@ class RolePermissionSeeder extends Seeder
             'edit_admissions' => 'Edit admissions',
             'delete_admissions' => 'Delete admissions',
 
-            // Teacher Management
+            // Teacher Management (names must match App\Policies\TeacherPolicy)
+            'view_teachers' => 'View teachers',
+            'create_teachers' => 'Create teachers',
+            'update_teachers' => 'Update teachers',
+            'delete_teachers' => 'Delete teachers',
+            'restore_teachers' => 'Restore teachers',
+            'force_delete_teachers' => 'Force delete teachers',
             'manage_teachers' => 'Manage teachers',
             'view_teacher_details' => 'View teacher details',
             'assign_subjects_to_teachers' => 'Assign subjects to teachers',
+            'view_teacher_attendance' => 'View teacher attendance',
+            'manage_teacher_attendance' => 'Manage teacher attendance',
+            'view_teacher_salaries' => 'View teacher salaries',
+            'manage_teacher_salaries' => 'Manage teacher salaries',
+            'manage_teacher_subjects' => 'Manage teacher subjects',
+            'manage_class_assignments' => 'Manage teacher class assignments',
 
             // Attendance
             'manage_attendance' => 'Manage attendance',
@@ -154,16 +165,16 @@ class RolePermissionSeeder extends Seeder
             'restore_database' => 'Restore database',
         ];
 
-        // Create permissions
-        foreach (array_keys($permissions) as $name) {
-            Permission::create([
-                'name' => $name,
-                'guard_name' => 'web',
-            ]);
+        // Create permissions (string keys are names; numeric keys use the label string as name)
+        foreach ($permissions as $name => $label) {
+            $permissionName = is_string($name) ? $name : $label;
+            SpatiePermission::firstOrCreate(
+                ['name' => $permissionName, 'guard_name' => 'web'],
+            );
         }
 
         // Assign all permissions to admin role
-        $adminRole->givePermissionTo(Permission::all());
+        $adminRole->syncPermissions(SpatiePermission::where('guard_name', 'web')->get());
 
         // Assign permissions to teacher role
         $teacherPermissions = [
