@@ -3,25 +3,36 @@
 use App\Http\Controllers\Web\AdmissionWebController;
 use App\Http\Controllers\Web\AuthSessionController;
 use App\Http\Controllers\Web\CmsWebController;
+use App\Http\Controllers\Web\DashboardAdmissionController;
+use App\Http\Controllers\Web\DashboardAnnouncementController;
+use App\Http\Controllers\Web\DashboardAttendanceController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\DashboardDocumentController;
+use App\Http\Controllers\Web\DashboardExamController;
+use App\Http\Controllers\Web\DashboardFeeController;
+use App\Http\Controllers\Web\DashboardGalleryController;
+use App\Http\Controllers\Web\DashboardGuardianController;
 use App\Http\Controllers\Web\DashboardModulesController;
+use App\Http\Controllers\Web\DashboardNewsController;
+use App\Http\Controllers\Web\DashboardSchoolClassController;
+use App\Http\Controllers\Web\DashboardStudentController;
+use App\Http\Controllers\Web\DashboardTeacherController;
+use App\Http\Controllers\Web\FeePaymentReceiptController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\LocaleController;
 use App\Http\Controllers\Web\PaymentsWebController;
+use App\Http\Controllers\Web\PortalAdmissionController;
 use App\Http\Controllers\Web\PortalController;
+use App\Http\Controllers\Web\PortalProgressController;
 use App\Http\Controllers\Web\SiteGalleryController;
+use App\Http\Controllers\Web\SitemapController;
 use App\Http\Controllers\Web\SiteNewsController;
 use App\Http\Controllers\Web\SitePageController;
-use App\Http\Controllers\Web\DashboardStudentController;
-use App\Http\Controllers\Web\DashboardTeacherController;
-use App\Http\Controllers\Web\DashboardGuardianController;
-use App\Http\Controllers\Web\DashboardSchoolClassController;
-use App\Http\Controllers\Web\DashboardAttendanceController;
-use App\Http\Controllers\Web\DashboardExamController;
-use App\Http\Controllers\Web\DashboardFeeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('site.sitemap');
 
 Route::get('/locale/{locale}', [LocaleController::class, 'switch'])->name('locale.switch');
 
@@ -34,8 +45,14 @@ Route::get('/news', [SiteNewsController::class, 'index'])->name('site.news');
 Route::get('/news/{slug}', [SiteNewsController::class, 'show'])->name('site.news.show');
 Route::get('/gallery', [SiteGalleryController::class, 'index'])->name('site.gallery');
 Route::get('/contact', [SitePageController::class, 'contact'])->name('site.contact');
+Route::get('/terms', [SitePageController::class, 'terms'])->name('site.terms');
+Route::get('/privacy', [SitePageController::class, 'privacy'])->name('site.privacy');
 
 Route::get('/payments', [PaymentsWebController::class, 'index'])->name('site.payments');
+Route::middleware('auth')->post('/payments/initiate', [PaymentsWebController::class, 'initiate'])->name('site.payments.initiate');
+Route::middleware('auth')->get('/payments/status/{payment}', [PaymentsWebController::class, 'status'])->name('site.payments.status');
+Route::middleware('auth')->get('/payments/receipts/{feePayment}', [FeePaymentReceiptController::class, 'show'])
+    ->name('site.payments.receipts.show');
 
 Route::get('/portal', [PortalController::class, 'index'])->name('portal');
 Route::get('/portal/register', function () {
@@ -65,6 +82,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthSessionController::class, 'destroy'])->name('logout');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/portal/admission', [PortalAdmissionController::class, 'show'])->name('portal.admission');
+    Route::get('/portal/progress', [PortalProgressController::class, 'index'])->name('portal.progress');
 
     Route::get('/dashboard/students/create', [DashboardStudentController::class, 'create'])->name('dashboard.students.create');
     Route::post('/dashboard/students', [DashboardStudentController::class, 'store'])->name('dashboard.students.store');
@@ -121,6 +141,42 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard/cms/edit/{page}', [CmsWebController::class, 'edit'])->name('dashboard.cms.edit');
         Route::put('/dashboard/cms/edit/{page}', [CmsWebController::class, 'update'])->name('dashboard.cms.update');
 
+        Route::get('/dashboard/news', [DashboardNewsController::class, 'index'])->name('dashboard.news.index');
+        Route::get('/dashboard/news/create', [DashboardNewsController::class, 'create'])->name('dashboard.news.create');
+        Route::post('/dashboard/news', [DashboardNewsController::class, 'store'])->name('dashboard.news.store');
+        Route::get('/dashboard/news/{news}/edit', [DashboardNewsController::class, 'edit'])->name('dashboard.news.edit');
+        Route::put('/dashboard/news/{news}', [DashboardNewsController::class, 'update'])->name('dashboard.news.update');
+        Route::delete('/dashboard/news/{news}', [DashboardNewsController::class, 'destroy'])->name('dashboard.news.destroy');
+
+        Route::get('/dashboard/gallery', [DashboardGalleryController::class, 'index'])->name('dashboard.gallery.index');
+        Route::get('/dashboard/gallery/create', [DashboardGalleryController::class, 'create'])->name('dashboard.gallery.create');
+        Route::post('/dashboard/gallery', [DashboardGalleryController::class, 'store'])->name('dashboard.gallery.store');
+        Route::get('/dashboard/gallery/{gallery}/edit', [DashboardGalleryController::class, 'edit'])->name('dashboard.gallery.edit');
+        Route::put('/dashboard/gallery/{gallery}', [DashboardGalleryController::class, 'update'])->name('dashboard.gallery.update');
+        Route::delete('/dashboard/gallery/{gallery}', [DashboardGalleryController::class, 'destroy'])->name('dashboard.gallery.destroy');
+
+        Route::get('/dashboard/announcements', [DashboardAnnouncementController::class, 'index'])->name('dashboard.announcements.index');
+        Route::get('/dashboard/announcements/create', [DashboardAnnouncementController::class, 'create'])->name('dashboard.announcements.create');
+        Route::post('/dashboard/announcements', [DashboardAnnouncementController::class, 'store'])->name('dashboard.announcements.store');
+        Route::get('/dashboard/announcements/{announcement}/edit', [DashboardAnnouncementController::class, 'edit'])->name('dashboard.announcements.edit');
+        Route::put('/dashboard/announcements/{announcement}', [DashboardAnnouncementController::class, 'update'])->name('dashboard.announcements.update');
+        Route::delete('/dashboard/announcements/{announcement}', [DashboardAnnouncementController::class, 'destroy'])->name('dashboard.announcements.destroy');
+
         Route::get('/dashboard/contact-submissions', [DashboardModulesController::class, 'contactSubmissions'])->name('dashboard.contact-submissions');
+        Route::get('/dashboard/contact-submissions/export', [DashboardModulesController::class, 'contactSubmissionsExport'])->name('dashboard.contact-submissions.export');
+
+        Route::get('/dashboard/documents', [DashboardDocumentController::class, 'index'])->name('dashboard.documents.index');
+        Route::get('/dashboard/documents/create', [DashboardDocumentController::class, 'create'])->name('dashboard.documents.create');
+        Route::post('/dashboard/documents', [DashboardDocumentController::class, 'store'])->name('dashboard.documents.store');
+        Route::get('/dashboard/documents/{document}/edit', [DashboardDocumentController::class, 'edit'])->name('dashboard.documents.edit');
+        Route::put('/dashboard/documents/{document}', [DashboardDocumentController::class, 'update'])->name('dashboard.documents.update');
+        Route::delete('/dashboard/documents/{document}', [DashboardDocumentController::class, 'destroy'])->name('dashboard.documents.destroy');
+
+        Route::get('/dashboard/admissions', [DashboardAdmissionController::class, 'index'])->name('dashboard.admissions.index');
+        Route::get('/dashboard/admissions/{admission}', [DashboardAdmissionController::class, 'show'])->name('dashboard.admissions.show');
+        Route::post('/dashboard/admissions/{admission}/tests', [DashboardAdmissionController::class, 'scheduleTest'])->name('dashboard.admissions.tests.store');
+        Route::put('/dashboard/admissions/{admission}/tests/{test}', [DashboardAdmissionController::class, 'updateTest'])->name('dashboard.admissions.tests.update');
+        Route::delete('/dashboard/admissions/{admission}/tests/{test}', [DashboardAdmissionController::class, 'deleteTest'])->name('dashboard.admissions.tests.destroy');
+        Route::post('/dashboard/admissions/{admission}/status', [DashboardAdmissionController::class, 'updateStatus'])->name('dashboard.admissions.status.update');
     });
 });

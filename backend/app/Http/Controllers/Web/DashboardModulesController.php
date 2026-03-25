@@ -4,17 +4,19 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
+use App\Models\ContactSubmission;
 use App\Models\Exam;
 use App\Models\Fee;
 use App\Models\Guardian;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\Teacher;
-use App\Models\ContactSubmission;
 use App\Models\WebsiteSetting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DashboardModulesController extends Controller
 {
@@ -186,7 +188,13 @@ class DashboardModulesController extends Controller
     {
         abort_unless(auth()->user()?->can('manage_school_settings'), 403);
 
-        $data = $request->validate([
+        foreach (['website', 'facebook_url', 'twitter_url', 'instagram_url', 'linkedin_url', 'youtube_url'] as $urlKey) {
+            if ($request->input($urlKey) === '') {
+                $request->merge([$urlKey => null]);
+            }
+        }
+
+        $validated = $request->validate([
             'school_name' => ['nullable', 'string', 'max:255'],
             'tagline' => ['nullable', 'string', 'max:500'],
             'email' => ['nullable', 'email', 'max:255'],
@@ -198,10 +206,45 @@ class DashboardModulesController extends Controller
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:500'],
             'timezone' => ['nullable', 'string', 'max:64'],
+            'facebook_url' => ['nullable', 'url', 'max:255'],
+            'twitter_url' => ['nullable', 'url', 'max:255'],
+            'instagram_url' => ['nullable', 'url', 'max:255'],
+            'linkedin_url' => ['nullable', 'url', 'max:255'],
+            'youtube_url' => ['nullable', 'url', 'max:255'],
+            'logo' => ['nullable', 'image', 'max:2048'],
+            'remove_logo' => ['nullable', 'boolean'],
+            'favicon' => ['nullable', 'file', 'max:512', 'mimes:ico,png,jpg,jpeg,gif,webp,svg'],
+            'remove_favicon' => ['nullable', 'boolean'],
         ]);
 
         $settings = WebsiteSetting::firstOrNew([]);
-        $settings->fill($data);
+
+        if ($request->boolean('remove_logo') && $settings->logo_path) {
+            Storage::disk('public')->delete($settings->logo_path);
+            $settings->logo_path = null;
+        }
+
+        if ($request->hasFile('logo')) {
+            if ($settings->logo_path) {
+                Storage::disk('public')->delete($settings->logo_path);
+            }
+            $settings->logo_path = $request->file('logo')->store('website', 'public');
+        }
+
+        if ($request->boolean('remove_favicon') && $settings->favicon_path) {
+            Storage::disk('public')->delete($settings->favicon_path);
+            $settings->favicon_path = null;
+        }
+
+        if ($request->hasFile('favicon')) {
+            if ($settings->favicon_path) {
+                Storage::disk('public')->delete($settings->favicon_path);
+            }
+            $settings->favicon_path = $request->file('favicon')->store('website', 'public');
+        }
+
+        unset($validated['logo'], $validated['remove_logo'], $validated['favicon'], $validated['remove_favicon']);
+        $settings->fill($validated);
         $settings->save();
 
         return redirect()->route('dashboard.settings')->with('status', __('Settings saved.'));
@@ -220,5 +263,39 @@ class DashboardModulesController extends Controller
         $rows = $query->paginate(25)->withQueryString();
 
         return view('dashboard.modules.contact-submissions', compact('rows'));
+    }
+
+    public function contactSubmissionsExport(Request $request): StreamedResponse
+    {
+        abort_unless(auth()->user()?->hasRole('admin'), 403);
+
+        $type = $request->string('type')->toString();
+        $filename = $type ? "contact-submissions-{$type}.csv" : 'contact-submissions.csv';
+
+        $query = ContactSubmission::query()->latest();
+        if ($type) {
+            $query->where('type', $type);
+        }
+
+        return response()->streamDownload(function () use ($query) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['created_at', 'type', 'name', 'email', 'phone', 'subject', 'message']);
+
+            $query->chunk(500, function ($rows) use ($out) {
+                foreach ($rows as $r) {
+                    fputcsv($out, [
+                        optional($r->created_at)->toDateTimeString(),
+                        $r->type,
+                        $r->name,
+                        $r->email,
+                        $r->phone,
+                        $r->subject,
+                        $r->message,
+                    ]);
+                }
+            });
+
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 }

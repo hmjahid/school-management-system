@@ -57,6 +57,16 @@ class SitePageController extends Controller
         return view('site.contact', ['content' => $content]);
     }
 
+    public function terms(): View
+    {
+        return $this->renderCmsPage('terms');
+    }
+
+    public function privacy(): View
+    {
+        return $this->renderCmsPage('privacy');
+    }
+
     public function contactStore(Request $request): RedirectResponse
     {
         $validated = $request->validate([

@@ -55,6 +55,13 @@
                 {{ __('Attendance') }}
             </a>
         @endcan
+        @if (auth()->user()?->can('view_admissions'))
+            <a href="{{ route('dashboard.admissions.index') }}"
+                class="{{ request()->routeIs('dashboard.admissions*') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }} flex items-center rounded-md px-3 py-2 text-sm font-medium">
+                <svg class="mr-3 h-5 w-5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M7 2a1 1 0 00-1 1v1H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H8V3a1 1 0 00-1-1z"/><path d="M6 10a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1z"/></svg>
+                {{ __('Admissions') }}
+            </a>
+        @endif
         @can('viewAny', App\Models\Exam::class)
             <a href="{{ route('dashboard.exams') }}"
                 class="{{ request()->routeIs('dashboard.exams*') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }} flex items-center rounded-md px-3 py-2 text-sm font-medium">
@@ -71,7 +78,7 @@
         @endif
 
         @if ($isAdmin)
-            <details class="group rounded-md" @if (request()->routeIs('dashboard.cms.*') || request()->routeIs('dashboard.contact-submissions')) open @endif>
+            <details class="group rounded-md" @if (request()->routeIs('dashboard.cms.*') || request()->routeIs('dashboard.contact-submissions') || request()->routeIs('dashboard.news.*') || request()->routeIs('dashboard.gallery.*')) open @endif>
                 <summary class="{{ request()->routeIs('dashboard.cms.*') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }} flex cursor-pointer list-none items-center justify-between rounded-md px-3 py-2 text-sm font-medium [&::-webkit-details-marker]:hidden">
                     <span class="flex items-center">
                         <svg class="mr-3 h-5 w-5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.56-.5-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.56.5.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.498-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z" clip-rule="evenodd"/></svg>
@@ -81,6 +88,10 @@
                 </summary>
                 <div class="mt-1 space-y-1 border-l border-gray-200 pl-3">
                     <a href="{{ route('dashboard.cms.pages') }}" class="{{ request()->routeIs('dashboard.cms.pages') ? 'font-medium text-blue-700' : 'text-gray-600 hover:text-blue-700' }} block rounded-md py-2 pl-2 text-sm">{{ __('All pages') }}</a>
+                    <a href="{{ route('dashboard.news.index') }}" class="{{ request()->routeIs('dashboard.news.*') ? 'font-medium text-blue-700' : 'text-gray-600 hover:text-blue-700' }} block rounded-md py-2 pl-2 text-sm">{{ __('News & events') }}</a>
+                    <a href="{{ route('dashboard.gallery.index') }}" class="{{ request()->routeIs('dashboard.gallery.*') ? 'font-medium text-blue-700' : 'text-gray-600 hover:text-blue-700' }} block rounded-md py-2 pl-2 text-sm">{{ __('Gallery') }}</a>
+                    <a href="{{ route('dashboard.announcements.index') }}" class="{{ request()->routeIs('dashboard.announcements.*') ? 'font-medium text-blue-700' : 'text-gray-600 hover:text-blue-700' }} block rounded-md py-2 pl-2 text-sm">{{ __('Announcements') }}</a>
+                    <a href="{{ route('dashboard.documents.index') }}" class="{{ request()->routeIs('dashboard.documents.*') ? 'font-medium text-blue-700' : 'text-gray-600 hover:text-blue-700' }} block rounded-md py-2 pl-2 text-sm">{{ __('Documents') }}</a>
                     <a href="{{ route('dashboard.contact-submissions') }}" class="{{ request()->routeIs('dashboard.contact-submissions') ? 'font-medium text-blue-700' : 'text-gray-600 hover:text-blue-700' }} block rounded-md py-2 pl-2 text-sm">{{ __('Form submissions') }}</a>
                     @foreach (['header' => __('Header'), 'footer' => __('Footer'), 'menus' => __('Menus'), 'media' => __('Media'), 'blocks' => __('Blocks'), 'blog' => __('Blog')] as $slug => $plabel)
                         <a href="{{ route('dashboard.cms.edit', ['page' => $slug]) }}" class="{{ request()->routeIs('dashboard.cms.edit') && request()->route('page') === $slug ? 'font-medium text-blue-700' : 'text-gray-600 hover:text-blue-700' }} block rounded-md py-2 pl-2 text-sm">{{ $plabel }}</a>
@@ -91,7 +102,7 @@
             <a href="{{ route('dashboard.settings') }}"
                 class="{{ request()->routeIs('dashboard.settings') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }} flex items-center rounded-md px-3 py-2 text-sm font-medium">
                 <svg class="mr-3 h-5 w-5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
-                {{ __('Settings') }}
+                {{ __('School settings') }}
             </a>
         @endif
     </div>

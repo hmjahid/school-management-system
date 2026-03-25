@@ -13,18 +13,19 @@ return new class extends Migration
     {
         Schema::table('students', function (Blueprint $table) {
             // Add school_class_id column if it doesn't exist
-            if (!Schema::hasColumn('students', 'school_class_id')) {
-                $table->foreignId('school_class_id')->after('class_id')->constrained('school_classes')->onDelete('cascade');
+            // NOTE: modern schema uses class_id. Only keep school_class_id for legacy DBs that lack class_id.
+            if (! Schema::hasColumn('students', 'school_class_id') && ! Schema::hasColumn('students', 'class_id')) {
+                $table->foreignId('school_class_id')->nullable()->constrained('school_classes')->onDelete('set null');
             }
-            
+
             // Add roll_no column if it doesn't exist
-            if (!Schema::hasColumn('students', 'roll_no')) {
-                $table->string('roll_no')->after('admission_no');
+            if (! Schema::hasColumn('students', 'roll_no')) {
+                $table->string('roll_no')->nullable();
             }
-            
+
             // Add admission_no column if it doesn't exist
-            if (!Schema::hasColumn('students', 'admission_no')) {
-                $table->string('admission_no')->after('user_id')->unique();
+            if (! Schema::hasColumn('students', 'admission_no')) {
+                $table->string('admission_no')->nullable()->unique();
             }
         });
     }
@@ -40,12 +41,12 @@ return new class extends Migration
                 $table->dropForeign(['school_class_id']);
                 $table->dropColumn('school_class_id');
             }
-            
+
             // Only drop roll_no if it was added by this migration
             if (Schema::hasColumn('students', 'roll_no')) {
                 $table->dropColumn('roll_no');
             }
-            
+
             // Only drop admission_no if it was added by this migration
             if (Schema::hasColumn('students', 'admission_no')) {
                 $table->dropColumn('admission_no');

@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Models\Admission;
+use App\Notifications\AdmissionSubmittedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
 
 /**
@@ -17,7 +19,7 @@ class AdmissionSubmitter
         $validated = $this->validateAdmission($request);
         $validated = $this->handleFileUploads($request, $validated, null);
 
-        return DB::transaction(function () use ($validated) {
+        $admission = DB::transaction(function () use ($validated) {
             $validated['status'] = Admission::STATUS_SUBMITTED;
             $validated['submitted_at'] = now();
 
@@ -26,6 +28,11 @@ class AdmissionSubmitter
 
             return $admission->load('documents');
         });
+
+        Notification::route('mail', $admission->email)
+            ->notify(new AdmissionSubmittedNotification($admission));
+
+        return $admission;
     }
 
     /**

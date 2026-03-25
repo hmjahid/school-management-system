@@ -23,10 +23,18 @@ class WebsiteContentSeeder extends Seeder
         $pages = $this->pages();
 
         foreach ($pages as $page => $row) {
+            $content = $row['content'] ?? [];
             WebsiteContent::updateOrCreate(
                 ['page' => $page],
                 array_merge([
                     'is_active' => true,
+                    'title_en' => $row['title'] ?? null,
+                    'title_bn' => $row['title'] ?? null,
+                    'meta_description_en' => $row['meta_description'] ?? null,
+                    'meta_description_bn' => $row['meta_description'] ?? null,
+                    'content_en' => $content,
+                    'content_bn' => $content,
+                    'cms_input_mode' => WebsiteContent::INPUT_MODE_JSON,
                 ], $row)
             );
         }
@@ -247,6 +255,54 @@ class WebsiteContentSeeder extends Seeder
                     'sections' => [
                         $section('School hours', [
                             'Office hours typically follow the timetable in website settings; adjust in admin settings for accuracy.',
+                        ]),
+                    ],
+                ],
+            ],
+            'terms' => [
+                'title' => 'Terms & conditions',
+                'meta_description' => 'Terms of use for this website and related school services.',
+                'content' => [
+                    'intro' => 'By using this website and our services, you agree to the following terms. Please read them carefully; the school may update this page from time to time.',
+                    'sections' => [
+                        $section('Use of the website', [
+                            'This site is provided for information about the school, admissions, and community updates. You agree not to misuse the site, attempt unauthorised access, or distribute harmful content.',
+                        ]),
+                        $section('Accounts and portal', [
+                            'Portal accounts are for authorised parents, students, and staff. You are responsible for keeping login details confidential and for activity under your account.',
+                        ]),
+                        $section('Intellectual property', [
+                            'Text, images, logos, and materials on this site are owned by the school or used with permission. Reuse requires prior written consent unless otherwise stated.',
+                        ]),
+                        $section('Limitation of liability', [
+                            'Information on this site is provided in good faith. The school is not liable for indirect loss arising from use of the site or reliance on its content, to the extent permitted by law.',
+                        ]),
+                        $section('Contact', [
+                            'Questions about these terms can be directed to the school office using the contact details published on this website.',
+                        ]),
+                    ],
+                ],
+            ],
+            'privacy' => [
+                'title' => 'Privacy policy',
+                'meta_description' => 'How we collect, use, and protect personal information.',
+                'content' => [
+                    'intro' => 'We respect your privacy. This policy explains what information we may collect, how we use it, and your choices. It applies to this website and related processes such as admissions and the parent portal.',
+                    'sections' => [
+                        $section('Information we collect', [
+                            'We may collect information you provide (for example on contact or application forms), technical data such as IP address and browser type, and records needed to run the school and portal.',
+                        ]),
+                        $section('How we use information', [
+                            'We use data to respond to enquiries, process admissions, operate teaching and administration, comply with law, and improve our services and website security.',
+                        ]),
+                        $section('Sharing and retention', [
+                            'We do not sell personal data. We may share information with service providers who assist our operations (under contract), or when required by law. We retain data only as long as needed for these purposes.',
+                        ]),
+                        $section('Cookies and analytics', [
+                            'We may use cookies or similar technologies where needed for site function or to understand aggregate usage. You can control cookies through your browser settings.',
+                        ]),
+                        $section('Your rights', [
+                            'Depending on applicable law, you may have rights to access, correct, or delete certain personal data. Contact the school office to exercise these rights or ask questions.',
                         ]),
                     ],
                 ],

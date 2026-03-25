@@ -11,16 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('batches')) {
+            return;
+        }
+
         Schema::table('batches', function (Blueprint $table) {
-            $table->foreignId('academic_session_id')
-                  ->after('school_class_id')
-                  ->nullable()
-                  ->constrained('academic_sessions')
-                  ->onDelete('set null');
-                  
+            if (! Schema::hasColumn('batches', 'academic_session_id')) {
+                $table->foreignId('academic_session_id')
+                    ->nullable()
+                    ->constrained('academic_sessions')
+                    ->onDelete('set null');
+            }
+
             // Add other missing columns
-            $table->integer('capacity')->after('end_date')->default(30);
-            $table->string('status')->after('capacity')->default('active');
+            if (! Schema::hasColumn('batches', 'capacity')) {
+                $table->integer('capacity')->default(30);
+            }
+            if (! Schema::hasColumn('batches', 'status')) {
+                $table->string('status')->default('active');
+            }
         });
     }
 
@@ -29,9 +38,18 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (! Schema::hasTable('batches')) {
+            return;
+        }
+
         Schema::table('batches', function (Blueprint $table) {
-            $table->dropForeign(['academic_session_id']);
-            $table->dropColumn(['academic_session_id', 'capacity', 'status']);
+            if (Schema::hasColumn('batches', 'academic_session_id')) {
+                $table->dropForeign(['academic_session_id']);
+            }
+            $drops = collect(['academic_session_id', 'capacity', 'status'])->filter(fn ($c) => Schema::hasColumn('batches', $c))->values()->all();
+            if ($drops !== []) {
+                $table->dropColumn($drops);
+            }
         });
     }
 };

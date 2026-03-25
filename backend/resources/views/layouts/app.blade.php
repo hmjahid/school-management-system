@@ -4,12 +4,41 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @if($siteSettings?->favicon_url)
+        <link rel="icon" href="{{ $siteSettings->favicon_url }}">
+    @endif
     <title>@yield('title', ($siteSettings->school_name ?? config('app.name', 'School')))</title>
+    <link rel="canonical" href="{{ url()->current() }}">
     @hasSection('meta_description')
         <meta name="description" content="@yield('meta_description')">
     @elseif($siteSettings?->meta_description ?? false)
         <meta name="description" content="{{ $siteSettings->meta_description }}">
     @endif
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:site_name" content="{{ $siteSettings->school_name ?? config('app.name', 'School') }}">
+    <meta property="og:title" content="@yield('title', ($siteSettings->school_name ?? config('app.name', 'School')))">
+    @hasSection('meta_description')
+        <meta property="og:description" content="@yield('meta_description')">
+    @elseif($siteSettings?->meta_description ?? false)
+        <meta property="og:description" content="{{ $siteSettings->meta_description }}">
+    @endif
+    <script type="application/ld+json">
+        {!! json_encode([
+            '@context' => 'https://schema.org',
+            '@type' => 'Organization',
+            'name' => $siteSettings->school_name ?? config('app.name', 'School'),
+            'url' => url('/'),
+            'email' => $siteSettings->email ?? null,
+            'telephone' => $siteSettings->phone ?? null,
+            'address' => ($siteSettings && ($siteSettings->full_address ?? $siteSettings->address)) ? [
+                '@type' => 'PostalAddress',
+                'streetAddress' => $siteSettings->full_address ?? $siteSettings->address,
+                'addressLocality' => $siteSettings->city ?? null,
+                'addressCountry' => $siteSettings->country ?? null,
+            ] : null,
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+    </script>
+    @stack('schema')
     @stack('head')
     @if(config('school.google_analytics_id'))
         <script async src="https://www.googletagmanager.com/gtag/js?id={{ config('school.google_analytics_id') }}"></script>

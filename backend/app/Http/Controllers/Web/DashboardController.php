@@ -7,14 +7,21 @@ use App\Models\Attendance;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function index(): View
+    public function index(): View|RedirectResponse
     {
-        $user = auth()->user()->load(['roles', 'permissions']);
+        $user = auth()->user();
+
+        if (! $user->hasAnyRole(['admin', 'teacher', 'accountant', 'staff', 'librarian'])) {
+            return redirect()->route('portal');
+        }
+
+        $user->load(['roles', 'permissions']);
 
         return view('dashboard.index', [
             'user' => $user,

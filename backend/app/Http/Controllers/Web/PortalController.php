@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\Announcement;
 use App\Models\Assignment;
 use App\Models\Attendance;
 use App\Models\ExamResult;
@@ -33,6 +34,7 @@ class PortalController extends Controller
         $recentAttendance = collect();
         $examResults = collect();
         $feePayments = collect();
+        $announcements = collect();
 
         if ($user->hasRole('student')) {
             $student = Student::query()
@@ -101,6 +103,16 @@ class PortalController extends Controller
             }
         }
 
+        $audience = $user->hasRole('parent') ? 'parent' : 'student';
+        $announcements = Announcement::query()
+            ->published()
+            ->active()
+            ->whereIn('audience', ['all', $audience])
+            ->orderByDesc('starts_at')
+            ->orderByDesc('id')
+            ->limit(10)
+            ->get();
+
         return view('site.portal', compact(
             'user',
             'student',
@@ -108,7 +120,8 @@ class PortalController extends Controller
             'assignments',
             'recentAttendance',
             'examResults',
-            'feePayments'
+            'feePayments',
+            'announcements'
         ));
     }
 }

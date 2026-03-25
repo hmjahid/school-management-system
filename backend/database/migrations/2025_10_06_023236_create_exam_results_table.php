@@ -11,14 +11,30 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Legacy migration kept for history; align schema with current ExamResult model.
+        if (Schema::hasTable('exam_results')) {
+            return;
+        }
+
         Schema::create('exam_results', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('student_id')->constrained()->onDelete('cascade');
             $table->foreignId('exam_id')->constrained()->onDelete('cascade');
-            $table->json('marks');
-            $table->string('grade');
-            $table->decimal('gpa', 3, 2);
+            $table->foreignId('student_id')->constrained()->onDelete('cascade');
+            $table->float('obtained_marks')->nullable();
+            $table->string('grade')->nullable();
+            $table->float('grade_point')->nullable();
+            $table->text('remarks')->nullable();
+            $table->string('status')->default('pending');
+            $table->unsignedBigInteger('submitted_by')->nullable();
+            $table->dateTime('submitted_at')->nullable();
+            $table->unsignedBigInteger('reviewed_by')->nullable();
+            $table->dateTime('reviewed_at')->nullable();
+            $table->text('review_remarks')->nullable();
+            $table->boolean('is_published')->default(false);
+            $table->dateTime('published_at')->nullable();
+            $table->unsignedBigInteger('published_by')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -1,22 +1,22 @@
 @extends('layouts.app')
 
-@section('title', ($content->title ?? __('News & Events')) . ' — ' . ($siteSettings->school_name ?? config('app.name')))
+@section('title', ($content->title ?? site_ui('nav.news')) . ' — ' . ($siteSettings->school_name ?? config('app.name')))
 @section('meta_description', $content->meta_description)
 
 @section('content')
     <div class="bg-white">
         @include('site.partials.inner-hero', [
-            'title' => $content->title ?? __('News & Events'),
+            'title' => $content->title ?? site_ui('nav.news'),
             'subtitle' => $content->meta_description,
         ])
         <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
     @include('site.partials.sections', ['content' => $content])
 
     <section class="mt-12">
-        <h2 class="text-2xl font-bold text-gray-900">{{ __('Latest news') }}</h2>
+        <h2 class="text-2xl font-bold text-gray-900">{{ site_ui('news.list_heading') }}</h2>
         <div class="mt-2 h-1 w-20 bg-orange-500"></div>
         @if($latestNews->isEmpty())
-            <p class="mt-4 text-sm text-gray-600">{{ __('No news articles yet.') }}</p>
+            <p class="mt-4 text-sm text-gray-600">{{ site_ui('news.empty_news') }}</p>
         @else
             <ul class="mt-6 space-y-4">
                 @foreach ($latestNews as $item)
@@ -33,9 +33,9 @@
     </section>
 
     <section class="mt-12">
-        <h2 class="text-lg font-semibold text-gray-900">{{ __('Upcoming events') }}</h2>
+        <h2 class="text-lg font-semibold text-gray-900">{{ site_ui('news.events_heading') }}</h2>
         @if($upcomingEvents->isEmpty() && $newsEvents->isEmpty())
-            <p class="mt-4 text-sm text-gray-600">{{ __('No upcoming events scheduled.') }}</p>
+            <p class="mt-4 text-sm text-gray-600">{{ site_ui('news.empty_events') }}</p>
         @else
             <ul class="mt-6 space-y-3">
                 @foreach ($upcomingEvents as $ev)
@@ -55,9 +55,9 @@
     </section>
 
     <section class="mt-12">
-        <h2 class="text-lg font-semibold text-gray-900">{{ __('Past events') }}</h2>
+        <h2 class="text-lg font-semibold text-gray-900">{{ site_ui('news.past_events_heading') }}</h2>
         @if($pastEvents->isEmpty())
-            <p class="mt-4 text-sm text-gray-600">{{ __('No past events to display.') }}</p>
+            <p class="mt-4 text-sm text-gray-600">{{ site_ui('news.past_events_empty') }}</p>
         @else
             <ul class="mt-6 space-y-3">
                 @foreach ($pastEvents as $ev)
@@ -70,7 +70,7 @@
         @endif
     </section>
 
-    <p class="mt-10 text-sm text-gray-600">{{ __('School magazine, newsletter archive, and press releases can be linked from your CMS page content or added as downloadable documents.') }}</p>
+    <p class="mt-10 text-sm text-gray-600">{{ site_ui('news.magazine_note') }}</p>
         </div>
     </div>
 @endsection

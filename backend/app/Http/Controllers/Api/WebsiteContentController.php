@@ -19,7 +19,7 @@ class WebsiteContentController extends Controller
             ->where('is_active', true)
             ->first();
 
-        if (!$content) {
+        if (! $content) {
             // Return default content if page not found
             $content = new WebsiteContent([
                 'page' => $page,
@@ -56,9 +56,16 @@ class WebsiteContentController extends Controller
     public function updatePageContent(Request $request, string $page)
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'content' => 'required|array',
+            'title' => 'nullable|string|max:255',
+            'title_en' => 'nullable|string|max:255',
+            'title_bn' => 'nullable|string|max:255',
+            'content' => 'nullable|array',
+            'content_en' => 'nullable|array',
+            'content_bn' => 'nullable|array',
+            'cms_input_mode' => 'nullable|string|in:json,form',
             'meta_description' => 'nullable|string|max:500',
+            'meta_description_en' => 'nullable|string|max:500',
+            'meta_description_bn' => 'nullable|string|max:500',
             'meta_keywords' => 'nullable|string|max:255',
             'settings' => 'nullable|array',
             'is_active' => 'boolean',
@@ -72,12 +79,41 @@ class WebsiteContentController extends Controller
             ], 422);
         }
 
+        $contentEn = $request->input('content_en', $request->input('content', []));
+        if (! is_array($contentEn)) {
+            $contentEn = [];
+        }
+        $contentBn = $request->input('content_bn', []);
+        if (! is_array($contentBn)) {
+            $contentBn = [];
+        }
+
+        $titleEn = $request->input('title_en') ?? $request->input('title', '');
+        if ($titleEn === '') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => ['title_en' => ['Title (title or title_en) is required.']],
+            ], 422);
+        }
+        $titleBn = $request->input('title_bn') ?: $titleEn;
+
+        $metaEn = $request->input('meta_description_en') ?? $request->input('meta_description');
+        $metaBn = $request->input('meta_description_bn') ?: $metaEn;
+
         $content = WebsiteContent::updateOrCreate(
             ['page' => $page],
             [
-                'title' => $request->title,
-                'content' => $request->content,
-                'meta_description' => $request->meta_description,
+                'title' => $titleEn,
+                'title_en' => $titleEn,
+                'title_bn' => $titleBn,
+                'content' => $contentEn,
+                'content_en' => $contentEn,
+                'content_bn' => $contentBn,
+                'cms_input_mode' => $request->input('cms_input_mode', WebsiteContent::INPUT_MODE_JSON),
+                'meta_description' => $metaEn,
+                'meta_description_en' => $metaEn,
+                'meta_description_bn' => $metaBn,
                 'meta_keywords' => $request->meta_keywords,
                 'settings' => $request->settings ?? [],
                 'is_active' => $request->has('is_active') ? $request->is_active : true,
@@ -103,7 +139,7 @@ class WebsiteContentController extends Controller
 
         $content = WebsiteContent::where('page', $page)->firstOrFail();
         $path = $request->file('image')->store('website/images', 'public');
-        
+
         // Update the images array
         $images = $content->images ?? [];
         $images[$request->field_name] = $path;
@@ -112,7 +148,7 @@ class WebsiteContentController extends Controller
 
         return response()->json([
             'success' => true,
-            'url' => asset('storage/' . $path),
+            'url' => asset('storage/'.$path),
             'path' => $path,
         ]);
     }

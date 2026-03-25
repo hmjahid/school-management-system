@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', ($homeContent->title ?? __('Home')) . ' — ' . ($siteSettings->school_name ?? config('app.name')))
+@section('title', ($homeContent->title ?? site_ui('nav.home')) . ' — ' . ($siteSettings->school_name ?? config('app.name')))
 @section('meta_description', $homeContent->meta_description ?? $siteSettings?->meta_description)
 
 @section('content')
@@ -12,19 +12,18 @@
         $testimonials = $hc['testimonials'] ?? [];
         $features = $hc['features'] ?? [];
         if (empty($features)) {
-            $features = [
-                ['title' => __('Experienced faculty'), 'description' => __('Dedicated educators with deep subject expertise and care for every learner.')],
-                ['title' => __('Modern facilities'), 'description' => __('Classrooms and labs that support hands-on, collaborative learning.')],
-                ['title' => __('Balanced curriculum'), 'description' => __('Academic rigour alongside arts, sports, and character development.')],
-                ['title' => __('Inclusive community'), 'description' => __('A welcoming environment where diversity is celebrated.')],
-            ];
+            $features = site_ui('home.features_default', []);
+        }
+        $quickLinks = $hc['quick_links'] ?? null;
+        if (! is_array($quickLinks) || empty($quickLinks)) {
+            $quickLinks = site_ui('home.quick_links', []);
         }
         $heroImg = $hero['background_image'] ?? null;
         if (! $heroImg) {
             $heroImg = 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1920&q=80';
         }
-        $headline = $hero['headline'] ?? __('Shaping future leaders through excellence in education');
-        $sub = $hero['motto'] ?? $hero['subtitle'] ?? __('Empowering students with knowledge, skills, and values to succeed in a changing world.');
+        $headline = $hero['headline'] ?? site_ui('home.hero_headline');
+        $sub = $hero['motto'] ?? $hero['subtitle'] ?? site_ui('home.hero_subtitle');
     @endphp
 
     {{-- Hero (archive HomePage.jsx) --}}
@@ -39,31 +38,32 @@
                 <p class="mx-auto mb-8 max-w-3xl text-xl md:text-2xl text-blue-100">{{ $sub }}</p>
                 <div class="flex flex-col justify-center gap-4 sm:flex-row">
                     <a href="{{ route('admissions.apply') }}" class="inline-block rounded-md bg-orange-500 px-8 py-4 text-lg font-semibold text-white transition-colors duration-300 hover:bg-orange-600">
-                        {{ __('Apply for admission') }}
+                        {{ site_ui('home.hero_cta_primary') }}
                     </a>
                     <a href="{{ route('site.about') }}" class="inline-block rounded-md border-2 border-white bg-transparent px-8 py-3.5 text-lg font-semibold text-white transition-colors duration-300 hover:bg-white/10">
-                        {{ __('Learn more') }}
+                        {{ site_ui('home.hero_cta_secondary') }}
                     </a>
                 </div>
             </div>
         </div>
     </section>
 
-    {{-- Quick links --}}
+    {{-- Quick links (override in CMS home JSON key quick_links or globally in site-ui home.quick_links) --}}
     <section class="border-b border-gray-200 bg-white py-10">
         <div class="mx-auto grid max-w-7xl gap-4 px-4 sm:grid-cols-3 sm:px-6 lg:px-8">
-            <a href="{{ route('admissions.apply') }}" class="rounded-lg border border-gray-200 bg-white p-5 shadow-md transition-shadow hover:shadow-lg">
-                <p class="font-semibold text-gray-900">{{ __('Admissions') }}</p>
-                <p class="mt-1 text-sm text-gray-600">{{ __('Online application and documents') }}</p>
-            </a>
-            <a href="{{ route('portal') }}" class="rounded-lg border border-gray-200 bg-white p-5 shadow-md transition-shadow hover:shadow-lg">
-                <p class="font-semibold text-gray-900">{{ __('Parent / student portal') }}</p>
-                <p class="mt-1 text-sm text-gray-600">{{ __('Attendance, fees, and assignments') }}</p>
-            </a>
-            <a href="{{ route('admissions.status') }}" class="rounded-lg border border-gray-200 bg-white p-5 shadow-md transition-shadow hover:shadow-lg">
-                <p class="font-semibold text-gray-900">{{ __('Application status') }}</p>
-                <p class="mt-1 text-sm text-gray-600">{{ __('Track with your application number') }}</p>
-            </a>
+            @foreach ($quickLinks as $ql)
+                @php
+                    $r = $ql['route'] ?? '';
+                    $qlTitle = $ql['title'] ?? '';
+                    $qlDesc = $ql['description'] ?? '';
+                @endphp
+                @if($r && \Illuminate\Support\Facades\Route::has($r))
+                    <a href="{{ route($r) }}" class="rounded-lg border border-gray-200 bg-white p-5 shadow-md transition-shadow hover:shadow-lg">
+                        <p class="font-semibold text-gray-900">{{ $qlTitle }}</p>
+                        <p class="mt-1 text-sm text-gray-600">{{ $qlDesc }}</p>
+                    </a>
+                @endif
+            @endforeach
         </div>
     </section>
 
@@ -71,10 +71,10 @@
     <section class="bg-gray-50 py-16">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="mb-12 text-center">
-                <h2 class="mb-4 text-3xl font-bold text-gray-900">{{ __('Why choose our school?') }}</h2>
+                <h2 class="mb-4 text-3xl font-bold text-gray-900">{{ site_ui('home.features_title') }}</h2>
                 <div class="mx-auto h-1 w-20 bg-orange-500"></div>
                 <p class="mx-auto mt-4 max-w-3xl text-lg text-gray-600">
-                    {{ __('We foster academic excellence and personal growth in a supportive environment.') }}
+                    {{ site_ui('home.features_intro') }}
                 </p>
             </div>
             <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
@@ -97,19 +97,19 @@
                     @if($stats['students'])
                         <div>
                             <div class="mb-2 text-4xl font-bold">{{ number_format($stats['students']) }}</div>
-                            <div class="text-blue-200">{{ __('Students') }}</div>
+                            <div class="text-blue-200">{{ site_ui('home.stats_students') }}</div>
                         </div>
                     @endif
                     @if($stats['teachers'])
                         <div>
                             <div class="mb-2 text-4xl font-bold">{{ number_format($stats['teachers']) }}</div>
-                            <div class="text-blue-200">{{ __('Faculty') }}</div>
+                            <div class="text-blue-200">{{ site_ui('home.stats_faculty') }}</div>
                         </div>
                     @endif
                     @if($stats['years'] !== null)
                         <div>
                             <div class="mb-2 text-4xl font-bold">{{ $stats['years'] }}+</div>
-                            <div class="text-blue-200">{{ __('Years of excellence') }}</div>
+                            <div class="text-blue-200">{{ site_ui('home.stats_years') }}</div>
                         </div>
                     @endif
                 </div>
@@ -120,7 +120,7 @@
     @if(!empty($principal['message']))
         <section class="bg-white py-16">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <h2 class="mb-4 text-center text-3xl font-bold text-gray-900">{{ __('Welcome from the principal') }}</h2>
+                <h2 class="mb-4 text-center text-3xl font-bold text-gray-900">{{ site_ui('home.principal_title') }}</h2>
                 <div class="mx-auto mb-6 h-1 w-20 bg-orange-500"></div>
                 <p class="mx-auto max-w-3xl whitespace-pre-line text-center text-lg text-gray-600">{{ $principal['message'] }}</p>
                 @if(!empty($principal['name']))
@@ -134,7 +134,7 @@
         <section class="bg-white py-16">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="mb-12 text-center">
-                    <h2 class="mb-4 text-3xl font-bold text-gray-900">{{ __('What parents & students say') }}</h2>
+                    <h2 class="mb-4 text-3xl font-bold text-gray-900">{{ site_ui('home.testimonials_title') }}</h2>
                     <div class="mx-auto h-1 w-20 bg-orange-500"></div>
                 </div>
                 <div class="mx-auto grid max-w-5xl gap-6 md:grid-cols-2">
@@ -163,10 +163,10 @@
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-900">{{ __('Upcoming events') }}</h2>
+                        <h2 class="text-2xl font-bold text-gray-900">{{ site_ui('home.events_title') }}</h2>
                         <div class="mt-2 h-1 w-20 bg-orange-500"></div>
                     </div>
-                    <a href="{{ route('site.news') }}" class="inline-flex items-center font-medium text-blue-600 hover:text-blue-800">{{ __('View all') }} →</a>
+                    <a href="{{ route('site.news') }}" class="inline-flex items-center font-medium text-blue-600 hover:text-blue-800">{{ site_ui('home.events_view_all') }} →</a>
                 </div>
                 <ul class="space-y-3">
                     @foreach ($upcomingEvents as $ev)
@@ -185,11 +185,11 @@
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
                     <div>
-                        <h2 class="text-3xl font-bold text-gray-900">{{ __('Latest news & events') }}</h2>
+                        <h2 class="text-3xl font-bold text-gray-900">{{ site_ui('home.news_title') }}</h2>
                         <div class="mt-2 h-1 w-20 bg-orange-500"></div>
                     </div>
                     <a href="{{ route('site.news') }}" class="inline-flex items-center font-medium text-blue-600 hover:text-blue-800">
-                        {{ __('View all news') }}
+                        {{ site_ui('home.news_view_all') }}
                         <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </a>
                 </div>
@@ -208,7 +208,7 @@
                                 <h3 class="mb-2 text-xl font-semibold text-gray-900">{{ $item->title }}</h3>
                                 <p class="mb-4 text-gray-600">{{ \Illuminate\Support\Str::limit(strip_tags($item->content), 120) }}</p>
                                 <a href="{{ route('site.news.show', $item->slug) }}" class="inline-flex items-center font-medium text-blue-600 hover:text-blue-800">
-                                    {{ __('Read more') }}
+                                    {{ site_ui('home.read_more') }}
                                     <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                                 </a>
                             </div>
@@ -222,7 +222,7 @@
     @if(count($highlights))
         <section class="bg-white py-12">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <h2 class="mb-4 text-center text-2xl font-bold text-gray-900">{{ __('Highlights') }}</h2>
+                <h2 class="mb-4 text-center text-2xl font-bold text-gray-900">{{ site_ui('home.highlights_title') }}</h2>
                 <div class="mx-auto mb-8 h-1 w-20 bg-orange-500"></div>
                 <ul class="grid gap-3 sm:grid-cols-2">
                     @foreach ($highlights as $h)
@@ -235,16 +235,16 @@
 
     <section class="bg-blue-700 py-16 text-white">
         <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-            <h2 class="mb-6 text-3xl font-bold">{{ __('Ready to join our community?') }}</h2>
+            <h2 class="mb-6 text-3xl font-bold">{{ site_ui('home.cta_banner_title') }}</h2>
             <p class="mx-auto mb-8 max-w-3xl text-xl text-blue-100">
-                {{ __('Take the first step towards an exceptional educational journey.') }}
+                {{ site_ui('home.cta_banner_intro') }}
             </p>
             <div class="flex flex-col justify-center gap-4 sm:flex-row">
                 <a href="{{ route('admissions.apply') }}" class="inline-block rounded-md bg-white px-8 py-3 text-lg font-semibold text-blue-700 transition-colors hover:bg-gray-100">
-                    {{ __('Apply now') }}
+                    {{ site_ui('home.cta_apply') }}
                 </a>
                 <a href="{{ route('site.contact') }}" class="inline-block rounded-md border-2 border-white px-8 py-3 text-lg font-semibold text-white transition-colors hover:bg-white/10">
-                    {{ __('Contact us') }}
+                    {{ site_ui('home.cta_contact') }}
                 </a>
             </div>
         </div>

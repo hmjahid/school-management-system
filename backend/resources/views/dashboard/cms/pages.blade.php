@@ -3,11 +3,35 @@
 @section('title', __('CMS pages') . ' — ' . config('app.name', 'SchoolEase'))
 
 @section('content')
-    <div class="mb-6 flex items-center justify-between">
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 class="text-2xl font-bold text-gray-900">{{ __('Website pages') }}</h1>
-        <a href="{{ route('dashboard.cms.edit', ['page' => 'home']) }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
-            {{ __('New / edit home') }}
-        </a>
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ route('dashboard.cms.edit', ['page' => 'site-ui']) }}" class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700">
+                {{ __('Global labels (nav, footer, …)') }}
+            </a>
+            <a href="{{ route('dashboard.cms.edit', ['page' => 'home']) }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+                {{ __('Home content') }}
+            </a>
+        </div>
+    </div>
+
+    <div class="mb-6 rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-700 shadow-sm">
+        <p class="font-semibold text-gray-900">{{ __('Quick edit by route') }}</p>
+        <div class="mt-3 flex flex-wrap gap-2">
+            @foreach ([
+                'site-ui' => __('All UI labels'),
+                'home' => __('Home'),
+                'about' => __('About'),
+                'academics' => __('Academics'),
+                'admissions' => __('Admissions'),
+                'students' => __('Students'),
+                'faculty' => __('Faculty'),
+                'contact' => __('Contact'),
+                'payments' => __('Payments'),
+            ] as $slug => $label)
+                <a href="{{ route('dashboard.cms.edit', ['page' => $slug]) }}" class="rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 font-medium text-indigo-700 hover:bg-gray-100">{{ $label }}</a>
+            @endforeach
+        </div>
     </div>
 
     <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">

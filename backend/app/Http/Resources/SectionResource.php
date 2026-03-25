@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SectionResource extends JsonResource
@@ -20,8 +19,8 @@ class SectionResource extends JsonResource
             'name' => $this->name,
             'code' => $this->code,
             'class_id' => $this->class_id,
-            'class_name' => $this->whenLoaded('class', $this->class?->name),
-            'class_code' => $this->whenLoaded('class', $this->class?->code),
+            'class_name' => $this->whenLoaded('schoolClass', $this->schoolClass?->name),
+            'class_code' => $this->whenLoaded('schoolClass', $this->schoolClass?->code),
             'teacher_id' => $this->teacher_id,
             'teacher_name' => $this->whenLoaded('teacher', $this->teacher?->user?->name),
             'teacher_employee_id' => $this->whenLoaded('teacher', $this->teacher?->employee_id),

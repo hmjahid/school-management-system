@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\FeePayment;
 use App\Models\Payment;
 use App\Models\PaymentGateway;
 use Illuminate\Support\Facades\Http;
@@ -16,18 +17,18 @@ class PaymentService
     public function initializePayment(Payment $payment, string $gatewayCode, array $options = []): array
     {
         $gateway = PaymentGateway::where('code', $gatewayCode)->firstOrFail();
-        
+
         // Validate gateway is active and configured
-        if (!$gateway->is_active) {
-            throw new \Exception("Payment gateway is not active");
+        if (! $gateway->is_active) {
+            throw new \Exception('Payment gateway is not active');
         }
-        
-        if ($gateway->is_online && !$gateway->is_configured) {
-            throw new \Exception("Payment gateway is not properly configured");
+
+        if ($gateway->is_online && ! $gateway->is_configured) {
+            throw new \Exception('Payment gateway is not properly configured');
         }
-        
+
         // For offline payments, just return the payment details
-        if (!$gateway->is_online) {
+        if (! $gateway->is_online) {
             return [
                 'success' => true,
                 'gateway' => $gateway->code,
@@ -38,7 +39,7 @@ class PaymentService
                 'redirect_url' => null,
                 'offline_instructions' => $gateway->instructions,
                 'payment_details' => [
-                    'account_name' => config('app.name') . ' School',
+                    'account_name' => config('app.name').' School',
                     'account_number' => '1234567890',
                     'bank_name' => 'Example Bank',
                     'branch' => 'Main Branch',
@@ -47,55 +48,55 @@ class PaymentService
                 ],
             ];
         }
-        
+
         // For online payments, initialize with the specific gateway
-        $method = 'initialize' . Str::studly($gateway->code) . 'Payment';
-        
+        $method = 'initialize'.Str::studly($gateway->code).'Payment';
+
         if (method_exists($this, $method)) {
             return $this->$method($payment, $gateway, $options);
         }
-        
+
         throw new \Exception("Payment method not implemented: {$gateway->code}");
     }
-    
+
     /**
      * Process a payment callback from the gateway.
      */
     public function processCallback(string $gatewayCode, array $data): Payment
     {
         $gateway = PaymentGateway::where('code', $gatewayCode)->firstOrFail();
-        
-        $method = 'process' . Str::studly($gateway->code) . 'Callback';
-        
+
+        $method = 'process'.Str::studly($gateway->code).'Callback';
+
         if (method_exists($this, $method)) {
             return $this->$method($data, $gateway);
         }
-        
+
         throw new \Exception("Callback processing not implemented for gateway: {$gateway->code}");
     }
-    
+
     /**
      * Verify a payment status with the gateway.
      */
     public function verifyPayment(Payment $payment): Payment
     {
-        $gateway = $payment->payment_method === 'cash' 
-            ? null 
+        $gateway = $payment->payment_method === 'cash'
+            ? null
             : PaymentGateway::where('code', $payment->payment_method)->first();
-        
-        if (!$gateway) {
+
+        if (! $gateway) {
             return $payment; // No verification for cash payments or unknown gateways
         }
-        
-        $method = 'verify' . Str::studly($gateway->code) . 'Payment';
-        
+
+        $method = 'verify'.Str::studly($gateway->code).'Payment';
+
         if (method_exists($this, $method)) {
             return $this->$method($payment, $gateway);
         }
-        
+
         return $payment; // Return as-is if verification not implemented
     }
-    
+
     /**
      * Initialize bKash payment.
      */
@@ -103,7 +104,7 @@ class PaymentService
     {
         $config = $gateway->getApiConfig();
         $baseUrl = $config['test_mode'] ? $gateway->sandbox_url : $gateway->live_url;
-        
+
         // Step 1: Get auth token
         $tokenResponse = Http::withHeaders([
             'username' => $config['api_username'],
@@ -112,36 +113,36 @@ class PaymentService
             'app_key' => $config['api_key'],
             'app_secret' => $config['api_secret'],
         ]);
-        
-        if (!$tokenResponse->successful()) {
+
+        if (! $tokenResponse->successful()) {
             Log::error('Failed to get bKash token', $tokenResponse->json());
             throw new \Exception('Failed to initialize bKash payment');
         }
-        
+
         $tokenData = $tokenResponse->json();
         $idToken = $tokenData['id_token'];
-        
+
         // Step 2: Create payment
         $paymentResponse = Http::withHeaders([
             'Authorization' => $idToken,
             'X-APP-Key' => $config['api_key'],
         ])->post("$baseUrl/checkout/create", [
             'mode' => '0000', // For test mode
-            'payerReference' => 'INV' . $payment->invoice_number,
+            'payerReference' => 'INV'.$payment->invoice_number,
             'callbackURL' => $gateway->callback_url,
             'amount' => number_format($payment->total_amount, 2, '.', ''),
             'currency' => $payment->currency ?? $gateway->currency,
             'intent' => 'sale',
             'merchantInvoiceNumber' => $payment->invoice_number,
         ]);
-        
-        if (!$paymentResponse->successful()) {
+
+        if (! $paymentResponse->successful()) {
             Log::error('Failed to create bKash payment', $paymentResponse->json());
             throw new \Exception('Failed to create bKash payment');
         }
-        
+
         $paymentData = $paymentResponse->json();
-        
+
         // Store the payment ID and token for verification
         $payment->update([
             'payment_details' => array_merge($payment->payment_details ?? [], [
@@ -149,7 +150,7 @@ class PaymentService
                 'bkash_token' => $idToken,
             ]),
         ]);
-        
+
         return [
             'success' => true,
             'gateway' => 'bkash',
@@ -165,7 +166,7 @@ class PaymentService
             ],
         ];
     }
-    
+
     /**
      * Process bKash callback.
      */
@@ -174,10 +175,10 @@ class PaymentService
         $payment = Payment::where('invoice_number', $data['merchantInvoiceNumber'])
             ->orWhere('payment_details->bkash_payment_id', $data['paymentID'])
             ->firstOrFail();
-            
+
         $config = $gateway->getApiConfig();
         $baseUrl = $config['test_mode'] ? $gateway->sandbox_url : $gateway->live_url;
-        
+
         // Verify the payment with bKash
         $verifyResponse = Http::withHeaders([
             'Authorization' => $payment->payment_details['bkash_token'] ?? '',
@@ -185,14 +186,14 @@ class PaymentService
         ])->post("$baseUrl/checkout/execute", [
             'paymentID' => $data['paymentID'],
         ]);
-        
-        if (!$verifyResponse->successful()) {
+
+        if (! $verifyResponse->successful()) {
             Log::error('Failed to verify bKash payment', $verifyResponse->json());
             throw new \Exception('Failed to verify bKash payment');
         }
-        
+
         $verifyData = $verifyResponse->json();
-        
+
         // Update payment status based on bKash response
         if (isset($verifyData['transactionStatus']) && $verifyData['transactionStatus'] === 'Completed') {
             $payment->update([
@@ -206,9 +207,15 @@ class PaymentService
                     'payment_method_details' => $verifyData,
                 ]),
             ]);
-            
+
+            $this->applyPaymentSideEffects($payment, [
+                'gateway' => $gateway->code,
+                'transaction_id' => $verifyData['trxID'] ?? null,
+                'raw' => $verifyData,
+            ]);
+
             // Trigger payment success event
-            event(new \App\Events\PaymentProcessed($payment));
+            // event(new \App\Events\PaymentProcessed($payment));
         } else {
             $payment->update([
                 'payment_status' => Payment::STATUS_FAILED,
@@ -220,10 +227,45 @@ class PaymentService
                 ]),
             ]);
         }
-        
+
         return $payment;
     }
-    
+
+    /**
+     * Apply payment completion to domain records (FeePayment, etc.).
+     *
+     * @param  array<string, mixed>  $context
+     */
+    protected function applyPaymentSideEffects(Payment $payment, array $context = []): void
+    {
+        $feePaymentId = $payment->metadata['fee_payment_id'] ?? null;
+        if (! $feePaymentId) {
+            return;
+        }
+
+        $feePayment = FeePayment::query()->find($feePaymentId);
+        if (! $feePayment) {
+            return;
+        }
+
+        if ($feePayment->status === FeePayment::STATUS_PAID) {
+            return;
+        }
+
+        $feePayment->update([
+            'status' => FeePayment::STATUS_PAID,
+            'paid_amount' => $feePayment->amount,
+            'balance' => 0,
+            'transaction_id' => $context['transaction_id'] ?? $feePayment->transaction_id,
+            'payment_method' => FeePayment::METHOD_ONLINE_PAYMENT,
+            'metadata' => array_merge($feePayment->metadata ?? [], [
+                'gateway' => $context['gateway'] ?? $payment->payment_method,
+                'payment_id' => $payment->id,
+                'invoice_number' => $payment->invoice_number,
+            ]),
+        ]);
+    }
+
     /**
      * Verify bKash payment status.
      */
@@ -232,10 +274,10 @@ class PaymentService
         if (empty($payment->payment_details['bkash_payment_id'])) {
             return $payment;
         }
-        
+
         $config = $gateway->getApiConfig();
         $baseUrl = $config['test_mode'] ? $gateway->sandbox_url : $gateway->live_url;
-        
+
         // Get a new token for verification
         $tokenResponse = Http::withHeaders([
             'username' => $config['api_username'],
@@ -244,15 +286,16 @@ class PaymentService
             'app_key' => $config['api_key'],
             'app_secret' => $config['api_secret'],
         ]);
-        
-        if (!$tokenResponse->successful()) {
+
+        if (! $tokenResponse->successful()) {
             Log::error('Failed to get bKash token for verification', $tokenResponse->json());
+
             return $payment;
         }
-        
+
         $tokenData = $tokenResponse->json();
         $idToken = $tokenData['id_token'];
-        
+
         // Query payment status
         $response = Http::withHeaders([
             'Authorization' => $idToken,
@@ -260,18 +303,19 @@ class PaymentService
         ])->post("$baseUrl/checkout/payment/status", [
             'paymentID' => $payment->payment_details['bkash_payment_id'],
         ]);
-        
-        if (!$response->successful()) {
+
+        if (! $response->successful()) {
             Log::error('Failed to verify bKash payment status', $response->json());
+
             return $payment;
         }
-        
+
         $statusData = $response->json();
-        
+
         // Update payment status if it has changed
         if (isset($statusData['transactionStatus'])) {
             $newStatus = $this->mapBkashStatus($statusData['transactionStatus']);
-            
+
             if ($newStatus !== $payment->payment_status) {
                 $payment->update([
                     'payment_status' => $newStatus,
@@ -280,14 +324,14 @@ class PaymentService
                         'verification_response' => $statusData,
                     ]),
                 ]);
-                
+
                 if ($newStatus === Payment::STATUS_COMPLETED) {
                     $payment->update([
                         'paid_amount' => $payment->total_amount,
                         'due_amount' => 0,
                         'payment_date' => $statusData['completedTime'] ?? now(),
                     ]);
-                    
+
                     // Trigger payment success event if it was just completed
                     if ($payment->wasChanged('payment_status')) {
                         event(new \App\Events\PaymentProcessed($payment));
@@ -295,10 +339,10 @@ class PaymentService
                 }
             }
         }
-        
+
         return $payment;
     }
-    
+
     /**
      * Map bKash status to our payment status.
      */
@@ -313,10 +357,10 @@ class PaymentService
             'Expired' => Payment::STATUS_EXPIRED,
             'Refunded' => Payment::STATUS_REFUNDED,
         ];
-        
+
         return $statusMap[$bkashStatus] ?? Payment::STATUS_PENDING;
     }
-    
+
     /**
      * Initialize Nagad payment.
      */
@@ -324,10 +368,10 @@ class PaymentService
     {
         $config = $gateway->getApiConfig();
         $baseUrl = $config['test_mode'] ? $gateway->sandbox_url : $gateway->live_url;
-        
+
         // Generate a random string for request ID
         $requestId = Str::uuid()->toString();
-        
+
         // Step 1: Initialize payment
         $initResponse = Http::withHeaders([
             'Content-Type' => 'application/json',
@@ -345,14 +389,14 @@ class PaymentService
             'orderId' => $payment->invoice_number,
             'reference' => $payment->invoice_number,
         ]);
-        
-        if (!$initResponse->successful()) {
+
+        if (! $initResponse->successful()) {
             Log::error('Failed to initialize Nagad payment', $initResponse->json());
             throw new \Exception('Failed to initialize Nagad payment');
         }
-        
+
         $initData = $initResponse->json();
-        
+
         // Store the payment ID for verification
         $payment->update([
             'payment_details' => array_merge($payment->payment_details ?? [], [
@@ -360,11 +404,11 @@ class PaymentService
                 'nagad_order_id' => $initData['orderId'],
             ]),
         ]);
-        
+
         // Step 2: Complete the payment (this would be called from the frontend after user completes payment)
         // For now, we'll return the payment URL
-        $paymentUrl = $initData['callBackUrl'] . '?paymentRefId=' . $initData['paymentReferenceId'];
-        
+        $paymentUrl = $initData['callBackUrl'].'?paymentRefId='.$initData['paymentReferenceId'];
+
         return [
             'success' => true,
             'gateway' => 'nagad',
@@ -380,7 +424,7 @@ class PaymentService
             ],
         ];
     }
-    
+
     /**
      * Process Nagad callback.
      */
@@ -389,10 +433,10 @@ class PaymentService
         $payment = Payment::where('invoice_number', $data['orderId'])
             ->orWhere('payment_details->nagad_payment_id', $data['paymentRefId'])
             ->firstOrFail();
-            
+
         $config = $gateway->getApiConfig();
         $baseUrl = $config['test_mode'] ? $gateway->sandbox_url : $gateway->live_url;
-        
+
         // Verify the payment with Nagad
         $verifyResponse = Http::withHeaders([
             'Content-Type' => 'application/json',
@@ -402,14 +446,14 @@ class PaymentService
         ])->post("$baseUrl/verify/payment/", [
             'paymentRefId' => $data['paymentRefId'],
         ]);
-        
-        if (!$verifyResponse->successful()) {
+
+        if (! $verifyResponse->successful()) {
             Log::error('Failed to verify Nagad payment', $verifyResponse->json());
             throw new \Exception('Failed to verify Nagad payment');
         }
-        
+
         $verifyData = $verifyResponse->json();
-        
+
         // Update payment status based on Nagad response
         if (isset($verifyData['status']) && $verifyData['status'] === 'Success') {
             $payment->update([
@@ -423,7 +467,13 @@ class PaymentService
                     'payment_method_details' => $verifyData,
                 ]),
             ]);
-            
+
+            $this->applyPaymentSideEffects($payment, [
+                'gateway' => $gateway->code,
+                'transaction_id' => $verifyData['paymentId'] ?? null,
+                'raw' => $verifyData,
+            ]);
+
             // Trigger payment success event
             event(new \App\Events\PaymentProcessed($payment));
         } else {
@@ -437,10 +487,10 @@ class PaymentService
                 ]),
             ]);
         }
-        
+
         return $payment;
     }
-    
+
     /**
      * Initialize Rocket payment.
      */
@@ -448,17 +498,17 @@ class PaymentService
     {
         $config = $gateway->getApiConfig();
         $baseUrl = $config['test_mode'] ? $gateway->sandbox_url : $gateway->live_url;
-        
+
         // Generate a unique transaction ID
-        $transactionId = 'TXN' . time() . Str::random(6);
-        
+        $transactionId = 'TXN'.time().Str::random(6);
+
         // Store the transaction ID for verification
         $payment->update([
             'payment_details' => array_merge($payment->payment_details ?? [], [
                 'rocket_transaction_id' => $transactionId,
             ]),
         ]);
-        
+
         // For Rocket, we'll return the payment details for the frontend to handle
         return [
             'success' => true,
@@ -467,7 +517,7 @@ class PaymentService
             'invoice_number' => $payment->invoice_number,
             'amount' => $payment->total_amount,
             'currency' => $payment->currency ?? $gateway->currency,
-            'redirect_url' => $gateway->success_url . '?payment_id=' . $payment->id,
+            'redirect_url' => $gateway->success_url.'?payment_id='.$payment->id,
             'payment_details' => [
                 'transaction_id' => $transactionId,
                 'biller_id' => $config['biller_id'] ?? 'SCHOOL',
@@ -477,7 +527,7 @@ class PaymentService
             ],
         ];
     }
-    
+
     /**
      * Process Rocket payment verification.
      */
@@ -485,23 +535,23 @@ class PaymentService
     {
         // In a real implementation, you would verify the payment with Rocket's API
         // For this example, we'll assume the verification was successful
-        
+
         $payment->update([
             'payment_status' => Payment::STATUS_COMPLETED,
             'paid_amount' => $payment->total_amount,
             'due_amount' => 0,
             'payment_date' => now(),
             'payment_details' => array_merge($payment->payment_details ?? [], [
-                'transaction_id' => $verificationData['transaction_id'] ?? ('TXN' . time() . Str::random(6)),
+                'transaction_id' => $verificationData['transaction_id'] ?? ('TXN'.time().Str::random(6)),
                 'payment_status' => 'Completed',
                 'payment_method_details' => $verificationData,
                 'verified_at' => now(),
             ]),
         ]);
-        
+
         // Trigger payment success event
         event(new \App\Events\PaymentProcessed($payment));
-        
+
         return $payment;
     }
 }

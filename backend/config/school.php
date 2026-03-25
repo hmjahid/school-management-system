@@ -12,4 +12,19 @@ return [
 
     'supported_locales' => ['en', 'bn'],
 
+    /*
+    | Shown in the public site top bar and footer when website settings are empty.
+    | Prefer filling Dashboard → Settings; these are optional env fallbacks.
+    */
+    'contact_phone' => env('SCHOOL_CONTACT_PHONE'),
+    'contact_email' => env('SCHOOL_CONTACT_EMAIL'),
+    'contact_address' => env('SCHOOL_CONTACT_ADDRESS'),
+
+    /*
+    | Shown on the public site when no real value is configured (prompts admins to fill settings).
+    */
+    'placeholder_phone' => env('SCHOOL_PLACEHOLDER_PHONE', '+1 (555) 000-0000'),
+    'placeholder_email' => env('SCHOOL_PLACEHOLDER_EMAIL', 'office@school.example'),
+    'placeholder_address' => env('SCHOOL_PLACEHOLDER_ADDRESS', '123 School Road, City, Country'),
+
 ];

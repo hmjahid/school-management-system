@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Resources\PaymentResource;
 use App\Models\Payment;
 use App\Models\PaymentGateway;
+use App\Models\PaymentWebhookEvent;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class PaymentController extends Controller
@@ -20,18 +22,17 @@ class PaymentController extends Controller
     /**
      * Create a new controller instance.
      *
-     * @param PaymentService $paymentService
      * @return void
      */
     public function __construct(PaymentService $paymentService)
     {
         $this->paymentService = $paymentService;
-        
+
         // Apply middleware based on the route
         $this->middleware('auth:sanctum')->except([
-            'gateways', 'initiate', 'callback', 'status', 'webhook'
+            'gateways', 'initiate', 'callback', 'status', 'webhook',
         ]);
-        
+
         // Apply rate limiting to public endpoints
         $this->middleware('throttle:60,1')->only(['gateways', 'initiate', 'status']);
     }
@@ -39,7 +40,6 @@ class PaymentController extends Controller
     /**
      * Get list of available payment gateways
      *
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function gateways(Request $request)
@@ -76,7 +76,6 @@ class PaymentController extends Controller
     /**
      * Initiate a new payment
      *
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function initiate(Request $request)
@@ -103,22 +102,22 @@ class PaymentController extends Controller
 
         // Get the payment gateway
         $gateway = PaymentGateway::where('code', $request->gateway)->firstOrFail();
-        
+
         // Check if gateway is active and configured
-        if (!$gateway->is_active) {
+        if (! $gateway->is_active) {
             return response()->json([
                 'success' => false,
                 'message' => 'The selected payment gateway is currently unavailable.',
             ], 400);
         }
-        
-        if ($gateway->is_online && !$gateway->is_configured) {
+
+        if ($gateway->is_online && ! $gateway->is_configured) {
             return response()->json([
                 'success' => false,
                 'message' => 'The selected payment gateway is not properly configured.',
             ], 400);
         }
-        
+
         // Check amount against gateway limits
         if ($gateway->min_amount !== null && $request->amount < $gateway->min_amount) {
             return response()->json([
@@ -126,26 +125,26 @@ class PaymentController extends Controller
                 'message' => "Minimum payment amount is {$gateway->currency} {$gateway->min_amount} for {$gateway->name}.",
             ], 400);
         }
-        
+
         if ($gateway->max_amount !== null && $request->amount > $gateway->max_amount) {
             return response()->json([
                 'success' => false,
                 'message' => "Maximum payment amount is {$gateway->currency} {$gateway->max_amount} for {$gateway->name}.",
             ], 400);
         }
-        
+
         // Check if currency is supported
-        if (!in_array($request->currency, $gateway->supported_currencies ?? [$gateway->currency])) {
+        if (! in_array($request->currency, $gateway->supported_currencies ?? [$gateway->currency])) {
             return response()->json([
                 'success' => false,
                 'message' => "The selected currency is not supported by {$gateway->name}.",
             ], 400);
         }
-        
+
         // Calculate fees
         $fee = $gateway->fee_fixed + ($request->amount * $gateway->fee_percentage / 100);
         $totalAmount = $request->amount + $fee;
-        
+
         try {
             // Create a new payment record
             $payment = new Payment([
@@ -175,32 +174,32 @@ class PaymentController extends Controller
                 'notes' => $request->description,
                 'metadata' => $request->metadata,
             ]);
-            
+
             // Associate with the authenticated user if available
             if (auth()->check()) {
                 $payment->created_by = auth()->id();
                 $payment->updated_by = auth()->id();
             }
-            
+
             $payment->save();
-            
+
             // Initialize payment with the selected gateway
             $result = $this->paymentService->initializePayment(
-                $payment, 
+                $payment,
                 $gateway->code,
                 [
                     'return_url' => $request->return_url,
                     'cancel_url' => $request->cancel_url,
                 ]
             );
-            
+
             // Update payment with gateway response
             $payment->update([
                 'payment_details' => array_merge($payment->payment_details, [
                     'init_response' => $result,
                 ]),
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Payment initiated successfully',
@@ -209,13 +208,13 @@ class PaymentController extends Controller
                     'gateway' => $result,
                 ],
             ]);
-            
+
         } catch (\Exception $e) {
-            \Log::error('Payment initiation failed: ' . $e->getMessage(), [
+            \Log::error('Payment initiation failed: '.$e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to initiate payment. Please try again or contact support.',
@@ -223,22 +222,21 @@ class PaymentController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Handle payment callback from gateway
      *
-     * @param string $gateway
-     * @param Request $request
+     * @param  string  $gateway
      * @return \Illuminate\Http\Response
      */
     public function callback($gateway, Request $request)
     {
         try {
             $payment = $this->paymentService->processCallback($gateway, $request->all());
-            
+
             // Redirect to success or failure URL based on payment status
             $redirectUrl = $payment->payment_details['return_url'] ?? null;
-            
+
             if ($payment->payment_status === Payment::STATUS_COMPLETED) {
                 $redirectUrl = $payment->payment_details['success_url'] ?? $redirectUrl;
                 $message = 'Payment completed successfully';
@@ -246,57 +244,91 @@ class PaymentController extends Controller
                 $redirectUrl = $payment->payment_details['cancel_url'] ?? $redirectUrl;
                 $message = 'Payment failed or was cancelled';
             }
-            
+
             // If no redirect URL is set, return a JSON response
-            if (!$redirectUrl) {
+            if (! $redirectUrl) {
                 return response()->json([
                     'success' => $payment->payment_status === Payment::STATUS_COMPLETED,
                     'message' => $message,
                     'payment' => new PaymentResource($payment),
                 ]);
             }
-            
+
             // Redirect to the appropriate URL
-            return redirect()->away($redirectUrl . (parse_url($redirectUrl, PHP_URL_QUERY) ? '&' : '?') . http_build_query([
+            return redirect()->away($redirectUrl.(parse_url($redirectUrl, PHP_URL_QUERY) ? '&' : '?').http_build_query([
                 'payment_id' => $payment->id,
                 'status' => $payment->payment_status,
                 'transaction_id' => $payment->transaction_id,
                 'invoice_number' => $payment->invoice_number,
             ]));
-            
+
         } catch (\Exception $e) {
-            \Log::error('Payment callback failed: ' . $e->getMessage(), [
+            \Log::error('Payment callback failed: '.$e->getMessage(), [
                 'gateway' => $gateway,
                 'params' => $request->all(),
                 'exception' => $e,
             ]);
-            
+
             return response()->json([
                 'success' => false,
-                'message' => 'Payment processing failed. ' . $e->getMessage(),
+                'message' => 'Payment processing failed. '.$e->getMessage(),
             ], 400);
         }
     }
-    
+
     /**
      * Handle payment webhook from gateway
      *
-     * @param string $gateway
-     * @param Request $request
+     * @param  string  $gateway
      * @return \Illuminate\Http\Response
      */
     public function webhook($gateway, Request $request)
     {
         try {
+            $gatewayModel = PaymentGateway::where('code', (string) $gateway)->first();
+
+            // Optional signature verification when configured per gateway.
+            $secret = $gatewayModel?->extra_attributes['webhook_secret'] ?? null;
+            if ($secret) {
+                $provided = (string) ($request->header('X-Webhook-Signature') ?? '');
+                $expected = hash_hmac('sha256', (string) $request->getContent(), (string) $secret);
+                abort_unless(hash_equals($expected, $provided), 401);
+            }
+
+            $raw = (string) $request->getContent();
+            $hash = hash('sha256', $gateway.'|'.$raw);
+
+            $event = PaymentWebhookEvent::firstOrCreate(
+                ['payload_hash' => $hash],
+                [
+                    'gateway' => (string) $gateway,
+                    'headers' => $request->headers->all(),
+                    'payload' => $request->all(),
+                ]
+            );
+
+            if ($event->processed_at) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Duplicate webhook ignored',
+                ]);
+            }
+
             // Log the webhook request
             \Log::info("Received webhook from {$gateway}", [
                 'headers' => $request->headers->all(),
                 'payload' => $request->all(),
             ]);
-            
+
             // Process the webhook
             $payment = $this->paymentService->processCallback($gateway, $request->all());
-            
+
+            $event->update([
+                'processed_at' => now(),
+                'payment_id' => $payment->id,
+                'result_status' => (string) $payment->payment_status,
+            ]);
+
             // Return success response
             return response()->json([
                 'success' => true,
@@ -304,25 +336,32 @@ class PaymentController extends Controller
                 'payment_id' => $payment->id,
                 'status' => $payment->payment_status,
             ]);
-            
+
         } catch (\Exception $e) {
-            \Log::error('Webhook processing failed: ' . $e->getMessage(), [
+            \Log::error('Webhook processing failed: '.$e->getMessage(), [
                 'gateway' => $gateway,
                 'payload' => $request->all(),
                 'exception' => $e,
             ]);
-            
+
+            if (isset($event) && $event instanceof PaymentWebhookEvent) {
+                $event->update([
+                    'processed_at' => now(),
+                    'result_status' => 'error',
+                ]);
+            }
+
             return response()->json([
                 'success' => false,
-                'message' => 'Webhook processing failed: ' . $e->getMessage(),
+                'message' => 'Webhook processing failed: '.$e->getMessage(),
             ], 400);
         }
     }
-    
+
     /**
      * Check payment status
      *
-     * @param string $paymentId
+     * @param  string  $paymentId
      * @return \Illuminate\Http\JsonResponse
      */
     public function status($paymentId)
@@ -330,32 +369,31 @@ class PaymentController extends Controller
         $payment = Payment::where('id', $paymentId)
             ->orWhere('invoice_number', $paymentId)
             ->firstOrFail();
-        
+
         // If payment is not completed, try to verify with the gateway
-        if (!in_array($payment->payment_status, [Payment::STATUS_COMPLETED, Payment::STATUS_REFUNDED])) {
+        if (! in_array($payment->payment_status, [Payment::STATUS_COMPLETED, Payment::STATUS_REFUNDED])) {
             try {
                 $this->paymentService->verifyPayment($payment);
                 $payment->refresh(); // Refresh to get updated status
             } catch (\Exception $e) {
-                \Log::error('Payment verification failed: ' . $e->getMessage(), [
+                \Log::error('Payment verification failed: '.$e->getMessage(), [
                     'payment_id' => $paymentId,
                     'exception' => $e,
                 ]);
-                
+
                 // Continue with the current payment data even if verification fails
             }
         }
-        
+
         return response()->json([
             'success' => true,
             'data' => new PaymentResource($payment),
         ]);
     }
-    
+
     /**
      * List payments with filters
      *
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -365,7 +403,7 @@ class PaymentController extends Controller
             'page' => 'sometimes|integer|min:1',
             'search' => 'nullable|string|max:255',
             'status' => ['nullable', 'string', Rule::in([
-                'pending', 'processing', 'completed', 'failed', 'refunded', 'cancelled', 'expired'
+                'pending', 'processing', 'completed', 'failed', 'refunded', 'cancelled', 'expired',
             ])],
             'gateway' => 'nullable|string|exists:payment_gateways,code',
             'paymentable_type' => 'nullable|string|in:admission,tuition,exam,library,transport,hostel,other',
@@ -375,16 +413,16 @@ class PaymentController extends Controller
             'sort_by' => 'nullable|string|in:created_at,updated_at,payment_date,amount',
             'sort_order' => 'nullable|string|in:asc,desc',
         ]);
-        
+
         $query = Payment::query()
             ->with(['createdBy', 'updatedBy', 'paymentable'])
             ->when($request->filled('search'), function ($q) use ($request) {
                 $search = $request->input('search');
                 $q->where(function ($q) use ($search) {
                     $q->where('invoice_number', 'like', "%{$search}%")
-                      ->orWhere('reference_number', 'like', "%{$search}%")
-                      ->orWhere('transaction_id', 'like', "%{$search}%")
-                      ->orWhere('payment_details', 'like', "%{$search}%");
+                        ->orWhere('reference_number', 'like', "%{$search}%")
+                        ->orWhere('transaction_id', 'like', "%{$search}%")
+                        ->orWhere('payment_details', 'like', "%{$search}%");
                 });
             })
             ->when($request->filled('status'), function ($q) use ($request) {
@@ -401,27 +439,27 @@ class PaymentController extends Controller
             })
             ->when($request->filled('date_from') && $request->filled('date_to'), function ($q) use ($request) {
                 $q->whereBetween('created_at', [
-                    $request->input('date_from') . ' 00:00:00',
-                    $request->input('date_to') . ' 23:59:59',
+                    $request->input('date_from').' 00:00:00',
+                    $request->input('date_to').' 23:59:59',
                 ]);
             });
-        
+
         // Apply sorting
         $sortBy = $request->input('sort_by', 'created_at');
         $sortOrder = $request->input('sort_order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
-        
+
         // Paginate results
         $perPage = $request->input('per_page', 15);
         $payments = $query->paginate($perPage);
-        
+
         return PaymentResource::collection($payments);
     }
-    
+
     /**
      * Get payment details
      *
-     * @param string $id
+     * @param  string  $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function show($id)
@@ -430,34 +468,33 @@ class PaymentController extends Controller
             ->where('id', $id)
             ->orWhere('invoice_number', $id)
             ->firstOrFail();
-            
+
         // Check if user has permission to view this payment
         $this->authorize('view', $payment);
-        
+
         return new PaymentResource($payment);
     }
-    
+
     /**
      * Update payment status manually (admin only)
      *
-     * @param string $id
-     * @param Request $request
+     * @param  string  $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function updateStatus($id, Request $request)
     {
         $payment = Payment::findOrFail($id);
-        
+
         // Check if user has permission to update this payment
         $this->authorize('update', $payment);
-        
+
         $validated = $request->validate([
             'status' => ['required', 'string', Rule::in([
-                'pending', 'processing', 'completed', 'failed', 'refunded', 'cancelled', 'expired'
+                'pending', 'processing', 'completed', 'failed', 'refunded', 'cancelled', 'expired',
             ])],
             'notes' => 'nullable|string|max:1000',
         ]);
-        
+
         // Update payment status
         $payment->update([
             'payment_status' => $validated['status'],
@@ -468,7 +505,7 @@ class PaymentController extends Controller
                 'status_update_notes' => $validated['notes'] ?? null,
             ]),
         ]);
-        
+
         // If status is completed, update paid amount and date
         if ($validated['status'] === 'completed') {
             $payment->update([
@@ -476,18 +513,17 @@ class PaymentController extends Controller
                 'due_amount' => 0,
                 'payment_date' => $payment->payment_date ?? now(),
             ]);
-            
+
             // Trigger payment success event
             event(new \App\Events\PaymentProcessed($payment));
         }
-        
+
         return new PaymentResource($payment);
     }
-    
+
     /**
      * Record an offline payment
      *
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function recordOfflinePayment(Request $request)
@@ -505,10 +541,10 @@ class PaymentController extends Controller
             'notes' => ['nullable', 'string', 'max:1000'],
             'metadata' => ['nullable', 'array'],
         ]);
-        
+
         // Get the payment gateway
         $gateway = PaymentGateway::where('code', $validated['gateway'])->firstOrFail();
-        
+
         // Create a new payment record
         $payment = new Payment([
             'paymentable_type' => $validated['paymentable_type'],
@@ -536,53 +572,52 @@ class PaymentController extends Controller
             'created_by' => auth()->id(),
             'updated_by' => auth()->id(),
         ]);
-        
+
         $payment->save();
-        
+
         // Trigger payment success event
         event(new \App\Events\PaymentProcessed($payment));
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Offline payment recorded successfully',
             'data' => new PaymentResource($payment),
         ], 201);
     }
-    
+
     /**
      * Refund a payment
      *
-     * @param string $id
-     * @param Request $request
+     * @param  string  $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function refund($id, Request $request)
     {
         $payment = Payment::findOrFail($id);
-        
+
         // Check if user has permission to refund this payment
         $this->authorize('refund', $payment);
-        
+
         $validated = $request->validate([
-            'amount' => ['required', 'numeric', 'min:0.01', 'max:' . $payment->paid_amount],
+            'amount' => ['required', 'numeric', 'min:0.01', 'max:'.$payment->paid_amount],
             'reason' => ['required', 'string', 'max:255'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
-        
+
         try {
             // Process refund with the payment gateway if it's an online payment
             $refunded = false;
             $refundId = null;
-            
+
             if ($payment->payment_method !== 'cash' && $payment->payment_method !== 'cheque') {
                 // In a real implementation, you would call the gateway's refund API here
                 // For example: $refundResponse = $this->paymentService->refund($payment, $validated['amount']);
                 // $refundId = $refundResponse['refund_id'];
-                
+
                 // For this example, we'll just generate a random refund ID
-                $refundId = 'RFND' . strtoupper(Str::random(8));
+                $refundId = 'RFND'.strtoupper(Str::random(8));
             }
-            
+
             // Create a refund record
             $refund = new \App\Models\Refund([
                 'payment_id' => $payment->id,
@@ -599,9 +634,9 @@ class PaymentController extends Controller
                     'refunded_by' => auth()->user()->toArray(),
                 ],
             ]);
-            
+
             $refund->save();
-            
+
             // Update payment status and amounts
             $payment->update([
                 'paid_amount' => $payment->paid_amount - $validated['amount'],
@@ -617,14 +652,14 @@ class PaymentController extends Controller
                             'refund_id' => $refundId,
                             'processed_at' => now(),
                             'processed_by' => auth()->id(),
-                        ]
+                        ],
                     ]),
                 ]),
             ]);
-            
+
             // Trigger refund processed event
             event(new \App\Events\PaymentRefunded($payment, $refund));
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Refund processed successfully',
@@ -633,24 +668,23 @@ class PaymentController extends Controller
                     'refund' => $refund,
                 ],
             ]);
-            
+
         } catch (\Exception $e) {
-            \Log::error('Refund failed: ' . $e->getMessage(), [
+            \Log::error('Refund failed: '.$e->getMessage(), [
                 'payment_id' => $id,
                 'exception' => $e,
             ]);
-            
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to process refund. ' . $e->getMessage(),
+                'message' => 'Failed to process refund. '.$e->getMessage(),
             ], 500);
         }
     }
-    
+
     /**
      * Export payments to CSV/Excel
      *
-     * @param Request $request
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function export(Request $request)
@@ -660,17 +694,17 @@ class PaymentController extends Controller
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'status' => ['nullable', 'string', Rule::in([
-                'pending', 'processing', 'completed', 'failed', 'refunded', 'cancelled', 'expired'
+                'pending', 'processing', 'completed', 'failed', 'refunded', 'cancelled', 'expired',
             ])],
             'gateway' => 'nullable|string|exists:payment_gateways,code',
         ]);
-        
+
         $query = Payment::query()
             ->with(['createdBy', 'paymentable'])
             ->when($request->filled('start_date') && $request->filled('end_date'), function ($q) use ($request) {
                 $q->whereBetween('created_at', [
-                    $request->input('start_date') . ' 00:00:00',
-                    $request->input('end_date') . ' 23:59:59',
+                    $request->input('start_date').' 00:00:00',
+                    $request->input('end_date').' 23:59:59',
                 ]);
             })
             ->when($request->filled('status'), function ($q) use ($request) {
@@ -680,9 +714,9 @@ class PaymentController extends Controller
                 $q->where('payment_method', $request->input('gateway'));
             })
             ->orderBy('created_at', 'desc');
-        
+
         $payments = $query->get();
-        
+
         // Format data for export
         $data = $payments->map(function ($payment) {
             return [
@@ -701,39 +735,39 @@ class PaymentController extends Controller
                 'Description' => $payment->payment_details['description'] ?? '',
                 'Payment Date' => $payment->payment_date?->format('Y-m-d H:i:s'),
                 'Created By' => $payment->createdBy?->name,
-                'Payment For' => $payment->paymentable_type . ' #' . $payment->paymentable_id,
+                'Payment For' => $payment->paymentable_type.' #'.$payment->paymentable_id,
             ];
         });
-        
+
         $format = $request->input('format', 'csv');
-        $filename = 'payments-export-' . now()->format('Y-m-d-H-i-s') . '.' . $format;
-        
+        $filename = 'payments-export-'.now()->format('Y-m-d-H-i-s').'.'.$format;
+
         if ($format === 'xlsx') {
             return (new \Maatwebsite\Excel\Collections\PaymentExport($data))->download($filename);
         }
-        
+
         // Default to CSV
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ];
-        
-        $callback = function() use ($data) {
+
+        $callback = function () use ($data) {
             $file = fopen('php://output', 'w');
-            
+
             // Add headers
             if (count($data) > 0) {
                 fputcsv($file, array_keys($data[0]));
             }
-            
+
             // Add data rows
             foreach ($data as $row) {
                 fputcsv($file, $row);
             }
-            
+
             fclose($file);
         };
-        
+
         return response()->stream($callback, 200, $headers);
     }
 }

@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', ($content->title ?? __('Gallery')) . ' — ' . ($siteSettings->school_name ?? config('app.name')))
+@section('title', ($content->title ?? site_ui('gallery.page_title_fallback')) . ' — ' . ($siteSettings->school_name ?? config('app.name')))
 @section('meta_description', $content->meta_description)
 
 @section('content')
     <div class="bg-white">
         @include('site.partials.inner-hero', [
-            'title' => $content->title ?? __('Gallery'),
+            'title' => $content->title ?? site_ui('gallery.page_title_fallback'),
             'subtitle' => $content->meta_description,
         ])
         <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -40,12 +40,12 @@
     @endforeach
 
     @if($items->isEmpty())
-        <p class="mt-8 text-sm text-gray-600">{{ __('Gallery images will appear here when published.') }}</p>
+        <p class="mt-8 text-sm text-gray-600">{{ site_ui('gallery.empty') }}</p>
     @endif
 
     <section class="mt-12 rounded-xl border border-dashed border-gray-300 bg-gray-50 p-6 text-sm text-gray-600">
-        <h2 class="font-semibold text-gray-900">{{ __('Video gallery & virtual tour') }}</h2>
-        <p class="mt-2">{{ __('Embed video links or a 360° tour URL in your CMS “gallery” page content, or host files and link them from the structured sections.') }}</p>
+        <h2 class="font-semibold text-gray-900">{{ site_ui('gallery.video_section_title') }}</h2>
+        <p class="mt-2">{{ site_ui('gallery.video_section_body') }}</p>
     </section>
         </div>
     </div>

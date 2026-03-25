@@ -8,6 +8,12 @@
             <h1 class="text-2xl font-bold text-gray-900">{{ __('Website form submissions') }}</h1>
             <p class="mt-1 text-sm text-gray-600">{{ __('Contact, newsletter sign-ups, feedback, complaints, and scholarship inquiries from the public site.') }}</p>
         </div>
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="{{ route('dashboard.contact-submissions.export', ['type' => request('type')]) }}"
+               class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50">
+                {{ __('Export CSV') }}
+            </a>
+        </div>
         <form method="get" class="flex flex-wrap items-center gap-2">
             <select name="type" class="rounded-lg border border-gray-300 px-3 py-2 text-sm" onchange="this.form.submit()">
                 <option value="">{{ __('All types') }}</option>

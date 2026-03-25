@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Section extends Model
 {
@@ -20,13 +20,23 @@ class Section extends Model
         'is_active',
         'class_teacher_id',
         'academic_year_id',
+        'class_id',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'capacity' => 'integer',
         'academic_year_id' => 'integer',
+        'class_id' => 'integer',
     ];
+
+    /**
+     * The school class (grade) this section belongs to.
+     */
+    public function schoolClass(): BelongsTo
+    {
+        return $this->belongsTo(SchoolClass::class, 'class_id');
+    }
 
     /**
      * Get the class teacher for the section.
@@ -119,7 +129,8 @@ class Section extends Model
     {
         $status = $this->is_active ? 'active' : 'inactive';
         $color = $this->is_active ? 'success' : 'secondary';
-        return "<span class='badge bg-{$color}'>" . ucfirst($status) . "</span>";
+
+        return "<span class='badge bg-{$color}'>".ucfirst($status).'</span>';
     }
 
     /**
@@ -127,7 +138,7 @@ class Section extends Model
      */
     public function getFullNameAttribute(): string
     {
-        return $this->class ? $this->class->name . ' - ' . $this->name : $this->name;
+        return $this->schoolClass ? $this->schoolClass->name.' - '.$this->name : $this->name;
     }
 
     /**
@@ -218,6 +229,6 @@ class Section extends Model
      */
     public function getClassNameAttribute(): ?string
     {
-        return $this->class ? $this->class->name : null;
+        return $this->schoolClass ? $this->schoolClass->name : null;
     }
 }

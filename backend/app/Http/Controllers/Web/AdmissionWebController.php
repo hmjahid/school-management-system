@@ -56,6 +56,7 @@ class AdmissionWebController extends Controller
         $admission = null;
         if ($applicationNumber) {
             $admission = Admission::query()
+                ->with('latestTest')
                 ->whereRaw('UPPER(application_number) = ?', [$applicationNumber])
                 ->first();
         }
@@ -65,5 +66,4 @@ class AdmissionWebController extends Controller
             'applicationNumber' => $applicationNumber,
         ]);
     }
-
 }
