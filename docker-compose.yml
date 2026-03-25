@@ -79,22 +79,6 @@ services:
     networks:
       - sms-network
 
-  # Frontend Application
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    image: school-management-system/frontend
-    container_name: sms-frontend
-    restart: unless-stopped
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./frontend:/usr/src/app
-      - /usr/src/app/node_modules
-    networks:
-      - sms-network
-
 networks:
   sms-network:
     driver: bridge

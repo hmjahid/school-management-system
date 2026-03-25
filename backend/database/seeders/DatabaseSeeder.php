@@ -15,13 +15,15 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RolePermissionSeeder::class,
             AdminUserSeeder::class,
-            DemoUsersSeeder::class,  // Add demo users
+            DemoUsersSeeder::class,
+            WebsiteSettingSeeder::class,
+            WebsiteContentSeeder::class,
             AdmissionSeeder::class,
             PaymentGatewaySeeder::class,
             NewsSeeder::class,
             GallerySeeder::class,
             CareerSeeder::class,
-            EventsTableSeeder::class, // Add test events
+            EventsTableSeeder::class,
         ]);
     }
 }

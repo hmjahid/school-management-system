@@ -18,7 +18,12 @@ class AttendancePolicy
      */
     public function viewAny(User $user)
     {
-        return $user->hasAnyPermission(['view_attendances', 'manage_attendances']);
+        return $user->hasAnyPermission([
+            'view_attendances',
+            'manage_attendances',
+            'manage_attendance',
+            'view_attendance_reports',
+        ]);
     }
 
     /**

@@ -18,7 +18,12 @@ class SchoolClassPolicy
      */
     public function viewAny(User $user)
     {
-        return $user->hasAnyPermission(['view_classes', 'manage_classes']);
+        return $user->hasAnyPermission([
+            'view_classes',
+            'manage_classes',
+            'manage_attendance',
+            'view_student_details',
+        ]);
     }
 
     /**

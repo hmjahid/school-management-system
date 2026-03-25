@@ -18,7 +18,7 @@ class StudentPolicy
      */
     public function viewAny(User $user)
     {
-        return $user->hasAnyPermission(['view_students', 'manage_students']);
+        return $user->hasAnyPermission(['view_students', 'manage_students', 'view_student_details']);
     }
 
     /**

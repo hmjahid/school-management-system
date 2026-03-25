@@ -15,7 +15,14 @@ return Application::configure(basePath: dirname(__DIR__))
         \Spatie\Permission\PermissionServiceProvider::class,
     ])
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->redirectGuestsTo('/login');
+
+        $middleware->web(append: [
+            \App\Http\Middleware\SetLocaleFromSession::class,
+        ]);
+
         $middleware->alias([
+            'guest' => \Illuminate\Auth\Middleware\RedirectIfAuthenticated::class,
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,

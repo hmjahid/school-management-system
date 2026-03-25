@@ -126,8 +126,8 @@ class GuardianController extends Controller
                 'remember_token' => Str::random(10),
             ]);
 
-            // Assign guardian role
-            $user->assignRole('guardian');
+            // Align with RolePermissionSeeder role name (`parent`)
+            $user->assignRole('parent');
 
             // Create guardian record
             $guardianData = array_merge(
@@ -336,8 +336,8 @@ class GuardianController extends Controller
 
         $stats = [
             'total_guardians' => Guardian::count(),
-            'active_guardians' => User::whereHas('roles', function($q) {
-                $q->where('name', 'guardian');
+            'active_guardians' => User::whereHas('roles', function ($q) {
+                $q->whereIn('name', ['parent', 'guardian']);
             })->where('is_active', true)->count(),
             'guardians_with_students' => Guardian::has('students')->count(),
             'guardians_without_students' => Guardian::doesntHave('students')->count(),

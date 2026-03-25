@@ -63,6 +63,7 @@ class Admission extends Model
         'created_by',
         'updated_by',
         'metadata',
+        'submitted_at',
     ];
 
     protected $casts = [

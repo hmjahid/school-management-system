@@ -20,11 +20,13 @@ class ExamPolicy
     {
         // Any authenticated user can view exams, but filtered by their access level
         return $user->hasAnyPermission([
-            'view_exams', 
+            'view_exams',
             'manage_exams',
             'view_own_exams',
             'view_batch_exams',
-            'view_section_exams'
+            'view_section_exams',
+            'manage_marks',
+            'view_results',
         ]);
     }
 

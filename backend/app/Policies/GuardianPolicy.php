@@ -36,7 +36,7 @@ class GuardianPolicy
         }
 
         // Guardians can view their own profile
-        if ($user->hasRole('guardian') && $user->guardian->id === $guardian->id) {
+        if ($user->hasRole('parent') && $user->guardian->id === $guardian->id) {
             return true;
         }
 
@@ -83,7 +83,7 @@ class GuardianPolicy
         }
 
         // Guardians can update their own profile
-        if ($user->hasRole('guardian') && $user->guardian->id === $guardian->id) {
+        if ($user->hasRole('parent') && $user->guardian->id === $guardian->id) {
             return true;
         }
 
@@ -151,7 +151,7 @@ class GuardianPolicy
         }
 
         // Guardians can view their own students
-        if ($user->hasRole('guardian') && $user->guardian->id === $guardian->id) {
+        if ($user->hasRole('parent') && $user->guardian->id === $guardian->id) {
             return true;
         }
 
@@ -199,7 +199,7 @@ class GuardianPolicy
         }
 
         // Guardians can view their own payments
-        if ($user->hasRole('guardian') && $user->guardian->id === $guardian->id) {
+        if ($user->hasRole('parent') && $user->guardian->id === $guardian->id) {
             return true;
         }
 

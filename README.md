@@ -2,10 +2,10 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Laravel](https://img.shields.io/badge/Laravel-10.x-FF2D20?logo=laravel&logoColor=white)](https://laravel.com/)
-[![React](https://img.shields.io/badge/React-18.x-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.x-06B6D4?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Blade](https://img.shields.io/badge/UI-Laravel_Blade-FF2D20?logo=laravel&logoColor=white)](https://laravel.com/docs/blade)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.x-06B6D4?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-A comprehensive, modern, and feature-rich School Management System built with Laravel, React, and Tailwind CSS. This system provides a complete solution for educational institutions to manage their operations efficiently.
+A School Management System built with **Laravel Blade** only: session auth, **SchoolEase**-style indigo sidebar, dashboard overview (live stats from your DB), and the same module URLs as the old React app (`/dashboard/students`, `/dashboard/cms/pages`, etc.). Module screens are Blade placeholders ready to wire to your controllers. JSON API routes remain under `/api` if needed.
 
 ![School Management System Dashboard Preview](https://via.placeholder.com/1200x600/4F46E5/FFFFFF?text=School+Management+System+Dashboard)
 
@@ -57,13 +57,11 @@ A comprehensive, modern, and feature-rich School Management System built with La
 - **Caching**: Redis
 - **Search**: Laravel Scout with Meilisearch
 
-### Frontend
-- **Framework**: React 18+
-- **State Management**: React Query
-- **Styling**: Tailwind CSS 3+
-- **Icons**: Heroicons
-- **Charts**: Recharts
-- **Form Handling**: React Hook Form
+### Frontend (server-rendered)
+- **Templates**: Laravel Blade (`backend/resources/views`)
+- **Routes**: `backend/routes/web.php` (session authentication)
+- **Assets**: Vite + Tailwind CSS 4 (`backend/vite.config.js`)
+- The old React SPA is preserved in `archive/frontend/` for reference only; the `frontend/` folder at the repo root is a short pointer README.
 
 ## 🛠️ Installation
 
@@ -90,32 +88,30 @@ A comprehensive, modern, and feature-rich School Management System built with La
    php artisan key:generate
    ```
 
-3. **Install Frontend Dependencies**
+3. **Install Vite / Tailwind (for Blade assets)**
    ```bash
-   cd ../frontend
+   cd backend
    npm install
-   cp .env.example .env.local
    ```
 
 4. **Configure Environment**
-   - Update `.env` and `.env.local` with your database and app settings
+   - Update `backend/.env` with your database and app settings (ensure `SESSION_DRIVER` is set, e.g. `database` or `file`, for web login)
 
 5. **Run Migrations & Seeders**
    ```bash
-   cd ../backend
+   cd backend
    php artisan migrate --seed
    ```
 
-6. **Start Development Servers**
+6. **Start development**
    ```bash
-   # In backend directory
+   cd backend
    php artisan serve
-   
-   # In frontend directory
+   # optional: in another terminal, for hot-reload of CSS/JS
    npm run dev
    ```
 
-   Access the application at: http://localhost:3000
+   Open **http://127.0.0.1:8000** — **/login**, then **/dashboard** (sidebar + stats). Demo users: [demo-credentials.md](demo-credentials.md).
 
 ## 🚀 Deployment
 
@@ -133,7 +129,7 @@ docker-compose up -d
 docker-compose exec app composer install
 docker-compose exec app php artisan migrate --seed
 ```
-Access at: http://localhost:8000
+Access at: **http://localhost:8080** (nginx → Laravel `public/`)
 
 ## 📚 Documentation
 
@@ -163,5 +159,5 @@ For any inquiries, please contact [your-email@example.com](mailto:your-email@exa
 ---
 
 <div align="center">
-  Made with ❤️ using Laravel, React & Tailwind CSS
+  Made with ❤️ using Laravel Blade & Tailwind CSS
 </div>
