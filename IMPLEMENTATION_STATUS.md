@@ -15,7 +15,7 @@ public route and every dashboard module. See "Verification" at the bottom.
 | User registration                    | ⚠️     | API route exists; web registration is via the public admissions form. |
 | User login / logout (session)        | ✅     | `AuthSessionController` + `/login` Blade form. |
 | Login / logout (API token)           | ✅     | Sanctum at `/api/auth/login`. |
-| Password reset                       | ❌     | No routes/UI. |
+| Password reset                       | ✅     | `PasswordResetController` + `/forgot-password` and `/reset-password` views. Rate-limited (3 per IP per 5 min). |
 | Email verification                   | ❌     | Seeded users bypass; no flow for new users. |
 | Role-based access control            | ✅     | Spatie Permission. 6 roles, ~80 permissions seeded. |
 | Granular permissions                 | ✅     | Per-resource policies (Student, Teacher, Guardian, etc.). |

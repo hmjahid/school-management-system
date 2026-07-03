@@ -13,3 +13,6 @@ ensure that the application is fully developed and ready to depoly
 is all feature sare designed and implemented? 
 
 write a commit message for the changes after the last commit
+
+
+ensure that all frontend pages contnets are chnaged to bengali when language is switche dto bengali
