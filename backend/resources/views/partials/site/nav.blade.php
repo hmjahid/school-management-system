@@ -12,103 +12,150 @@
     $phTip = __('Example — set real details in Dashboard → School settings');
 @endphp
 
-<div class="bg-blue-900 text-sm text-white">
-    <div class="container mx-auto flex flex-col items-center justify-between gap-3 px-4 py-2.5 md:flex-row">
-        <div class="flex flex-col flex-wrap items-center justify-center gap-x-6 gap-y-2 sm:flex-row sm:justify-start">
-            <span class="inline-flex items-center gap-2 {{ $phoneReal ? '' : 'opacity-80' }}" @if(! $phoneReal) title="{{ $phTip }}" @endif>
-                <svg class="h-4 w-4 shrink-0 text-blue-300" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
+{{-- Top utility bar: hidden on small, condenses on medium, full on large --}}
+<div class="hidden bg-blue-900 text-sm text-white sm:block">
+    <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-2 lg:flex-row">
+        <div class="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 lg:justify-start">
+            <span class="inline-flex items-center gap-1.5 {{ $phoneReal ? '' : 'opacity-80' }}" @if(! $phoneReal) title="{{ $phTip }}" @endif>
+                <svg class="h-3.5 w-3.5 shrink-0 text-blue-300" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
                 @if($phoneReal)
-                    <a href="tel:{{ preg_replace('/\s+/', '', $phoneReal) }}" class="font-medium hover:text-blue-100">{{ $phone }}</a>
+                    <a href="tel:{{ preg_replace('/\s+/', '', $phoneReal) }}" class="whitespace-nowrap font-medium hover:text-blue-100">{{ $phone }}</a>
                 @else
                     <span class="border-b border-dotted border-blue-300/80 font-medium italic">{{ $phone }}</span>
                 @endif
             </span>
-            <span class="inline-flex items-center gap-2 {{ $emailReal ? '' : 'opacity-80' }}" @if(! $emailReal) title="{{ $phTip }}" @endif>
-                <svg class="h-4 w-4 shrink-0 text-blue-300" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+            <span class="inline-flex items-center gap-1.5 {{ $emailReal ? '' : 'opacity-80' }}" @if(! $emailReal) title="{{ $phTip }}" @endif>
+                <svg class="h-3.5 w-3.5 shrink-0 text-blue-300" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
                 @if($emailReal)
-                    <a href="mailto:{{ $emailReal }}" class="font-medium hover:text-blue-100 break-all">{{ $email }}</a>
+                    <a href="mailto:{{ $emailReal }}" class="max-w-[16rem] truncate font-medium hover:text-blue-100 lg:max-w-none">{{ $email }}</a>
                 @else
-                    <span class="border-b border-dotted border-blue-300/80 font-medium italic break-all">{{ $email }}</span>
+                    <span class="border-b border-dotted border-blue-300/80 font-medium italic">{{ $email }}</span>
                 @endif
             </span>
-            <span class="inline-flex max-w-xl items-start gap-2 text-center sm:text-left {{ $addrReal ? '' : 'opacity-80' }}" @if(! $addrReal) title="{{ $phTip }}" @endif>
-                <svg class="mt-0.5 h-4 w-4 shrink-0 text-blue-300" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+            <span class="hidden items-start gap-1.5 xl:inline-flex {{ $addrReal ? '' : 'opacity-80' }}" @if(! $addrReal) title="{{ $phTip }}" @endif>
+                <svg class="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-300" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
                 @if($addrReal)
-                    <span class="text-blue-100">{{ \Illuminate\Support\Str::limit($addr, 120) }}</span>
+                    <span class="text-blue-100">{{ \Illuminate\Support\Str::limit($addr, 80) }}</span>
                 @else
-                    <span class="border-b border-dotted border-blue-300/80 text-blue-100 italic">{{ \Illuminate\Support\Str::limit($addr, 120) }}</span>
+                    <span class="border-b border-dotted border-blue-300/80 text-blue-100 italic">{{ \Illuminate\Support\Str::limit($addr, 80) }}</span>
                 @endif
             </span>
         </div>
-        <div class="flex flex-wrap items-center justify-center gap-3 md:justify-end">
-            <div class="flex items-center gap-1.5">
+        <div class="flex flex-wrap items-center justify-center gap-3 lg:justify-end">
+            <div class="flex items-center gap-1">
                 @foreach (config('school.supported_locales', ['en']) as $loc)
                     <a href="{{ route('locale.switch', ['locale' => $loc]) }}"
-                        class="inline-flex min-w-[2.25rem] items-center justify-center rounded-md border px-2.5 py-1 text-xs font-bold uppercase tracking-wide transition {{ app()->getLocale() === $loc ? 'border-white bg-white/15 text-white' : 'border-blue-400/60 text-blue-200 hover:border-white hover:text-white' }}">
+                        class="inline-flex min-w-[1.75rem] items-center justify-center rounded border px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wide transition {{ app()->getLocale() === $loc ? 'border-white bg-white/15 text-white' : 'border-blue-400/60 text-blue-200 hover:border-white hover:text-white' }}">
                         {{ $loc }}
                     </a>
                 @endforeach
             </div>
-            <span class="hidden h-6 w-px bg-blue-600 sm:block" aria-hidden="true"></span>
-            <div class="flex items-center gap-3 text-blue-200">
+            <span class="hidden h-4 w-px bg-blue-600 sm:block" aria-hidden="true"></span>
+            <div class="flex items-center gap-2 text-blue-200">
                 @include('partials.site.social-links', ['settings' => $siteSettings, 'linkClass' => 'text-blue-200 hover:text-white', 'placeholderClass' => 'opacity-55'])
             </div>
+            <span class="hidden h-4 w-px bg-blue-600 sm:block" aria-hidden="true"></span>
+            <button type="button" data-theme-toggle aria-pressed="false" aria-label="{{ __('Toggle theme') }}" title="{{ __('Toggle theme') }}"
+                class="inline-flex items-center justify-center rounded-md p-1.5 text-blue-200 transition hover:bg-white/10 hover:text-white">
+                <span data-theme-label aria-hidden="true" class="text-sm leading-none">☾</span>
+            </button>
         </div>
     </div>
 </div>
 
-<header class="sticky top-0 z-50 bg-white shadow-md">
+{{-- Main header: sticky, capped at 7xl so 1440px+ doesn't stretch --}}
+<header class="sticky top-0 z-50 border-b border-gray-100 bg-white/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/80">
     <input type="checkbox" id="site-nav-toggle" class="peer sr-only" aria-hidden="true">
-    <div class="container mx-auto px-4">
-        <div class="flex items-center justify-between py-4">
-            <a href="{{ route('home') }}" class="flex min-w-0 items-center gap-3 no-underline">
-                @if($siteSettings?->logo_url)
-                    <img src="{{ $siteSettings->logo_url }}" alt="" width="120" height="48" class="h-10 w-auto max-h-12 max-w-[10rem] shrink-0 object-contain md:h-12 md:max-w-[12rem]">
-                @endif
-                <span class="truncate text-2xl font-bold text-blue-700 md:text-3xl">{{ $brandFirst }}@if($brandRest)<span class="text-orange-500">{{ ' '.$brandRest }}</span>@endif</span>
-            </a>
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-3 sm:py-4">
+        <a href="{{ route('home') }}" class="flex min-w-0 items-center gap-2 no-underline sm:gap-3">
+            @if($siteSettings?->logo_url)
+                <img src="{{ $siteSettings->logo_url }}" alt="" width="120" height="48" class="h-9 w-auto max-h-10 max-w-[8rem] shrink-0 object-contain sm:h-10 sm:max-h-12 sm:max-w-[10rem] md:max-w-[12rem]">
+            @endif
+            <span class="truncate text-lg font-bold leading-tight text-blue-700 sm:text-2xl md:text-3xl">
+                {{ $brandFirst }}@if($brandRest)<span class="text-orange-500">{{ ' '.$brandRest }}</span>@endif
+            </span>
+        </a>
 
-            <label for="site-nav-toggle" class="cursor-pointer rounded-md p-2 text-gray-700 hover:bg-blue-50 md:hidden" aria-label="{{ site_ui('nav.menu') }}">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-            </label>
+        <label for="site-nav-toggle" class="cursor-pointer rounded-md p-2 text-gray-700 hover:bg-blue-50 md:hidden" aria-label="{{ site_ui('nav.menu') }}">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </label>
 
-            <nav class="absolute left-0 right-0 top-full z-50 hidden max-h-[calc(100vh-5rem)] flex-col gap-2 overflow-y-auto border-t border-gray-100 bg-white px-4 py-4 shadow-lg peer-checked:flex md:static md:ml-6 md:flex md:max-h-none md:flex-1 md:flex-row md:flex-wrap md:items-center md:justify-end md:gap-2 md:border-0 md:bg-transparent md:px-0 md:py-0 md:shadow-none">
+        {{-- Desktop nav (md+): horizontal layout --}}
+        <nav class="hidden items-center gap-1 md:flex" aria-label="{{ site_ui('nav.menu') }}">
+            @php
+                $link = fn ($active) => 'rounded-md px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap '.($active ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700');
+                $btnOutline = 'ml-1 inline-flex items-center justify-center rounded-md border-2 border-blue-600 bg-white px-3 py-2 text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-50 whitespace-nowrap';
+                $btnNeutral = 'ml-1 inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-800 shadow-sm transition hover:bg-gray-50 whitespace-nowrap';
+                $btnPrimary = 'ml-1 inline-flex items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 whitespace-nowrap';
+            @endphp
+            <a href="{{ route('home') }}" class="{{ $link(request()->routeIs('home')) }}">{{ site_ui('nav.home') }}</a>
+            <a href="{{ route('site.about') }}" class="{{ $link(request()->routeIs('site.about')) }}">{{ site_ui('nav.about') }}</a>
+            <a href="{{ route('site.academics') }}" class="{{ $link(request()->routeIs('site.academics')) }}">{{ site_ui('nav.academics') }}</a>
+            <a href="{{ route('site.admissions') }}" class="{{ $link(request()->routeIs('site.admissions') || request()->routeIs('admissions.*')) }}">{{ site_ui('nav.admissions') }}</a>
+            <a href="{{ route('site.students') }}" class="hidden lg:inline-flex {{ $link(request()->routeIs('site.students')) }}">{{ site_ui('nav.students') }}</a>
+            <a href="{{ route('site.faculty') }}" class="hidden lg:inline-flex {{ $link(request()->routeIs('site.faculty')) }}">{{ site_ui('nav.faculty') }}</a>
+            <a href="{{ route('site.news') }}" class="{{ $link(request()->routeIs('site.news*')) }}">{{ site_ui('nav.news') }}</a>
+            <a href="{{ route('site.gallery') }}" class="hidden lg:inline-flex {{ $link(request()->routeIs('site.gallery')) }}">{{ site_ui('nav.gallery') }}</a>
+            <a href="{{ route('site.contact') }}" class="{{ $link(request()->routeIs('site.contact')) }}">{{ site_ui('nav.contact') }}</a>
+            <a href="{{ route('site.payments') }}" class="hidden xl:inline-flex {{ $link(request()->routeIs('site.payments')) }}">{{ site_ui('nav.payments') }}</a>
+            @auth
                 @php
-                    $link = fn ($active) => 'rounded-md px-4 py-2 text-sm font-medium transition-colors '.($active ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700');
-                    $btnOutline = 'inline-flex w-full items-center justify-center rounded-md border-2 border-blue-600 bg-white px-4 py-2 text-center text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-50 md:w-auto';
-                    $btnNeutral = 'inline-flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-center text-sm font-semibold text-gray-800 shadow-sm transition hover:bg-gray-50 md:w-auto';
-                    $btnPrimary = 'inline-flex w-full items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-center text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 md:w-auto';
+                    $navStaffRoles = ['admin', 'teacher', 'accountant', 'staff', 'librarian'];
+                    $navIsStaff = auth()->user()->hasAnyRole($navStaffRoles);
                 @endphp
-                <a href="{{ route('home') }}" class="{{ $link(request()->routeIs('home')) }}">{{ site_ui('nav.home') }}</a>
-                <a href="{{ route('site.about') }}" class="{{ $link(request()->routeIs('site.about')) }}">{{ site_ui('nav.about') }}</a>
-                <a href="{{ route('site.academics') }}" class="{{ $link(request()->routeIs('site.academics')) }}">{{ site_ui('nav.academics') }}</a>
-                <a href="{{ route('site.admissions') }}" class="{{ $link(request()->routeIs('site.admissions') || request()->routeIs('admissions.*')) }}">{{ site_ui('nav.admissions') }}</a>
-                <a href="{{ route('site.students') }}" class="{{ $link(request()->routeIs('site.students')) }}">{{ site_ui('nav.students') }}</a>
-                <a href="{{ route('site.faculty') }}" class="{{ $link(request()->routeIs('site.faculty')) }}">{{ site_ui('nav.faculty') }}</a>
-                <a href="{{ route('site.news') }}" class="{{ $link(request()->routeIs('site.news*')) }}">{{ site_ui('nav.news') }}</a>
-                <a href="{{ route('site.gallery') }}" class="{{ $link(request()->routeIs('site.gallery')) }}">{{ site_ui('nav.gallery') }}</a>
-                <a href="{{ route('site.contact') }}" class="{{ $link(request()->routeIs('site.contact')) }}">{{ site_ui('nav.contact') }}</a>
-                <a href="{{ route('site.payments') }}" class="{{ $link(request()->routeIs('site.payments')) }}">{{ site_ui('nav.payments') }}</a>
-                @auth
-                    @php
-                        $navStaffRoles = ['admin', 'teacher', 'accountant', 'staff', 'librarian'];
-                        $navIsStaff = auth()->user()->hasAnyRole($navStaffRoles);
-                    @endphp
-                    @unless($navIsStaff)
-                        <a href="{{ route('portal') }}" class="{{ request()->routeIs('portal') || request()->routeIs('portal.*') ? $btnPrimary : $btnOutline }}">{{ site_ui('nav.portal') }}</a>
-                    @endunless
-                    @if($navIsStaff)
-                        <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard*') ? $btnPrimary : $btnOutline }}">{{ site_ui('nav.dashboard') }}</a>
-                    @endif
-                    <form method="post" action="{{ route('logout') }}" class="w-full md:w-auto">
-                        @csrf
-                        <button type="submit" class="{{ $btnNeutral }} w-full">{{ site_ui('nav.logout') }}</button>
-                    </form>
+                @if($navIsStaff)
+                    <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard*') ? $btnPrimary : $btnOutline }}">{{ site_ui('nav.dashboard') }}</a>
                 @else
-                    <a href="{{ route('portal.register') }}" class="{{ $btnOutline }}">{{ site_ui('nav.register') }}</a>
-                    <a href="{{ route('login') }}" class="{{ $btnPrimary }}">{{ site_ui('nav.login') }}</a>
-                @endauth
-            </nav>
-        </div>
+                    <a href="{{ route('portal') }}" class="{{ request()->routeIs('portal') || request()->routeIs('portal.*') ? $btnPrimary : $btnOutline }}">{{ site_ui('nav.portal') }}</a>
+                @endif
+                <form method="post" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="{{ $btnNeutral }}">{{ site_ui('nav.logout') }}</button>
+                </form>
+            @else
+                <a href="{{ route('portal.register') }}" class="{{ $btnOutline }}">{{ site_ui('nav.register') }}</a>
+                <a href="{{ route('login') }}" class="{{ $btnPrimary }}">{{ site_ui('nav.login') }}</a>
+            @endauth
+        </nav>
     </div>
+
+    {{-- Mobile nav (below md): slides under header when toggle is checked --}}
+    <nav class="md:hidden max-h-[calc(100vh-5rem)] overflow-y-auto border-t border-gray-100 bg-white shadow-lg hidden flex-col peer-checked:flex" aria-label="{{ site_ui('nav.menu') }}">
+        <div class="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3">
+            @php
+                $linkMobile = fn ($active) => 'block rounded-md px-4 py-3 text-base font-medium '.($active ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700');
+                $btnMobilePrimary = 'mt-1 block w-full rounded-md bg-blue-600 px-4 py-3 text-center text-base font-semibold text-white hover:bg-blue-700';
+                $btnMobileOutline = 'mt-1 block w-full rounded-md border-2 border-blue-600 bg-white px-4 py-3 text-center text-base font-semibold text-blue-700 hover:bg-blue-50';
+                $btnMobileNeutral = 'mt-1 block w-full rounded-md border border-gray-300 bg-white px-4 py-3 text-center text-base font-semibold text-gray-800 hover:bg-gray-50';
+            @endphp
+            <a href="{{ route('home') }}" class="{{ $linkMobile(request()->routeIs('home')) }}">{{ site_ui('nav.home') }}</a>
+            <a href="{{ route('site.about') }}" class="{{ $linkMobile(request()->routeIs('site.about')) }}">{{ site_ui('nav.about') }}</a>
+            <a href="{{ route('site.academics') }}" class="{{ $linkMobile(request()->routeIs('site.academics')) }}">{{ site_ui('nav.academics') }}</a>
+            <a href="{{ route('site.admissions') }}" class="{{ $linkMobile(request()->routeIs('site.admissions') || request()->routeIs('admissions.*')) }}">{{ site_ui('nav.admissions') }}</a>
+            <a href="{{ route('site.students') }}" class="{{ $linkMobile(request()->routeIs('site.students')) }}">{{ site_ui('nav.students') }}</a>
+            <a href="{{ route('site.faculty') }}" class="{{ $linkMobile(request()->routeIs('site.faculty')) }}">{{ site_ui('nav.faculty') }}</a>
+            <a href="{{ route('site.news') }}" class="{{ $linkMobile(request()->routeIs('site.news*')) }}">{{ site_ui('nav.news') }}</a>
+            <a href="{{ route('site.gallery') }}" class="{{ $linkMobile(request()->routeIs('site.gallery')) }}">{{ site_ui('nav.gallery') }}</a>
+            <a href="{{ route('site.contact') }}" class="{{ $linkMobile(request()->routeIs('site.contact')) }}">{{ site_ui('nav.contact') }}</a>
+            <a href="{{ route('site.payments') }}" class="{{ $linkMobile(request()->routeIs('site.payments')) }}">{{ site_ui('nav.payments') }}</a>
+            @auth
+                @php
+                    $navStaffRoles = ['admin', 'teacher', 'accountant', 'staff', 'librarian'];
+                    $navIsStaff = auth()->user()->hasAnyRole($navStaffRoles);
+                @endphp
+                @if($navIsStaff)
+                    <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard*') ? $btnMobilePrimary : $btnMobileOutline }}">{{ site_ui('nav.dashboard') }}</a>
+                @else
+                    <a href="{{ route('portal') }}" class="{{ request()->routeIs('portal') || request()->routeIs('portal.*') ? $btnMobilePrimary : $btnMobileOutline }}">{{ site_ui('nav.portal') }}</a>
+                @endif
+                <form method="post" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="{{ $btnMobileNeutral }}">{{ site_ui('nav.logout') }}</button>
+                </form>
+            @else
+                <a href="{{ route('portal.register') }}" class="{{ $btnMobileOutline }}">{{ site_ui('nav.register') }}</a>
+                <a href="{{ route('login') }}" class="{{ $btnMobilePrimary }}">{{ site_ui('nav.login') }}</a>
+            @endauth
+        </div>
+    </nav>
 </header>

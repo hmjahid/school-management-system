@@ -21,6 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\SetLocaleFromSession::class,
         ]);
 
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'guest' => \Illuminate\Auth\Middleware\RedirectIfAuthenticated::class,
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,

@@ -65,16 +65,6 @@ class Batch extends Model
     public const STATUS_CANCELLED = 'cancelled';
 
     /**
-     * The "booted" method of the model.
-     */
-    protected static function booted()
-    {
-        static::addGlobalScope('active', function (Builder $builder) {
-            $builder->where('is_active', true);
-        });
-    }
-
-    /**
      * Get the academic session that owns the batch.
      */
     public function academicSession(): BelongsTo
@@ -141,14 +131,6 @@ class Batch extends Model
     public function exams(): HasMany
     {
         return $this->hasMany(Exam::class);
-    }
-
-    /**
-     * Get the study materials for the batch.
-     */
-    public function studyMaterials(): HasMany
-    {
-        return $this->hasMany(StudyMaterial::class);
     }
 
     /**

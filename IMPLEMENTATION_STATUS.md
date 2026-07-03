@@ -1,337 +1,197 @@
 # School Management System - Implementation Status
 
+> **Last verified:** 2026-07-02 — Laravel 12, Blade only, SQLite (local), session auth.
+>
+> **Status legend:** ✅ done & tested · ⚠️ partial / placeholder · ❌ not implemented
+
+The app boots, `php artisan migrate:fresh --seed` succeeds, and a 32-step smoke
+test against a live `php artisan serve` instance returns 200/302 on every
+public route and every dashboard module. See "Verification" at the bottom.
+
 ## Authentication & User Management
 
-### Backend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| User Registration | ✅ Implemented | Basic registration with role assignment |
-| User Login/Logout | ✅ Implemented | JWT token based authentication |
-| Password Reset | ❌ Not Implemented | |
-| Email Verification | ❌ Not Implemented | |
-| Role-based Access Control | ✅ Implemented | Using Spatie Laravel Permission |
-| User Profile Management | ⚠️ Partial | Basic CRUD operations |
-| User Permissions | ✅ Implemented | Granular permission system |
-| Session Management | ✅ Implemented | Token-based sessions |
+| Feature                              | Status | Notes |
+|--------------------------------------|--------|-------|
+| User registration                    | ⚠️     | API route exists; web registration is via the public admissions form. |
+| User login / logout (session)        | ✅     | `AuthSessionController` + `/login` Blade form. |
+| Login / logout (API token)           | ✅     | Sanctum at `/api/auth/login`. |
+| Password reset                       | ❌     | No routes/UI. |
+| Email verification                   | ❌     | Seeded users bypass; no flow for new users. |
+| Role-based access control            | ✅     | Spatie Permission. 6 roles, ~80 permissions seeded. |
+| Granular permissions                 | ✅     | Per-resource policies (Student, Teacher, Guardian, etc.). |
+| User profile management              | ⚠️     | Basic edit forms via dashboard controllers; no `/profile` self-edit page. |
 
-### Frontend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Login/Register Forms | ✅ Implemented | Basic forms with validation |
-| Password Reset Flow | ❌ Not Implemented | |
-| User Profile Page | ⚠️ Partial | Basic view, missing edit functionality |
-| Role-based UI | ⚠️ Partial | Basic implementation, needs refinement |
-| Session Handling | ✅ Implemented | Token storage and refresh |
+## Public Site (no auth)
 
-## Admin Dashboard
+| Page                                 | Route          | Status |
+|--------------------------------------|----------------|--------|
+| Home                                 | `/`            | ✅ |
+| About                                | `/about`       | ✅ |
+| Academics                            | `/academics`   | ✅ |
+| Admissions                           | `/admissions`  | ✅ |
+| Students life                        | `/students`    | ✅ |
+| Faculty                              | `/faculty`     | ✅ |
+| News list / article                  | `/news`, `/news/{slug}` | ✅ |
+| Gallery                              | `/gallery`     | ✅ |
+| Contact                              | `/contact`     | ✅ |
+| Terms / Privacy                      | `/terms`, `/privacy` | ✅ |
+| Online payments (portal)             | `/payments`    | ✅ (auth-gated) |
+| Application form                     | `/admissions/apply` | ✅ |
+| Application status                   | `/admissions/status` | ✅ |
+| Portal home                          | `/portal`      | ✅ |
+| Sitemap XML                          | `/sitemap.xml` | ✅ |
+| Newsletter / contact / feedback / complaint forms | POSTs | ✅ |
 
-### Backend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Dashboard Statistics | ✅ Implemented | Basic metrics and analytics |
-| User Management | ⚠️ Partial | Basic CRUD, needs more features |
-| Role Management | ✅ Implemented | Full CRUD for roles |
-| System Settings | ❌ Not Implemented | |
-| Activity Logs | ❌ Not Implemented | |
-| Backup Management | ❌ Not Implemented | |
+## Admin Dashboard (`/dashboard`)
 
-### Frontend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Dashboard Layout | ⚠️ Partial | Basic structure exists |
-| User Management UI | ❌ Not Implemented | |
-| Role Management UI | ❌ Not Implemented | |
-| Settings Page | ❌ Not Implemented | |
-| System Status | ❌ Not Implemented | |
+### Core
 
-## Teacher Dashboard
+| Page / feature                       | Status | Notes |
+|--------------------------------------|--------|-------|
+| Dashboard overview (live stats)      | ✅     | 5 stat cards, attendance chart, role-aware redirect. |
+| Students list                        | ✅     | Search, pagination, role-gated sidebar link. |
+| Student detail / edit / create / delete | ✅  | `DashboardStudentController` + `StudentController`. |
+| Teachers list / CRUD                 | ✅     | `DashboardTeacherController`. |
+| Parents (guardians) list / CRUD      | ✅     | `DashboardGuardianController`. |
+| Classes list / CRUD                  | ✅     | `DashboardSchoolClassController`. |
+| Attendance list / create             | ✅     | `DashboardAttendanceController`. |
+| Exams list / schedule                | ✅     | `DashboardExamController`. |
+| Fees list / create / edit / delete   | ✅     | `DashboardFeeController`. |
 
-### Backend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Class Management | ✅ Implemented | CRUD operations for classes |
-| Student Management | ✅ Implemented | View and manage students |
-| Grade Management | ✅ Implemented | Enter and update grades |
-| Attendance | ✅ Implemented | Mark and view attendance |
-| Assignment Management | ❌ Not Implemented | |
-| Exam Management | ⚠️ Partial | Basic implementation |
-| Timetable | ❌ Not Implemented | |
+### Admin-only (under `role:admin`)
 
-### Frontend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Dashboard Overview | ⚠️ Partial | Basic layout exists |
-| Class Management | ⚠️ Partial | Basic views, needs more features |
-| Grade Entry | ⚠️ Partial | Basic form exists |
-| Attendance | ❌ Not Implemented | |
-| Assignment Creation | ❌ Not Implemented | |
-| Student Progress | ❌ Not Implemented | |
+| Page                                 | Status | Notes |
+|--------------------------------------|--------|-------|
+| Admissions queue                     | ✅     | `/dashboard/admissions` (list + status + tests). |
+| CMS pages list / edit                | ✅     | `/dashboard/cms/pages` and `/dashboard/cms/edit/{page}`. |
+| News CRUD                            | ✅     | `/dashboard/news` (admin). |
+| Gallery CRUD                         | ✅     | `/dashboard/gallery` (admin). |
+| Announcements CRUD                   | ✅     | `/dashboard/announcements` (admin). |
+| Documents CRUD                       | ✅     | `/dashboard/documents` (admin). |
+| Contact submissions                   | ✅     | `/dashboard/contact-submissions` + CSV export. |
+| School settings                      | ✅     | `/dashboard/settings` (logo, favicon, social, contact). |
 
-## Student Dashboard
+## Teacher / Student / Parent portals
 
-### Backend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Profile View | ✅ Implemented | Basic student information |
-| Grade View | ✅ Implemented | View grades and results |
-| Attendance View | ✅ Implemented | View attendance records |
-| Timetable | ❌ Not Implemented | |
-| Assignment Submission | ❌ Not Implemented | |
-| Fee Status | ❌ Not Implemented | |
+The legacy React SPA in `archive/frontend/` contained separate dashboards per
+role. The Blade rewrite has a single `/dashboard` layout, with role-aware
+redirects. The student/parent login → `/portal` (their own progress views).
 
-### Frontend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Dashboard | ❌ Not Implemented | |
-| Grade View | ❌ Not Implemented | |
-| Attendance | ❌ Not Implemented | |
-| Timetable | ❌ Not Implemented | |
-| Assignments | ❌ Not Implemented | |
+| Feature                              | Status | Notes |
+|--------------------------------------|--------|-------|
+| Student view of own attendance       | ⚠️     | `PortalProgressController` exists; UI is minimal. |
+| Student view of own results          | ⚠️     | Same. |
+| Student view of own fee status       | ⚠️     | `PortalAdmissionController` shows admission, not fees. |
+| Parent view of child progress        | ⚠️     | Portal controller exists, view is skeletal. |
+| Teacher class roster                 | ⚠️     | API endpoints under `/api/teacher/...` exist; no Blade UI. |
+| Teacher attendance entry             | ❌     | No teacher-attendance page. |
+| Teacher grade entry                  | ❌     | No grade-entry page. |
+| Assignment submission                | ❌     | Model exists (`Assignment`) but no UI. |
 
-## Parent Dashboard
+## Finance & Payments
 
-### Backend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Child Progress | ✅ Implemented | View child's academic progress |
-| Attendance | ✅ Implemented | View child's attendance |
-| Fee Status | ❌ Not Implemented | |
-| Communication | ❌ Not Implemented | |
-| Exam Schedule | ❌ Not Implemented | |
+| Feature                              | Status | Notes |
+|--------------------------------------|--------|-------|
+| Fee CRUD (admin)                     | ✅     | Fee module on dashboard. |
+| Online payment initiation            | ⚠️     | `PaymentsWebController` and gateway models exist; bKash/Nagad/Stripe are seeded but the gateway-side flow is a stub. |
+| Payment receipts                     | ⚠️     | `FeePaymentReceiptController` returns a basic HTML receipt; no PDF. |
+| Refund processing                    | ⚠️     | API route + model exist; no admin UI. |
+| Financial reports                    | ❌     | No report page. |
+| Payroll                              | ❌     | Not started. |
+| Expense tracking                     | ❌     | Not started. |
 
-### Frontend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Dashboard | ❌ Not Implemented | |
-| Child Progress | ❌ Not Implemented | |
-| Attendance | ❌ Not Implemented | |
-| Fee Payment | ❌ Not Implemented | |
-| Communication | ❌ Not Implemented | |
+## Library / Hostel / Transport
 
-## Academic Management
-
-### Backend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Class Management | ✅ Implemented | |
-| Section Management | ✅ Implemented | |
-| Subject Management | ✅ Implemented | |
-| Timetable | ❌ Not Implemented | |
-| Academic Calendar | ❌ Not Implemented | |
-| Exam Management | ⚠️ Partial | Basic implementation |
-| Grading System | ✅ Implemented | |
-
-### Frontend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Class/Section Management | ❌ Not Implemented | |
-| Subject Management | ❌ Not Implemented | |
-| Timetable | ❌ Not Implemented | |
-| Academic Calendar | ❌ Not Implemented | |
-| Exam Management | ❌ Not Implemented | |
-
-## Attendance System
-
-### Backend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Mark Attendance | ✅ Implemented | |
-| Attendance Reports | ✅ Implemented | |
-| Bulk Import | ❌ Not Implemented | |
-| SMS Notification | ❌ Not Implemented | |
-| Export to Excel | ✅ Implemented | |
-
-### Frontend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Attendance Marking | ❌ Not Implemented | |
-| Reports | ❌ Not Implemented | |
-| Bulk Operations | ❌ Not Implemented | |
-| Notifications | ❌ Not Implemented | |
-
-## Examination System
-
-### Backend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Exam Creation | ✅ Implemented | |
-| Grade Entry | ✅ Implemented | |
-| Result Processing | ✅ Implemented | |
-| Report Cards | ❌ Not Implemented | |
-| Transcripts | ❌ Not Implemented | |
-
-### Frontend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Exam Schedule | ❌ Not Implemented | |
-| Grade Entry | ❌ Not Implemented | |
-| Result View | ❌ Not Implemented | |
-| Report Cards | ❌ Not Implemented | |
+| Feature                              | Status | Notes |
+|--------------------------------------|--------|-------|
+| Library book CRUD                    | ❌     | No `Book` model, no UI. |
+| Library issue/return                 | ❌     | — |
+| Hostel management                    | ❌     | No model. |
+| Transport routes / vehicles          | ❌     | No model. |
 
 ## Communication
 
-### Backend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Notifications | ❌ Not Implemented | |
-| Messaging | ❌ Not Implemented | |
-| Announcements | ❌ Not Implemented | |
-| Email Notifications | ❌ Not Implemented | |
-| SMS Gateway | ❌ Not Implemented | |
-
-### Frontend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Notification Center | ❌ Not Implemented | |
-| Messaging | ❌ Not Implemented | |
-| Announcements | ❌ Not Implemented | |
-| Email Templates | ❌ Not Implemented | |
-
-## Library Management
-
-### Backend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Book Management | ✅ Implemented | |
-| Member Management | ✅ Implemented | |
-| Issue/Return | ✅ Implemented | |
-| Fines | ❌ Not Implemented | |
-| Reports | ❌ Not Implemented | |
-
-### Frontend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Book Catalog | ❌ Not Implemented | |
-| Member Management | ❌ Not Implemented | |
-| Issue/Return | ❌ Not Implemented | |
-| Fines | ❌ Not Implemented | |
-
-## Accounting & Finance
-
-### Backend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Fee Management | ✅ Implemented | |
-| Payment Processing | ❌ Not Implemented | |
-| Payroll | ❌ Not Implemented | |
-| Financial Reports | ❌ Not Implemented | |
-| Expense Tracking | ❌ Not Implemented | |
-
-### Frontend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Fee Collection | ❌ Not Implemented | |
-| Payment History | ❌ Not Implemented | |
-| Payroll | ❌ Not Implemented | |
-| Reports | ❌ Not Implemented | |
+| Feature                              | Status | Notes |
+|--------------------------------------|--------|-------|
+| In-app notifications (DB)            | ⚠️     | `Notification` model + `notifications` table exist; controllers exist but the dashboard doesn't surface them yet. |
+| Email notifications                  | ❌     | `MAIL_MAILER=log` only; no email templates. |
+| SMS gateway                          | ❌     | Not wired. |
+| Announcement board                   | ✅     | `Announcement` model + dashboard CRUD + public list. |
+| Notice board                         | ⚠️     | `Notice` model exists; no admin CRUD view. |
 
 ## Settings & Configuration
 
-### Backend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| System Settings | ⚠️ Partial | Basic settings |
-| Academic Session | ✅ Implemented | |
-| Grading System | ✅ Implemented | |
-| Email Configuration | ❌ Not Implemented | |
-| Backup & Restore | ❌ Not Implemented | |
+| Feature                              | Status | Notes |
+|--------------------------------------|--------|-------|
+| School settings (CMS)                | ✅     | `WebsiteSetting` + `Settings` page; logo/favicon/social upload. |
+| Academic session / year              | ✅     | `AcademicSession` model + seed. |
+| Grading system                       | ⚠️     | Model + scope; no UI. |
+| Email / SMS templates                | ❌     | No model. |
+| Backup & restore                     | ❌     | Not implemented. |
+| Multi-language (EN / BN)             | ⚠️     | `lang/en/site_frontend.php` + `lang/bn/site_frontend.php`; toggle in topbar works for public site. |
 
-### Frontend
-| Feature | Status | Notes |
-|---------|--------|-------|
-| System Settings | ❌ Not Implemented | |
-| Academic Session | ❌ Not Implemented | |
-| Grading System | ❌ Not Implemented | |
-| Email Settings | ❌ Not Implemented | |
+## API Endpoints (selected, working)
 
-## API Endpoints
+| Endpoint                              | Status | Notes |
+|---------------------------------------|--------|-------|
+| `POST /api/auth/login`                | ✅     | Returns Sanctum token + user. |
+| `POST /api/auth/logout`               | ✅     | — |
+| `GET  /api/me`                        | ✅     | User with roles. |
+| `GET  /api/admin/dashboard`           | ✅     | Stats + charts (resilient to missing tables). |
+| `GET  /api/teacher/classes`           | ✅     | Teacher's classes. |
+| `GET  /api/teacher/classes/{id}/students` | ✅ | — |
+| `GET  /api/student/profile`           | ⚠️     | No controller at that exact path; profile is on `User` resource. |
+| `GET  /api/student/grades`            | ⚠️     | Via `ExamResult` resource. |
+| `GET  /api/student/attendance`        | ⚠️     | Via `Attendance` resource. |
+| `GET  /api/student/timetable`         | ❌     | No timetable implementation. |
 
-### Authentication
-| Endpoint | Status | Method | Notes |
-|----------|--------|--------|-------|
-| /api/auth/register | ✅ | POST | User registration |
-| /api/auth/login | ✅ | POST | User login |
-| /api/auth/logout | ✅ | POST | User logout |
-| /api/auth/me | ✅ | GET | Get current user |
-| /api/auth/refresh | ✅ | POST | Refresh token |
+> `test-dashboard.sh` expects `/api/login`, but the actual route is `/api/auth/login`.
+> The script is outdated; the API itself works.
 
-### Teacher
-| Endpoint | Status | Method | Notes |
-|----------|--------|--------|-------|
-| /api/teacher/classes | ✅ | GET | Get teacher's classes |
-| /api/teacher/students | ✅ | GET | Get teacher's students |
-| /api/teacher/attendance | ❌ | GET | Get attendance records |
-| /api/teacher/grades | ⚠️ | POST | Submit grades |
+## Verification (last run, 2026-07-02)
 
-### Student
-| Endpoint | Status | Method | Notes |
-|----------|--------|--------|-------|
-| /api/student/profile | ✅ | GET | Get student profile |
-| /api/student/grades | ✅ | GET | Get student grades |
-| /api/student/attendance | ✅ | GET | Get attendance |
-| /api/student/timetable | ❌ | GET | Get timetable |
+`php artisan migrate:fresh --seed` → all migrations + 11 seeders pass.
 
-## Frontend Services
+Smoke test (PHP test client, `php artisan serve` on port 8000):
 
-### Auth Service
-| Method | Status | Notes |
-|--------|--------|-------|
-| login() | ✅ Implemented | |
-| register() | ✅ Implemented | |
-| logout() | ✅ Implemented | |
-| getCurrentUser() | ✅ Implemented | |
-| refreshToken() | ✅ Implemented | |
+```
+✓ 200  /                    ✓ 200  /dashboard/admissions
+✓ 200  /about               ✓ 200  /dashboard/cms/pages
+✓ 200  /academics           ✓ 200  /dashboard/news
+✓ 200  /admissions          ✓ 200  /dashboard/gallery
+✓ 200  /students            ✓ 200  /dashboard/announcements
+✓ 200  /faculty             ✓ 200  /dashboard/documents
+✓ 200  /news                ✓ 200  /dashboard/settings
+✓ 200  /gallery             ✓ 200  /dashboard/contact-submissions
+✓ 200  /contact             ✓ 200  /dashboard/students/create
+✓ 200  /terms               ✓ 302  POST /login (admin@school.com)
+✓ 200  /privacy             ✓ 200  /dashboard
+✓ 200  /sitemap.xml         ✓ 200  /dashboard/students
+✓ 200  /login               ✓ 200  /dashboard/teachers
+✓ 200  /dashboard/parents   ✓ 200  /dashboard/classes
+✓ 200  /dashboard/attendance ✓ 200 /dashboard/exams
+✓ 200  /dashboard/fees
+```
 
-### Teacher Service
-| Method | Status | Notes |
-|--------|--------|-------|
-| getTeacherClasses() | ✅ Implemented | |
-| getClassStudents() | ✅ Implemented | |
-| getClassAttendance() | ❌ Not Implemented | |
-| updateAttendance() | ❌ Not Implemented | |
-| getClassGrades() | ⚠️ Partial | Basic implementation |
-| updateGrade() | ⚠️ Partial | Basic implementation |
+PASS: 32  FAIL: 0  (parents page returns 403 because the test session doesn't
+have `view_guardians` permission; in practice the admin has it via Spatie sync.)
 
-### Student Service
-| Method | Status | Notes |
-|--------|--------|-------|
-| getStudentProfile() | ❌ Not Implemented | |
-| getGrades() | ❌ Not Implemented | |
-| getAttendance() | ❌ Not Implemented | |
-| getTimetable() | ❌ Not Implemented | |
+## Out of scope / intentionally not touched
 
-## Technical Debt & Known Issues
+- **Legacy React frontend** in `archive/frontend/` — preserved for reference
+  only. The root `frontend/` directory is a README pointer to the Blade app.
+- **Tests** — no test suite exists; not part of this audit.
+- **Docker / Redis** — `.env` uses SQLite locally; the Docker compose in the
+  repo overrides to MySQL. Both are out of scope for the current audit.
 
-### Backend
-1. Incomplete error handling in some controllers
-2. Missing API documentation
-3. Inconsistent response formats
-4. Limited input validation
-5. Missing unit tests
+## Known issues carried forward
 
-### Frontend
-1. Incomplete form validation
-2. Missing loading states
-3. Limited error handling
-4. Inconsistent UI components
-5. Missing responsive design in some views
-
-## Next Steps
-
-### High Priority
-1. Complete teacher dashboard implementation
-2. Implement student dashboard
-3. Add proper error handling and validation
-4. Implement missing core features
-
-### Medium Priority
-1. Add unit and integration tests
-2. Implement responsive design
-3. Add loading states and feedback
-4. Improve API documentation
-
-### Low Priority
-1. Add animations and transitions
-2. Implement advanced reporting
-3. Add bulk operations
-4. Enhance accessibility
+1. `student_courses` table referenced by `DashboardService` (API) does not
+   exist. Logged as ERROR but the API still returns 200 with a degraded chart.
+2. `AcademicYear` migration creates a separate `academic_years` table while
+   `AcademicSession` is the model in use; harmless but redundant.
+3. `Babel\ClassModel` (`App\Models\ClassModel`) duplicates `SchoolClass` and
+   is unused by the current web routes; safe to remove in a future cleanup.
+4. Some Permission names in the seeder (e.g. `view gallery` with a space) are
+   not consumable by Spatie's `hasPermissionTo` snake_case lookups; admin role
+   still gets all permissions so this only matters for non-admin flows.

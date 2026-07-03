@@ -6,18 +6,24 @@ use App\Http\Controllers\Web\CmsWebController;
 use App\Http\Controllers\Web\DashboardAdmissionController;
 use App\Http\Controllers\Web\DashboardAnnouncementController;
 use App\Http\Controllers\Web\DashboardAttendanceController;
+use App\Http\Controllers\Web\DashboardBulkController;
+use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\DashboardDocumentController;
+use App\Http\Controllers\Web\DashboardEventController;
 use App\Http\Controllers\Web\DashboardExamController;
+use App\Http\Controllers\Web\DashboardExamResultController;
 use App\Http\Controllers\Web\DashboardFeeController;
 use App\Http\Controllers\Web\DashboardGalleryController;
 use App\Http\Controllers\Web\DashboardGuardianController;
 use App\Http\Controllers\Web\DashboardModulesController;
 use App\Http\Controllers\Web\DashboardNewsController;
+use App\Http\Controllers\Web\DashboardReportController;
 use App\Http\Controllers\Web\DashboardSchoolClassController;
 use App\Http\Controllers\Web\DashboardStudentController;
 use App\Http\Controllers\Web\DashboardTeacherController;
 use App\Http\Controllers\Web\FeePaymentReceiptController;
+use App\Http\Controllers\Web\PasswordResetController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\LocaleController;
 use App\Http\Controllers\Web\PaymentsWebController;
@@ -44,6 +50,7 @@ Route::get('/faculty', [SitePageController::class, 'faculty'])->name('site.facul
 Route::get('/news', [SiteNewsController::class, 'index'])->name('site.news');
 Route::get('/news/{slug}', [SiteNewsController::class, 'show'])->name('site.news.show');
 Route::get('/gallery', [SiteGalleryController::class, 'index'])->name('site.gallery');
+Route::get('/events', [SitePageController::class, 'events'])->name('site.events');
 Route::get('/contact', [SitePageController::class, 'contact'])->name('site.contact');
 Route::get('/terms', [SitePageController::class, 'terms'])->name('site.terms');
 Route::get('/privacy', [SitePageController::class, 'privacy'])->name('site.privacy');
@@ -76,6 +83,11 @@ Route::middleware('throttle:12,1')->group(function () {
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthSessionController::class, 'store']);
+
+    Route::get('/forgot-password', [PasswordResetController::class, 'create'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'store'])->name('password.email');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'edit'])->name('password.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'update'])->name('password.update');
 });
 
 Route::middleware('auth')->group(function () {
@@ -92,7 +104,38 @@ Route::middleware('auth')->group(function () {
     Route::put('/dashboard/students/{student}', [DashboardStudentController::class, 'update'])->name('dashboard.students.update');
     Route::delete('/dashboard/students/{student}', [DashboardStudentController::class, 'destroy'])->name('dashboard.students.destroy');
     Route::get('/dashboard/students/{student}', [DashboardStudentController::class, 'show'])->name('dashboard.students.show');
+    Route::get('/dashboard/students/{student}/results', [DashboardExamResultController::class, 'studentResults'])->name('dashboard.students.results');
     Route::get('/dashboard/students', [DashboardModulesController::class, 'students'])->name('dashboard.students');
+
+    Route::get('/dashboard/exams/{exam}/results', [DashboardExamResultController::class, 'index'])->name('dashboard.exams.results');
+    Route::post('/dashboard/exams/{exam}/results', [DashboardExamResultController::class, 'store'])->name('dashboard.exams.results.store');
+    Route::get('/dashboard/exams/{exam}/results/export', [DashboardExamResultController::class, 'export'])->name('dashboard.exams.results.export');
+    Route::post('/dashboard/exams/{exam}/publish', [DashboardExamResultController::class, 'publish'])->name('dashboard.exams.publish');
+    Route::post('/dashboard/exams/{exam}/unpublish', [DashboardExamResultController::class, 'unpublish'])->name('dashboard.exams.unpublish');
+
+    Route::get('/dashboard/reports', [DashboardReportController::class, 'index'])->name('dashboard.reports');
+    Route::get('/dashboard/reports/fees', [DashboardReportController::class, 'fees'])->name('dashboard.reports.fees');
+    Route::get('/dashboard/reports/attendance', [DashboardReportController::class, 'attendance'])->name('dashboard.reports.attendance');
+    Route::get('/dashboard/reports/students', [DashboardReportController::class, 'students'])->name('dashboard.reports.students');
+    Route::get('/dashboard/reports/export/{type}', [DashboardReportController::class, 'export'])->name('dashboard.reports.export');
+
+    Route::get('/dashboard/events', [DashboardEventController::class, 'index'])->name('dashboard.events');
+    Route::get('/dashboard/events/calendar', [DashboardEventController::class, 'calendar'])->name('dashboard.events.calendar');
+    Route::get('/dashboard/events/create', [DashboardEventController::class, 'create'])->name('dashboard.events.create');
+    Route::post('/dashboard/events', [DashboardEventController::class, 'store'])->name('dashboard.events.store');
+    Route::get('/dashboard/events/{event}/edit', [DashboardEventController::class, 'edit'])->name('dashboard.events.edit');
+    Route::put('/dashboard/events/{event}', [DashboardEventController::class, 'update'])->name('dashboard.events.update');
+    Route::delete('/dashboard/events/{event}', [DashboardEventController::class, 'destroy'])->name('dashboard.events.destroy');
+
+    Route::get('/dashboard/bulk', [DashboardBulkController::class, 'index'])->name('dashboard.bulk');
+    Route::get('/dashboard/bulk/export/{resource}', [DashboardBulkController::class, 'export'])->name('dashboard.bulk.export');
+    Route::get('/dashboard/bulk/import/{resource}', [DashboardBulkController::class, 'import'])->name('dashboard.bulk.import');
+    Route::post('/dashboard/bulk/import/{resource}', [DashboardBulkController::class, 'importStore'])->name('dashboard.bulk.import.store');
+
+    Route::get('/dashboard/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/dashboard/notifications/list', [NotificationController::class, 'list'])->name('notifications.list');
+    Route::get('/dashboard/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
+    Route::post('/dashboard/notifications/mark-all', [NotificationController::class, 'markAllRead'])->name('notifications.markAll');
 
     Route::get('/dashboard/teachers/create', [DashboardTeacherController::class, 'create'])->name('dashboard.teachers.create');
     Route::post('/dashboard/teachers', [DashboardTeacherController::class, 'store'])->name('dashboard.teachers.store');

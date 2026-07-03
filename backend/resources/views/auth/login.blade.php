@@ -19,10 +19,13 @@
                 <input id="password" name="password" type="password" required autocomplete="current-password"
                     class="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
             </div>
-            <div class="flex items-center gap-2">
-                <input id="remember" name="remember" type="checkbox" value="1" {{ old('remember') ? 'checked' : '' }}
-                    class="size-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                <label for="remember" class="text-sm text-gray-700">{{ site_ui('auth.remember') }}</label>
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                    <input id="remember" name="remember" type="checkbox" value="1" {{ old('remember') ? 'checked' : '' }}
+                        class="size-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                    <label for="remember" class="text-sm text-gray-700">{{ site_ui('auth.remember') }}</label>
+                </div>
+                <a href="{{ route('password.request') }}" class="text-sm font-medium text-blue-600 hover:text-blue-700">{{ __('Forgot password?') }}</a>
             </div>
             <button type="submit" class="w-full rounded-md bg-blue-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700">
                 {{ site_ui('auth.sign_in') }}

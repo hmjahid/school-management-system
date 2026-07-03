@@ -13,6 +13,7 @@
             @can('update', $student)
                 <a href="{{ route('dashboard.students.edit', $student) }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Edit') }}</a>
             @endcan
+            <a href="{{ route('dashboard.students.results', $student) }}" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{{ __('Results') }}</a>
             @can('delete', $student)
                 <form method="post" action="{{ route('dashboard.students.destroy', $student) }}" onsubmit="return confirm(@json(__('Remove this student?')));">
                     @csrf

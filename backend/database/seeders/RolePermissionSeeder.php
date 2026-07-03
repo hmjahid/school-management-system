@@ -123,9 +123,18 @@ class RolePermissionSeeder extends Seeder
             'manage_exam_terms' => 'Manage exam terms',
             'manage_grade_scales' => 'Manage grade scales',
             'manage_marks' => 'Manage exam marks',
+            'manage_exam_results' => 'Manage exam results',
+            'view_exam_result' => 'View exam result',
+            'view_any_exam_result' => 'View any exam result',
+            'create_exam_result' => 'Create exam result',
+            'update_exam_result' => 'Update exam result',
+            'delete_exam_result' => 'Delete exam result',
+            'review_exam_results' => 'Review exam results',
             'publish_results' => 'Publish exam results',
             'view_results' => 'View exam results',
             'print_results' => 'Print exam results',
+            'view_own_exam_results' => 'View own exam results',
+            'view_child_exam_results' => 'View child exam results',
 
             // Finance
             'manage_fee_categories' => 'Manage fee categories',

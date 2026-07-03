@@ -34,6 +34,31 @@ class AdminUserSeeder extends Seeder
         // Assign admin role to the user
         $admin->assignRole('admin');
 
+        // Seed a sample welcome notification (only if the user has no notifications yet)
+        if ($admin->notifications()->count() === 0) {
+            $admin->notifications()->create([
+                'id' => \Illuminate\Support\Str::uuid()->toString(),
+                'type' => 'App\\Notifications\\WelcomeNotification',
+                'data' => [
+                    'title' => __('Welcome to :school', ['school' => config('app.name', 'SchoolEase')]),
+                    'message' => __('Your admin account is ready. Explore the dashboard, manage students, fees, and more.'),
+                    'url' => route('dashboard'),
+                ],
+                'read_at' => null,
+            ]);
+
+            $admin->notifications()->create([
+                'id' => \Illuminate\Support\Str::uuid()->toString(),
+                'type' => 'App\\Notifications\\SystemNotification',
+                'data' => [
+                    'title' => __('Password reset is now available'),
+                    'message' => __('Users can now reset their password from the login page via "Forgot password?".'),
+                    'url' => route('dashboard.settings'),
+                ],
+                'read_at' => null,
+            ]);
+        }
+
         $this->command->info('Admin user created successfully!');
         $this->command->info('Email: admin@school.com');
         $this->command->info('Password: password');

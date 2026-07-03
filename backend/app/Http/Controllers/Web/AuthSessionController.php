@@ -27,17 +27,28 @@ class AuthSessionController extends Controller
             'remember' => ['sometimes', 'boolean'],
         ]);
 
+        $throttleKey = 'login:' . $request->ip() . '|' . strtolower($credentials['email']);
+
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = \Illuminate\Support\Facades\RateLimiter::availableIn($throttleKey);
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'email' => __('Too many login attempts. Please try again in :seconds seconds.', ['seconds' => $seconds]),
+            ]);
+        }
+
         $remember = $request->boolean('remember');
 
         if (! Auth::attempt(
             ['email' => $credentials['email'], 'password' => $credentials['password']],
             $remember
         )) {
+            \Illuminate\Support\Facades\RateLimiter::hit($throttleKey, 60);
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors(['email' => __('These credentials do not match our records.')]);
         }
 
+        \Illuminate\Support\Facades\RateLimiter::clear($throttleKey);
         $request->session()->regenerate();
 
         return redirect()->intended(route('dashboard'));

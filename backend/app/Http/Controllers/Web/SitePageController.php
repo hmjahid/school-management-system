@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\ContactSubmission;
+use App\Models\Event;
 use App\Models\Teacher;
 use App\Models\WebsiteContent;
 use Illuminate\Http\RedirectResponse;
@@ -55,6 +56,28 @@ class SitePageController extends Controller
         $content = WebsiteContent::getContent('contact');
 
         return view('site.contact', ['content' => $content]);
+    }
+
+    public function events(): View
+    {
+        $upcoming = Event::query()
+            ->where('start_date', '>=', now())
+            ->where('status', 'published')
+            ->orderBy('start_date')
+            ->limit(50)
+            ->get();
+
+        $past = Event::query()
+            ->where('start_date', '<', now())
+            ->where('status', 'published')
+            ->orderByDesc('start_date')
+            ->limit(20)
+            ->get();
+
+        return view('site.events', [
+            'upcoming' => $upcoming,
+            'past' => $past,
+        ]);
     }
 
     public function terms(): View

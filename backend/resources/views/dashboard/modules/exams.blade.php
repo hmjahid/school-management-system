@@ -33,6 +33,7 @@
                         <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Subject') }}</th>
                         <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Starts') }}</th>
                         <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Status') }}</th>
+                        <th class="px-4 py-3 text-right font-semibold text-gray-700">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -42,10 +43,13 @@
                             <td class="px-4 py-3 text-gray-700">{{ $exam->subject?->name ?? '—' }}</td>
                             <td class="px-4 py-3 text-gray-700">{{ optional($exam->start_date)->format('Y-m-d H:i') ?? '—' }}</td>
                             <td class="px-4 py-3 text-gray-700">{{ $exam->status ?? '—' }}</td>
+                            <td class="px-4 py-3 text-right text-sm">
+                                <a href="{{ route('dashboard.exams.results', $exam) }}" class="font-medium text-blue-600 hover:text-blue-800">{{ __('Results') }}</a>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-4 py-8 text-center text-gray-500">{{ __('No exams found.') }}</td>
+                            <td colspan="5" class="px-4 py-8 text-center text-gray-500">{{ __('No exams found.') }}</td>
                         </tr>
                     @endforelse
                 </tbody>
