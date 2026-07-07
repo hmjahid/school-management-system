@@ -145,6 +145,16 @@
                 <input type="text" name="timezone" value="{{ old('timezone', $settings->timezone) }}" placeholder="UTC"
                     class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
             </div>
+            <div>
+                <label for="default_locale" class="mb-1 block text-sm font-medium text-gray-700">{{ __('Default site language') }}</label>
+                <select id="default_locale" name="default_locale"
+                    class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    <option value="en" @selected(old('default_locale', $settings->default_locale) === 'en')>English</option>
+                    <option value="bn" @selected(old('default_locale', $settings->default_locale) === 'bn')>বাংলা (Bengali)</option>
+                </select>
+                <p class="mt-1 text-xs text-gray-500">{{ __('The language first-time visitors see. They can still switch using the language toggle.') }}</p>
+                @error('default_locale')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+            </div>
         </div>
         <div class="flex justify-end border-t border-gray-100 pt-4">
             <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">

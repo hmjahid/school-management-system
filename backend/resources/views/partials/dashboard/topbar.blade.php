@@ -49,10 +49,5 @@
                 </div>
             </div>
         @endauth
-
-        <button type="button" data-theme-toggle aria-pressed="false" aria-label="{{ __('Toggle theme') }}" title="{{ __('Toggle theme') }}"
-            class="inline-flex items-center justify-center rounded-md p-2 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700">
-            <span data-theme-label aria-hidden="true" class="text-base leading-none">☾</span>
-        </button>
     </div>
 </header>

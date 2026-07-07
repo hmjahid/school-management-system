@@ -75,16 +75,64 @@ class WebsiteContent extends Model
 
     /**
      * Bengali content tree (may be partial; merged over English on the site).
+     * Strips any leaf that is identical to its English counterpart — those are
+     * untranslated placeholders from the seeder / migration and must NOT
+     * shadow the real translation.
      *
      * @return array<string, mixed>
      */
     public function bengaliContentTree(): array
     {
-        return is_array($this->content_bn) ? $this->content_bn : [];
+        $bn = is_array($this->content_bn) ? $this->content_bn : [];
+        $en = $this->englishContentTree();
+
+        if ($bn === [] || $en === []) {
+            return $bn;
+        }
+
+        return self::pruneIdentical($bn, $en);
+    }
+
+    /**
+     * Walk two trees in parallel and drop any BN leaf whose value matches the
+     * corresponding EN leaf. Used so untranslated CMS BN content doesn't
+     * shadow the language-file translations.
+     *
+     * @param  array<string, mixed>  $bn
+     * @param  array<string, mixed>  $en
+     * @return array<string, mixed>
+     */
+    protected static function pruneIdentical(array $bn, array $en): array
+    {
+        $out = [];
+        foreach ($bn as $k => $v) {
+            $enV = $en[$k] ?? null;
+            if (is_array($v) && is_array($enV)) {
+                $sub = self::pruneIdentical($v, $enV);
+                if ($sub !== []) {
+                    $out[$k] = $sub;
+                }
+            } elseif (is_array($v)) {
+                $out[$k] = $v;
+            } else {
+                $bnStr = is_scalar($v) ? trim((string) $v) : '';
+                $enStr = is_scalar($enV) ? trim((string) $enV) : '';
+                if ($bnStr !== '' && $bnStr !== $enStr) {
+                    $out[$k] = $v;
+                }
+            }
+        }
+
+        return $out;
     }
 
     /**
      * Resolved page body for API / site-ui merge: English only, or BN merged over EN.
+     *
+     * For the BN locale, we walk the EN tree and use the BN value wherever
+     * one exists *and is different from EN*. Otherwise we drop the leaf,
+     * which lets views fall back to site_ui() for untranslated CMS body
+     * content (the language file is the canonical Bengali source).
      *
      * @return array<string, mixed>
      */
@@ -92,13 +140,48 @@ class WebsiteContent extends Model
     {
         $locale = $locale ?? app()->getLocale();
         $en = $this->englishContentTree();
-        $bn = $this->bengaliContentTree();
+        $bn = is_array($this->content_bn) ? $this->content_bn : [];
 
-        if ($locale === 'bn' && $bn !== []) {
-            return array_replace_recursive($en, $bn);
+        if ($locale !== 'bn' || $bn === []) {
+            return $en;
         }
 
-        return $en;
+        return self::stripUntranslatedLeaves($en, $bn);
+    }
+
+    /**
+     * Walk $en in parallel with $bn: keep a leaf only if BN has a different
+     * value for it. If BN has a different value, use the BN value. Recurse
+     * into arrays. The result contains only leaves that have a real BN
+     * translation, so views can fall back to site_ui() for the rest.
+     *
+     * @param  array<string, mixed>  $en
+     * @param  array<string, mixed>  $bn
+     * @return array<string, mixed>
+     */
+    protected static function stripUntranslatedLeaves(array $en, array $bn): array
+    {
+        $out = [];
+        foreach ($en as $k => $enV) {
+            $bnV = $bn[$k] ?? null;
+            if (is_array($enV) && is_array($bnV)) {
+                $sub = self::stripUntranslatedLeaves($enV, $bnV);
+                if ($sub !== []) {
+                    $out[$k] = $sub;
+                }
+            } elseif (is_array($enV) && $bnV === null) {
+                // No BN for this whole subtree — drop it.
+                continue;
+            } elseif (is_scalar($enV) && is_scalar($bnV)) {
+                $enStr = trim((string) $enV);
+                $bnStr = trim((string) $bnV);
+                if ($bnStr !== '' && $bnStr !== $enStr) {
+                    $out[$k] = $bnV;
+                }
+            }
+        }
+
+        return $out;
     }
 
     public function localizedTitle(?string $locale = null): string
@@ -106,7 +189,12 @@ class WebsiteContent extends Model
         $locale = $locale ?? app()->getLocale();
 
         if ($locale === 'bn') {
-            $t = $this->title_bn ?? $this->title_en ?? $this->title;
+            $t = $this->title_bn ?? null;
+            $en = $this->title_en ?? $this->title;
+
+            if (! is_string($t) || $t === '' || (is_string($en) && trim($t) === trim($en))) {
+                $t = $this->bnTitleFallback();
+            }
         } else {
             $t = $this->title_en ?? $this->title;
         }
@@ -123,12 +211,41 @@ class WebsiteContent extends Model
         $locale = $locale ?? app()->getLocale();
 
         if ($locale === 'bn') {
-            $m = $this->meta_description_bn ?? $this->meta_description_en ?? $this->meta_description;
+            $m = $this->meta_description_bn ?? null;
+            $en = $this->meta_description_en ?? $this->meta_description;
+
+            if (! is_string($m) || $m === '' || (is_string($en) && trim($m) === trim($en))) {
+                $m = $this->bnMetaFallback();
+            }
         } else {
             $m = $this->meta_description_en ?? $this->meta_description;
         }
 
         return is_string($m) && $m !== '' ? $m : null;
+    }
+
+    /**
+     * Bengali title fallback from the language file. The CMS title_bn may be
+     * a verbatim copy of title_en (untranslated), so we only fall back when
+     * the stored value is missing or identical to the English title.
+     */
+    protected function bnTitleFallback(): ?string
+    {
+        $key = 'pages.'.$this->page.'.title_fallback_bn';
+        $val = \Illuminate\Support\Arr::get(\App\Support\SiteFrontend::merged(), $key);
+
+        return is_string($val) && $val !== '' ? $val : null;
+    }
+
+    /**
+     * Bengali meta description fallback from the language file.
+     */
+    protected function bnMetaFallback(): ?string
+    {
+        $key = 'pages.'.$this->page.'.meta_fallback_bn';
+        $val = \Illuminate\Support\Arr::get(\App\Support\SiteFrontend::merged(), $key);
+
+        return is_string($val) && $val !== '' ? $val : null;
     }
 
     /**

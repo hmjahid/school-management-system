@@ -206,6 +206,7 @@ class DashboardModulesController extends Controller
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:500'],
             'timezone' => ['nullable', 'string', 'max:64'],
+            'default_locale' => ['nullable', 'string', 'in:'.implode(',', (array) config('school.supported_locales', ['en']))],
             'facebook_url' => ['nullable', 'url', 'max:255'],
             'twitter_url' => ['nullable', 'url', 'max:255'],
             'instagram_url' => ['nullable', 'url', 'max:255'],

@@ -1,9 +1,19 @@
 @php
     $c = is_array($content->content ?? null) ? $content->content : [];
     $sections = $c['sections'] ?? [];
+    $page = $content->page ?? null;
+    // Fall back to language file sections when CMS body is empty
+    // (e.g. untranslated BN content) so the page still renders meaningfully.
+    if (empty($sections) && $page) {
+        $fallback = site_ui('page_sections.'.$page);
+        if (is_array($fallback)) {
+            $sections = $fallback;
+        }
+    }
+    $introText = $c['intro'] ?? ($page ? site_ui('pages.'.$page.'.intro_fallback_bn') : null);
 @endphp
-@if(!empty($c['intro']))
-    <p class="mb-8 max-w-3xl text-lg leading-relaxed text-gray-600">{{ $c['intro'] }}</p>
+@if(!empty($introText))
+    <p class="mb-8 max-w-3xl text-lg leading-relaxed text-gray-600">{{ $introText }}</p>
 @endif
 
 @foreach ($sections as $section)

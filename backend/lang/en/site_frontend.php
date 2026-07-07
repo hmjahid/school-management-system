@@ -81,6 +81,17 @@ return [
         'cta_banner_intro' => 'Take the first step towards an exceptional educational journey.',
         'cta_apply' => 'Apply now',
         'cta_contact' => 'Contact us',
+        'principal_message_default' => 'Welcome to our school community. We are committed to nurturing curious, confident, and compassionate learners who will shape a better tomorrow.',
+        'testimonials_default' => [
+            ['quote' => 'The teachers genuinely care — my daughter has flourished here.', 'name' => 'Parent', 'role' => 'Class V family'],
+            ['quote' => 'Strong academics and clubs — I found my passion for science.', 'name' => 'Student', 'role' => 'Class XI'],
+        ],
+        'highlights_default' => [
+            'Holistic curriculum with STEM and the arts',
+            'Competitive sports and cultural events',
+            'Counselling and university guidance',
+            'Inclusive, safe, and supportive campus',
+        ],
     ],
 
     'payments' => [
@@ -381,5 +392,180 @@ return [
         'grade_point' => 'Grade point',
         'status' => 'Status',
         'remarks' => 'Remarks',
+    ],
+
+    'pages' => [
+        'home' => [
+            'title_fallback_bn' => 'Home',
+            'meta_fallback_bn' => 'Welcome to our school community — admissions, news, events, and the parent/student portal.',
+        ],
+        'about' => [
+            'title_fallback_bn' => 'About Us',
+            'meta_fallback_bn' => 'Learn about our school, our mission, and the community we serve.',
+            'intro_fallback_bn' => 'Learn who we are, what we stand for, and how we support every learner.',
+        ],
+        'academics' => [
+            'title_fallback_bn' => 'Academics',
+            'meta_fallback_bn' => 'Our academic programme, curriculum, assessment, and term calendar.',
+            'intro_fallback_bn' => 'Our academic programme balances rigorous outcomes with wellbeing and character.',
+        ],
+        'admissions' => [
+            'title_fallback_bn' => 'Admissions',
+            'meta_fallback_bn' => 'Admissions process, requirements, fees, and online application.',
+            'intro_fallback_bn' => 'We welcome families who share our values and commitment to learning.',
+            'apply_intro_fallback_bn' => 'Complete every section accurately. You will receive an application number to track progress.',
+        ],
+        'students' => [
+            'title_fallback_bn' => 'Student Life',
+            'meta_fallback_bn' => 'Student council, clubs, calendar, and support services.',
+        ],
+        'faculty' => [
+            'title_fallback_bn' => 'Faculty & Staff',
+            'meta_fallback_bn' => 'Our teaching and administrative staff.',
+        ],
+        'news' => [
+            'title_fallback_bn' => 'News',
+            'meta_fallback_bn' => 'Latest news, announcements, and school magazine.',
+            'intro_fallback_bn' => 'Stay informed about campus life and community milestones.',
+        ],
+        'gallery' => [
+            'title_fallback_bn' => 'Gallery',
+            'meta_fallback_bn' => 'Moments from life on campus — academic, sports, arts, and events.',
+            'intro_fallback_bn' => 'Moments from life on campus — categories are filled from the gallery module.',
+        ],
+        'contact' => [
+            'title_fallback_bn' => 'Contact Us',
+            'meta_fallback_bn' => 'Get in touch — address, opening hours, and enquiry form.',
+            'intro_fallback_bn' => 'We are here to help prospective families, students, and partners.',
+        ],
+        'payments' => [
+            'title_fallback_bn' => 'Payments',
+            'meta_fallback_bn' => 'Pay school fees, view receipts, and check payment status.',
+        ],
+        'terms' => [
+            'title_fallback_bn' => 'Terms of Use',
+            'meta_fallback_bn' => 'Website and service terms of use.',
+            'intro_fallback_bn' => 'By using this website and our services, you agree to the following terms.',
+        ],
+        'privacy' => [
+            'title_fallback_bn' => 'Privacy Policy',
+            'meta_fallback_bn' => 'How we collect, use, and protect your information.',
+        ],
+    ],
+
+    'page_sections' => [
+        'about' => [
+            ['heading' => 'School history & mission', 'paragraphs' => [
+                'Founded to serve the local community with affordable, quality education, we have grown into a trusted institution over the years.',
+                'Our mission is to nurture critical thinking, integrity, and service-minded graduates prepared for the world beyond school.',
+            ]],
+            ['heading' => 'Vision & core values', 'paragraphs' => [
+                'We aspire to be a model school where innovation and inclusion drive measurable student success.',
+            ], 'bullets' => ['Excellence', 'Integrity', 'Respect', 'Collaboration', 'Resilience']],
+            ['heading' => "Principal's message", 'paragraphs' => [
+                'Education is a partnership between school, students, and families. Together we build the foundation for a meaningful life.',
+            ]],
+            ['heading' => 'School administration', 'paragraphs' => [
+                'Led by the principal and heads of sections, supported by admissions, finance, and operations teams.',
+            ]],
+            ['heading' => 'Infrastructure & facilities', 'bullets' => [
+                'Science and computer labs',
+                'Library and reading rooms',
+                'Sports grounds',
+                'Auditorium',
+                'Safe transport (where applicable)',
+            ]],
+            ['heading' => 'Achievements & accreditations', 'paragraphs' => [
+                'Board examination results, national competition placements, and community service recognition are published annually.',
+            ]],
+            ['heading' => 'School anthem & emblem', 'paragraphs' => [
+                'Lyrics and emblem usage guidelines are available from the school office and can be shared upon request.',
+            ]],
+        ],
+        'academics' => [
+            ['heading' => 'Curriculum overview', 'paragraphs' => [
+                'National curriculum expectations are met and extended through project work, labs, and excursions.',
+            ]],
+            ['heading' => 'Academic calendar', 'paragraphs' => [
+                'Term dates, holidays, and assessment windows are published at the start of the academic year.',
+            ]],
+            ['heading' => 'Subjects offered', 'cards' => [
+                ['title' => 'Sciences', 'body' => 'Physics, chemistry, biology, and integrated STEM projects.'],
+                ['title' => 'Arts & humanities', 'body' => 'Literature, visual arts, music, and drama.'],
+                ['title' => 'Commerce & business', 'body' => 'Accounting, business studies, and economics foundations.'],
+                ['title' => 'Technology', 'body' => 'Programming, digital literacy, and responsible technology use.'],
+            ]],
+            ['heading' => 'Co-curricular activities', 'paragraphs' => [
+                'Clubs, debates, robotics, and community service complement classroom learning.',
+            ]],
+            ['heading' => 'Assessment & evaluation', 'paragraphs' => [
+                'Continuous assessment plus term examinations; integrity policies apply throughout.',
+            ]],
+            ['heading' => 'Results & reports', 'paragraphs' => [
+                'Published results for students and parents are available in the portal each term.',
+            ]],
+        ],
+        'admissions' => [
+            ['heading' => 'Admission process', 'bullets' => [
+                'Submit the online application with documents',
+                'Admissions review and entrance test (if applicable)',
+                'Interview with the family',
+                'Enrollment and class placement',
+            ]],
+            ['heading' => 'Documents required', 'bullets' => [
+                'Birth certificate',
+                'Previous school records / transfer certificate',
+                'Passport-size photo',
+                'Parent/guardian ID (where required)',
+            ]],
+            ['heading' => 'Fee structure', 'paragraphs' => [
+                'See the payments portal for current fee heads. Installment options may be available on request.',
+            ]],
+            ['heading' => 'Important dates', 'paragraphs' => [
+                'Application window, test dates, and orientation are announced each cycle on the news page.',
+            ]],
+            ['heading' => 'Admission test syllabus', 'paragraphs' => [
+                'Age-appropriate literacy, numeracy, and reasoning items align with the prior grade outcomes.',
+            ]],
+            ['heading' => 'Frequently asked questions', 'faq' => [
+                ['q' => 'Can I save a draft online?', 'a' => 'Public applications submit in one step; contact admissions if you need an extension.'],
+                ['q' => 'How do I pay fees?', 'a' => 'Use the fee payment portal or approved bank channels listed there.'],
+            ]],
+        ],
+        'students' => [
+            ['heading' => 'Student council', 'paragraphs' => ['Elected representatives voice student ideas and lead service initiatives.']],
+            ['heading' => 'Clubs & societies', 'bullets' => ['Debate', 'Science club', 'Sports teams', 'Community service', 'Arts guild']],
+            ['heading' => 'Academic calendar', 'paragraphs' => ['Key dates mirror the academics page and are shared in homeroom.']],
+            ['heading' => 'Exam schedule', 'paragraphs' => ['Detailed schedules are posted in the portal before each term.']],
+            ['heading' => 'Results', 'paragraphs' => ['Published results appear in the student/parent portal.']],
+            ['heading' => 'School uniform', 'paragraphs' => ['Dress code supports safety and equality; specifics are in the student handbook.']],
+            ['heading' => 'Code of conduct', 'paragraphs' => ['Respect, honesty, and digital citizenship expectations apply on campus and online.']],
+            ['heading' => 'Student resources', 'paragraphs' => ['Library hours, learning support, and counselling booking via the office.']],
+        ],
+        'faculty' => [
+            ['heading' => 'Teaching staff directory', 'paragraphs' => ['Profiles below are synced from the school information system; published entries appear on the public site.']],
+            ['heading' => 'Administrative staff', 'paragraphs' => ['Admissions, finance, IT, and operations teams support daily school life.']],
+            ['heading' => 'Faculty achievements', 'paragraphs' => ['Workshops, certifications, and research contributions are highlighted each year.']],
+            ['heading' => 'Professional development', 'paragraphs' => ['Ongoing training in pedagogy, safeguarding, and subject depth.']],
+            ['heading' => 'Teacher of the month', 'paragraphs' => ['Recognising innovation and student impact — see news for current honourees.']],
+            ['heading' => 'Faculty resources', 'paragraphs' => ['Internal LMS and shared drives are available to staff accounts.']],
+        ],
+        'news' => [
+            ['heading' => 'School magazine & newsletter', 'paragraphs' => ['PDF archives can be linked from structured CMS sections when files are uploaded.']],
+            ['heading' => 'Press releases', 'paragraphs' => ['Official statements are published here and may be distributed to local media.']],
+        ],
+        'gallery' => [
+            ['heading' => 'Photo gallery categories', 'bullets' => ['Academic activities', 'Cultural events', 'Sports', 'Annual functions', 'Field trips']],
+        ],
+        'contact' => [
+            ['heading' => 'School hours', 'paragraphs' => ['Office hours typically follow the timetable in website settings; adjust in admin settings for accuracy.']],
+        ],
+        'terms' => [
+            ['heading' => 'Use of the website', 'paragraphs' => ['This site is provided for information about the school, admissions, and announcements.']],
+            ['heading' => 'Accounts and portal', 'paragraphs' => ['Portal accounts are for authorised parents, students, and staff. You are responsible for keeping credentials secure.']],
+            ['heading' => 'Intellectual property', 'paragraphs' => ['Text, images, logos, and materials on this site are owned by the school unless stated otherwise.']],
+            ['heading' => 'Limitation of liability', 'paragraphs' => ['Information on this site is provided in good faith. The school is not liable for decisions based solely on this content.']],
+            ['heading' => 'Contact', 'paragraphs' => ['Questions about these terms can be directed to the school office.']],
+        ],
     ],
 ];

@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\WebsiteContent;
+use App\Support\CmsPageRegistry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -13,17 +15,29 @@ class CmsWebController extends Controller
 {
     public function pages(): View
     {
-        $pages = WebsiteContent::query()->orderBy('page')->paginate(20);
+        $slugs = array_keys(CmsPageRegistry::contentPages());
+        $pages = WebsiteContent::query()
+            ->whereIn('page', $slugs)
+            ->orderBy('page')
+            ->get();
 
-        return view('dashboard.cms.pages', compact('pages'));
+        return view('dashboard.cms.pages', [
+            'pages' => $pages,
+            'registry' => CmsPageRegistry::all(),
+        ]);
     }
 
-    public function edit(string $page): View
+    public function edit(Request $request, string $page): View
     {
+        if (! CmsPageRegistry::exists($page)) {
+            abort(404);
+        }
+
         $content = WebsiteContent::query()->where('page', $page)->first();
+        $def = CmsPageRegistry::get($page);
 
         if (! $content) {
-            $title = Str::title(str_replace('-', ' ', $page));
+            $title = $def['label'] ?? Str::title(str_replace('-', ' ', $page));
             $content = new WebsiteContent([
                 'page' => $page,
                 'title' => $title,
@@ -32,7 +46,6 @@ class CmsWebController extends Controller
                 'content' => [],
                 'content_en' => [],
                 'content_bn' => [],
-                'cms_input_mode' => WebsiteContent::INPUT_MODE_JSON,
                 'is_active' => true,
             ]);
         }
@@ -40,56 +53,26 @@ class CmsWebController extends Controller
         $en = $content->englishContentTree();
         $bn = $content->bengaliContentTree();
 
-        $jsonEn = json_encode($en, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) ?: '{}';
-        $jsonBn = json_encode($bn !== [] ? $bn : $en, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) ?: '{}';
-
-        $allowFormMode = $page !== 'site-ui';
-        $formSections = $this->pairedSectionsForForm($en, $bn);
-        if (old('form_sections')) {
-            $formSections = old('form_sections', $formSections);
-        }
-
-        $formIntroEn = old('form_intro_en', $en['intro'] ?? '');
-        $formIntroBn = old('form_intro_bn', $bn['intro'] ?? ($en['intro'] ?? ''));
-
-        $heroEn = $en['hero'] ?? [];
-        $heroBn = $bn['hero'] ?? [];
-        $formHeroHeadlineEn = old('form_hero_headline_en', $heroEn['headline'] ?? '');
-        $formHeroHeadlineBn = old('form_hero_headline_bn', $heroBn['headline'] ?? ($heroEn['headline'] ?? ''));
-        $formHeroSubtitleEn = old('form_hero_subtitle_en', $heroEn['subtitle'] ?? $heroEn['motto'] ?? '');
-        $formHeroSubtitleBn = old('form_hero_subtitle_bn', $heroBn['subtitle'] ?? $heroBn['motto'] ?? ($heroEn['subtitle'] ?? $heroEn['motto'] ?? ''));
-        $formHeroBackground = old('form_hero_background', $heroEn['background_image'] ?? $heroBn['background_image'] ?? '');
+        $values = [
+            'en' => $en,
+            'bn' => $bn,
+        ];
 
         return view('dashboard.cms.edit', [
             'content' => $content,
             'page' => $page,
-            'contentJsonEn' => old('content_json_en', $jsonEn),
-            'contentJsonBn' => old('content_json_bn', $jsonBn),
-            'allowFormMode' => $allowFormMode,
-            'formSections' => $formSections,
-            'formIntroEn' => $formIntroEn,
-            'formIntroBn' => $formIntroBn,
-            'formHeroHeadlineEn' => $formHeroHeadlineEn,
-            'formHeroHeadlineBn' => $formHeroHeadlineBn,
-            'formHeroSubtitleEn' => $formHeroSubtitleEn,
-            'formHeroSubtitleBn' => $formHeroSubtitleBn,
-            'formHeroBackground' => $formHeroBackground,
+            'def' => $def,
+            'values' => $values,
         ]);
     }
 
     public function update(Request $request, string $page): RedirectResponse
     {
-        if ($page === 'site-ui') {
-            $request->merge(['cms_input_mode' => WebsiteContent::INPUT_MODE_JSON]);
+        if (! CmsPageRegistry::exists($page)) {
+            abort(404);
         }
 
-        $mode = $request->input('cms_input_mode', WebsiteContent::INPUT_MODE_JSON);
-        if (! in_array($mode, [WebsiteContent::INPUT_MODE_JSON, WebsiteContent::INPUT_MODE_FORM], true)) {
-            $mode = WebsiteContent::INPUT_MODE_JSON;
-        }
-        if ($page === 'site-ui') {
-            $mode = WebsiteContent::INPUT_MODE_JSON;
-        }
+        $def = CmsPageRegistry::get($page);
 
         $validated = $request->validate([
             'title_en' => ['required', 'string', 'max:255'],
@@ -97,46 +80,15 @@ class CmsWebController extends Controller
             'meta_description_en' => ['nullable', 'string', 'max:500'],
             'meta_description_bn' => ['nullable', 'string', 'max:500'],
             'meta_keywords' => ['nullable', 'string', 'max:255'],
-            'cms_input_mode' => ['required', 'in:json,form'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 
-        if ($mode === WebsiteContent::INPUT_MODE_JSON) {
-            $jsonRules = $request->validate([
-                'content_json_en' => ['required', 'string'],
-                'content_json_bn' => ['nullable', 'string'],
-            ]);
-
-            $contentEn = json_decode($jsonRules['content_json_en'], true);
-            if (json_last_error() !== JSON_ERROR_NONE || ! is_array($contentEn)) {
-                return back()->withErrors(['content_json_en' => __('English content must be valid JSON (object or array).')])->withInput();
-            }
-
-            $rawBn = trim($jsonRules['content_json_bn'] ?? '');
-            if ($rawBn === '') {
-                $contentBn = [];
-            } else {
-                $contentBn = json_decode($rawBn, true);
-                if (json_last_error() !== JSON_ERROR_NONE || ! is_array($contentBn)) {
-                    return back()->withErrors(['content_json_bn' => __('Bengali content must be valid JSON (object or array).')])->withInput();
-                }
-            }
-        } else {
-            [$patchEn, $patchBn] = $this->buildFormContents($request, $page);
-            $old = WebsiteContent::query()->where('page', $page)->first();
-            $oldEn = $old?->englishContentTree() ?? [];
-            $oldBn = $old?->bengaliContentTree() ?? [];
-            $contentEn = array_replace_recursive($oldEn, $patchEn);
-            $contentBn = array_replace_recursive($oldBn, $patchBn);
-        }
+        [$contentEn, $contentBn] = $this->buildContentFromRequest($request, $def);
 
         $titleEn = $validated['title_en'];
-        $titleBn = $validated['title_bn'] ?: $titleEn;
+        $titleBn = ($validated['title_bn'] ?? '') ?: $titleEn;
         $metaEn = $validated['meta_description_en'] ?? null;
-        $metaBn = $validated['meta_description_bn'] ?? null;
-        if ($metaBn === null || $metaBn === '') {
-            $metaBn = $metaEn;
-        }
+        $metaBn = ($validated['meta_description_bn'] ?? '') ?: $metaEn;
 
         WebsiteContent::updateOrCreate(
             ['page' => $page],
@@ -147,12 +99,12 @@ class CmsWebController extends Controller
                 'content' => $contentEn,
                 'content_en' => $contentEn,
                 'content_bn' => $contentBn,
-                'cms_input_mode' => $mode,
+                'cms_input_mode' => WebsiteContent::INPUT_MODE_FORM,
                 'meta_description' => $metaEn,
                 'meta_description_en' => $metaEn,
                 'meta_description_bn' => $metaBn,
                 'meta_keywords' => $validated['meta_keywords'] ?? null,
-                'is_active' => $request->has('is_active'),
+                'is_active' => $request->boolean('is_active'),
             ]
         );
 
@@ -162,123 +114,271 @@ class CmsWebController extends Controller
     }
 
     /**
-     * @param  array<string, mixed>  $en
-     * @param  array<string, mixed>  $bn
-     * @return list<array{heading_en: string, heading_bn: string, body_en: string, body_bn: string}>
+     * Build the EN/BN content trees from the flat dot-notation form input.
+     * Field names look like: "hero.headline_en", "sections.0.heading_en",
+     * "highlights._en" (list), "testimonials.0.quote_en" (repeater), etc.
+     *
+     * @param  array<string, mixed>  $def
+     * @return array{0: array<string, mixed>, 1: array<string, mixed>}
      */
-    protected function pairedSectionsForForm(array $en, array $bn): array
+    protected function buildContentFromRequest(Request $request, array $def): array
     {
-        $se = $en['sections'] ?? [];
-        $sb = $bn['sections'] ?? [];
-        if (! is_array($se)) {
-            $se = [];
-        }
-        if (! is_array($sb)) {
-            $sb = [];
+        $en = [];
+        $bn = [];
+
+        foreach ($def['sections'] ?? [] as $section) {
+            $key = $section['key'];
+            $type = $section['type'];
+            // Form field names use underscores (PHP's parse_str flattens dots
+            // to underscores in the input bag, so we use underscores in the
+            // form and convert back to dots for the JSON tree).
+            $formKey = $this->formKey($key);
+
+            switch ($type) {
+                case 'text':
+                case 'textarea':
+                    $valEn = trim((string) data_get($request->all(), $formKey.'_en', ''));
+                    $valBn = trim((string) data_get($request->all(), $formKey.'_bn', ''));
+                    if ($valEn !== '') {
+                        Arr::set($en, $key, $valEn);
+                    }
+                    if ($valBn !== '' && $valBn !== $valEn) {
+                        Arr::set($bn, $key, $valBn);
+                    }
+                    break;
+
+                case 'image':
+                    $shared = $section['fields'][0]['shared'] ?? false;
+                    if ($shared) {
+                        $val = trim((string) data_get($request->all(), $formKey, ''));
+                        if ($val !== '') {
+                            Arr::set($en, $key, $val);
+                        }
+                    } else {
+                        $valEn = trim((string) data_get($request->all(), $formKey.'_en', ''));
+                        $valBn = trim((string) data_get($request->all(), $formKey.'_bn', ''));
+                        if ($valEn !== '') {
+                            Arr::set($en, $key, $valEn);
+                        }
+                        if ($valBn !== '' && $valBn !== $valEn) {
+                            Arr::set($bn, $key, $valBn);
+                        }
+                    }
+                    break;
+
+                case 'list':
+                    $listEn = $this->filterList(data_get($request->all(), $formKey.'_en', []));
+                    $listBn = $this->filterList(data_get($request->all(), $formKey.'_bn', []));
+                    if ($listEn !== []) {
+                        Arr::set($en, $key, array_values($listEn));
+                    }
+                    if ($listBn !== []) {
+                        Arr::set($bn, $key, array_values($listBn));
+                    }
+                    break;
+
+                case 'repeater':
+                case 'contact_cards':
+                case 'repeater_sections':
+                    [$secEn, $secBn] = $this->buildRepeater($request, $formKey, $section, $type);
+                    if ($secEn !== []) {
+                        Arr::set($en, $key, $secEn);
+                    }
+                    if ($secBn !== []) {
+                        Arr::set($bn, $key, $secBn);
+                    }
+                    break;
+
+                case 'hero':
+                case 'kv':
+                case 'group':
+                    $subEn = [];
+                    $subBn = [];
+                    foreach ($section['fields'] ?? [] as $sub) {
+                        $subFormKey = $formKey.'_'.$this->formKey($sub['key']);
+                        $subType = $sub['type'] ?? 'text';
+                        if ($subType === 'image') {
+                            $shared = $sub['shared'] ?? false;
+                            if ($shared) {
+                                $v = trim((string) data_get($request->all(), $subFormKey, ''));
+                                if ($v !== '') {
+                                    Arr::set($subEn, $sub['key'], $v);
+                                }
+                            } else {
+                                $vEn = trim((string) data_get($request->all(), $subFormKey.'_en', ''));
+                                $vBn = trim((string) data_get($request->all(), $subFormKey.'_bn', ''));
+                                if ($vEn !== '') {
+                                    Arr::set($subEn, $sub['key'], $vEn);
+                                }
+                                if ($vBn !== '' && $vBn !== $vEn) {
+                                    Arr::set($subBn, $sub['key'], $vBn);
+                                }
+                            }
+                        } else {
+                            $vEn = trim((string) data_get($request->all(), $subFormKey.'_en', ''));
+                            $vBn = trim((string) data_get($request->all(), $subFormKey.'_bn', ''));
+                            if ($vEn !== '') {
+                                Arr::set($subEn, $sub['key'], $vEn);
+                            }
+                            if ($vBn !== '' && $vBn !== $vEn) {
+                                Arr::set($subBn, $sub['key'], $vBn);
+                            }
+                        }
+                    }
+                    if ($subEn !== []) {
+                        Arr::set($en, $key, $subEn);
+                    }
+                    if ($subBn !== []) {
+                        Arr::set($bn, $key, $subBn);
+                    }
+                    break;
+            }
         }
 
-        $n = max(count($se), count($sb));
-        $rows = [];
-        for ($i = 0; $i < $n; $i++) {
-            $e = is_array($se[$i] ?? null) ? $se[$i] : [];
-            $b = is_array($sb[$i] ?? null) ? $sb[$i] : [];
-            $parEn = $e['paragraphs'] ?? [];
-            $parBn = $b['paragraphs'] ?? [];
-            $rows[] = [
-                'heading_en' => (string) ($e['heading'] ?? ''),
-                'heading_bn' => (string) ($b['heading'] ?? ''),
-                'body_en' => is_array($parEn) ? implode("\n\n", $parEn) : '',
-                'body_bn' => is_array($parBn) ? implode("\n\n", $parBn) : '',
-            ];
-        }
-
-        if ($n === 0) {
-            $rows[] = [
-                'heading_en' => '',
-                'heading_bn' => '',
-                'body_en' => '',
-                'body_bn' => '',
-            ];
-        }
-
-        return $rows;
+        return [$en, $bn];
     }
 
     /**
-     * @return array{0: array<string, mixed>, 1: array<string, mixed>}
+     * @return list<string>
      */
-    protected function buildFormContents(Request $request, string $page): array
+    protected function filterList(mixed $input): array
     {
-        $introEn = trim((string) $request->input('form_intro_en', ''));
-        $introBn = trim((string) $request->input('form_intro_bn', ''));
-
-        $secEn = [];
-        $secBn = [];
-        foreach ($request->input('form_sections', []) as $row) {
-            if (! is_array($row)) {
-                continue;
-            }
-            $hEn = trim((string) ($row['heading_en'] ?? ''));
-            $hBn = trim((string) ($row['heading_bn'] ?? ''));
-            $bEn = trim((string) ($row['body_en'] ?? ''));
-            $bBn = trim((string) ($row['body_bn'] ?? ''));
-
-            if ($hEn !== '' || $bEn !== '') {
-                $paras = $bEn === '' ? [] : array_values(array_filter(preg_split("/\r\n|\r|\n/", $bEn), fn ($l) => trim((string) $l) !== ''));
-                $secEn[] = [
-                    'heading' => $hEn,
-                    'paragraphs' => $paras,
-                ];
-            }
-            if ($hBn !== '' || $bBn !== '') {
-                $paras = $bBn === '' ? [] : array_values(array_filter(preg_split("/\r\n|\r|\n/", $bBn), fn ($l) => trim((string) $l) !== ''));
-                $secBn[] = [
-                    'heading' => $hBn,
-                    'paragraphs' => $paras,
-                ];
+        if (! is_array($input)) {
+            return [];
+        }
+        $out = [];
+        foreach ($input as $v) {
+            $v = trim((string) $v);
+            if ($v !== '') {
+                $out[] = $v;
             }
         }
 
-        $contentEn = [];
-        $contentBn = [];
-        if ($introEn !== '') {
-            $contentEn['intro'] = $introEn;
-        }
-        if ($introBn !== '') {
-            $contentBn['intro'] = $introBn;
-        }
-        if ($secEn !== []) {
-            $contentEn['sections'] = array_values($secEn);
-        }
-        if ($secBn !== []) {
-            $contentBn['sections'] = array_values($secBn);
-        }
+        return $out;
+    }
 
-        if ($page === 'home') {
-            $bg = trim((string) $request->input('form_hero_background', ''));
-            $he = trim((string) $request->input('form_hero_headline_en', ''));
-            $hb = trim((string) $request->input('form_hero_headline_bn', ''));
-            $se = trim((string) $request->input('form_hero_subtitle_en', ''));
-            $sb = trim((string) $request->input('form_hero_subtitle_bn', ''));
-
-            if ($he !== '' || $se !== '' || $bg !== '') {
-                $contentEn['hero'] = array_filter([
-                    'headline' => $he,
-                    'subtitle' => $se,
-                    'motto' => $se,
-                    'background_image' => $bg !== '' ? $bg : null,
-                ], fn ($v) => $v !== null && $v !== '');
-            }
-            if ($hb !== '' || $sb !== '' || $bg !== '') {
-                $contentBn['hero'] = array_filter([
-                    'headline' => $hb,
-                    'subtitle' => $sb,
-                    'motto' => $sb,
-                    'background_image' => $bg !== '' ? $bg : null,
-                ], fn ($v) => $v !== null && $v !== '');
+    /**
+     * Build a repeater's EN/BN arrays from form input. Items are
+     * addressed by integer index in the field name (sections[0][heading_en]).
+     *
+     * @param  array<string, mixed>  $section
+     * @return array{0: list<array<string, mixed>>, 1: list<array<string, mixed>>}
+     */
+    protected function buildRepeater(Request $request, string $formKey, array $section, string $type): array
+    {
+        $all = $request->all();
+        $pattern = '/^'.preg_quote($formKey, '/').'\[(\d+)\]\[([^\]]+)_(en|bn)\]$/';
+        $indices = [];
+        foreach ($this->flattenKeys($all) as $fieldName) {
+            if (preg_match($pattern, $fieldName, $m)) {
+                $idx = (int) $m[1];
+                $subKey = $m[2];
+                $locale = $m[3];
+                $indices[$idx][$subKey][$locale] = true;
             }
         }
+        if ($indices === []) {
+            return [[], []];
+        }
+        ksort($indices);
 
-        return [$contentEn, $contentBn];
+        $subFields = $section['fields'] ?? null;
+        $enItems = [];
+        $bnItems = [];
+
+        foreach ($indices as $i => $subKeys) {
+            $enRow = [];
+            $bnRow = [];
+
+            if ($type === 'repeater_sections') {
+                $hEn = trim((string) data_get($all, "{$formKey}.{$i}.heading_en", ''));
+                $hBn = trim((string) data_get($all, "{$formKey}.{$i}.heading_bn", ''));
+                $bEn = trim((string) data_get($all, "{$formKey}.{$i}.paragraphs_en", ''));
+                $bBn = trim((string) data_get($all, "{$formKey}.{$i}.paragraphs_bn", ''));
+                if ($hEn !== '' || $bEn !== '') {
+                    $enRow = ['heading' => $hEn, 'paragraphs' => $this->splitParagraphs($bEn)];
+                }
+                if ($hBn !== '' || $bBn !== '') {
+                    $bnRow = ['heading' => $hBn, 'paragraphs' => $this->splitParagraphs($bBn)];
+                }
+            } elseif ($type === 'contact_cards') {
+                $lEn = trim((string) data_get($all, "{$formKey}.{$i}.label_en", ''));
+                $lBn = trim((string) data_get($all, "{$formKey}.{$i}.label_bn", ''));
+                $pEn = trim((string) data_get($all, "{$formKey}.{$i}.phone_en", ''));
+                $pBn = trim((string) data_get($all, "{$formKey}.{$i}.phone_bn", ''));
+                if ($lEn !== '' || $pEn !== '') {
+                    $enRow = ['label' => $lEn, 'phone' => $pEn];
+                }
+                if ($lBn !== '' || $pBn !== '') {
+                    $bnRow = ['label' => $lBn, 'phone' => $pBn];
+                }
+            } else {
+                foreach ($subFields as $sub) {
+                    $sk = $sub['key'];
+                    $vEn = trim((string) data_get($all, "{$formKey}.{$i}.{$sk}_en", ''));
+                    $vBn = trim((string) data_get($all, "{$formKey}.{$i}.{$sk}_bn", ''));
+                    if ($vEn !== '') {
+                        $enRow[$sk] = $vEn;
+                    }
+                    if ($vBn !== '' && $vBn !== $vEn) {
+                        $bnRow[$sk] = $vBn;
+                    }
+                }
+            }
+
+            if ($enRow !== []) {
+                $enItems[] = $enRow;
+            }
+            if ($bnRow !== []) {
+                $bnItems[] = $bnRow;
+            }
+        }
+
+        return [$enItems, $bnItems];
+    }
+
+    /**
+     * Convert a JSON-tree key (e.g. "hero.headline") into a form-field-safe
+     * key (e.g. "hero_headline"). PHP's parse_str flattens dots to
+     * underscores in submitted field names, so the form and the JSON tree
+     * differ in that respect.
+     */
+    protected function formKey(string $key): string
+    {
+        return str_replace('.', '_', $key);
+    }
+
+    /**
+     * Yield every leaf key in a nested array, written in PHP's parse_str
+     * form (e.g. "sections[0][heading_en]"). Used to scan submitted form
+     * data for repeater fields regardless of nesting depth.
+     *
+     * @param  iterable<string, mixed>  $data
+     * @return iterable<string>
+     */
+    protected function flattenKeys(iterable $data, string $prefix = ''): iterable
+    {
+        foreach ($data as $key => $value) {
+            $name = $prefix === '' ? (string) $key : $prefix.'['.$key.']';
+            if (is_array($value)) {
+                yield from $this->flattenKeys($value, $name);
+            } else {
+                yield $name;
+            }
+        }
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected function splitParagraphs(string $text): array
+    {
+        if ($text === '') {
+            return [];
+        }
+        $parts = preg_split("/\r\n|\r|\n/", $text) ?: [];
+        $parts = array_map('trim', $parts);
+
+        return array_values(array_filter($parts, fn ($p) => $p !== ''));
     }
 }

@@ -57,7 +57,6 @@
         <script src="https://cdn.tailwindcss.com"></script>
         <script>
             tailwind.config = {
-                darkMode: 'class',
                 theme: {
                     extend: {
                         fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
@@ -66,20 +65,8 @@
             };
         </script>
     @endif
-    <script>
-        // Inline theme bootstrap — runs before any paint, prevents flash of wrong theme.
-        (function () {
-            try {
-                var s = localStorage.getItem('school-theme');
-                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (s === 'dark' || (!s && prefersDark)) {
-                    document.documentElement.classList.add('dark');
-                }
-            } catch (e) {}
-        })();
-    </script>
 </head>
-<body class="flex min-h-screen flex-col bg-white font-sans text-gray-900 antialiased dark:bg-gray-900 dark:text-gray-100">
+<body class="flex min-h-screen flex-col bg-white font-sans text-gray-900 antialiased">
     @include('partials.site.nav')
 
     <main class="flex w-full flex-1 flex-col">

@@ -38,6 +38,7 @@ class WebsiteSetting extends Model
         'timezone',
         'date_format',
         'time_format',
+        'default_locale',
         'maintenance_mode',
         'maintenance_message',
     ];
@@ -51,6 +52,15 @@ class WebsiteSetting extends Model
         'established_year' => 'integer',
         'opening_hours' => 'array',
         'maintenance_mode' => 'boolean',
+    ];
+
+    /**
+     * Default attribute values for new instances.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'default_locale' => 'en',
     ];
 
     /**
@@ -111,5 +121,17 @@ class WebsiteSetting extends Model
     public static function getSettings()
     {
         return static::first() ?? new static();
+    }
+
+    /**
+     * The default language shown to first-time public-site visitors.
+     * Falls back to the framework's app.locale config when unset or invalid.
+     */
+    public function resolvedDefaultLocale(): string
+    {
+        $supported = (array) config('school.supported_locales', ['en']);
+        $value = (string) ($this->default_locale ?: config('app.locale', 'en'));
+
+        return in_array($value, $supported, true) ? $value : ($supported[0] ?? 'en');
     }
 }

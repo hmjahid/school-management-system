@@ -100,9 +100,6 @@
                     <a href="{{ route('dashboard.announcements.index') }}" class="{{ request()->routeIs('dashboard.announcements.*') ? 'font-medium text-blue-700' : 'text-gray-600 hover:text-blue-700' }} block rounded-md py-2 pl-2 text-sm">{{ __('Announcements') }}</a>
                     <a href="{{ route('dashboard.documents.index') }}" class="{{ request()->routeIs('dashboard.documents.*') ? 'font-medium text-blue-700' : 'text-gray-600 hover:text-blue-700' }} block rounded-md py-2 pl-2 text-sm">{{ __('Documents') }}</a>
                     <a href="{{ route('dashboard.contact-submissions') }}" class="{{ request()->routeIs('dashboard.contact-submissions') ? 'font-medium text-blue-700' : 'text-gray-600 hover:text-blue-700' }} block rounded-md py-2 pl-2 text-sm">{{ __('Form submissions') }}</a>
-                    @foreach (['header' => __('Header'), 'footer' => __('Footer'), 'menus' => __('Menus'), 'media' => __('Media'), 'blocks' => __('Blocks'), 'blog' => __('Blog')] as $slug => $plabel)
-                        <a href="{{ route('dashboard.cms.edit', ['page' => $slug]) }}" class="{{ request()->routeIs('dashboard.cms.edit') && request()->route('page') === $slug ? 'font-medium text-blue-700' : 'text-gray-600 hover:text-blue-700' }} block rounded-md py-2 pl-2 text-sm">{{ $plabel }}</a>
-                    @endforeach
                 </div>
             </details>
 

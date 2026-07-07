@@ -24,6 +24,9 @@
         }
         $headline = $hero['headline'] ?? site_ui('home.hero_headline');
         $sub = $hero['motto'] ?? $hero['subtitle'] ?? site_ui('home.hero_subtitle');
+        $principalMessage = $principal['message'] ?? site_ui('home.principal_message_default');
+        $testimonialsFallback = $testimonials ?: site_ui('home.testimonials_default', []);
+        $highlightsFallback = $highlights ?: site_ui('home.highlights_default', []);
     @endphp
 
     {{-- Hero (archive HomePage.jsx) --}}
@@ -117,12 +120,12 @@
         </section>
     @endif
 
-    @if(!empty($principal['message']))
+    @if(!empty($principalMessage))
         <section class="bg-white py-16">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <h2 class="mb-4 text-center text-3xl font-bold text-gray-900">{{ site_ui('home.principal_title') }}</h2>
                 <div class="mx-auto mb-6 h-1 w-20 bg-orange-500"></div>
-                <p class="mx-auto max-w-3xl whitespace-pre-line text-center text-lg text-gray-600">{{ $principal['message'] }}</p>
+                <p class="mx-auto max-w-3xl whitespace-pre-line text-center text-lg text-gray-600">{{ $principalMessage }}</p>
                 @if(!empty($principal['name']))
                     <p class="mt-6 text-center font-semibold text-gray-900">— {{ $principal['name'] }}</p>
                 @endif
@@ -130,7 +133,7 @@
         </section>
     @endif
 
-    @if(count($testimonials))
+    @if(count($testimonialsFallback))
         <section class="bg-white py-16">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="mb-12 text-center">
@@ -138,7 +141,7 @@
                     <div class="mx-auto h-1 w-20 bg-orange-500"></div>
                 </div>
                 <div class="mx-auto grid max-w-5xl gap-6 md:grid-cols-2">
-                    @foreach ($testimonials as $t)
+                    @foreach ($testimonialsFallback as $t)
                         <div class="rounded-lg bg-gray-50 p-8 shadow-md">
                             <p class="mb-4 text-4xl text-orange-500">“</p>
                             <p class="mb-6 text-lg text-gray-700">{{ $t['quote'] ?? '' }}</p>
@@ -219,13 +222,13 @@
         </section>
     @endif
 
-    @if(count($highlights))
+    @if(count($highlightsFallback))
         <section class="bg-white py-12">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <h2 class="mb-4 text-center text-2xl font-bold text-gray-900">{{ site_ui('home.highlights_title') }}</h2>
                 <div class="mx-auto mb-8 h-1 w-20 bg-orange-500"></div>
                 <ul class="grid gap-3 sm:grid-cols-2">
-                    @foreach ($highlights as $h)
+                    @foreach ($highlightsFallback as $h)
                         <li class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-700">{{ $h }}</li>
                     @endforeach
                 </ul>

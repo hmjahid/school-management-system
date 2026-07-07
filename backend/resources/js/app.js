@@ -1,22 +1,4 @@
 import './bootstrap';
-import './theme';
-
-// ---------- Theme switcher ----------
-document.addEventListener('click', (e) => {
-    const trigger = e.target.closest('[data-theme-toggle]');
-    if (!trigger) return;
-    e.preventDefault();
-    window.schoolTheme.toggle();
-    const newTheme = window.schoolTheme.current();
-    trigger.setAttribute('aria-pressed', newTheme === 'dark' ? 'true' : 'false');
-    const labelEl = trigger.querySelector('[data-theme-label]');
-    if (labelEl) labelEl.textContent = newTheme === 'dark' ? '☀' : '☾';
-});
-
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-    if (localStorage.getItem('school-theme')) return;
-    window.schoolTheme.apply(e.matches ? 'dark' : 'light');
-});
 
 // ---------- Notifications dropdown ----------
 (function () {
