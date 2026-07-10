@@ -19,7 +19,7 @@
     <div class="grid grid-cols-12 gap-2 text-xs font-semibold text-gray-500">
         <div class="col-span-1">#</div>
         <div class="col-span-5">EN</div>
-        <div class="col-span-5">BN</div>
+        <div class="col-span-5">বাংলা</div>
         <div class="col-span-1"></div>
     </div>
     @foreach ($rowsEn as $i => $valEn)

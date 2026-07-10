@@ -22,6 +22,11 @@ return [
         'register' => 'নিবন্ধন',
         'login' => 'লগইন',
         'menu' => 'মেনু',
+        'group' => [
+            'about' => 'আমাদের সম্পর্কে',
+            'academics' => 'একাডেমিক',
+            'contact' => 'যোগাযোগ',
+        ],
     ],
 
     'footer' => [
@@ -40,6 +45,11 @@ return [
         'link_terms' => 'শর্তাবলী',
         'link_privacy' => 'গোপনীয়তা নীতি',
         'legal_note' => 'বিষয়বস্তু সময়ে সময়ে হালনাগাদ হতে পারে।',
+        'important_title' => 'গুরুত্বপূর্ণ লিংক',
+        'link_ministry_education_ministry' => 'শিক্ষা মন্ত্রণালয়',
+        'link_ministry_primary_education' => 'প্রাথমিক শিক্ষা অধিদপ্তর',
+        'link_ministry_national_info_center' => 'জাতীয় তথ্য বাতায়ন',
+        'link_ministry_secondary_higher_secondary' => 'মাধ্যমিক ও উচ্চ মাধ্যমিক শিক্ষা বোর্ড',
         'contact_title' => 'যোগাযোগ করুন',
         'newsletter_title' => 'নিউজলেটার',
         'newsletter_intro' => 'সর্বশেষ খবর ও আপডেটের জন্য সাবস্ক্রাইব করুন।',
@@ -302,6 +312,13 @@ return [
         'scholarship_phone' => 'ফোন',
         'scholarship_message' => 'বার্তা',
         'scholarship_submit' => 'বৃত্তি অনুসন্ধান জমা দিন',
+    ],
+
+    'admissions_closed' => [
+        'title' => 'বর্তমানে ভর্তি কার্যক্রম চালু নেই',
+        'default_message' => 'বর্তমানে ভর্তি কার্যক্রম বন্ধ আছে। অনুগ্রহ করে পরে আবার দেখুন।',
+        'check_status' => 'আবেদনের অবস্থা দেখুন',
+        'contact_us' => 'যোগাযোগ করুন',
     ],
 
     'admission_status' => [

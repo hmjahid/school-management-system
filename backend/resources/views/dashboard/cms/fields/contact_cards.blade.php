@@ -48,7 +48,7 @@
                 <input type="text" name="__NAME__[__INDEX__][label_en]" class="w-full rounded border border-gray-300 px-2 py-1.5 text-sm">
             </div>
             <div>
-                <label class="mb-1 block text-xs font-medium text-gray-600">{{ __('Label') }} <span class="ml-1 text-gray-400">(BN)</span></label>
+                <label class="mb-1 block text-xs font-medium text-gray-600">{{ __('Label') }} <span class="ml-1 text-gray-400">(বাংলা)</span></label>
                 <input type="text" name="__NAME__[__INDEX__][label_bn]" class="w-full rounded border border-gray-300 px-2 py-1.5 text-sm">
             </div>
             <div>
@@ -56,7 +56,7 @@
                 <input type="text" name="__NAME__[__INDEX__][phone_en]" class="w-full rounded border border-gray-300 px-2 py-1.5 text-sm">
             </div>
             <div>
-                <label class="mb-1 block text-xs font-medium text-gray-600">{{ __('Phone') }} <span class="ml-1 text-gray-400">(BN)</span></label>
+                <label class="mb-1 block text-xs font-medium text-gray-600">{{ __('Phone') }} <span class="ml-1 text-gray-400">(বাংলা)</span></label>
                 <input type="text" name="__NAME__[__INDEX__][phone_bn]" class="w-full rounded border border-gray-300 px-2 py-1.5 text-sm">
             </div>
         </div>

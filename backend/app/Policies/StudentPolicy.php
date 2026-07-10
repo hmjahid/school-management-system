@@ -78,7 +78,7 @@ class StudentPolicy
     public function update(User $user, Student $student)
     {
         // Allow if user has permission to update any student
-        if ($user->hasPermissionTo('update_students') || $user->hasPermissionTo('manage_students')) {
+        if ($user->hasAnyPermission(['update_students', 'edit_students', 'manage_students'])) {
             return true;
         }
 

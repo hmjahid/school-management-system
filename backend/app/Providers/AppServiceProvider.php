@@ -7,25 +7,21 @@ use App\Contracts\SmsService;
 use App\Models\WebsiteSetting;
 use App\Services\LogPushNotificationService;
 use App\Services\LogSmsService;
+use App\Support\SiteFrontend;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         $this->app->bind(SmsService::class, LogSmsService::class);
         $this->app->bind(PushNotificationService::class, LogPushNotificationService::class);
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         Paginator::defaultView('vendor.pagination.tailwind');
@@ -33,11 +29,15 @@ class AppServiceProvider extends ServiceProvider
 
         View::composer('*', function ($view) {
             $settings = null;
+
             if (Schema::hasTable('website_settings')) {
-                $settings = WebsiteSetting::first();
+                $settings = Cache::remember('website_settings.first', 3600, function () {
+                    return WebsiteSetting::first();
+                });
             }
+
             $view->with('siteSettings', $settings);
-            $view->with('siteUi', \App\Support\SiteFrontend::merged());
+            $view->with('siteUi', SiteFrontend::merged());
         });
     }
 }

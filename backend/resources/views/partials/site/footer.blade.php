@@ -1,5 +1,5 @@
 @php
-    $school = $siteSettings?->school_name ?? config('app.name', 'School');
+    $school = $siteSettings?->localized_school_name ?: ($siteSettings?->school_name ?? config('app.name', 'School'));
     $year = date('Y');
     $fPhoneReal = $siteSettings?->phone ?? config('school.contact_phone');
     $fEmailReal = $siteSettings?->email ?? config('school.contact_email');
@@ -15,7 +15,7 @@
             <div>
                 <h3 class="mb-4 text-xl font-bold text-orange-400">{{ site_ui('footer.about_title') }}</h3>
                 <p class="mb-4 text-gray-300">
-                    {{ $siteSettings?->tagline ?? site_ui('footer.about_fallback') }}
+                    {{ $siteSettings?->localized_tagline ?: ($siteSettings?->tagline ?? site_ui('footer.about_fallback')) }}
                 </p>
                 <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{{ __('Follow us') }}</p>
                 <div class="flex flex-wrap items-center gap-3 text-gray-400">
@@ -43,6 +43,19 @@
                     <li><a href="{{ route('site.terms') }}" class="text-gray-300 transition-colors hover:text-white">{{ site_ui('footer.link_terms') }}</a></li>
                     <li><a href="{{ route('site.privacy') }}" class="text-gray-300 transition-colors hover:text-white">{{ site_ui('footer.link_privacy') }}</a></li>
                     <li class="pt-1 text-xs text-gray-500">{{ site_ui('footer.legal_note') }}</li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="mb-4 text-xl font-bold text-orange-400">{{ site_ui('footer.important_title') }}</h3>
+                <ul class="space-y-2">
+                    @foreach ((array) config('school.important_links', []) as $link)
+                        <li>
+                            <a href="{{ $link['url'] }}" target="_blank" rel="noopener noreferrer" class="text-gray-300 transition-colors hover:text-white">
+                                {{ site_ui('footer.link_ministry_'.$link['key']) }}
+                            </a>
+                        </li>
+                    @endforeach
                 </ul>
             </div>
 
@@ -78,19 +91,6 @@
                 <div class="flex flex-wrap items-center gap-3 text-gray-400">
                     @include('partials.site.social-links', ['settings' => $siteSettings, 'linkClass' => 'text-gray-400 hover:text-white', 'placeholderClass' => 'opacity-50'])
                 </div>
-            </div>
-
-            <div>
-                <h3 class="mb-4 text-xl font-bold text-orange-400">{{ site_ui('footer.newsletter_title') }}</h3>
-                <p class="mb-4 text-gray-300">{{ site_ui('footer.newsletter_intro') }}</p>
-                <form method="post" action="{{ route('site.newsletter.store') }}" class="flex flex-col gap-2 sm:flex-row">
-                    @csrf
-                    <input type="email" name="email" required placeholder="{{ site_ui('footer.newsletter_placeholder') }}"
-                        class="w-full rounded-l-md rounded-r-md px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500 sm:rounded-r-none sm:rounded-l-md">
-                    <button type="submit" class="rounded-r-md rounded-l-md bg-orange-500 px-4 py-2 font-medium text-white transition-colors hover:bg-orange-600 sm:rounded-l-none sm:rounded-r-md">
-                        {{ site_ui('footer.newsletter_button') }}
-                    </button>
-                </form>
             </div>
         </div>
 

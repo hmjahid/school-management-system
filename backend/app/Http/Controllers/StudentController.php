@@ -120,6 +120,7 @@ class StudentController extends Controller
                 'password' => Hash::make($validated['password']),
                 'email_verified_at' => now(),
                 'remember_token' => Str::random(10),
+                'role_id' => User::roleIdFor('student'),
             ]);
 
             // Assign student role

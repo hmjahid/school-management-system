@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicSession;
 use App\Models\Admission;
+use App\Models\AdmissionSetting;
 use App\Models\Batch;
 use App\Models\WebsiteContent;
 use App\Services\AdmissionSubmitter;
@@ -16,6 +17,11 @@ class AdmissionWebController extends Controller
 {
     public function apply(): View
     {
+        $settings = AdmissionSetting::getSettings();
+        if (!$settings->is_open) {
+            return $this->closedView();
+        }
+
         $content = WebsiteContent::getContent('admissions');
 
         $sessions = AcademicSession::query()
@@ -41,11 +47,32 @@ class AdmissionWebController extends Controller
 
     public function applyStore(Request $request, AdmissionSubmitter $submitter): RedirectResponse
     {
+        $settings = AdmissionSetting::getSettings();
+        if (!$settings->is_open) {
+            return redirect()
+                ->route('admissions.apply')
+                ->withErrors(['closed' => $settings->closed_message]);
+        }
+
         $admission = $submitter->submitPublicApplication($request);
 
         return redirect()
             ->route('admissions.status', ['application_number' => $admission->application_number])
             ->with('status', __('Application submitted successfully. Save your application number for tracking.'));
+    }
+
+    /**
+     * Shared view used by all public admission entry points when admissions
+     * are currently closed. The page is still reachable so existing
+     * applicants can find status & contact links, and for SEO/back-links.
+     */
+    protected function closedView(): View
+    {
+        $content = WebsiteContent::getContent('admissions');
+        return view('site.admissions', [
+            'content' => $content,
+            'admissionsClosed' => true,
+        ]);
     }
 
     public function status(Request $request): View

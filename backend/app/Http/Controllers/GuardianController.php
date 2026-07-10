@@ -124,6 +124,7 @@ class GuardianController extends Controller
                 'password' => Hash::make($validated['password']),
                 'email_verified_at' => now(),
                 'remember_token' => Str::random(10),
+                'role_id' => User::roleIdFor('parent'),
             ]);
 
             // Align with RolePermissionSeeder role name (`parent`)

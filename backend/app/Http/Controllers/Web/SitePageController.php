@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdmissionSetting;
 use App\Models\ContactSubmission;
 use App\Models\Event;
 use App\Models\Teacher;
@@ -26,8 +27,9 @@ class SitePageController extends Controller
     public function admissions(): View
     {
         $content = WebsiteContent::getContent('admissions');
+        $admissionsClosed = ! AdmissionSetting::getSettings()->is_open;
 
-        return view('site.admissions', ['content' => $content]);
+        return view('site.admissions', compact('content', 'admissionsClosed'));
     }
 
     public function students(): View

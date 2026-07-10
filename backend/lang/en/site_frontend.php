@@ -22,6 +22,11 @@ return [
         'register' => 'Register',
         'login' => 'Login',
         'menu' => 'Menu',
+        'group' => [
+            'about' => 'About Us',
+            'academics' => 'Academics',
+            'contact' => 'Contact',
+        ],
     ],
 
     'footer' => [
@@ -40,6 +45,11 @@ return [
         'link_terms' => 'Terms & conditions',
         'link_privacy' => 'Privacy policy',
         'legal_note' => 'Content may be updated from time to time.',
+        'important_title' => 'Important Links',
+        'link_ministry_education_ministry' => 'Ministry of Education',
+        'link_ministry_primary_education' => 'Directorate of Primary Education',
+        'link_ministry_national_info_center' => 'National Information Center',
+        'link_ministry_secondary_higher_secondary' => 'Secondary & Higher Secondary Education Board',
         'contact_title' => 'Contact Us',
         'newsletter_title' => 'Newsletter',
         'newsletter_intro' => 'Subscribe for the latest updates and news.',
@@ -302,6 +312,13 @@ return [
         'scholarship_phone' => 'Phone',
         'scholarship_message' => 'Message',
         'scholarship_submit' => 'Submit scholarship inquiry',
+    ],
+
+    'admissions_closed' => [
+        'title' => 'Admissions are not currently open',
+        'default_message' => 'Admissions are not currently open. Please check back later.',
+        'check_status' => 'Check application status',
+        'contact_us' => 'Contact us',
     ],
 
     'admission_status' => [

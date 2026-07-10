@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admission;
+use App\Models\AdmissionSetting;
 use App\Models\AdmissionTest;
 use App\Notifications\AdmissionStatusChangedNotification;
 use App\Notifications\AdmissionTestScheduledNotification;
@@ -39,8 +40,32 @@ class DashboardAdmissionController extends Controller
         }
 
         $rows = $query->paginate(20)->withQueryString();
+        $settings = AdmissionSetting::getSettings();
 
-        return view('dashboard.admissions.index', compact('rows'));
+        return view('dashboard.admissions.index', compact('rows', 'settings'));
+    }
+
+    /**
+     * Toggle the public admissions page on/off, and optionally save a custom
+     * "currently closed" message in EN and BN.
+     */
+    public function toggleOpen(Request $request): RedirectResponse
+    {
+        abort_unless($request->user()?->can('edit_admissions'), 403);
+
+        $data = $request->validate([
+            'is_open' => ['required', 'boolean'],
+            'closed_message_en' => ['nullable', 'string', 'max:1000'],
+            'closed_message_bn' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $settings = AdmissionSetting::getSettings();
+        $settings->fill($data);
+        $settings->save();
+
+        $msg = $settings->is_open ? __('Admissions opened. The public form is now accepting submissions.') : __('Admissions closed. The public page now shows a notice.');
+
+        return back()->with('status', $msg);
     }
 
     public function show(Admission $admission, Request $request): View

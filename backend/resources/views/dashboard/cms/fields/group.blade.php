@@ -34,7 +34,7 @@
             </div>
             <div>
                 <label for="cms-{{ $subName }}-bn" class="mb-1 block text-xs font-medium text-gray-600">
-                    {{ $subLabel }} <span class="text-gray-400">(BN)</span>
+                    {{ $subLabel }} <span class="text-gray-400">(বাংলা)</span>
                 </label>
                 @if ($subType === 'textarea')
                     <textarea id="cms-{{ $subName }}-bn" name="{{ $subName }}_bn" rows="{{ $subRows ?? 2 }}"

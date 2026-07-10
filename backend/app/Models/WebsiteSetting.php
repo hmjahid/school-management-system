@@ -3,10 +3,30 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class WebsiteSetting extends Model
 {
+    use LogsActivity;
+
+    protected static function booted(): void
+    {
+        static::saved(fn () => Cache::forget('website_settings.first'));
+        static::deleted(fn () => Cache::forget('website_settings.first'));
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['school_name', 'school_name_bn', 'tagline', 'tagline_bn', 'email', 'phone', 'address', 'default_locale', 'meta_title', 'meta_description'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('school_settings');
+    }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -14,7 +34,9 @@ class WebsiteSetting extends Model
      */
     protected $fillable = [
         'school_name',
+        'school_name_bn',
         'tagline',
+        'tagline_bn',
         'logo_path',
         'favicon_path',
         'established_year',
@@ -28,10 +50,15 @@ class WebsiteSetting extends Model
         'website',
         'opening_hours',
         'facebook_url',
+        'show_facebook',
         'twitter_url',
+        'show_twitter',
         'instagram_url',
+        'show_instagram',
         'linkedin_url',
+        'show_linkedin',
         'youtube_url',
+        'show_youtube',
         'meta_title',
         'meta_description',
         'meta_keywords',
@@ -52,6 +79,11 @@ class WebsiteSetting extends Model
         'established_year' => 'integer',
         'opening_hours' => 'array',
         'maintenance_mode' => 'boolean',
+        'show_facebook' => 'boolean',
+        'show_instagram' => 'boolean',
+        'show_twitter' => 'boolean',
+        'show_youtube' => 'boolean',
+        'show_linkedin' => 'boolean',
     ];
 
     /**
@@ -61,6 +93,11 @@ class WebsiteSetting extends Model
      */
     protected $attributes = [
         'default_locale' => 'en',
+        'show_facebook' => true,
+        'show_instagram' => true,
+        'show_twitter' => true,
+        'show_youtube' => true,
+        'show_linkedin' => true,
     ];
 
     /**
@@ -110,6 +147,51 @@ class WebsiteSetting extends Model
         ];
 
         return implode(', ', array_filter($parts));
+    }
+
+    /**
+     * The current application locale, used by localized accessors.
+     * Falls back to the framework default when the app is not yet bootstrapped.
+     */
+    protected function currentLocale(): string
+    {
+        try {
+            return app()->getLocale();
+        } catch (\Throwable $e) {
+            return (string) config('app.locale', 'en');
+        }
+    }
+
+    /**
+     * Pick the value from a (base, *_bn) pair for the current locale.
+     * Falls back to the base value when the localized value is empty.
+     */
+    protected function localizedString(?string $base, ?string $localized): string
+    {
+        if ($this->currentLocale() === 'bn') {
+            $trimmed = trim((string) $localized);
+            if ($trimmed !== '') {
+                return $trimmed;
+            }
+        }
+
+        return (string) ($base ?? '');
+    }
+
+    /**
+     * School name localized to the current app locale.
+     */
+    public function getLocalizedSchoolNameAttribute(): string
+    {
+        return $this->localizedString($this->school_name, $this->school_name_bn);
+    }
+
+    /**
+     * Tagline localized to the current app locale.
+     */
+    public function getLocalizedTaglineAttribute(): string
+    {
+        return $this->localizedString($this->tagline, $this->tagline_bn);
     }
 
     /**

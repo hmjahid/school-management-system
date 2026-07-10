@@ -3,327 +3,198 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RefreshTokenRequest;
+use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\Role;
+use App\Models\User;
+use App\Support\ApiResponse;
+use Exception;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rules;
-use Exception;
 
 class AuthController extends Controller
 {
-    /**
-     * Register a new user
-     */
-    public function register(Request $request)
+    use ApiResponse;
+
+    public function register(RegisterRequest $request)
     {
         try {
-            Log::info('Registration request received', $request->all());
-            
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
-                'password' => ['required', 'confirmed', Rules\Password::defaults()],
-                'role' => 'required|in:admin,teacher,student,parent,accountant',
-            ]);
+            $validated = $request->validated();
+            $roleName = $request->roleName();
 
-            // Check if role exists
-            $role = Role::where('name', $validated['role'])->first();
-            if (!$role) {
-                Log::error('Role not found', ['role' => $validated['role']]);
-                return response()->json(['message' => 'Specified role not found'], 400);
+            $role = Role::where('name', $roleName)->first();
+            if (! $role) {
+                return $this->error('Specified role not found', 400, null, 'INVALID_ROLE');
             }
 
-            // Create user with role_id
             $user = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
-                'role_id' => $role->id, // Set the role_id from the role we found
+                'role_id' => $role->id,
                 'email_verified_at' => now(),
                 'remember_token' => Str::random(10),
             ]);
 
-            Log::info('User created successfully', ['user_id' => $user->id]);
-
-            try {
-                // Assign role to user
-                $user->assignRole($validated['role']);
-                Log::info('Role assigned successfully', ['user_id' => $user->id, 'role' => $validated['role']]);
-            } catch (Exception $e) {
-                Log::error('Failed to assign role', [
-                    'user_id' => $user->id,
-                    'role' => $validated['role'],
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ]);
-                throw $e;
-            }
+            $user->assignRole($roleName);
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            return response()->json([
+            return $this->created([
                 'access_token' => $token,
                 'token_type' => 'Bearer',
-                'user' => $user->load('roles')
-            ], 201);
-            
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            Log::error('Validation failed', ['errors' => $e->errors()]);
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
-            
+                'user' => $user->load('roles'),
+            ], 'Registration successful');
         } catch (Exception $e) {
             Log::error('Registration failed', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'email' => $request->input('email'),
             ]);
-            
-            return response()->json([
-                'message' => 'Registration failed. Please try again.',
-                'error' => config('app.debug') ? $e->getMessage() : null
-            ], 500);
+
+            return $this->error(
+                'Registration failed. Please try again.',
+                500,
+                config('app.debug') ? ['exception' => $e->getMessage()] : null,
+                'REGISTRATION_FAILED'
+            );
         }
     }
 
-    /**
-     * Login user and create tokens
-     */
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
         try {
-            $request->validate([
-                'email' => 'required|email',
-                'password' => 'required',
-                'remember_me' => 'boolean'
-            ]);
-
             $credentials = $request->only('email', 'password');
 
-            if (!Auth::attempt($credentials, $request->boolean('remember_me'))) {
-                return response()->json([
-                    'message' => 'Invalid login details'
-                ], 401);
+            if (! Auth::attempt($credentials, $request->boolean('remember_me'))) {
+                return $this->error('Invalid login details', 401, null, 'INVALID_CREDENTIALS');
             }
 
             $user = User::where('email', $request->email)->firstOrFail();
-            
-            // Create token pair with expiration
-            $tokenExpiration = $request->remember_me 
+
+            $tokenExpiration = $request->boolean('remember_me')
                 ? now()->addDays(config('sanctum.remember_token_expiration', 30))
                 : now()->addMinutes(config('sanctum.expiration', 60));
-                
+
             $tokenData = $user->createTokenPair(
                 'auth_token',
                 ['*'],
                 $tokenExpiration
             );
 
-            // Update last login timestamp
             $user->update(['last_login_at' => now()]);
 
-            return response()->json([
+            return $this->success([
                 'access_token' => $tokenData['access_token'],
                 'refresh_token' => $tokenData['refresh_token'],
                 'token_type' => $tokenData['token_type'],
                 'expires_in' => $tokenData['expires_in'],
-                'user' => $user->load('roles')
-            ]);
-            
-        } catch (\Exception $e) {
-            \Log::error('Login failed', [
+                'user' => $user->load('roles'),
+            ], 'Login successful');
+        } catch (Exception $e) {
+            Log::error('Login failed', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
                 'ip' => $request->ip(),
-                'email' => $request->email
+                'email' => $request->email,
             ]);
-            
-            return response()->json([
-                'message' => 'Login failed. Please try again.',
-                'error' => config('app.debug') ? $e->getMessage() : null
-            ], 500);
+
+            return $this->error(
+                'Login failed. Please try again.',
+                500,
+                config('app.debug') ? ['exception' => $e->getMessage()] : null,
+                'LOGIN_FAILED'
+            );
         }
     }
 
-    /**
-     * Get the authenticated user
-     */
     public function me(Request $request)
     {
-        return response()->json($request->user()->load('roles', 'permissions'));
+        return $this->success($request->user()->load('roles', 'permissions'));
     }
 
-    /**
-     * Logout user (Revoke all tokens)
-     */
     public function logout(Request $request)
     {
         try {
             $user = $request->user();
-            
-            // Invalidate all tokens for this user
             $user->revokeAllTokens();
-            
-            // Clear the session
+
             Auth::guard('web')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            
-            return response()->json([
-                'message' => 'Successfully logged out',
-                'session_cleared' => true
-            ]);
-            
-        } catch (\Exception $e) {
-            \Log::error('Logout failed', [
+
+            return $this->success(['session_cleared' => true], 'Successfully logged out');
+        } catch (Exception $e) {
+            Log::error('Logout failed', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'user_id' => $request->user()?->id
+                'user_id' => $request->user()?->id,
             ]);
-            
-            return response()->json([
-                'message' => 'Error during logout',
-                'error' => config('app.debug') ? $e->getMessage() : null
-            ], 500);
+
+            return $this->error(
+                'Error during logout',
+                500,
+                config('app.debug') ? ['exception' => $e->getMessage()] : null,
+                'LOGOUT_FAILED'
+            );
         }
     }
 
-    /**
-     * Refresh the access token using refresh token with rotation
-     */
-    public function refreshToken(Request $request)
+    public function refreshToken(RefreshTokenRequest $request)
     {
         try {
-            $request->validate([
-                'refresh_token' => 'required|string',
-            ]);
-
-            // Get the current user
             $user = $request->user();
-            
-            // Find the refresh token
+
             $refreshToken = $user->refreshTokens()
-                ->where('token', hash('sha256', $request->refresh_token))
+                ->where('token', hash('sha256', $request->validated('refresh_token')))
                 ->where('expires_at', '>', now())
                 ->first();
 
-            if (!$refreshToken) {
-                throw new \Illuminate\Auth\AuthenticationException('Invalid or expired refresh token');
+            if (! $refreshToken) {
+                throw new AuthenticationException('Invalid or expired refresh token');
             }
-            
-            // Mark the old refresh token as used
+
             $refreshToken->markAsUsed();
-            
-            // Create new token pair
+
             $tokenData = $user->createTokenPair(
                 'auth_token',
                 ['*'],
                 now()->addMinutes(config('sanctum.expiration', 60)),
                 now()->addDays(config('sanctum.refresh_token_expiration', 30))
             );
-            
-            // Log the refresh event
-            \Log::info('Token refreshed', [
+
+            Log::info('Token refreshed', [
                 'user_id' => $user->id,
                 'ip' => $request->ip(),
-                'user_agent' => $request->userAgent()
             ]);
-            
-            return response()->json([
+
+            return $this->success([
                 'access_token' => $tokenData['access_token'],
                 'refresh_token' => $tokenData['refresh_token'],
                 'token_type' => $tokenData['token_type'],
                 'expires_in' => $tokenData['expires_in'],
-                'user' => $user->load('roles')
-            ]);
-            
-        } catch (\Exception $e) {
+                'user' => $user->load('roles'),
+            ], 'Token refreshed');
+        } catch (Exception $e) {
             $userId = $request->user()?->id;
-            
-            // Log the error with context
-            \Log::error('Token refresh failed', [
+
+            Log::error('Token refresh failed', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'ip' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'user_id' => $userId
+                'user_id' => $userId,
             ]);
-            
-            // Invalidate all user's sessions on security exception
-            if ($e instanceof \Illuminate\Auth\AuthenticationException && $userId) {
-                $user = User::find($userId);
-                if ($user) {
-                    $user->revokeAllTokens();
-                }
+
+            if ($e instanceof AuthenticationException && $userId) {
+                User::find($userId)?->revokeAllTokens();
             }
-            
-            return response()->json([
-                'message' => 'Failed to refresh token. Please log in again.',
-                'error' => config('app.debug') ? $e->getMessage() : null,
-                'requires_login' => true
-            ], 401);
+
+            return $this->error(
+                'Failed to refresh token. Please log in again.',
+                401,
+                ['requires_login' => true],
+                'TOKEN_REFRESH_FAILED'
+            );
         }
-    }
-    
-    /**
-     * Create a new refresh token for the user
-     */
-    protected function createRefreshToken($user)
-    {
-        $token = \Illuminate\Support\Str::random(80);
-        
-        $user->refreshTokens()->create([
-            'token' => hash('sha256', $token),
-            'expires_at' => now()->addDays(config('sanctum.refresh_token_expiration', 30)),
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent()
-        ]);
-        
-        return $token;
-    }
-
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

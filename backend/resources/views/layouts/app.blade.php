@@ -7,7 +7,7 @@
     @if($siteSettings?->favicon_url)
         <link rel="icon" href="{{ $siteSettings->favicon_url }}">
     @endif
-    <title>@yield('title', ($siteSettings->school_name ?? config('app.name', 'School')))</title>
+    <title>@yield('title', ($siteSettings->localized_school_name ?: ($siteSettings->school_name ?? config('app.name', 'School'))))</title>
     <link rel="canonical" href="{{ url()->current() }}">
     @hasSection('meta_description')
         <meta name="description" content="@yield('meta_description')">
@@ -15,8 +15,8 @@
         <meta name="description" content="{{ $siteSettings->meta_description }}">
     @endif
     <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:site_name" content="{{ $siteSettings->school_name ?? config('app.name', 'School') }}">
-    <meta property="og:title" content="@yield('title', ($siteSettings->school_name ?? config('app.name', 'School')))">
+    <meta property="og:site_name" content="{{ $siteSettings->localized_school_name ?: ($siteSettings->school_name ?? config('app.name', 'School')) }}">
+    <meta property="og:title" content="@yield('title', ($siteSettings->localized_school_name ?: ($siteSettings->school_name ?? config('app.name', 'School'))))">
     @hasSection('meta_description')
         <meta property="og:description" content="@yield('meta_description')">
     @elseif($siteSettings?->meta_description ?? false)
@@ -26,7 +26,7 @@
         {!! json_encode([
             '@context' => 'https://schema.org',
             '@type' => 'Organization',
-            'name' => $siteSettings->school_name ?? config('app.name', 'School'),
+            'name' => $siteSettings->localized_school_name ?: ($siteSettings->school_name ?? config('app.name', 'School')),
             'url' => url('/'),
             'email' => $siteSettings->email ?? null,
             'telephone' => $siteSettings->phone ?? null,

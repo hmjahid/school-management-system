@@ -88,6 +88,7 @@ class RolePermissionSeeder extends Seeder
             'view_students' => 'View students',
             'create_students' => 'Create students',
             'edit_students' => 'Edit students',
+            'update_students' => 'Update students',
             'delete_students' => 'Delete students',
             
             // Admission Management

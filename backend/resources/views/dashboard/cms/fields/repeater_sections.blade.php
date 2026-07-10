@@ -53,7 +53,7 @@
                 <input type="text" name="__NAME__[__INDEX__][heading_en]" class="w-full rounded border border-gray-300 px-2 py-1.5 text-sm">
             </div>
             <div>
-                <label class="mb-1 block text-xs font-medium text-gray-600">{{ __('Heading') }} <span class="ml-1 text-gray-400">(BN)</span></label>
+                <label class="mb-1 block text-xs font-medium text-gray-600">{{ __('Heading') }} <span class="ml-1 text-gray-400">(বাংলা)</span></label>
                 <input type="text" name="__NAME__[__INDEX__][heading_bn]" class="w-full rounded border border-gray-300 px-2 py-1.5 text-sm">
             </div>
             <div>
@@ -61,7 +61,7 @@
                 <textarea name="__NAME__[__INDEX__][paragraphs_en]" rows="5" class="w-full rounded border border-gray-300 px-2 py-1.5 text-sm"></textarea>
             </div>
             <div>
-                <label class="mb-1 block text-xs font-medium text-gray-600">{{ __('Body (one paragraph per blank line)') }} <span class="ml-1 text-gray-400">(BN)</span></label>
+                <label class="mb-1 block text-xs font-medium text-gray-600">{{ __('Body (one paragraph per blank line)') }} <span class="ml-1 text-gray-400">(বাংলা)</span></label>
                 <textarea name="__NAME__[__INDEX__][paragraphs_bn]" rows="5" class="w-full rounded border border-gray-300 px-2 py-1.5 text-sm"></textarea>
             </div>
         </div>

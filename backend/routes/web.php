@@ -216,6 +216,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/dashboard/documents/{document}', [DashboardDocumentController::class, 'destroy'])->name('dashboard.documents.destroy');
 
         Route::get('/dashboard/admissions', [DashboardAdmissionController::class, 'index'])->name('dashboard.admissions.index');
+        Route::post('/dashboard/admissions/toggle', [DashboardAdmissionController::class, 'toggleOpen'])->name('dashboard.admissions.toggle');
         Route::get('/dashboard/admissions/{admission}', [DashboardAdmissionController::class, 'show'])->name('dashboard.admissions.show');
         Route::post('/dashboard/admissions/{admission}/tests', [DashboardAdmissionController::class, 'scheduleTest'])->name('dashboard.admissions.tests.store');
         Route::put('/dashboard/admissions/{admission}/tests/{test}', [DashboardAdmissionController::class, 'updateTest'])->name('dashboard.admissions.tests.update');

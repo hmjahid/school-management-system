@@ -15,12 +15,23 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\NewAccessToken;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, HasPermissions, HasRoles {
+    use HasApiTokens, HasFactory, Notifiable, HasPermissions, HasRoles, LogsActivity {
         HasPermissions::hasPermissionTo as spatieHasPermissionTo;
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name', 'email', 'phone', 'role_id'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('users');
     }
 
     /**
@@ -79,6 +90,19 @@ class User extends Authenticatable
     public function schoolRole(): BelongsTo
     {
         return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    /**
+     * Look up the Spatie Role id for a given role name on the configured guard.
+     * Used to populate users.role_id (NOT NULL FK) at user-creation time.
+     */
+    public static function roleIdFor(string $roleName): ?int
+    {
+        $guard = config('auth.defaults.guard', 'web');
+
+        return \Spatie\Permission\Models\Role::where('name', $roleName)
+            ->where('guard_name', $guard)
+            ->value('id');
     }
 
     /**

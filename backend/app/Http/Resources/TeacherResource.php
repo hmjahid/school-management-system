@@ -76,12 +76,12 @@ class TeacherResource extends JsonResource
                 return $this->deleted_at->format('Y-m-d H:i:s');
             }),
             'links' => [
-                'profile' => route('api.teachers.show', $this->id),
-                'edit' => route('admin.teachers.edit', $this->id),
-                'attendance' => route('api.teachers.attendance.index', $this->id),
-                'salary' => route('api.teachers.salaries.index', $this->id),
-                'subjects' => route('api.teachers.subjects.index', $this->id),
-                'classes' => route('api.teachers.classes.index', $this->id),
+                'profile' => route('dashboard.teachers.show', $this->id),
+                'edit' => route('dashboard.teachers.edit', $this->id),
+                'attendance' => route('dashboard.teachers.show', $this->id) . '#attendance',
+                'salary' => route('dashboard.teachers.show', $this->id) . '#salary',
+                'subjects' => route('dashboard.teachers.show', $this->id) . '#subjects',
+                'classes' => route('dashboard.teachers.show', $this->id) . '#classes',
             ],
         ];
     }

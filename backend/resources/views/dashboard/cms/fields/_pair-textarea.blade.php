@@ -24,7 +24,7 @@
     <label class="mb-1 block text-xs font-medium text-gray-600">
         {{ $field['label'] ?? ucfirst($field['key'] ?? '') }}
         @if($req)<span class="text-red-500">*</span>@endif
-        <span class="ml-1 text-gray-400">(BN)</span>
+        <span class="ml-1 text-gray-400">(বাংলা)</span>
     </label>
     <textarea name="{{ $nameBnField }}" rows="{{ $rows ?? 3 }}"
         class="w-full rounded border border-gray-300 px-2 py-1.5 text-sm">{{ $valueBn ?? '' }}</textarea>

@@ -10,7 +10,7 @@ use App\Http\Controllers\NotificationPreferenceController;
 |--------------------------------------------------------------------------
 |
 | These routes are for managing notifications in the admin panel.
-| They are protected by the 'auth:api' and 'role:admin' middleware.
+| They are protected by the 'auth:sanctum' and 'role:admin' middleware.
 |
 */
 

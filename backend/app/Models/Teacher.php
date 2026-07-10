@@ -78,12 +78,13 @@ class Teacher extends Model
 
     /**
      * The subjects that belong to the teacher.
+     * Pivot: class_subject_teacher — kept aligned with Subject::teachers().
      */
     public function subjects(): BelongsToMany
     {
-        return $this->belongsToMany(Subject::class, 'subject_teacher', 'teacher_id', 'subject_id')
+        return $this->belongsToMany(Subject::class, 'class_subject_teacher', 'teacher_id', 'subject_id')
             ->withTimestamps()
-            ->withPivot(['class_id', 'section_id', 'academic_session_id']);
+            ->withPivot(['class_id', 'academic_session_id', 'is_primary']);
     }
 
     /**

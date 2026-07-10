@@ -79,7 +79,7 @@
                     @endif
                 </div>
                 <div data-cms-rep-slot="{{ $sub['key'] }}">
-                    <label class="mb-1 block text-xs font-medium text-gray-600">{{ $sub['label'] }} <span class="ml-1 text-gray-400">(BN)</span></label>
+                    <label class="mb-1 block text-xs font-medium text-gray-600">{{ $sub['label'] }} <span class="ml-1 text-gray-400">(বাংলা)</span></label>
                     @if(($sub['type'] ?? 'text') === 'textarea')
                         <textarea name="__NAME__[__INDEX__][{{ $sub['key'] }}_bn]" rows="{{ $sub['rows'] ?? 3 }}"
                             class="w-full rounded border border-gray-300 px-2 py-1.5 text-sm"></textarea>

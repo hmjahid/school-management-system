@@ -13,7 +13,7 @@ use App\Http\Controllers\NotificationController;
 */
 
 // Group routes that require authentication
-Route::middleware(['auth:api'])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
     // Get all notifications
     Route::get('/notifications', [NotificationController::class, 'index']);
     
@@ -42,7 +42,7 @@ Route::middleware(['auth:api'])->group(function () {
 });
 
 // WebSocket/SSE endpoint for real-time notifications
-Route::middleware(['auth:api'])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/notifications/stream', function () {
         // This will be handled by the broadcast/auth route in the BroadcastServiceProvider
         return response()->json(['message' => 'WebSocket/SSE connection established.']);

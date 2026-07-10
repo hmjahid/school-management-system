@@ -12,6 +12,9 @@
         <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
             @include('site.partials.sections', ['content' => $content])
 
+            @if(! empty($admissionsClosed))
+                @include('site.partials.admissions-closed')
+            @else
             <div class="mt-10 flex flex-wrap gap-3">
                 <a href="{{ route('admissions.apply') }}" class="inline-flex rounded-md bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-orange-600">{{ site_ui('admissions_landing.cta_apply') }}</a>
                 <a href="{{ route('admissions.status') }}" class="inline-flex rounded-md border-2 border-blue-600 px-5 py-2.5 text-sm font-semibold text-blue-700 hover:bg-blue-50">{{ site_ui('admissions_landing.cta_status') }}</a>
@@ -46,6 +49,7 @@
                     </div>
                 </form>
             </section>
+            @endif
         </div>
     </div>
 @endsection

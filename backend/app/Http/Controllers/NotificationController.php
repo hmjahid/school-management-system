@@ -25,7 +25,7 @@ class NotificationController extends Controller
      */
     public function __construct(NotificationService $notificationService)
     {
-        $this->middleware('auth:api');
+        $this->middleware('auth:sanctum');
         $this->notificationService = $notificationService;
     }
 

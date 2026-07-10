@@ -1,5 +1,5 @@
 @php
-    $school = $siteSettings?->school_name ?? config('app.name', 'School');
+    $school = $siteSettings?->localized_school_name ?: ($siteSettings?->school_name ?? config('app.name', 'School'));
     $words = preg_split('/\s+/', trim($school), 2);
     $brandFirst = $words[0] ?? $school;
     $brandRest = $words[1] ?? '';
@@ -45,8 +45,10 @@
             <div class="flex items-center gap-1">
                 @foreach (config('school.supported_locales', ['en']) as $loc)
                     <a href="{{ route('locale.switch', ['locale' => $loc]) }}"
+                        @php $locLabel = ['en' => 'EN', 'bn' => 'বাংলা'][$loc] ?? strtoupper($loc); @endphp
+                        aria-label="{{ $locLabel }}"
                         class="inline-flex min-w-[1.75rem] items-center justify-center rounded border px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wide transition {{ app()->getLocale() === $loc ? 'border-white bg-white/15 text-white' : 'border-blue-400/60 text-blue-200 hover:border-white hover:text-white' }}">
-                        {{ $loc }}
+                        {{ $locLabel }}
                     </a>
                 @endforeach
             </div>
@@ -72,7 +74,7 @@
             </span>
         </a>
 
-        {{-- Hamburger: visible below 1366px --}}
+        {{-- Hamburger: visible below 1367px --}}
         <button type="button" data-site-nav-trigger aria-controls="site-nav-panel" aria-expanded="false"
             aria-label="{{ site_ui('nav.menu') }}"
             class="inline-flex items-center justify-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 min-[1367px]:hidden">
@@ -85,24 +87,90 @@
             <span class="hidden sm:inline">{{ site_ui('nav.menu') }}</span>
         </button>
 
-        {{-- Desktop nav: 1366px and up --}}
+        {{-- Desktop nav: 1367px and up --}}
         <nav class="hidden items-center gap-1 min-[1367px]:flex" aria-label="{{ site_ui('nav.menu') }}">
             @php
                 $link = fn ($active) => 'rounded-md px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap '.($active ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700');
                 $btnOutline = 'ml-1 inline-flex items-center justify-center rounded-md border-2 border-blue-600 bg-white px-3 py-2 text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-50 whitespace-nowrap';
                 $btnNeutral = 'ml-1 inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-800 shadow-sm transition hover:bg-gray-50 whitespace-nowrap';
                 $btnPrimary = 'ml-1 inline-flex items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 whitespace-nowrap';
+
+                $dropdownItem = fn ($active) => 'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition '.($active ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700');
+                $dropdownGroup = function (string $key, string $label, array $items, string $activePattern) {
+                    $isActive = false;
+                    foreach ($items as $it) { if (request()->routeIs($it['pattern'])) { $isActive = true; break; } }
+                    if (request()->routeIs($activePattern)) $isActive = true;
+                    return [
+                        'key' => $key,
+                        'label' => $label,
+                        'active' => $isActive,
+                        'items' => $items,
+                    ];
+                };
+
+                $navGroups = [
+                    'about' => $dropdownGroup('about', site_ui('nav.group.about'), [
+                        ['label' => site_ui('nav.about'),    'route' => 'site.about',    'pattern' => 'site.about',    'icon' => 'M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z'],
+                        ['label' => site_ui('nav.faculty'),  'route' => 'site.faculty',  'pattern' => 'site.faculty',  'icon' => 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'],
+                        ['label' => site_ui('nav.students'), 'route' => 'site.students', 'pattern' => 'site.students', 'icon' => 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z'],
+                    ], 'site.about'),
+                    'academics' => $dropdownGroup('academics', site_ui('nav.group.academics'), [
+                        ['label' => site_ui('nav.academics'), 'route' => 'site.academics', 'pattern' => 'site.academics', 'icon' => 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253'],
+                        ['label' => site_ui('nav.admissions'),'route' => 'site.admissions','pattern' => 'site.admissions|admissions.*', 'icon' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
+                        ['label' => site_ui('nav.gallery'),   'route' => 'site.gallery',   'pattern' => 'site.gallery',   'icon' => 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'],
+                    ], 'site.academics'),
+                    'contact' => $dropdownGroup('contact', site_ui('nav.group.contact'), [
+                        ['label' => site_ui('nav.contact'),  'route' => 'site.contact',  'pattern' => 'site.contact',  'icon' => 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'],
+                        ['label' => site_ui('nav.payments'), 'route' => 'site.payments', 'pattern' => 'site.payments', 'icon' => 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z'],
+                    ], 'site.contact'),
+                ];
             @endphp
+
+            {{-- Home: standalone top-level --}}
             <a href="{{ route('home') }}" class="{{ $link(request()->routeIs('home')) }}">{{ site_ui('nav.home') }}</a>
-            <a href="{{ route('site.about') }}" class="{{ $link(request()->routeIs('site.about')) }}">{{ site_ui('nav.about') }}</a>
-            <a href="{{ route('site.academics') }}" class="{{ $link(request()->routeIs('site.academics')) }}">{{ site_ui('nav.academics') }}</a>
-            <a href="{{ route('site.admissions') }}" class="{{ $link(request()->routeIs('site.admissions') || request()->routeIs('admissions.*')) }}">{{ site_ui('nav.admissions') }}</a>
-            <a href="{{ route('site.students') }}" class="{{ $link(request()->routeIs('site.students')) }}">{{ site_ui('nav.students') }}</a>
-            <a href="{{ route('site.faculty') }}" class="{{ $link(request()->routeIs('site.faculty')) }}">{{ site_ui('nav.faculty') }}</a>
+
+            {{-- Grouped dropdowns: About, Academics, Contact --}}
+            @foreach ($navGroups as $group)
+                @php $gid = 'site-nav-group-'.$group['key']; @endphp
+                <div class="relative" data-site-nav-dropdown>
+                    <button type="button" data-site-nav-dropdown-trigger aria-haspopup="true" aria-expanded="false" aria-controls="{{ $gid }}"
+                        class="{{ $link($group['active']) }} inline-flex items-center gap-1">
+                        <span>{{ $group['label'] }}</span>
+                        <svg class="h-3.5 w-3.5 transition-transform duration-200" data-site-nav-caret fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div id="{{ $gid }}" data-site-nav-dropdown-panel
+                        class="invisible absolute right-0 top-full z-50 mt-1 min-w-[14rem] origin-top-right translate-y-1 rounded-lg border border-gray-100 bg-white p-2 opacity-0 shadow-lg ring-1 ring-black/5 transition-all duration-150 data-[open=true]:visible data-[open=true]:translate-y-0 data-[open=true]:opacity-100"
+                        role="menu" aria-label="{{ $group['label'] }}">
+                        <ul class="space-y-0.5">
+                            @foreach ($group['items'] as $item)
+                                @php
+                                    $patterns = explode('|', $item['pattern']);
+                                    $isActive = false;
+                                    foreach ($patterns as $p) { if (request()->routeIs($p)) { $isActive = true; break; } }
+                                @endphp
+                                <li role="none">
+                                    <a href="{{ route($item['route']) }}" role="menuitem"
+                                        class="{{ $dropdownItem($isActive) }}">
+                                        <svg class="h-4 w-4 shrink-0 {{ $isActive ? 'text-blue-600' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $item['icon'] }}"/>
+                                        </svg>
+                                        <span class="flex-1">{{ $item['label'] }}</span>
+                                        @if($isActive)
+                                            <svg class="h-4 w-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M16.7 5.3a1 1 0 010 1.4l-7.5 7.5a1 1 0 01-1.4 0L3.3 9.7a1 1 0 011.4-1.4L8.5 12l6.8-6.7a1 1 0 011.4 0z" clip-rule="evenodd"/></svg>
+                                        @endif
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            @endforeach
+
+            {{-- News & Events: standalone top-level --}}
             <a href="{{ route('site.news') }}" class="{{ $link(request()->routeIs('site.news*')) }}">{{ site_ui('nav.news') }}</a>
-            <a href="{{ route('site.gallery') }}" class="{{ $link(request()->routeIs('site.gallery')) }}">{{ site_ui('nav.gallery') }}</a>
-            <a href="{{ route('site.contact') }}" class="{{ $link(request()->routeIs('site.contact')) }}">{{ site_ui('nav.contact') }}</a>
-            <a href="{{ route('site.payments') }}" class="{{ $link(request()->routeIs('site.payments')) }}">{{ site_ui('nav.payments') }}</a>
+
             @auth
                 @php
                     $navStaffRoles = ['admin', 'teacher', 'accountant', 'staff', 'librarian'];
@@ -141,15 +209,53 @@
             <p class="{{ $sectionTitle }}">{{ __('Menu') }}</p>
             <ul class="space-y-1">
                 <li><a data-site-nav-link href="{{ route('home') }}" class="{{ $linkMobile(request()->routeIs('home')) }}"><span>{{ site_ui('nav.home') }}</span>@if(request()->routeIs('home')){!! $check !!}@endif</a></li>
-                <li><a data-site-nav-link href="{{ route('site.about') }}" class="{{ $linkMobile(request()->routeIs('site.about')) }}"><span>{{ site_ui('nav.about') }}</span>@if(request()->routeIs('site.about')){!! $check !!}@endif</a></li>
-                <li><a data-site-nav-link href="{{ route('site.academics') }}" class="{{ $linkMobile(request()->routeIs('site.academics')) }}"><span>{{ site_ui('nav.academics') }}</span>@if(request()->routeIs('site.academics')){!! $check !!}@endif</a></li>
-                <li><a data-site-nav-link href="{{ route('site.admissions') }}" class="{{ $linkMobile(request()->routeIs('site.admissions') || request()->routeIs('admissions.*')) }}"><span>{{ site_ui('nav.admissions') }}</span>@if(request()->routeIs('site.admissions') || request()->routeIs('admissions.*')){!! $check !!}@endif</a></li>
-                <li><a data-site-nav-link href="{{ route('site.students') }}" class="{{ $linkMobile(request()->routeIs('site.students')) }}"><span>{{ site_ui('nav.students') }}</span>@if(request()->routeIs('site.students')){!! $check !!}@endif</a></li>
-                <li><a data-site-nav-link href="{{ route('site.faculty') }}" class="{{ $linkMobile(request()->routeIs('site.faculty')) }}"><span>{{ site_ui('nav.faculty') }}</span>@if(request()->routeIs('site.faculty')){!! $check !!}@endif</a></li>
+            </ul>
+
+            @php
+                $mobileGroup = function (array $group) {
+                    $isGroupActive = $group['active'];
+                    $subActive = fn ($pattern) => (bool) request()->routeIs($pattern);
+                    return compact('isGroupActive', 'subActive', 'group');
+                };
+            @endphp
+
+            <ul class="mt-1 space-y-1">
+                @foreach ($navGroups as $group)
+                    @php $g = $mobileGroup($group); @endphp
+                    <li data-site-nav-accordion class="rounded-lg {{ $g['isGroupActive'] ? 'bg-blue-50/60 ring-1 ring-blue-100' : '' }}">
+                        <button type="button" data-site-nav-accordion-trigger aria-expanded="false"
+                            class="flex w-full items-center justify-between rounded-lg px-4 py-3 text-base font-medium transition {{ $g['isGroupActive'] ? 'text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700' }}">
+                            <span>{{ $group['label'] }}</span>
+                            <svg class="h-4 w-4 shrink-0 transition-transform duration-200" data-site-nav-accordion-caret fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div data-site-nav-accordion-panel class="hidden pb-2 pl-3 pr-1">
+                            <ul class="ml-3 space-y-0.5 border-l border-gray-200 pl-3">
+                                @foreach ($group['items'] as $item)
+                                    @php
+                                        $patterns = explode('|', $item['pattern']);
+                                        $isSubActive = false;
+                                        foreach ($patterns as $p) { if (request()->routeIs($p)) { $isSubActive = true; break; } }
+                                    @endphp
+                                    <li>
+                                        <a data-site-nav-link href="{{ route($item['route']) }}"
+                                            class="flex items-center gap-2 rounded-md px-3 py-2 text-sm transition {{ $isSubActive ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700' }}">
+                                            <span class="flex-1">{{ $item['label'] }}</span>
+                                            @if($isSubActive)
+                                                <svg class="h-4 w-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M16.7 5.3a1 1 0 010 1.4l-7.5 7.5a1 1 0 01-1.4 0L3.3 9.7a1 1 0 011.4-1.4L8.5 12l6.8-6.7a1 1 0 011.4 0z" clip-rule="evenodd"/></svg>
+                                            @endif
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </li>
+                @endforeach
+            </ul>
+
+            <ul class="mt-1 space-y-1">
                 <li><a data-site-nav-link href="{{ route('site.news') }}" class="{{ $linkMobile(request()->routeIs('site.news*')) }}"><span>{{ site_ui('nav.news') }}</span>@if(request()->routeIs('site.news*')){!! $check !!}@endif</a></li>
-                <li><a data-site-nav-link href="{{ route('site.gallery') }}" class="{{ $linkMobile(request()->routeIs('site.gallery')) }}"><span>{{ site_ui('nav.gallery') }}</span>@if(request()->routeIs('site.gallery')){!! $check !!}@endif</a></li>
-                <li><a data-site-nav-link href="{{ route('site.contact') }}" class="{{ $linkMobile(request()->routeIs('site.contact')) }}"><span>{{ site_ui('nav.contact') }}</span>@if(request()->routeIs('site.contact')){!! $check !!}@endif</a></li>
-                <li><a data-site-nav-link href="{{ route('site.payments') }}" class="{{ $linkMobile(request()->routeIs('site.payments')) }}"><span>{{ site_ui('nav.payments') }}</span>@if(request()->routeIs('site.payments')){!! $check !!}@endif</a></li>
             </ul>
 
             <div class="my-4 border-t border-gray-100"></div>
@@ -181,9 +287,11 @@
             <p class="{{ $sectionTitle }}">{{ __('Language') }}</p>
             <div class="flex flex-wrap gap-2 px-1">
                 @foreach (config('school.supported_locales', ['en']) as $loc)
+                    @php $locLabel = ['en' => 'EN', 'bn' => 'বাংলা'][$loc] ?? strtoupper($loc); @endphp
                     <a data-site-nav-link href="{{ route('locale.switch', ['locale' => $loc]) }}"
+                        aria-label="{{ $locLabel }}"
                         class="inline-flex min-w-[3rem] items-center justify-center rounded-md border px-3 py-1.5 text-xs font-bold uppercase tracking-wide transition {{ app()->getLocale() === $loc ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-700' }}">
-                        {{ $loc }}
+                        {{ $locLabel }}
                     </a>
                 @endforeach
             </div>
@@ -261,6 +369,99 @@
         // If the viewport grows past 1366px, hide the panel automatically.
         desktopQuery.addEventListener('change', function (e) {
             if (e.matches) setOpen(false);
+        });
+
+        // ---- Desktop dropdowns (hover + click) ----
+        var dropdowns = document.querySelectorAll('[data-site-nav-dropdown]');
+
+        function openDropdown(dd) {
+            var trig = dd.querySelector('[data-site-nav-dropdown-trigger]');
+            var p = dd.querySelector('[data-site-nav-dropdown-panel]');
+            var caret = dd.querySelector('[data-site-nav-caret]');
+            if (!trig || !p) return;
+            dropdowns.forEach(function (other) {
+                if (other !== dd) closeDropdown(other);
+            });
+            p.setAttribute('data-open', 'true');
+            trig.setAttribute('aria-expanded', 'true');
+            if (caret) caret.style.transform = 'rotate(180deg)';
+        }
+
+        function closeDropdown(dd) {
+            var trig = dd.querySelector('[data-site-nav-dropdown-trigger]');
+            var p = dd.querySelector('[data-site-nav-dropdown-panel]');
+            var caret = dd.querySelector('[data-site-nav-caret]');
+            if (!trig || !p) return;
+            p.removeAttribute('data-open');
+            trig.setAttribute('aria-expanded', 'false');
+            if (caret) caret.style.transform = '';
+        }
+
+        function closeAllDropdowns() {
+            dropdowns.forEach(closeDropdown);
+        }
+
+        dropdowns.forEach(function (dd) {
+            var trig = dd.querySelector('[data-site-nav-dropdown-trigger]');
+            if (!trig) return;
+            var p = dd.querySelector('[data-site-nav-dropdown-panel]');
+            var isOpen = false;
+            var closeTimer = null;
+
+            dd.addEventListener('mouseenter', function () {
+                if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+                if (!desktopQuery.matches) return;
+                openDropdown(dd);
+                isOpen = true;
+            });
+            dd.addEventListener('mouseleave', function () {
+                if (!desktopQuery.matches) return;
+                closeTimer = setTimeout(function () { closeDropdown(dd); isOpen = false; }, 120);
+            });
+
+            trig.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                isOpen = !isOpen;
+                if (isOpen) openDropdown(dd);
+                else closeDropdown(dd);
+            });
+
+            if (p) {
+                p.addEventListener('click', function (e) {
+                    if (e.target.closest('a')) closeDropdown(dd);
+                });
+            }
+        });
+
+        // Close dropdowns when clicking outside or pressing Escape.
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('[data-site-nav-dropdown]')) closeAllDropdowns();
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeAllDropdowns();
+        });
+
+        // ---- Mobile accordions (independent of hamburger state) ----
+        var accordions = document.querySelectorAll('[data-site-nav-accordion]');
+        accordions.forEach(function (acc) {
+            var trig = acc.querySelector('[data-site-nav-accordion-trigger]');
+            var p = acc.querySelector('[data-site-nav-accordion-panel]');
+            var caret = acc.querySelector('[data-site-nav-accordion-caret]');
+            if (!trig || !p) return;
+
+            // Auto-expand if any child is active.
+            if (acc.querySelector('a[aria-current], a.bg-blue-50')) {
+                p.classList.remove('hidden');
+                trig.setAttribute('aria-expanded', 'true');
+                if (caret) caret.style.transform = 'rotate(180deg)';
+            }
+
+            trig.addEventListener('click', function () {
+                var open = p.classList.toggle('hidden') === false;
+                trig.setAttribute('aria-expanded', open ? 'true' : 'false');
+                if (caret) caret.style.transform = open ? 'rotate(180deg)' : '';
+            });
         });
     })();
 </script>

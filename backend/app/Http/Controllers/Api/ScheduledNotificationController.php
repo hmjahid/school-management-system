@@ -27,7 +27,7 @@ class ScheduledNotificationController extends Controller
      */
     public function __construct(ScheduledNotificationService $scheduledNotificationService)
     {
-        $this->middleware('auth:api');
+        $this->middleware('auth:sanctum');
         $this->scheduledNotificationService = $scheduledNotificationService;
     }
 
