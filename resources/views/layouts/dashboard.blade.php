@@ -1,15 +1,13 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    @if($siteSettings?->favicon_url)
-        <link rel="icon" href="{{ $siteSettings->favicon_url }}">
-    @endif
-    <title>@yield('title', config('app.name', 'SchoolEase'))</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700" rel="stylesheet" />
+    <title>@yield('title', __('Dashboard') . ' — ' . config('app.name', 'SchoolEase'))</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --brand-50: oklch(0.97 0.02 250);
@@ -21,57 +19,75 @@
             --accent-600: oklch(0.62 0.18 55);
         }
     </style>
-    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
+    @if (file_exists(public_path('build/manifest.json')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @else
         <script src="https://cdn.tailwindcss.com"></script>
-        <script>
-            tailwind.config = {
-                theme: {
-                    extend: {
-                        fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
-                        colors: {
-                            brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
-                            accent: { 500: '#f97316', 600: '#ea580c' },
-                        },
-                    },
-                },
-            };
-        </script>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     @endif
+    @stack('head')
 </head>
-<body class="admin-shell min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-brand-600 focus:px-4 focus:py-2 focus:text-white">
-        {{ __('Skip to content') }}
-    </a>
+<body class="bg-slate-50 font-sans text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-100">
+    <div id="loading-bar" class="fixed left-0 top-0 z-[200] h-1 bg-brand-600 transition-all duration-300 ease-out" style="width:0; opacity:0;"></div>
 
-    <input type="checkbox" id="dashboard-drawer" class="peer hidden" />
-
-    <label for="dashboard-drawer" class="pointer-events-none fixed inset-0 z-30 bg-slate-900/40 opacity-0 backdrop-blur-[1px] transition-opacity peer-checked:pointer-events-auto peer-checked:opacity-100 md:hidden" aria-hidden="true"></label>
-
-    <div class="flex min-h-screen w-full flex-col md:h-screen md:flex-row md:overflow-hidden">
-        <aside class="fixed inset-y-0 left-0 z-40 flex w-[var(--sidebar-width)] -translate-x-full flex-col border-r border-slate-200/80 bg-white shadow-xl transition-transform duration-200 ease-out peer-checked:translate-x-0 md:static md:z-0 md:translate-x-0 md:shadow-none">
+    <div class="admin-shell flex h-screen overflow-hidden">
+        <aside class="no-print flex w-64 flex-shrink-0 flex-col border-r border-slate-200/80 bg-white dark:border-slate-700/80 dark:bg-slate-800" id="sidebar">
             @include('partials.dashboard.sidebar')
         </aside>
+        <div class="no-print fixed inset-0 z-40 hidden bg-slate-900/50 backdrop-blur-sm lg:hidden" id="sidebar-overlay"></div>
 
-        <div class="relative z-0 flex min-h-0 flex-1 flex-col">
-            @include('partials.dashboard.topbar')
+        <div class="flex flex-1 flex-col overflow-hidden">
+            <header class="no-print flex h-16 flex-shrink-0 items-center gap-4 border-b border-slate-200/80 bg-white/95 px-4 backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-800/95">
+                @include('partials.dashboard.topbar')
+            </header>
 
-            <main id="main-content" class="relative z-0 min-h-0 flex-1 overflow-y-auto bg-slate-50/80 p-4 md:p-6 lg:p-8">
+            <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+                @if (isset($breadcrumbs) && count($breadcrumbs))
+                    <nav class="mb-4 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400" aria-label="Breadcrumb">
+                        @foreach ($breadcrumbs as $crumb)
+                            @if ($crumb['url'])
+                                <a href="{{ $crumb['url'] }}" class="transition-colors hover:text-slate-700 dark:hover:text-slate-200">{{ $crumb['label'] }}</a>
+                                <svg class="h-4 w-4 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            @else
+                                <span class="font-medium text-slate-900 dark:text-slate-100">{{ $crumb['label'] }}</span>
+                            @endif
+                        @endforeach
+                    </nav>
+                @endif
+                @if (session('status'))<div data-flash-toast data-type="success" data-message="{{ session('status') }}"></div>@endif
+                @if (session('error'))<div data-flash-toast data-type="error" data-message="{{ session('error') }}"></div>@endif
+                @if (session('info'))<div data-flash-toast data-type="info" data-message="{{ session('info') }}"></div>@endif
                 @yield('content')
             </main>
         </div>
     </div>
 
     <div id="toast-root" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+    <div id="confirm-modal-root" class="fixed inset-0 z-[90] hidden items-center justify-center" aria-hidden="true">
+        <div data-confirm-backdrop class="modal-backdrop"></div>
+        <div class="modal-panel mx-4" role="alertdialog" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+            <h3 id="confirm-title" class="text-lg font-semibold text-slate-900 dark:text-slate-100" data-confirm-title>Are you sure?</h3>
+            <p id="confirm-message" class="mt-2 text-sm text-slate-600 dark:text-slate-400" data-confirm-message></p>
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" data-confirm-cancel class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600">Cancel</button>
+                <button type="button" data-confirm-ok class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">Confirm</button>
+            </div>
+        </div>
+    </div>
 
-    @if (session('status'))
-        <div data-flash-toast data-type="success" data-message="{{ session('status') }}" hidden></div>
-    @endif
-    @if ($errors->any())
-        <div data-flash-toast data-type="error" data-message="{{ $errors->first() }}" hidden></div>
-    @endif
-
-    <x-confirm-modal />
+    @stack('scripts')
+    <script>
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a:not([target="_blank"]):not([href^="#"]):not([href^="javascript"])');
+            if (link && link.href && link.href.startsWith(window.location.origin)) {
+                const bar = document.getElementById('loading-bar');
+                if (bar) { bar.style.width = '30%'; bar.style.opacity = '1'; }
+            }
+        });
+        window.addEventListener('load', () => {
+            const bar = document.getElementById('loading-bar');
+            if (bar) { bar.style.width = '100%'; setTimeout(() => { bar.style.opacity = '0'; bar.style.width = '0'; }, 400); }
+        });
+    </script>
 </body>
 </html>

@@ -19,8 +19,6 @@ class AttendancePolicy
     public function viewAny(User $user)
     {
         return $user->hasAnyPermission([
-            'view_attendances',
-            'manage_attendances',
             'manage_attendance',
             'view_attendance_reports',
         ]);
@@ -36,7 +34,7 @@ class AttendancePolicy
     public function view(User $user, Attendance $attendance)
     {
         // Admin and staff with permission can view any attendance
-        if ($user->hasAnyPermission(['view_attendances', 'manage_attendances'])) {
+        if ($user->hasAnyPermission(['manage_attendance'])) {
             return true;
         }
 
@@ -74,7 +72,7 @@ class AttendancePolicy
      */
     public function create(User $user)
     {
-        return $user->hasAnyPermission(['create_attendances', 'manage_attendances']);
+        return $user->hasAnyPermission(['create_attendances', 'manage_attendances', 'manage_attendance']);
     }
 
     /**
@@ -88,11 +86,11 @@ class AttendancePolicy
     {
         // For route model binding, we need to handle null attendance for create/any operations
         if ($attendance === null) {
-            return $user->hasAnyPermission(['update_attendances', 'manage_attendances']);
+            return $user->hasAnyPermission(['manage_attendance']);
         }
         
         // Admin and staff with permission can update any attendance
-        if ($user->hasAnyPermission(['update_attendances', 'manage_attendances'])) {
+        if ($user->hasAnyPermission(['manage_attendance'])) {
             return true;
         }
 
@@ -131,11 +129,11 @@ class AttendancePolicy
     {
         // For route model binding, we need to handle null attendance for create/any operations
         if ($attendance === null) {
-            return $user->hasAnyPermission(['delete_attendances', 'manage_attendances']);
+            return $user->hasAnyPermission(['manage_attendance']);
         }
         
         // Admin and staff with permission can delete any attendance
-        if ($user->hasAnyPermission(['delete_attendances', 'manage_attendances'])) {
+        if ($user->hasAnyPermission(['manage_attendance'])) {
             return true;
         }
 
@@ -167,125 +165,61 @@ class AttendancePolicy
      */
     public function restore(User $user, Attendance $attendance)
     {
-        return $user->hasAnyPermission(['restore_attendances', 'manage_attendances']);
+        return $user->hasAnyPermission(['manage_attendance']);
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Attendance  $attendance
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
     public function forceDelete(User $user, Attendance $attendance)
     {
-        return $user->hasAnyPermission(['force_delete_attendances', 'manage_attendances']);
+        return $user->hasAnyPermission(['manage_attendance']);
     }
 
-    /**
-     * Determine whether the user can record bulk attendance.
-     *
-     * @param  \App\Models\User  $user
-     * @return bool
-     */
     public function bulkRecord(User $user)
     {
-        return $user->hasAnyPermission(['bulk_record_attendances', 'manage_attendances']);
+        return $user->hasAnyPermission(['manage_attendance']);
     }
 
-    /**
-     * Determine whether the user can view attendance reports.
-     *
-     * @param  \App\Models\User  $user
-     * @return bool
-     */
     public function viewReports(User $user)
     {
-        return $user->hasAnyPermission(['view_attendance_reports', 'manage_attendances']);
+        return $user->hasAnyPermission(['view_attendance_reports']);
     }
 
-    /**
-     * Determine whether the user can export attendance data.
-     *
-     * @param  \App\Models\User  $user
-     * @return bool
-     */
     public function export(User $user)
     {
-        return $user->hasAnyPermission(['export_attendances', 'manage_attendances']);
+        return $user->hasAnyPermission(['export_attendance', 'manage_attendance']);
     }
 
-    /**
-     * Determine whether the user can import attendance data.
-     *
-     * @param  \App\Models\User  $user
-     * @return bool
-     */
     public function import(User $user)
     {
-        return $user->hasAnyPermission(['import_attendances', 'manage_attendances']);
+        return $user->hasAnyPermission(['manage_attendance']);
     }
 
-    /**
-     * Determine whether the user can manage attendance settings.
-     *
-     * @param  \App\Models\User  $user
-     * @return bool
-     */
     public function manageSettings(User $user)
     {
-        return $user->hasAnyPermission(['manage_attendance_settings', 'manage_attendances']);
+        return $user->hasAnyPermission(['manage_attendance']);
     }
 
-    /**
-     * Determine whether the user can view attendance calendar.
-     *
-     * @param  \App\Models\User  $user
-     * @return bool
-     */
     public function viewCalendar(User $user)
     {
-        return $user->hasAnyPermission(['view_attendance_calendar', 'manage_attendances']);
+        return $user->hasAnyPermission(['manage_attendance']);
     }
 
-    /**
-     * Determine whether the user can view attendance summary.
-     *
-     * @param  \App\Models\User  $user
-     * @return bool
-     */
     public function viewSummary(User $user)
     {
-        return $user->hasAnyPermission(['view_attendance_summary', 'manage_attendances']);
+        return $user->hasAnyPermission(['manage_attendance']);
     }
 
-    /**
-     * Determine whether the user can view attendance statistics.
-     *
-     * @param  \App\Models\User  $user
-     * @return bool
-     */
     public function viewStatistics(User $user)
     {
-        return $user->hasAnyPermission(['view_attendance_statistics', 'manage_attendances']);
+        return $user->hasAnyPermission(['manage_attendance']);
     }
 
-    /**
-     * Determine whether the user can manage attendance for a specific batch.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Batch  $batch
-     * @return bool
-     */
     public function manageBatchAttendance(User $user, $batch = null)
     {
-        // For route model binding, we need to handle null batch for create/any operations
         if ($batch === null) {
-            return $user->hasAnyPermission(['manage_batch_attendance', 'manage_attendances']);
+            return $user->hasAnyPermission(['manage_attendance']);
         }
         
-        // Admin and staff with permission can manage attendance for any batch
-        if ($user->hasAnyPermission(['manage_batch_attendance', 'manage_attendances'])) {
+        if ($user->hasAnyPermission(['manage_attendance'])) {
             return true;
         }
 
@@ -310,13 +244,11 @@ class AttendancePolicy
      */
     public function manageSectionAttendance(User $user, $section = null)
     {
-        // For route model binding, we need to handle null section for create/any operations
         if ($section === null) {
-            return $user->hasAnyPermission(['manage_section_attendance', 'manage_attendances']);
+            return $user->hasAnyPermission(['manage_attendance']);
         }
         
-        // Admin and staff with permission can manage attendance for any section
-        if ($user->hasAnyPermission(['manage_section_attendance', 'manage_attendances'])) {
+        if ($user->hasAnyPermission(['manage_attendance'])) {
             return true;
         }
 

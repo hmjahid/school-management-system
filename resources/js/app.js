@@ -230,3 +230,367 @@ document.addEventListener('click', async (e) => {
             .catch(() => {});
     }, 60000);
 })();
+
+// ---------- Scroll reveal (Intersection Observer) ----------
+(function() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    });
+})();
+
+// ---------- Count-up animation ----------
+window.countUp = function(el, target, duration = 2000) {
+    const start = performance.now();
+    const from = 0;
+
+    function update(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = Math.floor(from + (target - from) * eased);
+        el.textContent = current.toLocaleString();
+        if (progress < 1) requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-countup]').forEach(el => {
+        const target = parseInt(el.dataset.countup, 10);
+        if (!isNaN(target)) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        countUp(el, target);
+                        observer.unobserve(entry);
+                    }
+                });
+            }, { threshold: 0.5 });
+            observer.observe(el);
+        }
+    });
+});
+
+// ---------- Scroll-to-top button ----------
+(function() {
+    const btn = document.createElement('button');
+    btn.id = 'scroll-to-top';
+    btn.className = 'no-print fixed bottom-6 right-6 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-brand-600 text-white shadow-lg transition-all duration-300 hover:bg-brand-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-brand-500/50';
+    btn.setAttribute('aria-label', 'Scroll to top');
+    btn.innerHTML = '<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>';
+    btn.style.opacity = '0';
+    btn.style.transform = 'translateY(1rem)';
+    btn.style.pointerEvents = 'none';
+    document.body.appendChild(btn);
+
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+            btn.style.opacity = '1';
+            btn.style.transform = 'translateY(0)';
+            btn.style.pointerEvents = 'auto';
+        } else {
+            btn.style.opacity = '0';
+            btn.style.transform = 'translateY(1rem)';
+            btn.style.pointerEvents = 'none';
+        }
+    });
+
+    btn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+})();
+
+// ---------- Gallery lightbox ----------
+(function() {
+    const openLightbox = (images, index = 0) => {
+        const overlay = document.createElement('div');
+        overlay.className = 'fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('aria-label', 'Image gallery lightbox');
+
+        const img = document.createElement('img');
+        img.className = 'max-h-[90vh] max-w-[90vw] rounded-lg object-contain shadow-2xl transition-opacity duration-300';
+        img.alt = 'Gallery image';
+        img.src = images[index];
+
+        const close = () => { overlay.remove(); document.body.style.overflow = ''; };
+
+        const prev = () => { index = (index - 1 + images.length) % images.length; img.src = images[index]; };
+        const next = () => { index = (index + 1) % images.length; img.src = images[index]; };
+
+        overlay.innerHTML = `
+            <button class="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-3 text-white backdrop-blur-sm hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50" aria-label="Previous image">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <button class="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-3 text-white backdrop-blur-sm hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50" aria-label="Next image">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <button class="absolute right-4 top-4 rounded-full bg-white/20 p-2 text-white backdrop-blur-sm hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50" aria-label="Close lightbox">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        `;
+
+        overlay.prepend(img);
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+
+        overlay.querySelector('button[aria-label="Previous image"]').addEventListener('click', prev);
+        overlay.querySelector('button[aria-label="Next image"]').addEventListener('click', next);
+        overlay.querySelector('button[aria-label="Close lightbox"]').addEventListener('click', close);
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') close();
+            if (e.key === 'ArrowLeft') prev();
+            if (e.key === 'ArrowRight') next();
+        }, { once: false });
+    };
+
+    document.addEventListener('click', (e) => {
+        const trigger = e.target.closest('[data-lightbox]');
+        if (!trigger) return;
+        e.preventDefault();
+        const images = JSON.parse(trigger.dataset.lightbox || '[]');
+        const index = parseInt(trigger.dataset.index || '0', 10);
+        if (images.length) openLightbox(images, index);
+    });
+})();
+
+// ---------- Multi-step form ----------
+(function() {
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-step]');
+        if (!btn) return;
+        const form = btn.closest('[data-multistep]');
+        if (!form) return;
+        const steps = form.querySelectorAll('[data-step-panel]');
+        const progress = form.querySelector('[data-step-progress]');
+        let current = parseInt(form.dataset.currentStep || '0', 10);
+        const target = parseInt(btn.dataset.step, 10);
+
+        if (target < 0 || target >= steps.length) return;
+
+        // Validate current step if moving forward
+        if (target > current) {
+            const currentPanel = steps[current];
+            const inputs = currentPanel.querySelectorAll('input, select, textarea');
+            let valid = true;
+            inputs.forEach(input => {
+                if (input.required && !input.value.trim()) {
+                    valid = false;
+                    input.classList.add('border-red-500');
+                    input.addEventListener('input', function fix() {
+                        this.classList.remove('border-red-500');
+                        this.removeEventListener('input', fix);
+                    }, { once: true });
+                }
+            });
+            if (!valid) return;
+        }
+
+        steps.forEach((s, i) => {
+            s.classList.toggle('hidden', i !== target);
+        });
+        form.dataset.currentStep = target;
+
+        if (progress) {
+            const pct = ((target + 1) / steps.length) * 100;
+            progress.style.width = pct + '%';
+            progress.textContent = Math.round(pct) + '%';
+        }
+    });
+})();
+
+// ---------- Countdown timer ----------
+window.createCountdown = function(element, targetDate) {
+    const target = new Date(targetDate).getTime();
+    function tick() {
+        const now = Date.now();
+        const diff = target - now;
+        if (diff <= 0) {
+            element.innerHTML = '<span class="text-brand-600 font-bold">Event started!</span>';
+            return;
+        }
+        const days = Math.floor(diff / 86400000);
+        const hours = Math.floor((diff % 86400000) / 3600000);
+        const minutes = Math.floor((diff % 3600000) / 60000);
+        const seconds = Math.floor((diff % 60000) / 1000);
+        element.innerHTML = `
+            <span class="countdown-item"><span class="countdown-num">${days}</span><span class="countdown-label">d</span></span>
+            <span class="countdown-sep">:</span>
+            <span class="countdown-item"><span class="countdown-num">${String(hours).padStart(2, '0')}</span><span class="countdown-label">h</span></span>
+            <span class="countdown-sep">:</span>
+            <span class="countdown-item"><span class="countdown-num">${String(minutes).padStart(2, '0')}</span><span class="countdown-label">m</span></span>
+            <span class="countdown-sep">:</span>
+            <span class="countdown-item"><span class="countdown-num">${String(seconds).padStart(2, '0')}</span><span class="countdown-label">s</span></span>
+        `;
+    }
+    tick();
+    return setInterval(tick, 1000);
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-countdown]').forEach(el => {
+        createCountdown(el, el.dataset.countdown);
+    });
+});
+
+// ---------- Dark mode toggle ----------
+(function() {
+    const KEY = 'school-dark-mode';
+    const html = document.documentElement;
+
+    function apply(enable) {
+        html.classList.toggle('dark', enable);
+        localStorage.setItem(KEY, enable ? '1' : '0');
+    }
+
+    // Restore preference
+    const stored = localStorage.getItem(KEY);
+    if (stored === '1' || (stored === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        apply(true);
+    }
+
+    document.addEventListener('click', (e) => {
+        const toggle = e.target.closest('[data-dark-toggle]');
+        if (!toggle) return;
+        apply(!html.classList.contains('dark'));
+    });
+})();
+
+// ---------- Command palette (Cmd+K) ----------
+(function() {
+    let palette = null;
+
+    function createPalette(links) {
+        palette = document.createElement('div');
+        palette.className = 'no-print fixed inset-0 z-[300] flex items-start justify-center pt-[15vh]';
+        palette.style.opacity = '0';
+        palette.style.pointerEvents = 'none';
+        palette.style.transition = 'opacity 0.2s ease';
+
+        palette.innerHTML = `
+            <div class="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-800">
+                <div class="flex items-center gap-3 border-b border-slate-100 px-4 py-3 dark:border-slate-700">
+                    <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <input type="text" class="w-full border-0 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-slate-100" placeholder="Search pages, modules, settings..." autofocus>
+                    <kbd class="hidden rounded-md border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-xs text-slate-400 sm:inline-block dark:border-slate-600 dark:bg-slate-700">ESC</kbd>
+                </div>
+                <div class="max-h-72 overflow-y-auto p-2" data-palette-results></div>
+            </div>
+        `;
+
+        const overlay = document.createElement('div');
+        overlay.className = 'fixed inset-0 -z-10 bg-slate-900/50 backdrop-blur-sm';
+
+        palette.prepend(overlay);
+        document.body.appendChild(palette);
+
+        const input = palette.querySelector('input');
+        const results = palette.querySelector('[data-palette-results]');
+
+        function filterItems(query) {
+            const q = query.toLowerCase();
+            const filtered = links.filter(item =>
+                item.label.toLowerCase().includes(q) || (item.keywords && item.keywords.toLowerCase().includes(q))
+            );
+            if (filtered.length === 0) {
+                results.innerHTML = '<div class="px-3 py-8 text-center text-sm text-slate-400">No results found</div>';
+                return;
+            }
+            results.innerHTML = filtered.map(item => `
+                <a href="${item.url}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700">
+                    <span class="flex-1">${item.label}</span>
+                    <span class="text-xs text-slate-400">${item.section || ''}</span>
+                </a>
+            `).join('');
+        }
+
+        input.addEventListener('input', () => filterItems(input.value));
+
+        overlay.addEventListener('click', close);
+        palette.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+
+        function open() {
+            palette.style.opacity = '1';
+            palette.style.pointerEvents = 'auto';
+            input.value = '';
+            filterItems('');
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function close() {
+            palette.style.opacity = '0';
+            palette.style.pointerEvents = 'none';
+        }
+
+        return { open, close };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const cmdLinks = [
+            { label: 'Dashboard', url: '/dashboard', section: 'Main', keywords: 'home index' },
+            { label: 'Students', url: '/dashboard/students', section: 'Academic', keywords: 'pupil learner' },
+            { label: 'Teachers', url: '/dashboard/teachers', section: 'Academic', keywords: 'staff faculty' },
+            { label: 'Parents', url: '/dashboard/parents', section: 'Academic', keywords: 'guardian' },
+            { label: 'Classes', url: '/dashboard/classes', section: 'Academic', keywords: 'grades course' },
+            { label: 'Attendance', url: '/dashboard/attendance', section: 'Academic', keywords: 'present absent' },
+            { label: 'Exams', url: '/dashboard/exams', section: 'Academic', keywords: 'test assessment' },
+            { label: 'Fees', url: '/dashboard/fees', section: 'Finance', keywords: 'payment collection' },
+            { label: 'Events', url: '/dashboard/events', section: 'Academic', keywords: 'calendar' },
+            { label: 'News', url: '/dashboard/news', section: 'Website', keywords: 'article blog' },
+            { label: 'Gallery', url: '/dashboard/gallery', section: 'Website', keywords: 'photos images' },
+            { label: 'Settings', url: '/dashboard/settings', section: 'System', keywords: 'config' },
+            { label: 'Reports', url: '/dashboard/reports', section: 'System', keywords: 'analytics' },
+            { label: 'Website CMS', url: '/dashboard/cms/pages', section: 'Website', keywords: 'content editor' },
+            { label: 'Admissions', url: '/dashboard/admissions', section: 'Academic', keywords: 'enrollment apply' },
+            { label: 'Transport', url: '/dashboard/transport/vehicles', section: 'Academic', keywords: 'bus route' },
+            { label: 'Payroll', url: '/dashboard/payroll/payslips', section: 'Finance', keywords: 'salary payslip' },
+            { label: 'Activity Log', url: '/dashboard/activity', section: 'System', keywords: 'audit log' },
+        ];
+
+        const paletteCtrl = createPalette(cmdLinks);
+
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                paletteCtrl.open();
+            }
+        });
+    });
+})();
+
+// ---------- Search debounce utility ----------
+window.debounce = function(fn, delay = 300) {
+    let timer;
+    return function(...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+};
+
+// ---------- Unsaved changes warning ----------
+(function() {
+    let dirty = false;
+    document.addEventListener('input', (e) => {
+        if (e.target.closest('[data-track-dirty]')) {
+            dirty = true;
+        }
+    });
+    document.addEventListener('submit', () => { dirty = false; });
+    window.addEventListener('beforeunload', (e) => {
+        if (dirty) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+})();

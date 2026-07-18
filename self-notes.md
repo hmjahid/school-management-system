@@ -170,4 +170,6 @@ ensure that all backend admin features are fully functional and aligned with fro
 
 ensure that this applicaion now a fully functional school management system.
 
+make this application a enterprise grade school management system, enhance public site design, features and ui ux. also ensure that all backend fetaures and functionlaities are aligend with forntned and functional. use as much as demo contnets and data so that i can test, check and verfity all feature s an dfunctionalities properly.
+
 now write a commit message for the chnage safter the last commit

@@ -4,24 +4,34 @@
     $logoUrl = $siteSettings?->logo_url;
 @endphp
 
-<div class="flex h-[4.25rem] flex-shrink-0 items-center gap-3 border-b border-slate-200/80 px-4">
+<div class="flex h-[4.25rem] flex-shrink-0 items-center gap-3 border-b border-slate-200/80 px-4 dark:border-slate-700/80">
     <a href="{{ route('dashboard') }}" class="flex min-w-0 items-center gap-3">
         @if ($logoUrl)
-            <img src="{{ $logoUrl }}" alt="" class="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-slate-200">
+            <img src="{{ $logoUrl }}" alt="" class="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-slate-200 dark:ring-slate-600">
         @else
             <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white shadow-sm">
                 {{ strtoupper(substr($schoolName, 0, 1)) }}
             </span>
         @endif
         <div class="min-w-0">
-            <p class="truncate text-sm font-bold text-slate-900">{{ $schoolName }}</p>
-            <p class="truncate text-[0.65rem] font-medium uppercase tracking-wide text-slate-500">{{ __('Admin panel') }}</p>
+            <p class="truncate text-sm font-bold text-slate-900 dark:text-slate-100">{{ $schoolName }}</p>
+            <p class="truncate text-[0.65rem] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ __('Admin panel') }}</p>
         </div>
     </a>
 </div>
 
 <nav class="admin-sidebar-nav flex flex-1 flex-col overflow-y-auto px-3 py-4">
-    <p class="mb-2 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400">{{ __('Main') }}</p>
+    {{-- Collapsible search input --}}
+    <div class="relative mb-4" data-sidebar-search>
+        <button type="button" data-sidebar-search-toggle class="flex w-full items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left text-sm text-slate-400 transition hover:border-slate-300 dark:border-slate-600 dark:bg-slate-700/50 dark:text-slate-500 dark:hover:border-slate-500">
+            <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <span class="flex-1 truncate">{{ __('Search menu...') }}</span>
+            <kbd class="hidden rounded border border-slate-300 bg-white px-1.5 text-[0.6rem] font-medium text-slate-400 md:inline dark:border-slate-600 dark:bg-slate-700 dark:text-slate-500">Ctrl+K</kbd>
+        </button>
+        <input type="text" data-sidebar-search-input placeholder="{{ __('Type to search...') }}" class="hidden w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-500">
+    </div>
+
+    <p class="mb-2 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ __('Main') }}</p>
     <div class="space-y-0.5">
         <x-admin-nav-link :href="route('dashboard')" route-is="dashboard" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z\'/></svg>'">
             {{ __('Dashboard') }}
@@ -32,7 +42,7 @@
             $canFees = $u && ($u->hasAnyRole(['admin', 'accountant']) || $u->hasAnyPermission(['collect_fees', 'view_financial_reports', 'manage_fee_categories', 'manage_fee_types']));
         @endphp
 
-        <p class="mb-2 mt-5 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400">{{ __('Academic') }}</p>
+        <p class="mb-2 mt-5 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ __('Academic') }}</p>
 
         @can('viewAny', App\Models\Student::class)
             <x-admin-nav-link :href="route('dashboard.students')" route-is="dashboard.students*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z\'/></svg>'">{{ __('Students') }}</x-admin-nav-link>
@@ -91,7 +101,7 @@
         @endif
 
         @if ($isAdmin ?? auth()->user()?->hasRole('admin'))
-            <p class="mb-2 mt-5 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400">{{ __('System') }}</p>
+            <p class="mb-2 mt-5 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ __('System') }}</p>
             @can('view_audit_log')
                 <x-admin-nav-link :href="route('dashboard.activity.index')" route-is="dashboard.activity*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M9 2a1 1 0 000 2h2a1 1 0 100-2H9z\'/><path fill-rule=\'evenodd\' d=\'M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z\' clip-rule=\'evenodd\'/></svg>'">{{ __('Activity log') }}</x-admin-nav-link>
             @endcan
@@ -99,7 +109,7 @@
                 <x-admin-nav-link :href="route('dashboard.backup.index')" route-is="dashboard.backup*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z\'/></svg>'">{{ __('Backups') }}</x-admin-nav-link>
             @endcan
 
-            <p class="mb-2 mt-5 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400">{{ __('Website') }}</p>
+            <p class="mb-2 mt-5 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ __('Website') }}</p>
 
             <details class="group" @if (request()->routeIs('dashboard.cms.*') || request()->routeIs('dashboard.contact-submissions') || request()->routeIs('dashboard.news.*') || request()->routeIs('dashboard.gallery.*') || request()->routeIs('dashboard.announcements.*') || request()->routeIs('dashboard.documents.*')) open @endif>
                 <summary class="admin-nav-link cursor-pointer list-none [&::-webkit-details-marker]:hidden {{ request()->routeIs('dashboard.cms.*') || request()->routeIs('dashboard.news.*') || request()->routeIs('dashboard.gallery.*') ? 'admin-nav-link--active' : '' }}">
@@ -107,19 +117,19 @@
                         <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.56-.5-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.56.5.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.498-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z" clip-rule="evenodd"/></svg>
                     </span>
                     <span class="flex-1 truncate">{{ __('Website CMS') }}</span>
-                    <svg class="h-4 w-4 shrink-0 text-slate-400 transition group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    <svg class="h-4 w-4 shrink-0 text-slate-400 transition group-open:rotate-90 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                 </summary>
-                <div class="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3">
-                    <a href="{{ route('dashboard.cms.pages') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.cms.pages') ? 'font-semibold text-brand-700' : 'text-slate-600 hover:text-brand-600' }}">{{ __('All pages') }}</a>
-                    <a href="{{ route('dashboard.news.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.news.*') ? 'font-semibold text-brand-700' : 'text-slate-600 hover:text-brand-600' }}">{{ __('News & events') }}</a>
-                    <a href="{{ route('dashboard.gallery.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.gallery.*') ? 'font-semibold text-brand-700' : 'text-slate-600 hover:text-brand-600' }}">{{ __('Gallery') }}</a>
-                    <a href="{{ route('dashboard.announcements.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.announcements.*') ? 'font-semibold text-brand-700' : 'text-slate-600 hover:text-brand-600' }}">{{ __('Announcements') }}</a>
-                    <a href="{{ route('dashboard.documents.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.documents.*') ? 'font-semibold text-brand-700' : 'text-slate-600 hover:text-brand-600' }}">{{ __('Documents') }}</a>
-                    <a href="{{ route('dashboard.contact-submissions') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.contact-submissions') ? 'font-semibold text-brand-700' : 'text-slate-600 hover:text-brand-600' }}">{{ __('Form submissions') }}</a>
+                <div class="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3 dark:border-slate-700">
+                    <a href="{{ route('dashboard.cms.pages') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.cms.pages') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('All pages') }}</a>
+                    <a href="{{ route('dashboard.news.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.news.*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('News & events') }}</a>
+                    <a href="{{ route('dashboard.gallery.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.gallery.*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Gallery') }}</a>
+                    <a href="{{ route('dashboard.announcements.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.announcements.*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Announcements') }}</a>
+                    <a href="{{ route('dashboard.documents.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.documents.*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Documents') }}</a>
+                    <a href="{{ route('dashboard.contact-submissions') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.contact-submissions') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Form submissions') }}</a>
                 </div>
             </details>
 
-            <p class="mb-2 mt-5 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400">{{ __('System') }}</p>
+            <p class="mb-2 mt-5 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ __('System') }}</p>
 
             <x-admin-nav-link :href="route('dashboard.settings')" route-is="dashboard.settings" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z\' clip-rule=\'evenodd\'/></svg>'">{{ __('School settings') }}</x-admin-nav-link>
             <x-admin-nav-link :href="route('dashboard.reports')" route-is="dashboard.reports*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z\'/></svg>'">{{ __('Reports') }}</x-admin-nav-link>
@@ -128,7 +138,14 @@
     </div>
 </nav>
 
-<div class="mt-auto border-t border-slate-200/80 p-4">
+<div class="mt-auto border-t border-slate-200/80 p-3 dark:border-slate-700/80">
+    {{-- Dark mode toggle --}}
+    <button type="button" data-dark-toggle class="mb-2 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700">
+        <svg class="h-4 w-4 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        <svg class="hidden h-4 w-4 dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <span>{{ __('Dark mode') }}</span>
+    </button>
+
     <form method="post" action="{{ route('logout') }}">
         @csrf
         <x-button type="submit" variant="danger" class="w-full">

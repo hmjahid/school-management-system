@@ -251,7 +251,7 @@ class Exam extends Model
      */
     public function getIsPublishedAttribute(): bool
     {
-        return $this->status === self::STATUS_PUBLISHED && $this->is_published;
+        return $this->status === self::STATUS_PUBLISHED && ($this->attributes['is_published'] ?? false);
     }
 
     /**

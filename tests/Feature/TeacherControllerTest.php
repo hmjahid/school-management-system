@@ -141,6 +141,8 @@ class TeacherControllerTest extends TestCase
             'class_id' => $this->class->id, // Required foreign key
             'school_class_id' => $this->class->id, // Required foreign key
             'guardian_id' => $guardian->id, // Required foreign key
+            'first_name' => 'Test',
+            'last_name' => 'Student',
             'address' => '123 Test St, Test City',
             'documents' => json_encode([]), // Required as JSON
             'admission_date' => now()->subYear()->format('Y-m-d'),

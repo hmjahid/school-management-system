@@ -2,14 +2,10 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
         $this->call([
@@ -18,12 +14,18 @@ class DatabaseSeeder extends Seeder
             DemoUsersSeeder::class,
             WebsiteSettingSeeder::class,
             WebsiteContentSeeder::class,
-            AdmissionSeeder::class,
             PaymentGatewaySeeder::class,
-            NewsSeeder::class,
-            GallerySeeder::class,
-            CareerSeeder::class,
-            EventsTableSeeder::class,
+            DemoAcademicSeeder::class,
+            DemoTeacherSeeder::class,
+            DemoStudentSeeder::class,
+            DemoExamSeeder::class,
+            DemoAttendanceSeeder::class,
+            DemoFeeSeeder::class,
+            DemoTransportSeeder::class,
+            DemoEventSeeder::class,
+            DemoGallerySeeder::class,
+            DemoLeaveSeeder::class,
+            DemoLedgerSeeder::class,
         ]);
     }
 }

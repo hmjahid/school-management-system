@@ -16,9 +16,17 @@ class StudentFactory extends Factory
         return [
             'user_id' => User::factory(),
             'class_id' => SchoolClass::factory(),
-            'admission_number' => 'ADM'.$this->faker->unique()->numerify('#####'),
+            'first_name' => $this->faker->firstName(),
+            'last_name' => $this->faker->lastName(),
+            'gender' => $this->faker->randomElement(['male', 'female']),
+            'admission_no' => 'ADM'.$this->faker->unique()->numerify('#####'),
+            'admission_number' => 'ADMNUM'.$this->faker->unique()->numerify('####'),
+            'roll_no' => 'S'.$this->faker->unique()->numerify('###'),
+            'roll_number' => 'ROLL'.$this->faker->unique()->numerify('####'),
             'admission_date' => now()->toDateString(),
-            'roll_number' => (string) $this->faker->unique()->numberBetween(1, 1000),
+            'date_of_birth' => now()->subYears(rand(10, 18))->toDateString(),
+            'address' => '123 Test St, Test City',
+            'phone' => $this->faker->numerify('01##########'),
             'status' => 'active',
         ];
     }

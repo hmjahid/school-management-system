@@ -15,9 +15,55 @@
     --color-brand-100: var(--brand-100, oklch(0.93 0.04 250));
     --color-brand-500: var(--brand-500, oklch(0.55 0.18 250));
     --color-brand-600: var(--brand-600, oklch(0.48 0.18 250));
+    --color-brand-400: var(--brand-400, oklch(0.63 0.16 250));
     --color-brand-700: var(--brand-700, oklch(0.42 0.16 250));
+    --color-brand-800: var(--brand-800, oklch(0.35 0.14 250));
+    --color-brand-900: var(--brand-900, oklch(0.28 0.12 250));
     --color-accent-500: var(--accent-500, oklch(0.68 0.18 55));
     --color-accent-600: var(--accent-600, oklch(0.62 0.18 55));
+
+    /* Enterprise design tokens */
+    --color-surface: oklch(0.99 0 0);
+    --color-surface-secondary: oklch(0.97 0.01 250);
+    --color-on-surface: oklch(0.15 0.02 250);
+    --color-on-surface-muted: oklch(0.55 0.02 250);
+    --radius-card: 1rem;
+    --radius-button: 0.625rem;
+    --shadow-card-hover: 0 8px 30px oklch(0 0 0 / 0.08);
+    --transition-default: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth scroll */
+html { scroll-behavior: smooth; }
+
+/* Scroll reveal animation */
+.reveal { opacity: 0; transform: translateY(2rem); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* Enterprise button */
+.btn-primary {
+    @apply inline-flex items-center justify-center rounded-[--radius-button] bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-brand-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-brand-500/50 active:scale-[0.98];
+}
+
+/* Card hover lift */
+.card-hover { @apply transition-all duration-200; }
+.card-hover:hover { transform: translateY(-2px); box-shadow: var(--shadow-card-hover); }
+
+/* Skeleton loader */
+.skeleton { @apply animate-pulse rounded bg-slate-200; }
+
+/* Loading spinner */
+.spinner { @apply inline-block h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent; }
+
+/* Hero overlay gradient */
+.hero-overlay { background: linear-gradient(135deg, oklch(0.15 0.05 250 / 0.85) 0%, oklch(0.15 0.05 250 / 0.4) 100%); }
+
+/* Hero animated shapes */
+.hero-shape { @apply absolute rounded-full opacity-20; animation: float 6s ease-in-out infinite; }
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-20px) scale(1.05); }
 }
 
 /* Enterprise admin shell */
@@ -152,4 +198,45 @@
 
 .admin-sidebar-nav::-webkit-scrollbar-thumb {
     @apply rounded-full bg-slate-300;
+}
+
+/* Dark mode overrides */
+.dark .admin-card {
+    @apply border-slate-700/80 bg-slate-800;
+}
+
+.dark .admin-card-header {
+    @apply border-slate-700;
+}
+
+.dark .admin-stat-card {
+    @apply border-slate-700/80 bg-slate-800;
+}
+
+.dark .admin-input,
+.dark .admin-select {
+    @apply border-slate-600 bg-slate-700 text-slate-100 placeholder:text-slate-500;
+}
+
+.dark .admin-nav-link {
+    @apply text-slate-400;
+}
+
+.dark .admin-nav-link:hover {
+    @apply bg-slate-700 text-slate-100;
+}
+
+.dark .admin-nav-link--active {
+    @apply bg-brand-900/30 text-brand-400 ring-1 ring-brand-800;
+}
+
+.dark .admin-nav-link--active:hover {
+    @apply bg-brand-900/30 text-brand-400;
+}
+
+/* Print styles */
+@media print {
+    .no-print { display: none !important; }
+    body { font-size: 12pt; color: #000; background: #fff; }
+    a { text-decoration: underline; }
 }

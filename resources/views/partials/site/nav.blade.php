@@ -10,6 +10,8 @@
     $email = $emailReal ?: config('school.placeholder_email');
     $addr = $addrReal ?: config('school.placeholder_address');
     $phTip = __('Example — set real details in Dashboard → School settings');
+    $currentRoute = request()->route()->getName();
+    $isActive = fn($patterns) => collect((array)$patterns)->contains(fn($p) => request()->routeIs($p));
 @endphp
 
 {{-- Top utility bar: hidden on small, condenses on medium, full on large --}}
@@ -61,9 +63,20 @@
     </div>
 </div>
 
-{{-- Main header: sticky. Desktop nav shows from 1367px and up; below that,
-     a polished off-canvas menu slides down from the header. --}}
-<header class="sticky top-0 z-50 border-b border-gray-100 bg-white/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/80">
+{{-- Admissions CTA top bar --}}
+<div class="hidden items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-1.5 text-center text-xs font-medium text-white sm:flex">
+    <span class="inline-flex items-center gap-1">
+        <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm2.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm6.207.293a1 1 0 00-1.414 0l-6 6a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414zM14 8a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" clip-rule="evenodd"/></svg>
+        Admissions Open 2025-26
+    </span>
+    <a href="{{ route('admissions.apply') }}" class="inline-flex items-center gap-0.5 font-semibold underline underline-offset-2 hover:no-underline">
+        Apply Now
+        <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </a>
+</div>
+
+{{-- Main header: sticky with blur --}}
+<header class="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/95 backdrop-blur-md transition-shadow duration-300">
     <div class="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-3 sm:py-4">
         <a href="{{ route('home') }}" class="flex min-w-0 items-center gap-2 no-underline sm:gap-3">
             @if($siteSettings?->logo_url)
@@ -74,18 +87,26 @@
             </span>
         </a>
 
-        {{-- Hamburger: visible below 1367px --}}
-        <button type="button" data-site-nav-trigger aria-controls="site-nav-panel" aria-expanded="false"
-            aria-label="{{ site_ui('nav.menu') }}"
-            class="inline-flex items-center justify-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 min-[1367px]:hidden">
-            <svg data-icon-menu class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/>
-            </svg>
-            <svg data-icon-close class="hidden h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6l12 12M18 6L6 18"/>
-            </svg>
-            <span class="hidden sm:inline">{{ site_ui('nav.menu') }}</span>
-        </button>
+        <div class="flex items-center gap-1">
+            {{-- Search toggle --}}
+            <button type="button" data-search-toggle aria-label="Search"
+                class="inline-flex items-center justify-center rounded-md border border-gray-200 bg-white p-2 text-gray-500 transition hover:bg-blue-50 hover:text-blue-700 min-[1367px]:hidden">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </button>
+
+            {{-- Hamburger: visible below 1367px --}}
+            <button type="button" data-site-nav-trigger aria-controls="site-nav-panel" aria-expanded="false"
+                aria-label="{{ site_ui('nav.menu') }}"
+                class="inline-flex items-center justify-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 min-[1367px]:hidden">
+                <svg data-icon-menu class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/>
+                </svg>
+                <svg data-icon-close class="hidden h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6l12 12M18 6L6 18"/>
+                </svg>
+                <span class="hidden sm:inline">{{ site_ui('nav.menu') }}</span>
+            </button>
+        </div>
 
         {{-- Desktop nav: 1367px and up --}}
         <nav class="hidden items-center gap-1 min-[1367px]:flex" aria-label="{{ site_ui('nav.menu') }}">
@@ -127,10 +148,8 @@
                 ];
             @endphp
 
-            {{-- Home: standalone top-level --}}
             <a href="{{ route('home') }}" class="{{ $link(request()->routeIs('home')) }}">{{ site_ui('nav.home') }}</a>
 
-            {{-- Grouped dropdowns: About, Academics, Contact --}}
             @foreach ($navGroups as $group)
                 @php $gid = 'site-nav-group-'.$group['key']; @endphp
                 <div class="relative" data-site-nav-dropdown>
@@ -148,17 +167,17 @@
                             @foreach ($group['items'] as $item)
                                 @php
                                     $patterns = explode('|', $item['pattern']);
-                                    $isActive = false;
-                                    foreach ($patterns as $p) { if (request()->routeIs($p)) { $isActive = true; break; } }
+                                    $isItemActive = false;
+                                    foreach ($patterns as $p) { if (request()->routeIs($p)) { $isItemActive = true; break; } }
                                 @endphp
                                 <li role="none">
                                     <a href="{{ route($item['route']) }}" role="menuitem"
-                                        class="{{ $dropdownItem($isActive) }}">
-                                        <svg class="h-4 w-4 shrink-0 {{ $isActive ? 'text-blue-600' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        class="{{ $dropdownItem($isItemActive) }}">
+                                        <svg class="h-4 w-4 shrink-0 {{ $isItemActive ? 'text-blue-600' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $item['icon'] }}"/>
                                         </svg>
                                         <span class="flex-1">{{ $item['label'] }}</span>
-                                        @if($isActive)
+                                        @if($isItemActive)
                                             <svg class="h-4 w-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M16.7 5.3a1 1 0 010 1.4l-7.5 7.5a1 1 0 01-1.4 0L3.3 9.7a1 1 0 011.4-1.4L8.5 12l6.8-6.7a1 1 0 011.4 0z" clip-rule="evenodd"/></svg>
                                         @endif
                                     </a>
@@ -169,8 +188,13 @@
                 </div>
             @endforeach
 
-            {{-- News & Events: standalone top-level --}}
             <a href="{{ route('site.news') }}" class="{{ $link(request()->routeIs('site.news*')) }}">{{ site_ui('nav.news') }}</a>
+
+            {{-- Search toggle desktop --}}
+            <button type="button" data-search-toggle aria-label="Search"
+                class="rounded-md p-2 text-gray-500 transition hover:bg-blue-50 hover:text-blue-700">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </button>
 
             @auth
                 @php
@@ -191,6 +215,20 @@
                 <a href="{{ route('login') }}" class="{{ $btnPrimary }}">{{ site_ui('nav.login') }}</a>
             @endauth
         </nav>
+    </div>
+
+    {{-- Search overlay --}}
+    <div data-search-overlay class="hidden absolute inset-x-0 top-full border-t border-slate-200 bg-white shadow-lg">
+        <div class="mx-auto max-w-3xl px-4 py-6">
+            <form action="{{ route('home') }}" method="GET" class="relative">
+                <svg class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input type="search" name="q" placeholder="Search for pages, news, events..." autocomplete="off"
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-12 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+                <button type="button" data-search-close class="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-gray-400 hover:text-gray-600">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </form>
+        </div>
     </div>
 
     {{-- Responsive panel: visible below 1366px --}}
@@ -326,143 +364,162 @@
 </header>
 
 <script>
-    (function () {
-        var trigger = document.querySelector('[data-site-nav-trigger]');
-        var panel = document.querySelector('[data-site-nav-panel]');
-        if (!trigger || !panel) return;
+(function () {
+    var trigger = document.querySelector('[data-site-nav-trigger]');
+    var panel = document.querySelector('[data-site-nav-panel]');
+    if (!trigger || !panel) return;
 
-        var iconMenu = trigger.querySelector('[data-icon-menu]');
-        var iconClose = trigger.querySelector('[data-icon-close]');
-        var desktopQuery = window.matchMedia('(min-width: 1367px)');
+    var iconMenu = trigger.querySelector('[data-icon-menu]');
+    var iconClose = trigger.querySelector('[data-icon-close]');
+    var desktopQuery = window.matchMedia('(min-width: 1367px)');
 
-        function setOpen(open) {
-            trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
-            panel.setAttribute('aria-modal', open ? 'true' : 'false');
-            if (open) {
-                panel.removeAttribute('hidden');
-            } else {
-                panel.setAttribute('hidden', '');
-            }
-            if (iconMenu && iconClose) {
-                iconMenu.classList.toggle('hidden', open);
-                iconClose.classList.toggle('hidden', !open);
-            }
+    function setOpen(open) {
+        trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+        panel.setAttribute('aria-modal', open ? 'true' : 'false');
+        if (open) {
+            panel.removeAttribute('hidden');
+        } else {
+            panel.setAttribute('hidden', '');
         }
+        if (iconMenu && iconClose) {
+            iconMenu.classList.toggle('hidden', open);
+            iconClose.classList.toggle('hidden', !open);
+        }
+    }
 
-        trigger.addEventListener('click', function () {
-            setOpen(panel.hasAttribute('hidden'));
+    trigger.addEventListener('click', function () {
+        setOpen(panel.hasAttribute('hidden'));
+    });
+
+    panel.addEventListener('click', function (e) {
+        var link = e.target.closest('[data-site-nav-link]');
+        if (link) setOpen(false);
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !panel.hasAttribute('hidden')) {
+            setOpen(false);
+            trigger.focus();
+        }
+    });
+
+    desktopQuery.addEventListener('change', function (e) {
+        if (e.matches) setOpen(false);
+    });
+
+    var dropdowns = document.querySelectorAll('[data-site-nav-dropdown]');
+
+    function openDropdown(dd) {
+        var trig = dd.querySelector('[data-site-nav-dropdown-trigger]');
+        var p = dd.querySelector('[data-site-nav-dropdown-panel]');
+        var caret = dd.querySelector('[data-site-nav-caret]');
+        if (!trig || !p) return;
+        dropdowns.forEach(function (other) {
+            if (other !== dd) closeDropdown(other);
+        });
+        p.setAttribute('data-open', 'true');
+        trig.setAttribute('aria-expanded', 'true');
+        if (caret) caret.style.transform = 'rotate(180deg)';
+    }
+
+    function closeDropdown(dd) {
+        var trig = dd.querySelector('[data-site-nav-dropdown-trigger]');
+        var p = dd.querySelector('[data-site-nav-dropdown-panel]');
+        var caret = dd.querySelector('[data-site-nav-caret]');
+        if (!trig || !p) return;
+        p.removeAttribute('data-open');
+        trig.setAttribute('aria-expanded', 'false');
+        if (caret) caret.style.transform = '';
+    }
+
+    function closeAllDropdowns() {
+        dropdowns.forEach(closeDropdown);
+    }
+
+    dropdowns.forEach(function (dd) {
+        var trig = dd.querySelector('[data-site-nav-dropdown-trigger]');
+        if (!trig) return;
+        var p = dd.querySelector('[data-site-nav-dropdown-panel]');
+        var isOpen = false;
+        var closeTimer = null;
+
+        dd.addEventListener('mouseenter', function () {
+            if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+            if (!desktopQuery.matches) return;
+            openDropdown(dd);
+            isOpen = true;
+        });
+        dd.addEventListener('mouseleave', function () {
+            if (!desktopQuery.matches) return;
+            closeTimer = setTimeout(function () { closeDropdown(dd); isOpen = false; }, 120);
         });
 
-        // Close when any link inside the panel is activated.
-        panel.addEventListener('click', function (e) {
-            var link = e.target.closest('[data-site-nav-link]');
-            if (link) setOpen(false);
+        trig.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            isOpen = !isOpen;
+            if (isOpen) openDropdown(dd);
+            else closeDropdown(dd);
         });
 
-        // Close on Escape.
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape' && !panel.hasAttribute('hidden')) {
-                setOpen(false);
-                trigger.focus();
-            }
-        });
-
-        // If the viewport grows past 1366px, hide the panel automatically.
-        desktopQuery.addEventListener('change', function (e) {
-            if (e.matches) setOpen(false);
-        });
-
-        // ---- Desktop dropdowns (hover + click) ----
-        var dropdowns = document.querySelectorAll('[data-site-nav-dropdown]');
-
-        function openDropdown(dd) {
-            var trig = dd.querySelector('[data-site-nav-dropdown-trigger]');
-            var p = dd.querySelector('[data-site-nav-dropdown-panel]');
-            var caret = dd.querySelector('[data-site-nav-caret]');
-            if (!trig || !p) return;
-            dropdowns.forEach(function (other) {
-                if (other !== dd) closeDropdown(other);
+        if (p) {
+            p.addEventListener('click', function (e) {
+                if (e.target.closest('a')) closeDropdown(dd);
             });
-            p.setAttribute('data-open', 'true');
+        }
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('[data-site-nav-dropdown]')) closeAllDropdowns();
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeAllDropdowns();
+    });
+
+    var accordions = document.querySelectorAll('[data-site-nav-accordion]');
+    accordions.forEach(function (acc) {
+        var trig = acc.querySelector('[data-site-nav-accordion-trigger]');
+        var p = acc.querySelector('[data-site-nav-accordion-panel]');
+        var caret = acc.querySelector('[data-site-nav-accordion-caret]');
+        if (!trig || !p) return;
+
+        if (acc.querySelector('a[aria-current], a.bg-blue-50')) {
+            p.classList.remove('hidden');
             trig.setAttribute('aria-expanded', 'true');
             if (caret) caret.style.transform = 'rotate(180deg)';
         }
 
-        function closeDropdown(dd) {
-            var trig = dd.querySelector('[data-site-nav-dropdown-trigger]');
-            var p = dd.querySelector('[data-site-nav-dropdown-panel]');
-            var caret = dd.querySelector('[data-site-nav-caret]');
-            if (!trig || !p) return;
-            p.removeAttribute('data-open');
-            trig.setAttribute('aria-expanded', 'false');
-            if (caret) caret.style.transform = '';
-        }
-
-        function closeAllDropdowns() {
-            dropdowns.forEach(closeDropdown);
-        }
-
-        dropdowns.forEach(function (dd) {
-            var trig = dd.querySelector('[data-site-nav-dropdown-trigger]');
-            if (!trig) return;
-            var p = dd.querySelector('[data-site-nav-dropdown-panel]');
-            var isOpen = false;
-            var closeTimer = null;
-
-            dd.addEventListener('mouseenter', function () {
-                if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
-                if (!desktopQuery.matches) return;
-                openDropdown(dd);
-                isOpen = true;
-            });
-            dd.addEventListener('mouseleave', function () {
-                if (!desktopQuery.matches) return;
-                closeTimer = setTimeout(function () { closeDropdown(dd); isOpen = false; }, 120);
-            });
-
-            trig.addEventListener('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                isOpen = !isOpen;
-                if (isOpen) openDropdown(dd);
-                else closeDropdown(dd);
-            });
-
-            if (p) {
-                p.addEventListener('click', function (e) {
-                    if (e.target.closest('a')) closeDropdown(dd);
-                });
-            }
+        trig.addEventListener('click', function () {
+            var open = p.classList.toggle('hidden') === false;
+            trig.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (caret) caret.style.transform = open ? 'rotate(180deg)' : '';
         });
+    });
 
-        // Close dropdowns when clicking outside or pressing Escape.
-        document.addEventListener('click', function (e) {
-            if (!e.target.closest('[data-site-nav-dropdown]')) closeAllDropdowns();
+    // Search toggle
+    var searchToggles = document.querySelectorAll('[data-search-toggle]');
+    var searchOverlay = document.querySelector('[data-search-overlay]');
+    var searchClose = document.querySelector('[data-search-close]');
+    if (searchToggles.length && searchOverlay) {
+        searchToggles.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var hidden = searchOverlay.classList.toggle('hidden');
+                if (!hidden) {
+                    var input = searchOverlay.querySelector('input[type="search"]');
+                    if (input) setTimeout(function () { input.focus(); }, 100);
+                }
+            });
         });
+        if (searchClose) {
+            searchClose.addEventListener('click', function () {
+                searchOverlay.classList.add('hidden');
+            });
+        }
         document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') closeAllDropdowns();
-        });
-
-        // ---- Mobile accordions (independent of hamburger state) ----
-        var accordions = document.querySelectorAll('[data-site-nav-accordion]');
-        accordions.forEach(function (acc) {
-            var trig = acc.querySelector('[data-site-nav-accordion-trigger]');
-            var p = acc.querySelector('[data-site-nav-accordion-panel]');
-            var caret = acc.querySelector('[data-site-nav-accordion-caret]');
-            if (!trig || !p) return;
-
-            // Auto-expand if any child is active.
-            if (acc.querySelector('a[aria-current], a.bg-blue-50')) {
-                p.classList.remove('hidden');
-                trig.setAttribute('aria-expanded', 'true');
-                if (caret) caret.style.transform = 'rotate(180deg)';
+            if (e.key === 'Escape' && !searchOverlay.classList.contains('hidden')) {
+                searchOverlay.classList.add('hidden');
             }
-
-            trig.addEventListener('click', function () {
-                var open = p.classList.toggle('hidden') === false;
-                trig.setAttribute('aria-expanded', open ? 'true' : 'false');
-                if (caret) caret.style.transform = open ? 'rotate(180deg)' : '';
-            });
         });
-    })();
+    }
+})();
 </script>
