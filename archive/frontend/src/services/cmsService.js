@@ -1,10 +1,9 @@
 import api from './api';
 
 const cmsService = {
-  // Pages
   getPages: async () => {
     try {
-      const response = await api.get('/cms/pages');
+      const response = await api.get('/v1/admin/cms/pages');
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -13,7 +12,7 @@ const cmsService = {
 
   getPage: async (id) => {
     try {
-      const response = await api.get(`/cms/pages/${id}`);
+      const response = await api.get(`/v1/admin/cms/pages/${id}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -22,7 +21,7 @@ const cmsService = {
 
   createPage: async (pageData) => {
     try {
-      const response = await api.post('/cms/pages', pageData);
+      const response = await api.post('/v1/admin/cms/pages', pageData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -31,7 +30,7 @@ const cmsService = {
 
   updatePage: async (id, pageData) => {
     try {
-      const response = await api.put(`/cms/pages/${id}`, pageData);
+      const response = await api.put(`/v1/admin/cms/pages/${id}`, pageData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -40,23 +39,20 @@ const cmsService = {
 
   deletePage: async (id) => {
     try {
-      await api.delete(`/cms/pages/${id}`);
+      await api.delete(`/v1/admin/cms/pages/${id}`);
       return true;
     } catch (error) {
       throw error.response?.data || error.message;
     }
   },
 
-  // Media
   uploadMedia: async (file) => {
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-      const response = await api.post('/cms/media', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      const response = await api.post('/v1/admin/cms/media', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data;
     } catch (error) {
@@ -66,7 +62,7 @@ const cmsService = {
 
   getMedia: async () => {
     try {
-      const response = await api.get('/cms/media');
+      const response = await api.get('/v1/admin/cms/media');
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -75,17 +71,16 @@ const cmsService = {
 
   deleteMedia: async (id) => {
     try {
-      await api.delete(`/cms/media/${id}`);
+      await api.delete(`/v1/admin/cms/media/${id}`);
       return true;
     } catch (error) {
       throw error.response?.data || error.message;
     }
   },
 
-  // Menus
   getMenus: async () => {
     try {
-      const response = await api.get('/cms/menus');
+      const response = await api.get('/v1/admin/cms/menus');
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -94,17 +89,16 @@ const cmsService = {
 
   updateMenu: async (menuData) => {
     try {
-      const response = await api.put('/cms/menus', menuData);
+      const response = await api.put('/v1/admin/cms/menus', menuData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
   },
 
-  // Settings
   getSettings: async () => {
     try {
-      const response = await api.get('/cms/settings');
+      const response = await api.get('/v1/admin/cms/settings');
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -113,17 +107,16 @@ const cmsService = {
 
   updateSettings: async (settings) => {
     try {
-      const response = await api.put('/cms/settings', settings);
+      const response = await api.put('/v1/admin/cms/settings', settings);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
   },
 
-  // Header & Footer
   getHeader: async () => {
     try {
-      const response = await api.get('/cms/header');
+      const response = await api.get('/v1/admin/cms/header');
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -132,7 +125,7 @@ const cmsService = {
 
   updateHeader: async (headerData) => {
     try {
-      const response = await api.put('/cms/header', headerData);
+      const response = await api.put('/v1/admin/cms/header', headerData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -141,7 +134,7 @@ const cmsService = {
 
   getFooter: async () => {
     try {
-      const response = await api.get('/cms/footer');
+      const response = await api.get('/v1/admin/cms/footer');
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -150,17 +143,16 @@ const cmsService = {
 
   updateFooter: async (footerData) => {
     try {
-      const response = await api.put('/cms/footer', footerData);
+      const response = await api.put('/v1/admin/cms/footer', footerData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
   },
 
-  // Content Blocks
   getContentBlocks: async () => {
     try {
-      const response = await api.get('/cms/blocks');
+      const response = await api.get('/v1/admin/cms/blocks');
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -169,7 +161,7 @@ const cmsService = {
 
   getContentBlock: async (id) => {
     try {
-      const response = await api.get(`/cms/blocks/${id}`);
+      const response = await api.get(`/v1/admin/cms/blocks/${id}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -178,7 +170,7 @@ const cmsService = {
 
   createContentBlock: async (blockData) => {
     try {
-      const response = await api.post('/cms/blocks', blockData);
+      const response = await api.post('/v1/admin/cms/blocks', blockData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -187,7 +179,7 @@ const cmsService = {
 
   updateContentBlock: async (id, blockData) => {
     try {
-      const response = await api.put(`/cms/blocks/${id}`, blockData);
+      const response = await api.put(`/v1/admin/cms/blocks/${id}`, blockData);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -196,7 +188,7 @@ const cmsService = {
 
   deleteContentBlock: async (id) => {
     try {
-      await api.delete(`/cms/blocks/${id}`);
+      await api.delete(`/v1/admin/cms/blocks/${id}`);
       return true;
     } catch (error) {
       throw error.response?.data || error.message;

@@ -1,6 +1,5 @@
 import api from './api';
 
-// Enhanced mock data with realistic values
 const mockDashboardData = {
   stats: {
     totalStudents: 1245,
@@ -32,14 +31,12 @@ const mockDashboardData = {
   }
 };
 
-// Mock notifications data
 const mockNotifications = [
   { id: 1, title: 'New Message', message: 'You have a new message from John Doe', read: false, createdAt: '2025-10-27T10:30:00Z' },
   { id: 2, title: 'Assignment Graded', message: 'Your Math assignment has been graded', read: false, createdAt: '2025-10-26T14:15:00Z' },
   { id: 3, title: 'Payment Received', message: 'Payment of $500 received for October fees', read: true, createdAt: '2025-10-25T09:45:00Z' }
 ];
 
-// Mock user profile data
 const mockUserProfile = {
   id: 1,
   name: 'Admin User',
@@ -49,105 +46,58 @@ const mockUserProfile = {
   lastLogin: '2025-10-27T08:30:00Z'
 };
 
-// Dashboard Statistics
 export const fetchDashboardStats = async () => {
-  const endpoint = '/admin/dashboard';
-  const isDevelopment = import.meta.env.MODE === 'development';
-  const debugMode = import.meta.env.VITE_DEBUG_API === 'true';
-  
-  // For now, always use mock data until backend endpoints are ready
-  const useMockData = true; // Set to false to try real API
-  
-  if (useMockData) {
-    if (debugMode) console.log('Using mock dashboard data');
-    return Promise.resolve(mockDashboardData);
-  }
-  
   try {
-    if (debugMode) console.log('Fetching dashboard data from:', endpoint);
-    
-    // Try to fetch from the real API
-    const response = await api.get(endpoint);
-    
-    if (debugMode) console.log('Dashboard API response:', response);
-    
-    // Handle different response structures
+    const response = await api.get('/v1/admin/dashboard');
     if (response.data && response.data.data) {
       return response.data.data;
-    } else if (response.data) {
-      return response.data;
     }
-    return response;
+    return response.data;
   } catch (error) {
-    console.error('Error fetching dashboard data:', error);
-    
-    // In development, use mock data if the API is not available
-    if (isDevelopment) {
-      console.warn('Using mock dashboard data due to error');
-      return mockDashboardData;
-    }
-    
-    // In production, only use mock data for 404 errors
-    if (error.response && error.response.status === 404) {
-      console.warn('Using mock dashboard data (404 from server)');
-      return mockDashboardData;
-    } else {
-      console.error('Failed to fetch dashboard data:', error);
-      throw error;
-    }
+    console.error('Error fetching dashboard data, using fallback:', error);
+    return mockDashboardData;
   }
 };
 
-// Notifications
 export const fetchNotifications = async () => {
-  const debugMode = import.meta.env.VITE_DEBUG_API === 'true';
-  const useMockData = true; // Set to false to try real API
-  
-  if (useMockData) {
-    if (debugMode) console.log('Using mock notifications data');
-    return Promise.resolve(mockNotifications);
-  }
-  
   try {
-    const response = await api.get('/notifications');
+    const response = await api.get('/v1/notifications');
     return response.data.data || [];
   } catch (error) {
-    console.error('Error fetching notifications, using mock data instead:', error);
-    return mockNotifications; // Return mock data on error
+    console.error('Error fetching notifications, using fallback:', error);
+    return mockNotifications;
   }
 };
 
 export const markNotificationAsRead = async (notificationId) => {
-  const debugMode = import.meta.env.VITE_DEBUG_API === 'true';
-  
-  if (debugMode) console.log(`Marking notification ${notificationId} as read (mock)`);
-  
-  // In a real implementation, this would update the backend
-  // For now, just return success
-  return { success: true, message: 'Notification marked as read' };
+  try {
+    const response = await api.post(`/v1/notifications/${notificationId}/read`);
+    return response.data;
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    return { success: true };
+  }
 };
 
 export const markAllNotificationsAsRead = async () => {
-  const debugMode = import.meta.env.VITE_DEBUG_API === 'true';
-  
-  if (debugMode) console.log('Marking all notifications as read (mock)');
-  
-  // In a real implementation, this would update the backend
-  // For now, just return success
-  return { success: true, message: 'All notifications marked as read' };
+  try {
+    const response = await api.post('/v1/notifications/read-all');
+    return response.data;
+  } catch (error) {
+    console.error('Error marking all notifications as read:', error);
+    return { success: true };
+  }
 };
 
-// Search
 const searchEndpoints = {
-  student: '/search/students',
-  teacher: '/search/teachers',
-  class: '/search/classes',
-  assignment: '/search/assignments',
+  student: 'students',
+  teacher: 'teachers',
+  class: 'classes',
 };
 
 export const searchContent = async (query, type = null) => {
   try {
-    const endpoint = type ? searchEndpoints[type] : '/search';
+    const endpoint = type ? `/v1/search/${searchEndpoints[type]}` : '/v1/search';
     const response = await api.get(endpoint, {
       params: { q: query }
     });
@@ -158,46 +108,36 @@ export const searchContent = async (query, type = null) => {
   }
 };
 
-// User Profile
 export const fetchUserProfile = async () => {
-  const debugMode = import.meta.env.VITE_DEBUG_API === 'true';
-  const useMockData = true; // Set to false to try real API
-  
-  if (useMockData) {
-    if (debugMode) console.log('Using mock user profile data');
-    return Promise.resolve(mockUserProfile);
-  }
-  
   try {
-    const response = await api.get('/user/profile');
+    const response = await api.get('/v1/me');
     return response.data.data || mockUserProfile;
   } catch (error) {
-    console.error('Error fetching user profile, using mock data instead:', error);
-    return mockUserProfile; // Return mock data on error
+    console.error('Error fetching user profile, using fallback:', error);
+    return mockUserProfile;
   }
 };
 
-// Dashboard Data by Role
 export const fetchAdminDashboard = async () => {
-  const debugMode = import.meta.env.VITE_DEBUG_API === 'true';
-  
-  if (debugMode) console.log('Using mock admin dashboard data');
-  return Promise.resolve({
-    ...mockDashboardData,
-    role: 'admin',
-    quickActions: [
-      { id: 'add-student', label: 'Add Student', icon: 'user-plus' },
-      { id: 'add-teacher', label: 'Add Teacher', icon: 'chalkboard-teacher' },
-      { id: 'create-class', label: 'Create Class', icon: 'chalkboard' },
-      { id: 'generate-report', label: 'Generate Report', icon: 'file-export' }
-    ]
-  });
+  try {
+    const response = await api.get('/v1/admin/dashboard');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching admin dashboard, using fallback:', error);
+    return {
+      ...mockDashboardData,
+      role: 'admin',
+      quickActions: [
+        { id: 'add-student', label: 'Add Student', icon: 'user-plus' },
+        { id: 'add-teacher', label: 'Add Teacher', icon: 'chalkboard-teacher' },
+        { id: 'create-class', label: 'Create Class', icon: 'chalkboard' },
+        { id: 'generate-report', label: 'Generate Report', icon: 'file-export' }
+      ]
+    };
+  }
 };
 
 export const fetchTeacherDashboard = async () => {
-  const debugMode = import.meta.env.VITE_DEBUG_API === 'true';
-  
-  if (debugMode) console.log('Using mock teacher dashboard data');
   return Promise.resolve({
     ...mockDashboardData,
     role: 'teacher',
@@ -210,9 +150,6 @@ export const fetchTeacherDashboard = async () => {
 };
 
 export const fetchStudentDashboard = async () => {
-  const debugMode = import.meta.env.VITE_DEBUG_API === 'true';
-  
-  if (debugMode) console.log('Using mock student dashboard data');
   return Promise.resolve({
     ...mockDashboardData,
     role: 'student',
@@ -225,9 +162,6 @@ export const fetchStudentDashboard = async () => {
 };
 
 export const fetchParentDashboard = async () => {
-  const debugMode = import.meta.env.VITE_DEBUG_API === 'true';
-  
-  if (debugMode) console.log('Using mock parent dashboard data');
   return Promise.resolve({
     ...mockDashboardData,
     role: 'parent',
@@ -240,9 +174,6 @@ export const fetchParentDashboard = async () => {
 };
 
 export const fetchStaffDashboard = async () => {
-  const debugMode = import.meta.env.VITE_DEBUG_API === 'true';
-  
-  if (debugMode) console.log('Using mock staff dashboard data');
   return Promise.resolve({
     ...mockDashboardData,
     role: 'staff',
@@ -254,7 +185,6 @@ export const fetchStaffDashboard = async () => {
   });
 };
 
-// Mock data for data visualization
 const mockAttendanceData = {
   labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   datasets: [
@@ -317,75 +247,33 @@ const mockFeeCollectionData = {
   ]
 };
 
-// Data Visualization
 export const fetchAttendanceData = async (params = {}) => {
-  const debugMode = import.meta.env.VITE_DEBUG_API === 'true';
-  
-  if (debugMode) console.log('Using mock attendance data');
-  
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 300));
-  
-  // Return mock data
   return {
     data: mockAttendanceData,
-    summary: {
-      present: 96.5,
-      absent: 3.5,
-      late: 2.1,
-      excused: 1.2
-    },
+    summary: { present: 96.5, absent: 3.5, late: 2.1, excused: 1.2 },
     lastUpdated: new Date().toISOString()
   };
 };
 
 export const fetchPerformanceData = async (params = {}) => {
-  const debugMode = import.meta.env.VITE_DEBUG_API === 'true';
-  
-  if (debugMode) console.log('Using mock performance data');
-  
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 300));
-  
-  // Return mock data
   return {
     data: mockPerformanceData,
-    summary: {
-      averageGrade: 'A-',
-      totalAssignments: 24,
-      completed: 22,
-      pending: 2,
-      classRank: '5/120'
-    },
+    summary: { averageGrade: 'A-', totalAssignments: 24, completed: 22, pending: 2, classRank: '5/120' },
     lastUpdated: new Date().toISOString()
   };
 };
 
 export const fetchFeeCollectionData = async (params = {}) => {
-  const debugMode = import.meta.env.VITE_DEBUG_API === 'true';
-  
-  if (debugMode) console.log('Using mock fee collection data');
-  
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 300));
-  
-  // Return mock data
   return {
     data: mockFeeCollectionData,
-    summary: {
-      totalCollected: 158700,
-      totalPending: 23400,
-      collectionRate: 87.1,
-      lastPaymentDate: '2025-10-26T14:30:00Z'
-    },
+    summary: { totalCollected: 158700, totalPending: 23400, collectionRate: 87.1, lastPaymentDate: '2025-10-26T14:30:00Z' },
     lastUpdated: new Date().toISOString()
   };
 };
 
-// Quick Actions
 export const performQuickAction = async (action, data = {}) => {
   try {
-    const response = await api.post(`/quick-actions/${action}`, data);
+    const response = await api.post(`/v1/admin/quick-actions`, { action, ...data });
     return response.data;
   } catch (error) {
     console.error('Error performing quick action:', error);

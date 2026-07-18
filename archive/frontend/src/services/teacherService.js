@@ -1,24 +1,19 @@
 import api from './api';
 
 const teacherService = {
-  // Get all classes for the authenticated teacher
   async getTeacherClasses() {
     try {
-      // The backend will use the authenticated user's token to identify the teacher
-      const response = await api.get('/teacher/classes');
-      console.log('Teacher classes response:', response);
+      const response = await api.get('/v1/teacher/classes');
       return response.data;
     } catch (error) {
       console.error('Error fetching teacher classes:', error);
-      // Return empty array instead of throwing to prevent UI errors
       return [];
     }
   },
 
-  // Get class details
   async getClassDetails(classId) {
     try {
-      const response = await api.get(`/api/classes/${classId}`);
+      const response = await api.get(`/v1/classes/${classId}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching class details:', error);
@@ -26,22 +21,19 @@ const teacherService = {
     }
   },
 
-  // Get class students
   async getClassStudents(classId) {
     try {
-      const response = await api.get(`/api/teacher/classes/${classId}/students`);
+      const response = await api.get(`/v1/teacher/classes/${classId}/students`);
       return response.data;
     } catch (error) {
       console.error('Error fetching class students:', error);
-      // Return empty array instead of throwing to prevent UI errors
       return [];
     }
   },
 
-  // Get attendance for a class on a specific date
   async getClassAttendance(classId, date) {
     try {
-      const response = await api.get(`/api/classes/${classId}/attendance`, {
+      const response = await api.get(`/v1/classes/${classId}/attendance`, {
         params: { date }
       });
       return response.data;
@@ -51,10 +43,9 @@ const teacherService = {
     }
   },
 
-  // Update attendance
   async updateAttendance(attendanceData) {
     try {
-      const response = await api.post('/api/attendance', attendanceData);
+      const response = await api.post('/v1/attendance', attendanceData);
       return response.data;
     } catch (error) {
       console.error('Error updating attendance:', error);
@@ -62,23 +53,20 @@ const teacherService = {
     }
   },
 
-  // Get student grades for a class
   async getClassGrades(classId, examId = null) {
     try {
       const params = examId ? { exam_id: examId } : {};
-      const response = await api.get(`/api/teacher/classes/${classId}/grades`, { params });
+      const response = await api.get(`/v1/teacher/classes/${classId}/grades`, { params });
       return response.data;
     } catch (error) {
       console.error('Error fetching grades:', error);
-      // Return empty array instead of throwing to prevent UI errors
       return [];
     }
   },
 
-  // Update student grade
   async updateGrade(gradeData) {
     try {
-      const response = await api.post('/api/grades', gradeData);
+      const response = await api.post('/v1/grades', gradeData);
       return response.data;
     } catch (error) {
       console.error('Error updating grade:', error);
@@ -86,10 +74,9 @@ const teacherService = {
     }
   },
 
-  // Export grades
   async exportGrades(classId, examId, format = 'csv') {
     try {
-      const response = await api.get(`/api/classes/${classId}/export-grades`, {
+      const response = await api.get(`/v1/classes/${classId}/export-grades`, {
         params: { exam_id: examId, format },
         responseType: 'blob'
       });
@@ -100,20 +87,17 @@ const teacherService = {
     }
   },
 
-  // Import grades
   async importGrades(classId, examId, file) {
     try {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('exam_id', examId);
-      
+
       const response = await api.post(
-        `/api/classes/${classId}/import-grades`,
+        `/v1/classes/${classId}/import-grades`,
         formData,
         {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
+          headers: { 'Content-Type': 'multipart/form-data' }
         }
       );
       return response.data;
@@ -123,10 +107,9 @@ const teacherService = {
     }
   },
 
-  // Get upcoming classes
   async getUpcomingClasses(teacherId, days = 7) {
     try {
-      const response = await api.get(`/api/teachers/${teacherId}/upcoming-classes`, {
+      const response = await api.get(`/v1/teachers/${teacherId}/upcoming-classes`, {
         params: { days }
       });
       return response.data;
@@ -136,10 +119,9 @@ const teacherService = {
     }
   },
 
-  // Get class statistics
   async getClassStatistics(classId) {
     try {
-      const response = await api.get(`/api/classes/${classId}/statistics`);
+      const response = await api.get(`/v1/classes/${classId}/statistics`);
       return response.data;
     } catch (error) {
       console.error('Error fetching class statistics:', error);

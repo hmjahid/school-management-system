@@ -1,13 +1,8 @@
 import api from './api';
 
-/**
- * Get all fees with optional filters
- * @param {Object} filters - Filter criteria
- * @returns {Promise<Array>} - List of fees
- */
 export const getFees = async (filters = {}) => {
   try {
-    const response = await api.get('/fees', { params: filters });
+    const response = await api.get('/v1/fees', { params: filters });
     return response.data;
   } catch (error) {
     console.error('Error fetching fees:', error);
@@ -15,14 +10,9 @@ export const getFees = async (filters = {}) => {
   }
 };
 
-/**
- * Get a single fee by ID
- * @param {number|string} id - Fee ID
- * @returns {Promise<Object>} - Fee details
- */
 export const getFeeById = async (id) => {
   try {
-    const response = await api.get(`/fees/${id}`);
+    const response = await api.get(`/v1/fees/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching fee with ID ${id}:`, error);
@@ -30,14 +20,9 @@ export const getFeeById = async (id) => {
   }
 };
 
-/**
- * Create a new fee
- * @param {Object} feeData - Fee data
- * @returns {Promise<Object>} - Created fee
- */
 export const createFee = async (feeData) => {
   try {
-    const response = await api.post('/fees', feeData);
+    const response = await api.post('/v1/fees', feeData);
     return response.data;
   } catch (error) {
     console.error('Error creating fee:', error);
@@ -45,15 +30,9 @@ export const createFee = async (feeData) => {
   }
 };
 
-/**
- * Update an existing fee
- * @param {number|string} id - Fee ID
- * @param {Object} feeData - Updated fee data
- * @returns {Promise<Object>} - Updated fee
- */
 export const updateFee = async (id, feeData) => {
   try {
-    const response = await api.put(`/fees/${id}`, feeData);
+    const response = await api.put(`/v1/fees/${id}`, feeData);
     return response.data;
   } catch (error) {
     console.error(`Error updating fee with ID ${id}:`, error);
@@ -61,29 +40,18 @@ export const updateFee = async (id, feeData) => {
   }
 };
 
-/**
- * Delete a fee
- * @param {number|string} id - Fee ID
- * @returns {Promise<void>}
- */
 export const deleteFee = async (id) => {
   try {
-    await api.delete(`/fees/${id}`);
+    await api.delete(`/v1/fees/${id}`);
   } catch (error) {
     console.error(`Error deleting fee with ID ${id}:`, error);
     throw error;
   }
 };
 
-/**
- * Get payments for a specific fee
- * @param {number|string} feeId - Fee ID
- * @param {Object} filters - Additional filters
- * @returns {Promise<Array>} - List of payments
- */
 export const getFeePayments = async (feeId, filters = {}) => {
   try {
-    const response = await api.get(`/fees/${feeId}/payments`, { params: filters });
+    const response = await api.get(`/v1/fees/${feeId}/payments`, { params: filters });
     return response.data;
   } catch (error) {
     console.error(`Error fetching payments for fee ${feeId}:`, error);
@@ -91,15 +59,9 @@ export const getFeePayments = async (feeId, filters = {}) => {
   }
 };
 
-/**
- * Record a new payment for a fee
- * @param {number|string} feeId - Fee ID
- * @param {Object} paymentData - Payment data
- * @returns {Promise<Object>} - Created payment
- */
 export const recordPayment = async (feeId, paymentData) => {
   try {
-    const response = await api.post(`/fees/${feeId}/payments`, paymentData);
+    const response = await api.post(`/v1/fees/${feeId}/payments`, paymentData);
     return response.data;
   } catch (error) {
     console.error(`Error recording payment for fee ${feeId}:`, error);
@@ -107,13 +69,9 @@ export const recordPayment = async (feeId, paymentData) => {
   }
 };
 
-/**
- * Get fee statistics
- * @returns {Promise<Object>} - Fee statistics
- */
 export const getFeeStatistics = async () => {
   try {
-    const response = await api.get('/fees/statistics');
+    const response = await api.get('/v1/fees/statistics');
     return response.data;
   } catch (error) {
     console.error('Error fetching fee statistics:', error);
@@ -121,13 +79,9 @@ export const getFeeStatistics = async () => {
   }
 };
 
-/**
- * Get fee types
- * @returns {Promise<Array>} - List of fee types
- */
 export const getFeeTypes = async () => {
   try {
-    const response = await api.get('/fees/types');
+    const response = await api.get('/v1/fees/types');
     return response.data;
   } catch (error) {
     console.error('Error fetching fee types:', error);

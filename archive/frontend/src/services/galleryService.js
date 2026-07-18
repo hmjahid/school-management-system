@@ -1,14 +1,9 @@
 import api from './api';
 
 const galleryService = {
-  /**
-   * Get all gallery items with optional filtering
-   * @param {Object} filters - Optional filters (e.g., { category: 'events' })
-   * @returns {Promise<{success: boolean, data: Array, error: string|null}>}
-   */
   async getGalleryItems(filters = {}) {
     try {
-      const response = await api.get('/website/gallery', { params: filters });
+      const response = await api.get('/v1/website/gallery', { params: filters });
       return {
         success: true,
         data: response.data.data || [],
@@ -16,7 +11,6 @@ const galleryService = {
       };
     } catch (error) {
       console.error('Error fetching gallery items:', error);
-      // Fallback to sample data if API fails
       const fallbackData = this.getFallbackData();
       return {
         success: false,
@@ -26,13 +20,9 @@ const galleryService = {
     }
   },
 
-  /**
-   * Get all available gallery categories
-   * @returns {Promise<{success: boolean, data: Array, error: string|null}>}
-   */
   async getGalleryCategories() {
     try {
-      const response = await api.get('/website/gallery/categories');
+      const response = await api.get('/v1/website/gallery/categories');
       return {
         success: true,
         data: response.data.data || [],
@@ -40,7 +30,6 @@ const galleryService = {
       };
     } catch (error) {
       console.error('Error fetching gallery categories:', error);
-      // Fallback to sample data if API fails
       const fallbackData = this.getFallbackData();
       return {
         success: false,
@@ -50,7 +39,6 @@ const galleryService = {
     }
   },
 
-  // Fallback data in case API is not available
   getFallbackData() {
     return {
       items: [
@@ -62,7 +50,6 @@ const galleryService = {
           date: '2023-10-10',
           featured: true
         },
-        // ... other fallback items
       ],
       categories: [
         { id: 'all', name: 'All' },

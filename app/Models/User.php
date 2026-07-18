@@ -1,0 +1,260 @@
+<?php
+
+namespace App\Models;
+
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Permission\Exceptions\PermissionDoesNotExist;
+use Spatie\Permission\Traits\HasPermissions;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Laravel\Sanctum\NewAccessToken;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
+
+class User extends Authenticatable
+{
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasApiTokens, HasFactory, Notifiable, HasPermissions, HasRoles, LogsActivity {
+        HasPermissions::hasPermissionTo as spatieHasPermissionTo;
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name', 'email', 'phone', 'role_id'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('users');
+    }
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'phone',
+        'address',
+        'gender',
+        'date_of_birth',
+        'photo',
+        'password',
+        'role_id',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+        'two_factor_recovery_codes',
+        'two_factor_secret',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'date_of_birth' => 'date',
+    ];
+    
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'profile_photo_url',
+    ];
+
+    /**
+     * Spatie role linked by users.role_id.
+     * Named schoolRole because the users.role string column would shadow a "role" relationship.
+     */
+    public function schoolRole(): BelongsTo
+    {
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    /**
+     * The teacher profile linked to this user (if any).
+     */
+    public function teacher()
+    {
+        return $this->hasOne(Teacher::class);
+    }
+
+    /**
+     * Look up the Spatie Role id for a given role name on the configured guard.
+     * Used to populate users.role_id (NOT NULL FK) at user-creation time.
+     */
+    public static function roleIdFor(string $roleName): ?int
+    {
+        $guard = config('auth.defaults.guard', 'web');
+
+        return \Spatie\Permission\Models\Role::where('name', $roleName)
+            ->where('guard_name', $guard)
+            ->value('id');
+    }
+
+    /**
+     * Get the refresh tokens for the user.
+     */
+    public function refreshTokens(): HasMany
+    {
+        return $this->hasMany(RefreshToken::class);
+    }
+
+    /**
+     * Spatie throws if the permission name is not defined for the guard; treat as denied.
+     */
+    public function hasPermissionTo($permission, $guardName = null): bool
+    {
+        try {
+            return $this->spatieHasPermissionTo($permission, $guardName);
+        } catch (PermissionDoesNotExist) {
+            return false;
+        }
+    }
+
+    /**
+     * Check if the user has a specific permission (custom + Spatie).
+     */
+    public function hasPermission(string $permissionName): bool
+    {
+        try {
+            if ($this->schoolRole?->hasPermissionTo($permissionName)) {
+                return true;
+            }
+        } catch (PermissionDoesNotExist) {
+            // Missing permission name in DB; fall through to user-level check.
+        }
+
+        return $this->hasPermissionTo($permissionName);
+    }
+
+    /**
+     * Create a new access token and refresh token for the user.
+     *
+     * @param  string  $name
+     * @param  array  $abilities
+     * @param  \DateTimeInterface|null  $accessTokenExpiresAt
+     * @param  \DateTimeInterface|null  $refreshTokenExpiresAt
+     * @return array
+     */
+    public function createTokenPair(string $name = 'auth_token', array $abilities = ['*'], 
+        ?\DateTimeInterface $accessTokenExpiresAt = null, ?\DateTimeInterface $refreshTokenExpiresAt = null): array
+    {
+        $accessToken = $this->createToken($name, $abilities, $accessTokenExpiresAt);
+        
+        $refreshToken = $this->refreshTokens()->create([
+            'token' => hash('sha256', $plainTextRefreshToken = Str::random(80)),
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'expires_at' => $refreshTokenExpiresAt ?? now()->addDays(config('sanctum.refresh_token_expiration', 30)),
+        ]);
+
+        return [
+            'access_token' => $accessToken->plainTextToken,
+            'refresh_token' => $plainTextRefreshToken,
+            'token_type' => 'Bearer',
+            'expires_in' => $accessTokenExpiresAt 
+                ? now()->diffInSeconds($accessTokenExpiresAt) 
+                : config('sanctum.expiration', 60) * 60,
+        ];
+    }
+
+    /**
+     * Revoke all of the user's tokens and refresh tokens.
+     *
+     * @return $this
+     */
+    public function revokeAllTokens(): static
+    {
+        $this->tokens()->delete();
+        $this->refreshTokens()->delete();
+
+        return $this;
+    }
+
+    /**
+     * Revoke all tokens for the user except for the current one.
+     *
+     * @param  \Laravel\Sanctum\PersonalAccessToken  $currentToken
+     * @return $this
+     */
+    public function revokeOtherTokens($currentToken): static
+    {
+        $this->tokens()
+            ->where('id', '!=', $currentToken->id)
+            ->delete();
+            
+        $this->refreshTokens()
+            ->where('id', '!=', $currentToken->id)
+            ->delete();
+
+        return $this;
+    }
+
+    /**
+     * Check if the user has any of the given permissions.
+     */
+    public function hasAnyPermission($permissions): bool
+    {
+        if (is_array($permissions)) {
+            foreach ($permissions as $permission) {
+                if ($this->hasPermission($permission)) {
+                    return true;
+                }
+            }
+        } else {
+            return $this->hasPermission($permissions);
+        }
+        
+        return false;
+    }
+
+
+    
+    /**
+     * Get the URL to the user's profile photo.
+     *
+     * @return string
+     */
+    public function getProfilePhotoUrlAttribute(): string
+    {
+        return $this->photo
+                    ? asset('storage/' . $this->photo)
+                    : $this->defaultProfilePhotoUrl();
+    }
+    
+    /**
+     * Get the default profile photo URL if no profile photo has been uploaded.
+     *
+     * @return string
+     */
+    protected function defaultProfilePhotoUrl(): string
+    {
+        $name = trim(collect(explode(' ', $this->name))->map(function ($segment) {
+            return mb_substr($segment, 0, 1);
+        })->join(' '));
+
+        return 'https://ui-avatars.com/api/?name='.urlencode($name).'&color=7F9CF5&background=EBF4FF';
+    }
+}

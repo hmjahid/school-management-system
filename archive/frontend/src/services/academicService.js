@@ -1,14 +1,11 @@
-import axios from 'axios';
+import api from './api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api';
-
-// Sample data to use when the backend is not available
 const SAMPLE_ACADEMIC_CONTENT = {
   'academics/curriculum': {
     pageTitle: 'Our Curriculum',
     heroTitle: 'Comprehensive Learning Experience',
     heroSubtitle: 'A well-rounded curriculum designed to foster academic excellence and personal growth',
-    overview: 'Our curriculum is carefully designed to provide students with a balanced education that combines academic rigor with practical skills and character development.',
+    overview: 'Our curriculum is carefully designed to provide students with a balanced education.',
     programs: [
       {
         id: 1,
@@ -22,7 +19,6 @@ const SAMPLE_ACADEMIC_CONTENT = {
           'Social Studies & Humanities'
         ]
       },
-      // ... other program items
     ]
   },
   'academics/programs': {
@@ -41,7 +37,6 @@ const SAMPLE_ACADEMIC_CONTENT = {
           'Creative Expression'
         ]
       },
-      // ... other program items
     ]
   },
   'academics/faculty': {
@@ -56,27 +51,18 @@ const SAMPLE_ACADEMIC_CONTENT = {
         bio: 'PhD in Physics with 15 years of teaching experience',
         image: '/images/faculty/sarah-johnson.jpg'
       },
-      // ... other faculty members
     ]
   }
 };
 
-/**
- * Fetches academic content from the backend or returns sample data if the endpoint is not available
- * @param {string} endpoint - The API endpoint to fetch content from (e.g., 'academics/curriculum')
- * @returns {Promise<Object>} The academic content
- */
 const getAcademicContent = async (endpoint) => {
   try {
-    const response = await axios.get(`${API_URL}/${endpoint}`, {
-      validateStatus: (status) => status === 200 || status === 404
-    });
+    const response = await api.get(`/v1/${endpoint}`);
 
     if (response.status === 200) {
-      return { success: true, data: response.data };
+      return { success: true, data: response.data.data || response.data };
     }
 
-    // If 404, return sample data
     if (SAMPLE_ACADEMIC_CONTENT[endpoint]) {
       console.warn(`[academicService] Using sample data for ${endpoint}`);
       return { success: true, data: SAMPLE_ACADEMIC_CONTENT[endpoint] };
@@ -85,13 +71,12 @@ const getAcademicContent = async (endpoint) => {
     throw new Error('Content not found and no sample data available');
   } catch (error) {
     console.error(`[academicService] Error fetching ${endpoint}:`, error);
-    
-    // Fallback to sample data if available
+
     if (SAMPLE_ACADEMIC_CONTENT[endpoint]) {
       console.warn(`[academicService] Using sample data due to error for ${endpoint}`);
       return { success: true, data: SAMPLE_ACADEMIC_CONTENT[endpoint] };
     }
-    
+
     return { success: false, error: error.message };
   }
 };

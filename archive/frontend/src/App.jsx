@@ -25,6 +25,7 @@ import TermsOfServicePage from './pages/TermsOfServicePage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import SitemapPage from './pages/SitemapPage';
 import CareerPage from './pages/CareerPage';
+import ResultsPage from './pages/ResultsPage';
 
 // Auth Pages
 import LoginPageV3 from './pages/LoginPageV3';
@@ -87,6 +88,7 @@ const AppRoutes = () => {
         <Route path="/privacy" element={<PrivacyPolicyPage />} />
         <Route path="/sitemap" element={<SitemapPage />} />
         <Route path="/careers" element={<CareerPage />} />
+        <Route path="/results" element={<ResultsPage />} />
         {/* Test Route - Remove in production */}
         <Route path="/test-formik" element={<FormikTest />} />
       </Route>
