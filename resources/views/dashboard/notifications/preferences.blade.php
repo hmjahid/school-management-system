@@ -26,13 +26,13 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                    @foreach($events as $event)
+                    @foreach($types as $type)
                         <tr>
-                            <td class="px-4 py-3 font-medium text-slate-900">{{ ucfirst(str_replace('_',' ', $event)) }}</td>
+                            <td class="px-4 py-3 font-medium text-slate-900">{{ ucfirst(str_replace('_',' ', $type)) }}</td>
                             @foreach($channels as $ch)
                                 <td class="px-4 py-3 text-center">
-                                    <input type="hidden" name="preferences[{{ $event }}][{{ $ch }}]" value="0">
-                                    <input type="checkbox" name="preferences[{{ $event }}][{{ $ch }}]" value="1" @checked($prefs[$event][$ch] ?? true) class="h-4 w-4 rounded border-slate-300 text-brand-600">
+                                    <input type="hidden" name="preferences[{{ $type }}][{{ $ch }}]" value="0">
+                                    <input type="checkbox" name="preferences[{{ $type }}][{{ $ch }}]" value="1" @checked($preferences[$type][$ch] ?? true) class="h-4 w-4 rounded border-slate-300 text-brand-600">
                                 </td>
                             @endforeach
                         </tr>

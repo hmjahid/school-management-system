@@ -172,4 +172,50 @@ ensure that this applicaion now a fully functional school management system.
 
 make this application a enterprise grade school management system, enhance public site design, features and ui ux. also ensure that all backend fetaures and functionlaities are aligend with forntned and functional. use as much as demo contnets and data so that i can test, check and verfity all feature s an dfunctionalities properly.
 
+
+remove newsletter 
+
+cerate a file named features-implementation.md adn add all feature swe have added, partially added and not added yet to track the full feature development
+
+implement certificate, routine, assignment, admit card, student id card, all pertially implementd to fully implemetnted. also ensure that all features whose need ui and public page , contents and sections are fully implemented
+
+why certificate admit card student id side link not showing?
+
+admit card and student id  card two separate thing
+
+is notification and payemt system integrated and functional now?
+
+
+
+
+add fetaure for activating or non activationg for controlling hsow/hide of every front/public site sections
+
+when clicking on website cms items like gally or all pages, the page is jumping. fix the issue.
+
+setup sms notification system
+
+add students filter based on class, batch
+
+make subgroup of academic sidebar items and make the sidebar items more nicer and organised
+
+add a doc/help sidebar item and add all docmuntaion to us and guideling of this managemnt application an d the public webiste
+
+add option for adding pricipal image and show that image in the homepage priciple message section. aslo make the priciple message text updating option both in bn and en
+
+add language chnage option for the dashboard language also so that users can easily understand the dashboar itesm and functionalities.
+
+make the homepage hero section more attractive so that visiotrs can get a clear view of the school from the hero section. add option for adding the scholl name in big fon size with nice design and chnaging design option from dashboard. aslo add a notice section at right side of the hero section. and add a marquee in the header for showing any urgent notice.
+
+though unchecking accepting applicattions, showing the application status in the public website header
+
+bulk attendence not working. fix it 
+
+dashboard header serach button not woking. aslo ensure taht search box wokrs by selecting the secah input filed not ctrl+k press.
+
+move all unnecessary files in a folder named unnecessary-files
+
+make the public website resposive nav menu more arranged and attractive
+
+
 now write a commit message for the chnage safter the last commit
+

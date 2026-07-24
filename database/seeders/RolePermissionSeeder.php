@@ -170,6 +170,12 @@ class RolePermissionSeeder extends Seeder
             'manage_notices' => 'Manage notices',
             'publish_notices' => 'Publish notices',
 
+            // Certificates, Admit Cards, Student ID Cards, Assignments
+            'manage_certificates' => 'Manage certificates',
+            'manage_admit_cards' => 'Manage admit cards',
+            'manage_student_id_cards' => 'Manage student ID cards',
+            'manage_assignments' => 'Manage assignments',
+
             // Settings
             'manage_school_settings' => 'Manage school settings',
             'manage_email_templates' => 'Manage email templates',

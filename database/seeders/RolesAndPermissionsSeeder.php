@@ -37,7 +37,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'invoice-list', 'invoice-create', 'invoice-edit', 'invoice-delete',
             'payment-list', 'payment-create', 'payment-edit', 'payment-delete',
             'setting-list', 'setting-edit',
-            'profile-view', 'profile-edit'
+            'profile-view', 'profile-edit',
+            'manage_assignments', 'manage_class_assignments',
+            'manage_admit_cards', 'manage_student_id_cards', 'manage_certificates'
         ];
 
         foreach ($permissions as $permission) {
@@ -67,14 +69,17 @@ class RolesAndPermissionsSeeder extends Seeder
             'invoice-list', 'invoice-create', 'invoice-edit', 'invoice-delete',
             'payment-list', 'payment-create', 'payment-edit', 'payment-delete',
             'setting-list', 'setting-edit',
-            'profile-view', 'profile-edit'
+            'profile-view', 'profile-edit',
+            'manage_assignments', 'manage_class_assignments',
+            'manage_admit_cards', 'manage_student_id_cards', 'manage_certificates'
         ]);
 
         $teacherRole = Role::create(['name' => 'Teacher']);
         $teacherRole->givePermissionTo([
             'student-list', 'attendance-list', 'attendance-create',
             'result-list', 'result-create', 'result-edit',
-            'routine-list', 'notice-list', 'profile-view', 'profile-edit'
+            'routine-list', 'notice-list', 'profile-view', 'profile-edit',
+            'manage_assignments'
         ]);
 
         $studentRole = Role::create(['name' => 'Student']);

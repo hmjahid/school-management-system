@@ -13,6 +13,11 @@ use App\Http\Controllers\Web\DashboardPayrollController;
 use App\Http\Controllers\Web\DashboardStaffAttendanceController;
 use App\Http\Controllers\Web\DashboardTransportController;
 use App\Http\Controllers\Web\DashboardSmsController;
+use App\Http\Controllers\Web\DashboardCertificateController;
+use App\Http\Controllers\Web\DashboardRoutineController;
+use App\Http\Controllers\Web\DashboardAssignmentController;
+use App\Http\Controllers\Web\DashboardAdmitCardController;
+use App\Http\Controllers\Web\DashboardStudentIdCardController;
 use App\Http\Controllers\Web\DashboardBackupController;
 use App\Http\Controllers\Web\DashboardActivityController;
 use App\Http\Controllers\Web\DashboardNotificationPreferencesController;
@@ -24,6 +29,7 @@ use App\Http\Controllers\Web\DashboardEventController;
 use App\Http\Controllers\Web\DashboardExamController;
 use App\Http\Controllers\Web\DashboardExamResultController;
 use App\Http\Controllers\Web\DashboardFeeController;
+use App\Http\Controllers\Web\DashboardFeePaymentController;
 use App\Http\Controllers\Web\DashboardGalleryController;
 use App\Http\Controllers\Web\DashboardGuardianController;
 use App\Http\Controllers\Web\DashboardModulesController;
@@ -81,7 +87,9 @@ Route::get('/portal/register', function () {
         ->with('status', __('Create an account by applying online, or log in if you already have portal access.'));
 })->name('portal.register');
 
-Route::get('/admissions/apply', [AdmissionWebController::class, 'apply'])->name('admissions.apply');
+Route::get('/routine', [DashboardRoutineController::class, 'timetable'])->name('site.routine');
+
+    Route::get('/admissions/apply', [AdmissionWebController::class, 'apply'])->name('admissions.apply');
 Route::get('/admissions/status', [AdmissionWebController::class, 'status'])->name('admissions.status');
 
 Route::middleware('throttle:12,1')->group(function () {
@@ -152,6 +160,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/notifications/list', [NotificationController::class, 'list'])->name('notifications.list');
     Route::get('/dashboard/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::post('/dashboard/notifications/mark-all', [NotificationController::class, 'markAllRead'])->name('notifications.markAll');
+    Route::get('/dashboard/notifications/preferences', [DashboardNotificationPreferencesController::class, 'show'])->name('notifications.preferences');
+    Route::post('/dashboard/notifications/preferences', [DashboardNotificationPreferencesController::class, 'update'])->name('notifications.preferences.update');
 
     Route::get('/dashboard/teachers/create', [DashboardTeacherController::class, 'create'])->name('dashboard.teachers.create');
     Route::post('/dashboard/teachers', [DashboardTeacherController::class, 'store'])->name('dashboard.teachers.store');
@@ -240,6 +250,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/dashboard/fees/{fee}', [DashboardFeeController::class, 'destroy'])->name('dashboard.fees.destroy');
     Route::get('/dashboard/fees', [DashboardModulesController::class, 'fees'])->name('dashboard.fees');
 
+    Route::prefix('dashboard/fee-payments')->name('dashboard.fee-payments.')->group(function () {
+        Route::get('/', [DashboardFeePaymentController::class, 'index'])->name('index');
+        Route::get('/{feePayment}', [DashboardFeePaymentController::class, 'show'])->name('show');
+        Route::post('/{feePayment}/approve', [DashboardFeePaymentController::class, 'approve'])->name('approve');
+        Route::post('/{feePayment}/cancel', [DashboardFeePaymentController::class, 'cancel'])->name('cancel');
+    });
+
         Route::middleware(['permission:manage_expenses'])->group(function () {
             Route::get('/dashboard/expenses', [DashboardExpenseController::class, 'index'])->name('dashboard.expenses.index');
             Route::get('/dashboard/expenses/create', [DashboardExpenseController::class, 'create'])->name('dashboard.expenses.create');
@@ -321,6 +338,61 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::get('/dashboard/activity', [DashboardActivityController::class, 'index'])->name('dashboard.activity.index');
+
+        Route::prefix('dashboard/certificates')->name('dashboard.certificates.')->group(function () {
+            Route::get('/', [DashboardCertificateController::class, 'index'])->name('index');
+            Route::get('/create', [DashboardCertificateController::class, 'create'])->name('create');
+            Route::post('/', [DashboardCertificateController::class, 'store'])->name('store');
+            Route::get('/{certificate}', [DashboardCertificateController::class, 'show'])->name('show');
+            Route::get('/{certificate}/edit', [DashboardCertificateController::class, 'edit'])->name('edit');
+            Route::put('/{certificate}', [DashboardCertificateController::class, 'update'])->name('update');
+            Route::delete('/{certificate}', [DashboardCertificateController::class, 'destroy'])->name('destroy');
+            Route::get('/{certificate}/print', [DashboardCertificateController::class, 'print'])->name('print');
+        });
+
+        Route::prefix('dashboard/routines')->name('dashboard.routines.')->group(function () {
+            Route::get('/', [DashboardRoutineController::class, 'index'])->name('index');
+            Route::get('/create', [DashboardRoutineController::class, 'create'])->name('create');
+            Route::post('/', [DashboardRoutineController::class, 'store'])->name('store');
+            Route::get('/{routine}', [DashboardRoutineController::class, 'show'])->name('show');
+            Route::get('/{routine}/edit', [DashboardRoutineController::class, 'edit'])->name('edit');
+            Route::put('/{routine}', [DashboardRoutineController::class, 'update'])->name('update');
+            Route::delete('/{routine}', [DashboardRoutineController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::prefix('dashboard/assignments')->name('dashboard.assignments.')->group(function () {
+            Route::get('/', [DashboardAssignmentController::class, 'index'])->name('index');
+            Route::get('/create', [DashboardAssignmentController::class, 'create'])->name('create');
+            Route::post('/', [DashboardAssignmentController::class, 'store'])->name('store');
+            Route::get('/{assignment}', [DashboardAssignmentController::class, 'show'])->name('show');
+            Route::get('/{assignment}/edit', [DashboardAssignmentController::class, 'edit'])->name('edit');
+            Route::put('/{assignment}', [DashboardAssignmentController::class, 'update'])->name('update');
+            Route::delete('/{assignment}', [DashboardAssignmentController::class, 'destroy'])->name('destroy');
+            Route::get('/{assignment}/submissions', [DashboardAssignmentController::class, 'submissions'])->name('submissions');
+            Route::post('/submissions/{submission}/grade', [DashboardAssignmentController::class, 'grade'])->name('grade');
+        });
+
+        Route::prefix('dashboard/admit-cards')->name('dashboard.admit-cards.')->group(function () {
+            Route::get('/', [DashboardAdmitCardController::class, 'index'])->name('index');
+            Route::get('/create', [DashboardAdmitCardController::class, 'create'])->name('create');
+            Route::post('/', [DashboardAdmitCardController::class, 'store'])->name('store');
+            Route::get('/{admitCard}', [DashboardAdmitCardController::class, 'show'])->name('show');
+            Route::get('/{admitCard}/edit', [DashboardAdmitCardController::class, 'edit'])->name('edit');
+            Route::put('/{admitCard}', [DashboardAdmitCardController::class, 'update'])->name('update');
+            Route::delete('/{admitCard}', [DashboardAdmitCardController::class, 'destroy'])->name('destroy');
+            Route::get('/{admitCard}/print', [DashboardAdmitCardController::class, 'print'])->name('print');
+        });
+
+        Route::prefix('dashboard/student-id-cards')->name('dashboard.student-id-cards.')->group(function () {
+            Route::get('/', [DashboardStudentIdCardController::class, 'index'])->name('index');
+            Route::get('/create', [DashboardStudentIdCardController::class, 'create'])->name('create');
+            Route::post('/', [DashboardStudentIdCardController::class, 'store'])->name('store');
+            Route::get('/{studentIdCard}', [DashboardStudentIdCardController::class, 'show'])->name('show');
+            Route::get('/{studentIdCard}/edit', [DashboardStudentIdCardController::class, 'edit'])->name('edit');
+            Route::put('/{studentIdCard}', [DashboardStudentIdCardController::class, 'update'])->name('update');
+            Route::delete('/{studentIdCard}', [DashboardStudentIdCardController::class, 'destroy'])->name('destroy');
+            Route::get('/{studentIdCard}/print', [DashboardStudentIdCardController::class, 'print'])->name('print');
+        });
 
         Route::prefix('dashboard/sms')->name('dashboard.sms.')->group(function () {
             Route::get('/', [DashboardSmsController::class, 'index'])->name('index');

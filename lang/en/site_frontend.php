@@ -15,6 +15,7 @@ return [
         'news' => 'News & Events',
         'gallery' => 'Gallery',
         'results' => 'Results',
+        'routine' => 'Class Routine',
         'contact' => 'Contact',
         'payments' => 'Payments',
         'portal' => 'Portal',
@@ -45,6 +46,8 @@ return [
         'legal_title' => 'Legal',
         'link_terms' => 'Terms & conditions',
         'link_privacy' => 'Privacy policy',
+        'link_routine' => 'Class Routine',
+        'link_certificates' => 'Certificates',
         'legal_note' => 'Content may be updated from time to time.',
         'important_title' => 'Important Links',
         'link_ministry_education_ministry' => 'Ministry of Education',
@@ -385,6 +388,56 @@ return [
         'emergency_contacts' => 'Emergency contacts',
         'map_iframe_title' => 'School location map',
         'open_in_maps' => 'Open location in Google Maps',
+    ],
+
+    'routine_page' => [
+        'page_title' => 'Class Routine',
+        'hero_title' => 'Class Routine / Timetable',
+        'hero_subtitle' => 'View the weekly class schedule for any class and section.',
+        'select_class' => 'Select class',
+        'select_section' => 'Select section',
+        'all_classes' => 'All classes',
+        'all_sections' => 'All sections',
+        'filter' => 'View timetable',
+        'no_routine' => 'No routine entries found for the selected filters.',
+        'time' => 'Time',
+        'subject' => 'Subject',
+        'teacher' => 'Teacher',
+        'room' => 'Room',
+        'day' => 'Day',
+        'days' => [
+            1 => 'Monday',
+            2 => 'Tuesday',
+            3 => 'Wednesday',
+            4 => 'Thursday',
+            5 => 'Friday',
+            6 => 'Saturday',
+            7 => 'Sunday',
+        ],
+    ],
+
+    'certificate_page' => [
+        'page_title' => 'Certificates',
+        'hero_title' => 'Certificate Verification',
+        'hero_subtitle' => 'View and verify issued certificates.',
+    ],
+
+    'admit_card_page' => [
+        'page_title' => 'Admit Cards',
+        'hero_title' => 'Admit Card',
+        'hero_subtitle' => 'Download and print admit cards for examinations.',
+    ],
+
+    'student_id_card_page' => [
+        'page_title' => 'Student ID Cards',
+        'hero_title' => 'Student Identity Card',
+        'hero_subtitle' => 'View and print student identity cards.',
+    ],
+
+    'assignment_page' => [
+        'page_title' => 'Assignments',
+        'hero_title' => 'Assignments',
+        'hero_subtitle' => 'View and submit class assignments.',
     ],
 
     'portal_progress' => [

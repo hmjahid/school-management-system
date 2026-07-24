@@ -140,6 +140,38 @@ class Student extends Model
     }
 
     /**
+     * Get the certificates for the student.
+     */
+    public function certificates(): HasMany
+    {
+        return $this->hasMany(Certificate::class);
+    }
+
+    /**
+     * Get the admit cards for the student.
+     */
+    public function admitCards(): HasMany
+    {
+        return $this->hasMany(AdmitCard::class);
+    }
+
+    /**
+     * Get the ID cards for the student.
+     */
+    public function idCards(): HasMany
+    {
+        return $this->hasMany(StudentIdCard::class);
+    }
+
+    /**
+     * Get the assignment submissions for the student.
+     */
+    public function assignmentSubmissions(): HasMany
+    {
+        return $this->hasMany(AssignmentSubmission::class);
+    }
+
+    /**
      * Get the student's full address.
      */
     public function getFullAddressAttribute(): string

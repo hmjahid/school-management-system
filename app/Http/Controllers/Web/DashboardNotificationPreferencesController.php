@@ -13,20 +13,15 @@ class DashboardNotificationPreferencesController extends Controller
     public function show(Request $request): View
     {
         $user = $request->user();
-        $events = ['attendance_absent', 'fee_due', 'result_published', 'announcement', 'leave_request'];
-        $channels = ['in_app', 'email', 'sms'];
+        $types = NotificationPreference::getAvailableTypes();
+        $channels = NotificationPreference::getAvailableChannels();
+        $preferences = NotificationPreference::getUserPreferences($user->id);
 
-        $prefs = [];
-        foreach ($events as $event) {
-            foreach ($channels as $channel) {
-                $prefs[$event][$channel] = NotificationPreference::where('user_id', $user->id)
-                    ->where('event', $event)
-                    ->where('channel', $channel)
-                    ->value('enabled') ?? true;
-            }
-        }
-
-        return view('dashboard.notifications.preferences', compact('prefs', 'events', 'channels'));
+        return view('dashboard.notifications.preferences', [
+            'preferences' => $preferences,
+            'types' => $types,
+            'channels' => $channels,
+        ]);
     }
 
     public function update(Request $request): RedirectResponse
@@ -34,17 +29,11 @@ class DashboardNotificationPreferencesController extends Controller
         $user = $request->user();
         $data = $request->validate([
             'preferences' => ['required', 'array'],
+            'preferences.*' => ['required', 'array'],
             'preferences.*.*' => ['nullable', 'boolean'],
         ]);
 
-        foreach ($data['preferences'] as $event => $channels) {
-            foreach ($channels as $channel => $enabled) {
-                NotificationPreference::updateOrCreate(
-                    ['user_id' => $user->id, 'event' => $event, 'channel' => $channel],
-                    ['enabled' => (bool) $enabled],
-                );
-            }
-        }
+        NotificationPreference::setUserPreferences($user->id, $data['preferences']);
 
         return back()->with('status', __('Preferences saved.'));
     }
