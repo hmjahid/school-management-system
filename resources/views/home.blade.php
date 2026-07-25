@@ -19,6 +19,7 @@
             $quickLinks = site_ui('home.quick_links', []);
         }
         $heroImg = $hero['background_image'] ?? null;
+        $sectionVis = $siteSettings->section_visibility ?? [];
         if (! $heroImg) {
             $heroImg = 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1920&q=80';
         }
@@ -29,57 +30,159 @@
         $highlightsFallback = $highlights ?: site_ui('home.highlights_default', []);
     @endphp
 
-    {{-- Hero Section with gradient overlay and animated shapes --}}
-    <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    {{-- Hero Section --}}
+    @if($sectionVis['hero'] ?? true)
+    <section class="relative min-h-[85vh] flex items-center overflow-hidden bg-gray-900">
         <div class="absolute inset-0">
-            <div class="absolute inset-0 bg-gradient-to-br from-blue-900/90 via-blue-800/80 to-indigo-900/90 z-10"></div>
             <img src="{{ $heroImg }}" alt="" class="h-full w-full object-cover" loading="eager" width="1920" height="1080">
+            <div class="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900/80 to-gray-900/40"></div>
         </div>
-        {{-- Decorative animated shapes --}}
-        <div class="absolute inset-0 z-10 overflow-hidden pointer-events-none">
-            <div class="absolute -top-20 -left-20 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl animate-pulse"></div>
-            <div class="absolute top-1/3 -right-20 h-96 w-96 rounded-full bg-indigo-500/10 blur-3xl animate-pulse" style="animation-delay: 2s;"></div>
-            <div class="absolute -bottom-20 left-1/3 h-64 w-64 rounded-full bg-cyan-500/10 blur-3xl animate-pulse" style="animation-delay: 4s;"></div>
-        </div>
-        <div class="relative z-20 mx-auto max-w-7xl px-4 py-24 sm:px-6 md:py-32 lg:px-8 text-center">
-            <h1 class="mb-6 text-4xl font-extrabold tracking-tight md:text-5xl lg:text-7xl bg-gradient-to-r from-white via-blue-100 to-indigo-200 bg-clip-text text-transparent">{{ $headline }}</h1>
-            <p class="mx-auto mb-10 max-w-3xl text-lg md:text-xl text-blue-100/90">{{ $sub }}</p>
-            <div class="flex flex-col justify-center gap-4 sm:flex-row">
-                <a href="{{ route('admissions.apply') }}" class="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-orange-500/30 transition-all duration-300 hover:bg-orange-600 hover:shadow-xl hover:shadow-orange-500/40 hover:-translate-y-0.5">
-                    {{ site_ui('home.hero_cta_primary') }}
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-                </a>
-                <a href="{{ route('site.about') }}" class="inline-flex items-center gap-2 rounded-xl border-2 border-white/30 bg-white/10 px-8 py-4 text-lg font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20 hover:border-white/50">
-                    {{ site_ui('home.hero_cta_secondary') }}
-                </a>
-            </div>
-        </div>
-        {{-- Stats bar overlay at bottom --}}
-        <div class="absolute bottom-0 left-0 right-0 z-20 bg-white/10 backdrop-blur-md border-t border-white/10">
-            <div class="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
-                <div class="flex flex-wrap justify-center gap-8 md:gap-16 text-white text-center">
-                    <div>
-                        <div class="text-3xl font-bold" data-countup data-target="{{ $stats['students'] ?? 0 }}" data-suffix="+">0</div>
-                        <div class="mt-1 text-sm text-blue-200">{{ site_ui('home.stats_students') }}</div>
+
+        <div class="relative z-10 mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+            <div class="grid gap-10 lg:grid-cols-12 lg:items-start">
+
+                {{-- Left: School identity + headline --}}
+                <div class="lg:col-span-7 xl:col-span-7">
+                    @if($siteSettings && $siteSettings->localized_school_name)
+                        <div class="mb-6 inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/10 px-5 py-2.5 backdrop-blur-sm">
+                            @if($siteSettings->logo_url)
+                                <img src="{{ $siteSettings->logo_url }}" alt="" class="h-8 w-8 rounded-full object-cover ring-2 ring-white/20">
+                            @else
+                                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-orange-500 text-sm font-bold text-white">{{ strtoupper(mb_substr($siteSettings->localized_school_name, 0, 1)) }}</span>
+                            @endif
+                            <span class="text-sm font-semibold uppercase tracking-widest text-orange-300">{{ $siteSettings->localized_school_name }}</span>
+                        </div>
+                    @endif
+
+                    <h1 class="text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl xl:text-7xl">
+                        {{ $headline }}
+                    </h1>
+
+                    <p class="mt-6 max-w-2xl text-lg leading-relaxed text-gray-300 sm:text-xl">{{ $sub }}</p>
+
+                    <div class="mt-10 flex flex-wrap items-center gap-4">
+                        <a href="{{ route('admissions.apply') }}" class="inline-flex items-center gap-2.5 rounded-xl bg-orange-500 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-orange-500/25 transition-all duration-300 hover:bg-orange-600 hover:shadow-xl hover:shadow-orange-500/30 hover:-translate-y-0.5">
+                            {{ site_ui('home.hero_cta_primary') }}
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                        </a>
+                        <a href="{{ route('site.about') }}" class="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/5 px-8 py-4 text-base font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-white/40">
+                            {{ site_ui('home.hero_cta_secondary') }}
+                        </a>
                     </div>
-                    <div>
-                        <div class="text-3xl font-bold" data-countup data-target="{{ $stats['teachers'] ?? 0 }}" data-suffix="+">0</div>
-                        <div class="mt-1 text-sm text-blue-200">{{ site_ui('home.stats_faculty') }}</div>
-                    </div>
-                    <div>
-                        <div class="text-3xl font-bold" data-countup data-target="{{ $stats['years'] ?? 0 }}" data-suffix="+">0</div>
-                        <div class="mt-1 text-sm text-blue-200">{{ site_ui('home.stats_years') }}</div>
-                    </div>
-                    <div>
-                        <div class="text-3xl font-bold" data-countup data-target="{{ $stats['awards'] ?? 0 }}" data-suffix="+">0</div>
-                        <div class="mt-1 text-sm text-blue-200">{{ site_ui('home.stats_awards') ?? __('Awards') }}</div>
+
+                    {{-- Quick stats row --}}
+                    <div class="mt-14 grid grid-cols-2 gap-6 sm:grid-cols-4 sm:gap-8">
+                        @php
+                            $heroStats = [
+                                ['value' => $stats['students'] ?? 0, 'label' => site_ui('home.stats_students'), 'suffix' => '+'],
+                                ['value' => $stats['teachers'] ?? 0, 'label' => site_ui('home.stats_faculty'), 'suffix' => '+'],
+                                ['value' => $stats['years'] ?? 0, 'label' => site_ui('home.stats_years'), 'suffix' => '+'],
+                                ['value' => $stats['awards'] ?? 0, 'label' => site_ui('home.stats_awards') ?? __('Awards'), 'suffix' => '+'],
+                            ];
+                        @endphp
+                        @foreach($heroStats as $i => $stat)
+                            <div class="@if(!$loop->first) sm:border-l sm:border-white/10 sm:pl-8 @endif">
+                                <div class="text-2xl font-bold text-white sm:text-3xl" data-countup data-target="{{ $stat['value'] }}" data-suffix="{{ $stat['suffix'] }}">0</div>
+                                <div class="mt-1 text-xs font-medium uppercase tracking-wider text-gray-400 sm:text-sm">{{ $stat['label'] }}</div>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
+
+                {{-- Right: Notice panel --}}
+                @if(($sectionVis['urgent_notices'] ?? true) && $recentNotices->isNotEmpty())
+                    <div class="lg:col-span-5 xl:col-span-5">
+                        <div class="rounded-2xl border border-white/10 bg-white/[0.07] backdrop-blur-md">
+                            <div class="flex items-center justify-between px-6 pt-5 pb-4 sm:px-7">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-500/20">
+                                        <svg class="h-5 w-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 3a1 1 0 00-1.447-.894L8.763 6H5a3 3 0 000 6h.28l1.771 5.316A1 1 0 008 18h1a1 1 0 001-1v-4.382l6.553 3.276A1 1 0 0018 15V3z" clip-rule="evenodd"/></svg>
+                                    </span>
+                                    <h3 class="text-base font-bold text-white">{{ __('Latest Notices') }}</h3>
+                                </div>
+                                <span class="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-gray-300">{{ $recentNotices->count() }} {{ __('new') }}</span>
+                            </div>
+
+                            {{-- Auto-scrolling notice list (bottom→top, ~4 visible) --}}
+                            @php
+                                $visibleCount = 4;
+                                $noticeHeight = 88;
+                                $gap = 10;
+                                $visibleHeight = ($visibleCount * $noticeHeight) + (($visibleCount - 1) * $gap);
+                                $totalNotices = $recentNotices->count();
+                                $scrollDuration = max(8, $totalNotices * 3);
+                            @endphp
+                            <div class="relative px-6 pb-5 sm:px-7">
+                                {{-- Gradient masks --}}
+                                <div class="pointer-events-none absolute inset-x-6 sm:inset-x-7 top-0 h-6 bg-gradient-to-b from-white/[0.07] to-transparent z-10 sm:inset-x-7"></div>
+                                <div class="pointer-events-none absolute inset-x-6 sm:inset-x-7 bottom-5 h-6 bg-gradient-to-t from-white/[0.07] to-transparent z-10 sm:inset-x-7"></div>
+
+                                <div
+                                    class="notice-scroll-container overflow-hidden"
+                                    style="height: {{ $visibleHeight }}px;"
+                                    data-scroll-speed="{{ $scrollDuration }}"
+                                >
+                                    <div class="notice-scroll-content">
+                                        {{-- Original set --}}
+                                        @foreach($recentNotices as $notice)
+                                            <div class="notice-item rounded-xl border border-white/[0.06] bg-white/[0.04] p-4 transition-all duration-200 hover:border-white/[0.12] hover:bg-white/[0.08]" style="min-height: {{ $noticeHeight }}px;">
+                                                <div class="flex items-start gap-3">
+                                                    @if($notice->is_urgent)
+                                                        <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-red-500 shadow-sm shadow-red-500/50 animate-pulse"></span>
+                                                    @elseif($notice->pinned)
+                                                        <svg class="mt-0.5 h-4 w-4 shrink-0 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a2 2 0 002 2h10a2 2 0 002-2v-5a2 2 0 00-2-2V7a5 5 0 00-5-5zm3 7V7a3 3 0 00-6 0v2h6z"/></svg>
+                                                    @else
+                                                        <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-blue-400/70"></span>
+                                                    @endif
+                                                    <div class="min-w-0 flex-1">
+                                                        <div class="flex items-center gap-2">
+                                                            <h4 class="text-sm font-semibold text-white leading-snug">{{ $notice->title }}</h4>
+                                                            @if($notice->is_urgent)
+                                                                <span class="shrink-0 rounded bg-red-500/20 px-1.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-red-300">{{ __('Urgent') }}</span>
+                                                            @endif
+                                                        </div>
+                                                        <p class="mt-1 text-xs leading-relaxed text-gray-400 line-clamp-2">{{ \Illuminate\Support\Str::limit(strip_tags($notice->content), 100) }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                        {{-- Duplicate for seamless loop --}}
+                                        @foreach($recentNotices as $notice)
+                                            <div class="notice-item rounded-xl border border-white/[0.06] bg-white/[0.04] p-4 transition-all duration-200 hover:border-white/[0.12] hover:bg-white/[0.08]" style="min-height: {{ $noticeHeight }}px;">
+                                                <div class="flex items-start gap-3">
+                                                    @if($notice->is_urgent)
+                                                        <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-red-500 shadow-sm shadow-red-500/50 animate-pulse"></span>
+                                                    @elseif($notice->pinned)
+                                                        <svg class="mt-0.5 h-4 w-4 shrink-0 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a2 2 0 002 2h10a2 2 0 002-2v-5a2 2 0 00-2-2V7a5 5 0 00-5-5zm3 7V7a3 3 0 00-6 0v2h6z"/></svg>
+                                                    @else
+                                                        <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-blue-400/70"></span>
+                                                    @endif
+                                                    <div class="min-w-0 flex-1">
+                                                        <div class="flex items-center gap-2">
+                                                            <h4 class="text-sm font-semibold text-white leading-snug">{{ $notice->title }}</h4>
+                                                            @if($notice->is_urgent)
+                                                                <span class="shrink-0 rounded bg-red-500/20 px-1.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-red-300">{{ __('Urgent') }}</span>
+                                                            @endif
+                                                        </div>
+                                                        <p class="mt-1 text-xs leading-relaxed text-gray-400 line-clamp-2">{{ \Illuminate\Support\Str::limit(strip_tags($notice->content), 100) }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
             </div>
         </div>
     </section>
+    @endif
 
     {{-- Features Section --}}
+    @if($sectionVis['features'] ?? true)
     <section class="bg-white py-20">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="mb-14 text-center reveal">
@@ -98,8 +201,10 @@
             </div>
         </div>
     </section>
+    @endif
 
     {{-- About/Stats Section --}}
+    @if($sectionVis['stats'] ?? true)
     <section class="bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 py-20 text-white">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-2 gap-8 md:grid-cols-4 text-center reveal">
@@ -122,9 +227,10 @@
             </div>
         </div>
     </section>
+    @endif
 
     {{-- Principal's Message --}}
-    @if(!empty($principalMessage))
+    @if(($sectionVis['principal'] ?? true) && !empty($principalMessage))
         <section class="bg-white py-20">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="grid items-center gap-12 lg:grid-cols-2 reveal">
@@ -162,7 +268,7 @@
     @endif
 
     {{-- Testimonials --}}
-    @if(count($testimonialsFallback))
+    @if(($sectionVis['testimonials'] ?? true) && count($testimonialsFallback))
         <section class="bg-slate-50 py-20">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="mb-14 text-center reveal">
@@ -191,7 +297,7 @@
     @endif
 
     {{-- Upcoming Events --}}
-    @if($upcomingEvents->isNotEmpty())
+    @if(($sectionVis['events'] ?? true) && $upcomingEvents->isNotEmpty())
         <section class="bg-white py-20">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="mb-10 flex flex-wrap items-end justify-between gap-4 reveal">
@@ -223,7 +329,7 @@
     @endif
 
     {{-- Latest News --}}
-    @if($latestNews->isNotEmpty())
+    @if(($sectionVis['news'] ?? true) && $latestNews->isNotEmpty())
         <section class="bg-slate-50 py-20">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="mb-10 flex flex-wrap items-end justify-between gap-4 reveal">
@@ -267,7 +373,7 @@
     @endif
 
     {{-- Highlights --}}
-    @if(count($highlightsFallback))
+    @if(($sectionVis['highlights'] ?? true) && count($highlightsFallback))
         <section class="bg-white py-16">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <h2 class="mb-4 text-center text-2xl font-bold text-gray-900 reveal">{{ site_ui('home.highlights_title') }}</h2>
@@ -285,6 +391,7 @@
     @endif
 
     {{-- CTA Banner --}}
+    @if($sectionVis['cta'] ?? true)
     <section class="relative overflow-hidden bg-gradient-to-r from-blue-700 via-blue-800 to-indigo-900 py-20 text-white">
         <div class="absolute inset-0 overflow-hidden pointer-events-none">
             <div class="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl"></div>
@@ -304,8 +411,10 @@
             </div>
         </div>
     </section>
+    @endif
 
     {{-- Partner/Logo Strip --}}
+    @if($sectionVis['partners'] ?? true)
     <section class="bg-white py-12 border-t border-slate-100">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <p class="mb-8 text-center text-sm font-semibold uppercase tracking-wider text-slate-400 reveal">{{ __('Our Partners & Affiliations') }}</p>
@@ -318,4 +427,17 @@
             </div>
         </div>
     </section>
+    @endif
 @endsection
+
+@push('scripts')
+<script>
+(function(){
+    document.querySelectorAll('.notice-scroll-container').forEach(function(el){
+        var speed = parseInt(el.dataset.scrollSpeed || '15', 10);
+        var content = el.querySelector('.notice-scroll-content');
+        if(content) content.style.setProperty('--scroll-duration', speed + 's');
+    });
+})();
+</script>
+@endpush

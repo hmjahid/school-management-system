@@ -52,6 +52,11 @@
                 <textarea name="message" required rows="5" maxlength="1000" class="admin-input" placeholder="Dear parents, …"></textarea>
                 <p class="mt-1 text-xs text-slate-500">{{ __('Standard SMS is 160 chars; longer messages will be split.') }}</p>
             </div>
+            <div>
+                <label class="mb-1 block text-xs font-semibold text-slate-600">{{ __('Schedule (optional)') }}</label>
+                <input type="datetime-local" name="scheduled_at" class="admin-input">
+                <p class="mt-1 text-xs text-slate-500">{{ __('Leave empty to send immediately.') }}</p>
+            </div>
             <div class="flex justify-end gap-2">
                 <x-button :href="route('dashboard.sms.index')" variant="ghost">{{ __('Cancel') }}</x-button>
                 <x-button type="submit">{{ __('Preview recipients') }}</x-button>

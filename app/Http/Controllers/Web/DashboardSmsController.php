@@ -20,7 +20,7 @@ class DashboardSmsController extends Controller
     {
         abort_unless($request->user()?->can('send_bulk_sms'), 403);
 
-        $rows = SmsCampaign::with('creator')->orderByDesc('id')->paginate(20);
+        $rows = SmsCampaign::withCount('recipients')->with('creator')->orderByDesc('id')->paginate(20);
 
         return view('dashboard.sms.index', compact('rows'));
     }

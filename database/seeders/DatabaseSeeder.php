@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             DemoGallerySeeder::class,
             DemoLeaveSeeder::class,
             DemoLedgerSeeder::class,
+            NoticeSeeder::class,
         ]);
     }
 }

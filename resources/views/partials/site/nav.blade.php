@@ -63,17 +63,27 @@
     </div>
 </div>
 
-{{-- Admissions CTA top bar --}}
+{{-- Admissions CTA top bar — only shown when admissions are open --}}
+@php
+    $admissionOpen = true;
+    try {
+        if (class_exists(\App\Models\AdmissionSetting::class) && \Illuminate\Support\Facades\Schema::hasTable('admission_settings')) {
+            $admissionOpen = \App\Models\AdmissionSetting::getSettings()->is_open;
+        }
+    } catch (\Throwable) {}
+@endphp
+@if($admissionOpen && ($siteSettings->section_visibility['admissions_bar'] ?? true))
 <div class="hidden items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-1.5 text-center text-xs font-medium text-white sm:flex">
     <span class="inline-flex items-center gap-1">
         <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm2.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm6.207.293a1 1 0 00-1.414 0l-6 6a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414zM14 8a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" clip-rule="evenodd"/></svg>
-        Admissions Open 2025-26
+        {{ __('Admissions Open') }} {{ date('Y') }}-{{ date('Y', strtotime('+1 year')) }}
     </span>
     <a href="{{ route('admissions.apply') }}" class="inline-flex items-center gap-0.5 font-semibold underline underline-offset-2 hover:no-underline">
-        Apply Now
+        {{ __('Apply Now') }}
         <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
     </a>
 </div>
+@endif
 
 {{-- Main header: sticky with blur --}}
 <header class="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/95 backdrop-blur-md transition-shadow duration-300">
@@ -236,131 +246,184 @@
     <div id="site-nav-panel" data-site-nav-panel hidden
         class="min-[1367px]:hidden border-t border-gray-100 bg-white shadow-lg"
         role="dialog" aria-modal="false" aria-label="{{ site_ui('nav.menu') }}">
-        <nav class="mx-auto max-h-[calc(100vh-5rem)] max-w-7xl overflow-y-auto px-4 py-4" aria-label="{{ site_ui('nav.menu') }}">
+        <nav class="mx-auto max-h-[calc(100vh-5rem)] max-w-7xl overflow-y-auto pb-24" aria-label="{{ site_ui('nav.menu') }}">
             @php
-                $linkMobile = fn ($active) => 'flex items-center justify-between rounded-lg px-4 py-3 text-base font-medium transition '.($active ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-100' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700');
-                $sectionTitle = 'mb-2 px-4 text-xs font-semibold uppercase tracking-wider text-gray-400';
-                $btnMobilePrimary = 'block w-full rounded-lg bg-blue-600 px-4 py-3 text-center text-base font-semibold text-white shadow-sm transition hover:bg-blue-700';
-                $btnMobileOutline = 'block w-full rounded-lg border-2 border-blue-600 bg-white px-4 py-3 text-center text-base font-semibold text-blue-700 transition hover:bg-blue-50';
-                $btnMobileNeutral = 'block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-center text-base font-semibold text-gray-800 transition hover:bg-gray-50';
+                $linkMobile = fn ($active) => 'flex items-center justify-between rounded-xl px-4 py-3 text-[0.95rem] font-medium transition-all duration-200 '.($active ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-100 shadow-sm' : 'text-gray-700 hover:bg-gray-50 active:bg-blue-50');
+                $sectionTitle = 'mb-2 px-5 text-[0.65rem] font-bold uppercase tracking-[0.15em] text-gray-400';
+                $btnMobilePrimary = 'flex items-center justify-center w-full rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-3.5 text-[0.95rem] font-semibold text-white shadow-md transition-all duration-200 hover:from-blue-700 hover:to-blue-800 active:scale-[0.98]';
+                $btnMobileOutline = 'flex items-center justify-center w-full rounded-xl border-2 border-blue-600 bg-white px-4 py-3.5 text-[0.95rem] font-semibold text-blue-700 transition-all duration-200 hover:bg-blue-50 active:scale-[0.98]';
+                $btnMobileNeutral = 'flex items-center justify-center w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-[0.95rem] font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 active:scale-[0.98]';
                 $check = '<svg class="h-5 w-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M16.7 5.3a1 1 0 010 1.4l-7.5 7.5a1 1 0 01-1.4 0L3.3 9.7a1 1 0 011.4-1.4L8.5 12l6.8-6.7a1 1 0 011.4 0z" clip-rule="evenodd"/></svg>';
             @endphp
 
-            <p class="{{ $sectionTitle }}">{{ __('Menu') }}</p>
-            <ul class="space-y-1">
-                <li><a data-site-nav-link href="{{ route('home') }}" class="{{ $linkMobile(request()->routeIs('home')) }}"><span>{{ site_ui('nav.home') }}</span>@if(request()->routeIs('home')){!! $check !!}@endif</a></li>
-            </ul>
-
-            @php
-                $mobileGroup = function (array $group) {
-                    $isGroupActive = $group['active'];
-                    $subActive = fn ($pattern) => (bool) request()->routeIs($pattern);
-                    return compact('isGroupActive', 'subActive', 'group');
-                };
-            @endphp
-
-            <ul class="mt-1 space-y-1">
-                @foreach ($navGroups as $group)
-                    @php $g = $mobileGroup($group); @endphp
-                    <li data-site-nav-accordion class="rounded-lg {{ $g['isGroupActive'] ? 'bg-blue-50/60 ring-1 ring-blue-100' : '' }}">
-                        <button type="button" data-site-nav-accordion-trigger aria-expanded="false"
-                            class="flex w-full items-center justify-between rounded-lg px-4 py-3 text-base font-medium transition {{ $g['isGroupActive'] ? 'text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700' }}">
-                            <span>{{ $group['label'] }}</span>
-                            <svg class="h-4 w-4 shrink-0 transition-transform duration-200" data-site-nav-accordion-caret fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </button>
-                        <div data-site-nav-accordion-panel class="hidden pb-2 pl-3 pr-1">
-                            <ul class="ml-3 space-y-0.5 border-l border-gray-200 pl-3">
-                                @foreach ($group['items'] as $item)
-                                    @php
-                                        $patterns = explode('|', $item['pattern']);
-                                        $isSubActive = false;
-                                        foreach ($patterns as $p) { if (request()->routeIs($p)) { $isSubActive = true; break; } }
-                                    @endphp
-                                    <li>
-                                        <a data-site-nav-link href="{{ route($item['route']) }}"
-                                            class="flex items-center gap-2 rounded-md px-3 py-2 text-sm transition {{ $isSubActive ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700' }}">
-                                            <span class="flex-1">{{ $item['label'] }}</span>
-                                            @if($isSubActive)
-                                                <svg class="h-4 w-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M16.7 5.3a1 1 0 010 1.4l-7.5 7.5a1 1 0 01-1.4 0L3.3 9.7a1 1 0 011.4-1.4L8.5 12l6.8-6.7a1 1 0 011.4 0z" clip-rule="evenodd"/></svg>
-                                            @endif
-                                        </a>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </li>
-                @endforeach
-            </ul>
-
-            <ul class="mt-1 space-y-1">
-                <li><a data-site-nav-link href="{{ route('site.news') }}" class="{{ $linkMobile(request()->routeIs('site.news*')) }}"><span>{{ site_ui('nav.news') }}</span>@if(request()->routeIs('site.news*')){!! $check !!}@endif</a></li>
-            </ul>
-
-            <div class="my-4 border-t border-gray-100"></div>
-
-            <p class="{{ $sectionTitle }}">{{ __('Account') }}</p>
-            <div class="space-y-2">
-                @auth
-                    @php
-                        $navStaffRoles = ['admin', 'teacher', 'accountant', 'staff', 'librarian'];
-                        $navIsStaff = auth()->user()->hasAnyRole($navStaffRoles);
-                    @endphp
-                    @if($navIsStaff)
-                        <a data-site-nav-link href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard*') ? $btnMobilePrimary : $btnMobileOutline }}">{{ site_ui('nav.dashboard') }}</a>
-                    @else
-                        <a data-site-nav-link href="{{ route('portal') }}" class="{{ request()->routeIs('portal') || request()->routeIs('portal.*') ? $btnMobilePrimary : $btnMobileOutline }}">{{ site_ui('nav.portal') }}</a>
+            {{-- School branding at top --}}
+            <div class="flex items-center gap-3 border-b border-gray-100 bg-gradient-to-r from-blue-50/80 to-white px-5 py-4">
+                @if($siteSettings?->logo_url)
+                    <img src="{{ $siteSettings->logo_url }}" alt="" width="80" height="32" class="h-8 w-auto shrink-0 object-contain">
+                @endif
+                <div class="min-w-0 flex-1">
+                    <p class="truncate text-sm font-bold text-blue-800">{{ $school }}</p>
+                    @if($siteSettings?->tagline)
+                        <p class="truncate text-xs text-gray-500">{{ $siteSettings->tagline }}</p>
                     @endif
-                    <form method="post" action="{{ route('logout') }}" data-site-nav-link>
-                        @csrf
-                        <button type="submit" class="{{ $btnMobileNeutral }}">{{ site_ui('nav.logout') }}</button>
-                    </form>
-                @else
-                    <a data-site-nav-link href="{{ route('portal.register') }}" class="{{ $btnMobileOutline }}">{{ site_ui('nav.register') }}</a>
-                    <a data-site-nav-link href="{{ route('login') }}" class="{{ $btnMobilePrimary }}">{{ site_ui('nav.login') }}</a>
-                @endauth
+                </div>
             </div>
 
-            <div class="my-4 border-t border-gray-100"></div>
-
-            <p class="{{ $sectionTitle }}">{{ __('Language') }}</p>
-            <div class="flex flex-wrap gap-2 px-1">
-                @foreach (config('school.supported_locales', ['en']) as $loc)
-                    @php $locLabel = ['en' => 'EN', 'bn' => 'বাংলা'][$loc] ?? strtoupper($loc); @endphp
-                    <a data-site-nav-link href="{{ route('locale.switch', ['locale' => $loc]) }}"
-                        aria-label="{{ $locLabel }}"
-                        class="inline-flex min-w-[3rem] items-center justify-center rounded-md border px-3 py-1.5 text-xs font-bold uppercase tracking-wide transition {{ app()->getLocale() === $loc ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-700' }}">
-                        {{ $locLabel }}
-                    </a>
-                @endforeach
+            {{-- Search bar --}}
+            <div class="px-5 pt-4 pb-2">
+                <form action="{{ route('home') }}" method="GET" class="relative">
+                    <svg class="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <input type="search" name="q" placeholder="{{ __('Search...') }}" autocomplete="off"
+                        class="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 transition-all duration-200 focus:border-blue-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                </form>
             </div>
 
-            @if($phoneReal || $emailReal || $addrReal)
-                <div class="my-4 border-t border-gray-100"></div>
-                <p class="{{ $sectionTitle }}">{{ __('Contact') }}</p>
-                <ul class="space-y-2 px-1 text-sm text-gray-600">
-                    @if($phoneReal)
-                        <li class="flex items-start gap-2">
-                            <svg class="mt-0.5 h-4 w-4 shrink-0 text-blue-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
-                            <a href="tel:{{ preg_replace('/\s+/', '', $phoneReal) }}" class="hover:text-blue-700">{{ $phone }}</a>
-                        </li>
-                    @endif
-                    @if($emailReal)
-                        <li class="flex items-start gap-2">
-                            <svg class="mt-0.5 h-4 w-4 shrink-0 text-blue-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
-                            <a href="mailto:{{ $emailReal }}" class="break-all hover:text-blue-700">{{ $email }}</a>
-                        </li>
-                    @endif
-                    @if($addrReal)
-                        <li class="flex items-start gap-2">
-                            <svg class="mt-0.5 h-4 w-4 shrink-0 text-blue-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
-                            <span>{{ \Illuminate\Support\Str::limit($addr, 80) }}</span>
-                        </li>
-                    @endif
+            {{-- Navigation links --}}
+            <div class="px-5 pt-3">
+                <p class="{{ $sectionTitle }}">{{ __('Menu') }}</p>
+                <ul class="space-y-1">
+                    <li><a data-site-nav-link href="{{ route('home') }}" class="{{ $linkMobile(request()->routeIs('home')) }}"><span>{{ site_ui('nav.home') }}</span>@if(request()->routeIs('home')){!! $check !!}@endif</a></li>
                 </ul>
-            @endif
+
+                @php
+                    $mobileGroup = function (array $group) {
+                        $isGroupActive = $group['active'];
+                        $subActive = fn ($pattern) => (bool) request()->routeIs($pattern);
+                        return compact('isGroupActive', 'subActive', 'group');
+                    };
+                @endphp
+
+                <ul class="mt-2 space-y-1">
+                    @foreach ($navGroups as $group)
+                        @php $g = $mobileGroup($group); @endphp
+                        <li data-site-nav-accordion class="rounded-xl {{ $g['isGroupActive'] ? 'bg-blue-50/70 ring-1 ring-blue-100/80 shadow-sm' : '' }}">
+                            <button type="button" data-site-nav-accordion-trigger aria-expanded="false"
+                                class="flex w-full items-center justify-between rounded-xl px-4 py-3.5 text-[0.95rem] font-medium transition-all duration-200 {{ $g['isGroupActive'] ? 'text-blue-700' : 'text-gray-700 hover:bg-gray-50 active:bg-blue-50' }}">
+                                <div class="flex items-center gap-3">
+                                    @if($group['active'])
+                                        <span class="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0"></span>
+                                    @endif
+                                    <span>{{ $group['label'] }}</span>
+                                </div>
+                                <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform duration-300 ease-out" data-site-nav-accordion-caret fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            <div data-site-nav-accordion-panel class="overflow-hidden transition-[max-height] duration-300 ease-out" style="max-height:0">
+                                <div class="px-2 pb-3 pt-1">
+                                    <ul class="ml-4 space-y-0.5 border-l-2 border-gray-100 pl-4">
+                                        @foreach ($group['items'] as $item)
+                                            @php
+                                                $patterns = explode('|', $item['pattern']);
+                                                $isSubActive = false;
+                                                foreach ($patterns as $p) { if (request()->routeIs($p)) { $isSubActive = true; break; } }
+                                            @endphp
+                                            <li>
+                                                <a data-site-nav-link href="{{ route($item['route']) }}"
+                                                    class="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ $isSubActive ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-blue-700 active:bg-blue-50' }}">
+                                                    <svg class="h-4 w-4 shrink-0 {{ $isSubActive ? 'text-blue-600' : 'text-gray-300' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $item['icon'] }}"/>
+                                                    </svg>
+                                                    <span class="flex-1">{{ $item['label'] }}</span>
+                                                    @if($isSubActive)
+                                                        <svg class="h-4 w-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M16.7 5.3a1 1 0 010 1.4l-7.5 7.5a1 1 0 01-1.4 0L3.3 9.7a1 1 0 011.4-1.4L8.5 12l6.8-6.7a1 1 0 011.4 0z" clip-rule="evenodd"/></svg>
+                                                    @endif
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+
+                <ul class="mt-2 space-y-1">
+                    <li><a data-site-nav-link href="{{ route('site.news') }}" class="{{ $linkMobile(request()->routeIs('site.news*')) }}"><span>{{ site_ui('nav.news') }}</span>@if(request()->routeIs('site.news*')){!! $check !!}@endif</a></li>
+                </ul>
+
+                {{-- Language segmented control --}}
+                <div class="mt-5">
+                    <p class="{{ $sectionTitle }}">{{ __('Language') }}</p>
+                    <div class="mx-1 flex overflow-hidden rounded-xl border border-gray-200 bg-gray-50 p-1">
+                        @foreach (config('school.supported_locales', ['en']) as $loc)
+                            @php $locLabel = ['en' => 'English', 'bn' => 'বাংলা'][$loc] ?? strtoupper($loc); @endphp
+                            <a data-site-nav-link href="{{ route('locale.switch', ['locale' => $loc]) }}"
+                                aria-label="{{ $locLabel }}"
+                                class="flex-1 text-center rounded-lg px-3 py-2.5 text-sm font-semibold transition-all duration-200 {{ app()->getLocale() === $loc ? 'bg-white text-blue-700 shadow-sm ring-1 ring-gray-200' : 'text-gray-500 hover:text-gray-700' }}">
+                                {{ $locLabel }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- Contact info with icons --}}
+                @if($phoneReal || $emailReal || $addrReal)
+                    <div class="mt-5">
+                        <p class="{{ $sectionTitle }}">{{ __('Contact') }}</p>
+                        <div class="mx-1 space-y-1 rounded-xl bg-gray-50 px-4 py-3">
+                            @if($phoneReal)
+                                <a href="tel:{{ preg_replace('/\s+/', '', $phoneReal) }}" class="flex items-center gap-3 py-2 text-sm text-gray-600 transition-colors hover:text-blue-700">
+                                    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
+                                    </span>
+                                    <span>{{ $phone }}</span>
+                                </a>
+                            @endif
+                            @if($emailReal)
+                                <a href="mailto:{{ $emailReal }}" class="flex items-center gap-3 py-2 text-sm text-gray-600 transition-colors hover:text-blue-700">
+                                    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+                                    </span>
+                                    <span class="break-all">{{ $email }}</span>
+                                </a>
+                            @endif
+                            @if($addrReal)
+                                <div class="flex items-start gap-3 py-2 text-sm text-gray-600">
+                                    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                                    </span>
+                                    <span>{{ \Illuminate\Support\Str::limit($addr, 80) }}</span>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+            </div>
         </nav>
+
+        {{-- Fixed bottom action bar for thumb access --}}
+        <div class="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200 bg-white/95 px-5 py-3 backdrop-blur-md min-[1367px]:hidden">
+            @auth
+                @php
+                    $navStaffRoles = ['admin', 'teacher', 'accountant', 'staff', 'librarian'];
+                    $navIsStaff = auth()->user()->hasAnyRole($navStaffRoles);
+                @endphp
+                <div class="flex items-center gap-3">
+                    <a data-site-nav-link href="{{ $navIsStaff ? route('dashboard') : route('portal') }}"
+                        class="flex-1 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-3 text-center text-sm font-semibold text-white shadow-md transition-all duration-200 hover:from-blue-700 hover:to-blue-800 active:scale-[0.98]">
+                        {{ $navIsStaff ? site_ui('nav.dashboard') : site_ui('nav.portal') }}
+                    </a>
+                    <form method="post" action="{{ route('logout') }}" data-site-nav-link class="flex-1">
+                        @csrf
+                        <button type="submit" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 active:scale-[0.98]">
+                            {{ site_ui('nav.logout') }}
+                        </button>
+                    </form>
+                </div>
+            @else
+                <div class="flex items-center gap-3">
+                    <a data-site-nav-link href="{{ route('portal.register') }}"
+                        class="flex-1 rounded-xl border-2 border-blue-600 bg-white px-4 py-3 text-center text-sm font-semibold text-blue-700 transition-all duration-200 hover:bg-blue-50 active:scale-[0.98]">
+                        {{ site_ui('nav.register') }}
+                    </a>
+                    <a data-site-nav-link href="{{ route('login') }}"
+                        class="flex-1 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-3 text-center text-sm font-semibold text-white shadow-md transition-all duration-200 hover:from-blue-700 hover:to-blue-800 active:scale-[0.98]">
+                        {{ site_ui('nav.login') }}
+                    </a>
+                </div>
+            @endauth
+        </div>
     </div>
 </header>
 
@@ -484,16 +547,25 @@
         var caret = acc.querySelector('[data-site-nav-accordion-caret]');
         if (!trig || !p) return;
 
-        if (acc.querySelector('a[aria-current], a.bg-blue-50')) {
-            p.classList.remove('hidden');
+        function openAccordion() {
+            p.style.maxHeight = p.scrollHeight + 'px';
             trig.setAttribute('aria-expanded', 'true');
             if (caret) caret.style.transform = 'rotate(180deg)';
         }
+        function closeAccordion() {
+            p.style.maxHeight = '0px';
+            trig.setAttribute('aria-expanded', 'false');
+            if (caret) caret.style.transform = '';
+        }
+
+        if (acc.querySelector('a[aria-current], a.bg-blue-50')) {
+            openAccordion();
+        }
 
         trig.addEventListener('click', function () {
-            var open = p.classList.toggle('hidden') === false;
-            trig.setAttribute('aria-expanded', open ? 'true' : 'false');
-            if (caret) caret.style.transform = open ? 'rotate(180deg)' : '';
+            var isOpen = trig.getAttribute('aria-expanded') === 'true';
+            if (isOpen) closeAccordion();
+            else openAccordion();
         });
     });
 

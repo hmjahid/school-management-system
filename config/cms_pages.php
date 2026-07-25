@@ -42,8 +42,12 @@ return [
                 'help' => 'Shown as a short block in the middle of the page.',
                 'type' => 'kv',
                 'fields' => [
+                    ['key' => 'photo', 'label' => 'Principal photo', 'type' => 'image'],
                     ['key' => 'name', 'label' => 'Principal name', 'type' => 'text'],
+                    ['key' => 'name_bn', 'label' => 'Principal name (Bengali)', 'type' => 'text'],
+                    ['key' => 'designation', 'label' => 'Designation', 'type' => 'text'],
                     ['key' => 'message', 'label' => 'Message', 'type' => 'textarea', 'rows' => 5],
+                    ['key' => 'message_bn', 'label' => 'Message (Bengali)', 'type' => 'textarea', 'rows' => 5],
                 ],
             ],
             [

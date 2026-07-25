@@ -5,6 +5,7 @@ use App\Http\Controllers\Web\AuthSessionController;
 use App\Http\Controllers\Web\CmsWebController;
 use App\Http\Controllers\Web\DashboardAdmissionController;
 use App\Http\Controllers\Web\DashboardAnnouncementController;
+use App\Http\Controllers\Web\DashboardNoticeController;
 use App\Http\Controllers\Web\DashboardAttendanceController;
 use App\Http\Controllers\Web\DashboardExpenseController;
 use App\Http\Controllers\Web\DashboardLedgerController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\Web\DashboardBackupController;
 use App\Http\Controllers\Web\DashboardActivityController;
 use App\Http\Controllers\Web\DashboardNotificationPreferencesController;
 use App\Http\Controllers\Web\DashboardBulkController;
+use App\Http\Controllers\Web\DashboardLocaleController;
 use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\DashboardDocumentController;
@@ -30,6 +32,7 @@ use App\Http\Controllers\Web\DashboardExamController;
 use App\Http\Controllers\Web\DashboardExamResultController;
 use App\Http\Controllers\Web\DashboardFeeController;
 use App\Http\Controllers\Web\DashboardFeePaymentController;
+use App\Http\Controllers\Web\DashboardHelpController;
 use App\Http\Controllers\Web\DashboardGalleryController;
 use App\Http\Controllers\Web\DashboardGuardianController;
 use App\Http\Controllers\Web\DashboardModulesController;
@@ -117,6 +120,8 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthSessionController::class, 'destroy'])->name('logout');
 
+    Route::get('/dashboard/locale/{locale}', [DashboardLocaleController::class, 'switch'])->name('dashboard.locale.switch');
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/portal/admission', [PortalAdmissionController::class, 'show'])->name('portal.admission');
@@ -150,6 +155,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/events/{event}/edit', [DashboardEventController::class, 'edit'])->name('dashboard.events.edit');
     Route::put('/dashboard/events/{event}', [DashboardEventController::class, 'update'])->name('dashboard.events.update');
     Route::delete('/dashboard/events/{event}', [DashboardEventController::class, 'destroy'])->name('dashboard.events.destroy');
+
+    Route::get('/dashboard/help', [DashboardHelpController::class, 'index'])->name('dashboard.help');
 
     Route::get('/dashboard/bulk', [DashboardBulkController::class, 'index'])->name('dashboard.bulk');
     Route::get('/dashboard/bulk/export/{resource}', [DashboardBulkController::class, 'export'])->name('dashboard.bulk.export');
@@ -309,6 +316,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard/announcements/{announcement}/edit', [DashboardAnnouncementController::class, 'edit'])->name('dashboard.announcements.edit');
         Route::put('/dashboard/announcements/{announcement}', [DashboardAnnouncementController::class, 'update'])->name('dashboard.announcements.update');
         Route::delete('/dashboard/announcements/{announcement}', [DashboardAnnouncementController::class, 'destroy'])->name('dashboard.announcements.destroy');
+
+        Route::get('/dashboard/notices', [DashboardNoticeController::class, 'index'])->name('dashboard.notices.index');
+        Route::get('/dashboard/notices/create', [DashboardNoticeController::class, 'create'])->name('dashboard.notices.create');
+        Route::post('/dashboard/notices', [DashboardNoticeController::class, 'store'])->name('dashboard.notices.store');
+        Route::get('/dashboard/notices/{notice}/edit', [DashboardNoticeController::class, 'edit'])->name('dashboard.notices.edit');
+        Route::put('/dashboard/notices/{notice}', [DashboardNoticeController::class, 'update'])->name('dashboard.notices.update');
+        Route::delete('/dashboard/notices/{notice}', [DashboardNoticeController::class, 'destroy'])->name('dashboard.notices.destroy');
 
         Route::get('/dashboard/contact-submissions', [DashboardModulesController::class, 'contactSubmissions'])->name('dashboard.contact-submissions');
         Route::get('/dashboard/contact-submissions/export', [DashboardModulesController::class, 'contactSubmissionsExport'])->name('dashboard.contact-submissions.export');

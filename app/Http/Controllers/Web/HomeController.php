@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\News;
+use App\Models\Notice;
 use App\Models\Student;
 use App\Models\User;
 use App\Models\WebsiteContent;
@@ -28,6 +29,7 @@ class HomeController extends Controller
 
         $latestNews = collect();
         $upcomingEvents = collect();
+        $recentNotices = collect();
 
         try {
             if (Schema::hasTable('news')) {
@@ -43,6 +45,14 @@ class HomeController extends Controller
                     ->where('status', 'published')
                     ->where('start_date', '>=', now())
                     ->orderBy('start_date')
+                    ->limit(5)
+                    ->get();
+            }
+            if (Schema::hasTable('notices')) {
+                $recentNotices = Notice::query()
+                    ->orderByDesc('is_urgent')
+                    ->orderByDesc('pinned')
+                    ->orderByDesc('id')
                     ->limit(5)
                     ->get();
             }
@@ -74,6 +84,7 @@ class HomeController extends Controller
             'homeContent',
             'latestNews',
             'upcomingEvents',
+            'recentNotices',
             'stats'
         ));
     }

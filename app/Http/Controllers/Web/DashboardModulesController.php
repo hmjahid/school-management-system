@@ -16,6 +16,7 @@ use App\Models\WebsiteSetting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -38,9 +39,20 @@ class DashboardModulesController extends Controller
             });
         }
 
+        if ($classId = $request->integer('class_id')) {
+            $query->where('class_id', $classId);
+        }
+
+        if ($batchId = $request->integer('batch_id')) {
+            $query->where('batch_id', $batchId);
+        }
+
         $students = $query->latest()->paginate(15)->withQueryString();
 
-        return view('dashboard.modules.students', compact('students'));
+        $classes = SchoolClass::orderBy('grade_level')->orderBy('name')->get();
+        $batches = \App\Models\Batch::orderByDesc('id')->limit(80)->get();
+
+        return view('dashboard.modules.students', compact('students', 'classes', 'batches'));
     }
 
     public function teachers(Request $request): View
@@ -237,6 +249,10 @@ class DashboardModulesController extends Controller
             'send_absence_sms' => ['nullable', 'boolean'],
             'absence_sms_template' => ['nullable', 'string', 'max:500'],
             'sms_sender_id' => ['nullable', 'string', 'max:32'],
+            'sms_driver' => ['nullable', 'string', 'in:log,twilio,nexmo,textlocal,africastalking'],
+            'twilio_account_sid' => ['nullable', 'string', 'max:255'],
+            'twilio_auth_token' => ['nullable', 'string', 'max:255'],
+            'twilio_from_number' => ['nullable', 'string', 'max:50'],
             'facebook_url' => ['nullable', 'url', 'max:255'],
             'show_facebook' => ['nullable', 'boolean'],
             'twitter_url' => ['nullable', 'url', 'max:255'],
@@ -251,6 +267,8 @@ class DashboardModulesController extends Controller
             'remove_logo' => ['nullable', 'boolean'],
             'favicon' => ['nullable', 'file', 'max:512', 'mimes:ico,png,jpg,jpeg,gif,webp,svg'],
             'remove_favicon' => ['nullable', 'boolean'],
+            'section_visibility' => ['nullable', 'array'],
+            'section_visibility.*' => ['nullable', 'boolean'],
         ]);
 
         $settings = WebsiteSetting::firstOrNew([]);
@@ -280,8 +298,36 @@ class DashboardModulesController extends Controller
         }
 
         unset($validated['logo'], $validated['remove_logo'], $validated['favicon'], $validated['remove_favicon']);
+
+        if ($request->has('section_visibility')) {
+            $defaults = [
+                'hero' => true, 'features' => true, 'stats' => true, 'principal' => true,
+                'testimonials' => true, 'events' => true, 'news' => true, 'highlights' => true,
+                'cta' => true, 'partners' => true, 'admissions_bar' => true, 'urgent_notices' => true,
+            ];
+            $validated['section_visibility'] = array_merge($defaults, $request->input('section_visibility', []));
+        }
+
         $settings->fill($validated);
         $settings->save();
+
+        // Write SMS driver config to .env
+        $smsEnvMap = [
+            'sms_driver' => 'SMS_DRIVER',
+            'sms_sender_id' => 'SMS_FROM',
+            'twilio_account_sid' => 'TWILIO_ACCOUNT_SID',
+            'twilio_auth_token' => 'TWILIO_AUTH_TOKEN',
+            'twilio_from_number' => 'TWILIO_FROM_NUMBER',
+        ];
+        foreach ($smsEnvMap as $field => $envKey) {
+            if ($request->has($field)) {
+                $value = $request->input($field);
+                if ($field === 'twilio_auth_token' && $value === '') {
+                    continue;
+                }
+                $this->setEnvValue($envKey, $value);
+            }
+        }
 
         return redirect()->route('dashboard.settings')->with('status', __('Settings saved.'));
     }
@@ -333,5 +379,40 @@ class DashboardModulesController extends Controller
 
             fclose($out);
         }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    protected function setEnvValue(string $key, ?string $value): void
+    {
+        $path = base_path('.env');
+        if (!file_exists($path)) {
+            return;
+        }
+
+        $escaped = str_replace('"', '\\"', (string) $value);
+
+        $contents = file_get_contents($path);
+
+        if (preg_match('/^' . preg_quote($key, '/') . '=.*/m', $contents)) {
+            $contents = preg_replace('/^' . preg_quote($key, '/') . '=.*/m', $key . '="' . $escaped . '"', $contents);
+        } else {
+            $contents .= "\n" . $key . '="' . $escaped . '"';
+        }
+
+        file_put_contents($path, $contents);
+
+        // Refresh runtime config so changes take effect immediately
+        config([$this->envKeyToConfigPath($key) => $value]);
+    }
+
+    protected function envKeyToConfigPath(string $key): string
+    {
+        return match ($key) {
+            'SMS_DRIVER' => 'sms.default',
+            'SMS_FROM' => 'sms.from',
+            'TWILIO_ACCOUNT_SID' => 'sms.drivers.twilio.account_sid',
+            'TWILIO_AUTH_TOKEN' => 'sms.drivers.twilio.auth_token',
+            'TWILIO_FROM_NUMBER' => 'sms.drivers.twilio.from',
+            default => '',
+        };
     }
 }

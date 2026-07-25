@@ -20,16 +20,53 @@
     </a>
 </div>
 
-<nav class="admin-sidebar-nav flex flex-1 flex-col overflow-y-auto px-3 py-4">
+<nav class="admin-sidebar-nav flex flex-1 flex-col overflow-y-auto px-3 py-4" data-no-loading>
     {{-- Collapsible search input --}}
     <div class="relative mb-4" data-sidebar-search>
         <button type="button" data-sidebar-search-toggle class="flex w-full items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left text-sm text-slate-400 transition hover:border-slate-300 dark:border-slate-600 dark:bg-slate-700/50 dark:text-slate-500 dark:hover:border-slate-500">
             <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             <span class="flex-1 truncate">{{ __('Search menu...') }}</span>
-            <kbd class="hidden rounded border border-slate-300 bg-white px-1.5 text-[0.6rem] font-medium text-slate-400 md:inline dark:border-slate-600 dark:bg-slate-700 dark:text-slate-500">Ctrl+K</kbd>
         </button>
         <input type="text" data-sidebar-search-input placeholder="{{ __('Type to search...') }}" class="hidden w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-500">
     </div>
+
+    <script>
+    (function(){
+        var toggle = document.querySelector('[data-sidebar-search-toggle]');
+        var input = document.querySelector('[data-sidebar-search-input]');
+        if (!toggle || !input) return;
+        toggle.addEventListener('click', function(){
+            toggle.classList.add('hidden');
+            input.classList.remove('hidden');
+            input.focus();
+        });
+        input.addEventListener('blur', function(){
+            if (!input.value.trim()) {
+                input.classList.add('hidden');
+                toggle.classList.remove('hidden');
+            }
+        });
+        input.addEventListener('keydown', function(e){
+            if (e.key === 'Escape') {
+                input.value = '';
+                input.blur();
+            }
+        });
+        // Allow topbar search button to trigger sidebar search
+        window.openDashboardSearch = function(){
+            toggle.click();
+            // On mobile, also open sidebar
+            var sidebar = document.getElementById('sidebar');
+            var overlay = document.getElementById('sidebar-overlay');
+            if (sidebar && sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.add('lg:translate-x-0');
+                if (overlay) overlay.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            }
+        };
+    })();
+    </script>
 
     <p class="mb-2 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ __('Main') }}</p>
     <div class="space-y-0.5">
@@ -44,76 +81,154 @@
 
         <p class="mb-2 mt-5 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ __('Academic') }}</p>
 
-        @can('viewAny', App\Models\Student::class)
-            <x-admin-nav-link :href="route('dashboard.students')" route-is="dashboard.students*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z\'/></svg>'">{{ __('Students') }}</x-admin-nav-link>
-        @endcan
-        @can('viewAny', App\Models\Teacher::class)
-            <x-admin-nav-link :href="route('dashboard.teachers')" route-is="dashboard.teachers*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z\'/></svg>'">{{ __('Teachers') }}</x-admin-nav-link>
-        @endcan
-        @can('viewAny', App\Models\Guardian::class)
-            <x-admin-nav-link :href="route('dashboard.parents')" route-is="dashboard.parents*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z\' clip-rule=\'evenodd\'/></svg>'">{{ __('Parents') }}</x-admin-nav-link>
-        @endcan
-        @can('viewAny', App\Models\SchoolClass::class)
-            <x-admin-nav-link :href="route('dashboard.classes')" route-is="dashboard.classes*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z\'/></svg>'">{{ __('Classes') }}</x-admin-nav-link>
-        @endcan
-        @can('viewAny', App\Models\Attendance::class)
-            <x-admin-nav-link :href="route('dashboard.attendance')" route-is="dashboard.attendance*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z\' clip-rule=\'evenodd\'/></svg>'">{{ __('Attendance') }}</x-admin-nav-link>
-            <x-admin-nav-link :href="route('dashboard.attendance.bulk')" route-is="dashboard.attendance.bulk*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M9 2a1 1 0 000 2h2a1 1 0 100-2H9z\'/><path fill-rule=\'evenodd\' d=\'M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z\' clip-rule=\'evenodd\'/></svg>'" class="pl-9">{{ __('Bulk mark') }}</x-admin-nav-link>
-        @endcan
-        @can('manage_teacher_attendance')
-            <x-admin-nav-link :href="route('dashboard.staff-attendance.index')" route-is="dashboard.staff-attendance*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a7 7 0 017 7H1v-1a7 7 0 015-6.7z\'/></svg>'">{{ __('Staff attendance') }}</x-admin-nav-link>
-        @endcan
+        {{-- People --}}
+        <details class="group" @if (request()->routeIs('dashboard.students*') || request()->routeIs('dashboard.teachers*') || request()->routeIs('dashboard.parents*')) open @endif>
+            <summary class="admin-nav-link cursor-pointer list-none [&::-webkit-details-marker]:hidden {{ request()->routeIs('dashboard.students*') || request()->routeIs('dashboard.teachers*') || request()->routeIs('dashboard.parents*') ? 'admin-nav-link--active' : '' }}">
+                <span class="flex h-5 w-5 shrink-0 items-center justify-center opacity-80">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/></svg>
+                </span>
+                <span class="flex-1 truncate">{{ __('People') }}</span>
+                <svg class="h-4 w-4 shrink-0 text-slate-400 transition group-open:rotate-90 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </summary>
+            <div class="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3 dark:border-slate-700">
+                @can('viewAny', App\Models\Student::class)
+                    <a href="{{ route('dashboard.students') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.students*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Students') }}</a>
+                @endcan
+                @can('viewAny', App\Models\Teacher::class)
+                    <a href="{{ route('dashboard.teachers') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.teachers*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Teachers') }}</a>
+                @endcan
+                @can('viewAny', App\Models\Guardian::class)
+                    <a href="{{ route('dashboard.parents') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.parents*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Parents') }}</a>
+                @endcan
+            </div>
+        </details>
+
+        {{-- Academics --}}
+        <details class="group" @if (request()->routeIs('dashboard.classes*') || request()->routeIs('dashboard.exams*') || request()->routeIs('dashboard.assignments*') || request()->routeIs('dashboard.routines*')) open @endif>
+            <summary class="admin-nav-link cursor-pointer list-none [&::-webkit-details-marker]:hidden {{ request()->routeIs('dashboard.classes*') || request()->routeIs('dashboard.exams*') || request()->routeIs('dashboard.assignments*') || request()->routeIs('dashboard.routines*') ? 'admin-nav-link--active' : '' }}">
+                <span class="flex h-5 w-5 shrink-0 items-center justify-center opacity-80">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
+                </span>
+                <span class="flex-1 truncate">{{ __('Academics') }}</span>
+                <svg class="h-4 w-4 shrink-0 text-slate-400 transition group-open:rotate-90 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </summary>
+            <div class="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3 dark:border-slate-700">
+                @can('viewAny', App\Models\SchoolClass::class)
+                    <a href="{{ route('dashboard.classes') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.classes*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Classes') }}</a>
+                @endcan
+                @can('viewAny', App\Models\Exam::class)
+                    <a href="{{ route('dashboard.exams') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.exams*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Exams') }}</a>
+                @endcan
+                @can('manage_assignments')
+                    <a href="{{ route('dashboard.assignments.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.assignments*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Assignments') }}</a>
+                @endcan
+                @if(auth()->user()?->hasAnyRole(['admin', 'teacher']) || auth()->user()?->hasPermissionTo('routine-list'))
+                    <a href="{{ route('dashboard.routines.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.routines*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Class Routine') }}</a>
+                @endif
+            </div>
+        </details>
+
+        {{-- Daily --}}
+        <details class="group" @if (request()->routeIs('dashboard.attendance*') || request()->routeIs('dashboard.staff-attendance*')) open @endif>
+            <summary class="admin-nav-link cursor-pointer list-none [&::-webkit-details-marker]:hidden {{ request()->routeIs('dashboard.attendance*') || request()->routeIs('dashboard.staff-attendance*') ? 'admin-nav-link--active' : '' }}">
+                <span class="flex h-5 w-5 shrink-0 items-center justify-center opacity-80">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+                </span>
+                <span class="flex-1 truncate">{{ __('Daily') }}</span>
+                <svg class="h-4 w-4 shrink-0 text-slate-400 transition group-open:rotate-90 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </summary>
+            <div class="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3 dark:border-slate-700">
+                @can('viewAny', App\Models\Attendance::class)
+                    <a href="{{ route('dashboard.attendance') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.attendance') && !request()->routeIs('dashboard.attendance.bulk*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Attendance') }}</a>
+                    <a href="{{ route('dashboard.attendance.bulk') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.attendance.bulk*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Bulk mark') }}</a>
+                @endcan
+                @can('manage_teacher_attendance')
+                    <a href="{{ route('dashboard.staff-attendance.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.staff-attendance*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Staff attendance') }}</a>
+                @endcan
+            </div>
+        </details>
+
+        {{-- Finance --}}
+        @if ($canFees)
+            <details class="group" @if (request()->routeIs('dashboard.fees*') || request()->routeIs('dashboard.fee-payments*') || request()->routeIs('dashboard.expenses*') || request()->routeIs('dashboard.ledger*') || request()->routeIs('dashboard.reports.income-statement') || request()->routeIs('dashboard.reports.balance-sheet') || request()->routeIs('dashboard.reports.cash-flow')) open @endif>
+                <summary class="admin-nav-link cursor-pointer list-none [&::-webkit-details-marker]:hidden {{ request()->routeIs('dashboard.fees*') || request()->routeIs('dashboard.fee-payments*') || request()->routeIs('dashboard.expenses*') || request()->routeIs('dashboard.ledger*') ? 'admin-nav-link--active' : '' }}">
+                    <span class="flex h-5 w-5 shrink-0 items-center justify-center opacity-80">
+                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/></svg>
+                    </span>
+                    <span class="flex-1 truncate">{{ __('Finance') }}</span>
+                    <svg class="h-4 w-4 shrink-0 text-slate-400 transition group-open:rotate-90 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </summary>
+                <div class="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3 dark:border-slate-700">
+                    <a href="{{ route('dashboard.fees') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.fees*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Fees') }}</a>
+                    <a href="{{ route('dashboard.fee-payments.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.fee-payments*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Payments') }}</a>
+                    @can('manage_expenses')
+                        <a href="{{ route('dashboard.expenses.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.expenses*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Expenses') }}</a>
+                    @endcan
+                    @can('manage_chart_of_accounts')
+                        <a href="{{ route('dashboard.ledger.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.ledger*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Ledger') }}</a>
+                    @endcan
+                </div>
+            </details>
+        @endif
+
+        {{-- HR --}}
+        <details class="group" @if (request()->routeIs('dashboard.leaves*') || request()->routeIs('dashboard.payroll*') || request()->routeIs('dashboard.staff')) open @endif>
+            <summary class="admin-nav-link cursor-pointer list-none [&::-webkit-details-marker]:hidden {{ request()->routeIs('dashboard.leaves*') || request()->routeIs('dashboard.payroll*') || request()->routeIs('dashboard.staff') ? 'admin-nav-link--active' : '' }}">
+                <span class="flex h-5 w-5 shrink-0 items-center justify-center opacity-80">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a7 7 0 017 7H1v-1a7 7 0 015-6.7z"/></svg>
+                </span>
+                <span class="flex-1 truncate">{{ __('HR') }}</span>
+                <svg class="h-4 w-4 shrink-0 text-slate-400 transition group-open:rotate-90 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </summary>
+            <div class="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3 dark:border-slate-700">
+                @if(auth()->user()->hasAnyRole(['admin','staff','teacher']))
+                    <a href="{{ route('dashboard.leaves.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.leaves*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Leaves') }}</a>
+                @endif
+                @can('view_teacher_salaries')
+                    <a href="{{ route('dashboard.payroll.payslips') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.payroll*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Payroll') }}</a>
+                @endcan
+                @if(auth()->user()?->hasRole('admin'))
+                    <a href="{{ route('dashboard.staff') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.staff') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Staff directory') }}</a>
+                @endif
+            </div>
+        </details>
+
+        {{-- Documents --}}
+        <details class="group" @if (request()->routeIs('dashboard.admit-cards*') || request()->routeIs('dashboard.student-id-cards*') || request()->routeIs('dashboard.certificates*')) open @endif>
+            <summary class="admin-nav-link cursor-pointer list-none [&::-webkit-details-marker]:hidden {{ request()->routeIs('dashboard.admit-cards*') || request()->routeIs('dashboard.student-id-cards*') || request()->routeIs('dashboard.certificates*') ? 'admin-nav-link--active' : '' }}">
+                <span class="flex h-5 w-5 shrink-0 items-center justify-center opacity-80">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/></svg>
+                </span>
+                <span class="flex-1 truncate">{{ __('Documents') }}</span>
+                <svg class="h-4 w-4 shrink-0 text-slate-400 transition group-open:rotate-90 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </summary>
+            <div class="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3 dark:border-slate-700">
+                @can('manage_admit_cards')
+                    <a href="{{ route('dashboard.admit-cards.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.admit-cards*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Admit Cards') }}</a>
+                @endcan
+                @can('manage_student_id_cards')
+                    <a href="{{ route('dashboard.student-id-cards.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.student-id-cards*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Student ID Cards') }}</a>
+                @endcan
+                @can('manage_certificates')
+                    <a href="{{ route('dashboard.certificates.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.certificates*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Certificates') }}</a>
+                @endcan
+            </div>
+        </details>
+
         @can('send_bulk_sms')
             <x-admin-nav-link :href="route('dashboard.sms.index')" route-is="dashboard.sms*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0L9 8.586l4.293-4.293a1 1 0 111.414 1.414L10.414 10l4.293 4.293a1 1 0 01-1.414 1.414L9 11.414l-2.293 2.293a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414z\'/></svg>'">{{ __('Bulk SMS') }}</x-admin-nav-link>
         @endcan
-        @if(auth()->user()->hasAnyRole(['admin','staff','teacher']))
-            <x-admin-nav-link :href="route('dashboard.leaves.index')" route-is="dashboard.leaves*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z\' clip-rule=\'evenodd\'/></svg>'">{{ __('Leaves') }}</x-admin-nav-link>
-        @endif
-        @can('view_teacher_salaries')
-            <x-admin-nav-link :href="route('dashboard.payroll.payslips')" route-is="dashboard.payroll.*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z\'/><path fill-rule=\'evenodd\' d=\'M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z\' clip-rule=\'evenodd\'/></svg>'">{{ __('Payroll') }}</x-admin-nav-link>
-        @endcan
-        @if(auth()->user()?->hasRole('admin'))
-            <x-admin-nav-link :href="route('dashboard.staff')" route-is="dashboard.staff" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a7 7 0 017 7H1v-1a7 7 0 015-6.7z\'/></svg>'">{{ __('Staff directory') }}</x-admin-nav-link>
-        @endif
-        @if (auth()->user()?->can('view_admissions'))
-            <x-admin-nav-link :href="route('dashboard.admissions.index')" route-is="dashboard.admissions*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M7 2a1 1 0 00-1 1v1H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H8V3a1 1 0 00-1-1z\'/><path d=\'M6 10a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1z\'/></svg>'">{{ __('Admissions') }}</x-admin-nav-link>
-        @endif
-        @if(auth()->user()?->hasAnyRole(['admin', 'teacher']) || auth()->user()?->hasPermissionTo('routine-list'))
-            <x-admin-nav-link :href="route('dashboard.routines.index')" route-is="dashboard.routines*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z\' clip-rule=\'evenodd\'/></svg>'">{{ __('Class Routine') }}</x-admin-nav-link>
-        @endif
-        @can('viewAny', App\Models\Exam::class)
-            <x-admin-nav-link :href="route('dashboard.exams')" route-is="dashboard.exams*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z\' clip-rule=\'evenodd\'/></svg>'">{{ __('Exams') }}</x-admin-nav-link>
-        @endcan
-        @can('manage_assignments')
-            <x-admin-nav-link :href="route('dashboard.assignments.index')" route-is="dashboard.assignments*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M9 2a1 1 0 000 2h2a1 1 0 100-2H9z\'/><path fill-rule=\'evenodd\' d=\'M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z\' clip-rule=\'evenodd\'/></svg>'">{{ __('Assignments') }}</x-admin-nav-link>
-        @endcan
-        @can('manage_admit_cards')
-            <x-admin-nav-link :href="route('dashboard.admit-cards.index')" route-is="dashboard.admit-cards*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z\' clip-rule=\'evenodd\'/></svg>'">{{ __('Admit Cards') }}</x-admin-nav-link>
-        @endcan
-        @can('manage_student_id_cards')
-            <x-admin-nav-link :href="route('dashboard.student-id-cards.index')" route-is="dashboard.student-id-cards*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M10 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a2 2 0 002 2h10a2 2 0 002-2v-5a2 2 0 00-2-2V7a5 5 0 00-5-5zm3 7V7a3 3 0 00-6 0v2h6z\'/></svg>'">{{ __('Student ID Cards') }}</x-admin-nav-link>
-        @endcan
-        @can('manage_certificates')
-            <x-admin-nav-link :href="route('dashboard.certificates.index')" route-is="dashboard.certificates*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z\' clip-rule=\'evenodd\'/></svg>'">{{ __('Certificates') }}</x-admin-nav-link>
-        @endcan
         @can('viewAny', App\Models\Event::class)
             <x-admin-nav-link :href="route('dashboard.events')" route-is="dashboard.events*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z\' clip-rule=\'evenodd\'/></svg>'">{{ __('Events') }}</x-admin-nav-link>
+            <x-admin-nav-link :href="route('dashboard.events.calendar')" route-is="dashboard.events.calendar" :icon="'<svg class=\'h-5 w-5\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z\'/></svg>'">{{ __('Calendar') }}</x-admin-nav-link>
         @endcan
         @if ($canFees)
-            <x-admin-nav-link :href="route('dashboard.fees')" route-is="dashboard.fees*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z\'/><path fill-rule=\'evenodd\' d=\'M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z\' clip-rule=\'evenodd\'/></svg>'">{{ __('Fees') }}</x-admin-nav-link>
-            <x-admin-nav-link :href="route('dashboard.fee-payments.index')" route-is="dashboard.fee-payments*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 1a1 1 0 100 2 1 1 0 000-2z\' clip-rule=\'evenodd\'/></svg>'">{{ __('Payments') }}</x-admin-nav-link>
             @can('manage_vehicles')
                 <x-admin-nav-link :href="route('dashboard.transport.vehicles.index')" route-is="dashboard.transport.*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z\'/><path d=\'M3 4a1 1 0 00-1 1v3a1 1 0 001 1h1l1.6 4.4A2 2 0 007.4 15h7.2a2 2 0 001.8-1.6L17 9h2a1 1 0 100-2h-3.28l-.6-2H11v2h2.28l1.2 4H8.52L7.4 6.6A2 2 0 005.6 5H3z\'/></svg>'">{{ __('Transport') }}</x-admin-nav-link>
             @endcan
-            @can('manage_expenses')
-                <x-admin-nav-link :href="route('dashboard.expenses.index')" route-is="dashboard.expenses*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M3 4a2 2 0 00-2 2v8a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2H3zm5 5a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z\' clip-rule=\'evenodd\'/></svg>'">{{ __('Expenses') }}</x-admin-nav-link>
-            @endcan
-            @can('manage_chart_of_accounts')
-                <x-admin-nav-link :href="route('dashboard.ledger.index')" route-is="dashboard.ledger*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-2a1 1 0 01-1-1V6H6a2 2 0 01-2-2z\'/></svg>'">{{ __('Ledger') }}</x-admin-nav-link>
-                <x-admin-nav-link :href="route('dashboard.reports.income-statement')" route-is="dashboard.reports.income-statement" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z\'/></svg>'">{{ __('Income statement') }}</x-admin-nav-link>
-                <x-admin-nav-link :href="route('dashboard.reports.balance-sheet')" route-is="dashboard.reports.balance-sheet" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M3 3h14v3H3V3zm0 5h14v3H3V8zm0 5h14v3H3v-3z\'/></svg>'">{{ __('Balance sheet') }}</x-admin-nav-link>
-                <x-admin-nav-link :href="route('dashboard.reports.cash-flow')" route-is="dashboard.reports.cash-flow" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm9 4a1 1 0 10-2 0v3.586L9.707 8.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L14 10.586V7z\' clip-rule=\'evenodd\'/></svg>'">{{ __('Cash flow') }}</x-admin-nav-link>
-            @endcan
+        @endif
+        @if (auth()->user()?->can('view_admissions'))
+            <x-admin-nav-link :href="route('dashboard.admissions.index')" route-is="dashboard.admissions*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M7 2a1 1 0 00-1 1v1H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H8V3a1 1 0 00-1-1z\'/><path d=\'M6 10a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1z\'/></svg>'">{{ __('Admissions') }}</x-admin-nav-link>
         @endif
 
         @if ($isAdmin ?? auth()->user()?->hasRole('admin'))
@@ -127,7 +242,7 @@
 
             <p class="mb-2 mt-5 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ __('Website') }}</p>
 
-            <details class="group" @if (request()->routeIs('dashboard.cms.*') || request()->routeIs('dashboard.contact-submissions') || request()->routeIs('dashboard.news.*') || request()->routeIs('dashboard.gallery.*') || request()->routeIs('dashboard.announcements.*') || request()->routeIs('dashboard.documents.*')) open @endif>
+            <details class="group" @if (request()->routeIs('dashboard.cms.*') || request()->routeIs('dashboard.contact-submissions') || request()->routeIs('dashboard.news.*') || request()->routeIs('dashboard.gallery.*') || request()->routeIs('dashboard.announcements.*') || request()->routeIs('dashboard.notices.*') || request()->routeIs('dashboard.documents.*')) open @endif>
                 <summary class="admin-nav-link cursor-pointer list-none [&::-webkit-details-marker]:hidden {{ request()->routeIs('dashboard.cms.*') || request()->routeIs('dashboard.news.*') || request()->routeIs('dashboard.gallery.*') ? 'admin-nav-link--active' : '' }}">
                     <span class="flex h-5 w-5 shrink-0 items-center justify-center opacity-80">
                         <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.56-.5-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.56.5.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.498-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z" clip-rule="evenodd"/></svg>
@@ -140,6 +255,7 @@
                     <a href="{{ route('dashboard.news.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.news.*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('News & events') }}</a>
                     <a href="{{ route('dashboard.gallery.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.gallery.*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Gallery') }}</a>
                     <a href="{{ route('dashboard.announcements.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.announcements.*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Announcements') }}</a>
+                    <a href="{{ route('dashboard.notices.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.notices.*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Notices') }}</a>
                     <a href="{{ route('dashboard.documents.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.documents.*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Documents') }}</a>
                     <a href="{{ route('dashboard.contact-submissions') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.contact-submissions') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('Form submissions') }}</a>
                 </div>
@@ -155,6 +271,12 @@
 </nav>
 
 <div class="mt-auto border-t border-slate-200/80 p-3 dark:border-slate-700/80">
+    {{-- Help & Documentation --}}
+    <a href="{{ route('dashboard.help') }}" class="mb-2 flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700 {{ request()->routeIs('dashboard.help') ? 'bg-slate-100 font-semibold text-brand-700 dark:bg-slate-700 dark:text-brand-400' : '' }}">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>{{ __('Help & Documentation') }}</span>
+    </a>
+
     {{-- Dark mode toggle --}}
     <button type="button" data-dark-toggle class="mb-2 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700">
         <svg class="h-4 w-4 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>

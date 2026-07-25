@@ -67,8 +67,12 @@ class WebsiteSetting extends Model
         'date_format',
         'time_format',
         'default_locale',
+        'section_visibility',
         'maintenance_mode',
         'maintenance_message',
+        'send_absence_sms',
+        'absence_sms_template',
+        'sms_sender_id',
     ];
 
     /**
@@ -79,12 +83,14 @@ class WebsiteSetting extends Model
     protected $casts = [
         'established_year' => 'integer',
         'opening_hours' => 'array',
+        'section_visibility' => 'array',
         'maintenance_mode' => 'boolean',
         'show_facebook' => 'boolean',
         'show_instagram' => 'boolean',
         'show_twitter' => 'boolean',
         'show_youtube' => 'boolean',
         'show_linkedin' => 'boolean',
+        'send_absence_sms' => 'boolean',
     ];
 
     /**

@@ -32,6 +32,10 @@ class AppServiceProvider extends ServiceProvider
         Paginator::defaultView('vendor.pagination.tailwind');
         Paginator::defaultSimpleView('vendor.pagination.simple-tailwind');
 
+        if (session()->has('dashboard_locale')) {
+            app()->setLocale(session('dashboard_locale'));
+        }
+
         if (Schema::hasTable('attendances')) {
             Attendance::observe(AttendanceObserver::class);
         }

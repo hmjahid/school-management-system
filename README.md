@@ -111,17 +111,17 @@ A School Management System built with **Laravel Blade** only: session auth, **Sc
    npm run dev
    ```
 
-   Open **http://127.0.0.1:8000** — **/login**, then **/dashboard** (sidebar + stats). Demo users: [demo-credentials.md](demo-credentials.md).
+   Open **http://127.0.0.1:8000** — **/login**, then **/dashboard** (sidebar + stats). Demo users: see `unnecessary-files/demo-credentials.md`.
 
 ## 🚀 Deployment
 
 Choose your preferred deployment method:
 
 ### 1. Shared Web Hosting
-See [Hosting Guide](hosting-architecture.md#2-web-hosting-deployment-eg-hostinger-bluehost-siteground) for detailed instructions.
+See `unnecessary-files/hosting-architecture.md` for detailed instructions.
 
 ### 2. VPS/Cloud Hosting
-See [VPS Deployment Guide](hosting-architecture.md#3-vpscloud-hosting-eg-aws-digitalocean-linode) for complete setup.
+See `unnecessary-files/hosting-architecture.md` for complete setup.
 
 ### 3. Docker
 ```bash
@@ -133,10 +133,10 @@ Access at: **http://localhost:8080** (nginx → Laravel `public/`)
 
 ## 📚 Documentation
 
-- [Architecture Overview](architecture-plan.md)
+- [Architecture Overview](unnecessary-files/architecture-plan.md)
 - [API Documentation](docs/API.md) (Coming Soon)
-- [Payment Integration](payment-integration-prompt.md)
-- [Hosting Guide](hosting-architecture.md)
+- [Payment Integration](unnecessary-files/payment-integration-prompt.md)
+- [Hosting Guide](unnecessary-files/hosting-architecture.md)
 
 ## 🤝 Contributing
 

@@ -223,7 +223,7 @@ add gurdians and students login and their own profile system. add demo student a
 
 ensure that same user type cannot use same mobile number or email 2 times but if 
 
-add a internal messeging sytem to message each other. like teachers to principle, students to teachers, gurdians to teacher inside the system. but the admin will have log and can see all messages all usres activities.
+add a internal messing sytem to message each other. like teachers to principle, students to teachers, gurdians to teacher inside the system. but the admin will have log and can see all messages all usres activities.
 
 make the backend dashboard all pages ui more modern. elegent. attractive, enterprise grade and professional.
 
@@ -238,21 +238,6 @@ ensure that school logo and name, address, established year all here reflected i
 make the session year based. like 2026, 2027, 2028 not 2025-2026, 2026-2027 like this
 
 public site link not showing in dashboard. add a linke dtext named website which will open in new tab to show the website
-
-ensure that all contents styles are chnaging after chnaing theme in dashboard
-
-ensure that dashboard menu names, sidebar items language is chnaing after cahning the dasshboard language. keep default language
-
-ensure that dashboard has notice page and all normal notice s and urgent notice swill be synced from here.
-
-the hero schol nma ein big size font will be like shadow/overlay an dcenter aligned.
-
-make sure that not homepage section will be controlable for show/hide but all pages contnet will be contrlable. justa dd a check box in tier own edit page beside the sections. no need seperate pages
-
-move admission just belwo the academic in dasboard sidebar
-
-use ligher color in homepage hero background. aslo ensure that if we use background image that will be overlay
-
 
 create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-2.md file. then implement the tasks using the prompt
 

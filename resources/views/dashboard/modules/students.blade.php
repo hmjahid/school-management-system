@@ -20,9 +20,33 @@
         </x-slot:actions>
     </x-page-header>
 
-    <form method="get" class="mb-4 flex flex-wrap gap-2">
-        <input type="search" name="search" value="{{ request('search') }}" placeholder="{{ __('Search name, email, admission…') }}" class="admin-input min-w-[220px] flex-1 sm:max-w-xs">
-        <x-button type="submit" variant="secondary">{{ __('Search') }}</x-button>
+    <form method="get" class="mb-4 flex flex-wrap items-end gap-2">
+        <div class="flex-1 min-w-[200px]">
+            <label class="mb-1 block text-xs font-semibold text-slate-600">{{ __('Search') }}</label>
+            <input type="search" name="search" value="{{ request('search') }}" placeholder="{{ __('Search name, email, admission…') }}" class="admin-input w-full">
+        </div>
+        <div class="min-w-[160px]">
+            <label class="mb-1 block text-xs font-semibold text-slate-600">{{ __('Class') }}</label>
+            <select name="class_id" class="admin-select w-full">
+                <option value="">{{ __('All classes') }}</option>
+                @foreach($classes as $c)
+                    <option value="{{ $c->id }}" @selected(request('class_id') == $c->id)>{{ $c->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="min-w-[160px]">
+            <label class="mb-1 block text-xs font-semibold text-slate-600">{{ __('Batch') }}</label>
+            <select name="batch_id" class="admin-select w-full">
+                <option value="">{{ __('All batches') }}</option>
+                @foreach($batches as $b)
+                    <option value="{{ $b->id }}" @selected(request('batch_id') == $b->id)>{{ $b->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <x-button type="submit" variant="secondary">{{ __('Filter') }}</x-button>
+        @if(request()->hasAny(['search', 'class_id', 'batch_id']))
+            <x-button :href="route('dashboard.students')" variant="ghost">{{ __('Clear') }}</x-button>
+        @endif
     </form>
 
     <x-admin-data-table

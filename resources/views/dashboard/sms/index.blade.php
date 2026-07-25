@@ -43,7 +43,7 @@
                             <div class="text-xs text-slate-500">{{ $c->creator?->name }}</div>
                         </td>
                         <td class="px-4 py-3 capitalize text-slate-700">{{ str_replace('_',' ',$c->audience_type) }}</td>
-                        <td class="px-4 py-3 text-slate-700">{{ $c->recipients()->count() }}</td>
+                        <td class="px-4 py-3 text-slate-700">{{ $c->recipients_count }}</td>
                         <td class="px-4 py-3"><span class="rounded-full px-2 py-1 text-xs font-semibold {{ $cls }}">{{ ucfirst($c->status) }}</span></td>
                         <td class="px-4 py-3 text-xs text-slate-500">{{ $c->sent_at?->format('Y-m-d H:i') ?: '—' }}</td>
                     </tr>

@@ -175,28 +175,119 @@
 
         <div class="mt-8 border-t border-gray-100 pt-6">
             <h2 class="text-base font-semibold text-gray-900">{{ __('SMS notifications') }}</h2>
-            <p class="mt-1 text-xs text-gray-500">{{ __('Configure automated SMS messages sent by the system.') }}</p>
+            <p class="mt-1 text-xs text-gray-500">{{ __('Configure the SMS provider and automated messages sent by the system.') }}</p>
+
             <div class="mt-4 grid gap-4 md:grid-cols-2">
-                <label class="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
-                    <input type="hidden" name="send_absence_sms" value="0">
-                    <input type="checkbox" name="send_absence_sms" value="1" @checked(old('send_absence_sms', $settings->send_absence_sms ?? false)) class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                    <span class="text-sm font-medium text-gray-800">{{ __('Send absence SMS to guardians') }}</span>
-                </label>
                 <div>
-                    <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Sender ID') }}</label>
-                    <input type="text" name="sms_sender_id" value="{{ old('sms_sender_id', $settings->sms_sender_id) }}" maxlength="32" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                    <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('SMS driver') }}</label>
+                    <select name="sms_driver" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        @php $currentDriver = env('SMS_DRIVER', 'log'); @endphp
+                        <option value="log" @selected($currentDriver === 'log')>Log (development)</option>
+                        <option value="twilio" @selected($currentDriver === 'twilio')>Twilio</option>
+                        <option value="nexmo" @selected($currentDriver === 'nexmo')>Nexmo / Vonage</option>
+                        <option value="textlocal" @selected($currentDriver === 'textlocal')>TextLocal</option>
+                        <option value="africastalking" @selected($currentDriver === 'africastalking')>Africa's Talking</option>
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500">{{ __('"Log" records messages to the Laravel log — useful for testing.') }}</p>
                 </div>
-                <div class="md:col-span-2">
-                    <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Absence SMS template') }}</label>
-                    <textarea name="absence_sms_template" rows="3" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">{{ old('absence_sms_template', $settings->absence_sms_template) }}</textarea>
-                    <p class="mt-1 text-xs text-gray-500">{{ __('Variables') }}: <code>:name</code>, <code>:date</code>, <code>:class</code></p>
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Sender ID / From number') }}</label>
+                    <input type="text" name="sms_sender_id" value="{{ old('sms_sender_id', $settings->sms_sender_id ?? env('SMS_FROM', '')) }}" maxlength="32" placeholder="SchoolMS"
+                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    <p class="mt-1 text-xs text-gray-500">{{ __('Alphanumeric sender name or phone number required by your provider.') }}</p>
+                </div>
+
+                {{-- Twilio credentials --}}
+                <div class="md:col-span-2 rounded-lg border border-gray-100 bg-gray-50 p-4" id="twilio-fields">
+                    <h3 class="mb-3 text-sm font-semibold text-gray-900">{{ __('Twilio credentials') }}</h3>
+                    <div class="grid gap-4 md:grid-cols-3">
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Account SID') }}</label>
+                            <input type="text" name="twilio_account_sid" value="{{ env('TWILIO_ACCOUNT_SID', '') }}" placeholder="ACxxxxxxxx"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Auth Token') }}</label>
+                            <input type="password" name="twilio_auth_token" value="{{ env('TWILIO_AUTH_TOKEN', '') }}" placeholder="{{ __('Leave unchanged to keep current') }}"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" autocomplete="new-password">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('From number') }}</label>
+                            <input type="text" name="twilio_from_number" value="{{ env('TWILIO_FROM_NUMBER', '') }}" placeholder="+1234567890"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Absence SMS --}}
+                <div class="md:col-span-2 rounded-lg border border-gray-100 bg-gray-50 p-4">
+                    <h3 class="mb-3 text-sm font-semibold text-gray-900">{{ __('Absence SMS') }}</h3>
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <label class="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2">
+                            <input type="hidden" name="send_absence_sms" value="0">
+                            <input type="checkbox" name="send_absence_sms" value="1" @checked(old('send_absence_sms', $settings->send_absence_sms ?? false)) class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            <span class="text-sm font-medium text-gray-800">{{ __('Send absence SMS to guardians') }}</span>
+                        </label>
+                        <div class="md:col-span-2">
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Absence SMS template') }}</label>
+                            <textarea name="absence_sms_template" rows="3" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">{{ old('absence_sms_template', $settings->absence_sms_template) }}</textarea>
+                            <p class="mt-1 text-xs text-gray-500">{{ __('Variables') }}: <code>:name</code>, <code>:date</code>, <code>:class</code></p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <div class="mt-8 border-t border-gray-100 pt-6">
+            <h2 class="text-base font-semibold text-gray-900">{{ __('Homepage Sections') }}</h2>
+            <p class="mt-1 text-xs text-gray-500">{{ __('Toggle visibility of each section on the public homepage.') }}</p>
+            @php
+                $vis = $settings->section_visibility ?? [
+                    'hero' => true, 'features' => true, 'stats' => true, 'principal' => true,
+                    'testimonials' => true, 'events' => true, 'news' => true, 'highlights' => true,
+                    'cta' => true, 'partners' => true, 'admissions_bar' => true, 'urgent_notices' => true,
+                ];
+                $sectionLabels = [
+                    'hero' => 'Hero banner',
+                    'features' => 'Features',
+                    'stats' => 'Stats counter',
+                    'principal' => "Principal's message",
+                    'testimonials' => 'Testimonials',
+                    'events' => 'Upcoming events',
+                    'news' => 'Latest news',
+                    'highlights' => 'Highlights',
+                    'cta' => 'CTA banner',
+                    'partners' => 'Partners strip',
+                    'admissions_bar' => 'Admissions top bar',
+                    'urgent_notices' => 'Urgent notices (hero)',
+                ];
+            @endphp
+            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                @foreach($sectionLabels as $key => $label)
+                    <label class="inline-flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                        <input type="hidden" name="section_visibility[{{ $key }}]" value="0">
+                        <input type="checkbox" name="section_visibility[{{ $key }}]" value="1"
+                            @checked(old("section_visibility.{$key}", $vis[$key] ?? true))
+                            class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <span class="text-sm font-medium text-gray-700">{{ $label }}</span>
+                    </label>
+                @endforeach
+            </div>
+        </div>
+
         <div class="flex justify-end border-t border-gray-100 pt-4">
             <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">
                 {{ __('Save settings') }}
             </button>
         </div>
     </form>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var sel = document.querySelector('select[name="sms_driver"]');
+            var twilio = document.getElementById('twilio-fields');
+            function toggle() { twilio.classList.toggle('hidden', sel.value !== 'twilio'); }
+            sel.addEventListener('change', toggle);
+            toggle();
+        });
+    </script>
 @endsection

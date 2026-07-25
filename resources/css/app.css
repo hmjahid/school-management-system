@@ -66,6 +66,46 @@ html { scroll-behavior: smooth; }
     50% { transform: translateY(-20px) scale(1.05); }
 }
 
+/* Marquee animations */
+@keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+    animation: marquee 30s linear infinite;
+}
+.animate-marquee:hover {
+    animation-play-state: paused;
+}
+
+@keyframes marquee-urgent {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+.animate-marquee-urgent {
+    animation: marquee-urgent 20s linear infinite;
+}
+.animate-marquee-urgent:hover {
+    animation-play-state: paused;
+}
+
+/* Hero notice vertical scroll */
+.notice-scroll-container {
+    position: relative;
+}
+.notice-scroll-content {
+    display: flex;
+    flex-direction: column;
+    animation: noticeScroll var(--scroll-duration, 15s) linear infinite;
+}
+.notice-scroll-container:hover .notice-scroll-content {
+    animation-play-state: paused;
+}
+@keyframes noticeScroll {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-50%); }
+}
+
 /* Enterprise admin shell */
 .admin-shell {
     --sidebar-width: 16.5rem;

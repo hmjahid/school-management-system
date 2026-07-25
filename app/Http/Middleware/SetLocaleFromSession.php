@@ -14,7 +14,8 @@ class SetLocaleFromSession
     {
         $locales = config('school.supported_locales', ['en']);
 
-        $locale = session('locale');
+        // Dashboard locale takes priority when set (dashboard routes use session('dashboard_locale')).
+        $locale = session('dashboard_locale') ?? session('locale');
         if (! is_string($locale) || ! in_array($locale, $locales, true)) {
             $locale = $this->defaultLocale();
         }
