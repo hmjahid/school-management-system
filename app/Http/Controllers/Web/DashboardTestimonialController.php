@@ -4,84 +4,158 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Testimonial;
+use App\Models\Student;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class DashboardTestimonialController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $rows = Testimonial::with('student')->orderByDesc('id')->paginate(20);
+        $this->authorize('viewAny', Testimonial::class);
+        $query = Testimonial::with(['student.user', 'generatedBy']);
+        if ($search = $request->string('search')->toString()) {
+            $query->where(function ($q) use ($search) {
+                $q->where('testimonial_number', 'like', "%{$search}%")
+                  ->orWhere('name', 'like', "%{$search}%")
+                  ->orWhereHas('student.user', fn($u) => $u->where('name', 'like', "%{$search}%"));
+            });
+        }
+        if ($type = $request->string('type')->toString()) {
+            $query->where('testimonial_type', $type);
+        }
+        $testimonials = $query->latest()->paginate(15)->withQueryString();
 
-        return view('dashboard.testimonials.index', compact('rows'));
+        return view('dashboard.testimonials.index', compact('testimonials'));
     }
 
     public function create(): View
     {
+        $this->authorize('create', Testimonial::class);
+        $students = Student::with('user')->whereHas('user')->orderBy('id')->limit(500)->get();
+
         return view('dashboard.testimonials.create', [
-            'testimonial' => new Testimonial(['is_visible' => true, 'rating' => 5]),
+            'testimonial' => new Testimonial(['status' => 'draft', 'is_visible' => true]),
+            'students' => $students,
+            'types' => Testimonial::TYPES,
         ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
-        $data = $this->validateTestimonial($request);
+        $this->authorize('create', Testimonial::class);
+        $validated = $request->validate([
+            'student_id' => 'required|exists:students,id',
+            'testimonial_type' => 'required|string|in:' . implode(',', Testimonial::TYPES),
+            'name' => 'required|string|max:255',
+            'issue_date' => 'required|date',
+            'status' => 'required|string|in:draft,issued',
+            'body' => 'nullable|string',
+            'content' => 'nullable|string',
+            'rating' => 'nullable|integer|min:1|max:5',
+            'author_name' => 'nullable|string|max:255',
+            'author_designation' => 'nullable|string|max:255',
+            'details' => 'nullable|array',
+            'details.header_text' => 'nullable|string|max:255',
+            'details.footer_text' => 'nullable|string|max:255',
+            'details.show_logo' => 'nullable|boolean',
+            'details.custom_notes' => 'nullable|string|max:1000',
+            'is_visible' => 'nullable|boolean',
+        ]);
 
-        if ($request->hasFile('photo')) {
-            $data['photo'] = $request->file('photo')->store('testimonials', 'public');
+        $validated['testimonial_number'] = Testimonial::generateNumber();
+        $validated['generated_by'] = $request->user()->id;
+
+        if (!empty($validated['body'])) {
+            $validated['body'] = [$validated['body']];
         }
 
-        $data['is_visible'] = $request->boolean('is_visible');
+        $validated['details'] = $this->buildDetails($request);
+        $validated['is_visible'] = $request->boolean('is_visible');
 
-        Testimonial::create($data);
+        Testimonial::create($validated);
 
         return redirect()->route('dashboard.testimonials.index')->with('status', __('Testimonial created.'));
     }
 
+    public function show(Testimonial $testimonial): View
+    {
+        $this->authorize('view', $testimonial);
+        $testimonial->load(['student.user', 'student.class', 'student.section', 'generatedBy']);
+
+        return view('dashboard.testimonials.show', compact('testimonial'));
+    }
+
     public function edit(Testimonial $testimonial): View
     {
-        return view('dashboard.testimonials.edit', compact('testimonial'));
+        $this->authorize('update', $testimonial);
+        $students = Student::with('user')->whereHas('user')->orderBy('id')->limit(500)->get();
+
+        return view('dashboard.testimonials.edit', [
+            'testimonial' => $testimonial,
+            'students' => $students,
+            'types' => Testimonial::TYPES,
+        ]);
     }
 
     public function update(Request $request, Testimonial $testimonial): RedirectResponse
     {
-        $data = $this->validateTestimonial($request);
+        $this->authorize('update', $testimonial);
+        $validated = $request->validate([
+            'student_id' => 'required|exists:students,id',
+            'testimonial_type' => 'required|string|in:' . implode(',', Testimonial::TYPES),
+            'name' => 'required|string|max:255',
+            'issue_date' => 'required|date',
+            'status' => 'required|string|in:draft,issued,revoked',
+            'body' => 'nullable|string',
+            'content' => 'nullable|string',
+            'rating' => 'nullable|integer|min:1|max:5',
+            'author_name' => 'nullable|string|max:255',
+            'author_designation' => 'nullable|string|max:255',
+            'details' => 'nullable|array',
+            'details.header_text' => 'nullable|string|max:255',
+            'details.footer_text' => 'nullable|string|max:255',
+            'details.show_logo' => 'nullable|boolean',
+            'details.custom_notes' => 'nullable|string|max:1000',
+            'is_visible' => 'nullable|boolean',
+        ]);
 
-        if ($request->hasFile('photo')) {
-            $data['photo'] = $request->file('photo')->store('testimonials', 'public');
+        if (!empty($validated['body'])) {
+            $validated['body'] = [$validated['body']];
         }
 
-        $data['is_visible'] = $request->boolean('is_visible');
+        $validated['details'] = $this->buildDetails($request);
+        $validated['is_visible'] = $request->boolean('is_visible');
 
-        $testimonial->fill($data)->save();
+        $testimonial->update($validated);
 
-        return back()->with('status', __('Testimonial updated.'));
+        return redirect()->route('dashboard.testimonials.index')->with('status', __('Testimonial updated.'));
     }
 
     public function destroy(Testimonial $testimonial): RedirectResponse
     {
+        $this->authorize('delete', $testimonial);
         $testimonial->delete();
 
         return redirect()->route('dashboard.testimonials.index')->with('status', __('Testimonial deleted.'));
     }
 
-    public function toggleVisibility(Testimonial $testimonial): RedirectResponse
+    public function print(Testimonial $testimonial): View
     {
-        $testimonial->update(['is_visible' => !$testimonial->is_visible]);
+        $this->authorize('view', $testimonial);
+        $testimonial->load(['student.user', 'student.class', 'student.section', 'generatedBy']);
 
-        return back()->with('status', __('Visibility toggled.'));
+        return view('dashboard.testimonials.print', compact('testimonial'));
     }
 
-    protected function validateTestimonial(Request $request): array
+    protected function buildDetails(Request $request): array
     {
-        return $request->validate([
-            'author_name' => ['required', 'string', 'max:255'],
-            'author_designation' => ['nullable', 'string', 'max:255'],
-            'content' => ['required', 'string'],
-            'rating' => ['required', 'integer', 'min:1', 'max:5'],
-            'sort_order' => ['nullable', 'integer', 'min:0'],
-            'is_visible' => ['nullable', 'boolean'],
-        ]);
+        return [
+            'header_text' => $request->input('details.header_text'),
+            'footer_text' => $request->input('details.footer_text'),
+            'show_logo' => $request->boolean('details.show_logo', true),
+            'custom_notes' => $request->input('details.custom_notes'),
+        ];
     }
 }

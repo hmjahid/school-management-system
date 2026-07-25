@@ -520,10 +520,11 @@ Route::middleware('auth')->group(function () {
             Route::get('/', [DashboardTestimonialController::class, 'index'])->name('index');
             Route::get('/create', [DashboardTestimonialController::class, 'create'])->name('create');
             Route::post('/', [DashboardTestimonialController::class, 'store'])->name('store');
+            Route::get('/{testimonial}', [DashboardTestimonialController::class, 'show'])->name('show');
             Route::get('/{testimonial}/edit', [DashboardTestimonialController::class, 'edit'])->name('edit');
             Route::put('/{testimonial}', [DashboardTestimonialController::class, 'update'])->name('update');
             Route::delete('/{testimonial}', [DashboardTestimonialController::class, 'destroy'])->name('destroy');
-            Route::post('/{testimonial}/toggle', [DashboardTestimonialController::class, 'toggleVisibility'])->name('toggle');
+            Route::get('/{testimonial}/print', [DashboardTestimonialController::class, 'print'])->name('print');
         });
     });
 });

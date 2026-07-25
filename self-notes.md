@@ -264,6 +264,11 @@ ensure that dashborad and backend all pages contents colors are chnaging based o
 
 make website language chnage and dashboard language chnage two seperate system
 
+use checkbox for show/hide instead of remoce button for page section hide/show feature
+
+add a notice in the website and add that under the news menu item as dropdown. also add a all notice link text in hero notice section/box bottom
+
+make homepage teachers section a nice slider. aslo chnage faculty to teachers
 
 
 now write a commit message for the chnage safter the last commit
