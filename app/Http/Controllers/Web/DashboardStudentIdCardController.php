@@ -42,10 +42,15 @@ class DashboardStudentIdCardController extends Controller
             'blood_group' => 'nullable|string|max:10',
             'photo_url' => 'nullable|string|max:255',
             'details' => 'nullable|array',
+            'details.header_text' => 'nullable|string|max:255',
+            'details.footer_text' => 'nullable|string|max:255',
+            'details.show_logo' => 'nullable|boolean',
+            'details.custom_notes' => 'nullable|string|max:1000',
         ]);
         $student = Student::findOrFail($validated['student_id']);
         $validated['id_card_number'] = StudentIdCard::generateNumber($student);
         $validated['generated_by'] = $request->user()->id;
+        $validated['details'] = $this->buildDetails($request);
         StudentIdCard::create($validated);
         return redirect()->route('dashboard.student-id-cards.index')->with('status', __('ID card created.'));
     }
@@ -74,8 +79,13 @@ class DashboardStudentIdCardController extends Controller
             'blood_group' => 'nullable|string|max:10',
             'photo_url' => 'nullable|string|max:255',
             'details' => 'nullable|array',
+            'details.header_text' => 'nullable|string|max:255',
+            'details.footer_text' => 'nullable|string|max:255',
+            'details.show_logo' => 'nullable|boolean',
+            'details.custom_notes' => 'nullable|string|max:1000',
             'status' => 'required|string|in:active,expired,revoked',
         ]);
+        $validated['details'] = $this->buildDetails($request);
         $studentIdCard->update($validated);
         return redirect()->route('dashboard.student-id-cards.index')->with('status', __('ID card updated.'));
     }
@@ -92,5 +102,15 @@ class DashboardStudentIdCardController extends Controller
         $this->authorize('view', $studentIdCard);
         $studentIdCard->load(['student.user', 'student.class', 'student.section']);
         return view('dashboard.student-id-cards.print', compact('studentIdCard'));
+    }
+
+    protected function buildDetails(Request $request): array
+    {
+        return [
+            'header_text' => $request->input('details.header_text', null),
+            'footer_text' => $request->input('details.footer_text', null),
+            'show_logo' => $request->boolean('details.show_logo', true),
+            'custom_notes' => $request->input('details.custom_notes', null),
+        ];
     }
 }

@@ -9,7 +9,9 @@ class Notice extends Model
 {
     protected $fillable = [
         'title',
+        'title_bn',
         'content',
+        'content_bn',
         'attachments',
         'pinned',
         'audience',
@@ -23,6 +25,24 @@ class Notice extends Model
         'pinned' => 'boolean',
         'is_urgent' => 'boolean',
     ];
+
+    public function localizedTitle(): string
+    {
+        $locale = app()->getLocale();
+        if ($locale === 'bn' && ! empty($this->title_bn)) {
+            return $this->title_bn;
+        }
+        return $this->title;
+    }
+
+    public function localizedContent(): string
+    {
+        $locale = app()->getLocale();
+        if ($locale === 'bn' && ! empty($this->content_bn)) {
+            return $this->content_bn;
+        }
+        return $this->content;
+    }
 
     public function creator(): BelongsTo
     {

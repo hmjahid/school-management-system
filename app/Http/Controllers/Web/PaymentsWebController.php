@@ -22,6 +22,10 @@ class PaymentsWebController extends Controller
     {
         $content = WebsiteContent::getContent('payments');
 
+        if ($content->exists && ! $content->is_active) {
+            abort(404);
+        }
+
         $feeRows = Fee::query()
             ->where('status', Fee::STATUS_ACTIVE)
             ->orderBy('name')

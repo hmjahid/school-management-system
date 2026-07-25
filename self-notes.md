@@ -258,6 +258,13 @@ create a proper prompt to implement the above tasks and add the prompt in featur
 
 
 
+from dashboard, after chaging language, theme aslo changing automatically. fix the isuuse. and after manually chnaging theme, the use setting, other header links not working
+
+ensure that dashborad and backend all pages contents colors are chnaging based on theme change
+
+make website language chnage and dashboard language chnage two seperate system
+
+
 
 now write a commit message for the chnage safter the last commit
 

@@ -182,6 +182,13 @@ class RolePermissionSeeder extends Seeder
             'manage_sms_templates' => 'Manage SMS templates',
             'backup_database' => 'Backup database',
             'restore_database' => 'Restore database',
+
+            // Audit & Logs
+            'view_audit_log' => 'View audit log',
+            'view_visitor_logs' => 'View visitor logs',
+
+            // SMS
+            'send_bulk_sms' => 'Send bulk SMS',
         ];
 
         // Create permissions (string keys are names; numeric keys use the label string as name)

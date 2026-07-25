@@ -7,6 +7,7 @@ use App\Models\Event;
 use App\Models\News;
 use App\Models\Notice;
 use App\Models\Student;
+use App\Models\Teacher;
 use App\Models\User;
 use App\Models\WebsiteContent;
 use App\Models\WebsiteSetting;
@@ -30,6 +31,8 @@ class HomeController extends Controller
         $latestNews = collect();
         $upcomingEvents = collect();
         $recentNotices = collect();
+        $teachers = collect();
+        $remarkableStudents = collect();
 
         try {
             if (Schema::hasTable('news')) {
@@ -54,6 +57,22 @@ class HomeController extends Controller
                     ->orderByDesc('pinned')
                     ->orderByDesc('id')
                     ->limit(5)
+                    ->get();
+            }
+            if (Schema::hasTable('teachers')) {
+                $teachers = Teacher::query()
+                    ->where('status', 'active')
+                    ->with('user')
+                    ->orderByDesc('id')
+                    ->limit(8)
+                    ->get();
+            }
+            if (Schema::hasTable('students') && Schema::hasColumn('students', 'is_notable')) {
+                $remarkableStudents = Student::query()
+                    ->where('is_notable', true)
+                    ->with('user')
+                    ->orderByDesc('id')
+                    ->limit(8)
                     ->get();
             }
         } catch (\Throwable) {
@@ -85,6 +104,8 @@ class HomeController extends Controller
             'latestNews',
             'upcomingEvents',
             'recentNotices',
+            'teachers',
+            'remarkableStudents',
             'stats'
         ));
     }

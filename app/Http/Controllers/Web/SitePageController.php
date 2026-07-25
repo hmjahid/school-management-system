@@ -28,6 +28,11 @@ class SitePageController extends Controller
     public function admissions(): View
     {
         $content = WebsiteContent::getContent('admissions');
+
+        if ($content->exists && ! $content->is_active) {
+            abort(404);
+        }
+
         $admissionsClosed = ! AdmissionSetting::getSettings()->is_open;
 
         return view('site.admissions', compact('content', 'admissionsClosed'));
@@ -41,6 +46,11 @@ class SitePageController extends Controller
     public function faculty(): View
     {
         $content = WebsiteContent::getContent('faculty');
+
+        if ($content->exists && ! $content->is_active) {
+            abort(404);
+        }
+
         $teachers = Teacher::query()
             ->where('status', 'active')
             ->with('user')
@@ -57,6 +67,10 @@ class SitePageController extends Controller
     public function contact(): View
     {
         $content = WebsiteContent::getContent('contact');
+
+        if ($content->exists && ! $content->is_active) {
+            abort(404);
+        }
 
         return view('site.contact', ['content' => $content]);
     }
@@ -200,6 +214,10 @@ class SitePageController extends Controller
     protected function renderCmsPage(string $slug): View
     {
         $content = WebsiteContent::getContent($slug);
+
+        if ($content->exists && ! $content->is_active) {
+            abort(404);
+        }
 
         return view('site.page', ['slug' => $slug, 'content' => $content]);
     }

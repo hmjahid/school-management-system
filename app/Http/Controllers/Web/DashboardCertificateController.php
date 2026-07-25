@@ -48,6 +48,11 @@ class DashboardCertificateController extends Controller
             'issue_date' => 'required|date',
             'status' => 'required|string|in:draft,issued',
             'body' => 'nullable|string',
+            'details' => 'nullable|array',
+            'details.header_text' => 'nullable|string|max:255',
+            'details.footer_text' => 'nullable|string|max:255',
+            'details.show_logo' => 'nullable|boolean',
+            'details.custom_notes' => 'nullable|string|max:1000',
         ]);
         $validated['certificate_number'] = Certificate::generateNumber();
         $validated['generated_by'] = $request->user()->id;
@@ -63,6 +68,7 @@ class DashboardCertificateController extends Controller
         if (!empty($validated['body'])) {
             $validated['body'] = [$validated['body']];
         }
+        $validated['details'] = $this->buildDetails($request);
         Certificate::create($validated);
         return redirect()->route('dashboard.certificates.index')->with('status', __('Certificate created.'));
     }
@@ -94,10 +100,16 @@ class DashboardCertificateController extends Controller
             'issue_date' => 'required|date',
             'status' => 'required|string|in:draft,issued,revoked',
             'body' => 'nullable|string',
+            'details' => 'nullable|array',
+            'details.header_text' => 'nullable|string|max:255',
+            'details.footer_text' => 'nullable|string|max:255',
+            'details.show_logo' => 'nullable|boolean',
+            'details.custom_notes' => 'nullable|string|max:1000',
         ]);
         if (!empty($validated['body'])) {
             $validated['body'] = [$validated['body']];
         }
+        $validated['details'] = $this->buildDetails($request);
         $certificate->update($validated);
         return redirect()->route('dashboard.certificates.index')->with('status', __('Certificate updated.'));
     }
@@ -114,5 +126,16 @@ class DashboardCertificateController extends Controller
         $this->authorize('view', $certificate);
         $certificate->load(['student.user', 'student.class', 'student.section', 'generatedBy']);
         return view('dashboard.certificates.print', compact('certificate'));
+    }
+
+    protected function buildDetails(Request $request): array
+    {
+        $existing = [];
+        return [
+            'header_text' => $request->input('details.header_text', $existing['header_text'] ?? null),
+            'footer_text' => $request->input('details.footer_text', $existing['footer_text'] ?? null),
+            'show_logo' => $request->boolean('details.show_logo', true),
+            'custom_notes' => $request->input('details.custom_notes', $existing['custom_notes'] ?? null),
+        ];
     }
 }

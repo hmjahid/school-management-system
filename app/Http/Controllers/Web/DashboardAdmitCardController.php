@@ -44,11 +44,16 @@ class DashboardAdmitCardController extends Controller
             'student_id' => 'required|exists:students,id',
             'issue_date' => 'required|date',
             'details' => 'nullable|array',
+            'details.header_text' => 'nullable|string|max:255',
+            'details.footer_text' => 'nullable|string|max:255',
+            'details.show_logo' => 'nullable|boolean',
+            'details.custom_notes' => 'nullable|string|max:1000',
         ]);
         $exam = Exam::findOrFail($validated['exam_id']);
         $student = Student::findOrFail($validated['student_id']);
         $validated['admit_card_number'] = AdmitCard::generateNumber($exam, $student);
         $validated['generated_by'] = $request->user()->id;
+        $validated['details'] = $this->buildDetails($request);
         AdmitCard::create($validated);
         return redirect()->route('dashboard.admit-cards.index')->with('status', __('Admit card generated.'));
     }
@@ -78,10 +83,15 @@ class DashboardAdmitCardController extends Controller
             'issue_date' => 'required|date',
             'status' => 'required|string|in:issued,revoked',
             'details' => 'nullable|array',
+            'details.header_text' => 'nullable|string|max:255',
+            'details.footer_text' => 'nullable|string|max:255',
+            'details.show_logo' => 'nullable|boolean',
+            'details.custom_notes' => 'nullable|string|max:1000',
         ]);
         $exam = Exam::findOrFail($validated['exam_id']);
         $student = Student::findOrFail($validated['student_id']);
         $validated['admit_card_number'] = AdmitCard::generateNumber($exam, $student);
+        $validated['details'] = $this->buildDetails($request);
         $admitCard->update($validated);
         return redirect()->route('dashboard.admit-cards.index')->with('status', __('Admit card updated.'));
     }
@@ -98,5 +108,15 @@ class DashboardAdmitCardController extends Controller
         $this->authorize('view', $admitCard);
         $admitCard->load(['exam', 'student.user', 'student.class', 'student.section']);
         return view('dashboard.admit-cards.print', compact('admitCard'));
+    }
+
+    protected function buildDetails(Request $request): array
+    {
+        return [
+            'header_text' => $request->input('details.header_text', null),
+            'footer_text' => $request->input('details.footer_text', null),
+            'show_logo' => $request->boolean('details.show_logo', true),
+            'custom_notes' => $request->input('details.custom_notes', null),
+        ];
     }
 }

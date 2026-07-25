@@ -24,7 +24,7 @@ class DemoStudentSeeder extends Seeder
         $studentRoleId = \Spatie\Permission\Models\Role::where('name', 'student')->value('id');
         $parentRoleId = \Spatie\Permission\Models\Role::where('name', 'parent')->value('id');
 
-        $totalStudents = 100;
+        $totalStudents = 5;
 
         $studentIndex = 0;
         foreach ($schoolClasses as $class) {
@@ -44,7 +44,7 @@ class DemoStudentSeeder extends Seeder
                 $email = 'student' . ($studentIndex + 1) . '@school.com';
                 $address = rand(1, 500) . ', ' . ['Mirpur', 'Uttara', 'Banani', 'Gulshan', 'Mohammadpur', 'Dhanmondi', 'Shyamoli', 'Bashundhara', 'Motijheel', 'Malibagh'][array_rand(['Mirpur', 'Uttara', 'Banani', 'Gulshan', 'Mohammadpur', 'Dhanmondi', 'Shyamoli', 'Bashundhara', 'Motijheel', 'Malibagh'])] . ', Dhaka';
                 $dob = now()->subYears(rand(4, 17))->subMonths(rand(1, 11))->format('Y-m-d');
-                $phone = '017' . str_pad(rand(10000000, 99999999), 8, '0', STR_PAD_LEFT);
+                $phone = '017' . str_pad((string)(10000000 + $studentIndex), 8, '0', STR_PAD_LEFT);
 
                 $user = User::create([
                     'name' => $fullName,
@@ -74,13 +74,19 @@ class DemoStudentSeeder extends Seeder
                     'status' => 'active',
                     'gender' => $studentIndex % 2 === 0 ? 'male' : 'female',
                     'date_of_birth' => $dob,
+                    'is_notable' => in_array($studentIndex, [0, 2]),
+                    'achievement' => match($studentIndex) {
+                        0 => 'National Science Fair Gold Medalist 2025',
+                        2 => 'District Math Olympiad First Place',
+                        default => null,
+                    },
                 ]);
 
                 $numGuardians = rand(1, 2);
                 for ($g = 0; $g < $numGuardians; $g++) {
                     $gName = $guardianFirstNames[array_rand($guardianFirstNames)] . ' ' . $lastName;
                     $gEmail = 'parent' . (($studentIndex * 2) + $g + 1) . '@school.com';
-                    $gPhone = '017' . str_pad(rand(10000000, 99999999), 8, '0', STR_PAD_LEFT);
+                    $gPhone = '018' . str_pad((string)(10000000 + ($studentIndex * 2) + $g), 8, '0', STR_PAD_LEFT);
 
                     $guardianUser = User::firstOrCreate(
                         ['email' => $gEmail],

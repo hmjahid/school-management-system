@@ -1,23 +1,40 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head><meta charset="utf-8"><title>{{ __('ID card') }} — {{ $studentIdCard->id_card_number }}</title>
+@php
+    $settings = $siteSettings ?? \App\Models\WebsiteSetting::getSettings();
+    $details = $studentIdCard->details ?? [];
+    $headerText = $details['header_text'] ?? ($settings->school_name ?? config('app.name'));
+    $footerText = $details['footer_text'] ?? ($settings->full_address ?? '');
+    $showLogo = $details['show_logo'] ?? true;
+    $customNotes = $details['custom_notes'] ?? null;
+@endphp
 <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; }
     .card { width: 320px; border: 3px solid #1e40af; border-radius: 12px; padding: 20px; text-align: center; }
     .header { border-bottom: 2px dashed #ccc; padding-bottom: 10px; margin-bottom: 10px; }
+    .header img { max-height: 40px; max-width: 120px; object-fit: contain; margin-bottom: 6px; }
     .header h1 { margin: 0; font-size: 18px; color: #1e40af; }
+    .school-address { margin: 2px 0; font-size: 11px; color: #888; }
     .photo { width: 80px; height: 80px; border-radius: 50%; background: #e5e7eb; margin: 10px auto; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; color: #1e40af; }
     .info { text-align: left; font-size: 13px; }
     .info p { margin: 4px 0; }
     .info strong { display: inline-block; width: 90px; color: #555; }
+    .custom-notes { margin-top: 8px; padding: 8px; background: #f8fafc; border-left: 3px solid #1e40af; font-size: 11px; color: #555; text-align: left; }
     .footer { margin-top: 10px; padding-top: 10px; border-top: 2px dashed #ccc; font-size: 11px; color: #888; }
     @media print { body { padding: 0; } }
 </style></head>
 <body>
 <div class="card">
     <div class="header">
-        <h1>{{ config('app.name') }}</h1>
+        @if($showLogo && $settings?->logo_url)
+            <img src="{{ $settings->logo_url }}" alt="{{ $headerText }}">
+        @endif
+        <h1>{{ $headerText }}</h1>
         <p style="margin:2px 0;font-size:12px;color:#666;">{{ __('Student Identity Card') }}</p>
+        @if($footerText)
+            <div class="school-address">{{ $footerText }}</div>
+        @endif
     </div>
     @php $name = $studentIdCard->student?->user?->name ?? 'Student'; $initials = implode('', array_map(fn($w) => strtoupper(substr($w,0,1)), explode(' ', $name))); @endphp
     <div class="photo">{{ $studentIdCard->photo_url ? '<img src="'.$studentIdCard->photo_url.'" style="width:80px;height:80px;border-radius:50%;object-fit:cover;">' : $initials }}</div>
@@ -29,10 +46,16 @@
         <p><strong>{{ __('Roll') }}:</strong> {{ $studentIdCard->student?->roll_number ?? 'N/A' }}</p>
         @if($studentIdCard->blood_group)<p><strong>{{ __('Blood') }}:</strong> {{ $studentIdCard->blood_group }}</p>@endif
     </div>
+    @if($customNotes)
+        <div class="custom-notes">{{ $customNotes }}</div>
+    @endif
     <div class="footer">
         <p>{{ __('Issue date') }}: {{ $studentIdCard->issue_date?->format('d M Y') }}
         @if($studentIdCard->expiry_date) | {{ __('Expires') }}: {{ $studentIdCard->expiry_date->format('d M Y') }}@endif
         </p>
+        @if($footerText)
+            <p>{{ $footerText }}</p>
+        @endif
     </div>
 </div>
 <script>window.print();</script>

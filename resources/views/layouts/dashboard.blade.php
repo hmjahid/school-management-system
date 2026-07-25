@@ -106,5 +106,96 @@
             });
         })();
     </script>
+
+    {{-- Command Palette Search --}}
+    <div id="dashboard-search-modal" class="fixed inset-0 z-[100] hidden" role="dialog" aria-modal="true">
+        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" data-search-backdrop></div>
+        <div class="relative mx-auto mt-[10vh] w-full max-w-xl px-4">
+            <div class="rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-800">
+                <div class="flex items-center gap-3 border-b border-slate-200 px-5 py-3 dark:border-slate-700">
+                    <svg class="h-5 w-5 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <input id="dashboard-search-input" type="text" placeholder="{{ __('Search students, teachers, notices, classes...') }}" autocomplete="off" class="flex-1 bg-transparent text-sm text-slate-900 placeholder-slate-400 focus:outline-none dark:text-slate-100 dark:placeholder-slate-500">
+                    <kbd class="hidden rounded border border-slate-300 bg-slate-100 px-1.5 py-0.5 text-[0.65rem] font-medium text-slate-500 sm:inline dark:border-slate-600 dark:bg-slate-700 dark:text-slate-400">ESC</kbd>
+                </div>
+                <div id="dashboard-search-results" class="max-h-[50vh] overflow-y-auto p-2">
+                    <p class="px-3 py-6 text-center text-sm text-slate-400">{{ __('Start typing to search...') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    (function(){
+        var modal = document.getElementById('dashboard-search-modal');
+        var input = document.getElementById('dashboard-search-input');
+        var results = document.getElementById('dashboard-search-results');
+        var backdrop = modal?.querySelector('[data-search-backdrop]');
+        var debounceTimer = null;
+
+        function openSearch() {
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            input?.focus();
+            input.value = '';
+            results.innerHTML = '<p class="px-3 py-6 text-center text-sm text-slate-400">{{ __("Start typing to search...") }}</p>';
+        }
+        function closeSearch() {
+            if (!modal) return;
+            modal.classList.add('hidden');
+        }
+
+        window.openDashboardSearch = openSearch;
+
+        document.addEventListener('keydown', function(e) {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                openSearch();
+            }
+            if (e.key === 'Escape') closeSearch();
+        });
+
+        backdrop?.addEventListener('click', closeSearch);
+
+        input?.addEventListener('input', function() {
+            var q = input.value.trim();
+            clearTimeout(debounceTimer);
+            if (q.length < 2) {
+                results.innerHTML = '<p class="px-3 py-6 text-center text-sm text-slate-400">{{ __("Start typing to search...") }}</p>';
+                return;
+            }
+            debounceTimer = setTimeout(function() {
+                fetch('{{ route("dashboard.search") }}?q=' + encodeURIComponent(q), {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var items = data.data || [];
+                    if (!items.length) {
+                        results.innerHTML = '<p class="px-3 py-6 text-center text-sm text-slate-400">{{ __("No results found.") }}</p>';
+                        return;
+                    }
+                    var typeIcons = {
+                        student: '<svg class="h-5 w-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>',
+                        teacher: '<svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>',
+                        class: '<svg class="h-5 w-5 text-purple-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>',
+                        notice: '<svg class="h-5 w-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 3a1 1 0 00-1.447-.894L8.763 6H5a3 3 0 000 6h.28l1.771 5.316A1 1 0 008 18h1a1 1 0 001-1v-4.382l6.553 3.276A1 1 0 0018 15V3z" clip-rule="evenodd"/></svg>'
+                    };
+                    var typeLabels = { student: '{{ __("Student") }}', teacher: '{{ __("Teacher") }}', class: '{{ __("Class") }}', notice: '{{ __("Notice") }}' };
+                    var html = '';
+                    items.forEach(function(item) {
+                        html += '<a href="' + item.url + '" class="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700">';
+                        html += '<span class="shrink-0">' + (typeIcons[item.type] || '') + '</span>';
+                        html += '<div class="min-w-0 flex-1">';
+                        html += '<div class="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">' + item.name + '</div>';
+                        if (item.subtitle) html += '<div class="text-xs text-slate-500 dark:text-slate-400 truncate">' + item.subtitle + '</div>';
+                        html += '</div>';
+                        html += '<span class="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[0.6rem] font-semibold uppercase text-slate-500 dark:bg-slate-700 dark:text-slate-400">' + (typeLabels[item.type] || '') + '</span>';
+                        html += '</a>';
+                    });
+                    results.innerHTML = html;
+                });
+            }, 300);
+        });
+    })();
+    </script>
 </body>
 </html>

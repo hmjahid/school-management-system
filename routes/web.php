@@ -24,6 +24,7 @@ use App\Http\Controllers\Web\DashboardActivityController;
 use App\Http\Controllers\Web\DashboardNotificationPreferencesController;
 use App\Http\Controllers\Web\DashboardBulkController;
 use App\Http\Controllers\Web\DashboardLocaleController;
+use App\Http\Controllers\Web\DashboardSearchController;
 use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\DashboardDocumentController;
@@ -53,6 +54,13 @@ use App\Http\Controllers\Web\SiteGalleryController;
 use App\Http\Controllers\Web\SitemapController;
 use App\Http\Controllers\Web\SiteNewsController;
 use App\Http\Controllers\Web\SitePageController;
+use App\Http\Controllers\Auth\StudentGuardianLoginController;
+use App\Http\Controllers\Web\ProfileController;
+use App\Http\Controllers\Web\MessageController;
+use App\Http\Controllers\Web\DashboardHostelController;
+use App\Http\Controllers\Web\DashboardTestimonialController;
+use App\Http\Controllers\Web\DashboardProfileController;
+use App\Http\Controllers\Web\DashboardVisitorLogController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -115,12 +123,67 @@ Route::middleware('guest')->group(function () {
     Route::post('/forgot-password', [PasswordResetController::class, 'store'])->name('password.email');
     Route::get('/reset-password/{token}', [PasswordResetController::class, 'edit'])->name('password.reset');
     Route::post('/reset-password', [PasswordResetController::class, 'update'])->name('password.update');
+
+    Route::get('/student/login', [StudentGuardianLoginController::class, 'showLoginForm'])->name('student.login');
+    Route::post('/student/login', [StudentGuardianLoginController::class, 'login'])->name('student.login.post');
+    Route::get('/guardian/login', [StudentGuardianLoginController::class, 'showLoginForm'])->name('guardian.login');
+    Route::post('/guardian/login', [StudentGuardianLoginController::class, 'login'])->name('guardian.login.post');
 });
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthSessionController::class, 'destroy'])->name('logout');
 
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    Route::prefix('messages')->name('messages.')->group(function () {
+        Route::get('/', [MessageController::class, 'index'])->name('index');
+        Route::get('/sent', [MessageController::class, 'sent'])->name('sent');
+        Route::get('/create', [MessageController::class, 'create'])->name('create');
+        Route::post('/', [MessageController::class, 'store'])->name('store');
+        Route::get('/{id}', [MessageController::class, 'show'])->name('show');
+        Route::delete('/{id}', [MessageController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::middleware('student_guardian')->group(function () {
+        Route::get('/student/dashboard', function () {
+            $user = auth()->user();
+            $student = $user->student()->first();
+            $stats = [
+                'attendance_rate' => 0,
+                'exam_count' => 0,
+                'fee_paid' => 0,
+                'certificate_count' => 0,
+            ];
+            if ($student) {
+                $totalAtt = $student->attendances()->count();
+                $presentAtt = $student->attendances()->whereIn('status', ['present', 'late', 'half_day'])->count();
+                $stats['attendance_rate'] = $totalAtt > 0 ? round(100 * $presentAtt / $totalAtt) : 0;
+                $stats['exam_count'] = $student->examResults()->count();
+                $stats['fee_paid'] = $student->feePayments()->where('status', 'completed')->count();
+                $stats['certificate_count'] = $student->certificates()->count();
+            }
+            $recentResults = $student ? $student->examResults()->with('exam', 'subject')->latest()->limit(5)->get() : collect();
+            return view('student/dashboard', compact('user', 'stats', 'recentResults'));
+        })->name('student.dashboard');
+
+        Route::get('/guardian/dashboard', function () {
+            $user = auth()->user();
+            $guardian = $user->guardian()->first();
+            $students = $guardian ? $guardian->students()->with(['user', 'class', 'section'])->get() : collect();
+            $studentCount = $students->count();
+            $pendingFees = 0;
+            $noticeCount = 0;
+            return view('guardian/dashboard', compact('user', 'students', 'studentCount', 'pendingFees', 'noticeCount'));
+        })->name('guardian.dashboard');
+    });
+
     Route::get('/dashboard/locale/{locale}', [DashboardLocaleController::class, 'switch'])->name('dashboard.locale.switch');
+
+    Route::get('/dashboard/search', [DashboardSearchController::class, 'search'])->name('dashboard.search');
+
+    Route::get('/dashboard/profile', [DashboardProfileController::class, 'edit'])->name('dashboard.profile.edit');
+    Route::put('/dashboard/profile', [DashboardProfileController::class, 'update'])->name('dashboard.profile.update');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -353,6 +416,8 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/dashboard/activity', [DashboardActivityController::class, 'index'])->name('dashboard.activity.index');
 
+        Route::get('/dashboard/visitor-logs', [DashboardVisitorLogController::class, 'index'])->name('dashboard.visitor-logs.index');
+
         Route::prefix('dashboard/certificates')->name('dashboard.certificates.')->group(function () {
             Route::get('/', [DashboardCertificateController::class, 'index'])->name('index');
             Route::get('/create', [DashboardCertificateController::class, 'create'])->name('create');
@@ -434,6 +499,31 @@ Route::middleware('auth')->group(function () {
             Route::get('/assignments', [DashboardTransportController::class, 'assignments'])->name('assignments.index');
             Route::post('/assignments', [DashboardTransportController::class, 'assignmentsStore'])->name('assignments.store');
             Route::delete('/assignments/{assignment}', [DashboardTransportController::class, 'assignmentsDestroy'])->name('assignments.destroy');
+        });
+
+        Route::prefix('dashboard/hostels')->name('dashboard.hostels.')->group(function () {
+            Route::get('/', [DashboardHostelController::class, 'index'])->name('index');
+            Route::get('/create', [DashboardHostelController::class, 'create'])->name('create');
+            Route::post('/', [DashboardHostelController::class, 'store'])->name('store');
+            Route::get('/{hostel}', [DashboardHostelController::class, 'show'])->name('show');
+            Route::get('/{hostel}/edit', [DashboardHostelController::class, 'edit'])->name('edit');
+            Route::put('/{hostel}', [DashboardHostelController::class, 'update'])->name('update');
+            Route::delete('/{hostel}', [DashboardHostelController::class, 'destroy'])->name('destroy');
+            Route::post('/{hostel}/rooms', [DashboardHostelController::class, 'storeRoom'])->name('rooms.store');
+            Route::put('/rooms/{room}', [DashboardHostelController::class, 'updateRoom'])->name('rooms.update');
+            Route::delete('/rooms/{room}', [DashboardHostelController::class, 'destroyRoom'])->name('rooms.destroy');
+            Route::post('/{hostel}/assignments', [DashboardHostelController::class, 'storeAssignment'])->name('assignments.store');
+            Route::delete('/assignments/{assignment}', [DashboardHostelController::class, 'destroyAssignment'])->name('assignments.destroy');
+        });
+
+        Route::prefix('dashboard/testimonials')->name('dashboard.testimonials.')->group(function () {
+            Route::get('/', [DashboardTestimonialController::class, 'index'])->name('index');
+            Route::get('/create', [DashboardTestimonialController::class, 'create'])->name('create');
+            Route::post('/', [DashboardTestimonialController::class, 'store'])->name('store');
+            Route::get('/{testimonial}/edit', [DashboardTestimonialController::class, 'edit'])->name('edit');
+            Route::put('/{testimonial}', [DashboardTestimonialController::class, 'update'])->name('update');
+            Route::delete('/{testimonial}', [DashboardTestimonialController::class, 'destroy'])->name('destroy');
+            Route::post('/{testimonial}/toggle', [DashboardTestimonialController::class, 'toggleVisibility'])->name('toggle');
         });
     });
 });

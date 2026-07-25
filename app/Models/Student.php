@@ -58,6 +58,8 @@ class Student extends Model
         'discount',
         'status',
         'notes',
+        'is_notable',
+        'achievement',
     ];
 
     protected $casts = [
@@ -65,6 +67,7 @@ class Student extends Model
         'monthly_fee' => 'decimal:2',
         'transport_fee' => 'decimal:2',
         'discount' => 'decimal:2',
+        'is_notable' => 'boolean',
     ];
 
     /**

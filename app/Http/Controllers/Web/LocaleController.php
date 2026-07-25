@@ -13,6 +13,7 @@ class LocaleController extends Controller
 
         if (in_array($locale, $locales, true)) {
             session(['locale' => $locale]);
+            app()->setLocale($locale);
         }
 
         return redirect()->back();

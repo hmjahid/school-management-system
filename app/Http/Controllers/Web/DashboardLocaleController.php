@@ -16,6 +16,6 @@ class DashboardLocaleController extends Controller
         session(['dashboard_locale' => $locale]);
         app()->setLocale($locale);
 
-        return back()->with('status', __('Language changed.'));
+        return redirect()->to(request()->header('referer', route('dashboard')))->with('status', __('Language changed.'));
     }
 }

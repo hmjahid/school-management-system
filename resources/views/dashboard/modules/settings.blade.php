@@ -275,6 +275,51 @@
             </div>
         </div>
 
+        <div class="mt-8 border-t border-gray-100 pt-6">
+            <h2 class="text-base font-semibold text-gray-900">{{ __('Theme customization') }}</h2>
+            <p class="mt-1 text-xs text-gray-500">{{ __('Customize colors and font used across the public site. Leave blank to use defaults.') }}</p>
+            <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Primary color') }}</label>
+                    <div class="flex items-center gap-2">
+                        <input type="color" data-color-preview value="{{ old('theme_primary_color', $settings->theme_primary_color ?? '#2563eb') }}" class="h-10 w-14 cursor-pointer rounded border border-gray-300">
+                        <input type="text" name="theme_primary_color" value="{{ old('theme_primary_color', $settings->theme_primary_color ?? '') }}" placeholder="#2563eb" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Secondary color') }}</label>
+                    <div class="flex items-center gap-2">
+                        <input type="color" data-color-preview value="{{ old('theme_secondary_color', $settings->theme_secondary_color ?? '#f97316') }}" class="h-10 w-14 cursor-pointer rounded border border-gray-300">
+                        <input type="text" name="theme_secondary_color" value="{{ old('theme_secondary_color', $settings->theme_secondary_color ?? '') }}" placeholder="#f97316" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Font family') }}</label>
+                    <select name="theme_font_family" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        <option value="" @selected(old('theme_font_family', $settings->theme_font_family ?? '') === '')>{{ __('Default (Inter)') }}</option>
+                        <option value="Inter, sans-serif" @selected(old('theme_font_family', $settings->theme_font_family ?? '') === 'Inter, sans-serif')">Inter</option>
+                        <option value="Roboto, sans-serif" @selected(old('theme_font_family', $settings->theme_font_family ?? '') === 'Roboto, sans-serif')">Roboto</option>
+                        <option value="Poppins, sans-serif" @selected(old('theme_font_family', $settings->theme_font_family ?? '') === 'Poppins, sans-serif')">Poppins</option>
+                        <option value="Open Sans, sans-serif" @selected(old('theme_font_family', $settings->theme_font_family ?? '') === 'Open Sans, sans-serif')">Open Sans</option>
+                        <option value="Lato, sans-serif" @selected(old('theme_font_family', $settings->theme_font_family ?? '') === 'Lato, sans-serif')">Lato</option>
+                        <option value="Montserrat, sans-serif" @selected(old('theme_font_family', $settings->theme_font_family ?? '') === 'Montserrat, sans-serif')">Montserrat</option>
+                        <option value="Georgia, serif" @selected(old('theme_font_family', $settings->theme_font_family ?? '') === 'Georgia, serif')">Georgia</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Border radius') }}</label>
+                    <select name="theme_border_radius" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        <option value="" @selected(old('theme_border_radius', $settings->theme_border_radius ?? '') === '')>{{ __('Default (rounded)') }}</option>
+                        <option value="0" @selected(old('theme_border_radius', $settings->theme_border_radius ?? '') === '0')>{{ __('None (square)') }}</option>
+                        <option value="0.25rem" @selected(old('theme_border_radius', $settings->theme_border_radius ?? '') === '0.25rem')>{{ __('Small') }}</option>
+                        <option value="0.5rem" @selected(old('theme_border_radius', $settings->theme_border_radius ?? '') === '0.5rem')>{{ __('Medium') }}</option>
+                        <option value="0.75rem" @selected(old('theme_border_radius', $settings->theme_border_radius ?? '') === '0.75rem')>{{ __('Large') }}</option>
+                        <option value="1rem" @selected(old('theme_border_radius', $settings->theme_border_radius ?? '') === '1rem')>{{ __('Extra large') }}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
         <div class="flex justify-end border-t border-gray-100 pt-4">
             <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">
                 {{ __('Save settings') }}
@@ -288,6 +333,19 @@
             function toggle() { twilio.classList.toggle('hidden', sel.value !== 'twilio'); }
             sel.addEventListener('change', toggle);
             toggle();
+
+            document.querySelectorAll('input[data-color-preview]').forEach(function(colorInput) {
+                var textInput = colorInput.parentElement.querySelector('input[type="text"]');
+                if (!textInput) return;
+                textInput.addEventListener('input', function() {
+                    if (/^#[0-9A-Fa-f]{6}$/.test(textInput.value)) {
+                        colorInput.value = textInput.value;
+                    }
+                });
+                colorInput.addEventListener('input', function() {
+                    textInput.value = colorInput.value;
+                });
+            });
         });
     </script>
 @endsection

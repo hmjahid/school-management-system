@@ -36,8 +36,8 @@
                 @forelse($rows as $row)
                     <tr>
                         <td class="px-4 py-3">
-                            <div class="font-medium text-gray-900">{{ $row->title }}</div>
-                            <div class="text-xs text-gray-500">{{ \Illuminate\Support\Str::limit(strip_tags($row->content), 80) }}</div>
+                            <div class="font-medium text-gray-900">{{ $row->localizedTitle() }}</div>
+                            <div class="text-xs text-gray-500">{{ \Illuminate\Support\Str::limit(strip_tags($row->localizedContent()), 80) }}</div>
                         </td>
                         <td class="px-4 py-3 text-gray-700">
                             @if(is_array($row->audience))

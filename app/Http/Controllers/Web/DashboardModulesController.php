@@ -269,6 +269,10 @@ class DashboardModulesController extends Controller
             'remove_favicon' => ['nullable', 'boolean'],
             'section_visibility' => ['nullable', 'array'],
             'section_visibility.*' => ['nullable', 'boolean'],
+            'theme_primary_color' => ['nullable', 'string', 'max:20'],
+            'theme_secondary_color' => ['nullable', 'string', 'max:20'],
+            'theme_font_family' => ['nullable', 'string', 'max:100'],
+            'theme_border_radius' => ['nullable', 'string', 'max:20'],
         ]);
 
         $settings = WebsiteSetting::firstOrNew([]);

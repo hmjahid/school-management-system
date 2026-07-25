@@ -84,7 +84,9 @@ class DashboardNoticeController extends Controller
     {
         return $request->validate([
             'title' => ['required', 'string', 'max:255'],
+            'title_bn' => ['nullable', 'string', 'max:255'],
             'content' => ['required', 'string'],
+            'content_bn' => ['nullable', 'string'],
             'audience' => ['nullable', 'array'],
             'audience.*' => ['string'],
             'pinned' => ['nullable', 'boolean'],

@@ -106,6 +106,11 @@ return [
             'Counselling and university guidance',
             'Inclusive, safe, and supportive campus',
         ],
+        'teachers_title' => 'Our Teachers',
+        'teachers_intro' => 'Dedicated educators who inspire and guide our students toward excellence.',
+        'teachers_view_all' => 'View all faculty',
+        'remarkable_students_title' => 'Remarkable Students',
+        'remarkable_students_intro' => 'Celebrating the achievements and success of our outstanding students.',
     ],
 
     'payments' => [

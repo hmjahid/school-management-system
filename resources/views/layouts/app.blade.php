@@ -55,6 +55,12 @@
     @stack('head')
 
     <style>
+        :root {
+            --theme-primary: {{ $siteSettings->theme_primary_color ?? '#2563eb' }};
+            --theme-secondary: {{ $siteSettings->theme_secondary_color ?? '#f97316' }};
+            --theme-font: {{ $siteSettings->theme_font_family ?: "'Inter', sans-serif" }};
+            --theme-radius: {{ $siteSettings->theme_border_radius ?: '0.75rem' }};
+        }
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         @keyframes marquee-urgent { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         @keyframes noticeScrollUp { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
@@ -64,9 +70,23 @@
         .animate-marquee-urgent:hover { animation-play-state: paused; }
         .notice-scroll-content { display: flex; flex-direction: column; gap: 10px; animation: noticeScrollUp var(--scroll-duration, 15s) linear infinite; }
         .notice-scroll-container:hover .notice-scroll-content { animation-play-state: paused; }
+
+        .theme-bg-primary { background-color: var(--theme-primary); }
+        .theme-bg-secondary { background-color: var(--theme-secondary); }
+        .theme-text-primary { color: var(--theme-primary); }
+        .theme-text-secondary { color: var(--theme-secondary); }
+        .theme-border-primary { border-color: var(--theme-primary); }
+        .theme-from-primary { --tw-gradient-from: var(--theme-primary); }
+        .theme-to-secondary { --tw-gradient-to: var(--theme-secondary); }
+        .theme-ring-primary { --tw-ring-color: var(--theme-primary); }
+        .theme-btn-primary { background-color: var(--theme-primary); color: #fff; border-radius: var(--theme-radius); }
+        .theme-btn-primary:hover { opacity: 0.9; }
+        .theme-btn-secondary { background-color: var(--theme-secondary); color: #fff; border-radius: var(--theme-radius); }
+        .theme-btn-secondary:hover { opacity: 0.9; }
+        .theme-card { border-radius: var(--theme-radius); }
     </style>
 </head>
-<body class="flex min-h-screen flex-col bg-surface font-sans text-on-surface antialiased">
+<body class="flex min-h-screen flex-col bg-surface font-sans text-on-surface antialiased" style="font-family: var(--theme-font);">
     {{-- Loading bar --}}
     <div id="loading-bar" class="fixed left-0 top-0 z-[200] h-1 bg-brand-600 transition-all duration-300 ease-out" style="width:0; opacity:0;"></div>
 

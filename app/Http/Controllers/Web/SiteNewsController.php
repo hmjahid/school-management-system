@@ -14,6 +14,10 @@ class SiteNewsController extends Controller
     {
         $content = WebsiteContent::getContent('news');
 
+        if ($content->exists && ! $content->is_active) {
+            abort(404);
+        }
+
         $latestNews = News::query()
             ->published()
             ->where('is_event', false)

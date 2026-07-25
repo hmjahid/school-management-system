@@ -14,15 +14,18 @@ class DemoAcademicSeeder extends Seeder
 {
     public function run(): void
     {
-        $sessions = ['2024-2025', '2025-2026', '2026-2027'];
+        $sessions = ['2024', '2025', '2026'];
         foreach ($sessions as $s) {
-            AcademicSession::create(['name' => $s, 'code' => str_replace('-', '_', $s), 'start_date' => substr($s, 0, 4) . '-01-01', 'end_date' => substr($s, 5) . '-12-31', 'is_active' => $s === '2025-2026']);
+            AcademicSession::firstOrCreate(
+                ['code' => $s],
+                ['name' => $s, 'start_date' => $s . '-01-01', 'end_date' => $s . '-12-31', 'is_active' => $s === '2026']
+            );
         }
 
         foreach ($sessions as $s) {
             AcademicYear::firstOrCreate(
                 ['session' => $s],
-                ['name' => 'Academic Year ' . $s, 'start_date' => substr($s, 0, 4) . '-01-01', 'end_date' => substr($s, 5) . '-12-31', 'is_current' => $s === '2025-2026']
+                ['name' => 'Academic Year ' . $s, 'start_date' => $s . '-01-01', 'end_date' => $s . '-12-31', 'is_current' => $s === '2026']
             );
         }
 

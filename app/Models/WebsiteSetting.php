@@ -73,6 +73,10 @@ class WebsiteSetting extends Model
         'send_absence_sms',
         'absence_sms_template',
         'sms_sender_id',
+        'theme_primary_color',
+        'theme_secondary_color',
+        'theme_font_family',
+        'theme_border_radius',
     ];
 
     /**

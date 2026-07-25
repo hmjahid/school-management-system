@@ -30,7 +30,7 @@ class DemoTeacherSeeder extends Seeder
             $lastName = $lastNames[$i % count($lastNames)];
             $fullName = $firstName . ' ' . $lastName;
             $email = 'teacher' . ($i + 1) . '@school.com';
-            $phone = '017' . str_pad(rand(10000000, 99999999), 8, '0', STR_PAD_LEFT);
+            $phone = '019' . str_pad((string)(10000000 + $i), 8, '0', STR_PAD_LEFT);
 
             $user = User::create([
                 'name' => $fullName,

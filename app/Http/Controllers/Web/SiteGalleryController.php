@@ -13,6 +13,10 @@ class SiteGalleryController extends Controller
     {
         $content = WebsiteContent::getContent('gallery');
 
+        if ($content->exists && ! $content->is_active) {
+            abort(404);
+        }
+
         $items = Gallery::query()
             ->published()
             ->orderByDesc('id')
