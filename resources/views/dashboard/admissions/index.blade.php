@@ -49,6 +49,30 @@
                 </label>
             </div>
 
+            <div class="rounded-lg border border-slate-200 bg-slate-50/50 p-4 space-y-4">
+                <div class="flex items-center gap-4">
+                    <label class="text-sm font-medium text-slate-700" for="display_year">{{ __('Display year') }}</label>
+                    <select name="display_year" id="display_year" class="admin-select w-40">
+                        @for($y = date('Y') + 1; $y >= date('Y') - 1; $y--)
+                            <option value="{{ $y }}" @selected(old('display_year', $settings->display_year ?? date('Y')) == $y)>{{ $y }}</option>
+                        @endfor
+                        <option value="" @selected(old('display_year', $settings->display_year) === null)>{{ __('Auto (current year)') }}</option>
+                    </select>
+                </div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold text-slate-600">{{ __('Bar title') }} <span class="font-normal text-slate-400">(EN)</span></label>
+                        <input type="text" name="bar_title_en" value="{{ old('bar_title_en', $settings->bar_title_en) }}" class="admin-input" placeholder="{{ __('e.g. Admissions Open :year') }}">
+                        <p class="mt-1 text-xs text-slate-400">{{ __('Leave empty to use default. Use :year for the year number.') }}</p>
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold text-slate-600">{{ __('Bar title') }} <span class="font-normal text-slate-400">(বাংলা)</span></label>
+                        <input type="text" name="bar_title_bn" value="{{ old('bar_title_bn', $settings->bar_title_bn) }}" class="admin-input" placeholder="{{ __('e.g. ভর্তি খোলা :year') }}">
+                        <p class="mt-1 text-xs text-slate-400">{{ __('Leave empty to use default. Use :year for the year number.') }}</p>
+                    </div>
+                </div>
+            </div>
+
             <details class="rounded-lg border border-slate-200 bg-slate-50/50 p-4" @if($settings->closed_message_en || $settings->closed_message_bn) open @endif>
                 <summary class="cursor-pointer text-sm font-medium text-slate-700">{{ __('Custom "closed" notice (optional)') }}</summary>
                 <div class="mt-4 grid gap-4 sm:grid-cols-2">
@@ -82,6 +106,21 @@
                     <div class="sm:col-span-2">
                         <label class="mb-1.5 block text-xs font-semibold text-slate-600">{{ __('Payment instructions') }} <span class="font-normal text-slate-400">(বাংলা)</span></label>
                         <textarea name="payment_instructions_bn" rows="3" class="admin-input">{{ old('payment_instructions_bn', $settings->payment_instructions_bn) }}</textarea>
+                    </div>
+                </div>
+            </details>
+
+            <details class="rounded-lg border border-slate-200 bg-slate-50/50 p-4" @if($settings->notice_en || $settings->notice_bn) open @endif>
+                <summary class="cursor-pointer text-sm font-medium text-slate-700">{{ __('Admission notice (shown when open)') }}</summary>
+                <p class="mt-2 text-xs text-slate-500">{{ __('A notice displayed on the public admissions page while admissions are open. Use for exam dates, document requirements, etc.') }}</p>
+                <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold text-slate-600">{{ __('Notice') }} <span class="font-normal text-slate-400">(EN)</span></label>
+                        <textarea name="notice_en" rows="3" class="admin-input" placeholder="{{ __('e.g. Bring original documents on the day of the admission test.') }}">{{ old('notice_en', $settings->notice_en) }}</textarea>
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-xs font-semibold text-slate-600">{{ __('Notice') }} <span class="font-normal text-slate-400">(বাংলা)</span></label>
+                        <textarea name="notice_bn" rows="3" class="admin-input" placeholder="{{ __('e.g. ভর্তি পরীক্ষার দিন মূল নথি সাথে আনুন।') }}">{{ old('notice_bn', $settings->notice_bn) }}</textarea>
                     </div>
                 </div>
             </details>

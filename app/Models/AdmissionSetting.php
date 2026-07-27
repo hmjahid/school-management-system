@@ -16,6 +16,11 @@ class AdmissionSetting extends Model
         'payment_number',
         'payment_instructions_en',
         'payment_instructions_bn',
+        'notice_en',
+        'notice_bn',
+        'display_year',
+        'bar_title_en',
+        'bar_title_bn',
     ];
 
     protected $casts = [
@@ -81,5 +86,23 @@ class AdmissionSetting extends Model
         return $locale === 'bn'
             ? 'বর্তমানে ভর্তি কার্যক্রম বন্ধ আছে। অনুগ্রহ করে পরে আবার দেখুন।'
             : 'Admissions are not currently open. Please check back later.';
+    }
+
+    /**
+     * Get the localized admission notice shown when admissions are open.
+     * Falls back to English, then empty string.
+     */
+    public function getNoticeAttribute(): string
+    {
+        $locale = app()->getLocale();
+
+        if ($locale === 'bn') {
+            $bn = trim((string) $this->notice_bn);
+            if ($bn !== '') {
+                return $bn;
+            }
+        }
+
+        return trim((string) $this->notice_en);
     }
 }

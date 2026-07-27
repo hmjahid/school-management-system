@@ -322,12 +322,12 @@ return [
     ],
 
     'admissions_bar' => [
-        'title' => 'Admissions Open :year-:next',
+        'title' => 'Admissions Open :year',
         'cta' => 'Apply Now',
     ],
 
     'admissions_landing' => [
-        'badge' => 'Admissions Open :year-:next',
+        'badge' => 'Admissions Open :year',
         'cta_apply' => 'Online application form',
         'cta_status' => 'Check application status',
         'cta_payments' => 'Fee payment portal',

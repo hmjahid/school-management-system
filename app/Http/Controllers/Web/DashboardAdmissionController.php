@@ -58,6 +58,15 @@ class DashboardAdmissionController extends Controller
             'is_open' => ['required', 'boolean'],
             'closed_message_en' => ['nullable', 'string', 'max:1000'],
             'closed_message_bn' => ['nullable', 'string', 'max:1000'],
+            'admission_fee' => ['nullable', 'numeric', 'min:0'],
+            'payment_number' => ['nullable', 'string', 'max:50'],
+            'payment_instructions_en' => ['nullable', 'string', 'max:2000'],
+            'payment_instructions_bn' => ['nullable', 'string', 'max:2000'],
+            'notice_en' => ['nullable', 'string', 'max:2000'],
+            'notice_bn' => ['nullable', 'string', 'max:2000'],
+            'display_year' => ['nullable', 'string', 'max:9'],
+            'bar_title_en' => ['nullable', 'string', 'max:255'],
+            'bar_title_bn' => ['nullable', 'string', 'max:255'],
         ]);
 
         $settings = AdmissionSetting::getSettings();

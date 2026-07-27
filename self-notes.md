@@ -305,7 +305,6 @@ use checkbox for show/hide instead of remove button for page section hide/show f
 create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-7.md file. then implement the tasks using the prompt
 
 
-
 where announcements are showing? 
 
 what the difference between nitice an dannouncement?
@@ -343,7 +342,6 @@ add others pages sections hide/show like homepage sections
 when logged in, showing profile link in webiste headre. remove it.
 
 
-
 add show hide for all individual sections, not whole page content
 
 theme color chnaging not working. fix the issue.
@@ -353,17 +351,18 @@ ensure that the application is a pwa (progressive web app)
 create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-8.md file. then implement the tasks using the prompt
 
 
-
 afer contact page form submission successfully, show a nice popup with thank message.
 
 not showing any option for installing the app as pwa. add a option in dashboard for insatlling the applicationa s pwa in any devices.
 
 create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-9.md file. then implement the tasks using the prompt
 
-
-
-
 add a input filed in backend admission page for customising admission notice.
+
+the admission form not working. fix it
+
+
+
 
 now write a commit message for the chnages after the last commit
 

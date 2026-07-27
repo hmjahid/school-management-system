@@ -65,10 +65,12 @@
 
 {{-- Admissions CTA top bar — only shown when admissions are open --}}
 @php
-    $admissionOpen = true;
+    $admissionOpen = false;
+    $admissionSettings = null;
     try {
         if (class_exists(\App\Models\AdmissionSetting::class) && \Illuminate\Support\Facades\Schema::hasTable('admission_settings')) {
-            $admissionOpen = \App\Models\AdmissionSetting::getSettings()->is_open;
+            $admissionSettings = \App\Models\AdmissionSetting::getSettings();
+            $admissionOpen = $admissionSettings->is_open;
         }
     } catch (\Throwable) {}
 @endphp
@@ -76,7 +78,13 @@
 <div class="hidden items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-1.5 text-center text-xs font-medium text-white sm:flex">
     <span class="inline-flex items-center gap-1">
         <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm2.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm6.207.293a1 1 0 00-1.414 0l-6 6a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414zM14 8a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" clip-rule="evenodd"/></svg>
-        {{ str_replace([':year', ':next'], [date('Y'), date('Y', strtotime('+1 year'))], site_ui('admissions_bar.title')) }}
+        @php
+            $locale = app()->getLocale();
+            $customTitle = $locale === 'bn' ? ($admissionSettings->bar_title_bn ?? null) : ($admissionSettings->bar_title_en ?? null);
+            $barTitle = $customTitle ?: site_ui('admissions_bar.title');
+            $barTitle = str_replace(':year', $admissionSettings->display_year ?? date('Y'), $barTitle);
+        @endphp
+        {{ $barTitle }}
     </span>
     <a href="{{ route('admissions.apply') }}" class="inline-flex items-center gap-0.5 font-semibold underline underline-offset-2 hover:no-underline">
         {{ site_ui('admissions_bar.cta') }}

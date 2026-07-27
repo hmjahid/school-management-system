@@ -322,12 +322,12 @@ return [
     ],
 
     'admissions_bar' => [
-        'title' => 'ভর্তি খোলা :year-:next',
+        'title' => 'ভর্তি খোলা :year',
         'cta' => 'এখনই আবেদন করুন',
     ],
 
     'admissions_landing' => [
-        'badge' => 'ভর্তি খোলা :year-:next',
+        'badge' => 'ভর্তি খোলা :year',
         'cta_apply' => 'অনলাইন আবেদন ফরম',
         'cta_status' => 'আবেদনের অবস্থা দেখুন',
         'cta_payments' => 'ফি পেমেন্ট পোর্টাল',

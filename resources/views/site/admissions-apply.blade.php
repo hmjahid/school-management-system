@@ -24,6 +24,12 @@
                 <p class="mt-4 text-slate-600">{{ $c['apply_intro'] }}</p>
             @endif
 
+            @if($settings->notice)
+                <div class="mt-4 rounded-xl border border-blue-200 bg-blue-50 px-5 py-3 text-sm text-blue-800">
+                    <span class="font-semibold">{{ __('Notice') }}:</span> {{ $settings->notice }}
+                </div>
+            @endif
+
             @if($sessions->isEmpty() || $batches->isEmpty())
                 <div class="mt-8 rounded-xl border border-yellow-200 bg-yellow-50 px-6 py-4 text-sm text-yellow-900">
                     {{ site_ui('admissions_apply.not_configured') }}
@@ -32,7 +38,7 @@
                 {{-- Step progress bar --}}
                 <div class="mt-8" data-step-progress>
                     <div class="flex items-center justify-between">
-                        @foreach([1 => __('Personal Info'), 2 => __('Academic Info'), 3 => __('Guardian Info'), 4 => __('Documents'), 5 => __('Review')] as $step => $label)
+                        @foreach([1 => __('Personal Info'), 2 => __('Contact & Address'), 3 => __('Academic Info'), 4 => __('Guardian Info'), 5 => __('Documents'), 6 => __('Review')] as $step => $label)
                             <div class="flex flex-col items-center">
                                 <div class="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold transition-all duration-300 data-[active=true]:bg-blue-600 data-[active=true]:text-white data-[completed=true]:bg-green-500 data-[completed=true]:text-white bg-slate-200 text-slate-500" data-step-dot="{{ $step }}">
                                     <span data-step-number>{{ $step }}</span>
@@ -49,17 +55,33 @@
                     </div>
                 </div>
 
-                <form method="post" action="{{ route('admissions.apply.store') }}" enctype="multipart/form-data" class="mt-10" data-multistep>
+                @if ($errors->any())
+                    <div class="mt-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-800">
+                        <p class="font-semibold">{{ __('Please fix the following errors:') }}</p>
+                        <ul class="mt-2 list-disc space-y-0.5 pl-5">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form method="post" action="{{ route('admissions.apply.store') }}" enctype="multipart/form-data" class="mt-10" data-multistep data-current-step="0">
                     @csrf
                     <input type="text" name="website" value="" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true">
 
                     {{-- Step 1: Personal Info --}}
-                    <div data-step-panel="1" class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+                    <div data-step-panel="0" class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
                         <h2 class="text-xl font-bold text-slate-900">{{ __('Personal Information') }}</h2>
                         <div class="mt-6 grid gap-5 sm:grid-cols-2">
-                            <div class="sm:col-span-2">
-                                <label class="block text-sm font-medium text-slate-700">{{ __('Full Name') }} <span class="text-red-500">*</span></label>
-                                <input type="text" name="full_name" value="{{ old('full_name') }}" required
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">{{ __('First Name') }} <span class="text-red-500">*</span></label>
+                                <input type="text" name="first_name" value="{{ old('first_name') }}" required
+                                    class="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">{{ __('Last Name') }} <span class="text-red-500">*</span></label>
+                                <input type="text" name="last_name" value="{{ old('last_name') }}" required
                                     class="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
                             </div>
                             <div>
@@ -86,21 +108,68 @@
                                 <input type="text" name="religion" value="{{ old('religion') }}"
                                     class="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
                             </div>
-                            <div class="sm:col-span-2">
-                                <label class="block text-sm font-medium text-slate-700">{{ __('Address') }} <span class="text-red-500">*</span></label>
-                                <textarea name="address" rows="2" required
-                                    class="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">{{ old('address') }}</textarea>
-                            </div>
                         </div>
                         <div class="mt-8 flex justify-end">
-                            <button type="button" data-step-next class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700">
+                            <button type="button" data-step="1" class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700">
                                 {{ __('Next Step') }}
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                             </button>
                         </div>
                     </div>
 
-                    {{-- Step 2: Academic Info --}}
+                    {{-- Step 2: Contact & Address --}}
+                    <div data-step-panel="1" class="hidden rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+                        <h2 class="text-xl font-bold text-slate-900">{{ __('Contact & Address') }}</h2>
+                        <div class="mt-6 grid gap-5 sm:grid-cols-2">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">{{ __('Email') }} <span class="text-red-500">*</span></label>
+                                <input type="email" name="email" value="{{ old('email') }}" required
+                                    class="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">{{ __('Phone') }} <span class="text-red-500">*</span></label>
+                                <input type="text" name="phone" value="{{ old('phone') }}" required
+                                    class="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-sm font-medium text-slate-700">{{ __('Address') }} <span class="text-red-500">*</span></label>
+                                <textarea name="address" rows="2" required
+                                    class="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">{{ old('address') }}</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">{{ __('City') }} <span class="text-red-500">*</span></label>
+                                <input type="text" name="city" value="{{ old('city') }}" required
+                                    class="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">{{ __('Postal Code') }} <span class="text-red-500">*</span></label>
+                                <input type="text" name="postal_code" value="{{ old('postal_code') }}" required
+                                    class="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">{{ __('State / District') }}</label>
+                                <input type="text" name="state" value="{{ old('state') }}"
+                                    class="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">{{ __('Country') }}</label>
+                                <input type="text" name="country" value="{{ old('country', 'Bangladesh') }}"
+                                    class="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                            </div>
+                        </div>
+                        <div class="mt-8 flex items-center justify-between">
+                            <button type="button" data-step="0" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-50">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                                {{ __('Previous') }}
+                            </button>
+                            <button type="button" data-step="2" class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700">
+                                {{ __('Next Step') }}
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- Step 3: Academic Info --}}
                     <div data-step-panel="2" class="hidden rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
                         <h2 class="text-xl font-bold text-slate-900">{{ __('Academic Information') }}</h2>
                         <div class="mt-6 grid gap-5 sm:grid-cols-2">
@@ -139,18 +208,18 @@
                             </div>
                         </div>
                         <div class="mt-8 flex items-center justify-between">
-                            <button type="button" data-step-prev class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-50">
+                            <button type="button" data-step="1" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-50">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                                 {{ __('Previous') }}
                             </button>
-                            <button type="button" data-step-next class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700">
+                            <button type="button" data-step="3" class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700">
                                 {{ __('Next Step') }}
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                             </button>
                         </div>
                     </div>
 
-                    {{-- Step 3: Guardian Info --}}
+                    {{-- Step 4: Guardian Info --}}
                     <div data-step-panel="3" class="hidden rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
                         <h2 class="text-xl font-bold text-slate-900">{{ __('Guardian Information') }}</h2>
                         <div class="mt-6 grid gap-5 sm:grid-cols-2">
@@ -204,18 +273,18 @@
                             </div>
                         </div>
                         <div class="mt-8 flex items-center justify-between">
-                            <button type="button" data-step-prev class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-50">
+                            <button type="button" data-step="2" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-50">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                                 {{ __('Previous') }}
                             </button>
-                            <button type="button" data-step-next class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700">
+                            <button type="button" data-step="4" class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700">
                                 {{ __('Next Step') }}
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                             </button>
                         </div>
                     </div>
 
-                    {{-- Step 4: Documents --}}
+                    {{-- Step 5: Documents --}}
                     <div data-step-panel="4" class="hidden rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
                         <h2 class="text-xl font-bold text-slate-900">{{ __('Documents Upload') }}</h2>
                         <p class="mt-2 text-sm text-slate-500">{{ site_ui('admissions_apply.documents_help') }}</p>
@@ -252,18 +321,18 @@
                             </div>
                         </div>
                         <div class="mt-8 flex items-center justify-between">
-                            <button type="button" data-step-prev class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-50">
+                            <button type="button" data-step="3" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-50">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                                 {{ __('Previous') }}
                             </button>
-                            <button type="button" data-step-next class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700">
+                            <button type="button" data-step="5" class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700">
                                 {{ __('Review & Submit') }}
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                             </button>
                         </div>
                     </div>
 
-                    {{-- Step 5: Review & Submit --}}
+                    {{-- Step 6: Review & Submit --}}
                     <div data-step-panel="5" class="hidden rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
                         <h2 class="text-xl font-bold text-slate-900">{{ __('Review Your Application') }}</h2>
                         <p class="mt-2 text-sm text-slate-500">{{ __('Please review all information before submitting. You can go back to edit any section.') }}</p>
@@ -271,6 +340,10 @@
                             <div class="rounded-xl border border-slate-100 bg-slate-50 p-5">
                                 <h3 class="text-sm font-semibold text-slate-900">{{ __('Personal Information') }}</h3>
                                 <div class="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2" data-review-personal></div>
+                            </div>
+                            <div class="rounded-xl border border-slate-100 bg-slate-50 p-5">
+                                <h3 class="text-sm font-semibold text-slate-900">{{ __('Contact & Address') }}</h3>
+                                <div class="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2" data-review-contact></div>
                             </div>
                             <div class="rounded-xl border border-slate-100 bg-slate-50 p-5">
                                 <h3 class="text-sm font-semibold text-slate-900">{{ __('Academic Information') }}</h3>
@@ -286,7 +359,7 @@
                             </div>
                         </div>
                         <div class="mt-8 flex items-center justify-between">
-                            <button type="button" data-step-prev class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-50">
+                            <button type="button" data-step="4" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-50">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                                 {{ __('Previous') }}
                             </button>
