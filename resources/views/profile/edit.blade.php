@@ -84,6 +84,17 @@
 
                 <div class="grid gap-6 sm:grid-cols-2">
                     <div>
+                        <label for="current_password" class="block text-sm font-medium text-gray-700">{{ __('Current Password') }}</label>
+                        <input id="current_password" name="current_password" type="password"
+                            class="mt-1.5 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-gray-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                        @error('current_password')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div></div>
+
+                    <div>
                         <label for="password" class="block text-sm font-medium text-gray-700">{{ __('New Password') }}</label>
                         <input id="password" name="password" type="password"
                             class="mt-1.5 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-gray-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">

@@ -33,6 +33,7 @@ class ProfileController extends Controller
             'gender' => ['nullable', 'string', 'max:20'],
             'date_of_birth' => ['nullable', 'date'],
             'photo' => ['nullable', 'image', 'max:2048'],
+            'current_password' => ['nullable', 'required_with:password', 'current_password'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 
@@ -41,7 +42,7 @@ class ProfileController extends Controller
         }
 
         $password = $validated['password'] ?? null;
-        unset($validated['password']);
+        unset($validated['password'], $validated['current_password']);
 
         $user->fill($validated);
 

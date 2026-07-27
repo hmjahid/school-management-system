@@ -5,18 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', __('Dashboard') . ' — ' . config('app.name', 'SchoolEase'))</title>
+    {{-- Restore dark mode immediately to prevent flash on page load / language switch --}}
+    <script>
+    (function(){var k='school-dark-mode',v=localStorage.getItem(k);if(v==='1'||(v===null&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')})();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    @php $dashSettings = \App\Models\WebsiteSetting::getSettings(); @endphp
     <style>
         :root {
-            --brand-50: oklch(0.97 0.02 250);
-            --brand-100: oklch(0.93 0.04 250);
-            --brand-500: oklch(0.55 0.18 250);
-            --brand-600: oklch(0.48 0.18 250);
-            --brand-700: oklch(0.42 0.16 250);
-            --accent-500: oklch(0.68 0.18 55);
-            --accent-600: oklch(0.62 0.18 55);
+            --brand-50: color-mix(in srgb, {{ $dashSettings->theme_primary_color ?? '#2563eb' }} 10%, white);
+            --brand-100: color-mix(in srgb, {{ $dashSettings->theme_primary_color ?? '#2563eb' }} 20%, white);
+            --brand-500: {{ $dashSettings->theme_primary_color ?? '#2563eb' }};
+            --brand-600: color-mix(in srgb, {{ $dashSettings->theme_primary_color ?? '#2563eb' }} 80%, black);
+            --brand-700: color-mix(in srgb, {{ $dashSettings->theme_primary_color ?? '#2563eb' }} 65%, black);
+            --accent-500: {{ $dashSettings->theme_secondary_color ?? '#f97316' }};
+            --accent-600: color-mix(in srgb, {{ $dashSettings->theme_secondary_color ?? '#f97316' }} 80%, black);
         }
     </style>
     @if (file_exists(public_path('build/manifest.json')))

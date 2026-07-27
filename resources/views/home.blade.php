@@ -157,6 +157,12 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="px-6 pb-5 sm:px-7">
+                                <a href="{{ route('site.notices') }}" class="flex items-center justify-center gap-1.5 rounded-lg bg-slate-100 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200 hover:text-slate-900">
+                                    {{ __('View All Notices') }}
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 @endif
@@ -261,23 +267,31 @@
                 <div class="mx-auto h-1 w-20 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full"></div>
                 <p class="mx-auto mt-4 max-w-3xl text-lg text-gray-600">{{ site_ui('home.teachers_intro') }}</p>
             </div>
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                @foreach($teachers as $teacher)
-                    @php
-                        $name = $teacher->user?->name ?? __('Teacher');
-                        $initials = implode('', array_map(fn($w) => strtoupper(substr($w, 0, 1)), explode(' ', $name)));
-                    @endphp
-                    <div class="group rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-100 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1 reveal">
-                        <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 text-2xl font-bold text-blue-600 ring-4 ring-white shadow-lg transition-transform duration-300 group-hover:scale-105">
-                            {{ $initials }}
+            <div class="relative" data-teachers-slider>
+                <button type="button" data-teachers-prev class="absolute -left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg ring-1 ring-gray-200 transition hover:bg-gray-50 hover:shadow-xl sm:-left-5" aria-label="Previous">
+                    <svg class="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <button type="button" data-teachers-next class="absolute -right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg ring-1 ring-gray-200 transition hover:bg-gray-50 hover:shadow-xl sm:-right-5" aria-label="Next">
+                    <svg class="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
+                <div data-teachers-track class="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 -mx-2 px-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                    @foreach($teachers as $teacher)
+                        @php
+                            $name = $teacher->user?->name ?? __('Teacher');
+                            $initials = implode('', array_map(fn($w) => strtoupper(substr($w, 0, 1)), explode(' ', $name)));
+                        @endphp
+                        <div class="min-w-[260px] max-w-[260px] snap-start shrink-0 group rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-100 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 text-2xl font-bold text-blue-600 ring-4 ring-white shadow-lg transition-transform duration-300 group-hover:scale-105">
+                                {{ $initials }}
+                            </div>
+                            <h3 class="mt-4 text-lg font-semibold text-gray-900">{{ $name }}</h3>
+                            <p class="mt-1 text-sm text-gray-500">{{ $teacher->qualification ?? __('Teacher') }}</p>
+                            @if($teacher->subjects)
+                                <p class="mt-2 text-xs text-gray-400">{{ is_array($teacher->subjects) ? implode(', ', $teacher->subjects) : $teacher->subjects }}</p>
+                            @endif
                         </div>
-                        <h3 class="mt-4 text-lg font-semibold text-gray-900">{{ $name }}</h3>
-                        <p class="mt-1 text-sm text-gray-500">{{ $teacher->qualification ?? __('Teacher') }}</p>
-                        @if($teacher->subjects)
-                            <p class="mt-2 text-xs text-gray-400">{{ is_array($teacher->subjects) ? implode(', ', $teacher->subjects) : $teacher->subjects }}</p>
-                        @endif
-                    </div>
-                @endforeach
+                    @endforeach
+                </div>
             </div>
             <div class="mt-10 text-center reveal">
                 <a href="{{ route('site.faculty') }}" class="inline-flex items-center gap-1.5 font-medium text-blue-600 hover:text-blue-800 transition-colors">
@@ -493,6 +507,27 @@
         var content = el.querySelector('.notice-scroll-content');
         if(content) content.style.setProperty('--scroll-duration', speed + 's');
     });
+
+    var slider = document.querySelector('[data-teachers-slider]');
+    if (slider) {
+        var track = slider.querySelector('[data-teachers-track]');
+        var prev = slider.querySelector('[data-teachers-prev]');
+        var next = slider.querySelector('[data-teachers-next]');
+        if (track && prev && next) {
+            var scrollAmount = 280;
+            prev.addEventListener('click', function() { track.scrollBy({ left: -scrollAmount, behavior: 'smooth' }); });
+            next.addEventListener('click', function() { track.scrollBy({ left: scrollAmount, behavior: 'smooth' }); });
+            var autoScroll = setInterval(function() {
+                if (track.scrollLeft + track.clientWidth >= track.scrollWidth - 10) {
+                    track.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                }
+            }, 4000);
+            track.addEventListener('mouseenter', function() { clearInterval(autoScroll); });
+            track.addEventListener('touchstart', function() { clearInterval(autoScroll); }, { passive: true });
+        }
+    }
 })();
 </script>
 @endpush

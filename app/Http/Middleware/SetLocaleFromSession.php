@@ -14,8 +14,8 @@ class SetLocaleFromSession
     {
         $locales = config('school.supported_locales', ['en']);
 
-        // Dashboard locale takes priority when set (dashboard routes use session('dashboard_locale')).
-        $locale = session('dashboard_locale') ?? session('locale');
+        // Use separate locale keys for dashboard vs public site.
+        $locale = $this->resolveLocale($request);
         if (! is_string($locale) || ! in_array($locale, $locales, true)) {
             $locale = $this->defaultLocale();
         }
@@ -25,6 +25,21 @@ class SetLocaleFromSession
         }
 
         return $next($request);
+    }
+
+    /**
+     * Determine the locale based on the current route context.
+     * Dashboard routes use session('dashboard_locale'), public routes use session('locale').
+     */
+    protected function resolveLocale(Request $request): string
+    {
+        $isDashboard = $request->is('dashboard*') || $request->routeIs('dashboard*');
+
+        if ($isDashboard) {
+            return session('dashboard_locale') ?? session('locale') ?? $this->defaultLocale();
+        }
+
+        return session('locale') ?? $this->defaultLocale();
     }
 
     /**

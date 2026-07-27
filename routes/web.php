@@ -53,6 +53,7 @@ use App\Http\Controllers\Web\PortalProgressController;
 use App\Http\Controllers\Web\SiteGalleryController;
 use App\Http\Controllers\Web\SitemapController;
 use App\Http\Controllers\Web\SiteNewsController;
+use App\Http\Controllers\Web\SiteNoticeController;
 use App\Http\Controllers\Web\SitePageController;
 use App\Http\Controllers\Auth\StudentGuardianLoginController;
 use App\Http\Controllers\Web\ProfileController;
@@ -79,6 +80,7 @@ Route::get('/faculty', [SitePageController::class, 'faculty'])->name('site.facul
 Route::get('/transport', [SitePageController::class, 'transport'])->name('site.transport');
 Route::get('/news', [SiteNewsController::class, 'index'])->name('site.news');
 Route::get('/news/{slug}', [SiteNewsController::class, 'show'])->name('site.news.show');
+Route::get('/notices', [SiteNoticeController::class, 'index'])->name('site.notices');
 Route::get('/gallery', [SiteGalleryController::class, 'index'])->name('site.gallery');
 Route::get('/events', [SitePageController::class, 'events'])->name('site.events');
 Route::get('/contact', [SitePageController::class, 'contact'])->name('site.contact');

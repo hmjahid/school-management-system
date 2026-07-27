@@ -258,17 +258,34 @@ create a proper prompt to implement the above tasks and add the prompt in featur
 
 
 
-from dashboard, after chaging language, theme aslo changing automatically. fix the isuuse. and after manually chnaging theme, the use setting, other header links not working
+from dashboard, after chaging language, theme aslo changing automatically. fix the isuuse. and after manually chnaging theme, the user setting, other header links not working
 
 ensure that dashborad and backend all pages contents colors are chnaging based on theme change
 
 make website language chnage and dashboard language chnage two seperate system
 
-use checkbox for show/hide instead of remoce button for page section hide/show feature
+use checkbox for show/hide instead of remove button for page section hide/show feature
 
 add a notice in the website and add that under the news menu item as dropdown. also add a all notice link text in hero notice section/box bottom
 
 make homepage teachers section a nice slider. aslo chnage faculty to teachers
+
+add profile page for all users to chnage password, name and other informations
+
+
+create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-5.md file. then implement the tasks using the prompt
+
+
+
+the dashboard user link header somtimes working and sometimes not working. fix the isseu.
+
+in homepage teachers sections lsider, show 3 teachers in desktop, 2 in tab and 1 in mobile. aslo show 6 tecahers in tecahers page intiallly. others will be shown by clicking a see more button, and will agin hide the hidden tecahers by clciking see less button. 
+
+make help and documentation also bangla version
+
+make help and documentation page more informative, intercative an dguided.
+
+create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-6.md file. then implement the tasks using the prompt
 
 
 now write a commit message for the chnage safter the last commit

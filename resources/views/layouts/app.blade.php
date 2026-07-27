@@ -4,6 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    {{-- Restore dark mode immediately to prevent flash on page load / language switch --}}
+    <script>
+    (function(){var k='school-dark-mode',v=localStorage.getItem(k);if(v==='1'||(v===null&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')})();
+    </script>
 
     <title>@yield('title', $siteSettings->site_name ?? config('app.name', 'SchoolEase'))</title>
 
