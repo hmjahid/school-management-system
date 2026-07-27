@@ -288,6 +288,23 @@ make help and documentation page more informative, intercative an dguided.
 create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-6.md file. then implement the tasks using the prompt
 
 
+announcements page showing error
+
+help and documentation page showing error. fix the issue.
+
+why vistor log not logging. fix the issue
+
+ledger page showing issue. fix the issue.
+
+move bulk sms just below the message item
+
+website serach, dahboard sidebar serach and the header serach not working. fix the issues.
+
+use checkbox for show/hide instead of remove button for page section hide/show feature
+
+create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-7.md file. then implement the tasks using the prompt
+
+
 
 where announcements are showing? 
 
@@ -317,19 +334,21 @@ the annoucement text in website hader showuld be translated wehn language chnage
 
 the afeatured section award text not transating also in homepage
 
+add toggle vsibility for all pages section and make their div accordion
+
+the setting tabs no need show hide checkbox. only the website page sections need
+
+add others pages sections hide/show like homepage sections
+
+when logged in, showing profile link in webiste headre. remove it.
 
 
-help and documentation page showing error. fix the issue.
 
-why vistor log not logging. fix the issue
+add show hide for all individual sections, not whole page content
 
-ledger page showing issue. fix the issue.
+theme color chnaging not working. fix the issue.
 
-move bulk sms just below the message item
 
-website serach, dahboard sidebar serach and the header serach not working. fix the issues.
-
-create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-7.md file. then implement the tasks using the prompt
 
 
 now write a commit message for the chnage safter the last commit

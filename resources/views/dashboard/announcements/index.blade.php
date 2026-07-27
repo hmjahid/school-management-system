@@ -36,7 +36,15 @@
                 @forelse($rows as $row)
                     <tr>
                         <td class="px-4 py-3 font-medium text-gray-900">{{ $row->title }}</td>
-                        <td class="px-4 py-3 text-gray-700">{{ $row->audience }}</td>
+                        <td class="px-4 py-3 text-gray-700">
+                            @if(is_array($row->audience))
+                                @foreach($row->audience as $a)
+                                    <span class="mr-1 inline-block rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-800">{{ ucfirst($a) }}</span>
+                                @endforeach
+                            @else
+                                <span class="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700">{{ $row->audience ?? __('All') }}</span>
+                            @endif
+                        </td>
                         <td class="px-4 py-3 text-gray-700">
                             {{ $row->starts_at?->format('Y-m-d') ?? '—' }} → {{ $row->ends_at?->format('Y-m-d') ?? '—' }}
                         </td>

@@ -6,6 +6,7 @@
 @section('content')
     <div class="bg-white">
         {{-- Hero Banner --}}
+        @if($siteSettings->section_visibility['adm_hero'] ?? true)
         <div class="relative overflow-hidden bg-gradient-to-r from-orange-500 via-orange-600 to-red-600 py-20 text-white">
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/5 blur-3xl"></div>
@@ -31,6 +32,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
             @include('site.partials.sections', ['content' => $content])
@@ -46,6 +48,7 @@
                 </div>
 
                 {{-- Admission Process Timeline --}}
+                @if($siteSettings->section_visibility['adm_process'] ?? true)
                 <section class="mt-16 reveal">
                     <h2 class="text-2xl font-bold text-slate-900">{{ __('Admission Process') }}</h2>
                     <div class="mt-2 h-1 w-16 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full"></div>
@@ -80,8 +83,10 @@
                         </div>
                     </div>
                 </section>
+                @endif
 
                 {{-- Fee Structure --}}
+                @if($siteSettings->section_visibility['adm_fee'] ?? true)
                 <section class="mt-16 reveal">
                     <h2 class="text-2xl font-bold text-slate-900">{{ __('Fee Structure') }}</h2>
                     <div class="mt-2 h-1 w-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
@@ -124,8 +129,10 @@
                         </table>
                     </div>
                 </section>
+                @endif
 
                 {{-- Download Prospectus --}}
+                @if($siteSettings->section_visibility['adm_prospectus'] ?? true)
                 <section class="mt-16 rounded-2xl bg-gradient-to-br from-slate-50 to-blue-50 border border-blue-100 p-8 text-center reveal">
                     <svg class="mx-auto h-12 w-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     <h2 class="mt-4 text-xl font-bold text-slate-900">{{ __('Download Prospectus') }}</h2>
@@ -135,8 +142,10 @@
                         {{ __('Download PDF (2.5 MB)') }}
                     </a>
                 </section>
+                @endif
 
                 {{-- FAQ Accordion --}}
+                @if($siteSettings->section_visibility['adm_faq'] ?? true)
                 <section class="mt-16 reveal">
                     <h2 class="text-2xl font-bold text-center text-slate-900">{{ __('Admission FAQs') }}</h2>
                     <div class="mx-auto mt-8 max-w-3xl space-y-3">
@@ -163,8 +172,10 @@
                         </details>
                     </div>
                 </section>
+                @endif
 
                 {{-- CTA --}}
+                @if($siteSettings->section_visibility['adm_cta'] ?? true)
                 <section class="mt-16 rounded-2xl bg-gradient-to-r from-orange-500 to-red-600 p-10 text-center text-white shadow-xl reveal">
                     <h2 class="text-3xl font-bold">{{ __('Ready to Join Us?') }}</h2>
                     <p class="mx-auto mt-3 max-w-2xl text-orange-100">{{ __('Take the first step towards quality education. Apply now for the academic year 2025-26.') }}</p>
@@ -173,8 +184,10 @@
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                     </a>
                 </section>
+                @endif
 
                 {{-- Scholarship section --}}
+                @if($siteSettings->section_visibility['adm_scholarship'] ?? true)
                 <section class="mt-16 rounded-2xl border border-slate-200 bg-slate-50 p-8 shadow-md reveal">
                     <h2 class="text-lg font-bold text-slate-900">{{ site_ui('admissions_landing.scholarship_title') }}</h2>
                     <div class="mt-2 h-1 w-16 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full"></div>
@@ -203,6 +216,7 @@
                         </div>
                     </form>
                 </section>
+                @endif
             @endif
         </div>
     </div>

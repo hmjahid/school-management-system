@@ -219,7 +219,6 @@
                 @else
                     <a href="{{ route('portal') }}" class="{{ request()->routeIs('portal') || request()->routeIs('portal.*') ? $btnPrimary : $btnOutline }}">{{ site_ui('nav.portal') }}</a>
                 @endif
-                <a href="{{ route('profile.edit') }}" class="{{ request()->routeIs('profile*') ? $link(true) : $link(false) }}">{{ site_ui('nav.profile') }}</a>
                 <form method="post" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="{{ $btnNeutral }}">{{ site_ui('nav.logout') }}</button>
@@ -234,7 +233,7 @@
     {{-- Search overlay --}}
     <div data-search-overlay class="hidden absolute inset-x-0 top-full border-t border-slate-200 bg-white shadow-lg">
         <div class="mx-auto max-w-3xl px-4 py-6">
-            <form action="{{ route('home') }}" method="GET" class="relative">
+            <form action="{{ route('site.search') }}" method="GET" class="relative">
                 <svg class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 <input type="search" name="q" placeholder="Search for pages, news, events..." autocomplete="off"
                     class="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-12 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20">
@@ -274,7 +273,7 @@
 
             {{-- Search bar --}}
             <div class="px-5 pt-4 pb-2">
-                <form action="{{ route('home') }}" method="GET" class="relative">
+                <form action="{{ route('site.search') }}" method="GET" class="relative">
                     <svg class="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     <input type="search" name="q" placeholder="{{ __('Search...') }}" autocomplete="off"
                         class="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 transition-all duration-200 focus:border-blue-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20">
@@ -402,10 +401,6 @@
                     <a data-site-nav-link href="{{ $navIsStaff ? route('dashboard') : route('portal') }}"
                         class="flex-1 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-3 text-center text-sm font-semibold text-white shadow-md transition-all duration-200 hover:from-blue-700 hover:to-blue-800 active:scale-[0.98]">
                         {{ $navIsStaff ? site_ui('nav.dashboard') : site_ui('nav.portal') }}
-                    </a>
-                    <a data-site-nav-link href="{{ route('profile.edit') }}"
-                        class="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-3 text-center text-sm font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-50 active:scale-[0.98]">
-                        {{ site_ui('nav.profile') }}
                     </a>
                     <form method="post" action="{{ route('logout') }}" data-site-nav-link class="flex-1">
                         @csrf

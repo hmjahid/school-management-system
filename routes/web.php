@@ -65,6 +65,7 @@ use App\Http\Controllers\Web\DashboardVisitorLogController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/search', [\App\Http\Controllers\Web\SiteSearchController::class, 'index'])->name('site.search');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('site.sitemap');
 Route::get('/robots.txt', [\App\Http\Controllers\Web\RobotsController::class, 'index'])->name('site.robots');

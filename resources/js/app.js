@@ -539,6 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        if (document.querySelector('[data-search-backdrop]')) return;
         const cmdLinks = [
             { label: 'Dashboard', url: '/dashboard', section: 'Main', keywords: 'home index' },
             { label: 'Students', url: '/dashboard/students', section: 'Academic', keywords: 'pupil learner' },

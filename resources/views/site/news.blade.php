@@ -5,6 +5,7 @@
 
 @section('content')
     <div class="bg-white">
+        @if($siteSettings->section_visibility['news_hero'] ?? true)
         <div class="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 py-20 text-white">
             <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
                 <h1 class="text-4xl font-bold md:text-5xl">{{ $content->title ?? site_ui('nav.news') }}</h1>
@@ -13,12 +14,14 @@
                 @endif
             </div>
         </div>
+        @endif
 
         <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
             @include('site.partials.sections', ['content' => $content])
 
             {{-- Magazine-style news grid --}}
             @if($latestNews->isNotEmpty())
+                @if($siteSettings->section_visibility['news_featured'] ?? true)
                 {{-- Featured hero article --}}
                 @php $featured = $latestNews->shift(); @endphp
                 <section class="mb-12 reveal">
@@ -51,7 +54,9 @@
                         </div>
                     </a>
                 </section>
+                @endif
 
+                @if($siteSettings->section_visibility['news_grid'] ?? true)
                 {{-- Grid of remaining articles --}}
                 <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                     @foreach ($latestNews as $item)
@@ -91,6 +96,7 @@
                             {{ __('Load More') }}
                         </button>
                     </div>
+                @endif
                 @endif
             @else
                 <div class="rounded-xl border-2 border-dashed border-slate-200 p-16 text-center reveal">

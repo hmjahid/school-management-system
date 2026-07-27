@@ -5,10 +5,12 @@
 
 @section('content')
     <div class="bg-white">
+        @if($siteSettings->section_visibility['payments_hero'] ?? true)
         @include('site.partials.inner-hero', [
             'title' => $content->title ?? site_ui('payments_page.hero_fallback'),
             'subtitle' => $content->meta_description,
         ])
+        @endif
         <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
     @include('site.partials.sections', ['content' => $content])
 
@@ -56,6 +58,7 @@
         @endif
     @endauth
 
+    @if($siteSettings->section_visibility['payments_fee'] ?? true)
     <section class="mt-12">
         <h2 class="text-lg font-semibold text-gray-900">{{ site_ui('payments.fee_table_title') }}</h2>
         @if($feeRows->isEmpty())
@@ -83,7 +86,9 @@
             </div>
         @endif
     </section>
+    @endif
 
+    @if($siteSettings->section_visibility['payments_gateways'] ?? true)
     <section class="mt-12">
         <h2 class="text-lg font-semibold text-gray-900">{{ site_ui('payments.gateways_title') }}</h2>
         <p class="mt-2 text-sm text-gray-600">{{ site_ui('payments.gateways_intro') }}</p>
@@ -102,10 +107,11 @@
             </ul>
         @endif
     </section>
+    @endif
 
     @auth
         @if($feePayments->isNotEmpty())
-            <section class="mt-12">
+    <section class="mt-12">
                 <h2 class="text-lg font-semibold text-gray-900">{{ site_ui('payments.history_title') }}</h2>
                 <div class="mt-4 overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
                     <table class="min-w-full divide-y divide-gray-200 text-sm">

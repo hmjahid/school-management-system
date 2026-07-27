@@ -11,26 +11,14 @@ class DemoLedgerSeeder extends Seeder
 {
     public function run(): void
     {
-        $accounts = [
-            ['name_en' => 'Tuition Fee Income', 'code' => 'INC-001', 'type' => 'income'],
-            ['name_en' => 'Transport Fee Income', 'code' => 'INC-002', 'type' => 'income'],
-            ['name_en' => 'Library Fee Income', 'code' => 'INC-003', 'type' => 'income'],
-            ['name_en' => 'Admission Fee Income', 'code' => 'INC-004', 'type' => 'income'],
-            ['name_en' => 'Salary Expense', 'code' => 'EXP-001', 'type' => 'expense'],
-            ['name_en' => 'Utility Expense', 'code' => 'EXP-002', 'type' => 'expense'],
-            ['name_en' => 'Maintenance Expense', 'code' => 'EXP-003', 'type' => 'expense'],
-            ['name_en' => 'Stationery Expense', 'code' => 'EXP-004', 'type' => 'expense'],
-            ['name_en' => 'Cash in Hand', 'code' => 'AST-001', 'type' => 'asset'],
-            ['name_en' => 'Bank Account - Sonali', 'code' => 'AST-002', 'type' => 'asset'],
-        ];
+        $incomeAccounts = ChartOfAccount::where('type', ChartOfAccount::TYPE_INCOME)->get();
+        $expenseAccounts = ChartOfAccount::where('type', ChartOfAccount::TYPE_EXPENSE)->get();
+        $cashAccount = ChartOfAccount::where('code', '1000')->first();
+        $bankAccount = ChartOfAccount::where('code', '1010')->first();
 
-        foreach ($accounts as $a) {
-            ChartOfAccount::create($a);
+        if ($incomeAccounts->isEmpty() || $expenseAccounts->isEmpty() || !$cashAccount) {
+            return;
         }
-
-        $incomeAccounts = ChartOfAccount::where('type', 'income')->get();
-        $expenseAccounts = ChartOfAccount::where('type', 'expense')->get();
-        $assetAccounts = ChartOfAccount::where('type', 'asset')->get();
 
         for ($month = 0; $month < 3; $month++) {
             $date = Carbon::now()->subMonths(2 - $month);
@@ -42,8 +30,8 @@ class DemoLedgerSeeder extends Seeder
                         'chart_of_account_id' => $account->id,
                         'date' => $date->copy()->addDays(rand(1, 25))->format('Y-m-d'),
                         'note' => 'Monthly collection - ' . $account->name_en,
-                        'debit' => rand(2, 5) * 10000,
-                        'credit' => 0,
+                        'debit' => 0,
+                        'credit' => rand(2, 5) * 10000,
                         'reference_type' => 'fee_payment',
                         'reference_id' => rand(1, 100),
                     ]);
@@ -57,8 +45,8 @@ class DemoLedgerSeeder extends Seeder
                         'chart_of_account_id' => $account->id,
                         'date' => $date->copy()->addDays(rand(1, 28))->format('Y-m-d'),
                         'note' => $account->name_en . ' - ' . $date->format('F Y'),
-                        'debit' => 0,
-                        'credit' => rand(1, 10) * 5000,
+                        'debit' => rand(1, 10) * 5000,
+                        'credit' => 0,
                         'reference_type' => ['expense', 'bill'][rand(0, 1)],
                         'reference_id' => rand(1, 50),
                     ]);
@@ -66,12 +54,22 @@ class DemoLedgerSeeder extends Seeder
             }
         }
 
-        foreach ($assetAccounts as $account) {
+        LedgerEntry::create([
+            'chart_of_account_id' => $cashAccount->id,
+            'date' => Carbon::now()->subMonths(6)->format('Y-m-d'),
+            'note' => 'Opening balance - Cash on Hand',
+            'debit' => 150000,
+            'credit' => 0,
+            'reference_type' => 'opening_balance',
+            'reference_id' => null,
+        ]);
+
+        if ($bankAccount) {
             LedgerEntry::create([
-                'chart_of_account_id' => $account->id,
+                'chart_of_account_id' => $bankAccount->id,
                 'date' => Carbon::now()->subMonths(6)->format('Y-m-d'),
-                'note' => 'Opening balance - ' . $account->name_en,
-                'debit' => $account->name_en === 'Cash in Hand' ? 150000 : 500000,
+                'note' => 'Opening balance - Bank Account',
+                'debit' => 500000,
                 'credit' => 0,
                 'reference_type' => 'opening_balance',
                 'reference_id' => null,

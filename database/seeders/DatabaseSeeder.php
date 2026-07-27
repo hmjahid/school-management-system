@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             DemoEventSeeder::class,
             DemoGallerySeeder::class,
             DemoLeaveSeeder::class,
+            ChartOfAccountSeeder::class,
             DemoLedgerSeeder::class,
             NoticeSeeder::class,
         ]);

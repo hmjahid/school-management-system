@@ -5,6 +5,7 @@
 
 @section('content')
     <div class="bg-white">
+        @if($siteSettings->section_visibility['faculty_hero'] ?? true)
         <div class="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 py-20 text-white">
             <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
                 <h1 class="text-4xl font-bold md:text-5xl">{{ $content->title ?? site_ui('nav.faculty') }}</h1>
@@ -13,10 +14,12 @@
                 @endif
             </div>
         </div>
+        @endif
 
         <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
             @include('site.partials.sections', ['content' => $content])
 
+            @if($siteSettings->section_visibility['faculty_search'] ?? true)
             {{-- Search and filter --}}
             <div class="mb-10 flex flex-col gap-4 sm:flex-row reveal">
                 <div class="relative flex-1">
@@ -32,7 +35,9 @@
                     <option value="sports">{{ __('Sports') }}</option>
                 </select>
             </div>
+            @endif
 
+            @if($siteSettings->section_visibility['faculty_grid'] ?? true)
             {{-- Faculty grid --}}
             @if($teachers->isEmpty())
                 <div class="rounded-xl border-2 border-dashed border-slate-200 p-16 text-center reveal">
@@ -107,6 +112,7 @@
                         </button>
                     </div>
                 @endif
+            @endif
             @endif
         </div>
     </div>

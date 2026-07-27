@@ -306,7 +306,8 @@ class DashboardModulesController extends Controller
         if ($request->has('section_visibility')) {
             $defaults = [
                 'hero' => true, 'features' => true, 'stats' => true, 'principal' => true,
-                'testimonials' => true, 'events' => true, 'news' => true, 'highlights' => true,
+                'teachers' => true, 'testimonials' => true, 'remarkable_students' => true,
+                'events' => true, 'news' => true, 'highlights' => true,
                 'cta' => true, 'partners' => true, 'admissions_bar' => true, 'urgent_notices' => true,
             ];
             $validated['section_visibility'] = array_merge($defaults, $request->input('section_visibility', []));

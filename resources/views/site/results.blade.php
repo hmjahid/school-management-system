@@ -4,14 +4,17 @@
 @section('meta_description', __('Search published exam results by class, year, and roll number.'))
 
 @section('content')
+    @if($siteSettings->section_visibility['results_hero'] ?? true)
     <div class="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 py-20 text-white">
         <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
             <h1 class="text-4xl font-bold md:text-5xl">{{ __('Results') }}</h1>
             <p class="mx-auto mt-4 max-w-2xl text-lg text-blue-100">{{ __('Search published exam results by class, year, and roll number.') }}</p>
         </div>
     </div>
+    @endif
 
     <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        @if($siteSettings->section_visibility['results_form'] ?? true)
         {{-- Search form --}}
         <div class="mx-auto max-w-3xl reveal">
             <form method="get" action="{{ route('site.results') }}" class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg">
@@ -48,6 +51,7 @@
                 </div>
             </form>
         </div>
+        @endif
 
         {{-- Results display --}}
         @if(request()->filled(['class_id','academic_session_id','roll']))

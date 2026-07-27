@@ -44,6 +44,8 @@
             if (!input.value.trim()) {
                 input.classList.add('hidden');
                 toggle.classList.remove('hidden');
+                input.value = '';
+                filterSidebar('');
             }
         });
         input.addEventListener('keydown', function(e){
@@ -52,19 +54,39 @@
                 input.blur();
             }
         });
-        // Allow topbar search button to trigger sidebar search
-        window.openDashboardSearch = function(){
-            toggle.click();
-            // On mobile, also open sidebar
-            var sidebar = document.getElementById('sidebar');
-            var overlay = document.getElementById('sidebar-overlay');
-            if (sidebar && sidebar.classList.contains('-translate-x-full')) {
-                sidebar.classList.remove('-translate-x-full');
-                sidebar.classList.add('lg:translate-x-0');
-                if (overlay) overlay.classList.remove('hidden');
-                document.body.classList.add('overflow-hidden');
-            }
-        };
+        input.addEventListener('input', function(){
+            filterSidebar(this.value.toLowerCase().trim());
+        });
+        function filterSidebar(q) {
+            var nav = document.querySelector('.admin-sidebar-nav');
+            if (!nav) return;
+            var items = nav.querySelectorAll('.space-y-0.5 > a, .space-y-0.5 > details');
+            var headers = nav.querySelectorAll('p.text-\\[0\\.65rem\\]');
+            items.forEach(function(item){
+                if (!q) { item.style.display = ''; return; }
+                var text = item.textContent.toLowerCase();
+                item.style.display = text.includes(q) ? '' : 'none';
+            });
+            headers.forEach(function(h){
+                if (!q) { h.style.display = ''; return; }
+                var next = h.nextElementSibling;
+                if (!next) return;
+                var children = next.querySelectorAll(':scope > a, :scope > details');
+                var anyVisible = false;
+                children.forEach(function(c){ if (c.style.display !== 'none') anyVisible = true; });
+                h.style.display = anyVisible ? '' : 'none';
+            });
+            var details = nav.querySelectorAll('details');
+            details.forEach(function(d){
+                if (q) {
+                    var subItems = d.querySelectorAll('.space-y-0.5 > a');
+                    var hasMatch = false;
+                    subItems.forEach(function(a){ if (a.style.display !== 'none') hasMatch = true; });
+                    if (hasMatch) { d.open = true; d.style.display = ''; }
+                    else { d.style.display = 'none'; }
+                }
+            });
+        }
     })();
     </script>
 
@@ -77,6 +99,10 @@
         <x-admin-nav-link :href="route('messages.index')" route-is="messages*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z\'/><path d=\'M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z\'/></svg>'">
             {{ __('dashboard.messages') }}
         </x-admin-nav-link>
+
+        @can('send_bulk_sms')
+            <x-admin-nav-link :href="route('dashboard.sms.index')" route-is="dashboard.sms*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0L9 8.586l4.293-4.293a1 1 0 111.414 1.414L10.414 10l4.293 4.293a1 1 0 01-1.414 1.414L9 11.414l-2.293 2.293a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414z\'/></svg>'">{{ __('dashboard.bulk_sms') }}</x-admin-nav-link>
+        @endcan
 
         @php
             $u = auth()->user();
@@ -226,9 +252,6 @@
             </div>
         </details>
 
-        @can('send_bulk_sms')
-            <x-admin-nav-link :href="route('dashboard.sms.index')" route-is="dashboard.sms*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0L9 8.586l4.293-4.293a1 1 0 111.414 1.414L10.414 10l4.293 4.293a1 1 0 01-1.414 1.414L9 11.414l-2.293 2.293a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414z\'/></svg>'">{{ __('dashboard.bulk_sms') }}</x-admin-nav-link>
-        @endcan
         @can('viewAny', App\Models\Event::class)
             <x-admin-nav-link :href="route('dashboard.events')" route-is="dashboard.events*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z\' clip-rule=\'evenodd\'/></svg>'">{{ __('dashboard.events') }}</x-admin-nav-link>
             <x-admin-nav-link :href="route('dashboard.events.calendar')" route-is="dashboard.events.calendar" :icon="'<svg class=\'h-5 w-5\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z\'/></svg>'">{{ __('dashboard.calendar') }}</x-admin-nav-link>

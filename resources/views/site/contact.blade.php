@@ -9,6 +9,7 @@
         $emergency = $c['emergency_contacts'] ?? [];
     @endphp
     <div class="bg-white">
+        @if($siteSettings->section_visibility['contact_hero'] ?? true)
         <div class="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 py-20 text-white">
             <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
                 <h1 class="text-4xl font-bold md:text-5xl">{{ $content->title ?? site_ui('contact_page.title_fallback') }}</h1>
@@ -17,11 +18,13 @@
                 @endif
             </div>
         </div>
+        @endif
 
         <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
             @include('site.partials.sections', ['content' => $content])
 
             {{-- Contact cards row --}}
+            @if($siteSettings->section_visibility['contact_cards'] ?? true)
             <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 reveal">
                 <div class="rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 p-6 text-center ring-1 ring-blue-100">
                     <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white">
@@ -52,8 +55,10 @@
                     <p class="mt-1 text-sm text-slate-600">{{ __('Sun–Thu, 8 AM – 2 PM') }}</p>
                 </div>
             </div>
+            @endif
 
             {{-- Main form + info split --}}
+            @if($siteSettings->section_visibility['contact_form'] ?? true)
             <div class="mt-12 grid gap-12 lg:grid-cols-2 reveal">
                 {{-- Left: Contact form --}}
                 <div>
@@ -104,7 +109,7 @@
                 {{-- Right: Info + Map --}}
                 <div>
                     {{-- Opening hours --}}
-                    @if($siteSettings?->opening_hours && is_array($siteSettings->opening_hours))
+                    @if(($siteSettings->section_visibility['contact_hours'] ?? true) && $siteSettings?->opening_hours && is_array($siteSettings->opening_hours))
                         <div class="rounded-2xl border border-slate-100 bg-slate-50 p-6">
                             <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-500">{{ site_ui('contact_page.location_hours') }}</h3>
                             <ul class="mt-4 space-y-2 text-sm text-slate-600">
@@ -123,7 +128,7 @@
                     @endif
 
                     {{-- Emergency contacts --}}
-                    @if(count($emergency))
+                    @if(($siteSettings->section_visibility['contact_emergency'] ?? true) && count($emergency))
                         <div class="mt-6 rounded-2xl border border-red-100 bg-red-50 p-6">
                             <h3 class="flex items-center gap-2 text-sm font-semibold text-red-800">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
@@ -141,6 +146,7 @@
                     @endif
 
                     {{-- Map --}}
+                    @if($siteSettings->section_visibility['contact_map'] ?? true)
                     <div class="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm">
                         @if(config('school.google_maps_embed_url'))
                             <iframe title="{{ site_ui('contact_page.map_iframe_title') }}" src="{{ config('school.google_maps_embed_url') }}" class="h-72 w-full border-0" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
@@ -154,10 +160,13 @@
                             </div>
                         @endif
                     </div>
+                    @endif
                 </div>
             </div>
+            @endif
 
             {{-- FAQ Accordion --}}
+            @if($siteSettings->section_visibility['contact_faq'] ?? true)
             <section class="mt-16 reveal">
                 <h2 class="text-2xl font-bold text-center text-slate-900">{{ __('Frequently Asked Questions') }}</h2>
                 <div class="mx-auto mt-8 max-w-3xl space-y-3">
@@ -184,6 +193,7 @@
                     </details>
                 </div>
             </section>
+            @endif
         </div>
     </div>
 @endsection

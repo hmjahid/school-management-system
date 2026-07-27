@@ -2,13 +2,16 @@
 @section('title', __('Class routine') . ' — ' . ($siteSettings->school_name ?? config('app.name')))
 @section('content')
 <div class="bg-gray-50 min-h-screen">
+    @if($siteSettings->section_visibility['routines_hero'] ?? true)
     <div class="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 py-20 text-white">
         <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
             <h1 class="text-4xl font-bold md:text-5xl">{{ __('Class Routine') }}</h1>
             <p class="mx-auto mt-4 max-w-2xl text-lg text-blue-100">{{ __('View the weekly class schedule') }}</p>
         </div>
     </div>
+    @endif
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        @if($siteSettings->section_visibility['routines_filter'] ?? true)
         <form method="get" class="mb-8 flex flex-wrap gap-4">
             <select name="class_id" class="rounded-xl border border-gray-300 px-4 py-3 text-sm shadow-sm">
                 <option value="">{{ __('Select class') }}</option>
@@ -24,7 +27,9 @@
             </select>
             <button type="submit" class="rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700 shadow-sm">{{ __('View routine') }}</button>
         </form>
+        @endif
 
+        @if($siteSettings->section_visibility['routines_grid'] ?? true)
         @if($routines->isEmpty())
             <div class="rounded-xl border-2 border-dashed border-gray-300 p-12 text-center">
                 <p class="text-gray-500">{{ __('Select a class to view the routine.') }}</p>
@@ -48,6 +53,7 @@
                     @endif
                 @endforeach
             </div>
+        @endif
         @endif
     </div>
 </div>

@@ -5,6 +5,7 @@
 
 @section('content')
     <div class="bg-white">
+        @if($siteSettings->section_visibility['gallery_hero'] ?? true)
         <div class="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 py-20 text-white">
             <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
                 <h1 class="text-4xl font-bold md:text-5xl">{{ $content->title ?? site_ui('gallery.page_title_fallback') }}</h1>
@@ -13,13 +14,16 @@
                 @endif
             </div>
         </div>
+        @endif
 
         <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
             @include('site.partials.sections', ['content' => $content])
 
-            {{-- Category filter tabs --}}
             @php $categories = $items->keys(); @endphp
             @if($categories->isNotEmpty())
+
+                @if($siteSettings->section_visibility['gallery_tabs'] ?? true)
+                {{-- Category filter tabs --}}
                 <div class="mb-10 flex flex-wrap gap-2 reveal" data-filter-tabs>
                     <button type="button" data-filter="all" class="rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 data-[active=true]:bg-blue-600 data-[active=true]:text-white">
                         {{ __('All') }}
@@ -30,7 +34,9 @@
                         </button>
                     @endforeach
                 </div>
+                @endif
 
+                @if($siteSettings->section_visibility['gallery_grid'] ?? true)
                 {{-- Masonry-style gallery grid --}}
                 <div class="columns-1 gap-6 sm:columns-2 lg:columns-3 xl:columns-4 space-y-6 reveal" data-gallery-grid>
                     @foreach ($items as $category => $group)
@@ -61,6 +67,7 @@
                         @endforeach
                     @endforeach
                 </div>
+                @endif
             @else
                 <div class="rounded-xl border-2 border-dashed border-slate-200 p-16 text-center reveal">
                     <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>

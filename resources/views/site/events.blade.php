@@ -4,14 +4,17 @@
 @section('meta_description', __('Upcoming school events, open days, and important dates.'))
 
 @section('content')
+    @if($siteSettings->section_visibility['events_hero'] ?? true)
     <div class="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 py-20 text-white">
         <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
             <h1 class="text-4xl font-bold md:text-5xl">{{ __('Events & Calendar') }}</h1>
             <p class="mx-auto mt-4 max-w-2xl text-lg text-blue-100">{{ __('Upcoming school events, open days, and important dates.') }}</p>
         </div>
     </div>
+    @endif
 
     <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        @if($siteSettings->section_visibility['events_filters'] ?? true)
         {{-- View toggle and filters --}}
         <div class="mb-8 flex flex-wrap items-center justify-between gap-4 reveal">
             <div class="flex flex-wrap gap-2">
@@ -28,7 +31,9 @@
                 </button>
             </div>
         </div>
+        @endif
 
+        @if($siteSettings->section_visibility['events_upcoming'] ?? true)
         {{-- Upcoming events grid --}}
         @if ($upcoming->isNotEmpty())
             <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-event-grid>
@@ -84,7 +89,9 @@
                 <p class="mt-4 text-sm text-slate-500">{{ __('No upcoming events published yet.') }}</p>
             </div>
         @endif
+        @endif
 
+        @if($siteSettings->section_visibility['events_past'] ?? true)
         {{-- Past events --}}
         @if ($past->isNotEmpty())
             <section class="mt-16 reveal">
@@ -108,6 +115,7 @@
                     @endforeach
                 </div>
             </section>
+        @endif
         @endif
     </div>
 @endsection

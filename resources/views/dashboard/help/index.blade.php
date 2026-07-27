@@ -3,7 +3,7 @@
 @section('title', __('Help & Documentation') . ' — ' . config('app.name'))
 
 @section('content')
-    <x-page-header :title="__('Help & Documentation')" :description="__('help.page_description')">
+    <x-page-header :title="__('Help & Documentation')" :description="__('dashboard.help.page_description')">
         <x-slot:breadcrumbs>
             <x-admin-breadcrumbs :items="[
                 ['label' => __('Dashboard'), 'url' => route('dashboard')],
@@ -16,14 +16,14 @@
     <div class="mb-8" data-help-search-wrap>
         <div class="relative max-w-xl">
             <svg class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <input type="search" data-help-search placeholder="{{ __('help.search_placeholder') }}"
+            <input type="search" data-help-search placeholder="{{ __('dashboard.help.search_placeholder') }}"
                 class="w-full rounded-xl border border-slate-200 bg-white py-3 pl-12 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500">
         </div>
     </div>
 
     {{-- Quick-nav pills --}}
     <div class="mb-8 flex flex-wrap gap-2" data-help-nav>
-        @foreach(__('help.sections') as $key => $section)
+        @foreach(__('dashboard.help.sections') as $key => $section)
             <a href="#help-{{ $key }}" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:text-blue-400" data-help-nav-item data-help-nav-key="{{ $key }}">
                 {{ $section['title'] }}
             </a>
@@ -32,12 +32,12 @@
 
     {{-- No results message --}}
     <div class="hidden rounded-xl border border-amber-200 bg-amber-50 p-6 text-center text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-400" data-help-no-results>
-        {{ __('help.no_results') }}
+        {{ __('dashboard.help.no_results') }}
     </div>
 
     {{-- Accordion sections --}}
     <div class="space-y-4" data-help-accordion>
-        @foreach(__('help.sections') as $key => $section)
+        @foreach(__('dashboard.help.sections') as $key => $section)
             <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition dark:border-slate-700 dark:bg-slate-800" data-help-section data-help-section-key="{{ $key }}" id="help-{{ $key }}">
                 <button type="button" class="flex w-full items-center gap-4 px-6 py-5 text-left transition hover:bg-slate-50 dark:hover:bg-slate-700/50" data-help-toggle>
                     @php
@@ -74,9 +74,9 @@
 
                     {{-- Was this helpful --}}
                     <div class="mt-6 flex items-center gap-3 border-t border-slate-100 pt-4 dark:border-slate-700">
-                        <span class="text-xs text-slate-500 dark:text-slate-400">{{ __('help.was_this_helpful') }}</span>
-                        <button type="button" class="rounded-lg border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-400" data-help-feedback="yes">{{ __('help.yes') }}</button>
-                        <button type="button" class="rounded-lg border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 transition hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-red-900/20 dark:hover:text-red-400" data-help-feedback="no">{{ __('help.no') }}</button>
+                        <span class="text-xs text-slate-500 dark:text-slate-400">{{ __('dashboard.help.was_this_helpful') }}</span>
+                        <button type="button" class="rounded-lg border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-400" data-help-feedback="yes">{{ __('dashboard.help.yes') }}</button>
+                        <button type="button" class="rounded-lg border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 transition hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-red-900/20 dark:hover:text-red-400" data-help-feedback="no">{{ __('dashboard.help.no') }}</button>
                     </div>
                 </div>
             </div>

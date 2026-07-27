@@ -5,13 +5,16 @@
 
 @section('content')
     <div class="bg-white">
+        @if($siteSettings->section_visibility['notices_hero'] ?? true)
         <div class="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 py-20 text-white">
             <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
                 <h1 class="text-4xl font-bold md:text-5xl">{{ site_ui('nav.notices') }}</h1>
                 <p class="mx-auto mt-4 max-w-2xl text-lg text-blue-100">{{ __('Stay informed with the latest notices and announcements.') }}</p>
             </div>
         </div>
+        @endif
 
+        @if($siteSettings->section_visibility['notices_list'] ?? true)
         <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
             @if($notices->isEmpty())
                 <div class="rounded-xl border-2 border-dashed border-slate-200 p-16 text-center">
@@ -57,5 +60,6 @@
                 </div>
             @endif
         </div>
+        @endif
     </div>
 @endsection
