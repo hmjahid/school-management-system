@@ -27,13 +27,13 @@ class ManifestController
             'categories' => ['education'],
             'icons' => [
                 [
-                    'src' => $logoUrl ?: asset('favicon.ico'),
+                    'src' => asset('icon-192.png'),
                     'sizes' => '192x192',
                     'type' => 'image/png',
                     'purpose' => 'any maskable',
                 ],
                 [
-                    'src' => $logoUrl ?: asset('favicon.ico'),
+                    'src' => asset('icon-512.png'),
                     'sizes' => '512x512',
                     'type' => 'image/png',
                     'purpose' => 'any maskable',

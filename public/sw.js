@@ -34,6 +34,21 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+    const isNav = request.mode === 'navigate';
+
+    if (isNav) {
+        event.respondWith(
+            fetch(request).then((response) => {
+                if (response && response.status === 200) {
+                    const clone = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+                }
+                return response;
+            }).catch(() => caches.match(request).then((c) => c || caches.match(OFFLINE_URL)))
+        );
+        return;
+    }
+
     event.respondWith(
         caches.match(request).then((cached) => {
             const fetched = fetch(request).then((response) => {

@@ -362,5 +362,8 @@ create a proper prompt to implement the above tasks and add the prompt in featur
 
 
 
-now write a commit message for the chnage safter the last commit
+
+add a input filed in backend admission page for customising admission notice.
+
+now write a commit message for the chnages after the last commit
 

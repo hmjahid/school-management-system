@@ -597,3 +597,39 @@ window.debounce = function(fn, delay = 300) {
         }
     });
 })();
+
+// ---------- PWA Install Prompt ----------
+(function() {
+    window.__deferredInstallPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        window.__deferredInstallPrompt = e;
+        document.querySelectorAll('[data-pwa-install]').forEach(btn => {
+            btn.classList.remove('hidden');
+            if (btn.dataset.pwaInline === 'true') btn.classList.add('inline-flex');
+            else btn.classList.add('flex');
+        });
+    });
+
+    document.addEventListener('click', async (e) => {
+        const btn = e.target.closest('[data-pwa-install]');
+        if (!btn || !window.__deferredInstallPrompt) return;
+        e.preventDefault();
+        window.__deferredInstallPrompt.prompt();
+        const result = await window.__deferredInstallPrompt.userChoice;
+        if (result.outcome === 'accepted') {
+            btn.classList.add('hidden');
+            btn.classList.remove('inline-flex', 'flex');
+        }
+        window.__deferredInstallPrompt = null;
+    });
+
+    window.addEventListener('appinstalled', () => {
+        window.__deferredInstallPrompt = null;
+        document.querySelectorAll('[data-pwa-install]').forEach(btn => {
+            btn.classList.add('hidden');
+            btn.classList.remove('inline-flex', 'flex');
+        });
+    });
+})();

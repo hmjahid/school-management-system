@@ -321,7 +321,13 @@ return [
         'showing_of' => ':total জন শিক্ষকের মধ্যে :shown জন দেখাচ্ছে',
     ],
 
+    'admissions_bar' => [
+        'title' => 'ভর্তি খোলা :year-:next',
+        'cta' => 'এখনই আবেদন করুন',
+    ],
+
     'admissions_landing' => [
+        'badge' => 'ভর্তি খোলা :year-:next',
         'cta_apply' => 'অনলাইন আবেদন ফরম',
         'cta_status' => 'আবেদনের অবস্থা দেখুন',
         'cta_payments' => 'ফি পেমেন্ট পোর্টাল',

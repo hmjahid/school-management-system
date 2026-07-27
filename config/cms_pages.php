@@ -272,6 +272,25 @@ return [
                     ['key' => 'sign_in', 'label' => 'Sign in button', 'type' => 'text'],
                 ],
             ],
+            [
+                'key' => 'admissions_bar',
+                'label' => 'Admissions bar',
+                'help' => 'The top bar shown when admissions are open. Use :year and :next placeholders for the current and next year (e.g. "Admissions Open :year-:next").',
+                'type' => 'group',
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Bar title', 'type' => 'text'],
+                    ['key' => 'cta', 'label' => 'CTA button text', 'type' => 'text'],
+                ],
+            ],
+            [
+                'key' => 'admissions_landing',
+                'label' => 'Admissions page',
+                'help' => 'Text on the admissions landing page hero badge. Use :year and :next placeholders.',
+                'type' => 'group',
+                'fields' => [
+                    ['key' => 'badge', 'label' => 'Hero badge text', 'type' => 'text'],
+                ],
+            ],
         ],
     ],
 ];

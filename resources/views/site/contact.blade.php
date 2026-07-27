@@ -8,6 +8,26 @@
         $c = is_array($content->content ?? null) ? $content->content : [];
         $emergency = $c['emergency_contacts'] ?? [];
     @endphp
+
+    @if(session('contact_success'))
+    <div id="contact-success-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="contact-success-title">
+        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" data-contact-modal-close></div>
+        <div class="relative w-full max-w-md overflow-hidden rounded-2xl bg-white p-8 text-center shadow-2xl" style="animation: modal-in 0.3s ease-out">
+            <button type="button" data-contact-modal-close class="absolute right-3 top-3 rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600" aria-label="Close">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+                <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <h2 id="contact-success-title" class="mt-5 text-xl font-bold text-slate-900">{{ __('Thank You!') }}</h2>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">{{ session('contact_success') }}</p>
+            <button type="button" data-contact-modal-close class="mt-6 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700 hover:shadow-xl">
+                {{ __('OK') }}
+            </button>
+        </div>
+    </div>
+    @endif
+
     <div class="bg-white">
         @if($siteSettings->section_visibility['contact_hero'] ?? true)
         <div class="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 py-20 text-white">
@@ -197,3 +217,19 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+(function(){
+    var modal = document.getElementById('contact-success-modal');
+    if (!modal) return;
+    function closeModal() { modal.remove(); }
+    modal.querySelectorAll('[data-contact-modal-close]').forEach(function(el) {
+        el.addEventListener('click', closeModal);
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeModal();
+    });
+})();
+</script>
+@endpush

@@ -127,7 +127,7 @@ class SitePageController extends Controller
             'message' => $validated['message'],
         ]);
 
-        return redirect()->route('site.contact')->with('status', __('Thank you — we will get back to you soon.'));
+        return redirect()->route('site.contact')->with('contact_success', __('Thank you — we will get back to you soon.'));
     }
 
     public function feedbackStore(Request $request): RedirectResponse

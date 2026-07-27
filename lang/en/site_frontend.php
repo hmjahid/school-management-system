@@ -321,7 +321,13 @@ return [
         'showing_of' => 'Showing :shown of :total teachers',
     ],
 
+    'admissions_bar' => [
+        'title' => 'Admissions Open :year-:next',
+        'cta' => 'Apply Now',
+    ],
+
     'admissions_landing' => [
+        'badge' => 'Admissions Open :year-:next',
         'cta_apply' => 'Online application form',
         'cta_status' => 'Check application status',
         'cta_payments' => 'Fee payment portal',

@@ -7,6 +7,29 @@
     <div class="bg-white">
         {{-- Hero Banner --}}
         @if($siteSettings->section_visibility['adm_hero'] ?? true)
+        @if(! empty($admissionsClosed))
+        <div class="relative overflow-hidden bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900 py-20 text-white">
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <div class="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/5 blur-3xl"></div>
+                <div class="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/5 blur-3xl"></div>
+            </div>
+            <div class="relative z-10 mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
+                <span class="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-semibold backdrop-blur-sm">
+                    {{ site_ui('admissions_closed.title') }}
+                </span>
+                <h1 class="mt-6 text-4xl font-bold md:text-5xl lg:text-6xl">{{ $content->title ?? site_ui('nav.admissions') }}</h1>
+                <p class="mx-auto mt-4 max-w-2xl text-lg text-slate-300">{{ site_ui('admissions_closed.default_message') }}</p>
+                <div class="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
+                    <a href="{{ route('admissions.status') }}" class="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-semibold text-slate-800 shadow-lg transition-all hover:bg-slate-50 hover:shadow-xl">
+                        {{ site_ui('admissions_closed.check_status') }}
+                    </a>
+                    <a href="{{ route('site.contact') }}" class="inline-flex items-center gap-2 rounded-xl border-2 border-white/30 bg-white/10 px-8 py-4 text-base font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/20">
+                        {{ site_ui('admissions_closed.contact_us') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+        @else
         <div class="relative overflow-hidden bg-gradient-to-r from-orange-500 via-orange-600 to-red-600 py-20 text-white">
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/5 blur-3xl"></div>
@@ -15,7 +38,7 @@
             <div class="relative z-10 mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
                 <span class="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-semibold backdrop-blur-sm">
                     <span class="h-2 w-2 rounded-full bg-white animate-pulse"></span>
-                    {{ __('Admissions Open 2025-26') }}
+                    {{ str_replace([':year', ':next'], [date('Y'), date('Y', strtotime('+1 year'))], site_ui('admissions_landing.badge')) }}
                 </span>
                 <h1 class="mt-6 text-4xl font-bold md:text-5xl lg:text-6xl">{{ $content->title ?? site_ui('nav.admissions') }}</h1>
                 @if($content->meta_description ?? false)
@@ -32,6 +55,7 @@
                 </div>
             </div>
         </div>
+        @endif
         @endif
 
         <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
