@@ -41,10 +41,6 @@
                 <input type="checkbox" name="pinned" value="1" @checked(old('pinned', $notice->pinned))>
                 {{ __('Pinned') }}
             </label>
-            <label class="flex items-center gap-2 text-sm font-medium text-gray-800">
-                <input type="checkbox" name="is_urgent" value="1" @checked(old('is_urgent', $notice->is_urgent))>
-                {{ __('Mark as urgent') }}
-            </label>
         </div>
 
         <div>

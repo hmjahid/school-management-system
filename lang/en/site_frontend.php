@@ -14,6 +14,7 @@ return [
         'faculty' => 'Teachers',
         'news' => 'News & Events',
         'notices' => 'Notices',
+        'announcements' => 'Announcements',
         'gallery' => 'Gallery',
         'results' => 'Results',
         'routine' => 'Class Routine',
@@ -86,6 +87,10 @@ return [
         'stats_students' => 'Students',
         'stats_faculty' => 'Teachers',
         'stats_years' => 'Years of excellence',
+        'stats_awards' => 'Awards',
+        'latest_notices' => 'Latest Notices',
+        'view_all_notices' => 'View All Notices',
+        'our_partners' => 'Our Partners & Affiliations',
         'principal_title' => 'Welcome from the principal',
         'testimonials_title' => 'What parents & students say',
         'events_title' => 'Upcoming events',
@@ -311,6 +316,9 @@ return [
         'directory_heading' => 'Teaching staff directory',
         'empty' => 'Faculty profiles will appear here once added to the system.',
         'staff_fallback' => 'Staff member',
+        'see_more' => 'See more teachers',
+        'see_less' => 'Show less',
+        'showing_of' => 'Showing :shown of :total teachers',
     ],
 
     'admissions_landing' => [

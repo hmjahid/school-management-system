@@ -27,7 +27,7 @@ class DashboardAnnouncementController extends Controller
 
     public function create(): View
     {
-        return view('dashboard.announcements.create', ['announcement' => new Announcement(['is_published' => true, 'audience' => 'all'])]);
+        return view('dashboard.announcements.create', ['announcement' => new Announcement(['is_published' => true, 'audience' => ['all'], 'display_target' => 'header'])]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -38,6 +38,7 @@ class DashboardAnnouncementController extends Controller
         $data['is_published'] = $request->has('is_published');
 
         $a = Announcement::create($data);
+        $a->dispatchNotifications();
 
         return redirect()->route('dashboard.announcements.edit', $a)->with('status', __('Announcement saved.'));
     }
@@ -55,6 +56,7 @@ class DashboardAnnouncementController extends Controller
         $data['is_published'] = $request->has('is_published');
 
         $announcement->fill($data)->save();
+        $announcement->dispatchNotifications();
 
         return back()->with('status', __('Announcement updated.'));
     }
@@ -75,8 +77,12 @@ class DashboardAnnouncementController extends Controller
     {
         return $request->validate([
             'title' => ['required', 'string', 'max:255'],
+            'title_bn' => ['nullable', 'string', 'max:255'],
             'body' => ['nullable', 'string', 'max:5000'],
-            'audience' => ['required', 'in:all,student,parent'],
+            'body_bn' => ['nullable', 'string', 'max:5000'],
+            'audience' => ['nullable', 'array'],
+            'audience.*' => ['string'],
+            'display_target' => ['required', 'in:header,notification,both'],
             'is_published' => ['nullable', 'boolean'],
             'starts_at' => ['nullable', 'date'],
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],

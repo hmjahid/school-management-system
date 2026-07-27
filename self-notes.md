@@ -288,5 +288,49 @@ make help and documentation page more informative, intercative an dguided.
 create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-6.md file. then implement the tasks using the prompt
 
 
+
+where announcements are showing? 
+
+what the difference between nitice an dannouncement?
+
+will it show in dashboard notification page?
+
+suggest me where can show the announcements
+
+arenot we alseary using notice for maximum of these tasks?
+
+cannot we show the announcement in the header where urgent notices are showing. no need showing urgent notices there. but the annoucements will have option wher to show them. website header or dahboard notification. if dahboard notification, it will show in students, gurdians, tecaher notification page in dashboard/backend. aslo remove urhent option from notice page.
+
+add option for showing in both places
+
+make both bangl and enshlish input fileds for the amnnouncements
+
+add audince option like the notice 
+
+the audience selection not saving and not showing in the dahboard notification
+
+fix in the notice also
+
+but are they working properly?
+
+the annoucement text in website hader showuld be translated wehn language chnaged
+
+the afeatured section award text not transating also in homepage
+
+
+
+help and documentation page showing error. fix the issue.
+
+why vistor log not logging. fix the issue
+
+ledger page showing issue. fix the issue.
+
+move bulk sms just below the message item
+
+website serach, dahboard sidebar serach and the header serach not working. fix the issues.
+
+create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-7.md file. then implement the tasks using the prompt
+
+
 now write a commit message for the chnage safter the last commit
 

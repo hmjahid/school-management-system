@@ -66,12 +66,9 @@
             --theme-radius: {{ $siteSettings->theme_border_radius ?: '0.75rem' }};
         }
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        @keyframes marquee-urgent { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         @keyframes noticeScrollUp { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
         .animate-marquee { animation: marquee 30s linear infinite; }
         .animate-marquee:hover { animation-play-state: paused; }
-        .animate-marquee-urgent { animation: marquee-urgent 20s linear infinite; }
-        .animate-marquee-urgent:hover { animation-play-state: paused; }
         .notice-scroll-content { display: flex; flex-direction: column; gap: 10px; animation: noticeScrollUp var(--scroll-duration, 15s) linear infinite; }
         .notice-scroll-container:hover .notice-scroll-content { animation-play-state: paused; }
 
@@ -96,38 +93,23 @@
 
     {{-- Announcement ticker bar --}}
     @php
-        $notices = \Illuminate\Support\Facades\Schema::hasTable('notices')
-            ? \App\Models\Notice::query()->where('is_urgent', true)->orderByDesc('id')->limit(5)->get()
+        $tickerAnnouncements = \Illuminate\Support\Facades\Schema::hasTable('announcements')
+            ? \App\Models\Announcement::query()->published()->active()->forHeader()->orderByDesc('id')->limit(5)->get()
             : collect();
-        $regularNotices = isset($announcements) ? $announcements : collect();
     @endphp
-    @if($notices->isNotEmpty() || $regularNotices->isNotEmpty())
-        <div class="no-print text-xs overflow-hidden {{ $notices->isNotEmpty() ? 'bg-red-600' : 'bg-blue-600' }} text-white py-1.5">
-            <div class="marquee-track flex w-max items-center gap-6 whitespace-nowrap {{ $notices->isNotEmpty() ? 'animate-marquee-urgent' : 'animate-marquee' }}">
-                {{-- Duplicate content for seamless loop --}}
+    @if($tickerAnnouncements->isNotEmpty())
+        <div class="no-print text-xs overflow-hidden bg-blue-600 text-white py-1.5">
+            <div class="marquee-track flex w-max items-center gap-6 whitespace-nowrap animate-marquee">
                 @for($i = 0; $i < 2; $i++)
-                    @if($notices->isNotEmpty())
-                        @foreach($notices as $notice)
-                            <span class="inline-flex items-center gap-1.5">
-                                <span class="inline-flex items-center gap-1 font-semibold bg-white/20 px-2 py-0.5 rounded text-[0.65rem] uppercase tracking-wider">
-                                    <span class="h-1.5 w-1.5 rounded-full bg-white animate-pulse"></span>
-                                    {{ __('Urgent') }}
-                                </span>
-                                <span>{{ $notice->title }}</span>
+                    @foreach($tickerAnnouncements as $ann)
+                        <span class="inline-flex items-center gap-1.5">
+                            <span class="inline-flex items-center gap-1 font-semibold bg-white/20 px-2 py-0.5 rounded text-[0.65rem] uppercase tracking-wider">
+                                <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 3a1 1 0 00-1.447-.894L8.763 6H5a3 3 0 000 6h.28l1.771 5.316A1 1 0 008 18h1a1 1 0 001-1v-4.382l6.553 3.276A1 1 0 0018 15V3z" clip-rule="evenodd"/></svg>
+                                {{ site_ui('nav.announcements') }}
                             </span>
-                        @endforeach
-                    @endif
-                    @if($regularNotices->isNotEmpty())
-                        @foreach($regularNotices as $ann)
-                            <span class="inline-flex items-center gap-1.5">
-                                <span class="inline-flex items-center gap-1 font-semibold bg-white/20 px-2 py-0.5 rounded text-[0.65rem] uppercase tracking-wider">
-                                    <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 3a1 1 0 00-1.447-.894L8.763 6H5a3 3 0 000 6h.28l1.771 5.316A1 1 0 008 18h1a1 1 0 001-1v-4.382l6.553 3.276A1 1 0 0018 15V3z" clip-rule="evenodd"/></svg>
-                                    {{ __('Notice') }}
-                                </span>
-                                <span>{{ $ann->title }}</span>
-                            </span>
-                        @endforeach
-                    @endif
+                            <span>{{ $ann->localizedTitle() }}</span>
+                        </span>
+                    @endforeach
                     <span class="mx-2 text-white/30">|</span>
                 @endfor
             </div>

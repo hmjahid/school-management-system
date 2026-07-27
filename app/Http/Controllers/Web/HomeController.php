@@ -53,7 +53,6 @@ class HomeController extends Controller
             }
             if (Schema::hasTable('notices')) {
                 $recentNotices = Notice::query()
-                    ->orderByDesc('is_urgent')
                     ->orderByDesc('pinned')
                     ->orderByDesc('id')
                     ->limit(5)

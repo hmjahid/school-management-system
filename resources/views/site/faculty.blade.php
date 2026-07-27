@@ -40,13 +40,14 @@
                     <p class="mt-4 text-sm text-slate-500">{{ site_ui('faculty_page.empty') }}</p>
                 </div>
             @else
+                @php $visibleCount = 6; @endphp
                 <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" data-faculty-grid>
-                    @foreach ($teachers as $teacher)
+                    @foreach ($teachers as $index => $teacher)
                         @php
                             $name = $teacher->user?->name ?? site_ui('faculty_page.staff_fallback');
                             $initials = implode('', array_map(fn($w) => strtoupper(substr($w, 0, 1)), explode(' ', $name)));
                         @endphp
-                        <div class="group rounded-2xl bg-white p-6 shadow-md ring-1 ring-slate-100 transition-all duration-300 hover:shadow-xl reveal" data-faculty-card
+                        <div class="group rounded-2xl bg-white p-6 shadow-md ring-1 ring-slate-100 transition-all duration-300 hover:shadow-xl reveal {{ $index >= $visibleCount ? 'hidden' : '' }}" data-faculty-card {{ $index >= $visibleCount ? 'data-faculty-extra' : '' }}
                             data-name="{{ strtolower($name) }}"
                             data-department="{{ strtolower($teacher->department ?? 'general') }}"
                             data-subjects="{{ strtolower($teacher->subjects ?? '') }}">
@@ -96,7 +97,68 @@
                         </div>
                     @endforeach
                 </div>
+
+                @if($teachers->count() > $visibleCount)
+                    <div class="mt-10 text-center" data-faculty-toggle-wrap>
+                        <p class="mb-4 text-sm text-slate-500" data-faculty-count>{{ site_ui('faculty_page.showing_of', ['shown' => $visibleCount, 'total' => $teachers->count()]) }}</p>
+                        <button type="button" data-faculty-toggle class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 hover:shadow-md">
+                            <span data-faculty-toggle-text>{{ site_ui('faculty_page.see_more') }}</span>
+                            <svg data-faculty-toggle-icon class="h-4 w-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                    </div>
+                @endif
             @endif
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+    (function(){
+        var btn = document.querySelector('[data-faculty-toggle]');
+        var extras = document.querySelectorAll('[data-faculty-extra]');
+        var textEl = document.querySelector('[data-faculty-toggle-text]');
+        var iconEl = document.querySelector('[data-faculty-toggle-icon]');
+        var countEl = document.querySelector('[data-faculty-count]');
+        if (!btn || extras.length === 0) return;
+
+        var expanded = false;
+        var total = document.querySelectorAll('[data-faculty-card]').length;
+        var visibleCount = 6;
+
+        btn.addEventListener('click', function(){
+            expanded = !expanded;
+            extras.forEach(function(card){
+                if (expanded) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+            textEl.textContent = expanded
+                ? '{{ site_ui("faculty_page.see_less") }}'
+                : '{{ site_ui("faculty_page.see_more") }}';
+            iconEl.style.transform = expanded ? 'rotate(180deg)' : '';
+            if (countEl) {
+                countEl.textContent = expanded
+                    ? '{{ site_ui("faculty_page.showing_of", ["shown" => ":total", "total" => ":total"]) }}'.replace(':total', total).replace(':total', total)
+                    : '{{ site_ui("faculty_page.showing_of", ["shown" => "6", "total" => ":total"]) }}'.replace(':total', total);
+            }
+        });
+
+        var searchInput = document.querySelector('[data-faculty-search]');
+        if (searchInput) {
+            searchInput.addEventListener('input', function(){
+                var q = this.value.toLowerCase().trim();
+                document.querySelectorAll('[data-faculty-card]').forEach(function(card){
+                    var name = card.dataset.name || '';
+                    var dept = card.dataset.department || '';
+                    var subjects = card.dataset.subjects || '';
+                    var match = !q || name.includes(q) || dept.includes(q) || subjects.includes(q);
+                    card.style.display = match ? '' : 'none';
+                });
+            });
+        }
+    })();
+    </script>
+    @endpush
 @endsection

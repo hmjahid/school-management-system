@@ -21,14 +21,10 @@
             @else
                 <div class="space-y-4">
                     @foreach($notices as $notice)
-                        <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-md {{ $notice->is_urgent ? 'border-l-4 border-l-red-500' : ($notice->pinned ? 'border-l-4 border-l-amber-500' : '') }}">
+                        <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-md {{ $notice->pinned ? 'border-l-4 border-l-amber-500' : '' }}">
                             <div class="flex items-start gap-4">
                                 <div class="shrink-0 pt-1">
-                                    @if($notice->is_urgent)
-                                        <span class="inline-flex h-3 w-3 items-center justify-center rounded-full bg-red-500 shadow-sm shadow-red-500/50">
-                                            <span class="h-1.5 w-1.5 rounded-full bg-white animate-pulse"></span>
-                                        </span>
-                                    @elseif($notice->pinned)
+                                    @if($notice->pinned)
                                         <svg class="h-5 w-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a2 2 0 002 2h10a2 2 0 002-2v-5a2 2 0 00-2-2V7a5 5 0 00-5-5zm3 7V7a3 3 0 00-6 0v2h6z"/></svg>
                                     @else
                                         <span class="inline-flex h-3 w-3 items-center justify-center rounded-full bg-blue-500/60"></span>
@@ -37,9 +33,6 @@
                                 <div class="min-w-0 flex-1">
                                     <div class="flex flex-wrap items-center gap-2">
                                         <h2 class="text-lg font-semibold text-slate-900">{{ $notice->localizedTitle() }}</h2>
-                                        @if($notice->is_urgent)
-                                            <span class="rounded bg-red-50 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-red-600">{{ __('Urgent') }}</span>
-                                        @endif
                                         @if($notice->pinned)
                                             <span class="rounded bg-amber-50 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-amber-600">{{ __('Pinned') }}</span>
                                         @endif

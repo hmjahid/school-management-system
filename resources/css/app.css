@@ -78,17 +78,6 @@ html { scroll-behavior: smooth; }
     animation-play-state: paused;
 }
 
-@keyframes marquee-urgent {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-}
-.animate-marquee-urgent {
-    animation: marquee-urgent 20s linear infinite;
-}
-.animate-marquee-urgent:hover {
-    animation-play-state: paused;
-}
-
 /* Hero notice vertical scroll */
 .notice-scroll-container {
     position: relative;

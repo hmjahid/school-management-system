@@ -15,7 +15,6 @@ class Notice extends Model
         'attachments',
         'pinned',
         'audience',
-        'is_urgent',
         'created_by',
     ];
 
@@ -23,7 +22,6 @@ class Notice extends Model
         'attachments' => 'array',
         'audience' => 'array',
         'pinned' => 'boolean',
-        'is_urgent' => 'boolean',
     ];
 
     public function localizedTitle(): string

@@ -107,7 +107,10 @@ class PortalController extends Controller
         $announcements = Announcement::query()
             ->published()
             ->active()
-            ->whereIn('audience', ['all', $audience])
+            ->where(function ($q) use ($audience) {
+                $q->whereJsonContains('audience', 'all')
+                    ->orWhereJsonContains('audience', $audience);
+            })
             ->orderByDesc('starts_at')
             ->orderByDesc('id')
             ->limit(10)

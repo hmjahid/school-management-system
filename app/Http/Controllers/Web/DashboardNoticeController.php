@@ -12,7 +12,7 @@ class DashboardNoticeController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Notice::with('creator')->orderByDesc('pinned')->orderByDesc('is_urgent')->orderByDesc('id');
+        $query = Notice::with('creator')->orderByDesc('pinned')->orderByDesc('id');
 
         if ($request->filled('q')) {
             $q = $request->string('q')->toString();
@@ -32,7 +32,6 @@ class DashboardNoticeController extends Controller
         return view('dashboard.notices.create', [
             'notice' => new Notice([
                 'pinned' => false,
-                'is_urgent' => false,
                 'audience' => ['all'],
             ]),
         ]);
@@ -43,7 +42,6 @@ class DashboardNoticeController extends Controller
         $data = $this->validateNotice($request);
         $data['created_by'] = $request->user()->id;
         $data['pinned'] = $request->boolean('pinned');
-        $data['is_urgent'] = $request->boolean('is_urgent');
         $data['audience'] = $request->input('audience', ['all']);
 
         $notice = Notice::create($data);
@@ -62,7 +60,6 @@ class DashboardNoticeController extends Controller
     {
         $data = $this->validateNotice($request);
         $data['pinned'] = $request->boolean('pinned');
-        $data['is_urgent'] = $request->boolean('is_urgent');
         $data['audience'] = $request->input('audience', ['all']);
 
         $notice->fill($data)->save();
@@ -90,7 +87,6 @@ class DashboardNoticeController extends Controller
             'audience' => ['nullable', 'array'],
             'audience.*' => ['string'],
             'pinned' => ['nullable', 'boolean'],
-            'is_urgent' => ['nullable', 'boolean'],
         ]);
     }
 }

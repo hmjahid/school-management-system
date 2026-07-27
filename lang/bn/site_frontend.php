@@ -14,6 +14,7 @@ return [
         'faculty' => 'শিক্ষকবৃন্দ',
         'news' => 'সংবাদ ও অনুষ্ঠান',
         'notices' => 'বিজ্ঞপ্তি',
+        'announcements' => 'ঘোষণা',
         'gallery' => 'গ্যালারি',
         'results' => 'ফলাফল',
         'routine' => 'ক্লাস রুটিন',
@@ -86,6 +87,10 @@ return [
         'stats_students' => 'শিক্ষার্থী',
         'stats_faculty' => 'শিক্ষক',
         'stats_years' => 'শ্রেষ্ঠত্বের বছর',
+        'stats_awards' => 'পুরস্কার',
+        'latest_notices' => 'সর্বশেষ বিজ্ঞপ্তি',
+        'view_all_notices' => 'সব বিজ্ঞপ্তি দেখুন',
+        'our_partners' => 'আমাদের অংশীদার ও সম্পর্ক',
         'principal_title' => 'প্রধান শিক্ষকের বার্তা',
         'testimonials_title' => 'অভিভাবক ও শিক্ষার্থীরা যা বলেন',
         'events_title' => 'আসন্ন অনুষ্ঠান',
@@ -311,6 +316,9 @@ return [
         'directory_heading' => 'শিক্ষক তালিকা',
         'empty' => 'সিস্টেমে যোগ করা হলে শিক্ষক প্রোফাইল এখানে দেখা যাবে।',
         'staff_fallback' => 'কর্মী',
+        'see_more' => 'আরও শিক্ষক দেখুন',
+        'see_less' => 'কম দেখান',
+        'showing_of' => ':total জন শিক্ষকের মধ্যে :shown জন দেখাচ্ছে',
     ],
 
     'admissions_landing' => [

@@ -99,4 +99,96 @@ return [
     'url' => 'URL',
     'referer' => 'Referer',
     'no_visitor_logs' => 'No visitor logs found.',
+
+    'help' => [
+        'page_description' => 'Use the sections below to learn how to manage your school efficiently.',
+        'search_placeholder' => 'Search help topics...',
+        'no_results' => 'No matching topics found.',
+        'was_this_helpful' => 'Was this helpful?',
+        'yes' => 'Yes',
+        'no' => 'No',
+        'step' => 'Step :num',
+        'sections' => [
+            'getting_started' => [
+                'title' => 'Getting Started',
+                'description' => 'Set up your school management system in a few simple steps.',
+                'steps' => [
+                    'Log in to the admin panel using your credentials.',
+                    'Set up your school name, logo, and tagline in School Settings.',
+                    'Add classes, then create student and teacher accounts.',
+                    'Configure academic sessions and batches before managing attendance or exams.',
+                ],
+            ],
+            'managing_students' => [
+                'title' => 'Managing Students',
+                'description' => 'Register, update, and organize student records.',
+                'steps' => [
+                    'Navigate to Academic > People > Students to view all students.',
+                    'Click "Add Student" to register a new student with class and batch.',
+                    'Edit or delete students from the student detail page.',
+                    'Use Bulk Import to add many students from a CSV file.',
+                ],
+            ],
+            'managing_teachers' => [
+                'title' => 'Managing Teachers',
+                'description' => 'Create teacher accounts and manage faculty assignments.',
+                'steps' => [
+                    'Go to Academic > People > Teachers to manage faculty.',
+                    'Create teacher accounts and assign them to subjects and classes.',
+                    'Teachers can be given specific roles for access control.',
+                    'Staff directory provides a complete list of all school staff.',
+                ],
+            ],
+            'attendance' => [
+                'title' => 'Attendance',
+                'description' => 'Track daily student and staff attendance efficiently.',
+                'steps' => [
+                    'Go to Academic > Daily > Attendance to mark daily attendance.',
+                    'Use Bulk Mark to record attendance for an entire class at once.',
+                    'Staff attendance tracks teacher and staff presence separately.',
+                    'Attendance reports are available under Reports.',
+                ],
+            ],
+            'exams_results' => [
+                'title' => 'Exams & Results',
+                'description' => 'Create exams, enter marks, and publish results.',
+                'steps' => [
+                    'Create exams under Academic > Academics > Exams.',
+                    'Enter marks per subject; results are computed automatically.',
+                    'Publish results so students and parents can view them.',
+                    'Export results as spreadsheets for offline use.',
+                ],
+            ],
+            'fees_payments' => [
+                'title' => 'Fees & Payments',
+                'description' => 'Manage fee structures, collect payments, and track finances.',
+                'steps' => [
+                    'Create fee categories and fee types under Academic > Finance.',
+                    'Record payments when students submit fees.',
+                    'Track expenses and manage the ledger for accounting.',
+                    'Generate income statements and balance sheets from Reports.',
+                ],
+            ],
+            'cms_management' => [
+                'title' => 'CMS Management',
+                'description' => 'Manage website content, news, and public-facing pages.',
+                'steps' => [
+                    'Edit static pages (About, Admissions, etc.) under Website CMS.',
+                    'Publish news, gallery items, and announcements.',
+                    'Manage documents and downloadable files.',
+                    'Review form submissions from the public website.',
+                ],
+            ],
+            'public_website' => [
+                'title' => 'Public Website',
+                'description' => 'Learn about the public-facing website and its features.',
+                'steps' => [
+                    'The public site is built with Laravel Blade and Tailwind CSS.',
+                    'All content is managed from the dashboard CMS section.',
+                    'Multi-language support: English and Bengali are built in.',
+                    'Use the sitemap at /sitemap.xml for SEO indexing.',
+                ],
+            ],
+        ],
+    ],
 ];

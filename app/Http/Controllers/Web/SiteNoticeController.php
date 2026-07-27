@@ -13,7 +13,6 @@ class SiteNoticeController extends Controller
     {
         $siteSettings = WebsiteSetting::getSettings();
         $notices = Notice::query()
-            ->orderByDesc('is_urgent')
             ->orderByDesc('pinned')
             ->orderByDesc('id')
             ->paginate(15);

@@ -110,38 +110,14 @@
             toggle?.addEventListener('click', function(e) {
                 e.stopPropagation();
                 panel?.classList.toggle('hidden');
-                closeUserMenu();
+                var userRoot = document.querySelector('[data-user-menu-root]');
+                var up = userRoot?.querySelector('[data-user-menu-panel]');
+                if (up) up.classList.add('hidden');
+                var ub = userRoot?.querySelector('[data-user-menu-toggle]');
+                if (ub) ub.setAttribute('aria-expanded', 'false');
             });
             document.addEventListener('click', function(e) {
                 if (!e.target.closest('[data-lang-menu-root]')) panel?.classList.add('hidden');
-            });
-        }
-
-        var userRoot = document.querySelector('[data-user-menu-root]');
-        function closeUserMenu() {
-            var p = userRoot?.querySelector('[data-user-menu-panel]');
-            if (p) p.classList.add('hidden');
-            var b = userRoot?.querySelector('[data-user-menu-toggle]');
-            if (b) b.setAttribute('aria-expanded', 'false');
-        }
-        if (userRoot) {
-            var userToggle = userRoot.querySelector('[data-user-menu-toggle]');
-            var userPanel = userRoot.querySelector('[data-user-menu-panel]');
-            userToggle?.addEventListener('click', function(e) {
-                e.stopPropagation();
-                var isOpen = !userPanel?.classList.contains('hidden');
-                closeUserMenu();
-                if (!isOpen) {
-                    userPanel?.classList.remove('hidden');
-                    userToggle.setAttribute('aria-expanded', 'true');
-                }
-                if (langRoot) {
-                    var lp = langRoot.querySelector('[data-lang-menu-panel]');
-                    if (lp) lp.classList.add('hidden');
-                }
-            });
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('[data-user-menu-root]')) closeUserMenu();
             });
         }
     })();

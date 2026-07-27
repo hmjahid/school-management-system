@@ -86,7 +86,7 @@
                                     <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-50">
                                         <svg class="h-5 w-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 3a1 1 0 00-1.447-.894L8.763 6H5a3 3 0 000 6h.28l1.771 5.316A1 1 0 008 18h1a1 1 0 001-1v-4.382l6.553 3.276A1 1 0 0018 15V3z" clip-rule="evenodd"/></svg>
                                     </span>
-                                    <h3 class="text-base font-bold text-slate-900">{{ __('Latest Notices') }}</h3>
+                                    <h3 class="text-base font-bold text-slate-900">{{ site_ui('home.latest_notices') }}</h3>
                                 </div>
                             </div>
 
@@ -112,20 +112,13 @@
                                         @foreach($recentNotices as $notice)
                                             <div class="notice-item rounded-xl border border-slate-100 bg-slate-50 p-4 transition-all duration-200 hover:border-slate-200 hover:bg-slate-100" style="min-height: {{ $noticeHeight }}px;">
                                                 <div class="flex items-start gap-3">
-                                                    @if($notice->is_urgent)
-                                                        <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-red-500 shadow-sm shadow-red-500/50 animate-pulse"></span>
-                                                    @elseif($notice->pinned)
+                                                    @if($notice->pinned)
                                                         <svg class="mt-0.5 h-4 w-4 shrink-0 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a2 2 0 002 2h10a2 2 0 002-2v-5a2 2 0 00-2-2V7a5 5 0 00-5-5zm3 7V7a3 3 0 00-6 0v2h6z"/></svg>
                                                     @else
                                                         <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-blue-500/60"></span>
                                                     @endif
                                                     <div class="min-w-0 flex-1">
-                                                        <div class="flex items-center gap-2">
-                                                            <h4 class="text-sm font-semibold text-slate-900 leading-snug">{{ $notice->localizedTitle() }}</h4>
-                                                            @if($notice->is_urgent)
-                                                                <span class="shrink-0 rounded bg-red-50 px-1.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-red-600">{{ __('Urgent') }}</span>
-                                                            @endif
-                                                        </div>
+                                                        <h4 class="text-sm font-semibold text-slate-900 leading-snug">{{ $notice->localizedTitle() }}</h4>
                                                         <p class="mt-1 text-xs leading-relaxed text-slate-500 line-clamp-2">{{ \Illuminate\Support\Str::limit(strip_tags($notice->localizedContent()), 100) }}</p>
                                                     </div>
                                                 </div>
@@ -135,20 +128,13 @@
                                         @foreach($recentNotices as $notice)
                                             <div class="notice-item rounded-xl border border-slate-100 bg-slate-50 p-4 transition-all duration-200 hover:border-slate-200 hover:bg-slate-100" style="min-height: {{ $noticeHeight }}px;">
                                                 <div class="flex items-start gap-3">
-                                                    @if($notice->is_urgent)
-                                                        <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-red-500 shadow-sm shadow-red-500/50 animate-pulse"></span>
-                                                    @elseif($notice->pinned)
+                                                    @if($notice->pinned)
                                                         <svg class="mt-0.5 h-4 w-4 shrink-0 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a2 2 0 002 2h10a2 2 0 002-2v-5a2 2 0 00-2-2V7a5 5 0 00-5-5zm3 7V7a3 3 0 00-6 0v2h6z"/></svg>
                                                     @else
                                                         <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-blue-500/60"></span>
                                                     @endif
                                                     <div class="min-w-0 flex-1">
-                                                        <div class="flex items-center gap-2">
-                                                            <h4 class="text-sm font-semibold text-slate-900 leading-snug">{{ $notice->localizedTitle() }}</h4>
-                                                            @if($notice->is_urgent)
-                                                                <span class="shrink-0 rounded bg-red-50 px-1.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-red-600">{{ __('Urgent') }}</span>
-                                                            @endif
-                                                        </div>
+                                                        <h4 class="text-sm font-semibold text-slate-900 leading-snug">{{ $notice->localizedTitle() }}</h4>
                                                         <p class="mt-1 text-xs leading-relaxed text-slate-500 line-clamp-2">{{ \Illuminate\Support\Str::limit(strip_tags($notice->localizedContent()), 100) }}</p>
                                                     </div>
                                                 </div>
@@ -159,7 +145,7 @@
                             </div>
                             <div class="px-6 pb-5 sm:px-7">
                                 <a href="{{ route('site.notices') }}" class="flex items-center justify-center gap-1.5 rounded-lg bg-slate-100 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200 hover:text-slate-900">
-                                    {{ __('View All Notices') }}
+                                    {{ site_ui('home.view_all_notices') }}
                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                                 </a>
                             </div>
@@ -213,7 +199,7 @@
                 </div>
                 <div class="p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
                     <div class="text-4xl font-bold" data-countup data-target="{{ $stats['awards'] ?? 0 }}" data-suffix="+">0</div>
-                    <div class="mt-2 text-sm text-blue-200 uppercase tracking-wider">{{ __('Awards') }}</div>
+                    <div class="mt-2 text-sm text-blue-200 uppercase tracking-wider">{{ site_ui('home.stats_awards') }}</div>
                 </div>
             </div>
         </div>
@@ -280,7 +266,7 @@
                             $name = $teacher->user?->name ?? __('Teacher');
                             $initials = implode('', array_map(fn($w) => strtoupper(substr($w, 0, 1)), explode(' ', $name)));
                         @endphp
-                        <div class="min-w-[260px] max-w-[260px] snap-start shrink-0 group rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-100 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                        <div class="w-full min-w-0 snap-start shrink-0 md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] group rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-100 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                             <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 text-2xl font-bold text-blue-600 ring-4 ring-white shadow-lg transition-transform duration-300 group-hover:scale-105">
                                 {{ $initials }}
                             </div>
@@ -486,7 +472,7 @@
     @if($sectionVis['partners'] ?? true)
     <section class="bg-white py-12 border-t border-slate-100">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <p class="mb-8 text-center text-sm font-semibold uppercase tracking-wider text-slate-400 reveal">{{ __('Our Partners & Affiliations') }}</p>
+            <p class="mb-8 text-center text-sm font-semibold uppercase tracking-wider text-slate-400 reveal">{{ site_ui('home.our_partners') }}</p>
             <div class="flex flex-wrap items-center justify-center gap-8 md:gap-16 reveal">
                 <div class="h-12 w-32 rounded-lg bg-slate-100 flex items-center justify-center text-slate-300 text-sm font-medium">Logo 1</div>
                 <div class="h-12 w-32 rounded-lg bg-slate-100 flex items-center justify-center text-slate-300 text-sm font-medium">Logo 2</div>
@@ -514,14 +500,19 @@
         var prev = slider.querySelector('[data-teachers-prev]');
         var next = slider.querySelector('[data-teachers-next]');
         if (track && prev && next) {
-            var scrollAmount = 280;
-            prev.addEventListener('click', function() { track.scrollBy({ left: -scrollAmount, behavior: 'smooth' }); });
-            next.addEventListener('click', function() { track.scrollBy({ left: scrollAmount, behavior: 'smooth' }); });
+            function getScrollAmount() {
+                var w = window.innerWidth;
+                if (w >= 1024) return track.clientWidth / 3 + 24;
+                if (w >= 768) return track.clientWidth / 2 + 24;
+                return track.clientWidth;
+            }
+            prev.addEventListener('click', function() { track.scrollBy({ left: -getScrollAmount(), behavior: 'smooth' }); });
+            next.addEventListener('click', function() { track.scrollBy({ left: getScrollAmount(), behavior: 'smooth' }); });
             var autoScroll = setInterval(function() {
                 if (track.scrollLeft + track.clientWidth >= track.scrollWidth - 10) {
                     track.scrollTo({ left: 0, behavior: 'smooth' });
                 } else {
-                    track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                    track.scrollBy({ left: getScrollAmount(), behavior: 'smooth' });
                 }
             }, 4000);
             track.addEventListener('mouseenter', function() { clearInterval(autoScroll); });

@@ -49,9 +49,6 @@
                             @endif
                         </td>
                         <td class="px-4 py-3">
-                            @if($row->is_urgent)
-                                <span class="mr-1 inline-block rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-800">{{ __('Urgent') }}</span>
-                            @endif
                             @if($row->pinned)
                                 <span class="inline-block rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">{{ __('Pinned') }}</span>
                             @endif
