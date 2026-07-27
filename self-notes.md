@@ -348,6 +348,17 @@ add show hide for all individual sections, not whole page content
 
 theme color chnaging not working. fix the issue.
 
+ensure that the application is a pwa (progressive web app)
+
+create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-8.md file. then implement the tasks using the prompt
+
+
+
+afer contact page form submission successfully, show a nice popup with thank message.
+
+not showing any option for installing the app as pwa. add a option in dashboard for insatlling the applicationa s pwa in any devices.
+
+create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-9.md file. then implement the tasks using the prompt
 
 
 

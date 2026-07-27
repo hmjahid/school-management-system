@@ -13,6 +13,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     @php $dashSettings = \App\Models\WebsiteSetting::getSettings(); @endphp
+    {{-- PWA --}}
+    <link rel="manifest" href="{{ route('site.manifest') }}">
+    <meta name="theme-color" content="{{ $dashSettings->theme_primary_color ?? '#2563eb' }}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="{{ config('app.name', 'SchoolEase') }}">
+    <link rel="apple-touch-icon" href="{{ $dashSettings->logo_url ?: asset('favicon.ico') }}">
     <style>
         :root {
             --brand-50: color-mix(in srgb, {{ $dashSettings->theme_primary_color ?? '#2563eb' }} 10%, white);
@@ -201,6 +208,11 @@
             }, 300);
         });
     })();
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
     </script>
 </body>
 </html>

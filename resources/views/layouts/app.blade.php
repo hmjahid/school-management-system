@@ -17,6 +17,14 @@
     <link rel="canonical" href="{{ url()->current() }}">
     <meta name="robots" content="index, follow">
 
+    {{-- PWA --}}
+    <link rel="manifest" href="{{ route('site.manifest') }}">
+    <meta name="theme-color" content="{{ $siteSettings->theme_primary_color ?? '#2563eb' }}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="{{ $siteSettings->school_name ?? config('app.name', 'SchoolEase') }}">
+    <link rel="apple-touch-icon" href="{{ $siteSettings->logo_url ?: asset('favicon.ico') }}">
+
     {{-- Open Graph --}}
     <meta property="og:title" content="@yield('og_title', $siteSettings->site_name ?? config('app.name'))">
     <meta property="og:description" content="@yield('og_description', $siteSettings->meta_description ?? '')">
@@ -64,6 +72,17 @@
             --theme-secondary: {{ $siteSettings->theme_secondary_color ?? '#f97316' }};
             --theme-font: {{ $siteSettings->theme_font_family ?: "'Inter', sans-serif" }};
             --theme-radius: {{ $siteSettings->theme_border_radius ?: '0.75rem' }};
+
+            --brand-50: color-mix(in srgb, {{ $siteSettings->theme_primary_color ?? '#2563eb' }} 10%, white);
+            --brand-100: color-mix(in srgb, {{ $siteSettings->theme_primary_color ?? '#2563eb' }} 20%, white);
+            --brand-400: color-mix(in srgb, {{ $siteSettings->theme_primary_color ?? '#2563eb' }} 70%, white);
+            --brand-500: {{ $siteSettings->theme_primary_color ?? '#2563eb' }};
+            --brand-600: color-mix(in srgb, {{ $siteSettings->theme_primary_color ?? '#2563eb' }} 80%, black);
+            --brand-700: color-mix(in srgb, {{ $siteSettings->theme_primary_color ?? '#2563eb' }} 65%, black);
+            --brand-800: color-mix(in srgb, {{ $siteSettings->theme_primary_color ?? '#2563eb' }} 50%, black);
+            --brand-900: color-mix(in srgb, {{ $siteSettings->theme_primary_color ?? '#2563eb' }} 35%, black);
+            --accent-500: {{ $siteSettings->theme_secondary_color ?? '#f97316' }};
+            --accent-600: color-mix(in srgb, {{ $siteSettings->theme_secondary_color ?? '#f97316' }} 80%, black);
         }
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         @keyframes noticeScrollUp { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
@@ -152,5 +171,10 @@
     </div>
 
     @stack('scripts')
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
+    </script>
 </body>
 </html>

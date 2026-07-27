@@ -65,6 +65,7 @@ use App\Http\Controllers\Web\DashboardVisitorLogController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/manifest.json', \App\Http\Controllers\Web\ManifestController::class)->name('site.manifest');
 Route::get('/search', [\App\Http\Controllers\Web\SiteSearchController::class, 'index'])->name('site.search');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('site.sitemap');
