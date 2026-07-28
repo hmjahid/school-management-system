@@ -87,6 +87,60 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+                    <div class="sm:col-span-2 rounded-lg border border-gray-100 bg-gray-50 p-4">
+                        <h3 class="mb-3 text-sm font-semibold text-gray-900">{{ __('Footer logo (light background)') }}</h3>
+                        <p class="mb-2 text-xs text-gray-500">{{ __('Shown on dark footer backgrounds. Recommended: white or light-colored logo.') }}</p>
+                        @if($settings->footer_logo_url)
+                            <div class="mb-3 flex items-center gap-4">
+                                <img src="{{ $settings->footer_logo_url }}" alt="" class="h-14 w-auto max-w-[200px] object-contain rounded bg-gray-800 p-2">
+                            </div>
+                        @endif
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Upload footer logo') }}</label>
+                        @include('partials.dashboard.file-button', [
+                            'name' => 'footer_logo',
+                            'accept' => 'image/*',
+                            'id' => 'school_settings_footer_logo',
+                            'buttonLabel' => __('Choose image'),
+                            'wrapperClass' => '',
+                        ])
+                        <p class="mt-1 text-xs text-gray-500">{{ __('PNG, JPG, SVG, or WebP. Max 2 MB.') }}</p>
+                        @if($settings->footer_logo_path)
+                            <label class="mt-3 flex items-center gap-2 text-sm text-gray-700">
+                                <input type="checkbox" name="remove_footer_logo" value="1" @checked(old('remove_footer_logo'))>
+                                {{ __('Remove footer logo') }}
+                            </label>
+                        @endif
+                        @error('footer_logo')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="sm:col-span-2 rounded-lg border border-gray-100 bg-gray-50 p-4">
+                        <h3 class="mb-3 text-sm font-semibold text-gray-900">{{ __('Footer logo (dark background)') }}</h3>
+                        <p class="mb-2 text-xs text-gray-500">{{ __('Shown on light/white footer backgrounds (e.g. when dark mode is off). Recommended: dark-colored logo.') }}</p>
+                        @if($settings->footer_logo_dark_url)
+                            <div class="mb-3 flex items-center gap-4">
+                                <img src="{{ $settings->footer_logo_dark_url }}" alt="" class="h-14 w-auto max-w-[200px] object-contain rounded bg-gray-100 p-2">
+                            </div>
+                        @endif
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Upload dark footer logo') }}</label>
+                        @include('partials.dashboard.file-button', [
+                            'name' => 'footer_logo_dark',
+                            'accept' => 'image/*',
+                            'id' => 'school_settings_footer_logo_dark',
+                            'buttonLabel' => __('Choose image'),
+                            'wrapperClass' => '',
+                        ])
+                        <p class="mt-1 text-xs text-gray-500">{{ __('PNG, JPG, SVG, or WebP. Max 2 MB.') }}</p>
+                        @if($settings->footer_logo_dark_path)
+                            <label class="mt-3 flex items-center gap-2 text-sm text-gray-700">
+                                <input type="checkbox" name="remove_footer_logo_dark" value="1" @checked(old('remove_footer_logo_dark'))>
+                                {{ __('Remove dark footer logo') }}
+                            </label>
+                        @endif
+                        @error('footer_logo_dark')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
                     <div class="sm:col-span-2">
                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('School name') }} <span class="text-gray-400">(EN)</span></label>
                         <input type="text" name="school_name" value="{{ old('school_name', $settings->school_name) }}"

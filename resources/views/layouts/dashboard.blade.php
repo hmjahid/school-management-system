@@ -9,6 +9,14 @@
     <script>
     (function(){var k='school-dark-mode',v=localStorage.getItem(k);if(v==='1'||(v===null&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')})();
     </script>
+    {{-- Inline dark toggle handler — works even if app.js hasn't loaded yet --}}
+    <script>
+    (function(){
+        var KEY='school-dark-mode';
+        function apply(on){document.documentElement.classList.toggle('dark',on);localStorage.setItem(KEY,on?'1':'0');}
+        document.addEventListener('click',function(e){var t=e.target.closest('[data-dark-toggle]');if(!t)return;e.preventDefault();e.stopPropagation();apply(!document.documentElement.classList.contains('dark'));},true);
+    })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">

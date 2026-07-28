@@ -98,11 +98,12 @@
     <div class="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-3 sm:py-4">
         <a href="{{ route('home') }}" class="flex min-w-0 items-center gap-2 no-underline sm:gap-3">
             @if($siteSettings?->logo_url)
-                <img src="{{ $siteSettings->logo_url }}" alt="" width="120" height="48" class="h-9 w-auto max-h-10 max-w-[8rem] shrink-0 object-contain sm:h-10 sm:max-h-12 sm:max-w-[10rem] md:max-w-[12rem]">
+                <img src="{{ $siteSettings->logo_url }}" alt="{{ $school }}" width="120" height="48" class="h-9 w-auto max-h-10 max-w-[8rem] shrink-0 object-contain sm:h-10 sm:max-h-12 sm:max-w-[10rem] md:max-w-[12rem]">
+            @else
+                <span class="truncate text-lg font-bold leading-tight text-blue-700 sm:text-2xl md:text-3xl">
+                    {{ $brandFirst }}@if($brandRest)<span class="text-orange-500">{{ ' '.$brandRest }}</span>@endif
+                </span>
             @endif
-            <span class="truncate text-lg font-bold leading-tight text-blue-700 sm:text-2xl md:text-3xl">
-                {{ $brandFirst }}@if($brandRest)<span class="text-orange-500">{{ ' '.$brandRest }}</span>@endif
-            </span>
         </a>
 
         <div class="flex items-center gap-1">
@@ -269,10 +270,12 @@
             {{-- School branding at top --}}
             <div class="flex items-center gap-3 border-b border-gray-100 bg-gradient-to-r from-blue-50/80 to-white px-5 py-4">
                 @if($siteSettings?->logo_url)
-                    <img src="{{ $siteSettings->logo_url }}" alt="" width="80" height="32" class="h-8 w-auto shrink-0 object-contain">
+                    <img src="{{ $siteSettings->logo_url }}" alt="{{ $school }}" width="80" height="32" class="h-8 w-auto shrink-0 object-contain">
                 @endif
                 <div class="min-w-0 flex-1">
-                    <p class="truncate text-sm font-bold text-blue-800">{{ $school }}</p>
+                    @if(! $siteSettings?->logo_url)
+                        <p class="truncate text-sm font-bold text-blue-800">{{ $school }}</p>
+                    @endif
                     @if($siteSettings?->tagline)
                         <p class="truncate text-xs text-gray-500">{{ $siteSettings->tagline }}</p>
                     @endif

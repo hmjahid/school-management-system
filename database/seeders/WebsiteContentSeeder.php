@@ -73,6 +73,39 @@ class WebsiteContentSeeder extends Seeder
                         'Competitive sports and cultural events',
                         'Counselling and university guidance',
                     ],
+                    'partners' => [
+                        ['name' => 'Ministry of Education', 'url' => 'https://moedu.gov.bd', 'color' => 'blue', 'icon' => 'book'],
+                        ['name' => 'Directorate of Primary Education', 'url' => 'https://moedu.gov.bd', 'color' => 'emerald', 'icon' => 'school'],
+                        ['name' => 'Secondary & Higher Secondary Board', 'url' => 'https://ducationboard.gov.bd', 'color' => 'amber', 'icon' => 'award'],
+                        ['name' => 'National Board of Examination', 'url' => 'http://www.biseb.gov.bd', 'color' => 'purple', 'icon' => 'clipboard'],
+                        ['name' => 'NAEM', 'url' => 'https://www.teachers.gov.bd', 'color' => 'rose', 'icon' => 'users'],
+                    ],
+                ],
+                'content_bn' => [
+                    'hero' => [
+                        'headline' => 'আমাদের স্কুল কমিউনিটিতে স্বাগতম',
+                        'motto' => 'যেখানে কৌতূহল ও উৎকৃষ্টতা মিলিত হয় এবং প্রতিটি শিক্ষার্থীকে গুরুত্ব দেওয়া হয়।',
+                    ],
+                    'principal' => [
+                        'name' => 'অধ্যাপক',
+                        'message' => "আমাদের স্কুলের ওয়েবসাইটে আপনাকে স্বাগতম। আমাদের অনুগ্রহশীল শিক্ষকমণ্ডলী, সমৃদ্ধ পাঠ্যক্রম এবং সহায়ক পরিবেশ শিক্ষার্থীদের শৈক্ষিক ও দায়িত্বশীল নাগরিক হিসেবে গড়ে তুলতে সাহায্য করে।\n\nআমরা আপনাকে ভর্তি প্রক্রিয়া অনুসন্ধান, আমাদের অনুষদের সাথে পরিচিত হতে এবং অভিভাবক পোর্টালের মাধ্যমে সংযুক্ত থাকতে আমন্ত্রণ জানাই।",
+                    ],
+                    'testimonials' => [
+                        ['quote' => 'শিক্ষকরা সত্যিই যত্নশীল — আমার মেয়ে এখানে ফুলে ফুলে উঠেছে।', 'name' => 'আ. রহমান', 'role' => 'অভিভাবক'],
+                        ['quote' => 'শক্তিশালী শৈক্ষিক কার্যক্রম ও ক্লাব — আমি বিজ্ঞানের প্রতি আমার আবেগ খুঁজে পেয়েছি।', 'name' => 'এস. খান', 'role' => 'প্রাক্তন ছাত্র'],
+                    ],
+                    'highlights' => [
+                        'STEM ও শিল্পকলা সহ সমন্বিত পাঠ্যক্রম',
+                        'প্রতিযোগিতামূলক খেলাধুলা ও সাংস্কৃতিক অনুষ্ঠান',
+                        'কাউন্সেলিং ও বিশ্ববিদ্যালয় নির্দেশনা',
+                    ],
+                    'partners' => [
+                        ['name' => 'শিক্ষা মন্ত্রণালয়', 'url' => 'https://moedu.gov.bd', 'color' => 'blue', 'icon' => 'book'],
+                        ['name' => 'প্রাথমিক ও মাধ্যমিক ও গণশিক্ষা মন্ত্রণালয়', 'url' => 'https://moedu.gov.bd', 'color' => 'emerald', 'icon' => 'school'],
+                        ['name' => 'মাধ্যমিক ও উচ্চ মাধ্যমিক শিক্ষা বোর্ড', 'url' => 'https://ducationboard.gov.bd', 'color' => 'amber', 'icon' => 'award'],
+                        ['name' => 'জাতীয় পরীক্ষা বোর্ড', 'url' => 'http://www.biseb.gov.bd', 'color' => 'purple', 'icon' => 'clipboard'],
+                        ['name' => 'জাতীয় শিক্ষক প্রশিক্ষণ ইনস্টিটিউট', 'url' => 'https://www.teachers.gov.bd', 'color' => 'rose', 'icon' => 'users'],
+                    ],
                 ],
             ],
             'about' => [
@@ -261,7 +294,9 @@ class WebsiteContentSeeder extends Seeder
             ],
             'terms' => [
                 'title' => 'Terms & conditions',
+                'title_bn' => 'শর্তাবলী',
                 'meta_description' => 'Terms of use for this website and related school services.',
+                'meta_description_bn' => 'এই ওয়েবসাইট ও সম্পর্কিত স্কুল সেবা ব্যবহারের শর্তাবলী।',
                 'content' => [
                     'intro' => 'By using this website and our services, you agree to the following terms. Please read them carefully; the school may update this page from time to time.',
                     'sections' => [
@@ -282,10 +317,32 @@ class WebsiteContentSeeder extends Seeder
                         ]),
                     ],
                 ],
+                'content_bn' => [
+                    'intro' => 'এই ওয়েবসাইট ও আমাদের সেবা ব্যবহার করে আপনি নিম্নলিখিত শর্তাবলীতে সম্মত হচ্ছেন। অনুগ্রহ করে এগুলো মনোযোগ দিয়ে পড়ুন; স্কুল সময়ে সময়ে এই পৃষ্ঠা হালনাগাদ করতে পারে।',
+                    'sections' => [
+                        $section('ওয়েবসাইট ব্যবহার', [
+                            'এই সাইট স্কুল, ভর্তি ও কমিউনিটি আপডেট সম্পর্কে তথ্য প্রদানের জন্য প্রদান করা হয়েছে। আপনি সাইটের অপব্যবহার, অননুমোদিত প্রবেশ প্রচেষ্টা বা ক্ষতিকর বিষয়বস্তু বিতরণ না করতে সম্মত হচ্ছেন।',
+                        ]),
+                        $section('অ্যাকাউন্ট ও পোর্টাল', [
+                            'পোর্টাল অ্যাকাউন্ট অনুমোদিত অভিভাবক, ছাত্র ও কর্মচারীদের জন্য। আপনি লগইন তথ্য গোপনীয় রাখার এবং আপনার অ্যাকাউন্টের কার্যকলাপের দায়িত্ব বহন করবেন।',
+                        ]),
+                        $section('বৌদ্ধিক সম্পত্তি', [
+                            'এই সাইটের পাঠ্য, ছবি, লোগো ও উপাদান স্কুলের সম্পত্তি বা অনুমতিক্রমে ব্যবহৃত। অন্যথা উল্লেখ না থাকলে পুনঃব্যবহারের জন্য পূর্বের লিখিত সম্মতি প্রয়োজন।',
+                        ]),
+                        $section('দায়মুক্তির সীমাবদ্ধতা', [
+                            'এই সাইটের তথ্য সৎ উদ্দেশ্যে প্রদান করা হয়েছে। আইনের অনুমত সীমার মধ্যে, সাইট ব্যবহার বা এর বিষয়বস্তুর উপর নির্ভরতাজনিত পরোক্ষ ক্ষতির জন্য স্কুল দায়ী নয়।',
+                        ]),
+                        $section('যোগাযোগ', [
+                            'এই শর্তাবলী সম্পর্কে প্রশ্ন এই ওয়েবসাইটে প্রকাশিত যোগাযোগের তথ্য ব্যবহার করে স্কুল অফিসে জানানো যেতে পারে।',
+                        ]),
+                    ],
+                ],
             ],
             'privacy' => [
                 'title' => 'Privacy policy',
+                'title_bn' => 'গোপনীয়তা নীতি',
                 'meta_description' => 'How we collect, use, and protect personal information.',
+                'meta_description_bn' => 'আমরা কীভাবে আপনার তথ্য সংগ্রহ, ব্যবহার ও সুরক্ষা করি।',
                 'content' => [
                     'intro' => 'We respect your privacy. This policy explains what information we may collect, how we use it, and your choices. It applies to this website and related processes such as admissions and the parent portal.',
                     'sections' => [
@@ -303,6 +360,26 @@ class WebsiteContentSeeder extends Seeder
                         ]),
                         $section('Your rights', [
                             'Depending on applicable law, you may have rights to access, correct, or delete certain personal data. Contact the school office to exercise these rights or ask questions.',
+                        ]),
+                    ],
+                ],
+                'content_bn' => [
+                    'intro' => 'আমরা আপনার গোপনীয়তাকে সম্মান করি। এই নীতিতে ব্যাখ্যা করা হয়েছে যে আমরা কী ধরনের তথ্য সংগ্রহ করতে পারি, কীভাবে আমরা এটি ব্যবহার করি এবং আপনার পছন্দসমূহ। এটি এই ওয়েবসাইট এবং ভর্তি ও অভিভাবক পোর্টালসহ সম্পর্কিত প্রক্রিয়াগুলোর ক্ষেত্রে প্রযোজ্য।',
+                    'sections' => [
+                        $section('আমরা যে তথ্য সংগ্রহ করি', [
+                            'আমরা আপনার প্রদত্ত তথ্য (যেমন যোগাযোগ বা আবেদন ফর্মে), আইপি ঠিকানা ও ব্রাউজার টাইপের মতো প্রযুক্তিগত তথ্য, এবং স্কুল ও পোর্টাল পরিচালনার জন্য প্রয়োজনীয় রেকর্ড সংগ্রহ করতে পারি।',
+                        ]),
+                        $section('আমরা কীভাবে তথ্য ব্যবহার করি', [
+                            'আমরা প্রশ্নের উত্তর দিতে, ভর্তি প্রক্রিয়া করতে, শিক্ষা ও প্রশাসন পরিচালনা করতে, আইন মেনে চলতে এবং আমাদের সেবা ও ওয়েবসাইট নিরাপত্তা উন্নত করতে তথ্য ব্যবহার করি।',
+                        ]),
+                        $section('তথ্য শেয়ার ও সংরক্ষণ', [
+                            'আমরা ব্যক্তিগত তথ্য বিক্রি করি না। আমরা চুক্তির ভিত্তিতে আমাদের পরিচালনায় সহায়তা কারী সেবা প্রদানকারীদের সাথে তথ্য শেয়ার করতে পারি, অথবা আইন অনুযায়ী প্রয়োজন হলে। আমরা এই উদ্দেশ্য পূরণের জন্য প্রয়োজনীয় সময়ের জন্যই তথ্য সংরক্ষণ করি।',
+                        ]),
+                        $section('কুকি ও অ্যানালিটিক্স', [
+                            'ওয়েবসাইটের কার্যক্ষমতা বা সামগ্রিক ব্যবহার বোঝার জন্য প্রয়োজন হলে আমরা কুকি বা অনুরূপ প্রযুক্তি ব্যবহার করতে পারি। আপনি আপনার ব্রাউজার সেটিংসের মাধ্যমে কুকি নিয়ন্ত্রণ করতে পারেন।',
+                        ]),
+                        $section('আপনার অধিকার', [
+                            'প্রযোজ্য আইনের উপর নির্ভর করে, আপনার কিছু ব্যক্তিগত তথ্য অ্যাক্সেস, সংশোধন বা মুছে ফেলার অধিকার থাকতে পারে। এই অধিকার প্রয়োগ করতে বা প্রশ্ন করতে স্কুল অফিসে যোগাযোগ করুন।',
                         ]),
                     ],
                 ],

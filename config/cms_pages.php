@@ -69,6 +69,19 @@ return [
                     ['key' => 'role', 'label' => 'Role / class', 'type' => 'text'],
                 ],
             ],
+            [
+                'key' => 'partners',
+                'label' => 'Partners',
+                'help' => 'Logos shown in the partner strip. Color options: blue, emerald, amber, purple, rose. Icon options: book, school, award, clipboard, users. Leave Bengali fields blank to use the English name.',
+                'type' => 'repeater',
+                'item_label' => 'Partner',
+                'fields' => [
+                    ['key' => 'name', 'label' => 'Name', 'type' => 'text', 'required' => true],
+                    ['key' => 'url', 'label' => 'URL', 'type' => 'text'],
+                    ['key' => 'color', 'label' => 'Color', 'type' => 'text'],
+                    ['key' => 'icon', 'label' => 'Icon', 'type' => 'text'],
+                ],
+            ],
         ],
     ],
 

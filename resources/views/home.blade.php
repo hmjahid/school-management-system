@@ -470,18 +470,44 @@
 
     {{-- Partner/Logo Strip --}}
     @if($sectionVis['partners'] ?? true)
+    @php $partners = $homeContent->content['partners'] ?? []; @endphp
+    @if(count($partners))
     <section class="bg-white py-12 border-t border-slate-100">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <p class="mb-8 text-center text-sm font-semibold uppercase tracking-wider text-slate-400 reveal">{{ site_ui('home.our_partners') }}</p>
-            <div class="flex flex-wrap items-center justify-center gap-8 md:gap-16 reveal">
-                <div class="h-12 w-32 rounded-lg bg-slate-100 flex items-center justify-center text-slate-300 text-sm font-medium">Logo 1</div>
-                <div class="h-12 w-32 rounded-lg bg-slate-100 flex items-center justify-center text-slate-300 text-sm font-medium">Logo 2</div>
-                <div class="h-12 w-32 rounded-lg bg-slate-100 flex items-center justify-center text-slate-300 text-sm font-medium">Logo 3</div>
-                <div class="h-12 w-32 rounded-lg bg-slate-100 flex items-center justify-center text-slate-300 text-sm font-medium">Logo 4</div>
-                <div class="h-12 w-32 rounded-lg bg-slate-100 flex items-center justify-center text-slate-300 text-sm font-medium">Logo 5</div>
+            <div class="flex flex-wrap items-center justify-center gap-8 md:gap-14 reveal">
+                @foreach($partners as $partner)
+                    @php
+                        $color = $partner['color'] ?? 'blue';
+                        $icon = $partner['icon'] ?? 'book';
+                        $colorMap = [
+                            'blue' => ['bg' => 'bg-blue-50 dark:bg-blue-900/20', 'text' => 'text-blue-600 dark:text-blue-400'],
+                            'emerald' => ['bg' => 'bg-emerald-50 dark:bg-emerald-900/20', 'text' => 'text-emerald-600 dark:text-emerald-400'],
+                            'amber' => ['bg' => 'bg-amber-50 dark:bg-amber-900/20', 'text' => 'text-amber-600 dark:text-amber-400'],
+                            'purple' => ['bg' => 'bg-purple-50 dark:bg-purple-900/20', 'text' => 'text-purple-600 dark:text-purple-400'],
+                            'rose' => ['bg' => 'bg-rose-50 dark:bg-rose-900/20', 'text' => 'text-rose-600 dark:text-rose-400'],
+                        ];
+                        $c = $colorMap[$color] ?? $colorMap['blue'];
+                        $svgs = [
+                            'book' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>',
+                            'school' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>',
+                            'award' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>',
+                            'clipboard' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>',
+                            'users' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>',
+                        ];
+                        $svgPath = $svgs[$icon] ?? $svgs['book'];
+                    @endphp
+                    <a href="{{ $partner['url'] ?? '#' }}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-2 opacity-60 transition hover:opacity-100" title="{{ $partner['name'] ?? '' }}">
+                        <div class="flex h-14 w-14 items-center justify-center rounded-full {{ $c['bg'] }}">
+                            <svg class="h-7 w-7 {{ $c['text'] }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">{!! $svgPath !!}</svg>
+                        </div>
+                        <span class="text-xs font-medium text-slate-500 dark:text-slate-400">{{ $partner['name'] ?? '' }}</span>
+                    </a>
+                @endforeach
             </div>
         </div>
     </section>
+    @endif
     @endif
 @endsection
 

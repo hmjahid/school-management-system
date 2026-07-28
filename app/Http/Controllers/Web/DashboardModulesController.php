@@ -265,6 +265,10 @@ class DashboardModulesController extends Controller
             'show_youtube' => ['nullable', 'boolean'],
             'logo' => ['nullable', 'image', 'max:2048'],
             'remove_logo' => ['nullable', 'boolean'],
+            'footer_logo' => ['nullable', 'image', 'max:2048'],
+            'remove_footer_logo' => ['nullable', 'boolean'],
+            'footer_logo_dark' => ['nullable', 'image', 'max:2048'],
+            'remove_footer_logo_dark' => ['nullable', 'boolean'],
             'favicon' => ['nullable', 'file', 'max:512', 'mimes:ico,png,jpg,jpeg,gif,webp,svg'],
             'remove_favicon' => ['nullable', 'boolean'],
             'section_visibility' => ['nullable', 'array'],
@@ -289,6 +293,30 @@ class DashboardModulesController extends Controller
             $settings->logo_path = $request->file('logo')->store('website', 'public');
         }
 
+        if ($request->boolean('remove_footer_logo') && $settings->footer_logo_path) {
+            Storage::disk('public')->delete($settings->footer_logo_path);
+            $settings->footer_logo_path = null;
+        }
+
+        if ($request->hasFile('footer_logo')) {
+            if ($settings->footer_logo_path) {
+                Storage::disk('public')->delete($settings->footer_logo_path);
+            }
+            $settings->footer_logo_path = $request->file('footer_logo')->store('website', 'public');
+        }
+
+        if ($request->boolean('remove_footer_logo_dark') && $settings->footer_logo_dark_path) {
+            Storage::disk('public')->delete($settings->footer_logo_dark_path);
+            $settings->footer_logo_dark_path = null;
+        }
+
+        if ($request->hasFile('footer_logo_dark')) {
+            if ($settings->footer_logo_dark_path) {
+                Storage::disk('public')->delete($settings->footer_logo_dark_path);
+            }
+            $settings->footer_logo_dark_path = $request->file('footer_logo_dark')->store('website', 'public');
+        }
+
         if ($request->boolean('remove_favicon') && $settings->favicon_path) {
             Storage::disk('public')->delete($settings->favicon_path);
             $settings->favicon_path = null;
@@ -301,7 +329,7 @@ class DashboardModulesController extends Controller
             $settings->favicon_path = $request->file('favicon')->store('website', 'public');
         }
 
-        unset($validated['logo'], $validated['remove_logo'], $validated['favicon'], $validated['remove_favicon']);
+        unset($validated['logo'], $validated['remove_logo'], $validated['footer_logo'], $validated['remove_footer_logo'], $validated['footer_logo_dark'], $validated['remove_footer_logo_dark'], $validated['favicon'], $validated['remove_favicon']);
 
         if ($request->has('section_visibility')) {
             $defaults = [

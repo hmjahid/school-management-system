@@ -7,16 +7,18 @@
 <div class="flex h-[4.25rem] flex-shrink-0 items-center gap-3 border-b border-slate-200/80 px-4 dark:border-slate-700/80">
     <a href="{{ route('dashboard') }}" class="flex min-w-0 items-center gap-3">
         @if ($logoUrl)
-            <img src="{{ $logoUrl }}" alt="" class="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-slate-200 dark:ring-slate-600">
+            <img src="{{ $logoUrl }}" alt="{{ $schoolName }}" class="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-slate-200 dark:ring-slate-600">
         @else
             <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white shadow-sm">
                 {{ strtoupper(substr($schoolName, 0, 1)) }}
             </span>
         @endif
-        <div class="min-w-0">
-            <p class="truncate text-sm font-bold text-slate-900 dark:text-slate-100">{{ $schoolName }}</p>
-            <p class="truncate text-[0.65rem] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ __('dashboard.admin_panel') }}</p>
-        </div>
+        @if (! $logoUrl)
+            <div class="min-w-0">
+                <p class="truncate text-sm font-bold text-slate-900 dark:text-slate-100">{{ $schoolName }}</p>
+                <p class="truncate text-[0.65rem] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ __('dashboard.admin_panel') }}</p>
+            </div>
+        @endif
     </a>
 </div>
 
@@ -295,7 +297,7 @@
                 </div>
             </details>
 
-            <p class="mb-2 mt-5 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ __('dashboard.system') }}</p>
+            <p class="mb-2 mt-5 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ __('dashboard.configuration') }}</p>
 
             <x-admin-nav-link :href="route('dashboard.settings')" route-is="dashboard.settings" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z\' clip-rule=\'evenodd\'/></svg>'">{{ __('dashboard.school_settings') }}</x-admin-nav-link>
             <x-admin-nav-link :href="route('dashboard.reports')" route-is="dashboard.reports*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z\'/></svg>'">{{ __('dashboard.reports') }}</x-admin-nav-link>
@@ -310,6 +312,12 @@
         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         <span>{{ __('dashboard.help_documentation') }}</span>
     </a>
+
+    {{-- Install App --}}
+    <button type="button" data-pwa-install class="mb-2 hidden w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        <span>{{ __('dashboard.install_app') }}</span>
+    </button>
 
     {{-- Dark mode toggle --}}
     <button type="button" data-dark-toggle class="mb-2 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700">

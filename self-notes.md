@@ -361,7 +361,33 @@ add a input filed in backend admission page for customising admission notice.
 
 the admission form not working. fix it
 
+headre top announce marquee is too slow. make it bit faster.
 
+make the marquee infinite loop as it not showing full screen
+
+is web hosting enough for running this application?
+
+add privacy policy an terms and conditions page and contents. add the pages in the footer, beside sitemap
+
+move install app in a suitable place rather than header. make privacy policy page contnets also bangla translated. add gap between footer left side logo below text and the social links
+
+add gap between the footer socila links themeselves like the header social linksin dashboard sidebar, there are two group named system. fix the issue. after language chnage in dashboard, theme change donot work. fix the issue also. add image upload feature for users in the my profile page. add demo logos and links in the homepage our partners and affiliation section.
+
+why homepage all section contnets not managle from cms?
+
+I have uploaded log. but it not showing. fix the issue. aslo ensure that logo will replace txet when logo is present in both webiste and the dasboard. aslo add seperat eoption for uploading footer logo as one should dark logo and one should ight logo.
+
+make install app text and footer sitemap text also languaes based chnageable
+
+
+insatll app bangla not showing when langiage chnaging.
+
+add admin panel and bnagla when language chnaged just below logo in dahboard
+
+homepage why chosose our school section, our techers title and desc,  what parents and students say title, remarkable students title and desc, reday to join our community  title and desc, our partners and affilaitions title not manageable from cms. make them all manageable from cms.
+
+
+check whole codes of this application for nay security issues.
 
 
 now write a commit message for the chnages after the last commit

@@ -58,12 +58,14 @@ return [
         'link_ministry_primary_education' => 'প্রাথমিক শিক্ষা অধিদপ্তর',
         'link_ministry_national_info_center' => 'জাতীয় তথ্য বাতায়ন',
         'link_ministry_secondary_higher_secondary' => 'মাধ্যমিক ও উচ্চ মাধ্যমিক শিক্ষা বোর্ড',
+        'programs_title' => 'প্রোগ্রাসম',
         'contact_title' => 'যোগাযোগ করুন',
         'newsletter_title' => 'নিউজলেটার',
         'newsletter_intro' => 'সর্বশেষ খবর ও আপডেটের জন্য সাবস্ক্রাইব করুন।',
         'newsletter_placeholder' => 'আপনার ইমেইল ঠিকানা',
         'newsletter_button' => 'সাবস্ক্রাইব',
         'copyright_suffix' => 'সর্বস্বত্ব সংরক্ষিত।',
+        'link_sitemap' => 'সাইটম্যাপ',
     ],
 
     'home' => [
@@ -91,6 +93,11 @@ return [
         'latest_notices' => 'সর্বশেষ বিজ্ঞপ্তি',
         'view_all_notices' => 'সব বিজ্ঞপ্তি দেখুন',
         'our_partners' => 'আমাদের অংশীদার ও সম্পর্ক',
+        'partner_education_ministry' => 'শিক্ষা মন্ত্রণালয়',
+        'partner_primary_education' => 'প্রাথমিক শিক্ষা অধিদপ্তর',
+        'partner_secondary_board' => 'মাধ্যমিক ও উচ্চ মাধ্যমিক শিক্ষা বোর্ড',
+        'partner_national_board' => 'জাতীয় পরীক্ষা বোর্ড',
+        'partner_naem' => 'জাতীয় শিক্ষা ব্যবস্থাপনা একাডেমি',
         'principal_title' => 'প্রধান শিক্ষকের বার্তা',
         'testimonials_title' => 'অভিভাবক ও শিক্ষার্থীরা যা বলেন',
         'events_title' => 'আসন্ন অনুষ্ঠান',
@@ -543,6 +550,7 @@ return [
         'privacy' => [
             'title_fallback_bn' => 'গোপনীয়তা নীতি',
             'meta_fallback_bn' => 'আমরা কীভাবে আপনার তথ্য সংগ্রহ, ব্যবহার ও সুরক্ষা করি।',
+            'intro_fallback_bn' => 'আমরা আপনার গোপনীয়তাকে সম্মান করি। এই নীতিতে ব্যাখ্যা করা হয়েছে যে আমরা কী ধরনের তথ্য সংগ্রহ করতে পারি, কীভাবে আমরা এটি ব্যবহার করি এবং আপনার পছন্দসমূহ।',
         ],
     ],
 

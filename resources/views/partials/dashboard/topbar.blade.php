@@ -18,12 +18,6 @@
         <span class="hidden md:inline">{{ __('Website') }}</span>
     </a>
 
-    {{-- PWA Install --}}
-    <button type="button" data-pwa-install data-pwa-inline="true" class="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200" title="{{ __('Install App') }}">
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-        <span class="hidden md:inline">{{ __('Install App') }}</span>
-    </button>
-
     {{-- Search --}}
     <button type="button" onclick="typeof openDashboardSearch === 'function' && openDashboardSearch()" class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200" aria-label="{{ __('Search') }}" title="{{ __('Search') }}">
         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>

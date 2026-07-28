@@ -15,8 +15,10 @@
             {{-- Column 1: School info --}}
             <div>
                 <div class="flex items-center gap-3">
-                    @if($siteSettings->logo_url ?? false)
-                        <img src="{{ $siteSettings->logo_url }}" alt="" class="h-10 w-10 rounded-lg object-cover ring-1 ring-white/10">
+                    @if($siteSettings->footer_logo_url ?? false)
+                        <img src="{{ $siteSettings->footer_logo_url }}" alt="{{ $school }}" class="h-10 w-10 rounded-lg object-contain ring-1 ring-white/10">
+                    @elseif($siteSettings->logo_url ?? false)
+                        <img src="{{ $siteSettings->logo_url }}" alt="{{ $school }}" class="h-10 w-10 rounded-lg object-contain ring-1 ring-white/10">
                     @else
                         <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-600 text-lg font-bold text-white">{{ substr($school, 0, 1) }}</span>
                     @endif
@@ -25,13 +27,15 @@
                         <p class="text-xs text-slate-400">{{ $siteSettings->tagline ?? __('Excellence in Education') }}</p>
                     </div>
                 </div>
-                <p class="mt-4 text-sm leading-relaxed text-slate-400">{{ $siteSettings->footer_description ?? site_ui('footer.description') }}</p>
-                @include('partials.site.social-links', ['settings' => $siteSettings, 'linkClass' => 'text-slate-400 hover:text-white', 'placeholderClass' => 'opacity-50'])
+                <p class="mt-4 text-sm leading-relaxed text-slate-400">{{ $siteSettings->footer_description ?? site_ui('footer.about_fallback') }}</p>
+                <div class="mt-5 flex flex-wrap gap-3">
+                    @include('partials.site.social-links', ['settings' => $siteSettings, 'linkClass' => 'text-slate-400 hover:text-white', 'placeholderClass' => 'opacity-50'])
+                </div>
             </div>
 
             {{-- Column 2: Quick Links --}}
             <div>
-                <h3 class="text-sm font-semibold uppercase tracking-wider text-white">{{ site_ui('footer.quick_links') }}</h3>
+                <h3 class="text-sm font-semibold uppercase tracking-wider text-white">{{ site_ui('footer.quick_links_title') }}</h3>
                 <ul class="mt-4 space-y-2.5">
                     <li><a href="{{ route('site.about') }}" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('nav.about') }}</a></li>
                     <li><a href="{{ route('site.academics') }}" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('nav.academics') }}</a></li>
@@ -46,7 +50,7 @@
 
             {{-- Column 3: Programs / Academics --}}
             <div>
-                <h3 class="text-sm font-semibold uppercase tracking-wider text-white">{{ site_ui('footer.programs') }}</h3>
+                <h3 class="text-sm font-semibold uppercase tracking-wider text-white">{{ site_ui('footer.programs_title') }}</h3>
                 <ul class="mt-4 space-y-2.5">
                     <li><a href="#" class="text-sm text-slate-400 transition-colors hover:text-white">{{ __('Play to KG-2') }}</a></li>
                     <li><a href="#" class="text-sm text-slate-400 transition-colors hover:text-white">{{ __('Primary (Class 1-5)') }}</a></li>
@@ -59,7 +63,7 @@
 
             {{-- Column 4: Contact & Newsletter --}}
             <div>
-                <h3 class="text-sm font-semibold uppercase tracking-wider text-white">{{ site_ui('footer.contact') }}</h3>
+                <h3 class="text-sm font-semibold uppercase tracking-wider text-white">{{ site_ui('footer.contact_title') }}</h3>
                 <ul class="mt-4 space-y-3">
                     <li class="flex items-start gap-2">
                         <svg class="mt-0.5 h-4 w-4 shrink-0 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -92,11 +96,11 @@
     {{-- Bottom bar --}}
     <div class="border-t border-slate-800">
         <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-4 sm:flex-row sm:px-6 lg:px-8">
-            <p class="text-xs text-slate-500">&copy; {{ $year }} {{ $school }}. {{ site_ui('footer.copyright') }}</p>
+            <p class="text-xs text-slate-500">&copy; {{ $year }} {{ $school }}. {{ site_ui('footer.copyright_suffix') }}</p>
             <div class="flex gap-4">
-                <a href="{{ route('site.privacy') }}" class="text-xs text-slate-500 transition-colors hover:text-slate-300">{{ site_ui('footer.privacy') }}</a>
-                <a href="{{ route('site.terms') }}" class="text-xs text-slate-500 transition-colors hover:text-slate-300">{{ site_ui('footer.terms') }}</a>
-                <a href="{{ route('site.sitemap') }}" class="text-xs text-slate-500 transition-colors hover:text-slate-300">{{ __('Sitemap') }}</a>
+                <a href="{{ route('site.privacy') }}" class="text-xs text-slate-500 transition-colors hover:text-slate-300">{{ site_ui('footer.link_privacy') }}</a>
+                <a href="{{ route('site.terms') }}" class="text-xs text-slate-500 transition-colors hover:text-slate-300">{{ site_ui('footer.link_terms') }}</a>
+                <a href="{{ route('site.sitemap') }}" class="text-xs text-slate-500 transition-colors hover:text-slate-300">{{ site_ui('footer.link_sitemap') }}</a>
             </div>
         </div>
     </div>

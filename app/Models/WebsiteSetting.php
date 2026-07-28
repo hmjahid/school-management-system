@@ -38,6 +38,8 @@ class WebsiteSetting extends Model
         'tagline',
         'tagline_bn',
         'logo_path',
+        'footer_logo_path',
+        'footer_logo_dark_path',
         'og_image_path',
         'favicon_path',
         'established_year',
@@ -118,6 +120,8 @@ class WebsiteSetting extends Model
      */
     protected $appends = [
         'logo_url',
+        'footer_logo_url',
+        'footer_logo_dark_url',
         'favicon_url',
         'full_address',
     ];
@@ -130,6 +134,16 @@ class WebsiteSetting extends Model
     public function getLogoUrlAttribute()
     {
         return $this->logo_path ? Storage::url($this->logo_path) : null;
+    }
+
+    public function getFooterLogoUrlAttribute(): ?string
+    {
+        return $this->footer_logo_path ? Storage::url($this->footer_logo_path) : null;
+    }
+
+    public function getFooterLogoDarkUrlAttribute(): ?string
+    {
+        return $this->footer_logo_dark_path ? Storage::url($this->footer_logo_dark_path) : null;
     }
 
     public function getOgImageUrlAttribute(): ?string

@@ -8,6 +8,14 @@
     <script>
     (function(){var k='school-dark-mode',v=localStorage.getItem(k);if(v==='1'||(v===null&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')})();
     </script>
+    {{-- Inline dark toggle handler — works even if app.js hasn't loaded yet --}}
+    <script>
+    (function(){
+        var KEY='school-dark-mode';
+        function apply(on){document.documentElement.classList.toggle('dark',on);localStorage.setItem(KEY,on?'1':'0');}
+        document.addEventListener('click',function(e){var t=e.target.closest('[data-dark-toggle]');if(!t)return;e.preventDefault();e.stopPropagation();apply(!document.documentElement.classList.contains('dark'));},true);
+    })();
+    </script>
 
     <title>@yield('title', $siteSettings->site_name ?? config('app.name', 'SchoolEase'))</title>
 
@@ -86,7 +94,7 @@
         }
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         @keyframes noticeScrollUp { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
-        .animate-marquee { animation: marquee 30s linear infinite; }
+        .animate-marquee { animation: marquee 12s linear infinite; }
         .animate-marquee:hover { animation-play-state: paused; }
         .notice-scroll-content { display: flex; flex-direction: column; gap: 10px; animation: noticeScrollUp var(--scroll-duration, 15s) linear infinite; }
         .notice-scroll-container:hover .notice-scroll-content { animation-play-state: paused; }
@@ -119,7 +127,7 @@
     @if($tickerAnnouncements->isNotEmpty())
         <div class="no-print text-xs overflow-hidden bg-blue-600 text-white py-1.5">
             <div class="marquee-track flex w-max items-center gap-6 whitespace-nowrap animate-marquee">
-                @for($i = 0; $i < 2; $i++)
+                @for($i = 0; $i < 6; $i++)
                     @foreach($tickerAnnouncements as $ann)
                         <span class="inline-flex items-center gap-1.5">
                             <span class="inline-flex items-center gap-1 font-semibold bg-white/20 px-2 py-0.5 rounded text-[0.65rem] uppercase tracking-wider">

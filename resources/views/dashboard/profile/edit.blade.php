@@ -20,8 +20,11 @@
         {{-- Photo + Name card --}}
         <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
             <div class="flex items-center gap-6">
-                <div class="shrink-0">
-                    <img src="{{ $user->profile_photo_url }}" alt="" class="h-20 w-20 rounded-full object-cover ring-4 ring-slate-100 dark:ring-slate-700">
+                <div class="shrink-0 relative group">
+                    <img id="photo-preview" src="{{ $user->profile_photo_url }}" alt="" class="h-20 w-20 rounded-full object-cover ring-4 ring-slate-100 dark:ring-slate-700">
+                    <label for="photo" class="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+                        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </label>
                 </div>
                 <div class="flex-1">
                     <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{{ $user->name }}</h2>
@@ -71,10 +74,11 @@
                         class="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100">
                 </div>
 
-                <div>
+                <div class="sm:col-span-2">
                     <label for="photo" class="block text-sm font-medium text-slate-700 dark:text-slate-300">{{ __('dashboard.profile_photo') }}</label>
                     <input id="photo" name="photo" type="file" accept="image/*"
-                        class="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100">
+                        class="mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-brand-700 hover:file:bg-brand-100 dark:file:bg-brand-900/20 dark:file:text-brand-400">
+                    <p class="mt-1 text-xs text-slate-400">{{ __('dashboard.max_file_size') ?? 'Max 2MB. JPG, PNG, or GIF.' }}</p>
                 </div>
 
                 <div class="sm:col-span-2">
@@ -120,4 +124,16 @@
         </div>
     </form>
 </div>
+
+<script>
+document.getElementById('photo')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+        document.getElementById('photo-preview').src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+</script>
 @endsection
