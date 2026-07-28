@@ -379,12 +379,31 @@ I have uploaded log. but it not showing. fix the issue. aslo ensure that logo wi
 
 make install app text and footer sitemap text also languaes based chnageable
 
+hero notice box not showing
 
 insatll app bangla not showing when langiage chnaging.
 
-add admin panel and bnagla when language chnaged just below logo in dahboard
+add admin panel and its bnagla when language chnaged just below logo in dahboard
 
 homepage why chosose our school section, our techers title and desc,  what parents and students say title, remarkable students title and desc, reday to join our community  title and desc, our partners and affilaitions title not manageable from cms. make them all manageable from cms.
+
+the home page cms editor page pricipal message section input fileds are mixed an dmesssy. mak eit clear like others section.
+
+why all sections title, desc and others are in one section named Section titles & descriptions? mak eseperate sections foe seperate scetions in homepage and donot cretae dupliacte one whose alreday have like hero section, priciple section, partners section etc.
+
+the install app app name not syncing with the updated school name. fix the issue.
+
+make the homepage fetaures section 4 cards content managle form the homepage cms ediotr page also.
+
+the home page cms editor page pricipal message section input fileds are mixed an dmesssy. mak eit clear like others section.
+Principal name (Bengali) (EN)
+Principal name (Bengali) (বাংলা)
+Message (Bengali) (EN)
+Message (Bengali) (বাংলা)
+remove these 4 input fileds from priciple section
+
+
+
 
 
 check whole codes of this application for nay security issues.

@@ -13,7 +13,6 @@ class ManifestController
         $name = $settings->school_name ?: config('app.name', 'SchoolEase');
         $shortName = \Illuminate\Support\Str::limit($name, 12, '');
         $themeColor = $settings->theme_primary_color ?? '#2563eb';
-        $logoUrl = $settings->logo_url;
 
         $manifest = [
             'name' => $name,
@@ -43,6 +42,6 @@ class ManifestController
 
         return response()->json($manifest)
             ->header('Content-Type', 'application/manifest+json')
-            ->header('Cache-Control', 'public, max-age=86400');
+            ->header('Cache-Control', 'public, max-age=300');
     }
 }

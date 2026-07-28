@@ -59,19 +59,68 @@ class WebsiteContentSeeder extends Seeder
                     'hero' => [
                         'headline' => 'Welcome to our school community',
                         'motto' => 'Where curiosity meets excellence and every learner matters.',
+                        'cta_primary' => 'Apply Now',
+                        'cta_secondary' => 'About Us',
+                    ],
+                    'notices' => [
+                        'title' => 'Latest Notices',
+                        'view_all' => 'View all notices',
+                    ],
+                    'features_heading' => [
+                        'title' => 'Why Choose Us',
+                        'intro' => 'Discover what makes our school a nurturing environment for academic and personal growth.',
+                    ],
+                    'features' => [
+                        ['title' => 'Experienced faculty', 'description' => 'Dedicated educators with deep subject expertise and care for every learner.'],
+                        ['title' => 'Modern facilities', 'description' => 'Classrooms and labs that support hands-on, collaborative learning.'],
+                        ['title' => 'Balanced curriculum', 'description' => 'Academic rigour alongside arts, sports, and character development.'],
+                        ['title' => 'Inclusive community', 'description' => 'A welcoming environment where diversity is celebrated.'],
+                    ],
+                    'stats' => [
+                        'students' => 'Students',
+                        'faculty' => 'Faculty',
+                        'years' => 'Years',
+                        'awards' => 'Awards',
                     ],
                     'principal' => [
+                        'section_title' => "Principal's Message",
                         'name' => 'Principal',
                         'message' => "We are delighted to welcome you to our school's website. Our dedicated faculty, rich programmes, and supportive environment help students grow academically and as responsible citizens.\n\nWe invite you to explore admissions, meet our faculty, and stay connected through the parent portal.",
+                    ],
+                    'teachers' => [
+                        'title' => 'Our Teachers',
+                        'intro' => 'Meet the passionate educators who make learning come alive every day.',
+                        'view_all' => 'View all faculty',
+                    ],
+                    'testimonials_heading' => [
+                        'title' => 'What Parents & Alumni Say',
                     ],
                     'testimonials' => [
                         ['quote' => 'The teachers genuinely care — my daughter has flourished here.', 'name' => 'A. Rahman', 'role' => 'Parent'],
                         ['quote' => 'Strong academics and clubs — I found my passion for science.', 'name' => 'S. Khan', 'role' => 'Alumni'],
                     ],
+                    'remarkable_students' => [
+                        'title' => 'Remarkable Students',
+                        'intro' => 'Celebrating the achievements of our outstanding learners.',
+                    ],
+                    'events' => [
+                        'title' => 'Upcoming Events',
+                        'view_all' => 'View all events',
+                    ],
+                    'news' => [
+                        'title' => 'Latest News',
+                        'view_all' => 'View all news',
+                    ],
+                    'highlights_heading' => [
+                        'title' => 'School Highlights',
+                    ],
                     'highlights' => [
                         'Holistic curriculum with STEM and arts',
                         'Competitive sports and cultural events',
                         'Counselling and university guidance',
+                    ],
+                    'partners_heading' => [
+                        'title' => 'Our Partners & Affiliations',
                     ],
                     'partners' => [
                         ['name' => 'Ministry of Education', 'url' => 'https://moedu.gov.bd', 'color' => 'blue', 'icon' => 'book'],
@@ -85,19 +134,68 @@ class WebsiteContentSeeder extends Seeder
                     'hero' => [
                         'headline' => 'আমাদের স্কুল কমিউনিটিতে স্বাগতম',
                         'motto' => 'যেখানে কৌতূহল ও উৎকৃষ্টতা মিলিত হয় এবং প্রতিটি শিক্ষার্থীকে গুরুত্ব দেওয়া হয়।',
+                        'cta_primary' => 'এখনই আবেদন করুন',
+                        'cta_secondary' => 'আমাদের সম্পর্কে',
+                    ],
+                    'notices' => [
+                        'title' => 'সর্বশেষ নোটিশ',
+                        'view_all' => 'সকল নোটিশ দেখুন',
+                    ],
+                    'features_heading' => [
+                        'title' => 'কেন আমাদের বেছে নেবেন',
+                        'intro' => 'আমাদের স্কুলকে শৈক্ষিক ও ব্যক্তিগত বৃদ্ধির জন্য যত্নশীল পরিবেশ হিসেবে কী বিশেষ করে তুলে ধরে তা জানুন।',
+                    ],
+                    'features' => [
+                        ['title' => 'অভিজ্ঞ শিক্ষকমণ্ডলী', 'description' => 'প্রত্যেক শিক্ষার্থীর প্রতি যত্নশীল ও গভীর বিষয় জ্ঞানসম্পন্ন শিক্ষক।'],
+                        ['title' => 'আধুনিক সুযোগ-সুবিধা', 'description' => 'হাতে-কলমে ও সহযোগী শেখার জন্য আধুনিক শ্রেণীকক্ষ ও ল্যাব।'],
+                        ['title' => 'সুষম পাঠ্যক্রম', 'description' => 'শিল্পকলা, খেলাধুলা ও চরিত্র গঠনের পাশাপাশি শৈক্ষিক কঠোরতা।'],
+                        ['title' => 'সমাবেশী কমিউনিটি', 'description' => 'বৈচিত্র্যকে উদ্‌যাপন করে এমন একটি আন্তরিক পরিবেশ।'],
+                    ],
+                    'stats' => [
+                        'students' => 'শিক্ষার্থী',
+                        'faculty' => 'শিক্ষকমণ্ডলী',
+                        'years' => 'বছর',
+                        'awards' => 'পুরস্কার',
                     ],
                     'principal' => [
+                        'section_title' => 'অধ্যক্ষের বাণী',
                         'name' => 'অধ্যাপক',
                         'message' => "আমাদের স্কুলের ওয়েবসাইটে আপনাকে স্বাগতম। আমাদের অনুগ্রহশীল শিক্ষকমণ্ডলী, সমৃদ্ধ পাঠ্যক্রম এবং সহায়ক পরিবেশ শিক্ষার্থীদের শৈক্ষিক ও দায়িত্বশীল নাগরিক হিসেবে গড়ে তুলতে সাহায্য করে।\n\nআমরা আপনাকে ভর্তি প্রক্রিয়া অনুসন্ধান, আমাদের অনুষদের সাথে পরিচিত হতে এবং অভিভাবক পোর্টালের মাধ্যমে সংযুক্ত থাকতে আমন্ত্রণ জানাই।",
+                    ],
+                    'teachers' => [
+                        'title' => 'আমাদের শিক্ষকমণ্ডলী',
+                        'intro' => 'সেই আবেগময় শিক্ষকদের সাথে পরিচিত হন যারা প্রতিদিন শেখাকে জীবন্ত করে তোলেন।',
+                        'view_all' => 'সকল শিক্ষক দেখুন',
+                    ],
+                    'testimonials_heading' => [
+                        'title' => 'অভিভাবক ও প্রাক্তন ছাত্রদের মতামত',
                     ],
                     'testimonials' => [
                         ['quote' => 'শিক্ষকরা সত্যিই যত্নশীল — আমার মেয়ে এখানে ফুলে ফুলে উঠেছে।', 'name' => 'আ. রহমান', 'role' => 'অভিভাবক'],
                         ['quote' => 'শক্তিশালী শৈক্ষিক কার্যক্রম ও ক্লাব — আমি বিজ্ঞানের প্রতি আমার আবেগ খুঁজে পেয়েছি।', 'name' => 'এস. খান', 'role' => 'প্রাক্তন ছাত্র'],
                     ],
+                    'remarkable_students' => [
+                        'title' => 'বিশেষ শিক্ষার্থী',
+                        'intro' => 'আমাদের অসাধারণ শিক্ষার্থীদের অর্জনের স্বীকৃতি।',
+                    ],
+                    'events' => [
+                        'title' => 'আসন্ন অনুষ্ঠান',
+                        'view_all' => 'সকল অনুষ্ঠান দেখুন',
+                    ],
+                    'news' => [
+                        'title' => 'সর্বশেষ খবর',
+                        'view_all' => 'সকল খবর দেখুন',
+                    ],
+                    'highlights_heading' => [
+                        'title' => 'স্কুলের বৈশিষ্ট্য',
+                    ],
                     'highlights' => [
                         'STEM ও শিল্পকলা সহ সমন্বিত পাঠ্যক্রম',
                         'প্রতিযোগিতামূলক খেলাধুলা ও সাংস্কৃতিক অনুষ্ঠান',
                         'কাউন্সেলিং ও বিশ্ববিদ্যালয় নির্দেশনা',
+                    ],
+                    'partners_heading' => [
+                        'title' => 'আমাদের অংশীদার ও সম্পৃক্ত প্রতিষ্ঠান',
                     ],
                     'partners' => [
                         ['name' => 'শিক্ষা মন্ত্রণালয়', 'url' => 'https://moedu.gov.bd', 'color' => 'blue', 'icon' => 'book'],

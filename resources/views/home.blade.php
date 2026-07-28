@@ -25,6 +25,17 @@
         $principalMessage = $principal['message'] ?? site_ui('home.principal_message_default');
         $testimonialsFallback = $testimonials ?: site_ui('home.testimonials_default', []);
         $highlightsFallback = $highlights ?: site_ui('home.highlights_default', []);
+
+        $featuresH = $hc['features_heading'] ?? [];
+        $statsL = $hc['stats'] ?? [];
+        $teachersH = $hc['teachers'] ?? [];
+        $testimonialsH = $hc['testimonials_heading'] ?? [];
+        $remarkableH = $hc['remarkable_students'] ?? [];
+        $eventsH = $hc['events'] ?? [];
+        $newsH = $hc['news'] ?? [];
+        $noticesH = $hc['notices'] ?? [];
+        $highlightsH = $hc['highlights_heading'] ?? [];
+        $partnersH = $hc['partners_heading'] ?? [];
     @endphp
 
     {{-- Hero Section --}}
@@ -67,11 +78,11 @@
 
                     <div class="mt-10 flex flex-wrap items-center gap-4">
                         <a href="{{ route('admissions.apply') }}" class="inline-flex items-center gap-2.5 rounded-xl bg-orange-500 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-orange-500/25 transition-all duration-300 hover:bg-orange-600 hover:shadow-xl hover:shadow-orange-500/30 hover:-translate-y-0.5">
-                            {{ site_ui('home.hero_cta_primary') }}
+                            {{ $hero['cta_primary'] ?? site_ui('home.hero_cta_primary') }}
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                         </a>
                         <a href="{{ route('site.about') }}" class="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/5 text-white backdrop-blur-sm px-8 py-4 text-base font-semibold transition-all duration-300 hover:bg-white/10 hover:border-white/40">
-                            {{ site_ui('home.hero_cta_secondary') }}
+                            {{ $hero['cta_secondary'] ?? site_ui('home.hero_cta_secondary') }}
                         </a>
                     </div>
 
@@ -86,7 +97,7 @@
                                     <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-50">
                                         <svg class="h-5 w-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 3a1 1 0 00-1.447-.894L8.763 6H5a3 3 0 000 6h.28l1.771 5.316A1 1 0 008 18h1a1 1 0 001-1v-4.382l6.553 3.276A1 1 0 0018 15V3z" clip-rule="evenodd"/></svg>
                                     </span>
-                                    <h3 class="text-base font-bold text-slate-900">{{ site_ui('home.latest_notices') }}</h3>
+                                    <h3 class="text-base font-bold text-slate-900">{{ $noticesH['title'] ?? site_ui('home.latest_notices') }}</h3>
                                 </div>
                             </div>
 
@@ -145,7 +156,7 @@
                             </div>
                             <div class="px-6 pb-5 sm:px-7">
                                 <a href="{{ route('site.notices') }}" class="flex items-center justify-center gap-1.5 rounded-lg bg-slate-100 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200 hover:text-slate-900">
-                                    {{ site_ui('home.view_all_notices') }}
+                                    {{ $noticesH['view_all'] ?? site_ui('home.view_all_notices') }}
                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                                 </a>
                             </div>
@@ -163,9 +174,9 @@
     <section class="bg-white py-20">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="mb-14 text-center reveal">
-                <h2 class="mb-4 text-4xl font-bold text-gray-900">{{ site_ui('home.features_title') }}</h2>
+                <h2 class="mb-4 text-4xl font-bold text-gray-900">{{ $featuresH['title'] ?? site_ui('home.features_title') }}</h2>
                 <div class="mx-auto h-1 w-20 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
-                <p class="mx-auto mt-4 max-w-3xl text-lg text-gray-600">{{ site_ui('home.features_intro') }}</p>
+                <p class="mx-auto mt-4 max-w-3xl text-lg text-gray-600">{{ $featuresH['intro'] ?? site_ui('home.features_intro') }}</p>
             </div>
             <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
                 @foreach ($features as $index => $feature)
@@ -187,19 +198,19 @@
             <div class="grid grid-cols-2 gap-8 md:grid-cols-4 text-center reveal">
                 <div class="p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
                     <div class="text-4xl font-bold" data-countup data-target="{{ $stats['students'] ?? 0 }}" data-suffix="+">0</div>
-                    <div class="mt-2 text-sm text-blue-200 uppercase tracking-wider">{{ site_ui('home.stats_students') }}</div>
+                    <div class="mt-2 text-sm text-blue-200 uppercase tracking-wider">{{ $statsL['students'] ?? site_ui('home.stats_students') }}</div>
                 </div>
                 <div class="p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
                     <div class="text-4xl font-bold" data-countup data-target="{{ $stats['teachers'] ?? 0 }}" data-suffix="+">0</div>
-                    <div class="mt-2 text-sm text-blue-200 uppercase tracking-wider">{{ site_ui('home.stats_faculty') }}</div>
+                    <div class="mt-2 text-sm text-blue-200 uppercase tracking-wider">{{ $statsL['faculty'] ?? site_ui('home.stats_faculty') }}</div>
                 </div>
                 <div class="p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
                     <div class="text-4xl font-bold" data-countup data-target="{{ $stats['years'] ?? 0 }}" data-suffix="+">0</div>
-                    <div class="mt-2 text-sm text-blue-200 uppercase tracking-wider">{{ site_ui('home.stats_years') }}</div>
+                    <div class="mt-2 text-sm text-blue-200 uppercase tracking-wider">{{ $statsL['years'] ?? site_ui('home.stats_years') }}</div>
                 </div>
                 <div class="p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
                     <div class="text-4xl font-bold" data-countup data-target="{{ $stats['awards'] ?? 0 }}" data-suffix="+">0</div>
-                    <div class="mt-2 text-sm text-blue-200 uppercase tracking-wider">{{ site_ui('home.stats_awards') }}</div>
+                    <div class="mt-2 text-sm text-blue-200 uppercase tracking-wider">{{ $statsL['awards'] ?? site_ui('home.stats_awards') }}</div>
                 </div>
             </div>
         </div>
@@ -224,7 +235,7 @@
                         </div>
                     </div>
                     <div>
-                        <h2 class="text-4xl font-bold text-gray-900">{{ site_ui('home.principal_title') }}</h2>
+                        <h2 class="text-4xl font-bold text-gray-900">{{ $principal['section_title'] ?? site_ui('home.principal_title') }}</h2>
                         <div class="mt-3 h-1 w-20 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full"></div>
                         <blockquote class="mt-8 text-lg leading-relaxed text-gray-600 italic border-l-4 border-orange-400 pl-6">
                             {{ $principalMessage }}
@@ -249,9 +260,9 @@
     <section class="bg-slate-50 py-20">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="mb-14 text-center reveal">
-                <h2 class="mb-4 text-4xl font-bold text-gray-900">{{ site_ui('home.teachers_title') }}</h2>
+                <h2 class="mb-4 text-4xl font-bold text-gray-900">{{ $teachersH['title'] ?? site_ui('home.teachers_title') }}</h2>
                 <div class="mx-auto h-1 w-20 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full"></div>
-                <p class="mx-auto mt-4 max-w-3xl text-lg text-gray-600">{{ site_ui('home.teachers_intro') }}</p>
+                <p class="mx-auto mt-4 max-w-3xl text-lg text-gray-600">{{ $teachersH['intro'] ?? site_ui('home.teachers_intro') }}</p>
             </div>
             <div class="relative" data-teachers-slider>
                 <button type="button" data-teachers-prev class="absolute -left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg ring-1 ring-gray-200 transition hover:bg-gray-50 hover:shadow-xl sm:-left-5" aria-label="Previous">
@@ -281,7 +292,7 @@
             </div>
             <div class="mt-10 text-center reveal">
                 <a href="{{ route('site.faculty') }}" class="inline-flex items-center gap-1.5 font-medium text-blue-600 hover:text-blue-800 transition-colors">
-                    {{ site_ui('home.teachers_view_all') }}
+                    {{ $teachersH['view_all'] ?? site_ui('home.teachers_view_all') }}
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                 </a>
             </div>
@@ -294,7 +305,7 @@
         <section class="bg-slate-50 py-20">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="mb-14 text-center reveal">
-                    <h2 class="mb-4 text-4xl font-bold text-gray-900">{{ site_ui('home.testimonials_title') }}</h2>
+                    <h2 class="mb-4 text-4xl font-bold text-gray-900">{{ $testimonialsH['title'] ?? site_ui('home.testimonials_title') }}</h2>
                     <div class="mx-auto h-1 w-20 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
                 </div>
                 <div class="mx-auto grid max-w-5xl gap-8 md:grid-cols-2">
@@ -323,9 +334,9 @@
     <section class="bg-white py-20">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="mb-14 text-center reveal">
-                <h2 class="mb-4 text-4xl font-bold text-gray-900">{{ site_ui('home.remarkable_students_title') }}</h2>
+                <h2 class="mb-4 text-4xl font-bold text-gray-900">{{ $remarkableH['title'] ?? site_ui('home.remarkable_students_title') }}</h2>
                 <div class="mx-auto h-1 w-20 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full"></div>
-                <p class="mx-auto mt-4 max-w-3xl text-lg text-gray-600">{{ site_ui('home.remarkable_students_intro') }}</p>
+                <p class="mx-auto mt-4 max-w-3xl text-lg text-gray-600">{{ $remarkableH['intro'] ?? site_ui('home.remarkable_students_intro') }}</p>
             </div>
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 @foreach($remarkableStudents as $student)
@@ -357,10 +368,10 @@
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="mb-10 flex flex-wrap items-end justify-between gap-4 reveal">
                     <div>
-                        <h2 class="text-3xl font-bold text-gray-900">{{ site_ui('home.events_title') }}</h2>
+                        <h2 class="text-3xl font-bold text-gray-900">{{ $eventsH['title'] ?? site_ui('home.events_title') }}</h2>
                         <div class="mt-2 h-1 w-20 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full"></div>
                     </div>
-                    <a href="{{ route('site.news') }}" class="inline-flex items-center gap-1 font-medium text-blue-600 hover:text-blue-800">{{ site_ui('home.events_view_all') }} <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
+                    <a href="{{ route('site.news') }}" class="inline-flex items-center gap-1 font-medium text-blue-600 hover:text-blue-800">{{ $eventsH['view_all'] ?? site_ui('home.events_view_all') }} <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
                 </div>
                 <div class="grid gap-6 md:grid-cols-3">
                     @foreach ($upcomingEvents->take(6) as $ev)
@@ -389,10 +400,10 @@
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="mb-10 flex flex-wrap items-end justify-between gap-4 reveal">
                     <div>
-                        <h2 class="text-3xl font-bold text-gray-900">{{ site_ui('home.news_title') }}</h2>
+                        <h2 class="text-3xl font-bold text-gray-900">{{ $newsH['title'] ?? site_ui('home.news_title') }}</h2>
                         <div class="mt-2 h-1 w-20 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
                     </div>
-                    <a href="{{ route('site.news') }}" class="inline-flex items-center gap-1 font-medium text-blue-600 hover:text-blue-800">{{ site_ui('home.news_view_all') }} <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
+                    <a href="{{ route('site.news') }}" class="inline-flex items-center gap-1 font-medium text-blue-600 hover:text-blue-800">{{ $newsH['view_all'] ?? site_ui('home.news_view_all') }} <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
                 </div>
                 <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
                     @foreach ($latestNews->take(6) as $item)
@@ -431,7 +442,7 @@
     @if(($sectionVis['highlights'] ?? true) && count($highlightsFallback))
         <section class="bg-white py-16">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <h2 class="mb-4 text-center text-2xl font-bold text-gray-900 reveal">{{ site_ui('home.highlights_title') }}</h2>
+                <h2 class="mb-4 text-center text-2xl font-bold text-gray-900 reveal">{{ $highlightsH['title'] ?? site_ui('home.highlights_title') }}</h2>
                 <div class="mx-auto mb-8 h-1 w-20 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full"></div>
                 <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 reveal">
                     @foreach ($highlightsFallback as $h)
@@ -474,7 +485,7 @@
     @if(count($partners))
     <section class="bg-white py-12 border-t border-slate-100">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <p class="mb-8 text-center text-sm font-semibold uppercase tracking-wider text-slate-400 reveal">{{ site_ui('home.our_partners') }}</p>
+            <p class="mb-8 text-center text-sm font-semibold uppercase tracking-wider text-slate-400 reveal">{{ $partnersH['title'] ?? site_ui('home.our_partners') }}</p>
             <div class="flex flex-wrap items-center justify-center gap-8 md:gap-14 reveal">
                 @foreach($partners as $partner)
                     @php

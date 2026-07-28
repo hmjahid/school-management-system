@@ -13,12 +13,12 @@
                 {{ strtoupper(substr($schoolName, 0, 1)) }}
             </span>
         @endif
-        @if (! $logoUrl)
-            <div class="min-w-0">
+        <div class="min-w-0">
+            @if (! $logoUrl)
                 <p class="truncate text-sm font-bold text-slate-900 dark:text-slate-100">{{ $schoolName }}</p>
-                <p class="truncate text-[0.65rem] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ __('dashboard.admin_panel') }}</p>
-            </div>
-        @endif
+            @endif
+            <p class="truncate text-[0.65rem] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ __('dashboard.admin_panel') }}</p>
+        </div>
     </a>
 </div>
 
