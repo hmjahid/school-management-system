@@ -62,6 +62,8 @@ class RolePermissionSeeder extends Seeder
             
             // User Management
             'manage_users' => 'Manage users (full access)',
+            'manage_roles' => 'Manage roles (full access)',
+            'manage_permissions' => 'Manage permissions (full access)',
             'view_users' => 'View users',
             'create_users' => 'Create users',
             'edit_users' => 'Edit users',

@@ -444,31 +444,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// ---------- Dark mode toggle ----------
-(function() {
-    const KEY = 'school-dark-mode';
-    const html = document.documentElement;
-
-    function apply(enable) {
-        html.classList.toggle('dark', enable);
-        localStorage.setItem(KEY, enable ? '1' : '0');
-    }
-
-    // Restore preference (also handled inline in <head> for instant apply)
-    const stored = localStorage.getItem(KEY);
-    if (stored === '1' || (stored === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        apply(true);
-    }
-
-    document.addEventListener('click', (e) => {
-        const toggle = e.target.closest('[data-dark-toggle]');
-        if (!toggle) return;
-        e.preventDefault();
-        e.stopPropagation();
-        apply(!html.classList.contains('dark'));
-    }, true);
-})();
-
 // ---------- Command palette (Cmd+K) ----------
 (function() {
     let palette = null;

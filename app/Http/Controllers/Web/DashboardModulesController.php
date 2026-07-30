@@ -9,6 +9,7 @@ use App\Models\Exam;
 use App\Models\Fee;
 use App\Models\Guardian;
 use App\Models\SchoolClass;
+use App\Models\Section;
 use App\Models\Student;
 use App\Models\Teacher;
 use App\Models\User;
@@ -47,12 +48,17 @@ class DashboardModulesController extends Controller
             $query->where('batch_id', $batchId);
         }
 
+        if ($sectionId = $request->integer('section_id')) {
+            $query->where('section_id', $sectionId);
+        }
+
         $students = $query->latest()->paginate(15)->withQueryString();
 
         $classes = SchoolClass::orderBy('grade_level')->orderBy('name')->get();
         $batches = \App\Models\Batch::orderByDesc('id')->limit(80)->get();
+        $sections = Section::orderBy('name')->get();
 
-        return view('dashboard.modules.students', compact('students', 'classes', 'batches'));
+        return view('dashboard.modules.students', compact('students', 'classes', 'batches', 'sections'));
     }
 
     public function teachers(Request $request): View

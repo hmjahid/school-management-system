@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Spatie\Permission\Models\Role;
 
 class MessageController extends Controller
 {
@@ -41,18 +42,16 @@ class MessageController extends Controller
     {
         $user = $request->user();
 
-        $receivers = User::where('id', '!=', $user->id)
-            ->when($user->hasRole('student'), function ($q) {
-                $q->whereHas('roles', fn ($r) => $r->whereIn('name', ['admin', 'teacher', 'staff']));
-            })
-            ->when($user->hasRole('guardian'), function ($q) {
-                $q->whereHas('roles', fn ($r) => $r->whereIn('name', ['admin', 'teacher', 'staff']));
-            })
-            ->when($user->hasAnyRole(['admin', 'teacher', 'staff']), function ($q) {
-                $q->whereHas('roles', fn ($r) => $r->whereIn('name', ['student', 'guardian', 'admin', 'teacher', 'staff']));
-            })
+        $roles = Role::orderBy('name')->get();
+        $allUsers = User::where('id', '!=', $user->id)
+            ->with('roles')
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->map(fn ($u) => [
+                'id' => $u->id,
+                'name' => $u->name,
+                'role_names' => $u->roles->pluck('name')->join(', '),
+            ]);
 
         $replyTo = null;
         if ($request->filled('reply_to')) {
@@ -61,7 +60,7 @@ class MessageController extends Controller
                 ->first();
         }
 
-        return view('messages.create', compact('receivers', 'replyTo'));
+        return view('messages.create', compact('roles', 'allUsers', 'replyTo'));
     }
 
     public function store(Request $request): RedirectResponse

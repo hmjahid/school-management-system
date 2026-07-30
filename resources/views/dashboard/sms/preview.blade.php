@@ -40,7 +40,13 @@
     <form method="post" action="{{ route('dashboard.sms.send') }}" class="mt-6 flex justify-end gap-2">
         @csrf
         @foreach($data as $k => $v)
-            <input type="hidden" name="{{ $k }}" value="{{ $v }}">
+            @if(is_array($v))
+                @foreach($v as $val)
+                    <input type="hidden" name="{{ $k }}[]" value="{{ $val }}">
+                @endforeach
+            @else
+                <input type="hidden" name="{{ $k }}" value="{{ $v }}">
+            @endif
         @endforeach
         <x-button :href="route('dashboard.sms.compose')" variant="ghost">{{ __('Edit') }}</x-button>
         <x-button type="submit">{{ __('Send now') }}</x-button>

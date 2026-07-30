@@ -13,6 +13,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Spatie\Permission\Models\Role;
 
 class DashboardSmsController extends Controller
 {
@@ -29,9 +30,28 @@ class DashboardSmsController extends Controller
     {
         abort_unless($request->user()?->can('send_bulk_sms'), 403);
 
+        $roles = Role::orderBy('name')->get();
+        $users = User::with('roles')->orderBy('name')->get()
+            ->map(fn ($u) => [
+                'id' => $u->id,
+                'name' => $u->name,
+                'phone' => $u->phone,
+                'role_names' => $u->roles->pluck('name')->join(', '),
+            ]);
+        $students = Student::with('user')->whereNotNull('phone_1')->orderBy('id')->get()
+            ->map(fn ($s) => [
+                'id' => $s->id,
+                'user_id' => $s->user_id,
+                'name' => $s->user?->name ?? "Student #{$s->id}",
+                'phone' => $s->phone_1 ?: $s->father_phone ?: $s->mother_phone,
+            ]);
+
         return view('dashboard.sms.compose', [
             'classes' => SchoolClass::orderBy('name')->get(),
             'sections' => Section::orderBy('name')->get(),
+            'roles' => $roles,
+            'users' => $users,
+            'students' => $students,
         ]);
     }
 
@@ -41,9 +61,12 @@ class DashboardSmsController extends Controller
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:191'],
-            'audience_type' => ['required', 'string', 'in:all,class,section,staff'],
+            'audience_type' => ['required', 'string', 'in:all_users,students_class,students_section,students_individual,staff_role,staff_individual'],
             'school_class_id' => ['nullable', 'integer'],
             'section_id' => ['nullable', 'integer'],
+            'role_name' => ['nullable', 'string', 'exists:roles,name'],
+            'user_ids' => ['nullable', 'array'],
+            'user_ids.*' => ['integer', 'exists:users,id'],
             'message' => ['required', 'string', 'max:1000'],
             'scheduled_at' => ['nullable', 'date'],
         ]);
@@ -67,9 +90,12 @@ class DashboardSmsController extends Controller
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:191'],
-            'audience_type' => ['required', 'string', 'in:all,class,section,staff'],
+            'audience_type' => ['required', 'string', 'in:all_users,students_class,students_section,students_individual,staff_role,staff_individual'],
             'school_class_id' => ['nullable', 'integer'],
             'section_id' => ['nullable', 'integer'],
+            'role_name' => ['nullable', 'string', 'exists:roles,name'],
+            'user_ids' => ['nullable', 'array'],
+            'user_ids.*' => ['integer', 'exists:users,id'],
             'message' => ['required', 'string', 'max:1000'],
             'scheduled_at' => ['nullable', 'date'],
         ]);
@@ -118,7 +144,7 @@ class DashboardSmsController extends Controller
         $recipients = collect();
 
         switch ($data['audience_type']) {
-            case 'all':
+            case 'all_users':
                 Student::with('user')->whereNotNull('phone_1')->orderBy('id')->chunk(200, function ($students) use (&$recipients) {
                     foreach ($students as $s) {
                         if ($phone = $s->phone_1 ?: $s->father_phone ?: $s->mother_phone) {
@@ -135,7 +161,7 @@ class DashboardSmsController extends Controller
                 });
                 break;
 
-            case 'class':
+            case 'students_class':
                 $query = Student::query();
                 if (!empty($data['school_class_id'])) {
                     $query->where('class_id', $data['school_class_id']);
@@ -149,7 +175,7 @@ class DashboardSmsController extends Controller
                 });
                 break;
 
-            case 'section':
+            case 'students_section':
                 $query = Student::query();
                 if (!empty($data['section_id'])) {
                     $query->where('section_id', $data['section_id']);
@@ -163,14 +189,39 @@ class DashboardSmsController extends Controller
                 });
                 break;
 
-            case 'staff':
-                User::role(['teacher','staff','admin'])->whereNotNull('phone')->orderBy('id')->chunk(200, function ($users) use (&$recipients) {
+            case 'students_individual':
+                if (!empty($data['user_ids'])) {
+                    Student::whereIn('user_id', $data['user_ids'])->whereNotNull('phone_1')->chunk(200, function ($students) use (&$recipients) {
+                        foreach ($students as $s) {
+                            if ($phone = $s->phone_1 ?: $s->father_phone ?: $s->mother_phone) {
+                                $recipients->push(['phone' => $phone, 'user_type' => 'student', 'user_id' => $s->id]);
+                            }
+                        }
+                    });
+                }
+                break;
+
+            case 'staff_role':
+                $roleNames = !empty($data['role_name']) ? [$data['role_name']] : ['teacher', 'staff', 'admin'];
+                User::role($roleNames)->whereNotNull('phone')->orderBy('id')->chunk(200, function ($users) use (&$recipients) {
                     foreach ($users as $u) {
                         if ($u->phone) {
                             $recipients->push(['phone' => $u->phone, 'user_type' => 'staff', 'user_id' => $u->id]);
                         }
                     }
                 });
+                break;
+
+            case 'staff_individual':
+                if (!empty($data['user_ids'])) {
+                    User::whereIn('id', $data['user_ids'])->whereNotNull('phone')->chunk(200, function ($users) use (&$recipients) {
+                        foreach ($users as $u) {
+                            if ($u->phone) {
+                                $recipients->push(['phone' => $u->phone, 'user_type' => 'staff', 'user_id' => $u->id]);
+                            }
+                        }
+                    });
+                }
                 break;
         }
 

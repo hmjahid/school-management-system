@@ -43,6 +43,15 @@
                 @endforeach
             </select>
         </div>
+        <div class="min-w-[160px]">
+            <label class="mb-1 block text-xs font-semibold text-slate-600">{{ __('Section') }}</label>
+            <select name="section_id" class="admin-select w-full">
+                <option value="">{{ __('All sections') }}</option>
+                @foreach($sections as $s)
+                    <option value="{{ $s->id }}" @selected(request('section_id') == $s->id)>{{ $s->name }}</option>
+                @endforeach
+            </select>
+        </div>
         <x-button type="submit" variant="secondary">{{ __('Filter') }}</x-button>
         @if(request()->hasAny(['search', 'class_id', 'batch_id']))
             <x-button :href="route('dashboard.students')" variant="ghost">{{ __('Clear') }}</x-button>

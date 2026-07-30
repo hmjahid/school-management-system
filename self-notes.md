@@ -424,7 +424,7 @@ create a proper prompt to implement the above tasks and add the prompt in featur
 
 
 
-he dashboard theme chmahing button and sidebar darkmoade button not working properly. fix it.
+the dashboard theme chmahing button and sidebar darkmoade button not working properly. fix it.
 
 user roles an d permissions page not working fix it.
 
@@ -437,6 +437,15 @@ add target slecetion first and the singl euser slecetiion in the send message pa
 make the bul sms receipnt filed mor econsice. seperate student and staff. all will ve individual and on eoption with mnmaed all to send all website users.
 
 create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-11.md file. then implement the tasks using the prompt
+
+
+
+
+gallery page tab filtering not working. fix it.
+
+add a sldier section in the hompage for showing recent events or activities photos. mak ethis ection manageable from cms fully.
+
+create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-12.md file. then implement the tasks using the prompt
 
 
 
