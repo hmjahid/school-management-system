@@ -442,6 +442,11 @@ move all general setting from school setting page to gneral setting page. cretae
 
 now the general setting page settings move to school setting page and school setting page localization, paymeny, library, admisiiion mov eto general setting page
 
+move general settting page homepage tab contents in a new page named cms setting page under website cms
+
+no. the user managemnet permission page not working. showing error.
+
+
 
 
 

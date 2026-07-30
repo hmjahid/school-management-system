@@ -2,24 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Spatie\Permission\Models\Permission as SpatiePermission;
 
-class Permission extends Model
+class Permission extends SpatiePermission
 {
-    protected $fillable = ['name', 'description'];
+    protected $fillable = ['name', 'description', 'guard_name'];
 
-    /**
-     * The roles that belong to the permission.
-     */
-    public function roles(): BelongsToMany
-    {
-        return $this->belongsToMany(Role::class);
-    }
-
-    /**
-     * Check if the permission is assigned to a specific role.
-     */
     public function isAssignedToRole(Role $role): bool
     {
         return $this->roles()->where('role_id', $role->id)->exists();
