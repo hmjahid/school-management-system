@@ -10,7 +10,7 @@
                 {{ __('Pick a page to edit its text and images. Every page has a fixed structure, so you only ever see fields that matter for that page.') }}
             </p>
         </div>
-        <a href="{{ route('dashboard.cms.edit', ['page' => 'site-ui']) }}" class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-700">
+        <a href="{{ route('dashboard.settings.global-labels') }}" class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-700">
             {{ __('Global labels (nav, footer, home)') }}
         </a>
     </div>
