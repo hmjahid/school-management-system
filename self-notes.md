@@ -446,6 +446,7 @@ move general settting page homepage tab contents in a new page named cms setting
 
 no. the user managemnet permission page not working. showing error.
 
+add global labels page as a individual page under the website cms like cms setting
 
 
 

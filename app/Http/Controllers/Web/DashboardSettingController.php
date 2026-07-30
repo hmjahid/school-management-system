@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\AdmissionSetting;
 use App\Models\LibrarySetting;
+use App\Models\WebsiteContent;
 use App\Models\WebsiteSetting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -244,5 +245,117 @@ class DashboardSettingController extends Controller
         $admissionSettings->save();
 
         return redirect()->route('dashboard.settings.index', ['tab' => 'admission'])->with('status', __('Admission settings saved.'));
+    }
+
+    public function globalLabels(): View
+    {
+        abort_unless(auth()->user()?->can('manage_school_settings'), 403);
+
+        $defaults = \App\Support\SiteFrontend::defaultsForLocale();
+        $row = WebsiteContent::query()->where('page', 'site-ui')->first();
+        $overrides = $row ? $row->englishContentTree() : [];
+
+        $flattened = $this->flattenLabels($defaults, $overrides);
+
+        return view('dashboard.settings.global-labels', compact('flattened'));
+    }
+
+    public function updateGlobalLabels(Request $request): RedirectResponse
+    {
+        abort_unless(auth()->user()?->can('manage_school_settings'), 403);
+
+        $data = $request->input('labels', []);
+
+        $row = WebsiteContent::query()->firstOrCreate(
+            ['page' => 'site-ui'],
+            ['is_active' => true],
+        );
+
+        $defaults = \App\Support\SiteFrontend::defaultsForLocale();
+        $listPaths = $this->listPaths($defaults);
+
+        foreach (['en', 'bn'] as $locale) {
+            if (!isset($data[$locale])) continue;
+            $data[$locale] = $this->normalizeListValues($data[$locale], $listPaths, '');
+        }
+
+        $row->content_en = $data['en'] ?? [];
+        $row->content_bn = $data['bn'] ?? [];
+        $row->is_active = true;
+        $row->save();
+
+        return redirect()->route('dashboard.settings.global-labels')->with('status', __('Global labels saved.'));
+    }
+
+    private function listPaths(array $defaults, string $prefix = ''): array
+    {
+        $paths = [];
+        foreach ($defaults as $key => $val) {
+            $path = $prefix ? "{$prefix}.{$key}" : $key;
+            if ($this->isSimpleList($val)) {
+                $paths[] = $path;
+            } elseif (is_array($val)) {
+                $paths = array_merge($paths, $this->listPaths($val, $path));
+            }
+        }
+        return $paths;
+    }
+
+    private function normalizeListValues(array $data, array $listPaths, string $prefix): array
+    {
+        $result = [];
+        foreach ($data as $key => $val) {
+            $path = $prefix ? "{$prefix}.{$key}" : $key;
+            if (in_array($path, $listPaths)) {
+                $result[$key] = is_string($val) ? array_filter(array_map('trim', explode("\n", $val)), fn($v) => $v !== '') : $val;
+            } elseif (is_array($val)) {
+                $result[$key] = $this->normalizeListValues($val, $listPaths, $path);
+            } else {
+                $result[$key] = $val;
+            }
+        }
+        return $result;
+    }
+
+    private function flattenLabels(array $defaults, array $overrides, string $prefix = ''): array
+    {
+        $result = [];
+        foreach ($defaults as $key => $val) {
+            $path = $prefix ? "{$prefix}.{$key}" : $key;
+            if (is_string($val)) {
+                $parts = explode('.', $path);
+                $section = $parts[0];
+                $label = implode('.', array_slice($parts, 1)) ?: $key;
+                $enDefault = $val;
+                $enOverride = Arr::get($overrides, $path);
+                $isList = false;
+                $result[] = compact('section', 'label', 'path', 'enDefault', 'enOverride', 'isList');
+            } elseif ($this->isSimpleList($val)) {
+                $parts = explode('.', $path);
+                $section = $parts[0];
+                $label = implode('.', array_slice($parts, 1)) ?: $key;
+                $enDefault = '';
+                $isList = true;
+                $listDefaults = $val;
+                $enOverride = Arr::get($overrides, $path);
+                $result[] = compact('section', 'label', 'path', 'enDefault', 'enOverride', 'isList', 'listDefaults');
+            } elseif (is_array($val)) {
+                $result = array_merge($result, $this->flattenLabels($val, $overrides, $path));
+            }
+        }
+        return $result;
+    }
+
+    private function isSimpleList($val): bool
+    {
+        if (!is_array($val)) return false;
+        if ($val === []) return true;
+        foreach ($val as $k => $v) {
+            if (!is_int($k)) return false;
+            if (is_array($v)) {
+                if (!empty($v)) return false;
+            }
+        }
+        return true;
     }
 }

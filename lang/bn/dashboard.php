@@ -50,6 +50,7 @@ return [
     'documents_label' => 'ডকুমেন্ট',
     'form_submissions' => 'ফর্ম জমা',
     'cms_settings' => 'সিএমএস সেটিংস',
+    'global_labels' => 'গ্লোবাল লেবেল',
     'school_info' => 'স্কুল তথ্য',
     'school_settings' => 'স্কুল সেটিংস',
     'general_settings' => 'সাধারণ সেটিংস',

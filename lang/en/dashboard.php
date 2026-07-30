@@ -50,6 +50,7 @@ return [
     'documents_label' => 'Documents',
     'form_submissions' => 'Form submissions',
     'cms_settings' => 'CMS Settings',
+    'global_labels' => 'Global Labels',
     'school_info' => 'School Info',
     'school_settings' => 'School settings',
     'general_settings' => 'General Settings',
