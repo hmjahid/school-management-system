@@ -25,6 +25,15 @@ class DashboardSettingController extends Controller
         return view('dashboard.settings.index', compact('settings', 'librarySettings', 'admissionSettings', 'timezones'));
     }
 
+    public function general(): View
+    {
+        abort_unless(auth()->user()?->can('manage_school_settings'), 403);
+
+        $settings = WebsiteSetting::getSettings();
+
+        return view('dashboard.settings.general', compact('settings'));
+    }
+
     public function updateGeneral(Request $request): RedirectResponse
     {
         abort_unless(auth()->user()?->can('manage_school_settings'), 403);
@@ -124,7 +133,7 @@ class DashboardSettingController extends Controller
         $settings->fill($validated);
         $settings->save();
 
-        return redirect()->route('dashboard.settings.index')->with('status', __('Settings saved.'));
+        return redirect()->route('dashboard.settings.general')->with('status', __('Settings saved.'));
     }
 
     public function updateTheme(Request $request): RedirectResponse

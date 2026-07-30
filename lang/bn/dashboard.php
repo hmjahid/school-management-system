@@ -50,6 +50,7 @@ return [
     'documents_label' => 'ডকুমেন্ট',
     'form_submissions' => 'ফর্ম জমা',
     'school_settings' => 'স্কুল সেটিংস',
+    'general_settings' => 'সাধারণ সেটিংস',
     'reports' => 'রিপোর্ট',
     'bulk_import_export' => 'বাল্ক ইমপোর্ট / এক্সপোর্ট',
     'activity_log' => 'কার্যক্রম লগ',

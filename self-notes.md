@@ -438,6 +438,7 @@ make the bul sms receipnt filed mor econsice. seperate student and staff. all wi
 
 create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-11.md file. then implement the tasks using the prompt
 
+move all general setting from school setting page to gneral setting page. cretae  ageneral setting page and add this page in the configuration group
 
 
 

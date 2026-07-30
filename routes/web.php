@@ -410,6 +410,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['role:admin'])->group(function () {
         Route::prefix('dashboard/settings')->name('dashboard.settings.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Web\DashboardSettingController::class, 'index'])->name('index');
+            Route::get('/general', [\App\Http\Controllers\Web\DashboardSettingController::class, 'general'])->name('general');
             Route::post('/general', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateGeneral'])->name('update.general');
             Route::post('/theme', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateTheme'])->name('update.theme');
             Route::post('/localization', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateLocalization'])->name('update.localization');

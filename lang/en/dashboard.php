@@ -50,6 +50,7 @@ return [
     'documents_label' => 'Documents',
     'form_submissions' => 'Form submissions',
     'school_settings' => 'School settings',
+    'general_settings' => 'General Settings',
     'reports' => 'Reports',
     'bulk_import_export' => 'Bulk import / export',
     'activity_log' => 'Activity log',
