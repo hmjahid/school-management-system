@@ -34,6 +34,15 @@ class DashboardSettingController extends Controller
         return view('dashboard.settings.index', compact('settings', 'librarySettings', 'admissionSettings', 'timezones'));
     }
 
+    public function cmsSettings(): View
+    {
+        abort_unless(auth()->user()?->can('manage_school_settings'), 403);
+
+        $settings = WebsiteSetting::getSettings();
+
+        return view('dashboard.settings.cms', compact('settings'));
+    }
+
     public function updateGeneral(Request $request): RedirectResponse
     {
         abort_unless(auth()->user()?->can('manage_school_settings'), 403);

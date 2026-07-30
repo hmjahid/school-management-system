@@ -417,6 +417,8 @@ Route::middleware('auth')->group(function () {
             Route::post('/payment', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updatePayment'])->name('update.payment');
             Route::post('/library', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateLibrary'])->name('update.library');
             Route::post('/admission', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateAdmission'])->name('update.admission');
+            Route::get('/cms', [\App\Http\Controllers\Web\DashboardSettingController::class, 'cmsSettings'])->name('cms');
+            Route::post('/cms', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateGeneral'])->name('update.cms');
         });
 
         Route::get('/dashboard/cms/pages', [CmsWebController::class, 'pages'])->name('dashboard.cms.pages');

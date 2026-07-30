@@ -31,9 +31,6 @@
             <button type="button" data-tab="admission" class="tab-link whitespace-nowrap border-b-2 px-1 pb-3 {{ $tab === 'admission' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }}">
                 {{ __('dashboard.tab_admission') ?? __('Admission') }}
             </button>
-            <button type="button" data-tab="homepage" class="tab-link whitespace-nowrap border-b-2 px-1 pb-3 {{ $tab === 'homepage' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }}">
-                {{ __('dashboard.tab_homepage') ?? __('Homepage') }}
-            </button>
         </nav>
     </div>
 
@@ -321,101 +318,7 @@
         </form>
     </div>
 
-    {{-- Tab: Homepage --}}
-    <div id="tab-homepage" class="tab-panel {{ $tab !== 'homepage' ? 'hidden' : '' }}">
-        <form method="post" action="{{ route('dashboard.settings.update.general') }}" class="max-w-3xl">
-            @csrf
-            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h2 class="text-lg font-semibold text-gray-900">{{ __('Homepage sections') }}</h2>
-                <p class="mb-5 text-sm text-gray-500">{{ __('Toggle visibility of each section on the public homepage and sub-pages.') }}</p>
 
-                @php
-                    $vis = $settings->section_visibility ?? [
-                        'hero' => true, 'features' => true, 'stats' => true, 'principal' => true,
-                        'teachers' => true, 'testimonials' => true, 'remarkable_students' => true,
-                        'events' => true, 'news' => true, 'highlights' => true,
-                        'cta' => true, 'partners' => true, 'admissions_bar' => true, 'urgent_notices' => true,
-                    ];
-                    $sectionLabels = [
-                        'hero' => 'Hero banner',
-                        'features' => 'Features',
-                        'stats' => 'Stats counter',
-                        'principal' => "Principal's message",
-                        'teachers' => 'Teachers section',
-                        'testimonials' => 'Testimonials',
-                        'remarkable_students' => 'Remarkable students',
-                        'events' => 'Upcoming events',
-                        'news' => 'Latest news',
-                        'highlights' => 'Highlights',
-                        'cta' => 'CTA banner',
-                        'partners' => 'Partners strip',
-                        'admissions_bar' => 'Admissions top bar',
-                        'urgent_notices' => 'Urgent notices (hero)',
-                    ];
-                @endphp
-                <div class="grid gap-3 sm:grid-cols-2">
-                    @foreach($sectionLabels as $key => $label)
-                        <label class="inline-flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
-                            <input type="hidden" name="section_visibility[{{ $key }}]" value="0">
-                            <input type="checkbox" name="section_visibility[{{ $key }}]" value="1"
-                                @checked(old("section_visibility.{$key}", $vis[$key] ?? true))
-                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                            <span class="text-sm font-medium text-gray-700">{{ $label }}</span>
-                        </label>
-                    @endforeach
-                </div>
-
-                @php
-                    $otherPageSections = [
-                        'Admissions' => [
-                            'adm_hero' => 'Hero banner', 'adm_process' => 'Admission process', 'adm_fee' => 'Fee structure',
-                            'adm_prospectus' => 'Download prospectus', 'adm_faq' => 'FAQs', 'adm_cta' => 'CTA banner',
-                            'adm_scholarship' => 'Scholarship form',
-                        ],
-                        'Contact' => [
-                            'contact_hero' => 'Hero banner', 'contact_cards' => 'Contact cards', 'contact_form' => 'Contact form',
-                            'contact_hours' => 'Opening hours', 'contact_emergency' => 'Emergency contacts',
-                            'contact_map' => 'Map', 'contact_faq' => 'FAQs',
-                        ],
-                        'Faculty' => ['faculty_hero' => 'Hero banner', 'faculty_search' => 'Search & filter', 'faculty_grid' => 'Faculty grid'],
-                        'Gallery' => ['gallery_hero' => 'Hero banner', 'gallery_tabs' => 'Category tabs', 'gallery_grid' => 'Gallery grid'],
-                        'News' => ['news_hero' => 'Hero banner', 'news_featured' => 'Featured article', 'news_grid' => 'News grid'],
-                        'Payments' => ['payments_hero' => 'Hero banner', 'payments_fee' => 'Fee table', 'payments_gateways' => 'Payment gateways'],
-                        'About / Pages' => ['page_hero' => 'Hero banner', 'page_content' => 'Page content'],
-                        'Events' => ['events_hero' => 'Hero banner', 'events_filters' => 'Filters & view toggle', 'events_upcoming' => 'Upcoming events', 'events_past' => 'Past events'],
-                        'Notices' => ['notices_hero' => 'Hero banner', 'notices_list' => 'Notices list'],
-                        'Results' => ['results_hero' => 'Hero banner', 'results_form' => 'Search form'],
-                        'Routines' => ['routines_hero' => 'Hero banner', 'routines_filter' => 'Filter form', 'routines_grid' => 'Routine grid'],
-                        'Transport' => ['transport_hero' => 'Hero banner', 'transport_routes' => 'Route cards', 'transport_fleet' => 'Fleet section', 'transport_map' => 'Route map'],
-                    ];
-                @endphp
-                <div class="mt-6 space-y-5">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400">{{ __('Other page sections') }}</h3>
-                    @foreach($otherPageSections as $pageTitle => $sections)
-                        <div>
-                            <h4 class="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">{{ $pageTitle }}</h4>
-                            <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                                @foreach($sections as $key => $label)
-                                    <label class="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
-                                        <input type="hidden" name="section_visibility[{{ $key }}]" value="0">
-                                        <input type="checkbox" name="section_visibility[{{ $key }}]" value="1"
-                                            @checked(old("section_visibility.{$key}", $vis[$key] ?? true))
-                                            class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                                        <span class="text-sm font-medium text-gray-700">{{ $label }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-            <div class="mt-6 flex justify-end">
-                <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">
-                    {{ __('Save settings') }}
-                </button>
-            </div>
-        </form>
-    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
