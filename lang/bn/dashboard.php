@@ -49,6 +49,7 @@ return [
     'notices' => 'নোটিশ',
     'documents_label' => 'ডকুমেন্ট',
     'form_submissions' => 'ফর্ম জমা',
+    'school_info' => 'স্কুল তথ্য',
     'school_settings' => 'স্কুল সেটিংস',
     'general_settings' => 'সাধারণ সেটিংস',
     'reports' => 'রিপোর্ট',

@@ -18,11 +18,8 @@ class DashboardSettingController extends Controller
         abort_unless(auth()->user()?->can('manage_school_settings'), 403);
 
         $settings = WebsiteSetting::getSettings();
-        $librarySettings = LibrarySetting::getSettings();
-        $admissionSettings = AdmissionSetting::first() ?? new AdmissionSetting;
-        $timezones = \DateTimeZone::listIdentifiers(\DateTimeZone::ALL);
 
-        return view('dashboard.settings.index', compact('settings', 'librarySettings', 'admissionSettings', 'timezones'));
+        return view('dashboard.settings.general', compact('settings'));
     }
 
     public function general(): View
@@ -30,8 +27,11 @@ class DashboardSettingController extends Controller
         abort_unless(auth()->user()?->can('manage_school_settings'), 403);
 
         $settings = WebsiteSetting::getSettings();
+        $librarySettings = LibrarySetting::getSettings();
+        $admissionSettings = AdmissionSetting::first() ?? new AdmissionSetting;
+        $timezones = \DateTimeZone::listIdentifiers(\DateTimeZone::ALL);
 
-        return view('dashboard.settings.general', compact('settings'));
+        return view('dashboard.settings.index', compact('settings', 'librarySettings', 'admissionSettings', 'timezones'));
     }
 
     public function updateGeneral(Request $request): RedirectResponse
@@ -133,7 +133,7 @@ class DashboardSettingController extends Controller
         $settings->fill($validated);
         $settings->save();
 
-        return redirect()->route('dashboard.settings.general')->with('status', __('Settings saved.'));
+        return redirect()->route('dashboard.settings.index')->with('status', __('Settings saved.'));
     }
 
     public function updateTheme(Request $request): RedirectResponse

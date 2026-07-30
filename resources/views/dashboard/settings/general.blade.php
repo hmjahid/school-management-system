@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">{{ __('General settings') }}</h1>
+        <h1 class="text-2xl font-bold text-gray-900">{{ __('School Info') }}</h1>
         <p class="mt-1 text-sm text-gray-600">{{ __('School name, logos, contact details, social links, and meta.') }}</p>
     </div>
 

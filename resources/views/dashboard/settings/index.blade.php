@@ -9,8 +9,8 @@
     @endphp
 
     <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">{{ __('School settings') }}</h1>
-        <p class="mt-1 text-sm text-gray-600">{{ __('Logo, favicon, contact details, localization, payment gateways, and more.') }}</p>
+        <h1 class="text-2xl font-bold text-gray-900">{{ __('Settings') }}</h1>
+        <p class="mt-1 text-sm text-gray-600">{{ __('Theme, localization, payment gateways, library rules, admission, and homepage sections.') }}</p>
     </div>
 
     {{-- Tab Navigation --}}

@@ -440,6 +440,9 @@ create a proper prompt to implement the above tasks and add the prompt in featur
 
 move all general setting from school setting page to gneral setting page. cretae  ageneral setting page and add this page in the configuration group
 
+now the general setting page settings move to school setting page and school setting page localization, paymeny, library, admisiiion mov eto general setting page
+
+
 
 
 gallery page tab filtering not working. fix it.

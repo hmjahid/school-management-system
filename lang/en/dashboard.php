@@ -49,6 +49,7 @@ return [
     'notices' => 'Notices',
     'documents_label' => 'Documents',
     'form_submissions' => 'Form submissions',
+    'school_info' => 'School Info',
     'school_settings' => 'School settings',
     'general_settings' => 'General Settings',
     'reports' => 'Reports',
