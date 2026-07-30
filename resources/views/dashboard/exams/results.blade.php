@@ -69,6 +69,7 @@
                             <th class="px-4 py-3 text-right font-semibold text-gray-700">{{ __('Marks') }} / {{ $exam->total_marks ?? '?' }}</th>
                             <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Grade') }}</th>
                             <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Status') }}</th>
+                            <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -104,10 +105,19 @@
                                         <span class="text-xs text-gray-400">{{ __('Not entered') }}</span>
                                     @endif
                                 </td>
+                                <td class="px-4 py-3">
+                                    @if ($r)
+                                        <a href="{{ route('dashboard.exams.results.marksheet', [$exam, $r]) }}" target="_blank" class="inline-flex items-center gap-1 rounded bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100">
+                                            {{ __('Download') }}
+                                        </a>
+                                    @else
+                                        <span class="text-xs text-gray-300">—</span>
+                                    @endif
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-4 py-8 text-center text-gray-500">{{ __('No students match this exam.') }}</td>
+                                <td colspan="8" class="px-4 py-8 text-center text-gray-500">{{ __('No students match this exam.') }}</td>
                             </tr>
                         @endforelse
                     </tbody>

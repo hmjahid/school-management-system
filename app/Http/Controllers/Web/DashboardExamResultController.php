@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class DashboardExamResultController extends Controller
 {
@@ -163,6 +164,27 @@ class DashboardExamResultController extends Controller
 
             fclose($out);
         }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    public function downloadMarksheet(Request $request, Exam $exam, ExamResult $result): \Illuminate\Http\Response
+    {
+        $this->authorize('view', $exam);
+
+        $result->load(['student.user', 'student.class', 'student.section', 'exam.subject', 'exam.batch', 'exam.academicSession']);
+
+        $settings = \App\Models\WebsiteSetting::getSettings();
+
+        $html = view('dashboard.exams.marksheet-pdf', [
+            'exam' => $exam,
+            'result' => $result,
+            'settings' => $settings,
+        ])->render();
+
+        $pdf = Pdf::loadHTML($html);
+
+        $filename = 'marksheet-' . ($result->student?->admission_number ?? $result->student_id) . '-' . ($exam->code ?? $exam->id) . '.pdf';
+
+        return $pdf->download($filename);
     }
 
     public function studentResults(Request $request, Student $student): View

@@ -77,14 +77,20 @@
                             <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Exam') }}</th>
                             <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Subject') }}</th>
                             <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Marks') }}</th>
+                            <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @foreach($recentResults as $result)
                         <tr>
                             <td class="px-4 py-3 text-gray-900">{{ $result->exam->name ?? '—' }}</td>
-                            <td class="px-4 py-3 text-gray-700">{{ $result->subject->name ?? '—' }}</td>
+                            <td class="px-4 py-3 text-gray-700">{{ $result->exam->subject->name ?? '—' }}</td>
                             <td class="px-4 py-3 text-gray-700">{{ $result->obtained_marks ?? '—' }} / {{ $result->exam->total_marks ?? '—' }}</td>
+                            <td class="px-4 py-3">
+                                @if($result->exam)
+                                    <a href="{{ route('dashboard.exams.results.marksheet', [$result->exam, $result]) }}" target="_blank" class="text-xs font-medium text-indigo-600 hover:text-indigo-800">{{ __('Download') }}</a>
+                                @endif
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>

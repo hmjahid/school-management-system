@@ -79,6 +79,17 @@ class WebsiteSetting extends Model
         'theme_secondary_color',
         'theme_font_family',
         'theme_border_radius',
+        'bkash_merchant_number',
+        'bkash_api_key',
+        'bkash_api_secret',
+        'bkash_username',
+        'bkash_password',
+        'bkash_app_key',
+        'bkash_app_secret',
+        'bkash_sandbox',
+        'nagad_merchant_number',
+        'currency',
+        'default_payment_method',
     ];
 
     /**
@@ -97,6 +108,7 @@ class WebsiteSetting extends Model
         'show_youtube' => 'boolean',
         'show_linkedin' => 'boolean',
         'send_absence_sms' => 'boolean',
+        'bkash_sandbox' => 'boolean',
     ];
 
     /**

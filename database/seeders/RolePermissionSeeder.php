@@ -61,6 +61,7 @@ class RolePermissionSeeder extends Seeder
             'manage job applications',
             
             // User Management
+            'manage_users' => 'Manage users (full access)',
             'view_users' => 'View users',
             'create_users' => 'Create users',
             'edit_users' => 'Edit users',

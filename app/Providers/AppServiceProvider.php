@@ -52,8 +52,11 @@ class AppServiceProvider extends ServiceProvider
 
             if (Schema::hasTable('website_settings')) {
                 $settings = Cache::remember('website_settings.first', 3600, function () {
-                    return WebsiteSetting::first();
+                    return WebsiteSetting::getSettings();
                 });
+                if ($settings === null || ! $settings->exists) {
+                    $settings = WebsiteSetting::getSettings();
+                }
             }
 
             $view->with('siteSettings', $settings);

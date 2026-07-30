@@ -404,6 +404,40 @@ remove these 4 input fileds from priciple section
 
 
 
+add user and roles managamnet for admin users
+
+add library feature
+
+add setting page and include fetaures in that page.
+
+add timezone selection feature in setting page.
+
+show selected time zones live time in dashboard hedare
+
+add feature to downlaod markshwwt from result page and from students dashboard
+
+add class specific home task assiging fetaure. add gurdians notes also in the home tasks. also gurdians will be able to sne dnotes using students account
+
+add bkash marcent add feature in admission payment. cerate a clear ui in setting page for configuring th epayment details. we want to use same payemnt details in admission page, syudent salry payemnt purpose or other payments.
+
+create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-10.md file. then implement the tasks using the prompt
+
+
+
+he dashboard theme chmahing button and sidebar darkmoade button not working properly. fix it.
+
+user roles an d permissions page not working fix it.
+
+move school setting page to website group and move the general setting like settings to setting page.
+
+make all dashboard page more arranged. like in students page, add class specific filter or selection
+
+add target slecetion first and the singl euser slecetiion in the send message page.
+
+make the bul sms receipnt filed mor econsice. seperate student and staff. all will ve individual and on eoption with mnmaed all to send all website users.
+
+create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-11.md file. then implement the tasks using the prompt
+
 
 
 check whole codes of this application for nay security issues.
@@ -411,3 +445,6 @@ check whole codes of this application for nay security issues.
 
 now write a commit message for the chnages after the last commit
 
+is it possible to make this softaware a fully functional custimizable wordpress theme? how?
+
+name this software a nice name for branding.the dahboard sidebar top name will be nmaed after this name.

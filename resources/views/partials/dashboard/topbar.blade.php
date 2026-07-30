@@ -7,6 +7,49 @@
     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
 </button>
 
+{{-- Live Timezone Clock --}}
+@php
+    $tz = $siteSettings?->timezone ?? 'UTC';
+    $tzObj = new DateTimeZone($tz);
+    $now = new DateTime('now', $tzObj);
+@endphp
+<div class="hidden items-center gap-2 text-xs text-slate-500 md:flex" id="live-clock-container" data-timezone="{{ $tz }}">
+    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <span id="live-clock">{{ $now->format('l, d M Y, h:i:s A') }} <span class="font-medium">{{ $now->format('T') }}</span></span>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var clockEl = document.getElementById('live-clock');
+    var container = document.getElementById('live-clock-container');
+    if (!clockEl || !container) return;
+    var timezone = container.dataset.timezone || 'UTC';
+    function updateClock() {
+        var now = new Date();
+        var options = {
+            timeZone: timezone,
+            weekday: 'long',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+        };
+        var formatter = new Intl.DateTimeFormat('en-US', options);
+        var parts = formatter.formatToParts(now);
+        var partsMap = {};
+        parts.forEach(function(p) { partsMap[p.type] = p.value; });
+        var dateStr = partsMap.weekday + ', ' + partsMap.day + ' ' + partsMap.month + ' ' + partsMap.year + ', ' + partsMap.hour + ':' + partsMap.minute + ':' + partsMap.second + ' ' + partsMap.dayPeriod;
+        var tzName = timezone.split('/').pop().replace(/_/g, ' ');
+        clockEl.textContent = dateStr + ' ' + tzName;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+});
+</script>
+
 {{-- Spacer --}}
 <div class="flex-1"></div>
 
@@ -69,7 +112,7 @@
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                 {{ __('dashboard.my_profile') }}
             </a>
-            <a href="{{ route('dashboard.settings') }}" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700" role="menuitem">
+            <a href="{{ route('dashboard.settings.index') }}" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700" role="menuitem">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-1.066 2.573c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 {{ __('dashboard.school_settings') }}
             </a>

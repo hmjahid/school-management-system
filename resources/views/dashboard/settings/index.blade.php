@@ -1,0 +1,686 @@
+@extends('layouts.dashboard')
+
+@section('title', __('School settings') . ' — ' . config('app.name', 'SchoolEase'))
+
+@section('content')
+    @php
+        $tab = request()->query('tab', 'general');
+        $sectionVis = $settings->section_visibility ?? [];
+    @endphp
+
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">{{ __('School settings') }}</h1>
+        <p class="mt-1 text-sm text-gray-600">{{ __('Logo, favicon, contact details, localization, payment gateways, and more.') }}</p>
+    </div>
+
+    {{-- Tab Navigation --}}
+    <div class="mb-6 border-b border-gray-200">
+        <nav class="-mb-px flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium" id="settings-tabs">
+            <button type="button" data-tab="general" class="tab-link whitespace-nowrap border-b-2 px-1 pb-3 {{ $tab === 'general' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }}">
+                {{ __('dashboard.tab_general') ?? __('General') }}
+            </button>
+            <button type="button" data-tab="theme" class="tab-link whitespace-nowrap border-b-2 px-1 pb-3 {{ $tab === 'theme' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }}">
+                {{ __('dashboard.tab_theme') ?? __('Theme') }}
+            </button>
+            <button type="button" data-tab="localization" class="tab-link whitespace-nowrap border-b-2 px-1 pb-3 {{ $tab === 'localization' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }}">
+                {{ __('dashboard.tab_localization') ?? __('Localization') }}
+            </button>
+            <button type="button" data-tab="payment" class="tab-link whitespace-nowrap border-b-2 px-1 pb-3 {{ $tab === 'payment' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }}">
+                {{ __('dashboard.tab_payment') ?? __('Payment') }}
+            </button>
+            <button type="button" data-tab="library" class="tab-link whitespace-nowrap border-b-2 px-1 pb-3 {{ $tab === 'library' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }}">
+                {{ __('dashboard.tab_library') ?? __('Library') }}
+            </button>
+            <button type="button" data-tab="admission" class="tab-link whitespace-nowrap border-b-2 px-1 pb-3 {{ $tab === 'admission' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }}">
+                {{ __('dashboard.tab_admission') ?? __('Admission') }}
+            </button>
+            <button type="button" data-tab="homepage" class="tab-link whitespace-nowrap border-b-2 px-1 pb-3 {{ $tab === 'homepage' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }}">
+                {{ __('dashboard.tab_homepage') ?? __('Homepage') }}
+            </button>
+        </nav>
+    </div>
+
+    {{-- Tab: General --}}
+    <div id="tab-general" class="tab-panel {{ $tab !== 'general' ? 'hidden' : '' }}">
+        <form method="post" action="{{ route('dashboard.settings.update.general') }}" enctype="multipart/form-data" class="max-w-3xl space-y-6">
+            @csrf
+            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <h2 class="text-lg font-semibold text-gray-900">{{ __('General info') }}</h2>
+                <p class="mb-5 text-sm text-gray-500">{{ __('School name, contact details, social links, and meta.') }}</p>
+
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="sm:col-span-2 rounded-lg border border-gray-100 bg-gray-50 p-4">
+                        <h3 class="mb-3 text-sm font-semibold text-gray-900">{{ __('Site logo (header)') }}</h3>
+                        @if($settings->logo_url)
+                            <div class="mb-3 flex items-center gap-4">
+                                <img src="{{ $settings->logo_url }}" alt="" class="h-14 w-auto max-w-[200px] object-contain">
+                            </div>
+                        @endif
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Upload logo') }}</label>
+                        @include('partials.dashboard.file-button', [
+                            'name' => 'logo',
+                            'accept' => 'image/*',
+                            'id' => 'settings_logo',
+                            'buttonLabel' => __('Choose image'),
+                            'wrapperClass' => '',
+                        ])
+                        <p class="mt-1 text-xs text-gray-500">{{ __('PNG, JPG, or WebP. Max 2 MB. Replaces the current logo.') }}</p>
+                        @if($settings->logo_path)
+                            <label class="mt-3 flex items-center gap-2 text-sm text-gray-700">
+                                <input type="checkbox" name="remove_logo" value="1">
+                                {{ __('Remove current logo') }}
+                            </label>
+                        @endif
+                    </div>
+
+                    <div class="sm:col-span-2 rounded-lg border border-gray-100 bg-gray-50 p-4">
+                        <h3 class="mb-3 text-sm font-semibold text-gray-900">{{ __('Favicon') }}</h3>
+                        @if($settings->favicon_url)
+                            <div class="mb-3 flex items-center gap-4">
+                                <img src="{{ $settings->favicon_url }}" alt="" width="32" height="32" class="size-8 rounded border border-gray-200 bg-white object-contain p-0.5">
+                            </div>
+                        @endif
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Upload favicon') }}</label>
+                        @include('partials.dashboard.file-button', [
+                            'name' => 'favicon',
+                            'accept' => '.ico,.png,.jpg,.jpeg,.gif,.webp,.svg,image/*',
+                            'id' => 'settings_favicon',
+                            'buttonLabel' => __('Choose favicon file'),
+                            'wrapperClass' => '',
+                        ])
+                        <p class="mt-1 text-xs text-gray-500">{{ __('ICO, PNG, SVG, or WebP. Square image, max 512 KB.') }}</p>
+                        @if($settings->favicon_path)
+                            <label class="mt-3 flex items-center gap-2 text-sm text-gray-700">
+                                <input type="checkbox" name="remove_favicon" value="1">
+                                {{ __('Remove current favicon') }}
+                            </label>
+                        @endif
+                    </div>
+
+                    <div class="sm:col-span-2 rounded-lg border border-gray-100 bg-gray-50 p-4">
+                        <h3 class="mb-3 text-sm font-semibold text-gray-900">{{ __('Footer logo (light background)') }}</h3>
+                        @if($settings->footer_logo_url)
+                            <div class="mb-3 flex items-center gap-4">
+                                <img src="{{ $settings->footer_logo_url }}" alt="" class="h-14 w-auto max-w-[200px] object-contain rounded bg-gray-800 p-2">
+                            </div>
+                        @endif
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Upload footer logo') }}</label>
+                        @include('partials.dashboard.file-button', [
+                            'name' => 'footer_logo',
+                            'accept' => 'image/*',
+                            'id' => 'settings_footer_logo',
+                            'buttonLabel' => __('Choose image'),
+                            'wrapperClass' => '',
+                        ])
+                        <p class="mt-1 text-xs text-gray-500">{{ __('PNG, JPG, SVG, or WebP. Max 2 MB.') }}</p>
+                        @if($settings->footer_logo_path)
+                            <label class="mt-3 flex items-center gap-2 text-sm text-gray-700">
+                                <input type="checkbox" name="remove_footer_logo" value="1">
+                                {{ __('Remove footer logo') }}
+                            </label>
+                        @endif
+                    </div>
+
+                    <div class="sm:col-span-2 rounded-lg border border-gray-100 bg-gray-50 p-4">
+                        <h3 class="mb-3 text-sm font-semibold text-gray-900">{{ __('Footer logo (dark background)') }}</h3>
+                        @if($settings->footer_logo_dark_url)
+                            <div class="mb-3 flex items-center gap-4">
+                                <img src="{{ $settings->footer_logo_dark_url }}" alt="" class="h-14 w-auto max-w-[200px] object-contain rounded bg-gray-100 p-2">
+                            </div>
+                        @endif
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Upload dark footer logo') }}</label>
+                        @include('partials.dashboard.file-button', [
+                            'name' => 'footer_logo_dark',
+                            'accept' => 'image/*',
+                            'id' => 'settings_footer_logo_dark',
+                            'buttonLabel' => __('Choose image'),
+                            'wrapperClass' => '',
+                        ])
+                        <p class="mt-1 text-xs text-gray-500">{{ __('PNG, JPG, SVG, or WebP. Max 2 MB.') }}</p>
+                        @if($settings->footer_logo_dark_path)
+                            <label class="mt-3 flex items-center gap-2 text-sm text-gray-700">
+                                <input type="checkbox" name="remove_footer_logo_dark" value="1">
+                                {{ __('Remove dark footer logo') }}
+                            </label>
+                        @endif
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('School name') }} <span class="text-gray-400">(EN)</span></label>
+                        <input type="text" name="school_name" value="{{ old('school_name', $settings->school_name) }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('School name') }} <span class="text-gray-400">(বাংলা)</span></label>
+                        <input type="text" name="school_name_bn" value="{{ old('school_name_bn', $settings->school_name_bn) }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Tagline') }} <span class="text-gray-400">(EN)</span></label>
+                        <input type="text" name="tagline" value="{{ old('tagline', $settings->tagline) }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Tagline') }} <span class="text-gray-400">(বাংলা)</span></label>
+                        <input type="text" name="tagline_bn" value="{{ old('tagline_bn', $settings->tagline_bn) }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Email') }}</label>
+                        <input type="email" name="email" value="{{ old('email', $settings->email) }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Phone') }}</label>
+                        <input type="text" name="phone" value="{{ old('phone', $settings->phone) }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Address') }}</label>
+                        <textarea name="address" rows="2" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">{{ old('address', $settings->address) }}</textarea>
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('City') }}</label>
+                        <input type="text" name="city" value="{{ old('city', $settings->city) }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Country') }}</label>
+                        <input type="text" name="country" value="{{ old('country', $settings->country) }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Website URL') }}</label>
+                        <input type="url" name="website" value="{{ old('website', $settings->website) }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label for="default_locale" class="mb-1 block text-sm font-medium text-gray-700">{{ __('Default site language') }}</label>
+                        <select id="default_locale" name="default_locale"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <option value="en" @selected(old('default_locale', $settings->default_locale) === 'en')>English</option>
+                            <option value="bn" @selected(old('default_locale', $settings->default_locale) === 'bn')>বাংলা (Bengali)</option>
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500">{{ __('The language first-time visitors see.') }}</p>
+                    </div>
+                </div>
+
+                {{-- Social Links --}}
+                <div class="mt-6 rounded-lg border border-gray-100 bg-gray-50 p-4">
+                    <h3 class="mb-3 text-sm font-semibold text-gray-900">{{ __('Social links') }}</h3>
+                    <p class="mb-3 text-xs text-gray-500">{{ __('Add a URL and enable the toggle to show each platform\'s icon.') }}</p>
+                    <div class="space-y-3">
+                        @php
+                            $socials = [
+                                ['label' => 'Facebook', 'urlField' => 'facebook_url', 'showField' => 'show_facebook'],
+                                ['label' => 'Instagram', 'urlField' => 'instagram_url', 'showField' => 'show_instagram'],
+                                ['label' => 'X (Twitter)', 'urlField' => 'twitter_url', 'showField' => 'show_twitter'],
+                                ['label' => 'YouTube', 'urlField' => 'youtube_url', 'showField' => 'show_youtube'],
+                                ['label' => 'LinkedIn', 'urlField' => 'linkedin_url', 'showField' => 'show_linkedin'],
+                            ];
+                        @endphp
+                        @foreach ($socials as $soc)
+                            <div class="grid gap-2 rounded-md border border-gray-200 bg-white p-3 sm:grid-cols-[1fr_auto] sm:items-center">
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">{{ $soc['label'] }}</label>
+                                    <input type="url" name="{{ $soc['urlField'] }}" value="{{ old($soc['urlField'], $settings->{$soc['urlField']}) }}" placeholder="https://"
+                                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="hidden" name="{{ $soc['showField'] }}" value="0">
+                                    <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+                                        <input type="checkbox" name="{{ $soc['showField'] }}" value="1" @checked(old($soc['showField'], $settings->{$soc['showField']}))
+                                            class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                        <span class="select-none">{{ __('Show icon') }}</span>
+                                    </label>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="mt-6 grid gap-4 sm:grid-cols-2">
+                    <div class="sm:col-span-2">
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Meta title') }}</label>
+                        <input type="text" name="meta_title" value="{{ old('meta_title', $settings->meta_title) }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Meta description') }}</label>
+                        <textarea name="meta_description" rows="2" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">{{ old('meta_description', $settings->meta_description) }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">
+                    {{ __('Save settings') }}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {{-- Tab: Theme --}}
+    <div id="tab-theme" class="tab-panel {{ $tab !== 'theme' ? 'hidden' : '' }}">
+        <form method="post" action="{{ route('dashboard.settings.update.theme') }}" class="max-w-3xl">
+            @csrf
+            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <h2 class="text-lg font-semibold text-gray-900">{{ __('Theme customization') }}</h2>
+                <p class="mb-5 text-sm text-gray-500">{{ __('Customize colors and font used across the public site.') }}</p>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Primary color') }}</label>
+                        <div class="flex items-center gap-2">
+                            <input type="color" data-color-preview value="{{ old('theme_primary_color', $settings->theme_primary_color ?? '#2563eb') }}" class="h-10 w-14 cursor-pointer rounded border border-gray-300">
+                            <input type="text" name="theme_primary_color" value="{{ old('theme_primary_color', $settings->theme_primary_color ?? '') }}" placeholder="#2563eb" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Secondary color') }}</label>
+                        <div class="flex items-center gap-2">
+                            <input type="color" data-color-preview value="{{ old('theme_secondary_color', $settings->theme_secondary_color ?? '#f97316') }}" class="h-10 w-14 cursor-pointer rounded border border-gray-300">
+                            <input type="text" name="theme_secondary_color" value="{{ old('theme_secondary_color', $settings->theme_secondary_color ?? '') }}" placeholder="#f97316" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Font family') }}</label>
+                        <select name="theme_font_family" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <option value="" @selected(old('theme_font_family', $settings->theme_font_family ?? '') === '')>{{ __('Default (Inter)') }}</option>
+                            <option value="Inter, sans-serif" @selected(old('theme_font_family', $settings->theme_font_family ?? '') === 'Inter, sans-serif')">Inter</option>
+                            <option value="Roboto, sans-serif" @selected(old('theme_font_family', $settings->theme_font_family ?? '') === 'Roboto, sans-serif')">Roboto</option>
+                            <option value="Poppins, sans-serif" @selected(old('theme_font_family', $settings->theme_font_family ?? '') === 'Poppins, sans-serif')">Poppins</option>
+                            <option value="Open Sans, sans-serif" @selected(old('theme_font_family', $settings->theme_font_family ?? '') === 'Open Sans, sans-serif')">Open Sans</option>
+                            <option value="Lato, sans-serif" @selected(old('theme_font_family', $settings->theme_font_family ?? '') === 'Lato, sans-serif')">Lato</option>
+                            <option value="Montserrat, sans-serif" @selected(old('theme_font_family', $settings->theme_font_family ?? '') === 'Montserrat, sans-serif')">Montserrat</option>
+                            <option value="Georgia, serif" @selected(old('theme_font_family', $settings->theme_font_family ?? '') === 'Georgia, serif')">Georgia</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Border radius') }}</label>
+                        <select name="theme_border_radius" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <option value="" @selected(old('theme_border_radius', $settings->theme_border_radius ?? '') === '')>{{ __('Default (rounded)') }}</option>
+                            <option value="0" @selected(old('theme_border_radius', $settings->theme_border_radius ?? '') === '0')>{{ __('None (square)') }}</option>
+                            <option value="0.25rem" @selected(old('theme_border_radius', $settings->theme_border_radius ?? '') === '0.25rem')>{{ __('Small') }}</option>
+                            <option value="0.5rem" @selected(old('theme_border_radius', $settings->theme_border_radius ?? '') === '0.5rem')>{{ __('Medium') }}</option>
+                            <option value="0.75rem" @selected(old('theme_border_radius', $settings->theme_border_radius ?? '') === '0.75rem')">{{ __('Large') }}</option>
+                            <option value="1rem" @selected(old('theme_border_radius', $settings->theme_border_radius ?? '') === '1rem')">{{ __('Extra large') }}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">
+                    {{ __('Save settings') }}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {{-- Tab: Localization --}}
+    <div id="tab-localization" class="tab-panel {{ $tab !== 'localization' ? 'hidden' : '' }}">
+        <form method="post" action="{{ route('dashboard.settings.update.localization') }}" class="max-w-3xl">
+            @csrf
+            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <h2 class="text-lg font-semibold text-gray-900">{{ __('Localization') }}</h2>
+                <p class="mb-5 text-sm text-gray-500">{{ __('Timezone, date format, time format, and default language.') }}</p>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Timezone') }}</label>
+                        <select name="timezone" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <option value="UTC" @selected(old('timezone', $settings->timezone) === 'UTC')>UTC</option>
+                            @foreach($timezones as $tz)
+                                <option value="{{ $tz }}" @selected(old('timezone', $settings->timezone) === $tz)>{{ $tz }}</option>
+                            @endforeach
+                        </select>
+                        @php
+                            $currentTz = $settings->timezone ?? 'UTC';
+                            $tzNow = new \DateTime('now', new \DateTimeZone($currentTz));
+                        @endphp
+                        <p class="mt-1 text-xs text-gray-500">{{ __('Current time in this timezone') }}: <strong>{{ $tzNow->format('h:i:s A, d M Y') }}</strong></p>
+                    </div>
+                    <div>
+                        <label for="default_locale" class="mb-1 block text-sm font-medium text-gray-700">{{ __('Default site language') }}</label>
+                        <select id="default_locale" name="default_locale"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <option value="en" @selected(old('default_locale', $settings->default_locale) === 'en')>English</option>
+                            <option value="bn" @selected(old('default_locale', $settings->default_locale) === 'bn')>বাংলা (Bengali)</option>
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500">{{ __('The language first-time visitors see.') }}</p>
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Date format') }}</label>
+                        <input type="text" name="date_format" value="{{ old('date_format', $settings->date_format ?? 'Y-m-d') }}" placeholder="Y-m-d"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        <p class="mt-1 text-xs text-gray-500">{{ __('PHP date format string. Example: d/m/Y, F j, Y') }}</p>
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Time format') }}</label>
+                        <input type="text" name="time_format" value="{{ old('time_format', $settings->time_format ?? 'H:i') }}" placeholder="H:i"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        <p class="mt-1 text-xs text-gray-500">{{ __('PHP time format string. Example: h:i A, H:i:s') }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">
+                    {{ __('Save settings') }}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {{-- Tab: Payment --}}
+    <div id="tab-payment" class="tab-panel {{ $tab !== 'payment' ? 'hidden' : '' }}">
+        <form method="post" action="{{ route('dashboard.settings.update.payment') }}" class="max-w-3xl">
+            @csrf
+            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <h2 class="text-lg font-semibold text-gray-900">{{ __('Payment settings') }}</h2>
+                <p class="mb-5 text-sm text-gray-500">{{ __('Configure payment gateways for online fee collection.') }}</p>
+
+                {{-- bKash --}}
+                <div class="mb-6 rounded-lg border border-gray-100 bg-gray-50 p-4">
+                    <h3 class="mb-3 text-sm font-semibold text-gray-900">bKash</h3>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('dashboard.bkash_merchant_number') ?? 'bKash Merchant Number' }}</label>
+                            <input type="text" name="bkash_merchant_number" value="{{ old('bkash_merchant_number', $settings->bkash_merchant_number) }}" placeholder="01XXXXXXXXX"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('dashboard.bkash_api_key') ?? 'bKash API Key' }}</label>
+                            <input type="text" name="bkash_api_key" value="{{ old('bkash_api_key', $settings->bkash_api_key) }}"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('dashboard.bkash_api_secret') ?? 'bKash API Secret' }}</label>
+                            <input type="password" name="bkash_api_secret" value="{{ old('bkash_api_secret', $settings->bkash_api_secret) }}"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('dashboard.bkash_username') ?? 'bKash Username' }}</label>
+                            <input type="text" name="bkash_username" value="{{ old('bkash_username', $settings->bkash_username) }}"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('dashboard.bkash_password') ?? 'bKash Password' }}</label>
+                            <input type="password" name="bkash_password" value="{{ old('bkash_password', $settings->bkash_password) }}"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('dashboard.bkash_app_key') ?? 'bKash App Key' }}</label>
+                            <input type="text" name="bkash_app_key" value="{{ old('bkash_app_key', $settings->bkash_app_key) }}"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('dashboard.bkash_app_secret') ?? 'bKash App Secret' }}</label>
+                            <input type="password" name="bkash_app_secret" value="{{ old('bkash_app_secret', $settings->bkash_app_secret) }}"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div class="flex items-center">
+                            <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+                                <input type="hidden" name="bkash_sandbox" value="0">
+                                <input type="checkbox" name="bkash_sandbox" value="1" @checked(old('bkash_sandbox', $settings->bkash_sandbox ?? true))
+                                    class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                <span>{{ __('dashboard.bkash_sandbox') ?? 'Sandbox Mode' }}</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Nagad --}}
+                <div class="mb-6 rounded-lg border border-gray-100 bg-gray-50 p-4">
+                    <h3 class="mb-3 text-sm font-semibold text-gray-900">Nagad</h3>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('dashboard.nagad_merchant_number') ?? 'Nagad Merchant Number' }}</label>
+                            <input type="text" name="nagad_merchant_number" value="{{ old('nagad_merchant_number', $settings->nagad_merchant_number) }}" placeholder="01XXXXXXXXX"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                </div>
+
+                {{-- General Payment --}}
+                <div class="rounded-lg border border-gray-100 bg-gray-50 p-4">
+                    <h3 class="mb-3 text-sm font-semibold text-gray-900">{{ __('General') }}</h3>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('dashboard.currency') ?? 'Currency' }}</label>
+                            <select name="currency" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option value="BDT" @selected(old('currency', $settings->currency ?? 'BDT') === 'BDT')>BDT (৳)</option>
+                                <option value="USD" @selected(old('currency', $settings->currency ?? 'BDT') === 'USD')>USD ($)</option>
+                                <option value="INR" @selected(old('currency', $settings->currency ?? 'BDT') === 'INR')>INR (₹)</option>
+                                <option value="PKR" @selected(old('currency', $settings->currency ?? 'BDT') === 'PKR')>PKR (₨)</option>
+                                <option value="EUR" @selected(old('currency', $settings->currency ?? 'BDT') === 'EUR')>EUR (€)</option>
+                                <option value="GBP" @selected(old('currency', $settings->currency ?? 'BDT') === 'GBP')>GBP (£)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('dashboard.default_payment_method') ?? 'Default Payment Method' }}</label>
+                            <select name="default_payment_method" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option value="bkash" @selected(old('default_payment_method', $settings->default_payment_method ?? 'bkash') === 'bkash')>bKash</option>
+                                <option value="nagad" @selected(old('default_payment_method', $settings->default_payment_method ?? 'bkash') === 'nagad')>Nagad</option>
+                                <option value="cash" @selected(old('default_payment_method', $settings->default_payment_method ?? 'bkash') === 'cash')>{{ __('Cash') }}</option>
+                                <option value="bank" @selected(old('default_payment_method', $settings->default_payment_method ?? 'bkash') === 'bank')>{{ __('Bank') }}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">
+                    {{ __('Save settings') }}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {{-- Tab: Library --}}
+    <div id="tab-library" class="tab-panel {{ $tab !== 'library' ? 'hidden' : '' }}">
+        <form method="post" action="{{ route('dashboard.settings.update.library') }}" class="max-w-3xl">
+            @csrf
+            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <h2 class="text-lg font-semibold text-gray-900">{{ __('Library settings') }}</h2>
+                <p class="mb-5 text-sm text-gray-500">{{ __('Configure library rules, late fees, and borrowing limits.') }}</p>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('dashboard.late_fee_per_day') ?? 'Late Fee (per day)' }}</label>
+                        <input type="number" step="0.01" min="0" name="late_fee_per_day" value="{{ old('late_fee_per_day', $librarySettings->late_fee_per_day ?? '') }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('dashboard.max_books_per_student') ?? 'Max Books per Student' }}</label>
+                        <input type="number" min="1" name="max_books_per_student" value="{{ old('max_books_per_student', $librarySettings->max_books_per_student ?? '') }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('dashboard.max_books_per_teacher') ?? 'Max Books per Teacher' }}</label>
+                        <input type="number" min="1" name="max_books_per_teacher" value="{{ old('max_books_per_teacher', $librarySettings->max_books_per_teacher ?? '') }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('dashboard.issue_duration_days') ?? 'Issue Duration (days)' }}</label>
+                        <input type="number" min="1" name="issue_duration_days" value="{{ old('issue_duration_days', $librarySettings->issue_duration_days ?? '') }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">
+                    {{ __('Save settings') }}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {{-- Tab: Admission --}}
+    <div id="tab-admission" class="tab-panel {{ $tab !== 'admission' ? 'hidden' : '' }}">
+        <form method="post" action="{{ route('dashboard.settings.update.admission') }}" class="max-w-3xl">
+            @csrf
+            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <h2 class="text-lg font-semibold text-gray-900">{{ __('Admission settings') }}</h2>
+                <p class="mb-5 text-sm text-gray-500">{{ __('Configure admission notice, display year, and bar title.') }}</p>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="sm:col-span-2">
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Notice') }}</label>
+                        <textarea name="notice" rows="3" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">{{ old('notice', $admissionSettings->notice) }}</textarea>
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Display year') }}</label>
+                        <input type="text" name="display_year" value="{{ old('display_year', $admissionSettings->display_year) }}" placeholder="{{ date('Y') }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Bar title') }}</label>
+                        <input type="text" name="bar_title" value="{{ old('bar_title', $admissionSettings->bar_title) }}" placeholder="Admissions Open"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">
+                    {{ __('Save settings') }}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {{-- Tab: Homepage --}}
+    <div id="tab-homepage" class="tab-panel {{ $tab !== 'homepage' ? 'hidden' : '' }}">
+        <form method="post" action="{{ route('dashboard.settings.update.general') }}" class="max-w-3xl">
+            @csrf
+            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <h2 class="text-lg font-semibold text-gray-900">{{ __('Homepage sections') }}</h2>
+                <p class="mb-5 text-sm text-gray-500">{{ __('Toggle visibility of each section on the public homepage and sub-pages.') }}</p>
+
+                @php
+                    $vis = $settings->section_visibility ?? [
+                        'hero' => true, 'features' => true, 'stats' => true, 'principal' => true,
+                        'teachers' => true, 'testimonials' => true, 'remarkable_students' => true,
+                        'events' => true, 'news' => true, 'highlights' => true,
+                        'cta' => true, 'partners' => true, 'admissions_bar' => true, 'urgent_notices' => true,
+                    ];
+                    $sectionLabels = [
+                        'hero' => 'Hero banner',
+                        'features' => 'Features',
+                        'stats' => 'Stats counter',
+                        'principal' => "Principal's message",
+                        'teachers' => 'Teachers section',
+                        'testimonials' => 'Testimonials',
+                        'remarkable_students' => 'Remarkable students',
+                        'events' => 'Upcoming events',
+                        'news' => 'Latest news',
+                        'highlights' => 'Highlights',
+                        'cta' => 'CTA banner',
+                        'partners' => 'Partners strip',
+                        'admissions_bar' => 'Admissions top bar',
+                        'urgent_notices' => 'Urgent notices (hero)',
+                    ];
+                @endphp
+                <div class="grid gap-3 sm:grid-cols-2">
+                    @foreach($sectionLabels as $key => $label)
+                        <label class="inline-flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                            <input type="hidden" name="section_visibility[{{ $key }}]" value="0">
+                            <input type="checkbox" name="section_visibility[{{ $key }}]" value="1"
+                                @checked(old("section_visibility.{$key}", $vis[$key] ?? true))
+                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            <span class="text-sm font-medium text-gray-700">{{ $label }}</span>
+                        </label>
+                    @endforeach
+                </div>
+
+                @php
+                    $otherPageSections = [
+                        'Admissions' => [
+                            'adm_hero' => 'Hero banner', 'adm_process' => 'Admission process', 'adm_fee' => 'Fee structure',
+                            'adm_prospectus' => 'Download prospectus', 'adm_faq' => 'FAQs', 'adm_cta' => 'CTA banner',
+                            'adm_scholarship' => 'Scholarship form',
+                        ],
+                        'Contact' => [
+                            'contact_hero' => 'Hero banner', 'contact_cards' => 'Contact cards', 'contact_form' => 'Contact form',
+                            'contact_hours' => 'Opening hours', 'contact_emergency' => 'Emergency contacts',
+                            'contact_map' => 'Map', 'contact_faq' => 'FAQs',
+                        ],
+                        'Faculty' => ['faculty_hero' => 'Hero banner', 'faculty_search' => 'Search & filter', 'faculty_grid' => 'Faculty grid'],
+                        'Gallery' => ['gallery_hero' => 'Hero banner', 'gallery_tabs' => 'Category tabs', 'gallery_grid' => 'Gallery grid'],
+                        'News' => ['news_hero' => 'Hero banner', 'news_featured' => 'Featured article', 'news_grid' => 'News grid'],
+                        'Payments' => ['payments_hero' => 'Hero banner', 'payments_fee' => 'Fee table', 'payments_gateways' => 'Payment gateways'],
+                        'About / Pages' => ['page_hero' => 'Hero banner', 'page_content' => 'Page content'],
+                        'Events' => ['events_hero' => 'Hero banner', 'events_filters' => 'Filters & view toggle', 'events_upcoming' => 'Upcoming events', 'events_past' => 'Past events'],
+                        'Notices' => ['notices_hero' => 'Hero banner', 'notices_list' => 'Notices list'],
+                        'Results' => ['results_hero' => 'Hero banner', 'results_form' => 'Search form'],
+                        'Routines' => ['routines_hero' => 'Hero banner', 'routines_filter' => 'Filter form', 'routines_grid' => 'Routine grid'],
+                        'Transport' => ['transport_hero' => 'Hero banner', 'transport_routes' => 'Route cards', 'transport_fleet' => 'Fleet section', 'transport_map' => 'Route map'],
+                    ];
+                @endphp
+                <div class="mt-6 space-y-5">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400">{{ __('Other page sections') }}</h3>
+                    @foreach($otherPageSections as $pageTitle => $sections)
+                        <div>
+                            <h4 class="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">{{ $pageTitle }}</h4>
+                            <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                                @foreach($sections as $key => $label)
+                                    <label class="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                                        <input type="hidden" name="section_visibility[{{ $key }}]" value="0">
+                                        <input type="checkbox" name="section_visibility[{{ $key }}]" value="1"
+                                            @checked(old("section_visibility.{$key}", $vis[$key] ?? true))
+                                            class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                        <span class="text-sm font-medium text-gray-700">{{ $label }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">
+                    {{ __('Save settings') }}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Tab switching
+            var tabs = document.querySelectorAll('.tab-link');
+            var panels = document.querySelectorAll('.tab-panel');
+            tabs.forEach(function(tab) {
+                tab.addEventListener('click', function() {
+                    var target = this.dataset.tab;
+                    // Update URL hash without reload
+                    var url = new URL(window.location);
+                    url.searchParams.set('tab', target);
+                    window.history.replaceState({}, '', url);
+                    // Update tab styles
+                    tabs.forEach(function(t) {
+                        t.classList.remove('border-indigo-600', 'text-indigo-600');
+                        t.classList.add('border-transparent', 'text-gray-500');
+                    });
+                    this.classList.remove('border-transparent', 'text-gray-500');
+                    this.classList.add('border-indigo-600', 'text-indigo-600');
+                    // Show/hide panels
+                    panels.forEach(function(p) {
+                        p.classList.add('hidden');
+                    });
+                    var panel = document.getElementById('tab-' + target);
+                    if (panel) panel.classList.remove('hidden');
+                });
+            });
+
+            // Color preview sync
+            document.querySelectorAll('input[data-color-preview]').forEach(function(colorInput) {
+                var textInput = colorInput.parentElement.querySelector('input[type="text"]');
+                if (!textInput) return;
+                textInput.addEventListener('input', function() {
+                    if (/^#[0-9A-Fa-f]{6}$/.test(textInput.value)) {
+                        colorInput.value = textInput.value;
+                    }
+                });
+                colorInput.addEventListener('input', function() {
+                    textInput.value = colorInput.value;
+                });
+            });
+        });
+    </script>
+@endsection

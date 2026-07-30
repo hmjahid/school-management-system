@@ -14,20 +14,34 @@ class Assignment extends Model
         'title',
         'description',
         'batch_id',
+        'class_id',
+        'section_id',
         'subject_id',
         'due_date',
         'total_marks',
         'file_path',
+        'allow_guardian_notes',
         'created_by',
     ];
 
     protected $casts = [
         'due_date' => 'datetime',
+        'allow_guardian_notes' => 'boolean',
     ];
 
     public function batch()
     {
         return $this->belongsTo(Batch::class);
+    }
+
+    public function class()
+    {
+        return $this->belongsTo(SchoolClass::class, 'class_id');
+    }
+
+    public function section()
+    {
+        return $this->belongsTo(Section::class, 'section_id');
     }
 
     public function subject()

@@ -254,6 +254,25 @@
             </div>
         </details>
 
+        {{-- Library --}}
+        @can('manage_books')
+        <details class="group" @if (request()->routeIs('dashboard.library*')) open @endif>
+            <summary class="admin-nav-link cursor-pointer list-none [&::-webkit-details-marker]:hidden {{ request()->routeIs('dashboard.library*') ? 'admin-nav-link--active' : '' }}">
+                <span class="flex h-5 w-5 shrink-0 items-center justify-center opacity-80">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
+                </span>
+                <span class="flex-1 truncate">{{ __('dashboard.library') }}</span>
+                <svg class="h-4 w-4 shrink-0 text-slate-400 transition group-open:rotate-90 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </summary>
+            <div class="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3 dark:border-slate-700">
+                <a href="{{ route('dashboard.library.books.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.library.books*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.books') }}</a>
+                <a href="{{ route('dashboard.library.categories.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.library.categories*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.book_categories') }}</a>
+                <a href="{{ route('dashboard.library.issues.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.library.issues*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.book_issues') }}</a>
+                <a href="{{ route('dashboard.library.reports.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.library.reports*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.library_reports') }}</a>
+            </div>
+        </details>
+        @endcan
+
         @can('viewAny', App\Models\Event::class)
             <x-admin-nav-link :href="route('dashboard.events')" route-is="dashboard.events*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z\' clip-rule=\'evenodd\'/></svg>'">{{ __('dashboard.events') }}</x-admin-nav-link>
             <x-admin-nav-link :href="route('dashboard.events.calendar')" route-is="dashboard.events.calendar" :icon="'<svg class=\'h-5 w-5\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z\'/></svg>'">{{ __('dashboard.calendar') }}</x-admin-nav-link>
@@ -297,9 +316,26 @@
                 </div>
             </details>
 
+            @can('manage_users')
+                <details class="group" @if (request()->routeIs('dashboard.users*') || request()->routeIs('dashboard.roles*') || request()->routeIs('dashboard.permissions*')) open @endif>
+                    <summary class="admin-nav-link cursor-pointer list-none [&::-webkit-details-marker]:hidden {{ request()->routeIs('dashboard.users*') || request()->routeIs('dashboard.roles*') || request()->routeIs('dashboard.permissions*') ? 'admin-nav-link--active' : '' }}">
+                        <span class="flex h-5 w-5 shrink-0 items-center justify-center opacity-80">
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a7 7 0 017 7H1v-1a7 7 0 015-6.7z"/></svg>
+                        </span>
+                        <span class="flex-1 truncate">{{ __('dashboard.user_management') }}</span>
+                        <svg class="h-4 w-4 shrink-0 text-slate-400 transition group-open:rotate-90 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </summary>
+                    <div class="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3 dark:border-slate-700">
+                        <a href="{{ route('dashboard.users.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.users*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.users') }}</a>
+                        <a href="{{ route('dashboard.roles.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.roles*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.roles') }}</a>
+                        <a href="{{ route('dashboard.permissions.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.permissions*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.permissions') }}</a>
+                    </div>
+                </details>
+            @endcan
+
             <p class="mb-2 mt-5 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ __('dashboard.configuration') }}</p>
 
-            <x-admin-nav-link :href="route('dashboard.settings')" route-is="dashboard.settings" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z\' clip-rule=\'evenodd\'/></svg>'">{{ __('dashboard.school_settings') }}</x-admin-nav-link>
+            <x-admin-nav-link :href="route('dashboard.settings.index')" route-is="dashboard.settings.*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z\' clip-rule=\'evenodd\'/></svg>'">{{ __('dashboard.school_settings') }}</x-admin-nav-link>
             <x-admin-nav-link :href="route('dashboard.reports')" route-is="dashboard.reports*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z\'/></svg>'">{{ __('dashboard.reports') }}</x-admin-nav-link>
             <x-admin-nav-link :href="route('dashboard.bulk')" route-is="dashboard.bulk*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z\' clip-rule=\'evenodd\'/></svg>'">{{ __('dashboard.bulk_import_export') }}</x-admin-nav-link>
         @endif

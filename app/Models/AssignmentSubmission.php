@@ -13,8 +13,11 @@ class AssignmentSubmission extends Model
     protected $fillable = [
         'assignment_id',
         'student_id',
+        'guardian_id',
         'file_path',
         'notes',
+        'guardian_notes',
+        'guardian_notified_at',
         'submitted_at',
         'marks',
         'feedback',
@@ -26,6 +29,7 @@ class AssignmentSubmission extends Model
     protected $casts = [
         'submitted_at' => 'datetime',
         'graded_at' => 'datetime',
+        'guardian_notified_at' => 'datetime',
     ];
 
     const STATUS_SUBMITTED = 'submitted';
@@ -41,6 +45,11 @@ class AssignmentSubmission extends Model
     public function student(): BelongsTo
     {
         return $this->belongsTo(Student::class);
+    }
+
+    public function guardian(): BelongsTo
+    {
+        return $this->belongsTo(Guardian::class);
     }
 
     public function gradedBy(): BelongsTo

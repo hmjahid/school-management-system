@@ -62,6 +62,13 @@ use App\Http\Controllers\Web\DashboardHostelController;
 use App\Http\Controllers\Web\DashboardTestimonialController;
 use App\Http\Controllers\Web\DashboardProfileController;
 use App\Http\Controllers\Web\DashboardVisitorLogController;
+use App\Http\Controllers\Web\DashboardUserController;
+use App\Http\Controllers\Web\DashboardRoleController;
+use App\Http\Controllers\Web\DashboardPermissionController;
+use App\Http\Controllers\Web\DashboardBookController;
+use App\Http\Controllers\Web\DashboardBookCategoryController;
+use App\Http\Controllers\Web\DashboardBookIssueController;
+use App\Http\Controllers\Web\DashboardLibraryReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -178,8 +185,52 @@ Route::middleware('auth')->group(function () {
             $studentCount = $students->count();
             $pendingFees = 0;
             $noticeCount = 0;
-            return view('guardian/dashboard', compact('user', 'students', 'studentCount', 'pendingFees', 'noticeCount'));
+
+            $assignments = collect();
+            if ($guardian) {
+                $studentIds = $students->pluck('id');
+                $assignments = \App\Models\Assignment::with(['subject', 'submissions' => function ($q) use ($studentIds) {
+                    $q->whereIn('student_id', $studentIds);
+                }])
+                ->whereHas('submissions', function ($q) use ($studentIds) {
+                    $q->whereIn('student_id', $studentIds);
+                })
+                ->latest()
+                ->limit(10)
+                ->get();
+            }
+
+            return view('guardian/dashboard', compact('user', 'students', 'studentCount', 'pendingFees', 'noticeCount', 'assignments'));
         })->name('guardian.dashboard');
+
+        Route::post('/guardian/assignments/{submission}/notes', function (\Illuminate\Http\Request $request, \App\Models\AssignmentSubmission $submission) {
+            $guardian = auth()->user()->guardian()->first();
+            if (!$guardian) {
+                return back()->with('error', __('Guardian not found.'));
+            }
+
+            $studentIds = $guardian->students()->pluck('students.id');
+            if (!$studentIds->contains($submission->student_id)) {
+                abort(403, __('Unauthorized.'));
+            }
+
+            $assignment = $submission->assignment;
+            if (!$assignment->allow_guardian_notes) {
+                return back()->with('error', __('Guardian notes are not allowed for this assignment.'));
+            }
+
+            $data = $request->validate([
+                'guardian_notes' => 'required|string|max:2000',
+            ]);
+
+            $submission->update([
+                'guardian_notes' => $data['guardian_notes'],
+                'guardian_id' => $guardian->id,
+                'guardian_notified_at' => now(),
+            ]);
+
+            return back()->with('status', __('Guardian notes saved.'));
+        })->name('guardian.assignments.notes');
     });
 
     Route::get('/dashboard/locale/{locale}', [DashboardLocaleController::class, 'switch'])->name('dashboard.locale.switch');
@@ -206,6 +257,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/exams/{exam}/results', [DashboardExamResultController::class, 'index'])->name('dashboard.exams.results');
     Route::post('/dashboard/exams/{exam}/results', [DashboardExamResultController::class, 'store'])->name('dashboard.exams.results.store');
     Route::get('/dashboard/exams/{exam}/results/export', [DashboardExamResultController::class, 'export'])->name('dashboard.exams.results.export');
+    Route::get('/dashboard/exams/{exam}/results/{result}/marksheet', [DashboardExamResultController::class, 'downloadMarksheet'])->name('dashboard.exams.results.marksheet');
     Route::post('/dashboard/exams/{exam}/publish', [DashboardExamResultController::class, 'publish'])->name('dashboard.exams.publish');
     Route::post('/dashboard/exams/{exam}/unpublish', [DashboardExamResultController::class, 'unpublish'])->name('dashboard.exams.unpublish');
 
@@ -356,8 +408,15 @@ Route::middleware('auth')->group(function () {
         });
 
     Route::middleware(['role:admin'])->group(function () {
-        Route::get('/dashboard/settings', [DashboardModulesController::class, 'settings'])->name('dashboard.settings');
-        Route::post('/dashboard/settings', [DashboardModulesController::class, 'updateSettings'])->name('dashboard.settings.update');
+        Route::prefix('dashboard/settings')->name('dashboard.settings.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Web\DashboardSettingController::class, 'index'])->name('index');
+            Route::post('/general', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateGeneral'])->name('update.general');
+            Route::post('/theme', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateTheme'])->name('update.theme');
+            Route::post('/localization', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateLocalization'])->name('update.localization');
+            Route::post('/payment', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updatePayment'])->name('update.payment');
+            Route::post('/library', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateLibrary'])->name('update.library');
+            Route::post('/admission', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateAdmission'])->name('update.admission');
+        });
 
         Route::get('/dashboard/cms/pages', [CmsWebController::class, 'pages'])->name('dashboard.cms.pages');
         Route::get('/dashboard/cms/edit/{page}', [CmsWebController::class, 'edit'])->name('dashboard.cms.edit');
@@ -529,6 +588,50 @@ Route::middleware('auth')->group(function () {
             Route::put('/{testimonial}', [DashboardTestimonialController::class, 'update'])->name('update');
             Route::delete('/{testimonial}', [DashboardTestimonialController::class, 'destroy'])->name('destroy');
             Route::get('/{testimonial}/print', [DashboardTestimonialController::class, 'print'])->name('print');
+        });
+
+        // User & Roles Management
+        Route::prefix('dashboard/users')->name('dashboard.users.')->group(function () {
+            Route::get('/', [DashboardUserController::class, 'index'])->name('index');
+            Route::get('/create', [DashboardUserController::class, 'create'])->name('create');
+            Route::post('/', [DashboardUserController::class, 'store'])->name('store');
+            Route::get('/{user}', [DashboardUserController::class, 'show'])->name('show');
+            Route::get('/{user}/edit', [DashboardUserController::class, 'edit'])->name('edit');
+            Route::put('/{user}', [DashboardUserController::class, 'update'])->name('update');
+            Route::delete('/{user}', [DashboardUserController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::prefix('dashboard/roles')->name('dashboard.roles.')->group(function () {
+            Route::get('/', [DashboardRoleController::class, 'index'])->name('index');
+            Route::get('/create', [DashboardRoleController::class, 'create'])->name('create');
+            Route::post('/', [DashboardRoleController::class, 'store'])->name('store');
+            Route::get('/{role}/edit', [DashboardRoleController::class, 'edit'])->name('edit');
+            Route::put('/{role}', [DashboardRoleController::class, 'update'])->name('update');
+            Route::delete('/{role}', [DashboardRoleController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::get('/dashboard/permissions', [DashboardPermissionController::class, 'index'])->name('dashboard.permissions.index');
+
+        // Library Management
+        Route::prefix('dashboard/library')->name('dashboard.library.')->group(function () {
+            Route::resource('books', DashboardBookController::class);
+            Route::resource('categories', DashboardBookCategoryController::class)->except(['create', 'show', 'edit']);
+            Route::prefix('issues')->name('issues.')->group(function () {
+                Route::get('/', [DashboardBookIssueController::class, 'index'])->name('index');
+                Route::get('/create', [DashboardBookIssueController::class, 'create'])->name('create');
+                Route::post('/', [DashboardBookIssueController::class, 'store'])->name('store');
+                Route::get('/{issue}', [DashboardBookIssueController::class, 'show'])->name('show');
+                Route::post('/{issue}/return', [DashboardBookIssueController::class, 'returnBook'])->name('return');
+                Route::post('/{issue}/fine', [DashboardBookIssueController::class, 'collectFine'])->name('fine');
+                Route::post('/{issue}/lost', [DashboardBookIssueController::class, 'markLost'])->name('lost');
+                Route::delete('/{issue}', [DashboardBookIssueController::class, 'destroy'])->name('destroy');
+            });
+            Route::prefix('reports')->name('reports.')->group(function () {
+                Route::get('/', [DashboardLibraryReportController::class, 'index'])->name('index');
+                Route::get('/issued', [DashboardLibraryReportController::class, 'currentlyIssued'])->name('issued');
+                Route::get('/overdue', [DashboardLibraryReportController::class, 'overdue'])->name('overdue');
+                Route::get('/history', [DashboardLibraryReportController::class, 'history'])->name('history');
+            });
         });
     });
 });

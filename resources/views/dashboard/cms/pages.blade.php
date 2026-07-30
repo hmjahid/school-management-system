@@ -26,7 +26,7 @@
             </svg>
             <span><strong>{{ __('Default site language:') }}</strong> {{ $localeLabel }}</span>
         </div>
-        <a href="{{ route('dashboard.settings') }}" class="text-sm font-medium text-indigo-700 hover:text-indigo-900">
+        <a href="{{ route('dashboard.settings.index') }}" class="text-sm font-medium text-indigo-700 hover:text-indigo-900">
             {{ __('Change in school settings') }} →
         </a>
     </div>

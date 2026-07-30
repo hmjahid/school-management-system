@@ -12,9 +12,15 @@
         <div><label class="block text-sm font-medium text-gray-700">{{ __('Title') }} *</label><input name="title" value="{{ old('title') }}" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"></div>
         <div><label class="block text-sm font-medium text-gray-700">{{ __('Subject') }} *</label><select name="subject_id" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">@foreach($subjects as $s)<option value="{{ $s->id }}">{{ $s->name }}</option>@endforeach</select></div>
         <div><label class="block text-sm font-medium text-gray-700">{{ __('Batch') }} *</label><select name="batch_id" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">@foreach($batches as $b)<option value="{{ $b->id }}">{{ $b->name }}</option>@endforeach</select></div>
+        <div><label class="block text-sm font-medium text-gray-700">{{ __('Class') }}</label><select name="class_id" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"><option value="">{{ __('— Select —') }}</option>@foreach($classes as $c)<option value="{{ $c->id }}">{{ $c->name }}</option>@endforeach</select></div>
+        <div><label class="block text-sm font-medium text-gray-700">{{ __('Section') }}</label><select name="section_id" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"><option value="">{{ __('— Select —') }}</option></select></div>
         <div><label class="block text-sm font-medium text-gray-700">{{ __('Due date') }} *</label><input type="datetime-local" name="due_date" value="{{ old('due_date') }}" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"></div>
         <div><label class="block text-sm font-medium text-gray-700">{{ __('Total marks') }}</label><input type="number" name="total_marks" value="{{ old('total_marks') }}" min="0" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"></div>
         <div><label class="block text-sm font-medium text-gray-700">{{ __('Attachment') }}</label><input type="file" name="file" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"></div>
+    </div>
+    <div class="flex items-center gap-2">
+        <input type="checkbox" name="allow_guardian_notes" id="allow_guardian_notes" value="1" {{ old('allow_guardian_notes') ? 'checked' : '' }} class="rounded border-gray-300">
+        <label for="allow_guardian_notes" class="text-sm font-medium text-gray-700">{{ __('Allow guardian notes') }}</label>
     </div>
     <div><label class="block text-sm font-medium text-gray-700">{{ __('Description') }}</label><textarea name="description" rows="4" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">{{ old('description') }}</textarea></div>
     <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Save') }}</button>

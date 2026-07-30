@@ -41,6 +41,7 @@
                         <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Grade') }}</th>
                         <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Status') }}</th>
                         <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Published') }}</th>
+                        <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -54,10 +55,15 @@
                                 <span class="inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800">{{ $r->status_label ?? '—' }}</span>
                             </td>
                             <td class="px-4 py-3 text-gray-700">{{ optional($r->published_at)->format('Y-m-d') ?? '—' }}</td>
+                            <td class="px-4 py-3">
+                                <a href="{{ route('dashboard.exams.results.marksheet', [$r->exam, $r]) }}" target="_blank" class="inline-flex items-center gap-1 rounded bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100">
+                                    {{ __('Download') }}
+                                </a>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-4 py-8 text-center text-gray-500">{{ __('No published results yet.') }}</td>
+                            <td colspan="7" class="px-4 py-8 text-center text-gray-500">{{ __('No published results yet.') }}</td>
                         </tr>
                     @endforelse
                 </tbody>

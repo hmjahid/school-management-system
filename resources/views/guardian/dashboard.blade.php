@@ -74,4 +74,41 @@
         </div>
         @endif
     </div>
+
+    @if(isset($assignments) && $assignments->count())
+    <div class="mt-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <h2 class="mb-4 text-lg font-semibold text-gray-900">{{ __('Recent Homework & Assignments') }}</h2>
+        <div class="space-y-4">
+            @foreach($assignments as $assignment)
+                @php $sub = $assignment->submissions->first(); @endphp
+                <div class="rounded-lg border border-gray-200 p-4">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h3 class="font-medium text-gray-900">{{ $assignment->title }}</h3>
+                            <p class="text-xs text-gray-500">{{ $assignment->subject?->name }} · {{ __('Due') }}: {{ $assignment->due_date?->format('d M Y') ?? '—' }}</p>
+                        </div>
+                        <span class="rounded-full px-2.5 py-0.5 text-xs font-medium {{ $sub?->status === 'graded' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
+                            {{ $sub ? __(ucfirst($sub->status)) : __('Not submitted') }}
+                        </span>
+                    </div>
+                    @if($sub && $assignment->allow_guardian_notes)
+                        <div class="mt-3 border-t border-gray-100 pt-3">
+                            @if($sub->guardian_notes)
+                                <div class="mb-2 text-sm text-gray-600">
+                                    <p class="font-medium text-xs text-gray-400">{{ __('Your notes') }}:</p>
+                                    <p class="italic">"{{ $sub->guardian_notes }}"</p>
+                                </div>
+                            @endif
+                            <form method="post" action="{{ route('guardian.assignments.notes', $sub) }}" class="flex gap-2">
+                                @csrf
+                                <input type="text" name="guardian_notes" placeholder="{{ __('Add a note for the teacher...') }}" value="{{ old('guardian_notes', '') }}" maxlength="2000" class="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm">
+                                <button type="submit" class="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700">{{ __('Save') }}</button>
+                            </form>
+                        </div>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
 @endsection

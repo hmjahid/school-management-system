@@ -53,7 +53,7 @@ class AdminUserSeeder extends Seeder
                 'data' => [
                     'title' => __('Password reset is now available'),
                     'message' => __('Users can now reset their password from the login page via "Forgot password?".'),
-                    'url' => route('dashboard.settings'),
+                    'url' => \Illuminate\Support\Facades\Route::has('dashboard.settings.index') ? route('dashboard.settings.index') : route('dashboard.settings'),
                 ],
                 'read_at' => null,
             ]);

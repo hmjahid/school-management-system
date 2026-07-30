@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\Batch;
+use App\Models\SchoolClass;
+use App\Models\Section;
 use App\Models\Subject;
 use App\Models\Student;
 use Illuminate\Http\RedirectResponse;
@@ -36,6 +38,7 @@ class DashboardAssignmentController extends Controller
         return view('dashboard.assignments.create', [
             'batches' => Batch::orderBy('id')->limit(100)->get(),
             'subjects' => Subject::orderBy('name')->get(),
+            'classes' => SchoolClass::orderBy('name')->get(),
         ]);
     }
 
@@ -46,15 +49,19 @@ class DashboardAssignmentController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'batch_id' => 'required|exists:batches,id',
+            'class_id' => 'nullable|exists:school_classes,id',
+            'section_id' => 'nullable|exists:sections,id',
             'subject_id' => 'required|exists:subjects,id',
             'due_date' => 'required|date',
             'total_marks' => 'nullable|integer|min:0',
+            'allow_guardian_notes' => 'nullable|boolean',
             'file' => 'nullable|file|max:10240',
         ]);
         if ($request->hasFile('file')) {
             $validated['file_path'] = $request->file('file')->store('assignments', 'public');
         }
         $validated['created_by'] = $request->user()->id;
+        $validated['allow_guardian_notes'] = $request->boolean('allow_guardian_notes');
         Assignment::create($validated);
         return redirect()->route('dashboard.assignments.index')->with('status', __('Assignment created.'));
     }
@@ -62,7 +69,7 @@ class DashboardAssignmentController extends Controller
     public function show(Assignment $assignment): View
     {
         $this->authorize('view', $assignment);
-        $assignment->load(['subject', 'batch', 'createdBy', 'submissions.student.user']);
+        $assignment->load(['subject', 'batch', 'class', 'section', 'createdBy', 'submissions.student.user']);
         return view('dashboard.assignments.show', compact('assignment'));
     }
 
@@ -73,6 +80,7 @@ class DashboardAssignmentController extends Controller
             'assignment' => $assignment,
             'batches' => Batch::orderBy('id')->limit(100)->get(),
             'subjects' => Subject::orderBy('name')->get(),
+            'classes' => SchoolClass::orderBy('name')->get(),
         ]);
     }
 
@@ -83,15 +91,19 @@ class DashboardAssignmentController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'batch_id' => 'required|exists:batches,id',
+            'class_id' => 'nullable|exists:school_classes,id',
+            'section_id' => 'nullable|exists:sections,id',
             'subject_id' => 'required|exists:subjects,id',
             'due_date' => 'required|date',
             'total_marks' => 'nullable|integer|min:0',
+            'allow_guardian_notes' => 'nullable|boolean',
             'file' => 'nullable|file|max:10240',
         ]);
         if ($request->hasFile('file')) {
             if ($assignment->file_path) Storage::disk('public')->delete($assignment->file_path);
             $validated['file_path'] = $request->file('file')->store('assignments', 'public');
         }
+        $validated['allow_guardian_notes'] = $request->boolean('allow_guardian_notes');
         $assignment->update($validated);
         return redirect()->route('dashboard.assignments.index')->with('status', __('Assignment updated.'));
     }
@@ -107,7 +119,7 @@ class DashboardAssignmentController extends Controller
     public function submissions(Assignment $assignment): View
     {
         $this->authorize('view', $assignment);
-        $assignment->load(['submissions.student.user', 'subject', 'batch']);
+        $assignment->load(['submissions.student.user', 'submissions.guardian.user', 'subject', 'batch', 'class', 'section']);
         return view('dashboard.assignments.submissions', compact('assignment'));
     }
 
