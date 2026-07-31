@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', __('Software Info') . ' — ' . config('app.name', 'SchoolEase'))
+@section('title', __('About') . ' — ' . config('app.name', 'SchoolEase'))
 
 @section('content')
     <div class="mx-auto max-w-4xl space-y-6">
