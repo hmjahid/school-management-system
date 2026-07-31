@@ -421,6 +421,8 @@ Route::middleware('auth')->group(function () {
             Route::post('/cms', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateGeneral'])->name('update.cms');
             Route::get('/global-labels', [\App\Http\Controllers\Web\DashboardSettingController::class, 'globalLabels'])->name('global-labels');
             Route::post('/global-labels', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateGlobalLabels'])->name('update.global-labels');
+            Route::get('/about', [\App\Http\Controllers\Web\DashboardSettingController::class, 'about'])->name('about');
+            Route::post('/about', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateAbout'])->name('update.about');
         });
 
         Route::get('/dashboard/cms/pages', [CmsWebController::class, 'pages'])->name('dashboard.cms.pages');

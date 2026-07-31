@@ -344,4 +344,68 @@ class DashboardSettingController extends Controller
         }
         return true;
     }
+
+    public function about(): View
+    {
+        abort_unless(auth()->user()?->can('manage_school_settings'), 403);
+
+        $content = WebsiteContent::firstOrCreate(
+            ['page' => 'about'],
+            ['is_active' => true, 'title_en' => 'About Us']
+        );
+
+        $values = [
+            'en' => $content->content_en ?? [],
+            'bn' => $content->content_bn ?? [],
+        ];
+
+        return view('dashboard.settings.about', compact('content', 'values'));
+    }
+
+    public function updateAbout(Request $request): RedirectResponse
+    {
+        abort_unless(auth()->user()?->can('manage_school_settings'), 403);
+
+        $content = WebsiteContent::firstOrCreate(
+            ['page' => 'about'],
+            ['is_active' => true, 'title_en' => 'About Us']
+        );
+
+        $en = $content->content_en ?? [];
+        $bn = $content->content_bn ?? [];
+
+        $en['intro'] = trim((string) $request->input('intro_en', ''));
+        $bn['intro'] = trim((string) $request->input('intro_bn', ''));
+
+        $rawSections = $request->input('sections', []);
+        $sectionsEn = [];
+        $sectionsBn = [];
+        if (is_array($rawSections)) {
+            foreach ($rawSections as $row) {
+                $hEn = trim((string) ($row['heading_en'] ?? ''));
+                $pEn = trim((string) ($row['paragraphs_en'] ?? ''));
+                $hBn = trim((string) ($row['heading_bn'] ?? ''));
+                $pBn = trim((string) ($row['paragraphs_bn'] ?? ''));
+                $parasEn = $pEn !== '' ? array_filter(explode("\n\n", $pEn), fn($p) => trim($p) !== '') : [];
+                $parasBn = $pBn !== '' ? array_filter(explode("\n\n", $pBn), fn($p) => trim($p) !== '') : [];
+                if ($hEn !== '' || !empty($parasEn)) {
+                    $sectionsEn[] = ['heading' => $hEn, 'paragraphs' => array_values($parasEn)];
+                }
+                if ($hBn !== '' || !empty($parasBn)) {
+                    $sectionsBn[] = ['heading' => $hBn, 'paragraphs' => array_values($parasBn)];
+                }
+            }
+        }
+        $en['sections'] = $sectionsEn;
+        $bn['sections'] = $sectionsBn;
+
+        $content->content_en = $en;
+        $content->content_bn = $bn;
+        $content->title_en = $request->input('title_en', $content->title_en);
+        $content->title_bn = $request->input('title_bn', $content->title_bn);
+        $content->is_active = $request->boolean('is_active', true);
+        $content->save();
+
+        return redirect()->route('dashboard.settings.about')->with('status', __('About page saved.'));
+    }
 }

@@ -223,4 +223,45 @@ class HomeHeroAndSliderTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('min-h-[85vh]', false);
     }
+
+    public function test_dashboard_about_page_renders(): void
+    {
+        $sections = [['heading' => 'History', 'paragraphs' => ['Founded in 2000.']]];
+        WebsiteContent::updateOrCreate(
+            ['page' => 'about'],
+            [
+                'is_active' => true,
+                'title_en' => 'About Us',
+                'content_en' => ['intro' => 'Welcome', 'sections' => $sections],
+                'content_bn' => ['intro' => 'Welcome'],
+            ]
+        );
+
+        $response = $this->actingAs($this->admin())
+            ->get(route('dashboard.settings.about'));
+
+        $response->assertStatus(200);
+        $response->assertSee('About Page', false);
+        $response->assertSee('Welcome', false);
+        $response->assertSee('History', false);
+    }
+
+    public function test_dashboard_about_page_save(): void
+    {
+        $this->actingAs($this->admin())
+            ->post(route('dashboard.settings.update.about'), [
+                'title_en' => 'About Our School',
+                'intro_en' => 'School introduction text.',
+                'sections' => [
+                    ['heading_en' => 'Vision', 'paragraphs_en' => 'Our vision is excellence.'],
+                ],
+                'is_active' => true,
+            ]);
+
+        $content = WebsiteContent::where('page', 'about')->first();
+        $this->assertNotNull($content);
+        $this->assertSame('About Our School', $content->title_en);
+        $this->assertSame('School introduction text.', $content->content_en['intro']);
+        $this->assertSame('Vision', $content->content_en['sections'][0]['heading']);
+    }
 }
