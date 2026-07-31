@@ -2,7 +2,10 @@
 
 @section('title', __('Media library') . ' — ' . config('app.name'))
 
+@php $selectMode = request('select') === '1'; @endphp
+
 @section('content')
+    @if(! $selectMode)
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
             <h1 class="text-2xl font-bold text-gray-900">{{ __('Media library') }}</h1>
@@ -66,7 +69,14 @@
             <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700">{{ __('Upload') }}</button>
         </div>
     </form>
+    @else
+    <div class="mb-4">
+        <h1 class="text-lg font-bold text-gray-900">{{ __('Select media') }}</h1>
+        <p class="text-sm text-gray-500">{{ __('Click an item to select it.') }}</p>
+    </div>
+    @endif
 
+    @if(! $selectMode)
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         @forelse($rows as $row)
             <div class="group overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
@@ -102,8 +112,37 @@
     </div>
 
     <div class="mt-6">{{ $rows->links() }}</div>
+    @else
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        @forelse($rows as $row)
+            <div class="media-select-item group cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:border-indigo-400 hover:shadow-md"
+                 data-url="{{ $row->url() }}">
+                <div class="aspect-video bg-gray-100">
+                    @if($row->isImage())
+                        <img src="{{ $row->url() }}" alt="{{ $row->title }}" class="h-full w-full object-cover">
+                    @else
+                        <div class="flex h-full w-full items-center justify-center bg-gray-50">
+                            <svg class="h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                        </div>
+                    @endif
+                </div>
+                <div class="p-3">
+                    <h3 class="truncate text-sm font-semibold text-gray-900">{{ $row->title }}</h3>
+                    <p class="mt-0.5 text-xs text-gray-500">{{ $row->category ?: '—' }}</p>
+                </div>
+            </div>
+        @empty
+            <div class="col-span-full rounded-xl border border-dashed border-gray-300 bg-white p-10 text-center text-sm text-gray-600">
+                {{ __('No media yet.') }}
+            </div>
+        @endforelse
+    </div>
+
+    <div class="mt-6">{{ $rows->links() }}</div>
+    @endif
 
     <script>
+        @if(! $selectMode)
         document.addEventListener('click', function (e) {
             var btn = e.target.closest('[data-copy-url]');
             if (! btn) return;
@@ -113,5 +152,17 @@
                 setTimeout(function () { btn.textContent = original; }, 1500);
             });
         });
+        @endif
+
+        @if($selectMode)
+        document.addEventListener('click', function (e) {
+            var item = e.target.closest('.media-select-item');
+            if (! item) return;
+            var url = item.dataset.url;
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: 'media-selected', url: url }, '*');
+            }
+        });
+        @endif
     </script>
 @endsection

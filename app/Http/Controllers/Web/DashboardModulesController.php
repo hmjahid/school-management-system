@@ -77,6 +77,10 @@ class DashboardModulesController extends Controller
             });
         }
 
+        if ($status = $request->string('status')->toString()) {
+            $query->where('status', $status);
+        }
+
         $teachers = $query->latest()->paginate(15)->withQueryString();
 
         return view('dashboard.modules.teachers', compact('teachers'));
@@ -164,9 +168,20 @@ class DashboardModulesController extends Controller
             $query->where('status', $status);
         }
 
+        if ($classId = $request->integer('class_id')) {
+            $query->whereHas('student', fn ($q) => $q->where('class_id', $classId));
+        }
+
+        if ($sectionId = $request->integer('section_id')) {
+            $query->whereHas('student', fn ($q) => $q->where('section_id', $sectionId));
+        }
+
         $records = $query->paginate(20)->withQueryString();
 
-        return view('dashboard.modules.attendance', compact('records'));
+        $classes = SchoolClass::orderBy('grade_level')->get();
+        $sections = Section::orderBy('name')->get();
+
+        return view('dashboard.modules.attendance', compact('records', 'classes', 'sections'));
     }
 
     public function exams(Request $request): View
@@ -187,9 +202,15 @@ class DashboardModulesController extends Controller
             }
         }
 
+        if ($classId = $request->integer('class_id')) {
+            $query->where('class_id', $classId);
+        }
+
         $exams = $query->latest('start_date')->paginate(15)->withQueryString();
 
-        return view('dashboard.modules.exams', compact('exams'));
+        $classes = SchoolClass::orderBy('grade_level')->get();
+
+        return view('dashboard.modules.exams', compact('exams', 'classes'));
     }
 
     public function fees(Request $request): View
@@ -211,6 +232,10 @@ class DashboardModulesController extends Controller
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
+        }
+
+        if ($request->filled('fee_type')) {
+            $query->where('fee_type', $request->fee_type);
         }
 
         $fees = $query->latest()->paginate(15)->withQueryString();

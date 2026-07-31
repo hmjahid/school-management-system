@@ -192,12 +192,21 @@
             @if($pastEvents->isNotEmpty())
                 <section class="mt-16 reveal">
                     <h2 class="text-xl font-bold text-slate-900">{{ site_ui('news.past_events_heading') }}</h2>
-                    <div class="mt-2 h-1 w-16 bg-gradient-to-r from-slate-400 to-slate-500 rounded-full"></div>
+                    <div class="mt-2 h-1 w-16 bg-gradient-to-r from-teal-400 to-teal-600 rounded-full"></div>
                     <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         @foreach ($pastEvents as $ev)
-                            <div class="rounded-xl border border-slate-100 bg-slate-50 p-4 opacity-75">
-                                <p class="font-medium text-slate-800">{{ $ev->title }}</p>
-                                <time class="mt-1 block text-sm text-slate-500">{{ $ev->start_date?->format('M j, Y') }}</time>
+                            <div class="group rounded-xl border border-slate-100 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
+                                <h3 class="font-semibold text-slate-900 group-hover:text-teal-600 transition-colors">{{ $ev->title }}</h3>
+                                <div class="mt-3 flex items-center gap-2 text-sm text-slate-500">
+                                    <svg class="h-4 w-4 shrink-0 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                    <time>{{ $ev->start_date?->format('M j, Y') }}</time>
+                                </div>
+                                @if($ev->location)
+                                    <div class="mt-1.5 flex items-center gap-2 text-sm text-slate-500">
+                                        <svg class="h-4 w-4 shrink-0 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                        <span>{{ $ev->location }}</span>
+                                    </div>
+                                @endif
                             </div>
                         @endforeach
                     </div>

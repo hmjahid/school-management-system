@@ -21,49 +21,46 @@
                 <option value="active" @selected(request('status') === 'active')>{{ __('Active') }}</option>
                 <option value="inactive" @selected(request('status') === 'inactive')>{{ __('Inactive') }}</option>
             </select>
+            <select name="fee_type" class="rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <option value="">{{ __('Any type') }}</option>
+                <option value="tuition" @selected(request('fee_type') === 'tuition')>{{ __('Tuition') }}</option>
+                <option value="admission" @selected(request('fee_type') === 'admission')>{{ __('Admission') }}</option>
+                <option value="exam" @selected(request('fee_type') === 'exam')>{{ __('Exam') }}</option>
+                <option value="transport" @selected(request('fee_type') === 'transport')>{{ __('Transport') }}</option>
+                <option value="library" @selected(request('fee_type') === 'library')>{{ __('Library') }}</option>
+                <option value="uniform" @selected(request('fee_type') === 'uniform')>{{ __('Uniform') }}</option>
+                <option value="other" @selected(request('fee_type') === 'other')>{{ __('Other') }}</option>
+            </select>
             <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">{{ __('Filter') }}</button>
         </form>
     </div>
 
-    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 text-sm">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Name') }}</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Code') }}</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Amount') }}</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Class') }}</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Status') }}</th>
-                        @if ($canManageFees)
-                            <th class="px-4 py-3 text-right font-semibold text-gray-700">{{ __('Actions') }}</th>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        @forelse ($fees as $fee)
+            <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+                <div class="mb-3 flex items-start justify-between">
+                    <div>
+                        <h3 class="font-semibold text-gray-900">{{ $fee->name }}</h3>
+                        @if($fee->code)
+                            <p class="mt-0.5 font-mono text-xs text-gray-500">{{ $fee->code }}</p>
                         @endif
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @forelse ($fees as $fee)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-3 font-medium text-gray-900">{{ $fee->name }}</td>
-                            <td class="px-4 py-3 text-gray-700">{{ $fee->code ?? '—' }}</td>
-                            <td class="px-4 py-3 text-gray-700">{{ number_format((float) ($fee->amount ?? 0), 2) }}</td>
-                            <td class="px-4 py-3 text-gray-700">{{ $fee->schoolClass?->name ?? '—' }}</td>
-                            <td class="px-4 py-3 text-gray-700">{{ $fee->status ?? '—' }}</td>
-                            @if ($canManageFees)
-                                <td class="px-4 py-3 text-right text-sm">
-                                    <a href="{{ route('dashboard.fees.edit', $fee) }}" class="font-medium text-blue-600 hover:text-blue-800">{{ __('Edit') }}</a>
-                                </td>
-                            @endif
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="{{ $canManageFees ? 6 : 5 }}" class="px-4 py-8 text-center text-gray-500">{{ __('No fee definitions found.') }}</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        @if ($fees->hasPages())
-            <div class="border-t border-gray-200 px-4 py-3">{{ $fees->links() }}</div>
-        @endif
+                    </div>
+                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium {{ $fee->status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600' }}">{{ ucfirst($fee->status ?? 'active') }}</span>
+                </div>
+                <div class="mb-3 space-y-1 text-sm text-gray-600">
+                    <div class="flex justify-between"><span>{{ __('Amount') }}</span><span class="font-medium text-gray-900">{{ number_format((float) ($fee->amount ?? 0), 2) }}</span></div>
+                    <div class="flex justify-between"><span>{{ __('Type') }}</span><span class="font-medium text-gray-900">{{ ucfirst($fee->fee_type ?? 'other') }}</span></div>
+                    <div class="flex justify-between"><span>{{ __('Class') }}</span><span class="font-medium text-gray-900">{{ $fee->schoolClass?->name ?? '—' }}</span></div>
+                </div>
+                @if ($canManageFees)
+                    <a href="{{ route('dashboard.fees.edit', $fee) }}" class="block w-full rounded-lg border border-blue-200 bg-blue-50 py-2 text-center text-sm font-medium text-blue-700 hover:bg-blue-100">{{ __('Edit') }}</a>
+                @endif
+            </div>
+        @empty
+            <div class="col-span-full py-12 text-center text-gray-500">{{ __('No fee definitions found.') }}</div>
+        @endforelse
     </div>
+    @if ($fees->hasPages())
+        <div class="mt-4">{{ $fees->links() }}</div>
+    @endif
 @endsection

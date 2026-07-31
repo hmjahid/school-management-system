@@ -518,6 +518,12 @@ create a proper prompt to implement the above tasks and add the prompt in featur
 
 
 
+add some theme syles. based on the styles, the whole frontend website styles and design will be chnaged. contents will remain same
+
+
+
+
+
 
 
 

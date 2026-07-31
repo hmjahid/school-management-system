@@ -28,13 +28,15 @@ return [
             [
                 'key' => 'hero_design',
                 'label' => 'Hero design',
-                'help' => 'Choose one of the 4 hero layouts shown at the top of the homepage.',
+                'help' => 'Choose one of the 6 hero layouts shown at the top of the homepage.',
                 'type' => 'select',
                 'options' => [
                     'design-1' => 'Design 1 — Dark split with notices panel',
                     'design-2' => 'Design 2 — Centered banner',
                     'design-3' => 'Design 3 — Light split with photo',
                     'design-4' => 'Design 4 — Minimal gradient',
+                    'design-5' => 'Design 5 — Full-width image with school name',
+                    'design-6' => 'Design 6 — School name with hero slider',
                 ],
             ],
             [

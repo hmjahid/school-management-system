@@ -27,7 +27,7 @@
         $highlightsFallback = $highlights ?: site_ui('home.highlights_default', []);
 
         $heroDesign = $hc['hero_design'] ?? 'design-1';
-        if (! in_array($heroDesign, ['design-1', 'design-2', 'design-3', 'design-4'], true)) {
+        if (! in_array($heroDesign, ['design-1', 'design-2', 'design-3', 'design-4', 'design-5', 'design-6'], true)) {
             $heroDesign = 'design-1';
         }
         $sliderSlides = $hc['slider'] ?? [];
@@ -61,6 +61,7 @@
             'stats' => $stats,
             'statsL' => $statsL,
             'admissionsOpen' => $admissionsOpen,
+            'sliderSlides' => $sliderSlides,
         ])
     @endif
 
@@ -315,6 +316,38 @@
             </div>
         </div>
     </section>
+    @endif
+
+    {{-- Recent Events --}}
+    @if(($sectionVis['events'] ?? true) && $recentEvents->isNotEmpty())
+        <section class="bg-white py-20">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="mb-10 flex flex-wrap items-end justify-between gap-4 reveal">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900">{{ site_ui('events.recent_heading') ?: 'Recent Events' }}</h2>
+                        <div class="mt-2 h-1 w-20 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full"></div>
+                    </div>
+                    <a href="{{ route('site.news') }}" class="inline-flex items-center gap-1 font-medium text-blue-600 hover:text-blue-800">{{ $eventsH['view_all'] ?? site_ui('home.events_view_all') }} <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
+                </div>
+                <div class="grid gap-6 md:grid-cols-3">
+                    @foreach ($recentEvents->take(6) as $ev)
+                        <div class="group rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-100 transition-all duration-300 hover:shadow-xl reveal">
+                            <div class="inline-flex items-center gap-2 rounded-lg bg-orange-50 px-3 py-1.5 text-sm font-semibold text-orange-700">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                <time datetime="{{ $ev->start_date?->toIso8601String() }}">{{ $ev->start_date?->format('M j, Y') }}</time>
+                            </div>
+                            <h3 class="mt-4 text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{{ $ev->title }}</h3>
+                            @if($ev->location)
+                                <p class="mt-2 flex items-center gap-1.5 text-sm text-gray-500">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                    {{ $ev->location }}
+                                </p>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </section>
     @endif
 
     {{-- Upcoming Events --}}

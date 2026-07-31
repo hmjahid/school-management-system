@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\AdmissionSetting;
+use App\Models\Event;
 use App\Models\User;
 use App\Models\WebsiteContent;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -51,6 +52,8 @@ class HomeHeroAndSliderTest extends TestCase
         $response->assertSee('Design 2 — Centered banner', false);
         $response->assertSee('Design 3 — Light split with photo', false);
         $response->assertSee('Design 4 — Minimal gradient', false);
+        $response->assertSee('Design 5 — Full-width image with school name', false);
+        $response->assertSee('Design 6 — School name with hero slider', false);
         $response->assertSee('data-cms-repeater', false);
         $response->assertSee('Photo slider', false);
     }
@@ -198,5 +201,28 @@ class HomeHeroAndSliderTest extends TestCase
         $response->assertSee('Managing committee information', false);
         $response->assertSee('About this website software', false);
         $response->assertSee('self-hosted school management system', false);
+    }
+
+    public function test_homepage_renders_recent_events_section(): void
+    {
+        Event::create([
+            'title' => 'Past Event',
+            'status' => 'published',
+            'start_date' => now()->subDays(5),
+            'created_by' => $this->admin()->id,
+        ]);
+
+        $response = $this->get('/');
+        $response->assertStatus(200);
+        $response->assertSee('Recent Events', false);
+    }
+
+    public function test_homepage_renders_design_5_full_width_hero(): void
+    {
+        $this->updateHome(['hero_design' => 'design-5']);
+
+        $response = $this->get('/');
+        $response->assertStatus(200);
+        $response->assertSee('min-h-[85vh]', false);
     }
 }

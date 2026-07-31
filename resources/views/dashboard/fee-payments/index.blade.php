@@ -13,6 +13,15 @@
             <option value="{{ $s }}" @selected(request('status') === $s)>{{ __(ucfirst($s)) }}</option>
         @endforeach
     </select>
+    <select name="payment_method" class="rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+        <option value="">{{ __('All methods') }}</option>
+        <option value="cash" @selected(request('payment_method') === 'cash')>{{ __('Cash') }}</option>
+        <option value="bank_transfer" @selected(request('payment_method') === 'bank_transfer')>{{ __('Bank Transfer') }}</option>
+        <option value="check" @selected(request('payment_method') === 'check')>{{ __('Check') }}</option>
+        <option value="online_payment" @selected(request('payment_method') === 'online_payment')>{{ __('Online Payment') }}</option>
+        <option value="mobile_banking" @selected(request('payment_method') === 'mobile_banking')>{{ __('Mobile Banking') }}</option>
+        <option value="other" @selected(request('payment_method') === 'other')>{{ __('Other') }}</option>
+    </select>
     <button type="submit" class="rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700">{{ __('Filter') }}</button>
 </form>
 <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">

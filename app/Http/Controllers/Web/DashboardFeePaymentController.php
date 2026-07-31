@@ -23,6 +23,9 @@ class DashboardFeePaymentController extends Controller
         if ($status = $request->string('status')->toString()) {
             $query->where('status', $status);
         }
+        if ($paymentMethod = $request->string('payment_method')->toString()) {
+            $query->where('payment_method', $paymentMethod);
+        }
 
         $payments = $query->latest()->paginate(20)->withQueryString();
         return view('dashboard.fee-payments.index', compact('payments'));

@@ -24,6 +24,24 @@
                     <option value="late" @selected(request('status') === 'late')>{{ __('Late') }}</option>
                 </select>
             </div>
+            <div>
+                <label class="mb-1 block text-xs font-medium text-gray-500">{{ __('Class') }}</label>
+                <select name="class_id" class="rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    <option value="">{{ __('Any class') }}</option>
+                    @foreach ($classes as $class)
+                        <option value="{{ $class->id }}" @selected(request('class_id') == $class->id)>{{ $class->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="mb-1 block text-xs font-medium text-gray-500">{{ __('Section') }}</label>
+                <select name="section_id" class="rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    <option value="">{{ __('Any section') }}</option>
+                    @foreach ($sections as $section)
+                        <option value="{{ $section->id }}" @selected(request('section_id') == $section->id)>{{ $section->name }}</option>
+                    @endforeach
+                </select>
+            </div>
             <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">{{ __('Filter') }}</button>
         </form>
         </div>
