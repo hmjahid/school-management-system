@@ -78,6 +78,18 @@ class HomeHeroAndSliderTest extends TestCase
         $response->assertSee('text-center', false);
     }
 
+    public function test_hero_design_persists_in_bengali_locale(): void
+    {
+        $this->updateHome(['hero_design' => 'design-3']);
+
+        $response = $this->get('/?lang=bn');
+        $response->assertStatus(200);
+
+        // design-3 light split hero marker must appear even in BN locale
+        $response->assertSee('rounded-3xl', false);
+        $response->assertSee('bg-slate-50', false);
+    }
+
     public function test_homepage_defaults_to_design_1(): void
     {
         $response = $this->get('/');

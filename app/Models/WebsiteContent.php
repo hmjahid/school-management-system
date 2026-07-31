@@ -178,6 +178,14 @@ class WebsiteContent extends Model
                 if ($bnStr !== '' && $bnStr !== $enStr) {
                     $out[$k] = $bnV;
                 }
+            } elseif (is_scalar($enV) && $bnV === null) {
+                // Configuration/selection keys (e.g. hero_design) have no
+                // translation — keep the English value so behavior persists
+                // across locales. Only treat known text-like keys as missing.
+                static $textLike = ['title', 'heading', 'intro', 'motto', 'caption', 'message', 'quote', 'cta_primary', 'cta_secondary', 'view_all', 'section_title', 'name', 'designation', 'subtitle'];
+                if (! in_array($k, $textLike, true)) {
+                    $out[$k] = $enV;
+                }
             }
         }
 
