@@ -69,6 +69,7 @@ return [
     'administration' => 'Administration',
     'help_group' => 'Help',
     'users' => 'Users',
+    'users_and_roles' => 'Users & Roles',
     'roles' => 'Roles',
     'permissions' => 'Permissions',
     'add_user' => 'Add User',

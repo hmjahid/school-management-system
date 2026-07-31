@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdmissionSetting;
 use App\Models\Event;
 use App\Models\News;
 use App\Models\Notice;
@@ -105,6 +106,15 @@ class HomeController extends Controller
                 : null,
         ];
 
+        $admissionsOpen = true;
+        if (Schema::hasTable('admission_settings')) {
+            try {
+                $admissionsOpen = (bool) AdmissionSetting::getSettings()->is_open;
+            } catch (\Throwable) {
+                //
+            }
+        }
+
         try {
             if (Schema::hasTable('students')) {
                 $stats['students'] = Student::count();
@@ -125,7 +135,8 @@ class HomeController extends Controller
             'teachers',
             'remarkableStudents',
             'sliderFallback',
-            'stats'
+            'stats',
+            'admissionsOpen'
         ));
     }
 }

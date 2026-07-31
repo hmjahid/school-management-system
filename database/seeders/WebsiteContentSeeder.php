@@ -66,6 +66,12 @@ class WebsiteContentSeeder extends Seeder
                         'title' => 'Latest Notices',
                         'view_all' => 'View all notices',
                     ],
+                    'slider' => [
+                        ['image' => 'https://picsum.photos/seed/school-campus/1600/900', 'title' => 'Modern campus facilities', 'caption' => 'Purpose-built classrooms and labs for hands-on learning', 'link' => '/about'],
+                        ['image' => 'https://picsum.photos/seed/school-sports/1600/900', 'title' => 'Annual sports day', 'caption' => 'Celebrating teamwork, sportsmanship and school spirit', 'link' => '/news'],
+                        ['image' => 'https://picsum.photos/seed/school-science/1600/900', 'title' => 'Science fair 2026', 'caption' => 'Students showcase innovative projects', 'link' => '/news'],
+                        ['image' => 'https://picsum.photos/seed/school-culture/1600/900', 'title' => 'Cultural programs', 'caption' => 'A stage for art, music and creativity', 'link' => '/gallery'],
+                    ],
                     'features_heading' => [
                         'title' => 'Why Choose Us',
                         'intro' => 'Discover what makes our school a nurturing environment for academic and personal growth.',
@@ -140,6 +146,12 @@ class WebsiteContentSeeder extends Seeder
                     'notices' => [
                         'title' => 'সর্বশেষ নোটিশ',
                         'view_all' => 'সকল নোটিশ দেখুন',
+                    ],
+                    'slider' => [
+                        ['image' => 'https://picsum.photos/seed/school-campus/1600/900', 'title' => 'আধুনিক ক্যাম্পাস সুবিধা', 'caption' => 'হাতেকলমে শেখার জন্য নির্মিত শ্রেণীকক্ষ ও ল্যাব', 'link' => '/about'],
+                        ['image' => 'https://picsum.photos/seed/school-sports/1600/900', 'title' => 'বার্ষিক ক্রীড়া দিবস', 'caption' => 'দলগত কাজ, খেলার মনোভাব ও স্কুলের চেতনা উদ্‌যাপন', 'link' => '/news'],
+                        ['image' => 'https://picsum.photos/seed/school-science/1600/900', 'title' => 'বিজ্ঞান মেলা ২০২৬', 'caption' => 'শিক্ষার্থীরা উদ্ভাবনী প্রকল্প প্রদর্শন করছে', 'link' => '/news'],
+                        ['image' => 'https://picsum.photos/seed/school-culture/1600/900', 'title' => 'সাংস্কৃতিক অনুষ্ঠান', 'caption' => 'শিল্প, সংগীত ও সৃজনশীলতার মঞ্চ', 'link' => '/gallery'],
                     ],
                     'features_heading' => [
                         'title' => 'কেন আমাদের বেছে নেবেন',
@@ -230,6 +242,27 @@ class WebsiteContentSeeder extends Seeder
                         ]),
                         $section('Achievements & accreditations', [
                             'Board examination results, national competition placements, and community service awards are updated each term on the news page.',
+                        ]),
+                        $section('Education ministry website guidelines', [
+                            'Following the directives of the Ministry of Education and the Directorate of Secondary and Higher Education (DSHE), this website publishes and regularly updates the required information for educational institutions.',
+                        ], [
+                            'Institution profile and identity',
+                            'Approval and recognition for conducting academic activities',
+                            'Student information by class and gender',
+                            'Class-wise approved sections',
+                            'Academic information — full routine with teachers\' names, syllabus, and notices',
+                            'MPO information',
+                            'Contact address including phone and mobile numbers',
+                            'Information service centre address and mobile number',
+                            'Complaint redressal officer address and mobile number',
+                            'Head of institution and all teachers and staff information',
+                            'Managing committee information',
+                        ]),
+                        $section('About this website software', [
+                            'This website is powered by a self-hosted school management system that combines the public website with a complete administration dashboard.',
+                            'The platform manages admissions, students and teachers, attendance, class routines, assignments, exams and results, fees and payments, library, transport, hostels, notices, news, gallery, documents, and reports.',
+                            'All public-facing content — including this page, the homepage slider, hero design, principal message, and navigation labels — can be updated from the admin dashboard without touching code.',
+                            'The system also provides online admission applications, public result lookup, a parent portal, and multilingual support in English and Bengali.',
                         ]),
                         $section('School anthem & emblem', [
                             'Lyrics and emblem usage guidelines are available from the school office and can be published here via the CMS.',

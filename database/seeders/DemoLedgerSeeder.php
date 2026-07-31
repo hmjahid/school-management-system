@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\ChartOfAccount;
+use App\Models\Expense;
+use App\Models\FeePayment;
 use App\Models\LedgerEntry;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
@@ -32,7 +34,7 @@ class DemoLedgerSeeder extends Seeder
                         'note' => 'Monthly collection - ' . $account->name_en,
                         'debit' => 0,
                         'credit' => rand(2, 5) * 10000,
-                        'reference_type' => 'fee_payment',
+                        'reference_type' => FeePayment::class,
                         'reference_id' => rand(1, 100),
                     ]);
                 }
@@ -47,7 +49,7 @@ class DemoLedgerSeeder extends Seeder
                         'note' => $account->name_en . ' - ' . $date->format('F Y'),
                         'debit' => rand(1, 10) * 5000,
                         'credit' => 0,
-                        'reference_type' => ['expense', 'bill'][rand(0, 1)],
+                        'reference_type' => Expense::class,
                         'reference_id' => rand(1, 50),
                     ]);
                 }
@@ -60,7 +62,7 @@ class DemoLedgerSeeder extends Seeder
             'note' => 'Opening balance - Cash on Hand',
             'debit' => 150000,
             'credit' => 0,
-            'reference_type' => 'opening_balance',
+            'reference_type' => null,
             'reference_id' => null,
         ]);
 
@@ -71,7 +73,7 @@ class DemoLedgerSeeder extends Seeder
                 'note' => 'Opening balance - Bank Account',
                 'debit' => 500000,
                 'credit' => 0,
-                'reference_type' => 'opening_balance',
+                'reference_type' => null,
                 'reference_id' => null,
             ]);
         }

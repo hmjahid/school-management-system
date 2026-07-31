@@ -60,6 +60,7 @@
             'sectionVis' => $sectionVis,
             'stats' => $stats,
             'statsL' => $statsL,
+            'admissionsOpen' => $admissionsOpen,
         ])
     @endif
 
@@ -169,34 +170,40 @@
     @if(($sectionVis['principal'] ?? true) && !empty($principalMessage))
         <section class="bg-white py-20">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="grid items-center gap-12 lg:grid-cols-2 reveal">
-                    <div class="relative">
-                        @if(!empty($principal['photo']))
-                            <img src="{{ $principal['photo'] }}" alt="" class="w-full rounded-2xl shadow-2xl object-cover aspect-[4/5]">
-                        @else
-                            <div class="w-full aspect-[4/5] rounded-2xl bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center">
-                                <svg class="h-24 w-24 text-blue-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
-                            </div>
-                        @endif
-                        <div class="absolute -bottom-4 -right-4 h-24 w-24 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-xl">
-                            <svg class="h-10 w-10 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+                <div class="mb-12 text-center reveal">
+                    <h2 class="text-3xl font-bold text-gray-900">{{ $principal['section_title'] ?? site_ui('home.principal_title') }}</h2>
+                    <div class="mx-auto mt-3 h-1 w-20 rounded-full bg-gradient-to-r from-orange-400 to-orange-600"></div>
+                </div>
+                <div class="grid items-center gap-12 lg:grid-cols-5 lg:gap-16 reveal">
+                    <div class="lg:col-span-2">
+                        <div class="relative mx-auto w-full max-w-xs">
+                            @if(!empty($principal['photo']))
+                                <img src="{{ $principal['photo'] }}" alt="{{ $principal['name'] ?? __('Principal') }}"
+                                    class="aspect-[4/3] w-full rounded-2xl object-cover shadow-xl ring-1 ring-slate-200">
+                            @else
+                                <div class="flex aspect-[4/3] w-full items-center justify-center rounded-2xl bg-gradient-to-br from-blue-100 to-indigo-100">
+                                    <svg class="h-20 w-20 text-blue-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+                                </div>
+                            @endif
+                            @if(!empty($principal['name']))
+                                <div class="absolute -bottom-5 left-1/2 w-max -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-orange-500 to-orange-600 px-5 py-2 text-sm font-semibold text-white shadow-lg">
+                                    {{ $principal['name'] }}
+                                    @if(!empty($principal['designation']))
+                                        <span class="font-normal text-orange-100">· {{ $principal['designation'] }}</span>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                     </div>
-                    <div>
-                        <h2 class="text-4xl font-bold text-gray-900">{{ $principal['section_title'] ?? site_ui('home.principal_title') }}</h2>
-                        <div class="mt-3 h-1 w-20 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full"></div>
-                        <blockquote class="mt-8 text-lg leading-relaxed text-gray-600 italic border-l-4 border-orange-400 pl-6">
-                            {{ $principalMessage }}
-                        </blockquote>
-                        @if(!empty($principal['name']))
-                            <div class="mt-8 flex items-center gap-4">
-                                <div class="h-1 w-8 bg-orange-400 rounded-full"></div>
-                                <div>
-                                    <p class="text-xl font-bold text-gray-900">{{ $principal['name'] }}</p>
-                                    <p class="text-sm text-gray-500">{{ $principal['designation'] ?? __('Principal') }}</p>
-                                </div>
+                    <div class="lg:col-span-3">
+                        <div class="relative rounded-2xl border border-orange-100 bg-orange-50/50 p-8 sm:p-10">
+                            <svg class="absolute -top-5 -left-4 h-12 w-12 text-orange-300" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10H14.017zM0 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151C7.544 6.068 5.982 8.79 5.982 11H10v10H0z"/></svg>
+                            <blockquote class="mt-2 text-lg leading-relaxed text-gray-700">{{ $principalMessage }}</blockquote>
+                            <div class="mt-6 flex items-center gap-3">
+                                <div class="h-1 w-10 rounded-full bg-orange-400"></div>
+                                <p class="text-sm font-medium uppercase tracking-wide text-gray-500">{{ $principal['designation'] ?? __('Principal') }}</p>
                             </div>
-                        @endif
+                        </div>
                     </div>
                 </div>
             </div>

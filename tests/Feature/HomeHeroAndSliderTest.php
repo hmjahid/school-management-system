@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\AdmissionSetting;
 use App\Models\User;
 use App\Models\WebsiteContent;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -137,5 +138,65 @@ class HomeHeroAndSliderTest extends TestCase
         $response->assertSee('/storage/media/slide-1.jpg', false);
         $response->assertSee('data-slider-carousel', false);
         $response->assertSee('Recent events', false);
+    }
+
+    public function test_hero_shows_admission_button_when_admissions_open(): void
+    {
+        AdmissionSetting::getSettings()->update(['is_open' => true]);
+
+        $response = $this->get('/');
+        $response->assertStatus(200);
+        $response->assertSee('Apply for admission', false);
+    }
+
+    public function test_hero_hides_admission_button_and_shows_contact_when_closed(): void
+    {
+        AdmissionSetting::getSettings()->update(['is_open' => false]);
+
+        $response = $this->get('/');
+        $response->assertStatus(200);
+        $response->assertDontSee('Apply for admission', false);
+        $response->assertSee(route('site.contact'), false);
+        $response->assertSee('Contact us', false);
+    }
+
+    public function test_uploaded_principal_photo_renders_on_homepage(): void
+    {
+        $this->updateHome([
+            'principal_section_title_en' => "Principal's Message",
+            'principal_photo_en' => '/storage/media/principal.jpg',
+            'principal_name_en' => 'Dr. Amina Rahman',
+            'principal_designation_en' => 'Principal',
+            'principal_message_en' => 'Welcome to our school.',
+        ]);
+
+        $response = $this->get('/');
+        $response->assertStatus(200);
+        $response->assertSee('/storage/media/principal.jpg', false);
+        $response->assertSee('Dr. Amina Rahman', false);
+    }
+
+    public function test_about_page_contains_ministry_guidelines_and_software_details(): void
+    {
+        $about = WebsiteContent::updateOrCreate(
+            ['page' => 'about'],
+            [
+                'is_active' => true,
+                'title_en' => 'About Us',
+                'content_en' => [
+                    'sections' => [
+                        ['heading' => 'Education ministry website guidelines', 'paragraphs' => ['DSHE directive.'], 'bullets' => ['Institution profile and identity', 'Managing committee information']],
+                        ['heading' => 'About this website software', 'paragraphs' => ['Powered by a self-hosted school management system.']],
+                    ],
+                ],
+            ]
+        );
+
+        $response = $this->get('/about');
+        $response->assertStatus(200);
+        $response->assertSee('Education ministry website guidelines', false);
+        $response->assertSee('Managing committee information', false);
+        $response->assertSee('About this website software', false);
+        $response->assertSee('self-hosted school management system', false);
     }
 }

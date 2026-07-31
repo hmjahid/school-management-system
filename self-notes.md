@@ -481,7 +481,7 @@ ledger and medi apage showing eroor. fix the issues
 
 add demo conetnet in homepage slider section
 
-i told to create help group an dadministration group like main, webiste etc not sub items group. them move user & roles to the administration group and help & documentation page to the help group. rename back to users and roles
+i told to create help group and administration group like main, webiste etc not sub items group. then move users & roles to the administration group and help & documentation page to the help group. rename back to users and roles
 
 when admisssion will be off, homepage hero admission button will be hidden and contact us button will be shown insated.
 search for nay instructions from eduaction ministry for school website 
@@ -491,6 +491,32 @@ add a about page and add details of this software in that page.
 make priciple message section more arranged. reduce the height of priciple image. ensure that uploaded priciple image will be rendered here.
 
 create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-13.md file. then implement the tasks using the prompt
+
+
+
+
+users & roles, roles and permissions pages will be in a main dropdown page named users & roles like daily or hr
+
+cms media input fileds or any others media input filedls will be able to slecet alreday uploaded files from media library
+
+move homepage recent events section on top of the upcoming events
+
+add a one more hero section design which only will have school nmae, and schol image with full width. and one more hero section design with school name and a slider in the heo section. 
+
+add payment type filter in payment page.
+
+add fees type filter in fees page. mak ethe fees page columns dirceted. not row directed
+
+add proper filter system in all pages  where necesary
+
+when opeing school info page, the setting sidebar item also showing slecetd. fix the issue.
+
+add same recent events section of homepage in nes page or make tehe new page past events section more arranged andatttractive
+
+create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-14.md file. then implement the tasks using the prompt
+
+
+
 
 
 
@@ -511,3 +537,5 @@ now write a commit message for the chnages after the last commit
 is it possible to make this softaware a fully functional custimizable wordpress theme? how? tell me only.
 
 i want to name this software a nice name for branding.the dahboard sidebar top name will be nmaed after this name and the pwa appliction also willb enamed after this name. suggest me some best nmaes for this application/software.
+
+

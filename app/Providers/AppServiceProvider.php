@@ -13,6 +13,7 @@ use App\Observers\FinanceObserver;
 use App\Services\LogPushNotificationService;
 use App\Services\LogSmsService;
 use App\Support\SiteFrontend;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
@@ -35,6 +36,11 @@ class AppServiceProvider extends ServiceProvider
         if (session()->has('dashboard_locale')) {
             app()->setLocale(session('dashboard_locale'));
         }
+
+        Relation::morphMap([
+            'fee_payment' => FeePayment::class,
+            'expense' => Expense::class,
+        ]);
 
         if (Schema::hasTable('attendances')) {
             Attendance::observe(AttendanceObserver::class);

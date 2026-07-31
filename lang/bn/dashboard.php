@@ -69,6 +69,7 @@ return [
     'administration' => 'অ্যাডমিনিস্ট্রেশন',
     'help_group' => 'সহায়তা',
     'users' => 'ব্যবহারকারী',
+    'users_and_roles' => 'ব্যবহারকারী ও ভূমিকা',
     'roles' => 'ভূমিকা',
     'permissions' => 'অনুমতি',
     'add_user' => 'ব্যবহারকারী যোগ করুন',
