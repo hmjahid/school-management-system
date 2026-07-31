@@ -109,7 +109,6 @@
                         </select>
                     </div>
                 </div>
-                </div>
             </div>
             <div class="mt-6 flex justify-end">
                 <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">
