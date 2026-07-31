@@ -6,7 +6,7 @@
 
 @section('content')
     @if($selectMode)
-    <div class="flex h-screen flex-col">
+    <div class="flex h-[80vh] flex-col">
         <div class="border-b border-slate-200 bg-white/90 px-5 py-4 backdrop-blur">
             <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
