@@ -58,8 +58,7 @@ class HomeController extends Controller
             if (Schema::hasTable('events')) {
                 $recentEvents = Event::query()
                     ->where('status', 'published')
-                    ->where('start_date', '<', now())
-                    ->orderByDesc('start_date')
+                    ->orderByDesc('id')
                     ->limit(5)
                     ->get();
             }

@@ -212,7 +212,7 @@ class HomeHeroAndSliderTest extends TestCase
 
         $response = $this->get('/');
         $response->assertStatus(200);
-        $response->assertSee('Recent Events', false);
+        $response->assertSee('Recent Events and Activities', false);
     }
 
     public function test_homepage_renders_design_5_full_width_hero(): void

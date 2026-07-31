@@ -7,8 +7,9 @@
 @section('content')
     @if($selectMode)
     <style>
-        .admin-sidebar, [class*="sidebar"], nav.admin-sidebar-nav { display: none !important; }
-        .admin-content, [class*="content-wrapper"] { margin-left: 0 !important; padding: 0 !important; }
+        #sidebar, .admin-shell aside, nav.admin-sidebar-nav { display: none !important; }
+        .admin-shell { display: block !important; }
+        .admin-shell main { margin-left: 0 !important; padding: 16px !important; overflow: visible !important; }
         body { overflow: auto !important; }
     </style>
     @endif

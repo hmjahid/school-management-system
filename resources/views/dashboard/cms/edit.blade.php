@@ -56,7 +56,7 @@
                 ];
                 $partial = $partialMap[$type] ?? null;
             @endphp
-            <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+            <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm" @if($key === 'hero') data-hero-section @endif>
                 <header class="mb-4">
                     <h2 class="text-base font-semibold text-gray-900">{{ $section['label'] ?? ucfirst($key) }}</h2>
                     @if(! empty($section['help']))
@@ -103,28 +103,73 @@
         </div>
     </form>
 
-    <script>
+    {{-- Media library browser modal (rendered once) --}}
+    <div id="media-browser-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60">
+        <div class="relative flex h-[80vh] w-[80vw] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div class="flex items-center justify-between border-b border-gray-200 px-5 py-3">
+                <h3 class="text-sm font-semibold text-gray-900">{{ __('Media Library') }}</h3>
+                <button type="button" onclick="closeMediaBrowser()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <iframe id="media-browser-frame" src="" class="flex-1 border-0"></iframe>
+        </div>
+    </div>
+
+        <script>
         (function () {
+            // Media library browser
+            window.openMediaBrowser = function (btn) {
+                var input = btn.closest('div').querySelector('input[type="url"]');
+                if (! input) input = btn.parentElement.querySelector('input[type="url"]');
+                var overlay = document.getElementById('media-browser-overlay');
+                var iframe = document.getElementById('media-browser-frame');
+                overlay.dataset.targetInput = input.id;
+                iframe.src = '/dashboard/media?select=1';
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+            };
+
+            window.closeMediaBrowser = function () {
+                var overlay = document.getElementById('media-browser-overlay');
+                var iframe = document.getElementById('media-browser-frame');
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+                iframe.src = '';
+            };
+
+            window.addEventListener('message', function (e) {
+                if (e.data && e.data.type === 'media-selected') {
+                    var overlay = document.getElementById('media-browser-overlay');
+                    var inputId = overlay.dataset.targetInput;
+                    if (inputId) {
+                        var input = document.getElementById(inputId);
+                        if (input) {
+                            input.value = e.data.url;
+                            var preview = input.parentElement.querySelector('img');
+                            if (preview) {
+                                preview.src = e.data.url;
+                            } else {
+                                var newImg = document.createElement('img');
+                                newImg.src = e.data.url;
+                                newImg.alt = '';
+                                newImg.className = 'mt-2 h-24 rounded border border-gray-200 object-cover';
+                                input.parentElement.appendChild(newImg);
+                            }
+                        }
+                    }
+                    closeMediaBrowser();
+                }
+            });
+
             // Hero fields visibility based on design
             var heroDesignSelect = document.getElementById('cms-hero_design');
             if (heroDesignSelect) {
                 function toggleHeroFields() {
                     var design = heroDesignSelect.value;
                     var heroSection = heroDesignSelect.closest('form').querySelector('[data-hero-section]');
-                    if (!heroSection) {
-                        // Find the section containing "Hero content" heading
-                        var sections = heroDesignSelect.closest('form').querySelectorAll('section');
-                        sections.forEach(function(s) {
-                            var h2 = s.querySelector('h2');
-                            if (h2 && h2.textContent.indexOf('Hero') !== -1) {
-                                heroSection = s;
-                            }
-                        });
-                    }
                     if (!heroSection) return;
-                    var isSlider = design === 'design-5' || design === 'design-6';
-                    // Find image field (background_image)
-                    var inputs = heroSection.querySelectorAll('input[type="url"], input[type="file"], button');
+                    var hideImage = design === 'design-6';
                     var imageField = null;
                     heroSection.querySelectorAll('div').forEach(function(div) {
                         var label = div.querySelector('label');
@@ -133,7 +178,7 @@
                         }
                     });
                     if (imageField) {
-                        imageField.style.display = isSlider ? 'none' : '';
+                        imageField.style.display = hideImage ? 'none' : '';
                     }
                 }
                 heroDesignSelect.addEventListener('change', toggleHeroFields);

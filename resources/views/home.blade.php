@@ -318,13 +318,13 @@
     </section>
     @endif
 
-    {{-- Recent Events --}}
+    {{-- Recent Events and Activities --}}
     @if(($sectionVis['events'] ?? true) && $recentEvents->isNotEmpty())
         <section class="bg-slate-50 py-20">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="mb-10 flex flex-wrap items-end justify-between gap-4 reveal">
                     <div>
-                        <h2 class="text-3xl font-bold text-gray-900">{{ site_ui('events.recent_heading') ?: 'Recent Events' }}</h2>
+                        <h2 class="text-3xl font-bold text-gray-900">{{ site_ui('events.recent_heading') ?: 'Recent Events and Activities' }}</h2>
                         <div class="mt-2 h-1 w-20 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full"></div>
                     </div>
                     <a href="{{ route('site.news') }}" class="inline-flex items-center gap-1 font-medium text-blue-600 hover:text-blue-800">{{ $eventsH['view_all'] ?? site_ui('home.events_view_all') }} <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
