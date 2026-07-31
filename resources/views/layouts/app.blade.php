@@ -80,6 +80,10 @@
             --theme-secondary: {{ $siteSettings->theme_secondary_color ?? '#f97316' }};
             --theme-font: {{ $siteSettings->theme_font_family ?: "'Inter', sans-serif" }};
             --theme-radius: {{ $siteSettings->theme_border_radius ?: '0.75rem' }};
+            --theme-header-style: {{ $siteSettings->theme_header_style ?? 'transparent' }};
+            --theme-footer-style: {{ $siteSettings->theme_footer_style ?? 'dark' }};
+            --theme-button-style: {{ $siteSettings->theme_button_style ?? 'rounded' }};
+            --theme-section-spacing: {{ $siteSettings->theme_section_spacing ?? 'default' }};
 
             --brand-50: color-mix(in srgb, {{ $siteSettings->theme_primary_color ?? '#2563eb' }} 10%, white);
             --brand-100: color-mix(in srgb, {{ $siteSettings->theme_primary_color ?? '#2563eb' }} 20%, white);

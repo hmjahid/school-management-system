@@ -179,7 +179,7 @@ class HomeHeroAndSliderTest extends TestCase
         $response->assertSee('Dr. Amina Rahman', false);
     }
 
-    public function test_about_page_contains_ministry_guidelines_and_software_details(): void
+    public function test_about_page_contains_ministry_guidelines(): void
     {
         $about = WebsiteContent::updateOrCreate(
             ['page' => 'about'],
@@ -189,7 +189,6 @@ class HomeHeroAndSliderTest extends TestCase
                 'content_en' => [
                     'sections' => [
                         ['heading' => 'Education ministry website guidelines', 'paragraphs' => ['DSHE directive.'], 'bullets' => ['Institution profile and identity', 'Managing committee information']],
-                        ['heading' => 'About this website software', 'paragraphs' => ['Powered by a self-hosted school management system.']],
                     ],
                 ],
             ]
@@ -199,8 +198,7 @@ class HomeHeroAndSliderTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Education ministry website guidelines', false);
         $response->assertSee('Managing committee information', false);
-        $response->assertSee('About this website software', false);
-        $response->assertSee('self-hosted school management system', false);
+        $response->assertDontSee('About this website software', false);
     }
 
     public function test_homepage_renders_recent_events_section(): void

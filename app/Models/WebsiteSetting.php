@@ -90,6 +90,12 @@ class WebsiteSetting extends Model
         'nagad_merchant_number',
         'currency',
         'default_payment_method',
+        'theme_header_style',
+        'theme_footer_style',
+        'theme_button_style',
+        'theme_section_spacing',
+        'academic_start_month',
+        'student_id_prefix',
     ];
 
     /**

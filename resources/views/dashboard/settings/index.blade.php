@@ -73,10 +73,42 @@
                             <option value="0" @selected(old('theme_border_radius', $settings->theme_border_radius ?? '') === '0')>{{ __('None (square)') }}</option>
                             <option value="0.25rem" @selected(old('theme_border_radius', $settings->theme_border_radius ?? '') === '0.25rem')>{{ __('Small') }}</option>
                             <option value="0.5rem" @selected(old('theme_border_radius', $settings->theme_border_radius ?? '') === '0.5rem')>{{ __('Medium') }}</option>
-                            <option value="0.75rem" @selected(old('theme_border_radius', $settings->theme_border_radius ?? '') === '0.75rem')">{{ __('Large') }}</option>
+                            <option value="0.75rem" @selected(old('theme_border_radius', $settings->theme_border_radius ?? '') === '0.75rem')>{{ __('Large') }}</option>
                             <option value="1rem" @selected(old('theme_border_radius', $settings->theme_border_radius ?? '') === '1rem')">{{ __('Extra large') }}</option>
                         </select>
                     </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Header style') }}</label>
+                        <select name="theme_header_style" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <option value="transparent" @selected(old('theme_header_style', $settings->theme_header_style ?? '') === 'transparent')>{{ __('Transparent (over hero)') }}</option>
+                            <option value="white" @selected(old('theme_header_style', $settings->theme_header_style ?? '') === 'white')>{{ __('Solid white') }}</option>
+                            <option value="dark" @selected(old('theme_header_style', $settings->theme_header_style ?? '') === 'dark')>{{ __('Solid dark') }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Footer style') }}</label>
+                        <select name="theme_footer_style" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <option value="dark" @selected(old('theme_footer_style', $settings->theme_footer_style ?? '') === 'dark')>{{ __('Dark') }}</option>
+                            <option value="light" @selected(old('theme_footer_style', $settings->theme_footer_style ?? '') === 'light')>{{ __('Light') }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Button style') }}</label>
+                        <select name="theme_button_style" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <option value="rounded" @selected(old('theme_button_style', $settings->theme_button_style ?? '') === 'rounded')>{{ __('Rounded') }}</option>
+                            <option value="square" @selected(old('theme_button_style', $settings->theme_button_style ?? '') === 'square')>{{ __('Square') }}</option>
+                            <option value="pill" @selected(old('theme_button_style', $settings->theme_button_style ?? '') === 'pill')>{{ __('Pill') }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Section spacing') }}</label>
+                        <select name="theme_section_spacing" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <option value="compact" @selected(old('theme_section_spacing', $settings->theme_section_spacing ?? '') === 'compact')>{{ __('Compact') }}</option>
+                            <option value="default" @selected(old('theme_section_spacing', $settings->theme_section_spacing ?? '') === 'default')>{{ __('Default') }}</option>
+                            <option value="spacious" @selected(old('theme_section_spacing', $settings->theme_section_spacing ?? '') === 'spacious')>{{ __('Spacious') }}</option>
+                        </select>
+                    </div>
+                </div>
                 </div>
             </div>
             <div class="mt-6 flex justify-end">

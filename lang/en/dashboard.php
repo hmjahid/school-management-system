@@ -43,6 +43,7 @@ return [
     'configuration' => 'Configuration',
     'website_cms' => 'Website CMS',
     'all_pages' => 'All pages',
+    'about_page' => 'About Page',
     'news_events' => 'News & events',
     'gallery' => 'Gallery',
     'announcements' => 'Announcements',

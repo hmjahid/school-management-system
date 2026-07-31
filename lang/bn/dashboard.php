@@ -43,6 +43,7 @@ return [
     'configuration' => 'কনফিগারেশন',
     'website_cms' => 'ওয়েবসাইট সিএমএস',
     'all_pages' => 'সব পৃষ্ঠা',
+    'about_page' => 'আমাদের সম্পর্কে পৃষ্ঠা',
     'news_events' => 'সংবাদ ও অনুষ্ঠান',
     'gallery' => 'গ্যালারি',
     'announcements' => 'ঘোষণা',

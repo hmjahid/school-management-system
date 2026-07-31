@@ -517,14 +517,25 @@ create a proper prompt to implement the above tasks and add the prompt in featur
 
 
 
+remove About this website software section from website about page. add seperat eabout page in dashboard.
+
+move the newly added recent events and activities ection just top of upcoming eevents not the new past events section
+
+show hero contnets input fileds based on the slecetd hero design
+
+when clicking browse media, the opended popup is broken. fix the issue.
 
 add some theme syles. based on the styles, the whole frontend website styles and design will be chnaged. contents will remain same
 
+add more features in general sectting page not the school info page.
+
+
+create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-15.md file. then implement the tasks using the prompt
 
 
 
 
-
+add managing comitee page in the website and aslo show in homepage witha  slider. add cms in the website cms for managing comitee contnets.
 
 
 

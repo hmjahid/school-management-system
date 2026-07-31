@@ -251,6 +251,19 @@
                         <p class="mt-1 text-xs text-gray-500">{{ __('The language first-time visitors see. They can still switch using the language toggle.') }}</p>
                         @error('default_locale')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                     </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Academic start month') }}</label>
+                        <select name="academic_start_month" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                            @foreach(range(1,12) as $m)
+                                <option value="{{ $m }}" @selected(old('academic_start_month', $settings->academic_start_month ?? 1) == $m)>{{ \Carbon\Carbon::create()->month($m)->format('F') }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Student ID prefix') }}</label>
+                        <input type="text" name="student_id_prefix" value="{{ old('student_id_prefix', $settings->student_id_prefix ?? 'ADM') }}" placeholder="ADM"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                    </div>
                 </div>
             </div>
         </div>

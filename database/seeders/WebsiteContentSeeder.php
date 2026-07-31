@@ -258,12 +258,6 @@ class WebsiteContentSeeder extends Seeder
                             'Head of institution and all teachers and staff information',
                             'Managing committee information',
                         ]),
-                        $section('About this website software', [
-                            'This website is powered by a self-hosted school management system that combines the public website with a complete administration dashboard.',
-                            'The platform manages admissions, students and teachers, attendance, class routines, assignments, exams and results, fees and payments, library, transport, hostels, notices, news, gallery, documents, and reports.',
-                            'All public-facing content — including this page, the homepage slider, hero design, principal message, and navigation labels — can be updated from the admin dashboard without touching code.',
-                            'The system also provides online admission applications, public result lookup, a parent portal, and multilingual support in English and Bengali.',
-                        ]),
                         $section('School anthem & emblem', [
                             'Lyrics and emblem usage guidelines are available from the school office and can be published here via the CMS.',
                         ]),

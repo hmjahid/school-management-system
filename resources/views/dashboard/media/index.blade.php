@@ -5,6 +5,14 @@
 @php $selectMode = request('select') === '1'; @endphp
 
 @section('content')
+    @if($selectMode)
+    <style>
+        .admin-sidebar, [class*="sidebar"], nav.admin-sidebar-nav { display: none !important; }
+        .admin-content, [class*="content-wrapper"] { margin-left: 0 !important; padding: 0 !important; }
+        body { overflow: auto !important; }
+    </style>
+    @endif
+
     @if(! $selectMode)
     <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>

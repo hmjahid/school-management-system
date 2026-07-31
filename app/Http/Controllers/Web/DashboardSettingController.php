@@ -154,6 +154,10 @@ class DashboardSettingController extends Controller
             'theme_secondary_color' => ['nullable', 'string', 'max:20'],
             'theme_font_family' => ['nullable', 'string', 'max:100'],
             'theme_border_radius' => ['nullable', 'string', 'max:20'],
+            'theme_header_style' => ['nullable', 'string', 'in:transparent,white,dark'],
+            'theme_footer_style' => ['nullable', 'string', 'in:dark,light'],
+            'theme_button_style' => ['nullable', 'string', 'in:rounded,square,pill'],
+            'theme_section_spacing' => ['nullable', 'string', 'in:compact,default,spacious'],
         ]);
 
         $settings = WebsiteSetting::firstOrNew([]);

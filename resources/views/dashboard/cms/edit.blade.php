@@ -105,6 +105,41 @@
 
     <script>
         (function () {
+            // Hero fields visibility based on design
+            var heroDesignSelect = document.getElementById('cms-hero_design');
+            if (heroDesignSelect) {
+                function toggleHeroFields() {
+                    var design = heroDesignSelect.value;
+                    var heroSection = heroDesignSelect.closest('form').querySelector('[data-hero-section]');
+                    if (!heroSection) {
+                        // Find the section containing "Hero content" heading
+                        var sections = heroDesignSelect.closest('form').querySelectorAll('section');
+                        sections.forEach(function(s) {
+                            var h2 = s.querySelector('h2');
+                            if (h2 && h2.textContent.indexOf('Hero') !== -1) {
+                                heroSection = s;
+                            }
+                        });
+                    }
+                    if (!heroSection) return;
+                    var isSlider = design === 'design-5' || design === 'design-6';
+                    // Find image field (background_image)
+                    var inputs = heroSection.querySelectorAll('input[type="url"], input[type="file"], button');
+                    var imageField = null;
+                    heroSection.querySelectorAll('div').forEach(function(div) {
+                        var label = div.querySelector('label');
+                        if (label && label.textContent.indexOf('Background image') !== -1) {
+                            imageField = div;
+                        }
+                    });
+                    if (imageField) {
+                        imageField.style.display = isSlider ? 'none' : '';
+                    }
+                }
+                heroDesignSelect.addEventListener('change', toggleHeroFields);
+                toggleHeroFields();
+            }
+
             // Repeater add buttons
             document.addEventListener('click', function (e) {
                 const t = e.target;
