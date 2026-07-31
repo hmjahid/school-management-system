@@ -28,6 +28,7 @@ use App\Http\Controllers\Web\DashboardSearchController;
 use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\DashboardDocumentController;
+use App\Http\Controllers\Web\DashboardMediaController;
 use App\Http\Controllers\Web\DashboardEventController;
 use App\Http\Controllers\Web\DashboardExamController;
 use App\Http\Controllers\Web\DashboardExamResultController;
@@ -416,7 +417,6 @@ Route::middleware('auth')->group(function () {
             Route::post('/localization', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateLocalization'])->name('update.localization');
             Route::post('/payment', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updatePayment'])->name('update.payment');
             Route::post('/library', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateLibrary'])->name('update.library');
-            Route::post('/admission', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateAdmission'])->name('update.admission');
             Route::get('/cms', [\App\Http\Controllers\Web\DashboardSettingController::class, 'cmsSettings'])->name('cms');
             Route::post('/cms', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateGeneral'])->name('update.cms');
             Route::get('/global-labels', [\App\Http\Controllers\Web\DashboardSettingController::class, 'globalLabels'])->name('global-labels');
@@ -464,6 +464,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard/documents/{document}/edit', [DashboardDocumentController::class, 'edit'])->name('dashboard.documents.edit');
         Route::put('/dashboard/documents/{document}', [DashboardDocumentController::class, 'update'])->name('dashboard.documents.update');
         Route::delete('/dashboard/documents/{document}', [DashboardDocumentController::class, 'destroy'])->name('dashboard.documents.destroy');
+
+        Route::get('/dashboard/media', [DashboardMediaController::class, 'index'])->name('dashboard.media.index');
+        Route::post('/dashboard/media', [DashboardMediaController::class, 'store'])->name('dashboard.media.store');
+        Route::get('/dashboard/media/{media}/download', [DashboardMediaController::class, 'download'])->name('dashboard.media.download');
+        Route::delete('/dashboard/media/{media}', [DashboardMediaController::class, 'destroy'])->name('dashboard.media.destroy');
 
         Route::get('/dashboard/admissions', [DashboardAdmissionController::class, 'index'])->name('dashboard.admissions.index');
         Route::post('/dashboard/admissions/toggle', [DashboardAdmissionController::class, 'toggleOpen'])->name('dashboard.admissions.toggle');

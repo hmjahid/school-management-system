@@ -1,5 +1,5 @@
 {{--
-    Image field partial (URL input, single shared value across EN/BN).
+    Image field partial (URL input + file upload, single shared value across EN/BN).
     Variables: $name, $field, $value (shared), $valueEn, $valueBn
 --}}
 @php
@@ -11,18 +11,24 @@
         {{ $field['label'] ?? ucfirst($name) }}
         @if($shared) <span class="ml-1 text-gray-400">(shared)</span> @endif
     </label>
+    <input type="file" id="cms-{{ $name }}-file" name="{{ $name }}{{ $shared ? '' : '_en' }}"
+        accept="image/*"
+        class="mb-2 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-indigo-600 hover:file:bg-indigo-100 focus:border-indigo-500 focus:outline-none">
     <input type="url" id="cms-{{ $name }}" name="{{ $name }}{{ $shared ? '' : '_en' }}" value="{{ $val }}" placeholder="https://…"
         class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
     @if(! empty($val))
         <img src="{{ $val }}" alt="" class="mt-2 h-24 rounded border border-gray-200 object-cover">
     @endif
-    <p class="mt-1 text-xs text-gray-500">{{ __('Paste an image URL, or upload to the gallery and paste the storage URL.') }}</p>
+    <p class="mt-1 text-xs text-gray-500">{{ __('Upload a file, or paste an image URL.') }}</p>
 </div>
 @if(! $shared)
 <div>
     <label for="cms-{{ $name }}-bn" class="mb-1 block text-xs font-medium text-gray-600">
         {{ $field['label'] ?? ucfirst($name) }} <span class="ml-1 text-gray-400">(বাংলা)</span>
     </label>
+    <input type="file" id="cms-{{ $name }}-bn-file" name="{{ $name }}_bn"
+        accept="image/*"
+        class="mb-2 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-indigo-600 hover:file:bg-indigo-100 focus:border-indigo-500 focus:outline-none">
     <input type="url" id="cms-{{ $name }}-bn" name="{{ $name }}_bn" value="{{ $valueBn ?? '' }}" placeholder="https://…"
         class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
     @if(! empty($valueBn))

@@ -16,7 +16,15 @@
             $valEn = $dataEn[$sub['key']] ?? '';
             $valBn = $dataBn[$sub['key']] ?? '';
         @endphp
-        @if(($sub['type'] ?? 'text') === 'textarea')
+        @if(($sub['type'] ?? 'text') === 'image')
+            @include('dashboard.cms.fields.image', [
+                'name' => $subName,
+                'field' => $sub,
+                'valueEn' => $valEn,
+                'valueBn' => $valBn,
+                'value' => $valEn,
+            ])
+        @elseif(($sub['type'] ?? 'text') === 'textarea')
             @include('dashboard.cms.fields._pair-textarea', [
                 'name' => $subName,
                 'field' => $sub,

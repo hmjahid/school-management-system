@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Activity;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Spatie\Activitylog\Models\Activity;
 
 class ActivityController extends Controller
 {
@@ -19,15 +19,15 @@ class ActivityController extends Controller
     {
         $limit = min((int) $request->input('limit', 20), 50);
 
-        $activities = Activity::with('user')
+        $activities = Activity::with('causer')
             ->latest()
             ->limit($limit)
             ->get()
             ->map(fn($log) => [
                 'id' => $log->id,
-                'type' => $log->type ?? 'activity',
-                'message' => $log->message ?? $log->title,
-                'causer' => $log->user?->name ?? 'System',
+                'type' => $log->log_name ?? 'activity',
+                'message' => $log->description ?? $log->log_name,
+                'causer' => $log->causer?->name ?? 'System',
                 'time' => $log->created_at->diffForHumans(),
                 'created_at' => $log->created_at->toIso8601String(),
             ]);

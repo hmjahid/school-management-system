@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\WebsiteContent;
+use App\Models\WebsiteMedia;
 use App\Support\CmsPageRegistry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -83,6 +85,14 @@ class CmsWebController extends Controller
             'is_active' => ['nullable', 'boolean'],
         ]);
 
+        $fileRules = collect($this->flattenFileKeys($request->allFiles()))
+            ->mapWithKeys(fn (string $field): array => [$field => ['file', 'image', 'max:10240']])
+            ->all();
+
+        if ($fileRules !== []) {
+            $request->validate($fileRules);
+        }
+
         [$contentEn, $contentBn] = $this->buildContentFromRequest($request, $def);
 
         $titleEn = $validated['title_en'];
@@ -150,13 +160,13 @@ class CmsWebController extends Controller
                 case 'image':
                     $shared = $section['fields'][0]['shared'] ?? false;
                     if ($shared) {
-                        $val = trim((string) data_get($request->all(), $formKey, ''));
+                        $val = $this->imageFieldValue($request, $formKey);
                         if ($val !== '') {
                             Arr::set($en, $key, $val);
                         }
                     } else {
-                        $valEn = trim((string) data_get($request->all(), $formKey.'_en', ''));
-                        $valBn = trim((string) data_get($request->all(), $formKey.'_bn', ''));
+                        $valEn = $this->imageFieldValue($request, $formKey.'_en');
+                        $valBn = $this->imageFieldValue($request, $formKey.'_bn');
                         if ($valEn !== '') {
                             Arr::set($en, $key, $valEn);
                         }
@@ -174,6 +184,23 @@ class CmsWebController extends Controller
                     }
                     if ($listBn !== []) {
                         Arr::set($bn, $key, array_values($listBn));
+                    }
+                    break;
+
+                case 'select':
+                    $val = trim((string) data_get($request->all(), $formKey, ''));
+                    if ($val !== '') {
+                        Arr::set($en, $key, $val);
+                    }
+                    break;
+
+                case 'slider':
+                    [$sliderEn, $sliderBn] = $this->buildSlider($request, $formKey, $section);
+                    if ($sliderEn !== []) {
+                        Arr::set($en, $key, $sliderEn);
+                    }
+                    if ($sliderBn !== []) {
+                        Arr::set($bn, $key, $sliderBn);
                     }
                     break;
 
@@ -200,13 +227,13 @@ class CmsWebController extends Controller
                         if ($subType === 'image') {
                             $shared = $sub['shared'] ?? false;
                             if ($shared) {
-                                $v = trim((string) data_get($request->all(), $subFormKey, ''));
+                                $v = $this->imageFieldValue($request, $subFormKey);
                                 if ($v !== '') {
                                     Arr::set($subEn, $sub['key'], $v);
                                 }
                             } else {
-                                $vEn = trim((string) data_get($request->all(), $subFormKey.'_en', ''));
-                                $vBn = trim((string) data_get($request->all(), $subFormKey.'_bn', ''));
+                                $vEn = $this->imageFieldValue($request, $subFormKey.'_en');
+                                $vBn = $this->imageFieldValue($request, $subFormKey.'_bn');
                                 if ($vEn !== '') {
                                     Arr::set($subEn, $sub['key'], $vEn);
                                 }
@@ -346,6 +373,140 @@ class CmsWebController extends Controller
     protected function formKey(string $key): string
     {
         return str_replace('.', '_', $key);
+    }
+
+    /**
+     * Build a slider's EN/BN arrays. Each slide has a shared image subfield
+     * (file upload or URL) plus text subfields addressed like
+     * "slider[0][title_en]". Form fields use bracket notation, so files are
+     * read from the file bag and text from the dot-notation data tree.
+     *
+     * @param  array<string, mixed>  $section
+     * @return array{0: list<array<string, mixed>>, 1: list<array<string, mixed>>}
+     */
+    protected function buildSlider(Request $request, string $formKey, array $section): array
+    {
+        $all = $request->all();
+        $pattern = '/^'.preg_quote($formKey, '/').'\[(\d+)\]\[([^\]]+)\]$/';
+        $indices = [];
+        foreach ($this->flattenKeys($all) as $fieldName) {
+            if (preg_match($pattern, $fieldName, $m)) {
+                $indices[(int) $m[1]][$m[2]] = true;
+            }
+        }
+        foreach (array_keys($request->allFiles()) as $fieldName) {
+            if (preg_match($pattern, (string) $fieldName, $m)) {
+                $indices[(int) $m[1]][$m[2]] = true;
+            }
+        }
+        if ($indices === []) {
+            return [[], []];
+        }
+        ksort($indices);
+
+        $enItems = [];
+        $bnItems = [];
+
+        foreach ($indices as $i => $subKeys) {
+            $enRow = [];
+            $bnRow = [];
+
+            foreach ($section['fields'] ?? [] as $sub) {
+                $sk = $sub['key'];
+                $isImage = ($sub['type'] ?? 'text') === 'image';
+                $dotKey = "{$formKey}.{$i}.{$sk}";
+
+                if ($isImage) {
+                    $v = '';
+                    if ($request->hasFile($dotKey)) {
+                        $file = $request->file($dotKey);
+                        $path = $file->store('media', 'public');
+
+                        WebsiteMedia::create([
+                            'title' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+                            'category' => 'CMS',
+                            'file_path' => $path,
+                            'mime_type' => $file->getClientMimeType(),
+                            'file_size' => $file->getSize(),
+                        ]);
+
+                        $v = Storage::url($path);
+                    } else {
+                        $v = trim((string) data_get($all, $dotKey, ''));
+                    }
+                    if ($v !== '') {
+                        $enRow[$sk] = $v;
+                    }
+                } else {
+                    $vEn = trim((string) data_get($all, "{$formKey}.{$i}.{$sk}_en", ''));
+                    $vBn = trim((string) data_get($all, "{$formKey}.{$i}.{$sk}_bn", ''));
+                    if ($vEn !== '') {
+                        $enRow[$sk] = $vEn;
+                    }
+                    if ($vBn !== '' && $vBn !== $vEn) {
+                        $bnRow[$sk] = $vBn;
+                    }
+                }
+            }
+
+            if ($enRow !== []) {
+                $enItems[] = $enRow;
+            }
+            if ($bnRow !== []) {
+                $bnItems[] = $bnRow;
+            }
+        }
+
+        return [$enItems, $bnItems];
+    }
+
+    /**
+     * Resolve an image field value. If a file was uploaded for the given
+     * form key it is stored in the media library and its public URL is
+     * returned; otherwise the submitted text (URL) value is returned.
+     */
+    protected function imageFieldValue(Request $request, string $formKey): string
+    {
+        if ($request->hasFile($formKey)) {
+            $file = $request->file($formKey);
+            $path = $file->store('media', 'public');
+
+            WebsiteMedia::create([
+                'title' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+                'category' => 'CMS',
+                'file_path' => $path,
+                'mime_type' => $file->getClientMimeType(),
+                'file_size' => $file->getSize(),
+            ]);
+
+            return Storage::url($path);
+        }
+
+        return trim((string) $request->input($formKey, ''));
+    }
+
+    /**
+     * Flatten the (possibly nested) upload file bag into dot-notation keys.
+     * A form field named "slider[0][image]" arrives as
+     * ['slider' => [0 => ['image' => UploadedFile]]] and becomes
+     * "slider.0.image" so the validator and file() lookups can find it.
+     *
+     * @param  array<mixed>  $files
+     * @return list<string>
+     */
+    protected function flattenFileKeys(array $files, string $prefix = ''): array
+    {
+        $out = [];
+        foreach ($files as $key => $value) {
+            $name = $prefix === '' ? (string) $key : $prefix.'.'.$key;
+            if ($value instanceof \Illuminate\Http\UploadedFile) {
+                $out[] = $name;
+            } elseif (is_array($value)) {
+                $out = array_merge($out, $this->flattenFileKeys($value, $name));
+            }
+        }
+
+        return $out;
     }
 
     /**

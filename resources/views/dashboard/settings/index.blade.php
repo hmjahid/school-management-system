@@ -10,7 +10,7 @@
 
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900">{{ __('Settings') }}</h1>
-        <p class="mt-1 text-sm text-gray-600">{{ __('Theme, localization, payment gateways, library rules, admission, and homepage sections.') }}</p>
+        <p class="mt-1 text-sm text-gray-600">{{ __('Theme, localization, payment gateways, and library rules.') }}</p>
     </div>
 
     {{-- Tab Navigation --}}
@@ -27,9 +27,6 @@
             </button>
             <button type="button" data-tab="library" class="tab-link whitespace-nowrap border-b-2 px-1 pb-3 {{ $tab === 'library' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }}">
                 {{ __('dashboard.tab_library') ?? __('Library') }}
-            </button>
-            <button type="button" data-tab="admission" class="tab-link whitespace-nowrap border-b-2 px-1 pb-3 {{ $tab === 'admission' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }}">
-                {{ __('dashboard.tab_admission') ?? __('Admission') }}
             </button>
         </nav>
     </div>
@@ -274,38 +271,6 @@
                     <div>
                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('dashboard.issue_duration_days') ?? 'Issue Duration (days)' }}</label>
                         <input type="number" min="1" name="issue_duration_days" value="{{ old('issue_duration_days', $librarySettings->issue_duration_days ?? '') }}"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                    </div>
-                </div>
-            </div>
-            <div class="mt-6 flex justify-end">
-                <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">
-                    {{ __('Save settings') }}
-                </button>
-            </div>
-        </form>
-    </div>
-
-    {{-- Tab: Admission --}}
-    <div id="tab-admission" class="tab-panel {{ $tab !== 'admission' ? 'hidden' : '' }}">
-        <form method="post" action="{{ route('dashboard.settings.update.admission') }}" class="max-w-3xl">
-            @csrf
-            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h2 class="text-lg font-semibold text-gray-900">{{ __('Admission settings') }}</h2>
-                <p class="mb-5 text-sm text-gray-500">{{ __('Configure admission notice, display year, and bar title.') }}</p>
-                <div class="grid gap-4 sm:grid-cols-2">
-                    <div class="sm:col-span-2">
-                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Notice') }}</label>
-                        <textarea name="notice" rows="3" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">{{ old('notice', $admissionSettings->notice) }}</textarea>
-                    </div>
-                    <div>
-                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Display year') }}</label>
-                        <input type="text" name="display_year" value="{{ old('display_year', $admissionSettings->display_year) }}" placeholder="{{ date('Y') }}"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                    </div>
-                    <div>
-                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Bar title') }}</label>
-                        <input type="text" name="bar_title" value="{{ old('bar_title', $admissionSettings->bar_title) }}" placeholder="Admissions Open"
                             class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
                     </div>
                 </div>

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-use App\Models\AdmissionSetting;
 use App\Models\LibrarySetting;
 use App\Models\WebsiteContent;
 use App\Models\WebsiteSetting;
@@ -30,10 +29,9 @@ class DashboardSettingController extends Controller
 
         $settings = WebsiteSetting::getSettings();
         $librarySettings = LibrarySetting::getSettings();
-        $admissionSettings = AdmissionSetting::first() ?? new AdmissionSetting;
         $timezones = \DateTimeZone::listIdentifiers(\DateTimeZone::ALL);
 
-        return view('dashboard.settings.index', compact('settings', 'librarySettings', 'admissionSettings', 'timezones'));
+        return view('dashboard.settings.index', compact('settings', 'librarySettings', 'timezones'));
     }
 
     public function cmsSettings(): View
@@ -229,23 +227,6 @@ class DashboardSettingController extends Controller
         $librarySettings->save();
 
         return redirect()->route('dashboard.settings.index', ['tab' => 'library'])->with('status', __('Library settings saved.'));
-    }
-
-    public function updateAdmission(Request $request): RedirectResponse
-    {
-        abort_unless(auth()->user()?->can('manage_school_settings'), 403);
-
-        $validated = $request->validate([
-            'notice' => ['nullable', 'string', 'max:1000'],
-            'display_year' => ['nullable', 'string', 'max:50'],
-            'bar_title' => ['nullable', 'string', 'max:255'],
-        ]);
-
-        $admissionSettings = AdmissionSetting::firstOrNew([]);
-        $admissionSettings->fill($validated);
-        $admissionSettings->save();
-
-        return redirect()->route('dashboard.settings.index', ['tab' => 'admission'])->with('status', __('Admission settings saved.'));
     }
 
     public function globalLabels(): View

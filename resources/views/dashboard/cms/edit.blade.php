@@ -29,7 +29,7 @@
         </div>
     @endif
 
-    <form method="post" action="{{ route('dashboard.cms.update', ['page' => $page]) }}" class="space-y-6" id="cms-page-form">
+    <form method="post" action="{{ route('dashboard.cms.update', ['page' => $page]) }}" class="space-y-6" id="cms-page-form" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -47,6 +47,8 @@
                     'list' => 'dashboard.cms.fields.list',
                     'repeater' => 'dashboard.cms.fields.repeater',
                     'repeater_sections' => 'dashboard.cms.fields.repeater_sections',
+                    'select' => 'dashboard.cms.fields.select',
+                    'slider' => 'dashboard.cms.fields.slider',
                     'kv' => 'dashboard.cms.fields.kv',
                     'hero' => 'dashboard.cms.fields.hero',
                     'group' => 'dashboard.cms.fields.group',

@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\WebsiteContent;
 use App\Models\WebsiteSetting;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class HomeController extends Controller
@@ -33,6 +34,7 @@ class HomeController extends Controller
         $recentNotices = collect();
         $teachers = collect();
         $remarkableStudents = collect();
+        $sliderFallback = collect();
 
         try {
             if (Schema::hasTable('news')) {
@@ -50,6 +52,23 @@ class HomeController extends Controller
                     ->orderBy('start_date')
                     ->limit(5)
                     ->get();
+            }
+            if (Schema::hasTable('events')) {
+                $sliderFallback = Event::query()
+                    ->where('status', 'published')
+                    ->whereNotNull('image')
+                    ->where('image', '!=', '')
+                    ->orderByDesc('id')
+                    ->limit(6)
+                    ->get()
+                    ->map(function (Event $e): array {
+                        return [
+                            'image' => $e->image ? Storage::url($e->image) : null,
+                            'title' => $e->title,
+                            'caption' => $e->location ?? '',
+                            'link' => route('site.events'),
+                        ];
+                    });
             }
             if (Schema::hasTable('notices')) {
                 $recentNotices = Notice::query()
@@ -105,6 +124,7 @@ class HomeController extends Controller
             'recentNotices',
             'teachers',
             'remarkableStudents',
+            'sliderFallback',
             'stats'
         ));
     }

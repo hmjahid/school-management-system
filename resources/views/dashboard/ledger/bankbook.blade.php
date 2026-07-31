@@ -3,5 +3,15 @@
 @section('title', __('Bankbook') . ' — ' . config('app.name'))
 
 @section('content')
-    @include('dashboard.ledger.cashbook')
+    <x-page-header :title="$title" :description="$account->name_en">
+        <x-slot:breadcrumbs>
+            <x-admin-breadcrumbs :items="[
+                ['label' => __('Dashboard'), 'url' => route('dashboard')],
+                ['label' => __('Ledger'), 'url' => route('dashboard.ledger.index')],
+                ['label' => $title],
+            ]" />
+        </x-slot:breadcrumbs>
+    </x-page-header>
+
+    @include('dashboard.ledger._ledger-table')
 @endsection

@@ -6,10 +6,10 @@ use App\Models\Student;
 use App\Models\Teacher;
 use App\Models\SchoolClass;
 use App\Models\Payment;
-use App\Models\Activity;
 use App\Models\Event;
 use App\Models\Assignment;
 use App\Models\Attendance;
+use Spatie\Activitylog\Models\Activity;
 use App\Models\User;
 use App\Models\UserWidgetPreference;
 use Carbon\Carbon;
@@ -114,19 +114,19 @@ class DashboardService
 
     protected function getRecentActivity($limit = 5)
     {
-        return Activity::with('user')
+        return Activity::with('causer')
             ->latest()
             ->limit($limit)
             ->get()
             ->map(function($activity) {
                 return [
                     'id' => $activity->id,
-                    'type' => $activity->type,
-                    'title' => $activity->title,
-                    'message' => $activity->message,
+                    'type' => $activity->log_name ?? 'activity',
+                    'title' => $activity->description ?? $activity->log_name,
+                    'message' => $activity->description,
                     'time' => $activity->created_at->diffForHumans(),
-                    'icon' => $activity->icon,
-                    'color' => $activity->color
+                    'icon' => null,
+                    'color' => null
                 ];
             });
     }
@@ -295,7 +295,7 @@ class DashboardService
      */
     protected function getUserActivityStats(int $userId, Carbon $startDate, Carbon $endDate): array
     {
-        $activities = Activity::where('user_id', $userId)
+        $activities = Activity::where('causer_id', $userId)
             ->whereBetween('created_at', [$startDate, $endDate])
             ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
             ->groupBy('date')

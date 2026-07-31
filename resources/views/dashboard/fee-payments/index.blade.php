@@ -3,6 +3,7 @@
 @section('content')
 <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <h1 class="text-2xl font-bold text-gray-900">{{ __('Fee payments') }}</h1>
+    <a href="{{ route('dashboard.settings.general', ['tab' => 'payment']) }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">{{ __('Payment Configuration') }}</a>
 </div>
 <form method="get" class="mb-6 flex flex-wrap gap-3">
     <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ __('Search invoice or student...') }}" class="rounded-lg border border-gray-300 px-3 py-2 text-sm">

@@ -69,6 +69,9 @@ return [
     ],
 
     'home' => [
+        'eyebrow' => 'Welcome',
+        'slider_title' => 'Recent events & activities',
+        'slider_intro' => 'A look at life at our school.',
         'hero_headline' => 'Shaping future leaders through excellence in education',
         'hero_subtitle' => 'Empowering students with knowledge, skills, and values to succeed in a changing world.',
         'hero_cta_primary' => 'Apply for admission',

@@ -19,6 +19,15 @@
             $valEn = old($subName.'_en', data_get($dataEn, $subKey, ''));
             $valBn = old($subName.'_bn', data_get($dataBn, $subKey, ''));
         @endphp
+        @if ($subType === 'image')
+            @include('dashboard.cms.fields.image', [
+                'name' => $subName,
+                'field' => $sub,
+                'valueEn' => $valEn,
+                'valueBn' => $valBn,
+                'value' => $valEn,
+            ])
+        @else
         <div class="grid gap-3 sm:grid-cols-2">
             <div>
                 <label for="cms-{{ $subName }}-en" class="mb-1 block text-xs font-medium text-gray-600">
@@ -45,5 +54,6 @@
                 @endif
             </div>
         </div>
+        @endif
     @endforeach
 </div>

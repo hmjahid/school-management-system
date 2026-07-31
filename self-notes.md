@@ -448,23 +448,66 @@ no. the user managemnet permission page not working. showing error.
 
 add global labels page as a individual page under the website cms like cms setting
 
+add this page to the global labels button in the /dashboard/cms/pages page. move anything possible from old page to this new page. then remove the old page
+
+create a file named wordpress-theme-conversion.md and add all gudies, prompts and essentails inside this file ofr cerating a wordpress theme version of this application
 
 
-en
+
+
+move user amangement to the administration group and help and dcumentation to he help group. cerate help group and administration group seperately first
+
+remove admisiion from general setting page. add payemt configuartion page link to the dashboard payemnt page.
+
+ensure that real activity logs are logging in the activity log.
+
+the ledger page showing error. fix the issue
+
+after cerating backups, the backup files are not showing in the backup page. fix it.
+
+ensure that all media file upload field like photo uplaod in cms pages are directly can be uploaded and saved without relying on the document page. cerate a new page named media and arrange all upload files, documents insid ethis page with category, date filtering
 
 gallery page tab filtering not working. fix it.
 
 add a sldier section in the hompage for showing recent events or activities photos. mak ethis ection manageable from cms fully.
 
+add option for 3 or 4 hero section designs. admin will choose any one dsign design from those and that design will show in the homepage.
+
 create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-12.md file. then implement the tasks using the prompt
+
+
+
+ledger and medi apage showing eroor. fix the issues
+
+add demo conetnet in homepage slider section
+
+i told to create help group an dadministration group like main, webiste etc not sub items group. them move user & roles to the administration group and help & documentation page to the help group. rename back to users and roles
+
+when admisssion will be off, homepage hero admission button will be hidden and contact us button will be shown insated.
+search for nay instructions from eduaction ministry for school website 
+
+add a about page and add details of this software in that page.
+
+make priciple message section more arranged. reduce the height of priciple image. ensure that uploaded priciple image will be rendered here.
+
+create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-13.md file. then implement the tasks using the prompt
+
+
+
+
+
+i want to make application eligible for multiple languages. what is the best way of doing this?
+
+id the language swither button is more than two, the button will be a select dropdown.
+
 
 
 
 check whole codes of this application for nay security issues.
 
-
 now write a commit message for the chnages after the last commit
 
-is it possible to make this softaware a fully functional custimizable wordpress theme? how?
 
-name this software a nice name for branding.the dahboard sidebar top name will be nmaed after this name.
+is it possible to make this softaware a fully functional custimizable wordpress theme? how? tell me only.
+
+i want to name this software a nice name for branding.the dahboard sidebar top name will be nmaed after this name and the pwa appliction also willb enamed after this name. suggest me some best nmaes for this application/software.

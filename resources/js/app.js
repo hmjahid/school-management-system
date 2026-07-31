@@ -309,6 +309,57 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 })();
 
+// ---------- Photo slider carousel (homepage) ----------
+(function() {
+    document.querySelectorAll('[data-slider-carousel]').forEach((carousel) => {
+        const track = carousel.querySelector('[data-slider-track]');
+        const prev = carousel.querySelector('[data-slider-prev]');
+        const next = carousel.querySelector('[data-slider-next]');
+        if (!track) return;
+
+        const slideAmount = () => {
+            const slide = track.querySelector(':scope > *');
+            if (!slide) return track.clientWidth;
+            const style = window.getComputedStyle(slide);
+            const gap = parseFloat(style.marginRight || '0');
+            return slide.offsetWidth + gap;
+        };
+
+        if (prev) prev.addEventListener('click', () => track.scrollBy({ left: -slideAmount(), behavior: 'smooth' }));
+        if (next) next.addEventListener('click', () => track.scrollBy({ left: slideAmount(), behavior: 'smooth' }));
+    });
+})();
+
+// ---------- Gallery tab filtering ----------
+(function() {
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-filter-tabs] button[data-filter]');
+        if (!btn) return;
+
+        const tabs = btn.closest('[data-filter-tabs]');
+        const grid = document.querySelector(tabs.dataset.target || '[data-gallery-grid]');
+        if (!grid) return;
+
+        const filter = btn.dataset.filter;
+
+        tabs.querySelectorAll('button[data-filter]').forEach(b => {
+            b.dataset.active = b.dataset.filter === filter ? 'true' : 'false';
+            b.classList.toggle('bg-blue-600', b.dataset.filter === filter);
+            b.classList.toggle('text-white', b.dataset.filter === filter);
+            b.classList.toggle('bg-slate-100', b.dataset.filter !== filter);
+            b.classList.toggle('text-slate-700', b.dataset.filter !== filter);
+        });
+
+        grid.querySelectorAll('[data-category]').forEach(el => {
+            if (filter === 'all' || el.dataset.category === filter) {
+                el.classList.remove('hidden');
+            } else {
+                el.classList.add('hidden');
+            }
+        });
+    });
+})();
+
 // ---------- Gallery lightbox ----------
 (function() {
     const openLightbox = (images, index = 0) => {

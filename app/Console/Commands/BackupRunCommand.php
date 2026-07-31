@@ -5,18 +5,21 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use ZipArchive;
 
 class BackupRunCommand extends Command
 {
-    protected $signature = 'backup:run {--path=storage/backups : Output directory}';
+    protected $signature = 'backup:run {--path= : Output directory (defaults to local disk "backups" dir)}';
 
     protected $description = 'Create a lightweight backup archive (DB + storage/app/public).';
 
     public function handle(): int
     {
-        $outDir = base_path($this->option('path'));
+        $outDir = $this->option('path')
+            ? base_path($this->option('path'))
+            : Storage::disk('local')->path('backups');
         File::ensureDirectoryExists($outDir);
 
         $ts = now()->format('Ymd_His');

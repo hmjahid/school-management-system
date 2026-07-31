@@ -297,7 +297,7 @@
 
             <p class="mb-2 mt-5 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ __('dashboard.website') }}</p>
 
-            <details class="group" @if (request()->routeIs('dashboard.cms.*') || request()->routeIs('dashboard.contact-submissions') || request()->routeIs('dashboard.news.*') || request()->routeIs('dashboard.gallery.*') || request()->routeIs('dashboard.announcements.*') || request()->routeIs('dashboard.notices.*') || request()->routeIs('dashboard.documents.*') || request()->routeIs('dashboard.settings.cms') || request()->routeIs('dashboard.settings.global-labels')) open @endif>
+            <details class="group" @if (request()->routeIs('dashboard.cms.*') || request()->routeIs('dashboard.contact-submissions') || request()->routeIs('dashboard.news.*') || request()->routeIs('dashboard.gallery.*') || request()->routeIs('dashboard.announcements.*') || request()->routeIs('dashboard.notices.*') || request()->routeIs('dashboard.documents.*') || request()->routeIs('dashboard.media.*') || request()->routeIs('dashboard.settings.cms') || request()->routeIs('dashboard.settings.global-labels')) open @endif>
                 <summary class="admin-nav-link cursor-pointer list-none [&::-webkit-details-marker]:hidden {{ request()->routeIs('dashboard.cms.*') || request()->routeIs('dashboard.settings.cms') || request()->routeIs('dashboard.settings.global-labels') || request()->routeIs('dashboard.news.*') || request()->routeIs('dashboard.gallery.*') ? 'admin-nav-link--active' : '' }}">
                     <span class="flex h-5 w-5 shrink-0 items-center justify-center opacity-80">
                         <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.56-.5-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.56.5.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.498-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z" clip-rule="evenodd"/></svg>
@@ -314,6 +314,7 @@
                     <a href="{{ route('dashboard.announcements.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.announcements.*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.announcements') }}</a>
                     <a href="{{ route('dashboard.notices.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.notices.*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.notices') }}</a>
                     <a href="{{ route('dashboard.documents.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.documents.*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.documents_label') }}</a>
+                    <a href="{{ route('dashboard.media.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.media.*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.media_library') }}</a>
                     <a href="{{ route('dashboard.contact-submissions') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.contact-submissions') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.form_submissions') }}</a>
                 </div>
             </details>
@@ -326,7 +327,7 @@
                         <span class="flex h-5 w-5 shrink-0 items-center justify-center opacity-80">
                             <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a7 7 0 017 7H1v-1a7 7 0 015-6.7z"/></svg>
                         </span>
-                        <span class="flex-1 truncate">{{ __('dashboard.user_management') }}</span>
+                        <span class="flex-1 truncate">{{ __('dashboard.administration') }}</span>
                         <svg class="h-4 w-4 shrink-0 text-slate-400 transition group-open:rotate-90 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </summary>
                     <div class="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3 dark:border-slate-700">
@@ -347,6 +348,7 @@
 </nav>
 
 <div class="mt-auto border-t border-slate-200/80 p-3 dark:border-slate-700/80">
+    <p class="mb-2 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ __('dashboard.help_group') }}</p>
     {{-- Help & Documentation --}}
     <a href="{{ route('dashboard.help') }}" class="mb-2 flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700 {{ request()->routeIs('dashboard.help') ? 'bg-slate-100 font-semibold text-brand-700 dark:bg-slate-700 dark:text-brand-400' : '' }}">
         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>

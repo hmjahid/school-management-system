@@ -4,9 +4,11 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Models\WebsiteContent;
+use App\Models\WebsiteMedia;
 use App\Models\WebsiteSetting;
 use App\Support\SiteFrontend;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -39,16 +41,16 @@ class CmsEditAndLocaleTest extends TestCase
         $user = $this->admin();
 
         $response = $this->actingAs($user)
-            ->get(route('dashboard.cms.edit', ['page' => 'site-ui']));
+            ->get(route('dashboard.settings.global-labels'));
 
         $response->assertStatus(200);
         $response->assertDontSee('content_json_en');
         $response->assertDontSee('content_json_bn');
         // nav.home input is rendered
-        $response->assertSee('name="nav_home_en"', false);
-        $response->assertSee('name="nav_home_bn"', false);
+        $response->assertSee('name="labels[en][nav][home]"', false);
+        $response->assertSee('name="labels[bn][nav][home]"', false);
         // hero_cta_primary is rendered
-        $response->assertSee('name="home_hero_cta_primary_en"', false);
+        $response->assertSee('name="labels[en][home][hero_cta_primary]"', false);
     }
 
     public function test_site_ui_form_save_persists_grouped_fields_as_nested_tree(): void
@@ -56,24 +58,24 @@ class CmsEditAndLocaleTest extends TestCase
         $user = $this->admin();
 
         $payload = [
-            'title_en' => 'Global labels',
-            'title_bn' => 'গ্লোবাল লেবেল',
-            'is_active' => 1,
-            'nav_home_en' => 'Home (EN)',
-            'nav_home_bn' => 'হোম (BN)',
-            'nav_about_en' => 'About (EN)',
-            'home_hero_cta_primary_en' => 'Apply now',
-            'home_hero_cta_primary_bn' => 'এখনই আবেদন করুন',
-            'home_hero_headline_en' => 'Shape the future',
+            'labels' => [
+                'en' => [
+                    'nav' => ['home' => 'Home (EN)', 'about' => 'About (EN)'],
+                    'home' => ['hero_cta_primary' => 'Apply now', 'hero_headline' => 'Shape the future'],
+                ],
+                'bn' => [
+                    'nav' => ['home' => 'হোম (BN)'],
+                    'home' => ['hero_cta_primary' => 'এখনই আবেদন করুন'],
+                ],
+            ],
         ];
 
         $this->actingAs($user)
-            ->put(route('dashboard.cms.update', ['page' => 'site-ui']), $payload)
-            ->assertRedirect(route('dashboard.cms.edit', ['page' => 'site-ui']));
+            ->post(route('dashboard.settings.update.global-labels'), $payload)
+            ->assertRedirect(route('dashboard.settings.global-labels'));
 
         $row = WebsiteContent::where('page', 'site-ui')->firstOrFail();
 
-        $this->assertSame('form', $row->cms_input_mode);
         $this->assertSame('Home (EN)', $row->content_en['nav']['home']);
         $this->assertSame('হোম (BN)', $row->content_bn['nav']['home']);
         $this->assertSame('About (EN)', $row->content_en['nav']['about']);
@@ -91,11 +93,11 @@ class CmsEditAndLocaleTest extends TestCase
         WebsiteSetting::create($this->settings());
 
         $response = $this->actingAs($user)
-            ->post(route('dashboard.settings.update'), [
+            ->post(route('dashboard.settings.update.general'), [
                 'default_locale' => 'bn',
             ]);
 
-        $response->assertRedirect(route('dashboard.settings'));
+        $response->assertRedirect(route('dashboard.settings.index'));
         $this->assertSame('bn', WebsiteSetting::first()->default_locale);
     }
 
@@ -106,12 +108,12 @@ class CmsEditAndLocaleTest extends TestCase
         WebsiteSetting::create($this->settings());
 
         $response = $this->actingAs($user)
-            ->from(route('dashboard.settings'))
-            ->post(route('dashboard.settings.update'), [
+            ->from(route('dashboard.settings.index'))
+            ->post(route('dashboard.settings.update.general'), [
                 'default_locale' => 'fr',
             ]);
 
-        $response->assertRedirect(route('dashboard.settings'));
+        $response->assertRedirect(route('dashboard.settings.index'));
         $response->assertSessionHasErrors('default_locale');
     }
 
@@ -167,15 +169,17 @@ class CmsEditAndLocaleTest extends TestCase
     public function test_site_ui_overrides_apply_through_merged_helper(): void
     {
         $payload = [
-            'title_en' => 'Global labels',
-            'is_active' => 1,
-            'nav_home_en' => 'Home override',
-            'home_hero_headline_en' => 'CMS headline',
+            'labels' => [
+                'en' => [
+                    'nav' => ['home' => 'Home override'],
+                    'home' => ['hero_headline' => 'CMS headline'],
+                ],
+            ],
         ];
 
         $this->actingAs($this->admin())
-            ->put(route('dashboard.cms.update', ['page' => 'site-ui']), $payload)
-            ->assertRedirect(route('dashboard.cms.edit', ['page' => 'site-ui']));
+            ->post(route('dashboard.settings.update.global-labels'), $payload)
+            ->assertRedirect(route('dashboard.settings.global-labels'));
 
         $merged = SiteFrontend::merged();
         $this->assertSame('Home override', $merged['nav']['home']);
@@ -214,24 +218,24 @@ class CmsEditAndLocaleTest extends TestCase
             ->assertDontSee('localStorage.getItem(\'school-theme\')', false);
     }
 
-    public function test_public_nav_uses_1366_breakpoint_and_has_sectioned_panel(): void
+    public function test_public_nav_uses_1367_breakpoint_and_has_sectioned_panel(): void
     {
         $response = $this->get('/');
         $response->assertStatus(200);
 
-        // Hamburger trigger visible below 1366px, hidden from 1366px up.
+        // Hamburger trigger visible below 1367px, hidden from 1367px up.
         $response->assertSee('data-site-nav-trigger', false);
-        $response->assertSee('min-[1366px]:hidden', false);
+        $response->assertSee('min-[1367px]:hidden', false);
 
-        // Desktop nav visible from 1366px up.
-        $response->assertSee('min-[1366px]:flex', false);
+        // Desktop nav visible from 1367px up.
+        $response->assertSee('min-[1367px]:flex', false);
 
         // Panel uses the same breakpoint + has sectioned content.
         $response->assertSee('id="site-nav-panel"', false);
         $response->assertSee('data-site-nav-panel', false);
         $response->assertSee('Menu', false);
-        $response->assertSee('Account', false);
         $response->assertSee('Language', false);
+        $response->assertSee('Contact', false);
 
         // Both menu/close icons present in the trigger.
         $response->assertSee('data-icon-menu', false);
@@ -267,5 +271,66 @@ class CmsEditAndLocaleTest extends TestCase
         $this->assertSame('ইতিহাস', $row->content_bn['sections'][0]['heading']);
         $this->assertSame(['Line one', 'Line two'], $row->content_en['sections'][0]['paragraphs']);
         $this->assertSame(['লাইন এক'], $row->content_bn['sections'][0]['paragraphs']);
+    }
+
+    public function test_cms_shared_image_upload_saves_media_and_url(): void
+    {
+        $file = UploadedFile::fake()->image('hero.jpg', 100, 100);
+
+        $this->actingAs($this->admin())
+            ->from(route('dashboard.cms.edit', ['page' => 'home']))
+            ->put(route('dashboard.cms.update', ['page' => 'home']), [
+                'title_en' => 'Home',
+                'is_active' => '1',
+                'hero_background_image' => $file,
+            ])
+            ->assertRedirect(route('dashboard.cms.edit', ['page' => 'home']));
+
+        $row = WebsiteContent::where('page', 'home')->firstOrFail();
+        $this->assertStringStartsWith('/storage/media/', $row->content_en['hero']['background_image']);
+
+        $media = WebsiteMedia::firstOrFail();
+        $this->assertSame('hero', $media->title);
+        $this->assertSame('CMS', $media->category);
+    }
+
+    public function test_cms_image_upload_ignores_url_text_field(): void
+    {
+        $file = UploadedFile::fake()->image('alt.png');
+
+        $this->actingAs($this->admin())
+            ->put(route('dashboard.cms.update', ['page' => 'home']), [
+                'title_en' => 'Home',
+                'is_active' => '1',
+                'hero_background_image' => 'https://example.com/old.jpg',
+                'hero_background_image_en' => 'https://example.com/en.jpg',
+                'hero_background_image_bn' => 'https://example.com/bn.jpg',
+                'hero_background_image' => $file,
+            ])
+            ->assertRedirect(route('dashboard.cms.edit', ['page' => 'home']));
+
+        $row = WebsiteContent::where('page', 'home')->firstOrFail();
+        $this->assertStringStartsWith('/storage/media/', $row->content_en['hero']['background_image']);
+    }
+
+    public function test_cms_non_shared_image_upload_saves_en_and_bn_trees(): void
+    {
+        $fileEn = UploadedFile::fake()->image('principal-en.jpg');
+        $fileBn = UploadedFile::fake()->image('principal-bn.jpg');
+
+        $this->actingAs($this->admin())
+            ->put(route('dashboard.cms.update', ['page' => 'home']), [
+                'title_en' => 'Home',
+                'is_active' => '1',
+                'principal_photo_en' => $fileEn,
+                'principal_photo_bn' => $fileBn,
+            ])
+            ->assertRedirect(route('dashboard.cms.edit', ['page' => 'home']));
+
+        $row = WebsiteContent::where('page', 'home')->firstOrFail();
+        $this->assertStringStartsWith('/storage/media/', $row->content_en['principal']['photo']);
+        $this->assertStringStartsWith('/storage/media/', $row->content_bn['principal']['photo']);
+        $this->assertNotSame($row->content_en['principal']['photo'], $row->content_bn['principal']['photo']);
+        $this->assertSame(2, WebsiteMedia::count());
     }
 }

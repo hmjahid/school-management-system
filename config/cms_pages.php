@@ -23,12 +23,24 @@ return [
     'home' => [
         'label' => 'Home',
         'group' => 'content',
-        'description' => 'Hero, principal message, highlights, testimonials shown on the homepage.',
+        'description' => 'Hero, slider, principal message, highlights, testimonials shown on the homepage.',
         'sections' => [
             [
+                'key' => 'hero_design',
+                'label' => 'Hero design',
+                'help' => 'Choose one of the 4 hero layouts shown at the top of the homepage.',
+                'type' => 'select',
+                'options' => [
+                    'design-1' => 'Design 1 — Dark split with notices panel',
+                    'design-2' => 'Design 2 — Centered banner',
+                    'design-3' => 'Design 3 — Light split with photo',
+                    'design-4' => 'Design 4 — Minimal gradient',
+                ],
+            ],
+            [
                 'key' => 'hero',
-                'label' => 'Hero banner',
-                'help' => 'The large banner at the very top of the homepage.',
+                'label' => 'Hero content',
+                'help' => 'Headline, buttons and background image used by the selected hero design.',
                 'type' => 'kv',
                 'fields' => [
                     ['key' => 'headline', 'label' => 'Headline', 'type' => 'text', 'required' => true],
@@ -41,11 +53,24 @@ return [
             [
                 'key' => 'notices',
                 'label' => 'Notices panel',
-                'help' => 'Title and link for the scrolling notices inside the hero.',
+                'help' => 'Title and link for the scrolling notices inside hero design 1.',
                 'type' => 'group',
                 'fields' => [
                     ['key' => 'title', 'label' => 'Panel title', 'type' => 'text'],
                     ['key' => 'view_all', 'label' => 'View all link text', 'type' => 'text'],
+                ],
+            ],
+            [
+                'key' => 'slider',
+                'label' => 'Photo slider',
+                'help' => 'Photo carousel below the hero showing recent events/activities. Leave empty to auto-show recent events with photos.',
+                'type' => 'slider',
+                'item_label' => 'Slide',
+                'fields' => [
+                    ['key' => 'image', 'label' => 'Slide image', 'type' => 'image', 'shared' => true],
+                    ['key' => 'title', 'label' => 'Title', 'type' => 'text'],
+                    ['key' => 'caption', 'label' => 'Caption', 'type' => 'text'],
+                    ['key' => 'link', 'label' => 'Link URL', 'type' => 'text'],
                 ],
             ],
             [

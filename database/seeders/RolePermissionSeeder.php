@@ -190,6 +190,9 @@ class RolePermissionSeeder extends Seeder
             'view_audit_log' => 'View audit log',
             'view_visitor_logs' => 'View visitor logs',
 
+            // Media
+            'manage_media' => 'Manage media library',
+
             // SMS
             'send_bulk_sms' => 'Send bulk SMS',
         ];
