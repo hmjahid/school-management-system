@@ -533,8 +533,10 @@ add more features in general sectting page not the school info page.
 create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-15.md file. then implement the tasks using the prompt
 
 
-
 remove individual about page from the website cms as we aslredy ahve unde rall page > about page. also fix the setting page theme setting as its also not working. add a about page in dashboard for showing this software deatils, developer details and others
+
+setting page theme not working. aslo the homepage recent events and activities section not move dto above of upcoming events ection . fix them. 
+
 
 add managing comitee page in the website and aslo show in homepage witha  slider. add cms in the website cms for managing comitee contnets.
 

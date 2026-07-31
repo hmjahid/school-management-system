@@ -164,7 +164,7 @@ class DashboardSettingController extends Controller
         $settings->fill($validated);
         $settings->save();
 
-        return redirect()->route('dashboard.settings.index', ['tab' => 'theme'])->with('status', __('Theme settings saved.'));
+        return redirect()->route('dashboard.settings.general', ['tab' => 'theme'])->with('status', __('Theme settings saved.'));
     }
 
     public function updateLocalization(Request $request): RedirectResponse
@@ -182,7 +182,7 @@ class DashboardSettingController extends Controller
         $settings->fill($validated);
         $settings->save();
 
-        return redirect()->route('dashboard.settings.index', ['tab' => 'localization'])->with('status', __('Localization settings saved.'));
+        return redirect()->route('dashboard.settings.general', ['tab' => 'localization'])->with('status', __('Localization settings saved.'));
     }
 
     public function updatePayment(Request $request): RedirectResponse
@@ -212,7 +212,7 @@ class DashboardSettingController extends Controller
 
         $settings->save();
 
-        return redirect()->route('dashboard.settings.index', ['tab' => 'payment'])->with('status', __('Payment settings saved.'));
+        return redirect()->route('dashboard.settings.general', ['tab' => 'payment'])->with('status', __('Payment settings saved.'));
     }
 
     public function updateLibrary(Request $request): RedirectResponse
@@ -230,7 +230,7 @@ class DashboardSettingController extends Controller
         $librarySettings->fill($validated);
         $librarySettings->save();
 
-        return redirect()->route('dashboard.settings.index', ['tab' => 'library'])->with('status', __('Library settings saved.'));
+        return redirect()->route('dashboard.settings.general', ['tab' => 'library'])->with('status', __('Library settings saved.'));
     }
 
     public function globalLabels(): View

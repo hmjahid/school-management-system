@@ -320,7 +320,7 @@
 
     {{-- Recent Events --}}
     @if(($sectionVis['events'] ?? true) && $recentEvents->isNotEmpty())
-        <section class="bg-white py-20">
+        <section class="bg-slate-50 py-20">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="mb-10 flex flex-wrap items-end justify-between gap-4 reveal">
                     <div>
