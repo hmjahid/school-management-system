@@ -282,7 +282,8 @@ class HomeHeroAndSliderTest extends TestCase
             ->get(route('dashboard.media.index', ['select' => '1']));
 
         $response->assertStatus(200);
-        $response->assertSee('Select media', false);
+        $response->assertSee('Media Library', false);
+        $response->assertSee('Click an image to insert it into the page.', false);
         $response->assertDontSee('admin-shell', false);
         $response->assertDontSee('Upload media', false);
     }
