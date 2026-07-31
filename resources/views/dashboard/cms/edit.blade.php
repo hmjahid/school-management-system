@@ -104,15 +104,15 @@
     </form>
 
     {{-- Media library browser modal (rendered once) --}}
-    <div id="media-browser-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60">
-        <div class="relative flex h-[80vh] w-[80vw] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+    <div id="media-browser-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60" style="display:none;">
+        <div class="relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-2xl" style="width:80vw;height:80vh;">
             <div class="flex items-center justify-between border-b border-gray-200 px-5 py-3">
                 <h3 class="text-sm font-semibold text-gray-900">{{ __('Media Library') }}</h3>
                 <button type="button" onclick="closeMediaBrowser()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
-            <iframe id="media-browser-frame" src="" class="flex-1 border-0"></iframe>
+            <iframe id="media-browser-frame" src="" class="flex-1 border-0" style="width:100%;height:100%;"></iframe>
         </div>
     </div>
 
@@ -126,15 +126,13 @@
                 var iframe = document.getElementById('media-browser-frame');
                 overlay.dataset.targetInput = input.id;
                 iframe.src = '/dashboard/media?select=1';
-                overlay.classList.remove('hidden');
-                overlay.classList.add('flex');
+                overlay.style.display = 'flex';
             };
 
             window.closeMediaBrowser = function () {
                 var overlay = document.getElementById('media-browser-overlay');
                 var iframe = document.getElementById('media-browser-frame');
-                overlay.classList.add('hidden');
-                overlay.classList.remove('flex');
+                overlay.style.display = 'none';
                 iframe.src = '';
             };
 

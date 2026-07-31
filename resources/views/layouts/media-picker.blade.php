@@ -14,7 +14,7 @@
         <script src="https://cdn.tailwindcss.com"></script>
     @endif
 </head>
-<body class="min-h-screen bg-slate-100 font-sans text-slate-900 antialiased">
+<body class="min-h-screen bg-slate-100 font-sans text-slate-900 antialiased" style="height:100%;">
     @yield('content')
 </body>
 </html>
