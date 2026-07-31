@@ -63,19 +63,6 @@ return [
                 ],
             ],
             [
-                'key' => 'slider',
-                'label' => 'Photo slider',
-                'help' => 'Photo carousel showing recent events/activities. Leave empty to auto-show recent events with photos.',
-                'type' => 'slider',
-                'item_label' => 'Slide',
-                'fields' => [
-                    ['key' => 'image', 'label' => 'Slide image', 'type' => 'image', 'shared' => true],
-                    ['key' => 'title', 'label' => 'Title', 'type' => 'text'],
-                    ['key' => 'caption', 'label' => 'Caption', 'type' => 'text'],
-                    ['key' => 'link', 'label' => 'Link URL', 'type' => 'text'],
-                ],
-            ],
-            [
                 'key' => 'features_heading',
                 'label' => 'Features heading',
                 'help' => 'Title and intro for the "Why Choose Us" feature cards.',
@@ -161,6 +148,19 @@ return [
                 'fields' => [
                     ['key' => 'title', 'label' => 'Section title', 'type' => 'text'],
                     ['key' => 'intro', 'label' => 'Section intro', 'type' => 'textarea', 'rows' => 2],
+                ],
+            ],
+            [
+                'key' => 'slider',
+                'label' => 'Photo slider',
+                'help' => 'Photo carousel showing recent events/activities. Leave empty to auto-show recent events with photos.',
+                'type' => 'slider',
+                'item_label' => 'Slide',
+                'fields' => [
+                    ['key' => 'image', 'label' => 'Slide image', 'type' => 'image', 'shared' => true],
+                    ['key' => 'title', 'label' => 'Title', 'type' => 'text'],
+                    ['key' => 'caption', 'label' => 'Caption', 'type' => 'text'],
+                    ['key' => 'link', 'label' => 'Link URL', 'type' => 'text'],
                 ],
             ],
             [
