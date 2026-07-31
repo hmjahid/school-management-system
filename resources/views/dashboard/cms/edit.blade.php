@@ -139,7 +139,8 @@
             };
 
             window.addEventListener('message', function (e) {
-                if (e.data && e.data.type === 'media-selected') {
+                if (! e.data) return;
+                if (e.data.type === 'media-selected') {
                     var overlay = document.getElementById('media-browser-overlay');
                     var inputId = overlay.dataset.targetInput;
                     if (inputId) {
@@ -158,6 +159,8 @@
                             }
                         }
                     }
+                    closeMediaBrowser();
+                } else if (e.data.type === 'media-close') {
                     closeMediaBrowser();
                 }
             });

@@ -275,4 +275,15 @@ class HomeHeroAndSliderTest extends TestCase
         $this->assertSame('School introduction text.', $content->content_en['intro']);
         $this->assertSame('Vision', $content->content_en['sections'][0]['heading']);
     }
+
+    public function test_media_picker_select_mode_renders_standalone_layout(): void
+    {
+        $response = $this->actingAs($this->admin())
+            ->get(route('dashboard.media.index', ['select' => '1']));
+
+        $response->assertStatus(200);
+        $response->assertSee('Select media', false);
+        $response->assertDontSee('admin-shell', false);
+        $response->assertDontSee('Upload media', false);
+    }
 }

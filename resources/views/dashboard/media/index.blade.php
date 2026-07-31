@@ -1,4 +1,4 @@
-@extends('layouts.dashboard')
+@extends(request('select') === '1' ? 'layouts.media-picker' : 'layouts.dashboard')
 
 @section('title', __('Media library') . ' — ' . config('app.name'))
 
@@ -6,12 +6,16 @@
 
 @section('content')
     @if($selectMode)
-    <style>
-        #sidebar, .admin-shell aside, nav.admin-sidebar-nav { display: none !important; }
-        .admin-shell { display: block !important; }
-        .admin-shell main { margin-left: 0 !important; padding: 16px !important; overflow: visible !important; }
-        body { overflow: auto !important; }
-    </style>
+    <div class="mx-auto max-w-6xl p-4 sm:p-6">
+        <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <h1 class="text-lg font-bold text-gray-900">{{ __('Select media') }}</h1>
+                <p class="text-sm text-gray-500">{{ __('Click an item to select it.') }}</p>
+            </div>
+            <button type="button" onclick="window.parent.postMessage({ type: 'media-close' }, '*')" class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                {{ __('Close') }}
+            </button>
+        </div>
     @endif
 
     @if(! $selectMode)
@@ -78,11 +82,6 @@
             <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700">{{ __('Upload') }}</button>
         </div>
     </form>
-    @else
-    <div class="mb-4">
-        <h1 class="text-lg font-bold text-gray-900">{{ __('Select media') }}</h1>
-        <p class="text-sm text-gray-500">{{ __('Click an item to select it.') }}</p>
-    </div>
     @endif
 
     @if(! $selectMode)
@@ -148,6 +147,10 @@
     </div>
 
     <div class="mt-6">{{ $rows->links() }}</div>
+    @endif
+
+    @if($selectMode)
+    </div>
     @endif
 
     <script>
