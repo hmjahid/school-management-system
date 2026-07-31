@@ -26,19 +26,6 @@ return [
         'description' => 'Hero, slider, principal message, highlights, testimonials shown on the homepage.',
         'sections' => [
             [
-                'key' => 'slider',
-                'label' => 'Photo slider',
-                'help' => 'Photo carousel showing recent events/activities. Leave empty to auto-show recent events with photos.',
-                'type' => 'slider',
-                'item_label' => 'Slide',
-                'fields' => [
-                    ['key' => 'image', 'label' => 'Slide image', 'type' => 'image', 'shared' => true],
-                    ['key' => 'title', 'label' => 'Title', 'type' => 'text'],
-                    ['key' => 'caption', 'label' => 'Caption', 'type' => 'text'],
-                    ['key' => 'link', 'label' => 'Link URL', 'type' => 'text'],
-                ],
-            ],
-            [
                 'key' => 'hero_design',
                 'label' => 'Hero design',
                 'help' => 'Choose one of the 6 hero layouts shown at the top of the homepage.',
@@ -73,6 +60,19 @@ return [
                 'fields' => [
                     ['key' => 'title', 'label' => 'Panel title', 'type' => 'text'],
                     ['key' => 'view_all', 'label' => 'View all link text', 'type' => 'text'],
+                ],
+            ],
+            [
+                'key' => 'slider',
+                'label' => 'Photo slider',
+                'help' => 'Photo carousel showing recent events/activities. Leave empty to auto-show recent events with photos.',
+                'type' => 'slider',
+                'item_label' => 'Slide',
+                'fields' => [
+                    ['key' => 'image', 'label' => 'Slide image', 'type' => 'image', 'shared' => true],
+                    ['key' => 'title', 'label' => 'Title', 'type' => 'text'],
+                    ['key' => 'caption', 'label' => 'Caption', 'type' => 'text'],
+                    ['key' => 'link', 'label' => 'Link URL', 'type' => 'text'],
                 ],
             ],
             [

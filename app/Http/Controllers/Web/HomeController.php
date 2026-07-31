@@ -32,7 +32,6 @@ class HomeController extends Controller
 
         $latestNews = collect();
         $upcomingEvents = collect();
-        $recentEvents = collect();
         $recentNotices = collect();
         $teachers = collect();
         $remarkableStudents = collect();
@@ -52,13 +51,6 @@ class HomeController extends Controller
                     ->where('status', 'published')
                     ->where('start_date', '>=', now())
                     ->orderBy('start_date')
-                    ->limit(5)
-                    ->get();
-            }
-            if (Schema::hasTable('events')) {
-                $recentEvents = Event::query()
-                    ->where('status', 'published')
-                    ->orderByDesc('id')
                     ->limit(5)
                     ->get();
             }
@@ -141,7 +133,6 @@ class HomeController extends Controller
             'homeContent',
             'latestNews',
             'upcomingEvents',
-            'recentEvents',
             'recentNotices',
             'teachers',
             'remarkableStudents',

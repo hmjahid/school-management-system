@@ -65,60 +65,6 @@
         ])
     @endif
 
-    {{-- Photo Slider Section (CMS-managed) --}}
-    @if(($sectionVis['slider'] ?? true) && count($sliderSlides))
-        <section class="bg-slate-100 py-16">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="mb-10 flex flex-wrap items-end justify-between gap-4 reveal">
-                    <div>
-                        <h2 class="text-3xl font-bold text-gray-900">{{ site_ui('home.slider_title') }}</h2>
-                        <div class="mt-2 h-1 w-20 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
-                        <p class="mt-3 max-w-2xl text-gray-600">{{ site_ui('home.slider_intro') }}</p>
-                    </div>
-                </div>
-
-                <div class="relative" data-slider-carousel>
-                    <button type="button" data-slider-prev class="absolute -left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg ring-1 ring-gray-200 transition hover:bg-gray-50 hover:shadow-xl sm:-left-5" aria-label="{{ __('Previous') }}">
-                        <svg class="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                    </button>
-                    <button type="button" data-slider-next class="absolute -right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg ring-1 ring-gray-200 transition hover:bg-gray-50 hover:shadow-xl sm:-right-5" aria-label="{{ __('Next') }}">
-                        <svg class="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </button>
-
-                    <div data-slider-track class="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 -mx-2 px-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                        @foreach ($sliderSlides as $slide)
-                            @php
-                                $img = $slide['image'] ?? ($slide['image_path'] ?? ($slide['image_url'] ?? null));
-                                $slideTitle = $slide['title'] ?? '';
-                                $caption = $slide['caption'] ?? '';
-                                $link = $slide['link'] ?? null;
-                            @endphp
-                            @if(! empty($img))
-                                <div class="group relative w-full min-w-0 shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-gray-100 md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]">
-                                    <div class="h-60 overflow-hidden bg-slate-200">
-                                        <img src="{{ $img }}" alt="{{ $slideTitle }}" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
-                                    </div>
-                                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
-                                    <div class="absolute bottom-0 w-full p-5">
-                                        @if($slideTitle)
-                                            <h3 class="text-lg font-bold text-white">{{ $slideTitle }}</h3>
-                                        @endif
-                                        @if($caption)
-                                            <p class="mt-1 text-sm text-white/80">{{ $caption }}</p>
-                                        @endif
-                                    </div>
-                                    @if($link)
-                                        <a href="{{ $link }}" class="absolute inset-0" aria-label="{{ $slideTitle }}"></a>
-                                    @endif
-                                </div>
-                            @endif
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </section>
-    @endif
-
     {{-- Features Section --}}
     @if($sectionVis['features'] ?? true)
     <section class="bg-white py-20">
@@ -318,33 +264,55 @@
     </section>
     @endif
 
-    {{-- Recent Events and Activities --}}
-    @if(($sectionVis['events'] ?? true) && $recentEvents->isNotEmpty())
-        <section class="bg-slate-50 py-20">
+    {{-- Photo Slider Section (CMS-managed) --}}
+    @if(($sectionVis['slider'] ?? true) && count($sliderSlides))
+        <section class="bg-slate-100 py-16">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="mb-10 flex flex-wrap items-end justify-between gap-4 reveal">
                     <div>
-                        <h2 class="text-3xl font-bold text-gray-900">{{ site_ui('events.recent_heading') ?: 'Recent Events and Activities' }}</h2>
-                        <div class="mt-2 h-1 w-20 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full"></div>
+                        <h2 class="text-3xl font-bold text-gray-900">{{ site_ui('home.slider_title') }}</h2>
+                        <div class="mt-2 h-1 w-20 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
+                        <p class="mt-3 max-w-2xl text-gray-600">{{ site_ui('home.slider_intro') }}</p>
                     </div>
-                    <a href="{{ route('site.news') }}" class="inline-flex items-center gap-1 font-medium text-blue-600 hover:text-blue-800">{{ $eventsH['view_all'] ?? site_ui('home.events_view_all') }} <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></a>
                 </div>
-                <div class="grid gap-6 md:grid-cols-3">
-                    @foreach ($recentEvents->take(6) as $ev)
-                        <div class="group rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-100 transition-all duration-300 hover:shadow-xl reveal">
-                            <div class="inline-flex items-center gap-2 rounded-lg bg-orange-50 px-3 py-1.5 text-sm font-semibold text-orange-700">
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                <time datetime="{{ $ev->start_date?->toIso8601String() }}">{{ $ev->start_date?->format('M j, Y') }}</time>
-                            </div>
-                            <h3 class="mt-4 text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{{ $ev->title }}</h3>
-                            @if($ev->location)
-                                <p class="mt-2 flex items-center gap-1.5 text-sm text-gray-500">
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                    {{ $ev->location }}
-                                </p>
+
+                <div class="relative" data-slider-carousel>
+                    <button type="button" data-slider-prev class="absolute -left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg ring-1 ring-gray-200 transition hover:bg-gray-50 hover:shadow-xl sm:-left-5" aria-label="{{ __('Previous') }}">
+                        <svg class="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <button type="button" data-slider-next class="absolute -right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg ring-1 ring-gray-200 transition hover:bg-gray-50 hover:shadow-xl sm:-right-5" aria-label="{{ __('Next') }}">
+                        <svg class="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+
+                    <div data-slider-track class="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 -mx-2 px-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                        @foreach ($sliderSlides as $slide)
+                            @php
+                                $img = $slide['image'] ?? ($slide['image_path'] ?? ($slide['image_url'] ?? null));
+                                $slideTitle = $slide['title'] ?? '';
+                                $caption = $slide['caption'] ?? '';
+                                $link = $slide['link'] ?? null;
+                            @endphp
+                            @if(! empty($img))
+                                <div class="group relative w-full min-w-0 shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-gray-100 md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]">
+                                    <div class="h-60 overflow-hidden bg-slate-200">
+                                        <img src="{{ $img }}" alt="{{ $slideTitle }}" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
+                                    </div>
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
+                                    <div class="absolute bottom-0 w-full p-5">
+                                        @if($slideTitle)
+                                            <h3 class="text-lg font-bold text-white">{{ $slideTitle }}</h3>
+                                        @endif
+                                        @if($caption)
+                                            <p class="mt-1 text-sm text-white/80">{{ $caption }}</p>
+                                        @endif
+                                    </div>
+                                    @if($link)
+                                        <a href="{{ $link }}" class="absolute inset-0" aria-label="{{ $slideTitle }}"></a>
+                                    @endif
+                                </div>
                             @endif
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </section>

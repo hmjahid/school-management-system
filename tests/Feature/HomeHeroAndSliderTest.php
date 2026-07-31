@@ -201,18 +201,29 @@ class HomeHeroAndSliderTest extends TestCase
         $response->assertDontSee('About this website software', false);
     }
 
-    public function test_homepage_renders_recent_events_section(): void
+    public function test_homepage_slider_renders_above_upcoming_events(): void
     {
         Event::create([
-            'title' => 'Past Event',
+            'title' => 'Future Event',
             'status' => 'published',
-            'start_date' => now()->subDays(5),
+            'start_date' => now()->addDays(5),
             'created_by' => $this->admin()->id,
         ]);
 
+        $this->updateHome(['slider' => [
+            ['image' => 'https://example.com/slide1.jpg', 'title_en' => 'Slide One', 'caption_en' => '', 'link_en' => ''],
+        ]]);
+
         $response = $this->get('/');
         $response->assertStatus(200);
-        $response->assertSee('Recent Events and Activities', false);
+        $response->assertSee('Recent events &amp; activities', false);
+        $response->assertSee('Slide One', false);
+        $response->assertSee('Upcoming events', false);
+        $response->assertDontSee('Recent Events and Activities', false);
+
+        $posSlider = strpos($response->getContent(), 'Slide One');
+        $posEvents = strpos($response->getContent(), 'Upcoming events');
+        $this->assertTrue($posSlider !== false && $posEvents !== false && $posSlider < $posEvents);
     }
 
     public function test_homepage_renders_design_5_full_width_hero(): void
