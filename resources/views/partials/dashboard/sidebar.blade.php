@@ -307,7 +307,6 @@
                 </summary>
                 <div class="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3 dark:border-slate-700">
                     <a href="{{ route('dashboard.cms.pages') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.cms.pages') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.all_pages') }}</a>
-                    <a href="{{ route('dashboard.settings.about') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.settings.about*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.about_page') }}</a>
                     <a href="{{ route('dashboard.settings.cms') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.settings.cms') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.cms_settings') ?? __('CMS Settings') }}</a>
                     <a href="{{ route('dashboard.settings.global-labels') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.settings.global-labels') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.global_labels') ?? __('Global Labels') }}</a>
                     <a href="{{ route('dashboard.news.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.news.*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.news_events') }}</a>
@@ -349,6 +348,7 @@
         @endif
 
         <p class="mb-2 mt-5 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ __('dashboard.help_group') }}</p>
+        <x-admin-nav-link :href="route('dashboard.software')" route-is="dashboard.software" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z\' clip-rule=\'evenodd\'/></svg>'">{{ __('dashboard.software_info') }}</x-admin-nav-link>
         <x-admin-nav-link :href="route('dashboard.help')" route-is="dashboard.help" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z\' clip-rule=\'evenodd\'/></svg>'">{{ __('dashboard.help_documentation') }}</x-admin-nav-link>
     </div>
 </nav>

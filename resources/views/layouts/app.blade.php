@@ -116,6 +116,49 @@
         .theme-btn-secondary { background-color: var(--theme-secondary); color: #fff; border-radius: var(--theme-radius); }
         .theme-btn-secondary:hover { opacity: 0.9; }
         .theme-card { border-radius: var(--theme-radius); }
+
+        /* Theme overrides — apply primary/secondary to common Tailwind utilities */
+        .bg-blue-600 { background-color: var(--theme-primary) !important; }
+        .bg-blue-700 { background-color: var(--theme-primary) !important; filter: brightness(0.85); }
+        .bg-blue-50 { background-color: color-mix(in srgb, var(--theme-primary) 10%, white) !important; }
+        .text-blue-600 { color: var(--theme-primary) !important; }
+        .text-blue-700 { color: var(--theme-primary) !important; }
+        .border-blue-200 { border-color: color-mix(in srgb, var(--theme-primary) 30%, white) !important; }
+        .border-blue-500 { border-color: var(--theme-primary) !important; }
+        .ring-blue-500 { --tw-ring-color: var(--theme-primary) !important; }
+        .focus\:border-blue-500:focus { border-color: var(--theme-primary) !important; }
+        .focus\:ring-blue-500:focus { --tw-ring-color: var(--theme-primary) !important; }
+        .bg-orange-500 { background-color: var(--theme-secondary) !important; }
+        .bg-orange-600 { background-color: var(--theme-secondary) !important; filter: brightness(0.85); }
+        .text-orange-600 { color: var(--theme-secondary) !important; }
+        .text-orange-700 { color: var(--theme-secondary) !important; }
+        .from-orange-400 { --tw-gradient-from: var(--theme-secondary) !important; }
+        .to-orange-600 { --tw-gradient-to: var(--theme-secondary) !important; }
+        .hover\:bg-blue-700:hover { background-color: color-mix(in srgb, var(--theme-primary) 80%, black) !important; }
+        .hover\:bg-orange-600:hover { background-color: color-mix(in srgb, var(--theme-secondary) 80%, black) !important; }
+
+        /* Header style */
+        @if(($siteSettings->theme_header_style ?? 'transparent') === 'white')
+            .site-header { background: #fff !important; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        @elseif(($siteSettings->theme_header_style ?? 'transparent') === 'dark')
+            .site-header { background: #1e293b !important; }
+        @endif
+
+        /* Button style overrides */
+        @php $btnStyle = $siteSettings->theme_button_style ?? 'rounded'; @endphp
+        @if($btnStyle === 'pill')
+            .theme-btn-primary, .theme-btn-secondary, a.inline-flex, button.rounded-lg { border-radius: 9999px !important; }
+        @elseif($btnStyle === 'square')
+            .theme-btn-primary, .theme-btn-secondary { border-radius: 0 !important; }
+        @endif
+
+        /* Section spacing */
+        @php $spacing = $siteSettings->theme_section_spacing ?? 'default'; @endphp
+        @if($spacing === 'compact')
+            section.py-20, section[class*="py-20"] { padding-top: 3rem !important; padding-bottom: 3rem !important; }
+        @elseif($spacing === 'spacious')
+            section.py-20, section[class*="py-20"] { padding-top: 6rem !important; padding-bottom: 6rem !important; }
+        @endif
     </style>
 </head>
 <body class="flex min-h-screen flex-col bg-surface font-sans text-on-surface antialiased" style="font-family: var(--theme-font);">

@@ -277,6 +277,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/dashboard/events/{event}', [DashboardEventController::class, 'destroy'])->name('dashboard.events.destroy');
 
     Route::get('/dashboard/help', [DashboardHelpController::class, 'index'])->name('dashboard.help');
+    Route::get('/dashboard/software', function () {
+        abort_unless(auth()->user()?->hasRole('admin'), 403);
+        return view('dashboard.software');
+    })->name('dashboard.software');
 
     Route::get('/dashboard/bulk', [DashboardBulkController::class, 'index'])->name('dashboard.bulk');
     Route::get('/dashboard/bulk/export/{resource}', [DashboardBulkController::class, 'export'])->name('dashboard.bulk.export');

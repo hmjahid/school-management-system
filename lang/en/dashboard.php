@@ -44,6 +44,7 @@ return [
     'website_cms' => 'Website CMS',
     'all_pages' => 'All pages',
     'about_page' => 'About Page',
+    'software_info' => 'Software Info',
     'news_events' => 'News & events',
     'gallery' => 'Gallery',
     'announcements' => 'Announcements',
