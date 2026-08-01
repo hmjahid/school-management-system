@@ -529,7 +529,6 @@ add some theme syles. based on the styles, the whole frontend website styles and
 
 add more features in general sectting page not the school info page.
 
-
 create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-15.md file. then implement the tasks using the prompt
 
 
@@ -537,14 +536,32 @@ remove individual about page from the website cms as we aslredy ahve unde rall p
 
 setting page theme not working. aslo the homepage recent events and activities section not move dto above of upcoming events ection . fix them. 
 
+no. move the hero below sldier section in that scetion, not new section
 
-add managing comitee page in the website and aslo show in homepage witha  slider. add cms in the website cms for managing comitee contnets.
+add managing comitee page in the website and aslo show in homepage to the comitee members with a  slider. add cms in the website cms for managing comitee contnets.
+
+
+
+remove register button from header.
+
+add selecte all ans deselect all button in user creta epage and roles edit page.
+
+individual students are not showing in bulk sms campaign page
+
+activity log are not logging/recording properly. fix it
+
+comittee page not shwing in cms > all pages. aslo ensure that all neely added sections will be added to cms setting page for show/hide control
+
+add more setting options in setting page. ensure that all setting label configuratiosns are controlled from here.
+
+create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-16.md file. then implement the tasks using the prompt
+
 
 
 
 i want to make application eligible for multiple languages. what is the best way of doing this?
 
-id the language swither button is more than two, the button will be a select dropdown.
+if the language swither button is more than two, the button will be a select dropdown.
 
 
 
@@ -556,6 +573,6 @@ now write a commit message for the chnages after the last commit
 
 is it possible to make this softaware a fully functional custimizable wordpress theme? how? tell me only.
 
-i want to name this software a nice name for branding.the dahboard sidebar top name will be nmaed after this name and the pwa appliction also willb enamed after this name. suggest me some best nmaes for this application/software.
+i want to name this software a nice name for branding.the dahboard sidebar top name will be nmaed after this name and the pwa appliction also will be named after this name. suggest me some best nmaes for this application/software.
 
 

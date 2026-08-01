@@ -93,6 +93,7 @@ Route::get('/news/{slug}', [SiteNewsController::class, 'show'])->name('site.news
 Route::get('/notices', [SiteNoticeController::class, 'index'])->name('site.notices');
 Route::get('/gallery', [SiteGalleryController::class, 'index'])->name('site.gallery');
 Route::get('/events', [SitePageController::class, 'events'])->name('site.events');
+Route::get('/committee', [SitePageController::class, 'committee'])->name('site.committee');
 Route::get('/contact', [SitePageController::class, 'contact'])->name('site.contact');
 Route::get('/terms', [SitePageController::class, 'terms'])->name('site.terms');
 Route::get('/privacy', [SitePageController::class, 'privacy'])->name('site.privacy');
@@ -627,6 +628,15 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::get('/dashboard/permissions', [DashboardPermissionController::class, 'index'])->name('dashboard.permissions.index');
+
+        Route::prefix('dashboard/committee')->name('dashboard.committee.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Web\DashboardCommitteeController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Web\DashboardCommitteeController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Web\DashboardCommitteeController::class, 'store'])->name('store');
+            Route::get('/{member}/edit', [\App\Http\Controllers\Web\DashboardCommitteeController::class, 'edit'])->name('edit');
+            Route::put('/{member}', [\App\Http\Controllers\Web\DashboardCommitteeController::class, 'update'])->name('update');
+            Route::delete('/{member}', [\App\Http\Controllers\Web\DashboardCommitteeController::class, 'destroy'])->name('destroy');
+        });
 
         // Library Management
         Route::prefix('dashboard/library')->name('dashboard.library.')->group(function () {

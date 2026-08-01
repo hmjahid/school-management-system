@@ -92,6 +92,7 @@ return [
     'no_users_found' => 'No users found.',
     'no_roles_found' => 'No roles found.',
     'testimonials' => 'Testimonials',
+    'committee_members' => 'Committee Members',
     'messages' => 'Messages',
     'inbox' => 'Inbox',
     'sent' => 'Sent',

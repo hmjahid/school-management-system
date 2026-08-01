@@ -40,6 +40,7 @@
         $teachersH = $hc['teachers'] ?? [];
         $testimonialsH = $hc['testimonials_heading'] ?? [];
         $remarkableH = $hc['remarkable_students'] ?? [];
+        $committeeH = $hc['committee_members'] ?? [];
         $eventsH = $hc['events'] ?? [];
         $newsH = $hc['news'] ?? [];
         $noticesH = $hc['notices'] ?? [];
@@ -195,6 +196,66 @@
             <div class="mt-10 text-center reveal">
                 <a href="{{ route('site.faculty') }}" class="inline-flex items-center gap-1.5 font-medium text-blue-600 hover:text-blue-800 transition-colors">
                     {{ $teachersH['view_all'] ?? site_ui('home.teachers_view_all') }}
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                </a>
+            </div>
+        </div>
+    </section>
+    @endif
+
+    {{-- Managing Committee --}}
+    @if($sectionVis['committee_members'] ?? true)
+    <section class="bg-white py-20">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="mb-14 text-center reveal">
+                <h2 class="mb-4 text-4xl font-bold text-gray-900">{{ $committeeH['title'] ?? site_ui('home.committee_title') }}</h2>
+                <div class="mx-auto h-1 w-20 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
+                <p class="mx-auto mt-4 max-w-3xl text-lg text-gray-600">{{ $committeeH['intro'] ?? site_ui('home.committee_intro') }}</p>
+            </div>
+            @if($committeeMembers->isNotEmpty())
+            <div class="relative" data-committee-slider>
+                <button type="button" data-committee-prev class="absolute -left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg ring-1 ring-gray-200 transition hover:bg-gray-50 hover:shadow-xl sm:-left-5" aria-label="Previous">
+                    <svg class="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <button type="button" data-committee-next class="absolute -right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg ring-1 ring-gray-200 transition hover:bg-gray-50 hover:shadow-xl sm:-right-5" aria-label="Next">
+                    <svg class="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
+                <div data-committee-track class="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 -mx-2 px-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                    @foreach($committeeMembers as $member)
+                        @php
+                            $name = $member->localizedName();
+                            $initials = implode('', array_map(fn($w) => strtoupper(substr($w, 0, 1)), explode(' ', $name)));
+                            $photo = $member->photo_url;
+                        @endphp
+                        <div class="w-full min-w-0 snap-start shrink-0 md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] group rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-100 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 text-2xl font-bold text-blue-600 ring-4 ring-white shadow-lg transition-transform duration-300 group-hover:scale-105 overflow-hidden">
+                                @if($photo)
+                                    <img src="{{ $photo }}" alt="{{ $name }}" class="h-full w-full object-cover">
+                                @else
+                                    {{ $initials }}
+                                @endif
+                            </div>
+                            <h3 class="mt-4 text-lg font-semibold text-gray-900">{{ $name }}</h3>
+                            <p class="mt-1 text-sm text-blue-600 font-medium">{{ $member->localizedDesignation() }}</p>
+                            @if($member->phone)
+                                <p class="mt-2 text-xs text-gray-400 flex items-center justify-center gap-1">
+                                    <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
+                                    {{ $member->phone }}
+                                </p>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            @else
+            <div class="py-12 text-center">
+                <svg class="mx-auto h-16 w-16 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/></svg>
+                <p class="mt-4 text-gray-500">{{ __('Committee members will be displayed here once added in the dashboard.') }}</p>
+            </div>
+            @endif
+            <div class="mt-10 text-center reveal">
+                <a href="{{ route('site.committee') }}" class="inline-flex items-center gap-1.5 font-medium text-blue-600 hover:text-blue-800 transition-colors">
+                    {{ $committeeH['view_all'] ?? site_ui('home.committee_view_all') }}
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                 </a>
             </div>
@@ -510,6 +571,32 @@
             }, 4000);
             track.addEventListener('mouseenter', function() { clearInterval(autoScroll); });
             track.addEventListener('touchstart', function() { clearInterval(autoScroll); }, { passive: true });
+        }
+    }
+
+    var cSlider = document.querySelector('[data-committee-slider]');
+    if (cSlider) {
+        var cTrack = cSlider.querySelector('[data-committee-track]');
+        var cPrev = cSlider.querySelector('[data-committee-prev]');
+        var cNext = cSlider.querySelector('[data-committee-next]');
+        if (cTrack && cPrev && cNext) {
+            function getCommitteeScrollAmount() {
+                var w = window.innerWidth;
+                if (w >= 1024) return cTrack.clientWidth / 3 + 24;
+                if (w >= 768) return cTrack.clientWidth / 2 + 24;
+                return cTrack.clientWidth;
+            }
+            cPrev.addEventListener('click', function() { cTrack.scrollBy({ left: -getCommitteeScrollAmount(), behavior: 'smooth' }); });
+            cNext.addEventListener('click', function() { cTrack.scrollBy({ left: getCommitteeScrollAmount(), behavior: 'smooth' }); });
+            var committeeAutoScroll = setInterval(function() {
+                if (cTrack.scrollLeft + cTrack.clientWidth >= cTrack.scrollWidth - 10) {
+                    cTrack.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    cTrack.scrollBy({ left: getCommitteeScrollAmount(), behavior: 'smooth' });
+                }
+            }, 4000);
+            cTrack.addEventListener('mouseenter', function() { clearInterval(committeeAutoScroll); });
+            cTrack.addEventListener('touchstart', function() { clearInterval(committeeAutoScroll); }, { passive: true });
         }
     }
 })();

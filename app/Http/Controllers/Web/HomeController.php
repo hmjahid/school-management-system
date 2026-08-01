@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdmissionSetting;
+use App\Models\CommitteeMember;
 use App\Models\Event;
 use App\Models\News;
 use App\Models\Notice;
@@ -36,6 +37,7 @@ class HomeController extends Controller
         $teachers = collect();
         $remarkableStudents = collect();
         $sliderFallback = collect();
+        $committeeMembers = collect();
 
         try {
             if (Schema::hasTable('news')) {
@@ -94,6 +96,13 @@ class HomeController extends Controller
                     ->limit(8)
                     ->get();
             }
+            if (Schema::hasTable('committee_members')) {
+                $committeeMembers = CommitteeMember::query()
+                    ->active()
+                    ->ordered()
+                    ->limit(20)
+                    ->get();
+            }
         } catch (\Throwable) {
             //
         }
@@ -139,7 +148,8 @@ class HomeController extends Controller
             'sliderFallback',
             'sliderSlides',
             'stats',
-            'admissionsOpen'
+            'admissionsOpen',
+            'committeeMembers'
         ));
     }
 }

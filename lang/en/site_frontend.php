@@ -20,6 +20,7 @@ return [
         'routine' => 'Class Routine',
         'contact' => 'Contact',
         'payments' => 'Payments',
+        'committee' => 'Managing Committee',
         'portal' => 'Portal',
         'dashboard' => 'Dashboard',
         'profile' => 'Profile',
@@ -129,6 +130,9 @@ return [
         'teachers_view_all' => 'View all teachers',
         'remarkable_students_title' => 'Remarkable Students',
         'remarkable_students_intro' => 'Celebrating the achievements and success of our outstanding students.',
+        'committee_title' => 'Managing Committee',
+        'committee_intro' => 'Meet the distinguished members of our managing committee who guide our institution towards excellence.',
+        'committee_view_all' => 'View all committee members',
     ],
 
     'payments' => [
@@ -554,6 +558,11 @@ return [
             'title_fallback_bn' => 'Privacy Policy',
             'meta_fallback_bn' => 'How we collect, use, and protect your information.',
         ],
+        'committee' => [
+            'title_fallback_bn' => 'Managing Committee',
+            'meta_fallback_bn' => 'Meet the distinguished members of our managing committee.',
+            'intro_fallback_bn' => 'Our managing committee provides strategic direction and governance to ensure the institution achieves its mission and vision.',
+        ],
     ],
 
     'page_sections' => [
@@ -662,6 +671,14 @@ return [
         ],
         'contact' => [
             ['heading' => 'School hours', 'paragraphs' => ['Office hours typically follow the timetable in website settings; adjust in admin settings for accuracy.']],
+        ],
+        'committee' => [
+            ['heading' => 'About the committee', 'paragraphs' => [
+                'The managing committee provides strategic oversight and governance to ensure the school achieves its educational mission and maintains the highest standards.',
+            ]],
+            ['heading' => 'Roles and responsibilities', 'paragraphs' => [
+                'Committee members are responsible for policy decisions, financial oversight, strategic planning, and ensuring accountability in all school operations.',
+            ]],
         ],
         'terms' => [
             ['heading' => 'Use of the website', 'paragraphs' => ['This site is provided for information about the school, admissions, and announcements.']],

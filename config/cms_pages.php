@@ -221,6 +221,17 @@ return [
                     ['key' => 'icon', 'label' => 'Icon', 'type' => 'text'],
                 ],
             ],
+            [
+                'key' => 'committee_members',
+                'label' => 'Committee section heading',
+                'help' => 'Title and intro for the managing committee slider on the homepage.',
+                'type' => 'group',
+                'fields' => [
+                    ['key' => 'title', 'label' => 'Section title', 'type' => 'text'],
+                    ['key' => 'intro', 'label' => 'Section intro', 'type' => 'textarea', 'rows' => 2],
+                    ['key' => 'view_all', 'label' => 'View all link text', 'type' => 'text'],
+                ],
+            ],
         ],
     ],
 
@@ -333,6 +344,16 @@ return [
         'label' => 'Privacy policy',
         'group' => 'content',
         'description' => 'How we collect and protect user data.',
+        'sections' => [
+            ['key' => 'intro', 'label' => 'Page introduction', 'type' => 'textarea', 'rows' => 4],
+            ['key' => 'sections', 'label' => 'Content sections', 'type' => 'repeater_sections'],
+        ],
+    ],
+
+    'committee' => [
+        'label' => 'Managing Committee',
+        'group' => 'content',
+        'description' => 'Managing committee members displayed on the website. Members are managed separately in Dashboard > Committee Members.',
         'sections' => [
             ['key' => 'intro', 'label' => 'Page introduction', 'type' => 'textarea', 'rows' => 4],
             ['key' => 'sections', 'label' => 'Content sections', 'type' => 'repeater_sections'],

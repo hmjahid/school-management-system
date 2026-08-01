@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdmissionSetting;
+use App\Models\CommitteeMember;
 use App\Models\ContactSubmission;
 use App\Models\Event;
 use App\Models\Teacher;
@@ -61,6 +62,25 @@ class SitePageController extends Controller
         return view('site.faculty', [
             'content' => $content,
             'teachers' => $teachers,
+        ]);
+    }
+
+    public function committee(): View
+    {
+        $content = WebsiteContent::getContent('committee');
+
+        if ($content->exists && ! $content->is_active) {
+            abort(404);
+        }
+
+        $members = CommitteeMember::query()
+            ->active()
+            ->ordered()
+            ->get();
+
+        return view('site.committee', [
+            'content' => $content,
+            'members' => $members,
         ]);
     }
 

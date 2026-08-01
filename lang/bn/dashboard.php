@@ -92,6 +92,7 @@ return [
     'no_users_found' => 'কোনো ব্যবহারকারী পাওয়া যায়নি।',
     'no_roles_found' => 'কোনো ভূমিকা পাওয়া যায়নি।',
     'testimonials' => 'প্রশংসাপত্র',
+    'committee_members' => 'পরিষদ সদস্য',
     'messages' => 'বার্তা',
     'inbox' => 'ইনবক্স',
     'sent' => 'প্রেরিত',

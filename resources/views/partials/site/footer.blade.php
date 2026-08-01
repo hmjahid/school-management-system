@@ -41,6 +41,7 @@
                     <li><a href="{{ route('site.academics') }}" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('nav.academics') }}</a></li>
                     <li><a href="{{ route('site.admissions') }}" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('nav.admissions') }}</a></li>
                     <li><a href="{{ route('site.faculty') }}" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('nav.faculty') }}</a></li>
+                    <li><a href="{{ route('site.committee') }}" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('nav.committee') }}</a></li>
                     <li><a href="{{ route('site.news') }}" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('nav.news') }}</a></li>
                     <li><a href="{{ route('site.events') }}" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('nav.events') }}</a></li>
                     <li><a href="{{ route('site.gallery') }}" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('nav.gallery') }}</a></li>
