@@ -2,15 +2,22 @@
 
 ## Project structure
 
-- **Root** = the whole app (Laravel 12). Standard Laravel layout — `app/`, `config/`, `routes/`, `resources/`, `public/`, etc.
+- **Root** = the whole app (Laravel 12, PHP 8.2+). Standard Laravel layout — `app/`, `config/`, `routes/`, `resources/`, `public/`, etc.
 - **`archive/`** = old copies (former backend + frontend). Do not modify.
 - **`frontend/`** = README only. The old React SPA is in `archive/frontend/` — do not touch.
+
+## Key packages
+
+- `spatie/laravel-permission` — roles & permissions
+- `spatie/laravel-activitylog` — audit logging
+- `barryvdh/laravel-dompdf` — PDF generation (certificates, ID cards, admit cards)
+- `laravel/sanctum` — API auth tokens
 
 ## UI
 
 - **Laravel Blade** (`resources/views/`) is the frontend. Tailwind CSS 4 + Vite.
 - CSS is Tailwind v4 utility classes only (`@tailwindcss/vite` plugin).
-- Multi-language: English (`lang/en/site_frontend.php`) + Bengali (`lang/bn/site_frontend.php`). Navigation labels use `site_ui('nav.xxx')` helper which reads from the lang file merged with CMS overrides.
+- Multi-language: English (`lang/en/site_frontend.php`) + Bengali (`lang/bn/site_frontend.php`). Navigation labels use `site_ui('nav.xxx')` helper (`app/helpers.php`) which reads from the lang file merged with CMS overrides.
 - The `routes/web.php` has all routes — site pages, auth, dashboard.
 - The `routes/api.php` has REST JSON endpoints (mostly public + admin CRUD).
 
@@ -52,3 +59,9 @@ npm run dev              # Vite HMR
 - PHPUnit with SQLite in-memory (`phpunit.xml`). No external DB needed.
 - `composer test` runs all suites.
 - Tests live in `tests/Feature/` and `tests/Unit/`.
+
+## Docker
+
+- `docker-compose.yml` provides nginx + php-fpm + MySQL 8 + Redis stack.
+- Production-like setup: MySQL on port 33061, nginx on 8080.
+- Dev uses SQLite (no Docker needed).

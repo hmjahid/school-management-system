@@ -567,6 +567,9 @@ image files are not viewing in media library page and browse media popup. fix it
 
 
 
+add all demo cerdentails in users so that I can manage them all
+
+
 
 i want to make application eligible for multiple languages. what is the best way of doing this?
 
@@ -582,6 +585,6 @@ now write a commit message for the chnages after the last commit
 
 is it possible to make this softaware a fully functional custimizable wordpress theme? how? tell me only.
 
-i want to name this software a nice name for branding. the dahboard sidebar top name will be nmaed after this name and the pwa appliction also will be named after this name. suggest me some best unique nmaes which not used before for this application/software.
+i want to name this software a nice name for branding. the dahboard sidebar top name will be nmaed after this name and the pwa appliction also will be named after this name. suggest me some best unique nmaes which not used before for this application/software. create  afile named name-suggetions.md and add the suggetsions in that file
 
 
