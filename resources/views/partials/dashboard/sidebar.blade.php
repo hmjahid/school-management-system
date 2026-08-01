@@ -125,8 +125,8 @@
         <p class="mb-2 mt-5 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ __('dashboard.academic') }}</p>
 
         {{-- People --}}
-        <details class="group" @if (request()->routeIs('dashboard.students*') || request()->routeIs('dashboard.teachers*') || request()->routeIs('dashboard.parents*')) open @endif>
-            <summary class="admin-nav-link cursor-pointer list-none [&::-webkit-details-marker]:hidden {{ request()->routeIs('dashboard.students*') || request()->routeIs('dashboard.teachers*') || request()->routeIs('dashboard.parents*') ? 'admin-nav-link--active' : '' }}">
+        <details class="group" @if (request()->routeIs('dashboard.students*') || request()->routeIs('dashboard.teachers*') || request()->routeIs('dashboard.parents*') || request()->routeIs('dashboard.staff') || request()->routeIs('dashboard.users*')) open @endif>
+            <summary class="admin-nav-link cursor-pointer list-none [&::-webkit-details-marker]:hidden {{ request()->routeIs('dashboard.students*') || request()->routeIs('dashboard.teachers*') || request()->routeIs('dashboard.parents*') || request()->routeIs('dashboard.staff') || request()->routeIs('dashboard.users*') ? 'admin-nav-link--active' : '' }}">
                 <span class="flex h-5 w-5 shrink-0 items-center justify-center opacity-80">
                     <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/></svg>
                 </span>
@@ -140,9 +140,15 @@
                 @can('viewAny', App\Models\Teacher::class)
                     <a href="{{ route('dashboard.teachers') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.teachers*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.teachers') }}</a>
                 @endcan
-                @can('viewAny', App\Models\Guardian::class)
+                @if(auth()->user()?->hasAnyRole(['admin', 'accountant', 'teacher']))
                     <a href="{{ route('dashboard.parents') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.parents*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.parents') }}</a>
-                @endcan
+                @endif
+                @if(auth()->user()?->hasAnyRole(['admin', 'staff']))
+                    <a href="{{ route('dashboard.staff') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.staff') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.staff_directory') }}</a>
+                @endif
+                @if(auth()->user()?->hasAnyRole(['admin']))
+                    <a href="{{ route('dashboard.users.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.users*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.all_users') }}</a>
+                @endif
             </div>
         </details>
 

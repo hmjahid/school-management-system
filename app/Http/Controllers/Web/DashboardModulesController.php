@@ -112,7 +112,11 @@ class DashboardModulesController extends Controller
 
     public function parents(Request $request): View
     {
-        $this->authorize('viewAny', Guardian::class);
+        abort_unless(
+            $request->user()->hasAnyRole(['admin', 'accountant', 'teacher'])
+            || $request->user()->hasAnyPermission(['view_guardians', 'manage_guardians']),
+            403
+        );
 
         $query = Guardian::with(['user', 'students.user']);
 

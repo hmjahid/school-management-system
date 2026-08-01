@@ -39,7 +39,16 @@
                             <td class="px-4 py-3 text-gray-700">{{ $guardian->students->map(fn ($s) => $s->user?->name)->filter()->implode(', ') ?: '—' }}</td>
                             <td class="px-4 py-3 text-right text-sm">
                                 @can('view', $guardian)
-                                    <a href="{{ route('dashboard.parents.show', $guardian) }}" class="font-medium text-blue-600 hover:text-blue-800">{{ __('View') }}</a>
+                                    <a href="{{ route('dashboard.parents.show', $guardian) }}" class="text-blue-600 hover:text-blue-800">{{ __('View') }}</a>
+                                @endcan
+                                @can('update', $guardian)
+                                    <a href="{{ route('dashboard.parents.edit', $guardian) }}" class="ml-2 text-indigo-600 hover:text-indigo-800">{{ __('Edit') }}</a>
+                                @endcan
+                                @can('delete', $guardian)
+                                    <form method="post" action="{{ route('dashboard.parents.destroy', $guardian) }}" class="inline ml-2" onsubmit="return confirm('{{ __('Are you sure?') }}')">
+                                        @csrf @method('delete')
+                                        <button type="submit" class="text-red-600 hover:text-red-800">{{ __('Delete') }}</button>
+                                    </form>
                                 @endcan
                             </td>
                         </tr>

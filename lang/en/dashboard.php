@@ -28,6 +28,7 @@ return [
     'leaves' => 'Leaves',
     'payroll' => 'Payroll',
     'staff_directory' => 'Staff directory',
+    'all_users' => 'All Users',
     'documents' => 'Documents',
     'admit_cards' => 'Admit Cards',
     'student_id_cards' => 'Student ID Cards',

@@ -18,7 +18,8 @@ class GuardianPolicy
      */
     public function viewAny(User $user)
     {
-        return $user->hasAnyPermission(['view_guardians', 'manage_guardians']);
+        return $user->hasAnyRole(['admin', 'accountant', 'teacher'])
+            || $user->hasAnyPermission(['view_guardians', 'manage_guardians']);
     }
 
     /**
@@ -30,17 +31,18 @@ class GuardianPolicy
      */
     public function view(User $user, Guardian $guardian)
     {
-        // Admin and staff with permission can view any guardian
+        if ($user->hasAnyRole(['admin', 'accountant', 'teacher'])) {
+            return true;
+        }
+
         if ($user->hasAnyPermission(['view_guardians', 'manage_guardians'])) {
             return true;
         }
 
-        // Guardians can view their own profile
         if ($user->hasRole('parent') && $user->guardian->id === $guardian->id) {
             return true;
         }
 
-        // Teachers can view guardians of their students
         if ($user->hasRole('teacher')) {
             return $guardian->students()
                 ->whereHas('class.teachers', function($q) use ($user) {
@@ -60,7 +62,8 @@ class GuardianPolicy
      */
     public function create(User $user)
     {
-        return $user->hasAnyPermission(['create_guardians', 'manage_guardians']);
+        return $user->hasAnyRole(['admin', 'accountant'])
+            || $user->hasAnyPermission(['create_guardians', 'manage_guardians']);
     }
 
     /**
@@ -72,17 +75,18 @@ class GuardianPolicy
      */
     public function update(User $user, Guardian $guardian = null)
     {
-        // For route model binding, we need to handle null guardian for create/any operations
+        if ($user->hasAnyRole(['admin', 'accountant'])) {
+            return true;
+        }
+
         if ($guardian === null) {
             return $user->hasAnyPermission(['update_guardians', 'manage_guardians']);
         }
-        
-        // Admin and staff with permission can update any guardian
+
         if ($user->hasAnyPermission(['update_guardians', 'manage_guardians'])) {
             return true;
         }
 
-        // Guardians can update their own profile
         if ($user->hasRole('parent') && $user->guardian->id === $guardian->id) {
             return true;
         }
@@ -99,16 +103,18 @@ class GuardianPolicy
      */
     public function delete(User $user, Guardian $guardian = null)
     {
-        // For route model binding, we need to handle null guardian for create/any operations
+        if ($user->hasAnyRole(['admin'])) {
+            return true;
+        }
+
         if ($guardian === null) {
             return $user->hasAnyPermission(['delete_guardians', 'manage_guardians']);
         }
-        
-        // Only allow deletion if there are no students or fee payments
+
         if ($guardian->students()->exists() || $guardian->feePayments()->exists()) {
             return false;
         }
-        
+
         return $user->hasAnyPermission(['delete_guardians', 'manage_guardians']);
     }
 

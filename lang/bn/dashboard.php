@@ -28,6 +28,7 @@ return [
     'leaves' => 'ছুটি',
     'payroll' => 'বেতন',
     'staff_directory' => 'কর্মী তালিকা',
+    'all_users' => 'সব ব্যবহারকারী',
     'documents' => 'ডকুমেন্ট',
     'admit_cards' => 'প্রবেশপত্র',
     'student_id_cards' => 'শিক্ষার্থী পরিচয়পত্র',
