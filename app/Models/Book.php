@@ -30,7 +30,7 @@ class Book extends Model
 
     public function getCoverUrlAttribute(): ?string
     {
-        return $this->cover_image ? Storage::url($this->cover_image) : null;
+        return $this->cover_image ? url('storage/' . ltrim($this->cover_image, '/')) : null;
     }
 
     public function category(): BelongsTo

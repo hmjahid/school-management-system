@@ -66,7 +66,7 @@ class HomeController extends Controller
                     ->get()
                     ->map(function (Event $e): array {
                         return [
-                            'image' => $e->image ? Storage::url($e->image) : null,
+                            'image' => $e->image ? url('storage/' . ltrim($e->image, '/')) : null,
                             'title' => $e->title,
                             'caption' => $e->location ?? '',
                             'link' => route('site.events'),

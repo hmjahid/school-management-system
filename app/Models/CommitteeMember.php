@@ -31,7 +31,7 @@ class CommitteeMember extends Model
 
     public function getPhotoUrlAttribute(): ?string
     {
-        return $this->photo ? Storage::url($this->photo) : null;
+        return $this->photo ? url('storage/' . ltrim($this->photo, '/')) : null;
     }
 
     public function localizedName(?string $locale = null): string

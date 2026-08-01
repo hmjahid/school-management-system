@@ -90,7 +90,7 @@ class CmsController extends Controller
                     'id' => md5($path),
                     'filename' => basename($path),
                     'path' => $path,
-                    'url' => Storage::url($path),
+                    'url' => url('storage/' . ltrim($path, '/')),
                     'mime_type' => Storage::mimeType($path),
                     'size' => Storage::size($path),
                     'created_at' => date('c', Storage::lastModified($path)),

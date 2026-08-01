@@ -309,7 +309,7 @@ class WebsiteContent extends Model
 
     public function getImageUrl($path)
     {
-        return $path ? Storage::url($path) : null;
+        return $path ? url('storage/' . ltrim($path, '/')) : null;
     }
 
     public static function getActivePages()

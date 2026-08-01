@@ -157,22 +157,22 @@ class WebsiteSetting extends Model
      */
     public function getLogoUrlAttribute()
     {
-        return $this->logo_path ? Storage::url($this->logo_path) : null;
+        return $this->logo_path ? url('storage/' . ltrim($this->logo_path, '/')) : null;
     }
 
     public function getFooterLogoUrlAttribute(): ?string
     {
-        return $this->footer_logo_path ? Storage::url($this->footer_logo_path) : null;
+        return $this->footer_logo_path ? url('storage/' . ltrim($this->footer_logo_path, '/')) : null;
     }
 
     public function getFooterLogoDarkUrlAttribute(): ?string
     {
-        return $this->footer_logo_dark_path ? Storage::url($this->footer_logo_dark_path) : null;
+        return $this->footer_logo_dark_path ? url('storage/' . ltrim($this->footer_logo_dark_path, '/')) : null;
     }
 
     public function getOgImageUrlAttribute(): ?string
     {
-        return $this->og_image_path ? Storage::url($this->og_image_path) : null;
+        return $this->og_image_path ? url('storage/' . ltrim($this->og_image_path, '/')) : null;
     }
 
     /**
@@ -182,7 +182,7 @@ class WebsiteSetting extends Model
      */
     public function getFaviconUrlAttribute()
     {
-        return $this->favicon_path ? Storage::url($this->favicon_path) : null;
+        return $this->favicon_path ? url('storage/' . ltrim($this->favicon_path, '/')) : null;
     }
 
     /**

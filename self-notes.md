@@ -560,8 +560,11 @@ make fee page like payemnt page.
 
 all there serach items on ein webiste and two others in dahboard not working. fix the issues
 
-
 add all users types pages under people dropdown pages to manage easily like students and teachers
+
+image files are not viewing in media library page and browse media popup. fix it
+
+
 
 
 

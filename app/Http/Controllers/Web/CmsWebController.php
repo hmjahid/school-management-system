@@ -430,7 +430,7 @@ class CmsWebController extends Controller
                             'file_size' => $file->getSize(),
                         ]);
 
-                        $v = Storage::url($path);
+                        $v = url('storage/' . ltrim($path, '/'));
                     } else {
                         $v = trim((string) data_get($all, $dotKey, ''));
                     }
@@ -479,7 +479,7 @@ class CmsWebController extends Controller
                 'file_size' => $file->getSize(),
             ]);
 
-            return Storage::url($path);
+            return url('storage/' . ltrim($path, '/'));
         }
 
         return trim((string) $request->input($formKey, ''));

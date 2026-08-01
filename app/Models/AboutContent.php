@@ -37,12 +37,12 @@ class AboutContent extends Model
 
     public function getLogoUrlAttribute()
     {
-        return $this->logo_path ? Storage::url($this->logo_path) : null;
+        return $this->logo_path ? url('storage/' . ltrim($this->logo_path, '/')) : null;
     }
 
     public function getFaviconUrlAttribute()
     {
-        return $this->favicon_path ? Storage::url($this->favicon_path) : null;
+        return $this->favicon_path ? url('storage/' . ltrim($this->favicon_path, '/')) : null;
     }
 
     public static function getContent()

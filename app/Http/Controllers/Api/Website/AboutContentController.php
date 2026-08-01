@@ -130,7 +130,7 @@ class AboutContentController extends Controller
 
         return response()->json([
             'message' => ucfirst($type) . ' uploaded successfully',
-            'url' => Storage::url($path)
+            'url' => url('storage/' . ltrim($path, '/'))
         ]);
     }
 }

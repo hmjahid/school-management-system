@@ -21,7 +21,11 @@ class WebsiteMedia extends Model
 
     public function url(): ?string
     {
-        return $this->file_path ? Storage::disk('public')->url($this->file_path) : null;
+        if (! $this->file_path) {
+            return null;
+        }
+
+        return url('storage/' . ltrim($this->file_path, '/'));
     }
 
     public function isImage(): bool
