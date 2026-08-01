@@ -28,6 +28,12 @@
             <button type="button" data-tab="library" class="tab-link whitespace-nowrap border-b-2 px-1 pb-3 {{ $tab === 'library' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }}">
                 {{ __('dashboard.tab_library') ?? __('Library') }}
             </button>
+            <button type="button" data-tab="academic" class="tab-link whitespace-nowrap border-b-2 px-1 pb-3 {{ $tab === 'academic' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }}">
+                {{ __('Academic') }}
+            </button>
+            <button type="button" data-tab="sms" class="tab-link whitespace-nowrap border-b-2 px-1 pb-3 {{ $tab === 'sms' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }}">
+                {{ __('SMS') }}
+            </button>
         </nav>
     </div>
 
@@ -314,7 +320,101 @@
         </form>
     </div>
 
+    {{-- Tab: Academic --}}
+    <div id="tab-academic" class="tab-panel {{ $tab !== 'academic' ? 'hidden' : '' }}">
+        <form method="post" action="{{ route('dashboard.settings.update.general') }}" class="max-w-3xl">
+            @csrf
+            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <h2 class="text-lg font-semibold text-gray-900">{{ __('Academic settings') }}</h2>
+                <p class="mb-5 text-sm text-gray-500">{{ __('School identity, academic year, and general display options.') }}</p>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Established year') }}</label>
+                        <input type="number" name="established_year" value="{{ old('established_year', $settings->established_year ?? '') }}" min="1900" max="{{ date('Y') }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('School motto') }}</label>
+                        <input type="text" name="tagline" value="{{ old('tagline', $settings->tagline ?? '') }}" placeholder="{{ __('Excellence in Education') }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Website URL') }}</label>
+                        <input type="url" name="website_url" value="{{ old('website_url', $settings->website_url ?? '') }}" placeholder="https://yourschool.edu"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Academic start month') }}</label>
+                        <select name="academic_start_month" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            @foreach(['January','February','March','April','May','June','July','August','September','October','November','December'] as $i => $m)
+                                <option value="{{ $i + 1 }}" @selected(old('academic_start_month', $settings->academic_start_month ?? 1) == ($i + 1))>{{ __($m) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Footer description') }}</label>
+                        <textarea name="footer_description" rows="2" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">{{ old('footer_description', $settings->footer_description ?? '') }}</textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">
+                    {{ __('Save settings') }}
+                </button>
+            </div>
+        </form>
+    </div>
 
+    {{-- Tab: SMS --}}
+    <div id="tab-sms" class="tab-panel {{ $tab !== 'sms' ? 'hidden' : '' }}">
+        <form method="post" action="{{ route('dashboard.settings.update.general') }}" class="max-w-3xl">
+            @csrf
+            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                <h2 class="text-lg font-semibold text-gray-900">{{ __('SMS settings') }}</h2>
+                <p class="mb-5 text-sm text-gray-500">{{ __('Configure SMS gateway and notification preferences.') }}</p>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('SMS sender ID') }}</label>
+                        <input type="text" name="sms_sender_id" value="{{ old('sms_sender_id', $settings->sms_sender_id ?? '') }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Twilio SID') }}</label>
+                        <input type="text" name="twilio_sid" value="{{ old('twilio_sid', $settings->twilio_sid ?? '') }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Twilio Auth Token') }}</label>
+                        <input type="password" name="twilio_auth_token" value="{{ old('twilio_auth_token', $settings->twilio_auth_token ?? '') }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Twilio From Number') }}</label>
+                        <input type="text" name="twilio_from_number" value="{{ old('twilio_from_number', $settings->twilio_from_number ?? '') }}"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Absence SMS template') }}</label>
+                        <textarea name="absence_sms_template" rows="2" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">{{ old('absence_sms_template', $settings->absence_sms_template ?? '') }}</textarea>
+                        <p class="mt-1 text-xs text-gray-500">{{ __('Available placeholders: :student_name, :date, :class') }}</p>
+                    </div>
+                    <div>
+                        <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+                            <input type="hidden" name="send_absence_sms" value="0">
+                            <input type="checkbox" name="send_absence_sms" value="1" @checked(old('send_absence_sms', $settings->send_absence_sms ?? false))
+                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            {{ __('Send absence SMS to guardians') }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">
+                    {{ __('Save settings') }}
+                </button>
+            </div>
+        </form>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {

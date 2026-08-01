@@ -527,6 +527,21 @@ class WebsiteContentSeeder extends Seeder
                     ],
                 ],
             ],
+            'committee' => [
+                'title' => 'Managing Committee',
+                'meta_description' => 'Meet the distinguished members of our managing committee.',
+                'content' => [
+                    'intro' => 'Our managing committee provides strategic direction and governance to ensure the institution achieves its mission and vision.',
+                    'sections' => [
+                        $section('About the committee', [
+                            'The managing committee provides strategic oversight and governance to ensure the school achieves its educational mission and maintains the highest standards.',
+                        ]),
+                        $section('Roles and responsibilities', [
+                            'Committee members are responsible for policy decisions, financial oversight, strategic planning, and ensuring accountability in all school operations.',
+                        ]),
+                    ],
+                ],
+            ],
         ];
     }
 }

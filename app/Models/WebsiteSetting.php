@@ -96,6 +96,11 @@ class WebsiteSetting extends Model
         'theme_section_spacing',
         'academic_start_month',
         'student_id_prefix',
+        'website_url',
+        'footer_description',
+        'twilio_sid',
+        'twilio_auth_token',
+        'twilio_from_number',
     ];
 
     /**
@@ -115,6 +120,7 @@ class WebsiteSetting extends Model
         'show_linkedin' => 'boolean',
         'send_absence_sms' => 'boolean',
         'bkash_sandbox' => 'boolean',
+        'academic_start_month' => 'integer',
     ];
 
     /**

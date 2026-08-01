@@ -556,6 +556,12 @@ add more setting options in setting page. ensure that all setting label configur
 
 create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-16.md file. then implement the tasks using the prompt
 
+make fee page like payemnt page.
+
+all there serach items on ein webiste and two others in dahboard not working. fix the issues
+
+
+add all users types pages under people dropdown pages to manage easily like students and teachers
 
 
 
@@ -573,6 +579,6 @@ now write a commit message for the chnages after the last commit
 
 is it possible to make this softaware a fully functional custimizable wordpress theme? how? tell me only.
 
-i want to name this software a nice name for branding.the dahboard sidebar top name will be nmaed after this name and the pwa appliction also will be named after this name. suggest me some best nmaes for this application/software.
+i want to name this software a nice name for branding. the dahboard sidebar top name will be nmaed after this name and the pwa appliction also will be named after this name. suggest me some best unique nmaes which not used before for this application/software.
 
 

@@ -20,8 +20,8 @@
             @php
                 $vis = $settings->section_visibility ?? [
                     'hero' => true, 'features' => true, 'stats' => true, 'principal' => true,
-                    'teachers' => true, 'testimonials' => true, 'remarkable_students' => true,
-                    'events' => true, 'news' => true, 'highlights' => true,
+                    'teachers' => true, 'committee_members' => true, 'testimonials' => true, 'remarkable_students' => true,
+                    'slider' => true, 'events' => true, 'news' => true, 'highlights' => true,
                     'cta' => true, 'partners' => true, 'admissions_bar' => true, 'urgent_notices' => true,
                 ];
                 $sectionLabels = [
@@ -30,8 +30,10 @@
                     'stats' => 'Stats counter',
                     'principal' => "Principal's message",
                     'teachers' => 'Teachers section',
+                    'committee_members' => 'Managing Committee',
                     'testimonials' => 'Testimonials',
                     'remarkable_students' => 'Remarkable students',
+                    'slider' => 'Photo slider',
                     'events' => 'Upcoming events',
                     'news' => 'Latest news',
                     'highlights' => 'Highlights',

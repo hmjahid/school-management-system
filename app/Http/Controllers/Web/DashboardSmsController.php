@@ -38,13 +38,20 @@ class DashboardSmsController extends Controller
                 'phone' => $u->phone,
                 'role_names' => $u->roles->pluck('name')->join(', '),
             ]);
-        $students = Student::with('user')->whereNotNull('phone_1')->orderBy('id')->get()
+        $students = Student::with('user')
+            ->where(function ($q) {
+                $q->whereNotNull('phone_1')
+                    ->orWhereNotNull('father_phone')
+                    ->orWhereNotNull('mother_phone');
+            })
+            ->orderBy('id')->get()
             ->map(fn ($s) => [
                 'id' => $s->id,
                 'user_id' => $s->user_id,
                 'name' => $s->user?->name ?? "Student #{$s->id}",
                 'phone' => $s->phone_1 ?: $s->father_phone ?: $s->mother_phone,
-            ]);
+            ])
+            ->filter(fn ($s) => ! empty($s['phone']));
 
         return view('dashboard.sms.compose', [
             'classes' => SchoolClass::orderBy('name')->get(),
@@ -126,6 +133,12 @@ class DashboardSmsController extends Controller
 
         // Dispatch immediately (ignore scheduled_at for v1 simplicity)
         SendBulkSmsJob::dispatch($campaign->id);
+
+        activity('sms')
+            ->causedBy($request->user())
+            ->performedOn($campaign)
+            ->withProperties(['recipients_count' => $recipients->count(), 'audience' => $data['audience_type']])
+            ->log('Sent SMS campaign');
 
         return redirect()->route('dashboard.sms.index')->with('status', __('Campaign queued for :count recipients.', ['count' => $recipients->count()]));
     }

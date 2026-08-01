@@ -46,11 +46,17 @@
 
     @if($permissions->count())
         <div class="border-t border-gray-200 pt-6 dark:border-gray-700">
-            <h3 class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">{{ __('dashboard.direct_permissions') }}</h3>
-            <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="mb-3 flex items-center justify-between">
+                <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ __('dashboard.direct_permissions') }}</h3>
+                <div class="flex gap-2">
+                    <button type="button" onclick="toggleAllPermissions(true)" class="rounded-md bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50">{{ __('Select all') }}</button>
+                    <button type="button" onclick="toggleAllPermissions(false)" class="rounded-md bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">{{ __('Deselect all') }}</button>
+                </div>
+            </div>
+            <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3" data-permissions-grid>
                 @foreach($permissions as $permission)
                     <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                        <input type="checkbox" name="direct_permissions[]" value="{{ $permission->name }}" @checked(in_array($permission->name, old('direct_permissions', []))) class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600">
+                        <input type="checkbox" name="direct_permissions[]" value="{{ $permission->name }}" @checked(in_array($permission->name, old('direct_permissions', []))) class="perm-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600">
                         {{ $permission->name }}
                     </label>
                 @endforeach
@@ -60,4 +66,12 @@
 
     <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">{{ __('dashboard.save_changes') }}</button>
 </form>
+
+<script>
+function toggleAllPermissions(select) {
+    document.querySelectorAll('.perm-checkbox').forEach(function(cb) {
+        cb.checked = select;
+    });
+}
+</script>
 @endsection

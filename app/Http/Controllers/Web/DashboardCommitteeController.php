@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CommitteeMember;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -56,7 +57,13 @@ class DashboardCommitteeController extends Controller
 
         $validated['sort_order'] = $validated['sort_order'] ?? 0;
 
-        CommitteeMember::create($validated);
+        $member = CommitteeMember::create($validated);
+
+        activity('committee')
+            ->causedBy(Auth::user())
+            ->performedOn($member)
+            ->withProperties(['name' => $member->name])
+            ->log('Created committee member');
 
         return redirect()->route('dashboard.committee.index')->with('status', __('Committee member created.'));
     }
@@ -94,15 +101,26 @@ class DashboardCommitteeController extends Controller
 
         $member->update($validated);
 
+        activity('committee')
+            ->causedBy(Auth::user())
+            ->performedOn($member)
+            ->withProperties(['name' => $member->name])
+            ->log('Updated committee member');
+
         return redirect()->route('dashboard.committee.index')->with('status', __('Committee member updated.'));
     }
 
     public function destroy(CommitteeMember $member): RedirectResponse
     {
+        $name = $member->name;
         if ($member->photo) {
             Storage::disk('public')->delete($member->photo);
         }
         $member->delete();
+
+        activity('committee')
+            ->causedBy(Auth::user())
+            ->log('Deleted committee member: ' . $name);
 
         return redirect()->route('dashboard.committee.index')->with('status', __('Committee member deleted.'));
     }

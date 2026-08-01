@@ -62,7 +62,7 @@
         function filterSidebar(q) {
             var nav = document.querySelector('.admin-sidebar-nav');
             if (!nav) return;
-            var items = nav.querySelectorAll('.space-y-0.5 > a, .space-y-0.5 > details');
+            var items = nav.querySelectorAll('a, details');
             var headers = nav.querySelectorAll('p.text-\\[0\\.65rem\\]');
             items.forEach(function(item){
                 if (!q) { item.style.display = ''; return; }
@@ -72,7 +72,16 @@
             headers.forEach(function(h){
                 if (!q) { h.style.display = ''; return; }
                 var next = h.nextElementSibling;
-                if (!next) return;
+                if (!next) {
+                    var sibling = h.nextElementSibling;
+                    var anyVisible = false;
+                    while (sibling && !sibling.matches('p.text-\\[0\\.65rem\\]')) {
+                        if (sibling.style.display !== 'none') anyVisible = true;
+                        sibling = sibling.nextElementSibling;
+                    }
+                    h.style.display = anyVisible ? '' : 'none';
+                    return;
+                }
                 var children = next.querySelectorAll(':scope > a, :scope > details');
                 var anyVisible = false;
                 children.forEach(function(c){ if (c.style.display !== 'none') anyVisible = true; });
@@ -81,11 +90,13 @@
             var details = nav.querySelectorAll('details');
             details.forEach(function(d){
                 if (q) {
-                    var subItems = d.querySelectorAll('.space-y-0.5 > a');
+                    var subItems = d.querySelectorAll('a');
                     var hasMatch = false;
                     subItems.forEach(function(a){ if (a.style.display !== 'none') hasMatch = true; });
                     if (hasMatch) { d.open = true; d.style.display = ''; }
                     else { d.style.display = 'none'; }
+                } else {
+                    d.style.display = '';
                 }
             });
         }

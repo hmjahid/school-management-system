@@ -43,16 +43,16 @@ class SiteSearchController extends Controller
                         Notice::query()
                             ->where(function ($q) use ($query) {
                                 $q->where('title', 'like', "%{$query}%")
-                                  ->orWhere('body', 'like', "%{$query}%");
+                                  ->orWhere('content', 'like', "%{$query}%");
                             })
                             ->limit(10)
                             ->get()
                             ->map(fn ($item) => [
-                                'title' => $item->title,
-                                'excerpt' => \Illuminate\Support\Str::limit(strip_tags($item->body), 150),
-                                'url' => route('site.notices.show', $item->slug),
+                                'title' => $item->localizedTitle(),
+                                'excerpt' => \Illuminate\Support\Str::limit(strip_tags($item->localizedContent()), 150),
+                                'url' => route('site.notices'),
                                 'type' => __('Notices'),
-                                'date' => null,
+                                'date' => $item->created_at?->format('M j, Y'),
                             ])
                     );
                 }
@@ -70,14 +70,40 @@ class SiteSearchController extends Controller
                             ->map(fn ($item) => [
                                 'title' => $item->title,
                                 'excerpt' => \Illuminate\Support\Str::limit(strip_tags($item->description), 150),
-                                'url' => route('dashboard.events.show', $item->id),
+                                'url' => route('site.events'),
                                 'type' => __('Events'),
                                 'date' => $item->start_date?->format('M j, Y'),
                             ])
                     );
                 }
-            } catch (\Throwable) {
-                //
+
+                if (Schema::hasTable('website_contents')) {
+                    $pages = [
+                        'about' => ['title' => __('About Us'), 'url' => route('site.about')],
+                        'academics' => ['title' => __('Academics'), 'url' => route('site.academics')],
+                        'admissions' => ['title' => __('Admissions'), 'url' => route('site.admissions')],
+                        'faculty' => ['title' => __('Faculty'), 'url' => route('site.faculty')],
+                        'committee' => ['title' => __('Managing Committee'), 'url' => route('site.committee')],
+                        'contact' => ['title' => __('Contact Us'), 'url' => route('site.contact')],
+                    ];
+                    foreach ($pages as $slug => $meta) {
+                        $content = \App\Models\WebsiteContent::where('page', $slug)->first();
+                        if ($content) {
+                            $text = $content->title . ' ' . strip_tags(json_encode($content->content));
+                            if (stripos($text, $query) !== false) {
+                                $results->push([
+                                    'title' => $content->title ?? $meta['title'],
+                                    'excerpt' => \Illuminate\Support\Str::limit(strip_tags(json_encode($content->content)), 150),
+                                    'url' => $meta['url'],
+                                    'type' => __('Page'),
+                                    'date' => null,
+                                ]);
+                            }
+                        }
+                    }
+                }
+            } catch (\Throwable $e) {
+                \Log::error('Site search error: ' . $e->getMessage());
             }
         }
 

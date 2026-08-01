@@ -234,7 +234,6 @@
                     <button type="submit" class="{{ $btnNeutral }}">{{ site_ui('nav.logout') }}</button>
                 </form>
             @else
-                <a href="{{ route('portal.register') }}" class="{{ $btnOutline }}">{{ site_ui('nav.register') }}</a>
                 <a href="{{ route('login') }}" class="{{ $btnPrimary }}">{{ site_ui('nav.login') }}</a>
             @endauth
         </nav>
@@ -422,16 +421,10 @@
                     </form>
                 </div>
             @else
-                <div class="flex items-center gap-3">
-                    <a data-site-nav-link href="{{ route('portal.register') }}"
-                        class="flex-1 rounded-xl border-2 border-blue-600 bg-white px-4 py-3 text-center text-sm font-semibold text-blue-700 transition-all duration-200 hover:bg-blue-50 active:scale-[0.98]">
-                        {{ site_ui('nav.register') }}
-                    </a>
-                    <a data-site-nav-link href="{{ route('login') }}"
-                        class="flex-1 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-3 text-center text-sm font-semibold text-white shadow-md transition-all duration-200 hover:from-blue-700 hover:to-blue-800 active:scale-[0.98]">
-                        {{ site_ui('nav.login') }}
-                    </a>
-                </div>
+                <a data-site-nav-link href="{{ route('login') }}"
+                    class="w-full rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-3 text-center text-sm font-semibold text-white shadow-md transition-all duration-200 hover:from-blue-700 hover:to-blue-800 active:scale-[0.98]">
+                    {{ site_ui('nav.login') }}
+                </a>
             @endauth
         </div>
     </div>

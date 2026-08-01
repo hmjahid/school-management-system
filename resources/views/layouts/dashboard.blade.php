@@ -183,8 +183,13 @@
                 return;
             }
             debounceTimer = setTimeout(function() {
+                var csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
                 fetch('{{ route("dashboard.search") }}?q=' + encodeURIComponent(q), {
-                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    }
                 })
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
@@ -212,6 +217,9 @@
                         html += '</a>';
                     });
                     results.innerHTML = html;
+                })
+                .catch(function() {
+                    results.innerHTML = '<p class="px-3 py-6 text-center text-sm text-red-400">{{ __("Search failed. Please try again.") }}</p>';
                 });
             }, 300);
         });
