@@ -566,8 +566,41 @@ image files are not viewing in media library page and browse media popup. fix it
 
 
 
+24-08-2026
+
+when clicking on message in dashboard, the whole dahboard language chnaging to bnagla. fix the issue
+
+cretae a file named improvement-suggestion-24-08-2026.m dand add all improvement suggestions(features+architecture) in that file
+
+check which features alredy implemented and update the improvement-suggestion-24-08-2026.md file
+
+create a implementation plan file an dimplement one by one
+
+read improvement-suggestion-24-08-2026.md and implementation-plan-24-08-2026.md files and complete the unfinished tasks. continue untill finish
+
+is full to do list completed?
+
+run the project fisrt
+
+
+
+
+
+
+
+suppose you are a senior laravel developer and software engineer. audit whole codebase, find out loop holes, security issues, functions and features mismacth, architecture faults & errors and add them in a file
+
+suppose you are a senior laravel developer and software engineer.. cretae full unit tests for this school management system
+
+name our school management system "Schooler". the wordpress theme also will be the same name
 
 add all demo cerdentails in users so that I can manage them all
+
+
+
+check whole codes of this application for nay security issues.
+
+now write a commit message for the chnages after the last commit
 
 
 

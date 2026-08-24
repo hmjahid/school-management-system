@@ -554,4 +554,150 @@ class PaymentService
 
         return $payment;
     }
+
+    /**
+     * Determine whether a given payment method supports refunds.
+     */
+    public function supportsRefunds(string $method): bool
+    {
+        return in_array($method, ['bkash', 'nagad', 'rocket', 'test_gateway'], true);
+    }
+
+    /**
+     * Process a refund with the payment gateway.
+     *
+     * @return array{success: bool, transaction_id: string|null, gateway_response: mixed, message?: string, code?: string}
+     */
+    public function processRefund(string $gatewayCode, string $transactionId, float $amount, string $reason, array $paymentDetails = []): array
+    {
+        return match ($gatewayCode) {
+            'bkash' => $this->refundBkash($transactionId, $amount, $reason),
+            'nagad' => $this->refundNagad($transactionId, $amount, $reason, $paymentDetails),
+            'rocket' => $this->refundRocket($transactionId, $amount, $reason),
+            'test_gateway' => [
+                'success' => true,
+                'transaction_id' => 'R-' . strtoupper(substr(md5($transactionId . $amount), 0, 12)),
+                'gateway_response' => ['status' => 'Completed'],
+            ],
+            default => [
+                'success' => false,
+                'message' => "Refunds are not supported for gateway: {$gatewayCode}",
+            ],
+        };
+    }
+
+    protected function refundBkash(string $transactionId, float $amount, string $reason): array
+    {
+        $base = 'https://checkout.sandbox.bka.sh';
+
+        $tokenResponse = Http::withHeaders([
+            'username' => config('payment.gateways.bkash.api_username', 'bkash_user'),
+            'password' => config('payment.gateways.bkash.api_password', 'bkash_pass'),
+        ])->post("$base/tokenized/checkout/token/grant", [
+            'app_key' => config('payment.gateways.bkash.api_key', 'bkash_app_key'),
+            'app_secret' => config('payment.gateways.bkash.api_secret', 'bkash_app_secret'),
+        ]);
+
+        if (! $tokenResponse->successful()) {
+            return ['success' => false, 'message' => 'Failed to authenticate with bKash'];
+        }
+
+        $idToken = $tokenResponse->json()['id_token'] ?? null;
+
+        if (! $idToken) {
+            return ['success' => false, 'message' => 'Failed to authenticate with bKash'];
+        }
+
+        $response = Http::withHeaders([
+            'Authorization' => $idToken,
+            'X-APP-Key' => config('payment.gateways.bkash.api_key', 'bkash_app_key'),
+        ])->post("$base/tokenized/checkout/payment/refund", [
+            'paymentID' => $transactionId,
+            'amount' => number_format($amount, 2, '.', ''),
+            'reason' => $reason,
+            'currency' => 'BDT',
+        ]);
+
+        $data = $response->json();
+
+        if ($response->successful() && ($data['statusCode'] ?? null) === '0000') {
+            return [
+                'success' => true,
+                'transaction_id' => $data['refundTrxID'] ?? ('R-' . strtoupper(substr(md5($transactionId . $amount), 0, 12))),
+                'gateway_response' => $data,
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => $data['statusMessage'] ?? $data['errorMessage'] ?? 'bKash refund failed',
+        ];
+    }
+
+    protected function refundNagad(string $transactionId, float $amount, string $reason, array $paymentDetails = []): array
+    {
+        $base = 'https://api.mynagad.com/api';
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'X-KM-Api-Version' => 'v-0.2.0',
+        ])->post("$base/dfs/refund/initialize", [
+            'paymentRefId' => $transactionId,
+            'amount' => (string) $amount,
+            'reason' => $reason,
+            'reference' => $paymentDetails['reference'] ?? null,
+        ]);
+
+        $data = $response->json();
+
+        if ($response->successful() && ($data['status'] ?? null) === 'Success') {
+            return [
+                'success' => true,
+                'transaction_id' => $data['refundTrxID'] ?? ('R-' . strtoupper(substr(md5($transactionId . $amount), 0, 12))),
+                'gateway_response' => $data,
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => $data['reason'] ?? $data['message'] ?? 'Nagad refund failed',
+        ];
+    }
+
+    protected function refundRocket(string $transactionId, float $amount, string $reason): array
+    {
+        $base = 'https://api.razo.com.bd/api/v1';
+
+        $tokenResponse = Http::post("$base/token", [
+            'username' => config('payment.gateways.rocket.username', 'rocket_user'),
+            'password' => config('payment.gateways.rocket.password', 'rocket_pass'),
+        ]);
+
+        if (! $tokenResponse->successful()) {
+            return ['success' => false, 'message' => 'Failed to authenticate with Rocket'];
+        }
+
+        $accessToken = $tokenResponse->json()['access_token'] ?? null;
+
+        $response = Http::withToken($accessToken)->post("$base/refund", [
+            'transaction_id' => $transactionId,
+            'amount' => number_format($amount, 2, '.', ''),
+            'reason' => $reason,
+        ]);
+
+        $data = $response->json();
+
+        if ($response->successful() && in_array($data['status'] ?? null, ['success', 'Completed'], true)) {
+            return [
+                'success' => true,
+                'transaction_id' => $data['refund_id'] ?? ('R-' . strtoupper(substr(md5($transactionId . $amount), 0, 12))),
+                'gateway_response' => $data,
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => $data['message'] ?? 'Rocket refund failed',
+        ];
+    }
 }

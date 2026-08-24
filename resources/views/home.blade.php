@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', ($homeContent->title ?? site_ui('nav.home')) . ' — ' . ($siteSettings->school_name ?? config('app.name')))
-@section('meta_description', $homeContent->meta_description ?? $siteSettings?->meta_description)
+@section('meta_description', ($homeContent->meta_description ?? $siteSettings?->meta_description) ?? '')
 
 @section('content')
     @php

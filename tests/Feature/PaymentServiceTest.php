@@ -14,247 +14,189 @@ class PaymentServiceTest extends TestCase
     use RefreshDatabase;
 
     protected $paymentService;
+
     protected $payment;
+
     protected $gateway;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->paymentService = app(PaymentService::class);
-        
-        // Create a test payment gateway
-        $this->gateway = PaymentGateway::factory()->create([
-            'code' => 'test_gateway',
-            'name' => 'Test Gateway',
+
+        // The current PaymentService is gateway-specific (bkash/nagad/rocket).
+        // Create a real, active, configured bKash gateway to exercise it.
+        $this->gateway = PaymentGateway::create([
+            'code' => 'bkash',
+            'name' => 'bKash',
+            'type' => 'mobile_financial_service',
             'is_active' => true,
             'is_online' => true,
+            'has_api' => true,
+            'test_mode' => true,
+            'sandbox_url' => 'https://sandbox.bkash.com',
+            'live_url' => 'https://api.bkash.com',
+            'api_key' => 'test_api_key',
+            'api_secret' => 'test_api_secret',
+            'api_username' => 'test_username',
+            'api_password' => 'test_password',
+            'callback_url' => 'https://example.com/callback',
+            'currency' => 'BDT',
             'config' => [
-                'api_url' => 'https://api.test-gateway.com/v1',
+                'test_mode' => true,
+                'api_url' => 'https://sandbox.bkash.com',
                 'api_key' => 'test_api_key',
                 'api_secret' => 'test_api_secret',
-                'callback_url' => 'https://yourdomain.com/api/payments/callback/test_gateway',
+                'api_username' => 'test_username',
+                'api_password' => 'test_password',
             ],
         ]);
-        
+
         // Create a test payment
         $this->payment = Payment::factory()->create([
             'amount' => 1000,
-            'currency' => 'BDT',
-            'payment_method' => 'test_gateway',
+            'total_amount' => 1000,
+            'payment_method' => 'bkash',
             'payment_status' => Payment::STATUS_PENDING,
+            'invoice_number' => 'INV'.uniqid(),
             'payment_details' => [
                 'description' => 'Test Payment',
-                'metadata' => ['order_id' => 'TEST123'],
             ],
         ]);
-        
-        // Mock HTTP client
-        Http::fake();
     }
 
     /** @test */
     public function it_can_initialize_payment()
     {
-        $response = [
-            'success' => true,
-            'payment_url' => 'https://test-gateway.com/pay/123',
-            'transaction_id' => 'TXN' . time(),
-        ];
-        
         Http::fake([
-            'api.test-gateway.com/*' => Http::response($response, 200),
+            '*sandbox.bkash.com/checkout/token/grant*' => Http::response(['id_token' => 'TEST_TOKEN'], 200),
+            '*sandbox.bkash.com/checkout/create*' => Http::response([
+                'paymentID' => 'PID123',
+                'bkashURL' => 'https://bkash.com/pay/123',
+                'createTime' => now()->toIso8601String(),
+                'orgLogo' => 'logo.png',
+            ], 200),
         ]);
-        
-        $result = $this->paymentService->initializePayment($this->payment, 'test_gateway');
-        
+
+        $result = $this->paymentService->initializePayment($this->payment, 'bkash');
+
         $this->assertTrue($result['success']);
-        $this->assertEquals($response['payment_url'], $result['redirect_url']);
-        
-        // Verify payment was updated
+        $this->assertEquals('https://bkash.com/pay/123', $result['redirect_url']);
+
+        // Verify payment was updated with gateway identifiers
         $this->payment->refresh();
-        $this->assertNotNull($this->payment->transaction_id);
-        $this->assertArrayHasKey('init_response', $this->payment->payment_details);
+        $this->assertArrayHasKey('bkash_payment_id', $this->payment->payment_details);
+        $this->assertArrayHasKey('bkash_token', $this->payment->payment_details);
     }
-    
+
+    /** @test */
+    public function it_throws_for_inactive_gateway()
+    {
+        $inactive = PaymentGateway::create([
+            'code' => 'bkash_inactive',
+            'name' => 'bKash Inactive',
+            'type' => 'mobile_financial_service',
+            'is_active' => false,
+            'is_online' => true,
+            'has_api' => true,
+            'test_mode' => true,
+            'sandbox_url' => 'https://sandbox.bkash.com',
+            'live_url' => 'https://api.bkash.com',
+            'currency' => 'BDT',
+            'config' => [],
+        ]);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Payment gateway is not active');
+
+        $this->paymentService->initializePayment($this->payment, 'bkash_inactive');
+    }
+
     /** @test */
     public function it_handles_payment_callback()
     {
-        $callbackData = [
-            'transaction_id' => 'TXN' . time(),
-            'status' => 'completed',
-            'amount' => 1000,
-            'currency' => 'BDT',
-            'signature' => 'test_signature',
-        ];
-        
-        $result = $this->paymentService->processCallback('test_gateway', $callbackData);
-        
+        // The callback looks the payment up by merchantInvoiceNumber / bkash_payment_id
+        // and needs the stored bkash token to verify via /checkout/execute.
+        $this->payment->update([
+            'payment_details' => array_merge($this->payment->payment_details, [
+                'bkash_payment_id' => 'PID123',
+                'bkash_token' => 'STORED_TOKEN',
+            ]),
+        ]);
+
+        Http::fake([
+            '*sandbox.bkash.com/checkout/execute*' => Http::response([
+                'paymentID' => 'PID123',
+                'trxID' => 'TXN'.time(),
+                'transactionStatus' => 'Completed',
+            ], 200),
+        ]);
+
+        $result = $this->paymentService->processCallback('bkash', [
+            'merchantInvoiceNumber' => $this->payment->invoice_number,
+            'paymentID' => 'PID123',
+        ]);
+
         $this->assertInstanceOf(Payment::class, $result);
-        $this->assertEquals('completed', $result->payment_status);
-        $this->assertArrayHasKey('callback_data', $result->payment_details);
+        $this->assertEquals(Payment::STATUS_COMPLETED, $result->payment_status);
+        $this->assertArrayHasKey('payment_method_details', $result->payment_details);
     }
-    
+
     /** @test */
     public function it_verifies_payment_status()
     {
-        $transactionId = 'TXN' . time();
-        
         $this->payment->update([
-            'transaction_id' => $transactionId,
+            'payment_status' => Payment::STATUS_PENDING,
             'payment_details' => array_merge($this->payment->payment_details, [
-                'verification_url' => 'https://api.test-gateway.com/verify/'.$transactionId,
+                'bkash_payment_id' => 'PID123',
             ]),
         ]);
-        
-        $verificationResponse = [
-            'status' => 'completed',
-            'amount' => 1000,
-            'currency' => 'BDT',
-            'timestamp' => now()->toIso8601String(),
-        ];
-        
+
         Http::fake([
-            'api.test-gateway.com/verify/*' => Http::response($verificationResponse, 200),
+            '*sandbox.bkash.com/checkout/token/grant*' => Http::response(['id_token' => 'TEST_TOKEN'], 200),
+            '*sandbox.bkash.com/checkout/payment/status*' => Http::response([
+                'paymentID' => 'PID123',
+                'transactionStatus' => 'Completed',
+                'completedTime' => now()->toIso8601String(),
+            ], 200),
         ]);
-        
+
         $result = $this->paymentService->verifyPayment($this->payment);
-        
+
         $this->assertInstanceOf(Payment::class, $result);
-        $this->assertEquals('completed', $result->payment_status);
+        $this->assertEquals(Payment::STATUS_COMPLETED, $result->payment_status);
         $this->assertArrayHasKey('verification_response', $result->payment_details);
     }
-    
-    /** @test */
-    public function it_handles_webhook_events()
-    {
-        $webhookData = [
-            'event' => 'payment.completed',
-            'data' => [
-                'transaction_id' => 'TXN' . time(),
-                'amount' => 1000,
-                'currency' => 'BDT',
-                'status' => 'completed',
-                'timestamp' => now()->toIso8601String(),
-            ],
-            'signature' => 'test_webhook_signature',
-        ];
-        
-        $result = $this->paymentService->processWebhook('test_gateway', $webhookData);
-        
-        $this->assertInstanceOf(Payment::class, $result);
-        $this->assertEquals('completed', $result->payment_status);
-        $this->assertArrayHasKey('webhook_data', $result->payment_details);
-    }
-    
+
     /** @test */
     public function it_processes_refunds()
     {
-        $this->payment->update([
-            'payment_status' => Payment::STATUS_COMPLETED,
-            'transaction_id' => 'TXN' . time(),
-        ]);
-        
-        $refundResponse = [
-            'success' => true,
-            'refund_id' => 'REF' . time(),
-            'amount' => 1000,
-            'status' => 'processed',
-        ];
-        
         Http::fake([
-            'api.test-gateway.com/refund' => Http::response($refundResponse, 200),
+            '*checkout.sandbox.bka.sh/tokenized/checkout/token/grant*' => Http::response(['id_token' => 'TEST_TOKEN'], 200),
+            '*checkout.sandbox.bka.sh/tokenized/checkout/payment/refund*' => Http::response([
+                'statusCode' => '0000',
+                'refundTrxID' => 'REF'.time(),
+                'statusMessage' => 'Refund successful',
+            ], 200),
         ]);
-        
-        $result = $this->paymentService->processRefund($this->payment, 1000, 'Test refund');
-        
+
+        $result = $this->paymentService->processRefund('bkash', 'TXN123', 1000, 'Test refund');
+
         $this->assertTrue($result['success']);
-        $this->assertEquals($refundResponse['refund_id'], $result['refund_id']);
-        
-        $this->payment->refresh();
-        $this->assertEquals('refunded', $this->payment->payment_status);
+        $this->assertArrayHasKey('transaction_id', $result);
     }
-    
+
     /** @test */
-    public function it_handles_failed_payments()
+    public function it_throws_on_failed_gateway_initialization()
     {
-        $errorResponse = [
-            'error' => [
-                'code' => 'INSUFFICIENT_FUNDS',
-                'message' => 'Insufficient funds in account',
-            ],
-        ];
-        
         Http::fake([
-            'api.test-gateway.com/*' => Http::response($errorResponse, 400),
+            '*sandbox.bkash.com/checkout/token/grant*' => Http::response([], 400),
         ]);
-        
-        $result = $this->paymentService->initializePayment($this->payment, 'test_gateway');
-        
-        $this->assertFalse($result['success']);
-        $this->assertEquals('payment_failed', $result['error_code']);
-        
-        $this->payment->refresh();
-        $this->assertEquals('failed', $this->payment->payment_status);
-        $this->assertArrayHasKey('error', $this->payment->payment_details);
-    }
-    
-    /** @test */
-    public function it_validates_webhook_signature()
-    {
-        $webhookData = [
-            'event' => 'payment.completed',
-            'data' => [
-                'transaction_id' => 'TXN' . time(),
-                'amount' => 1000,
-                'currency' => 'BDT',
-                'status' => 'completed',
-            ],
-            'signature' => 'invalid_signature',
-        ];
-        
-        // Mock the signature validation to fail
-        $mock = $this->partialMock(PaymentService::class, function ($mock) {
-            $mock->shouldReceive('validateWebhookSignature')->andReturn(false);
-        });
-        
+
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Invalid webhook signature');
-        
-        $mock->processWebhook('test_gateway', $webhookData);
-    }
-    
-    /** @test */
-    public function it_handles_duplicate_webhooks()
-    {
-        $transactionId = 'TXN' . time();
-        
-        // Create a completed payment
-        $payment = Payment::factory()->create([
-            'transaction_id' => $transactionId,
-            'payment_status' => Payment::STATUS_COMPLETED,
-            'payment_details' => [
-                'webhook_processed' => true,
-            ],
-        ]);
-        
-        $webhookData = [
-            'event' => 'payment.completed',
-            'data' => [
-                'transaction_id' => $transactionId,
-                'amount' => 1000,
-                'currency' => 'BDT',
-                'status' => 'completed',
-            ],
-            'signature' => 'test_signature',
-        ];
-        
-        $result = $this->paymentService->processWebhook('test_gateway', $webhookData);
-        
-        $this->assertInstanceOf(Payment::class, $result);
-        $this->assertEquals('completed', $result->payment_status);
-        
-        // Verify no duplicate processing occurred
-        $this->assertCount(1, Payment::where('transaction_id', $transactionId)->get());
+        $this->expectExceptionMessage('Failed to initialize bKash payment');
+
+        $this->paymentService->initializePayment($this->payment, 'bkash');
     }
 }

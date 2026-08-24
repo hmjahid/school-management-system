@@ -4,11 +4,10 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\SendBulkSmsJob;
-use App\Models\SmsCampaign;
 use App\Models\SchoolClass;
 use App\Models\Section;
+use App\Models\SmsCampaign;
 use App\Models\Student;
-use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -56,6 +55,7 @@ class DashboardSmsController extends Controller
         return view('dashboard.sms.compose', [
             'classes' => SchoolClass::orderBy('name')->get(),
             'sections' => Section::orderBy('name')->get(),
+            'shifts' => SchoolClass::getShifts(),
             'roles' => $roles,
             'users' => $users,
             'students' => $students,
@@ -68,9 +68,10 @@ class DashboardSmsController extends Controller
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:191'],
-            'audience_type' => ['required', 'string', 'in:all_users,students_class,students_section,students_individual,staff_role,staff_individual'],
+            'audience_type' => ['required', 'string', 'in:all_users,students_class,students_section,students_individual,staff_role,staff_individual,students_shift'],
             'school_class_id' => ['nullable', 'integer'],
             'section_id' => ['nullable', 'integer'],
+            'shift' => ['nullable', 'string', 'in:morning,day,evening'],
             'role_name' => ['nullable', 'string', 'exists:roles,name'],
             'user_ids' => ['nullable', 'array'],
             'user_ids.*' => ['integer', 'exists:users,id'],
@@ -97,9 +98,10 @@ class DashboardSmsController extends Controller
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:191'],
-            'audience_type' => ['required', 'string', 'in:all_users,students_class,students_section,students_individual,staff_role,staff_individual'],
+            'audience_type' => ['required', 'string', 'in:all_users,students_class,students_section,students_individual,staff_role,staff_individual,students_shift'],
             'school_class_id' => ['nullable', 'integer'],
             'section_id' => ['nullable', 'integer'],
+            'shift' => ['nullable', 'string', 'in:morning,day,evening'],
             'role_name' => ['nullable', 'string', 'exists:roles,name'],
             'user_ids' => ['nullable', 'array'],
             'user_ids.*' => ['integer', 'exists:users,id'],
@@ -152,6 +154,92 @@ class DashboardSmsController extends Controller
         return view('dashboard.sms.templates', compact('templates'));
     }
 
+    public function dueReminder(Request $request): View|RedirectResponse
+    {
+        abort_unless($request->user()?->can('send_bulk_sms'), 403);
+
+        $recipients = $this->dueFeeRecipients();
+
+        if ($request->isMethod('post')) {
+            if ($recipients->isEmpty()) {
+                return back()->withInput()->withErrors(['message' => __('No students with outstanding dues to notify.')]);
+            }
+
+            $data = $request->validate([
+                'message' => ['required', 'string', 'max:1000'],
+            ]);
+
+            $campaign = SmsCampaign::create([
+                'name' => 'Due Fee Reminder '.now()->format('Y-m-d'),
+                'audience_type' => 'due_reminder',
+                'message' => $data['message'],
+                'status' => SmsCampaign::STATUS_DRAFT,
+                'created_by' => $request->user()->id,
+            ]);
+
+            foreach ($recipients as $r) {
+                $campaign->recipients()->create([
+                    'phone' => $r['phone'],
+                    'user_type' => 'student',
+                    'user_id' => $r['student_id'],
+                ]);
+            }
+
+            SendBulkSmsJob::dispatch($campaign->id);
+
+            activity('sms')
+                ->causedBy($request->user())
+                ->performedOn($campaign)
+                ->withProperties(['recipients_count' => $recipients->count(), 'audience' => 'due_reminder'])
+                ->log('Sent due fee reminder SMS');
+
+            return redirect()->route('dashboard.sms.index')
+                ->with('status', __('Due reminder campaign queued for :count recipients.', ['count' => $recipients->count()]));
+        }
+
+        $defaultMessage = 'Dear parent, your child has an outstanding fee balance of {{amount}}. Please clear the dues at your earliest convenience. - School Administration';
+
+        return view('dashboard.sms.due-reminder', [
+            'recipients' => $recipients->take(50),
+            'total' => $recipients->count(),
+            'defaultMessage' => $defaultMessage,
+        ]);
+    }
+
+    protected function dueFeeRecipients(): \Illuminate\Support\Collection
+    {
+        $duePayments = FeePayment::with('student.user')
+            ->where('balance', '>', 0)
+            ->whereNotIn('status', [
+                FeePayment::STATUS_PAID,
+                FeePayment::STATUS_CANCELLED,
+                FeePayment::STATUS_REFUNDED,
+            ])
+            ->get();
+
+        return $duePayments
+            ->groupBy('student_id')
+            ->map(function ($items) {
+                $student = $items->first()->student;
+                if (! $student) {
+                    return null;
+                }
+                $phone = $student->phone_1 ?: $student->father_phone ?: $student->mother_phone;
+                if (empty($phone)) {
+                    return null;
+                }
+
+                return [
+                    'student_id' => $student->id,
+                    'name' => $student->user?->name ?? "Student #{$student->id}",
+                    'phone' => $phone,
+                    'due' => (float) $items->sum('balance'),
+                ];
+            })
+            ->filter()
+            ->values();
+    }
+
     protected function resolveRecipients(array $data): \Illuminate\Support\Collection
     {
         $recipients = collect();
@@ -165,7 +253,7 @@ class DashboardSmsController extends Controller
                         }
                     }
                 });
-                User::role(['teacher','staff','admin'])->whereNotNull('phone')->orderBy('id')->chunk(200, function ($users) use (&$recipients) {
+                User::role(['teacher', 'staff', 'admin'])->whereNotNull('phone')->orderBy('id')->chunk(200, function ($users) use (&$recipients) {
                     foreach ($users as $u) {
                         if ($u->phone) {
                             $recipients->push(['phone' => $u->phone, 'user_type' => 'staff', 'user_id' => $u->id]);
@@ -176,7 +264,7 @@ class DashboardSmsController extends Controller
 
             case 'students_class':
                 $query = Student::query();
-                if (!empty($data['school_class_id'])) {
+                if (! empty($data['school_class_id'])) {
                     $query->where('class_id', $data['school_class_id']);
                 }
                 $query->whereNotNull('phone_1')->chunk(200, function ($students) use (&$recipients) {
@@ -190,7 +278,7 @@ class DashboardSmsController extends Controller
 
             case 'students_section':
                 $query = Student::query();
-                if (!empty($data['section_id'])) {
+                if (! empty($data['section_id'])) {
                     $query->where('section_id', $data['section_id']);
                 }
                 $query->whereNotNull('phone_1')->chunk(200, function ($students) use (&$recipients) {
@@ -202,8 +290,23 @@ class DashboardSmsController extends Controller
                 });
                 break;
 
+            case 'students_shift':
+                $shift = $data['shift'] ?? null;
+                $query = Student::query();
+                if (! empty($shift)) {
+                    $query->whereHas('class', fn ($q) => $q->where('shift', $shift));
+                }
+                $query->whereNotNull('phone_1')->chunk(200, function ($students) use (&$recipients) {
+                    foreach ($students as $s) {
+                        if ($phone = $s->phone_1 ?: $s->father_phone ?: $s->mother_phone) {
+                            $recipients->push(['phone' => $phone, 'user_type' => 'student', 'user_id' => $s->id]);
+                        }
+                    }
+                });
+                break;
+
             case 'students_individual':
-                if (!empty($data['user_ids'])) {
+                if (! empty($data['user_ids'])) {
                     Student::whereIn('user_id', $data['user_ids'])->whereNotNull('phone_1')->chunk(200, function ($students) use (&$recipients) {
                         foreach ($students as $s) {
                             if ($phone = $s->phone_1 ?: $s->father_phone ?: $s->mother_phone) {
@@ -215,7 +318,7 @@ class DashboardSmsController extends Controller
                 break;
 
             case 'staff_role':
-                $roleNames = !empty($data['role_name']) ? [$data['role_name']] : ['teacher', 'staff', 'admin'];
+                $roleNames = ! empty($data['role_name']) ? [$data['role_name']] : ['teacher', 'staff', 'admin'];
                 User::role($roleNames)->whereNotNull('phone')->orderBy('id')->chunk(200, function ($users) use (&$recipients) {
                     foreach ($users as $u) {
                         if ($u->phone) {
@@ -226,7 +329,7 @@ class DashboardSmsController extends Controller
                 break;
 
             case 'staff_individual':
-                if (!empty($data['user_ids'])) {
+                if (! empty($data['user_ids'])) {
                     User::whereIn('id', $data['user_ids'])->whereNotNull('phone')->chunk(200, function ($users) use (&$recipients) {
                         foreach ($users as $u) {
                             if ($u->phone) {

@@ -1,75 +1,80 @@
 <?php
 
+use App\Http\Controllers\Auth\StudentGuardianLoginController;
 use App\Http\Controllers\Web\AdmissionWebController;
 use App\Http\Controllers\Web\AuthSessionController;
 use App\Http\Controllers\Web\CmsWebController;
-use App\Http\Controllers\Web\DashboardAdmissionController;
-use App\Http\Controllers\Web\DashboardAnnouncementController;
-use App\Http\Controllers\Web\DashboardNoticeController;
-use App\Http\Controllers\Web\DashboardAttendanceController;
-use App\Http\Controllers\Web\DashboardExpenseController;
-use App\Http\Controllers\Web\DashboardLedgerController;
-use App\Http\Controllers\Web\DashboardLeaveController;
-use App\Http\Controllers\Web\DashboardPayrollController;
-use App\Http\Controllers\Web\DashboardStaffAttendanceController;
-use App\Http\Controllers\Web\DashboardTransportController;
-use App\Http\Controllers\Web\DashboardSmsController;
-use App\Http\Controllers\Web\DashboardCertificateController;
-use App\Http\Controllers\Web\DashboardRoutineController;
-use App\Http\Controllers\Web\DashboardAssignmentController;
-use App\Http\Controllers\Web\DashboardAdmitCardController;
-use App\Http\Controllers\Web\DashboardStudentIdCardController;
-use App\Http\Controllers\Web\DashboardBackupController;
 use App\Http\Controllers\Web\DashboardActivityController;
-use App\Http\Controllers\Web\DashboardNotificationPreferencesController;
+use App\Http\Controllers\Web\DashboardAdmissionController;
+use App\Http\Controllers\Web\DashboardAdmitCardController;
+use App\Http\Controllers\Web\DashboardAnnouncementController;
+use App\Http\Controllers\Web\DashboardAssignmentController;
+use App\Http\Controllers\Web\DashboardAttendanceController;
+use App\Http\Controllers\Web\DashboardBackupController;
+use App\Http\Controllers\Web\DashboardBankReconciliationController;
+use App\Http\Controllers\Web\DashboardBookCategoryController;
+use App\Http\Controllers\Web\DashboardBookController;
+use App\Http\Controllers\Web\DashboardBookIssueController;
+use App\Http\Controllers\Web\DashboardBudgetController;
 use App\Http\Controllers\Web\DashboardBulkController;
-use App\Http\Controllers\Web\DashboardLocaleController;
-use App\Http\Controllers\Web\DashboardSearchController;
-use App\Http\Controllers\Web\NotificationController;
+use App\Http\Controllers\Web\DashboardCertificateController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\DashboardDocumentController;
-use App\Http\Controllers\Web\DashboardMediaController;
 use App\Http\Controllers\Web\DashboardEventController;
 use App\Http\Controllers\Web\DashboardExamController;
 use App\Http\Controllers\Web\DashboardExamResultController;
+use App\Http\Controllers\Web\DashboardExpenseCategoryController;
+use App\Http\Controllers\Web\DashboardExpenseController;
 use App\Http\Controllers\Web\DashboardFeeController;
 use App\Http\Controllers\Web\DashboardFeePaymentController;
-use App\Http\Controllers\Web\DashboardHelpController;
 use App\Http\Controllers\Web\DashboardGalleryController;
 use App\Http\Controllers\Web\DashboardGuardianController;
+use App\Http\Controllers\Web\DashboardHelpController;
+use App\Http\Controllers\Web\DashboardHostelController;
+use App\Http\Controllers\Web\DashboardLeaveController;
+use App\Http\Controllers\Web\DashboardLedgerController;
+use App\Http\Controllers\Web\DashboardLibraryReportController;
+use App\Http\Controllers\Web\DashboardLocaleController;
+use App\Http\Controllers\Web\DashboardMediaController;
 use App\Http\Controllers\Web\DashboardModulesController;
 use App\Http\Controllers\Web\DashboardNewsController;
+use App\Http\Controllers\Web\DashboardNoticeController;
+use App\Http\Controllers\Web\DashboardNotificationPreferencesController;
+use App\Http\Controllers\Web\DashboardPayrollController;
+use App\Http\Controllers\Web\DashboardPermissionController;
+use App\Http\Controllers\Web\DashboardProfileController;
+use App\Http\Controllers\Web\DashboardProgressReportController;
 use App\Http\Controllers\Web\DashboardReportController;
+use App\Http\Controllers\Web\DashboardRoleController;
+use App\Http\Controllers\Web\DashboardRoutineController;
 use App\Http\Controllers\Web\DashboardSchoolClassController;
+use App\Http\Controllers\Web\DashboardSearchController;
+use App\Http\Controllers\Web\DashboardSeatPlanController;
+use App\Http\Controllers\Web\DashboardSmsController;
+use App\Http\Controllers\Web\DashboardStaffAttendanceController;
 use App\Http\Controllers\Web\DashboardStudentController;
+use App\Http\Controllers\Web\DashboardStudentIdCardController;
 use App\Http\Controllers\Web\DashboardTeacherController;
+use App\Http\Controllers\Web\DashboardTestimonialController;
+use App\Http\Controllers\Web\DashboardTransportController;
+use App\Http\Controllers\Web\DashboardUserController;
+use App\Http\Controllers\Web\DashboardVisitorLogController;
 use App\Http\Controllers\Web\FeePaymentReceiptController;
-use App\Http\Controllers\Web\PasswordResetController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Web\LocaleController;
+use App\Http\Controllers\Web\MessageController;
+use App\Http\Controllers\Web\NotificationController;
+use App\Http\Controllers\Web\PasswordResetController;
 use App\Http\Controllers\Web\PaymentsWebController;
 use App\Http\Controllers\Web\PortalAdmissionController;
 use App\Http\Controllers\Web\PortalController;
 use App\Http\Controllers\Web\PortalProgressController;
+use App\Http\Controllers\Web\ProfileController;
 use App\Http\Controllers\Web\SiteGalleryController;
 use App\Http\Controllers\Web\SitemapController;
 use App\Http\Controllers\Web\SiteNewsController;
 use App\Http\Controllers\Web\SiteNoticeController;
 use App\Http\Controllers\Web\SitePageController;
-use App\Http\Controllers\Auth\StudentGuardianLoginController;
-use App\Http\Controllers\Web\ProfileController;
-use App\Http\Controllers\Web\MessageController;
-use App\Http\Controllers\Web\DashboardHostelController;
-use App\Http\Controllers\Web\DashboardTestimonialController;
-use App\Http\Controllers\Web\DashboardProfileController;
-use App\Http\Controllers\Web\DashboardVisitorLogController;
-use App\Http\Controllers\Web\DashboardUserController;
-use App\Http\Controllers\Web\DashboardRoleController;
-use App\Http\Controllers\Web\DashboardPermissionController;
-use App\Http\Controllers\Web\DashboardBookController;
-use App\Http\Controllers\Web\DashboardBookCategoryController;
-use App\Http\Controllers\Web\DashboardBookIssueController;
-use App\Http\Controllers\Web\DashboardLibraryReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -79,6 +84,7 @@ Route::get('/search', [\App\Http\Controllers\Web\SiteSearchController::class, 'i
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('site.sitemap');
 Route::get('/robots.txt', [\App\Http\Controllers\Web\RobotsController::class, 'index'])->name('site.robots');
 Route::get('/results', [\App\Http\Controllers\Web\SiteResultController::class, 'lookup'])->name('site.results');
+Route::get('/results/download', [\App\Http\Controllers\Web\SiteResultController::class, 'download'])->name('site.results.download');
 
 Route::get('/locale/{locale}', [LocaleController::class, 'switch'])->name('locale.switch');
 
@@ -113,7 +119,7 @@ Route::get('/portal/register', function () {
 
 Route::get('/routine', [DashboardRoutineController::class, 'timetable'])->name('site.routine');
 
-    Route::get('/admissions/apply', [AdmissionWebController::class, 'apply'])->name('admissions.apply');
+Route::get('/admissions/apply', [AdmissionWebController::class, 'apply'])->name('admissions.apply');
 Route::get('/admissions/status', [AdmissionWebController::class, 'status'])->name('admissions.status');
 
 Route::middleware('throttle:12,1')->group(function () {
@@ -123,9 +129,9 @@ Route::middleware('throttle:12,1')->group(function () {
     Route::post('/contact/complaint', [SitePageController::class, 'complaintStore'])->name('site.complaint.store');
     Route::post('/admissions/scholarship', [SitePageController::class, 'scholarshipStore'])->name('admissions.scholarship.store');
     Route::post('/admissions/apply', [AdmissionWebController::class, 'applyStore'])->name('admissions.apply.store');
-Route::post('/admissions/{admission}/submit-payment', [AdmissionWebController::class, 'submitTransaction'])->name('admissions.submit-payment');
-Route::get('/admissions/{admission}/receipt', [AdmissionWebController::class, 'receipt'])->name('admissions.receipt');
-Route::get('/admissions/{admission}/approval-letter', [AdmissionWebController::class, 'approvalLetter'])->name('admissions.approval-letter');
+    Route::post('/admissions/{admission}/submit-payment', [AdmissionWebController::class, 'submitTransaction'])->name('admissions.submit-payment');
+    Route::get('/admissions/{admission}/receipt', [AdmissionWebController::class, 'receipt'])->name('admissions.receipt');
+    Route::get('/admissions/{admission}/approval-letter', [AdmissionWebController::class, 'approvalLetter'])->name('admissions.approval-letter');
 });
 
 Route::middleware('guest')->group(function () {
@@ -177,6 +183,7 @@ Route::middleware('auth')->group(function () {
                 $stats['certificate_count'] = $student->certificates()->count();
             }
             $recentResults = $student ? $student->examResults()->with('exam', 'subject')->latest()->limit(5)->get() : collect();
+
             return view('student/dashboard', compact('user', 'stats', 'recentResults'));
         })->name('student.dashboard');
 
@@ -194,12 +201,12 @@ Route::middleware('auth')->group(function () {
                 $assignments = \App\Models\Assignment::with(['subject', 'submissions' => function ($q) use ($studentIds) {
                     $q->whereIn('student_id', $studentIds);
                 }])
-                ->whereHas('submissions', function ($q) use ($studentIds) {
-                    $q->whereIn('student_id', $studentIds);
-                })
-                ->latest()
-                ->limit(10)
-                ->get();
+                    ->whereHas('submissions', function ($q) use ($studentIds) {
+                        $q->whereIn('student_id', $studentIds);
+                    })
+                    ->latest()
+                    ->limit(10)
+                    ->get();
             }
 
             return view('guardian/dashboard', compact('user', 'students', 'studentCount', 'pendingFees', 'noticeCount', 'assignments'));
@@ -207,17 +214,17 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/guardian/assignments/{submission}/notes', function (\Illuminate\Http\Request $request, \App\Models\AssignmentSubmission $submission) {
             $guardian = auth()->user()->guardian()->first();
-            if (!$guardian) {
+            if (! $guardian) {
                 return back()->with('error', __('Guardian not found.'));
             }
 
             $studentIds = $guardian->students()->pluck('students.id');
-            if (!$studentIds->contains($submission->student_id)) {
+            if (! $studentIds->contains($submission->student_id)) {
                 abort(403, __('Unauthorized.'));
             }
 
             $assignment = $submission->assignment;
-            if (!$assignment->allow_guardian_notes) {
+            if (! $assignment->allow_guardian_notes) {
                 return back()->with('error', __('Guardian notes are not allowed for this assignment.'));
             }
 
@@ -246,6 +253,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/portal/admission', [PortalAdmissionController::class, 'show'])->name('portal.admission');
     Route::get('/portal/progress', [PortalProgressController::class, 'index'])->name('portal.progress');
+
+    Route::get('/dashboard/students/promote', [DashboardStudentController::class, 'promoteForm'])->name('dashboard.students.promote');
+    Route::post('/dashboard/students/promote', [DashboardStudentController::class, 'promote'])->name('dashboard.students.promote.store');
 
     Route::get('/dashboard/students/create', [DashboardStudentController::class, 'create'])->name('dashboard.students.create');
     Route::post('/dashboard/students', [DashboardStudentController::class, 'store'])->name('dashboard.students.store');
@@ -280,6 +290,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/help', [DashboardHelpController::class, 'index'])->name('dashboard.help');
     Route::get('/dashboard/about', function () {
         abort_unless(auth()->user()?->hasRole('admin'), 403);
+
         return view('dashboard.software');
     })->name('dashboard.about');
 
@@ -302,7 +313,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/dashboard/teachers/{teacher}', [DashboardTeacherController::class, 'destroy'])->name('dashboard.teachers.destroy');
     Route::get('/dashboard/teachers/{teacher}', [DashboardTeacherController::class, 'show'])->name('dashboard.teachers.show');
     Route::get('/dashboard/teachers', [DashboardModulesController::class, 'teachers'])->name('dashboard.teachers');
-        Route::get('/dashboard/staff', [DashboardModulesController::class, 'staff'])->name('dashboard.staff');
+    Route::get('/dashboard/staff', [DashboardModulesController::class, 'staff'])->name('dashboard.staff');
 
     Route::get('/dashboard/parents/create', [DashboardGuardianController::class, 'create'])->name('dashboard.parents.create');
     Route::post('/dashboard/parents', [DashboardGuardianController::class, 'store'])->name('dashboard.parents.store');
@@ -330,45 +341,45 @@ Route::middleware('auth')->group(function () {
     Route::post('/dashboard/staff-attendance', [DashboardStaffAttendanceController::class, 'store'])->name('dashboard.staff-attendance.store');
     Route::get('/dashboard/staff-attendance/report', [DashboardStaffAttendanceController::class, 'report'])->name('dashboard.staff-attendance.report');
 
-        Route::prefix('dashboard/leaves')->name('dashboard.leaves.')->group(function () {
-            Route::get('/', [DashboardLeaveController::class, 'index'])->name('index');
-            Route::get('/create', [DashboardLeaveController::class, 'create'])->name('create');
-            Route::post('/', [DashboardLeaveController::class, 'store'])->name('store');
-            Route::get('/{leave}', [DashboardLeaveController::class, 'show'])->name('show');
-            Route::post('/{leave}/approve', [DashboardLeaveController::class, 'approve'])->name('approve');
-            Route::post('/{leave}/reject', [DashboardLeaveController::class, 'reject'])->name('reject');
-            Route::post('/{leave}/cancel', [DashboardLeaveController::class, 'cancel'])->name('cancel');
-        });
+    Route::prefix('dashboard/leaves')->name('dashboard.leaves.')->group(function () {
+        Route::get('/', [DashboardLeaveController::class, 'index'])->name('index');
+        Route::get('/create', [DashboardLeaveController::class, 'create'])->name('create');
+        Route::post('/', [DashboardLeaveController::class, 'store'])->name('store');
+        Route::get('/{leave}', [DashboardLeaveController::class, 'show'])->name('show');
+        Route::post('/{leave}/approve', [DashboardLeaveController::class, 'approve'])->name('approve');
+        Route::post('/{leave}/reject', [DashboardLeaveController::class, 'reject'])->name('reject');
+        Route::post('/{leave}/cancel', [DashboardLeaveController::class, 'cancel'])->name('cancel');
+    });
 
-        Route::prefix('dashboard/payroll')->name('dashboard.payroll.')->group(function () {
-            Route::get('/structures', [DashboardPayrollController::class, 'structures'])->name('structures');
-            Route::post('/structures', [DashboardPayrollController::class, 'storeStructure'])->name('structures.store');
-            Route::get('/generate', [DashboardPayrollController::class, 'generate'])->name('generate');
-            Route::post('/generate', [DashboardPayrollController::class, 'generateStore'])->name('generate.store');
-            Route::get('/payslips', [DashboardPayrollController::class, 'payslips'])->name('payslips');
-            Route::get('/payslips/{payslip}', [DashboardPayrollController::class, 'showPayslip'])->name('payslips.show');
-            Route::post('/payslips/{payslip}/paid', [DashboardPayrollController::class, 'markPaid'])->name('payslips.markPaid');
-        });
+    Route::prefix('dashboard/payroll')->name('dashboard.payroll.')->group(function () {
+        Route::get('/structures', [DashboardPayrollController::class, 'structures'])->name('structures');
+        Route::post('/structures', [DashboardPayrollController::class, 'storeStructure'])->name('structures.store');
+        Route::get('/generate', [DashboardPayrollController::class, 'generate'])->name('generate');
+        Route::post('/generate', [DashboardPayrollController::class, 'generateStore'])->name('generate.store');
+        Route::get('/payslips', [DashboardPayrollController::class, 'payslips'])->name('payslips');
+        Route::get('/payslips/{payslip}', [DashboardPayrollController::class, 'showPayslip'])->name('payslips.show');
+        Route::post('/payslips/{payslip}/paid', [DashboardPayrollController::class, 'markPaid'])->name('payslips.markPaid');
+    });
 
-        Route::prefix('dashboard/transport')->name('dashboard.transport.')->group(function () {
-            Route::get('/vehicles', [DashboardTransportController::class, 'vehicles'])->name('vehicles.index');
-            Route::get('/vehicles/create', [DashboardTransportController::class, 'vehiclesCreate'])->name('vehicles.create');
-            Route::post('/vehicles', [DashboardTransportController::class, 'vehiclesStore'])->name('vehicles.store');
-            Route::get('/vehicles/{vehicle}/edit', [DashboardTransportController::class, 'vehiclesEdit'])->name('vehicles.edit');
-            Route::put('/vehicles/{vehicle}', [DashboardTransportController::class, 'vehiclesUpdate'])->name('vehicles.update');
-            Route::delete('/vehicles/{vehicle}', [DashboardTransportController::class, 'vehiclesDestroy'])->name('vehicles.destroy');
+    Route::prefix('dashboard/transport')->name('dashboard.transport.')->group(function () {
+        Route::get('/vehicles', [DashboardTransportController::class, 'vehicles'])->name('vehicles.index');
+        Route::get('/vehicles/create', [DashboardTransportController::class, 'vehiclesCreate'])->name('vehicles.create');
+        Route::post('/vehicles', [DashboardTransportController::class, 'vehiclesStore'])->name('vehicles.store');
+        Route::get('/vehicles/{vehicle}/edit', [DashboardTransportController::class, 'vehiclesEdit'])->name('vehicles.edit');
+        Route::put('/vehicles/{vehicle}', [DashboardTransportController::class, 'vehiclesUpdate'])->name('vehicles.update');
+        Route::delete('/vehicles/{vehicle}', [DashboardTransportController::class, 'vehiclesDestroy'])->name('vehicles.destroy');
 
-            Route::get('/routes', [DashboardTransportController::class, 'routes'])->name('routes.index');
-            Route::get('/routes/create', [DashboardTransportController::class, 'routesCreate'])->name('routes.create');
-            Route::post('/routes', [DashboardTransportController::class, 'routesStore'])->name('routes.store');
-            Route::get('/routes/{route}/edit', [DashboardTransportController::class, 'routesEdit'])->name('routes.edit');
-            Route::put('/routes/{route}', [DashboardTransportController::class, 'routesUpdate'])->name('routes.update');
-            Route::delete('/routes/{route}', [DashboardTransportController::class, 'routesDestroy'])->name('routes.destroy');
+        Route::get('/routes', [DashboardTransportController::class, 'routes'])->name('routes.index');
+        Route::get('/routes/create', [DashboardTransportController::class, 'routesCreate'])->name('routes.create');
+        Route::post('/routes', [DashboardTransportController::class, 'routesStore'])->name('routes.store');
+        Route::get('/routes/{route}/edit', [DashboardTransportController::class, 'routesEdit'])->name('routes.edit');
+        Route::put('/routes/{route}', [DashboardTransportController::class, 'routesUpdate'])->name('routes.update');
+        Route::delete('/routes/{route}', [DashboardTransportController::class, 'routesDestroy'])->name('routes.destroy');
 
-            Route::get('/assignments', [DashboardTransportController::class, 'assignments'])->name('assignments.index');
-            Route::post('/assignments', [DashboardTransportController::class, 'assignmentsStore'])->name('assignments.store');
-            Route::delete('/assignments/{assignment}', [DashboardTransportController::class, 'assignmentsDestroy'])->name('assignments.destroy');
-        });
+        Route::get('/assignments', [DashboardTransportController::class, 'assignments'])->name('assignments.index');
+        Route::post('/assignments', [DashboardTransportController::class, 'assignmentsStore'])->name('assignments.store');
+        Route::delete('/assignments/{assignment}', [DashboardTransportController::class, 'assignmentsDestroy'])->name('assignments.destroy');
+    });
 
     Route::get('/dashboard/exams/create', [DashboardExamController::class, 'create'])->name('dashboard.exams.create');
     Route::post('/dashboard/exams', [DashboardExamController::class, 'store'])->name('dashboard.exams.store');
@@ -389,29 +400,39 @@ Route::middleware('auth')->group(function () {
         Route::post('/{feePayment}/cancel', [DashboardFeePaymentController::class, 'cancel'])->name('cancel');
     });
 
-        Route::middleware(['permission:manage_expenses'])->group(function () {
-            Route::get('/dashboard/expenses', [DashboardExpenseController::class, 'index'])->name('dashboard.expenses.index');
-            Route::get('/dashboard/expenses/create', [DashboardExpenseController::class, 'create'])->name('dashboard.expenses.create');
-            Route::post('/dashboard/expenses', [DashboardExpenseController::class, 'store'])->name('dashboard.expenses.store');
-            Route::get('/dashboard/expenses/{expense}/edit', [DashboardExpenseController::class, 'edit'])->name('dashboard.expenses.edit');
-            Route::put('/dashboard/expenses/{expense}', [DashboardExpenseController::class, 'update'])->name('dashboard.expenses.update');
-            Route::delete('/dashboard/expenses/{expense}', [DashboardExpenseController::class, 'destroy'])->name('dashboard.expenses.destroy');
-            Route::get('/dashboard/expenses-export', [DashboardExpenseController::class, 'export'])->name('dashboard.expenses.export');
-        });
+    Route::middleware(['permission:manage_expenses'])->group(function () {
+        Route::get('/dashboard/expenses', [DashboardExpenseController::class, 'index'])->name('dashboard.expenses.index');
+        Route::get('/dashboard/expenses/create', [DashboardExpenseController::class, 'create'])->name('dashboard.expenses.create');
+        Route::post('/dashboard/expenses', [DashboardExpenseController::class, 'store'])->name('dashboard.expenses.store');
+        Route::get('/dashboard/expenses/{expense}/edit', [DashboardExpenseController::class, 'edit'])->name('dashboard.expenses.edit');
+        Route::put('/dashboard/expenses/{expense}', [DashboardExpenseController::class, 'update'])->name('dashboard.expenses.update');
+        Route::delete('/dashboard/expenses/{expense}', [DashboardExpenseController::class, 'destroy'])->name('dashboard.expenses.destroy');
+        Route::get('/dashboard/expenses-export', [DashboardExpenseController::class, 'export'])->name('dashboard.expenses.export');
+    });
 
-        Route::prefix('dashboard/ledger')->name('dashboard.ledger.')->group(function () {
-            Route::get('/', [DashboardLedgerController::class, 'index'])->name('index');
-            Route::get('/journal', [DashboardLedgerController::class, 'journalForm'])->name('journal');
-            Route::post('/journal', [DashboardLedgerController::class, 'journalStore'])->name('journal.store');
-            Route::get('/cashbook', [DashboardLedgerController::class, 'cashbook'])->name('cashbook');
-            Route::get('/bankbook', [DashboardLedgerController::class, 'bankbook'])->name('bankbook');
-        });
+    Route::middleware(['permission:manage_expenses'])->group(function () {
+        Route::resource('dashboard/expense-categories', DashboardExpenseCategoryController::class)->names('dashboard.expense-categories');
+        Route::resource('dashboard/budgets', DashboardBudgetController::class)->names('dashboard.budgets');
+    });
 
-        Route::prefix('dashboard/reports')->name('dashboard.reports.')->group(function () {
-            Route::get('/income-statement', [DashboardLedgerController::class, 'incomeStatement'])->name('income-statement');
-            Route::get('/balance-sheet', [DashboardLedgerController::class, 'balanceSheet'])->name('balance-sheet');
-            Route::get('/cash-flow', [DashboardLedgerController::class, 'cashFlow'])->name('cash-flow');
-        });
+    Route::middleware(['permission:manage_expenses'])->group(function () {
+        Route::get('/dashboard/bank-reconciliation', [DashboardBankReconciliationController::class, 'index'])->name('dashboard.bank-reconciliation.index');
+        Route::get('/dashboard/bank-reconciliation/reconcile', [DashboardBankReconciliationController::class, 'reconcile'])->name('dashboard.bank-reconciliation.reconcile');
+    });
+
+    Route::prefix('dashboard/ledger')->name('dashboard.ledger.')->group(function () {
+        Route::get('/', [DashboardLedgerController::class, 'index'])->name('index');
+        Route::get('/journal', [DashboardLedgerController::class, 'journalForm'])->name('journal');
+        Route::post('/journal', [DashboardLedgerController::class, 'journalStore'])->name('journal.store');
+        Route::get('/cashbook', [DashboardLedgerController::class, 'cashbook'])->name('cashbook');
+        Route::get('/bankbook', [DashboardLedgerController::class, 'bankbook'])->name('bankbook');
+    });
+
+    Route::prefix('dashboard/reports')->name('dashboard.reports.')->group(function () {
+        Route::get('/income-statement', [DashboardLedgerController::class, 'incomeStatement'])->name('income-statement');
+        Route::get('/balance-sheet', [DashboardLedgerController::class, 'balanceSheet'])->name('balance-sheet');
+        Route::get('/cash-flow', [DashboardLedgerController::class, 'cashFlow'])->name('cash-flow');
+    });
 
     Route::middleware(['role:admin'])->group(function () {
         Route::prefix('dashboard/settings')->name('dashboard.settings.')->group(function () {
@@ -509,6 +530,16 @@ Route::middleware('auth')->group(function () {
             Route::get('/{certificate}/print', [DashboardCertificateController::class, 'print'])->name('print');
         });
 
+        Route::prefix('dashboard/progress-reports')->name('dashboard.progress-reports.')->group(function () {
+            Route::get('/', [DashboardProgressReportController::class, 'index'])->name('index');
+            Route::get('/{student}/generate', [DashboardProgressReportController::class, 'generate'])->name('generate');
+        });
+
+        Route::prefix('dashboard/seat-plans')->name('dashboard.seat-plans.')->group(function () {
+            Route::get('/', [DashboardSeatPlanController::class, 'index'])->name('index');
+            Route::get('/{exam}/generate', [DashboardSeatPlanController::class, 'generate'])->name('generate');
+        });
+
         Route::prefix('dashboard/routines')->name('dashboard.routines.')->group(function () {
             Route::get('/', [DashboardRoutineController::class, 'index'])->name('index');
             Route::get('/create', [DashboardRoutineController::class, 'create'])->name('create');
@@ -559,6 +590,8 @@ Route::middleware('auth')->group(function () {
             Route::post('/preview', [DashboardSmsController::class, 'preview'])->name('preview');
             Route::post('/send', [DashboardSmsController::class, 'send'])->name('send');
             Route::get('/templates', [DashboardSmsController::class, 'templates'])->name('templates');
+            Route::get('/due-reminder', [DashboardSmsController::class, 'dueReminder'])->name('dashboard.sms.due-reminder');
+            Route::post('/due-reminder', [DashboardSmsController::class, 'dueReminder'])->name('dashboard.sms.due-reminder.send');
         });
 
         Route::prefix('dashboard/transport')->name('dashboard.transport.')->group(function () {

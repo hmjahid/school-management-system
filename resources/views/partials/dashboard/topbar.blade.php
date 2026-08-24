@@ -67,23 +67,36 @@ document.addEventListener('DOMContentLoaded', function() {
     </button>
 
     {{-- Language switcher --}}
-    <div class="relative" data-lang-menu-root>
-        <button type="button" data-lang-menu-toggle class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200" aria-label="{{ __('Language') }}" title="{{ __('Language') }}">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
-        </button>
-        <div data-lang-menu-panel class="absolute right-0 top-full z-50 mt-2 hidden w-36 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg dark:border-slate-700 dark:bg-slate-800">
-            @foreach (config('school.supported_locales', ['en']) as $loc)
-                @php $locLabel = ['en' => 'English', 'bn' => 'বাংলা'][$loc] ?? strtoupper($loc); @endphp
-                <a href="{{ route('dashboard.locale.switch', ['locale' => $loc]) }}"
-                    class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm {{ app()->getLocale() === $loc ? 'bg-brand-50 font-semibold text-brand-700 dark:bg-brand-900/20 dark:text-brand-400' : 'text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700' }}">
-                    @if(app()->getLocale() === $loc)
-                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.7 5.3a1 1 0 010 1.4l-7.5 7.5a1 1 0 01-1.4 0L3.3 9.7a1 1 0 011.4-1.4L8.5 12l6.8-6.7a1 1 0 011.4 0z" clip-rule="evenodd"/></svg>
-                    @endif
-                    <span class="flex-1">{{ $locLabel }}</span>
-                </a>
-            @endforeach
+    @php $supportedLocales = config('school.supported_locales', ['en']); @endphp
+    @if(count($supportedLocales) > 2)
+        <form method="get" action="{{ route('dashboard.locale.switch', ['locale' => app()->getLocale()]) }}" class="relative" onsubmit="event.preventDefault(); window.location.href = this.action.replace(this.locale.value ? '' : '', '');" data-lang-select-root>
+            <select name="locale" onchange="window.location.href='{{ route('dashboard.locale.switch', ['locale' => 'LOCALE']) }}'.replace('LOCALE', this.value)" class="appearance-none rounded-lg border border-slate-200 bg-white py-2 pl-8 pr-7 text-sm font-medium text-slate-700 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                @foreach ($supportedLocales as $loc)
+                    @php $locLabel = ['en' => 'English', 'bn' => 'বাংলা'][$loc] ?? strtoupper($loc); @endphp
+                    <option value="{{ $loc }}" {{ app()->getLocale() === $loc ? 'selected' : '' }}>{{ $locLabel }}</option>
+                @endforeach
+            </select>
+            <svg class="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+        </form>
+    @else
+        <div class="relative" data-lang-menu-root>
+            <button type="button" data-lang-menu-toggle class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200" aria-label="{{ __('Language') }}" title="{{ __('Language') }}">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+            </button>
+            <div data-lang-menu-panel class="absolute right-0 top-full z-50 mt-2 hidden w-36 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg dark:border-slate-700 dark:bg-slate-800">
+                @foreach ($supportedLocales as $loc)
+                    @php $locLabel = ['en' => 'English', 'bn' => 'বাংলা'][$loc] ?? strtoupper($loc); @endphp
+                    <a href="{{ route('dashboard.locale.switch', ['locale' => $loc]) }}"
+                        class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm {{ app()->getLocale() === $loc ? 'bg-brand-50 font-semibold text-brand-700 dark:bg-brand-900/20 dark:text-brand-400' : 'text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700' }}">
+                        @if(app()->getLocale() === $loc)
+                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.7 5.3a1 1 0 010 1.4l-7.5 7.5a1 1 0 01-1.4 0L3.3 9.7a1 1 0 011.4-1.4L8.5 12l6.8-6.7a1 1 0 011.4 0z" clip-rule="evenodd"/></svg>
+                        @endif
+                        <span class="flex-1">{{ $locLabel }}</span>
+                    </a>
+                @endforeach
+            </div>
         </div>
-    </div>
+    @endif
 
     {{-- Dark mode toggle --}}
     <button type="button" data-dark-toggle class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200" aria-label="Toggle dark mode">

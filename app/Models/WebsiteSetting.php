@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -94,6 +93,7 @@ class WebsiteSetting extends Model
         'theme_footer_style',
         'theme_button_style',
         'theme_section_spacing',
+        'theme_style',
         'academic_start_month',
         'student_id_prefix',
         'website_url',
@@ -121,6 +121,16 @@ class WebsiteSetting extends Model
         'send_absence_sms' => 'boolean',
         'bkash_sandbox' => 'boolean',
         'academic_start_month' => 'integer',
+        'bkash_merchant_number' => 'encrypted',
+        'bkash_api_key' => 'encrypted',
+        'bkash_api_secret' => 'encrypted',
+        'bkash_username' => 'encrypted',
+        'bkash_password' => 'encrypted',
+        'bkash_app_key' => 'encrypted',
+        'bkash_app_secret' => 'encrypted',
+        'twilio_sid' => 'encrypted',
+        'twilio_auth_token' => 'encrypted',
+        'twilio_from_number' => 'encrypted',
     ];
 
     /**
@@ -130,6 +140,7 @@ class WebsiteSetting extends Model
      */
     protected $attributes = [
         'default_locale' => 'en',
+        'theme_style' => 'default',
         'show_facebook' => true,
         'show_instagram' => true,
         'show_twitter' => true,
@@ -157,22 +168,22 @@ class WebsiteSetting extends Model
      */
     public function getLogoUrlAttribute()
     {
-        return $this->logo_path ? url('storage/' . ltrim($this->logo_path, '/')) : null;
+        return $this->logo_path ? url('storage/'.ltrim($this->logo_path, '/')) : null;
     }
 
     public function getFooterLogoUrlAttribute(): ?string
     {
-        return $this->footer_logo_path ? url('storage/' . ltrim($this->footer_logo_path, '/')) : null;
+        return $this->footer_logo_path ? url('storage/'.ltrim($this->footer_logo_path, '/')) : null;
     }
 
     public function getFooterLogoDarkUrlAttribute(): ?string
     {
-        return $this->footer_logo_dark_path ? url('storage/' . ltrim($this->footer_logo_dark_path, '/')) : null;
+        return $this->footer_logo_dark_path ? url('storage/'.ltrim($this->footer_logo_dark_path, '/')) : null;
     }
 
     public function getOgImageUrlAttribute(): ?string
     {
-        return $this->og_image_path ? url('storage/' . ltrim($this->og_image_path, '/')) : null;
+        return $this->og_image_path ? url('storage/'.ltrim($this->og_image_path, '/')) : null;
     }
 
     /**
@@ -182,7 +193,7 @@ class WebsiteSetting extends Model
      */
     public function getFaviconUrlAttribute()
     {
-        return $this->favicon_path ? url('storage/' . ltrim($this->favicon_path, '/')) : null;
+        return $this->favicon_path ? url('storage/'.ltrim($this->favicon_path, '/')) : null;
     }
 
     /**
@@ -256,7 +267,7 @@ class WebsiteSetting extends Model
      */
     public static function getSettings()
     {
-        return static::first() ?? new static();
+        return static::first() ?? new static;
     }
 
     /**

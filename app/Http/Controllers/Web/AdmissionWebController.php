@@ -60,7 +60,7 @@ class AdmissionWebController extends Controller
         $admission = $submitter->submitPublicApplication($request);
 
         // Stamp fee & payment number from settings onto the new application
-        $admission->admission_fee = $settings->admission_fee;
+        $admission->admission_fee = $settings->admission_fee ?? 0;
         $admission->payment_number = $settings->payment_number;
         $admission->save();
 

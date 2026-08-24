@@ -66,6 +66,20 @@
                 @endif
             </dl>
 
+            @can('edit_admissions')
+                @if($admission->payment_status !== \App\Models\Admission::PAYMENT_VERIFIED)
+                    <form method="post" action="{{ route('dashboard.admissions.verify-payment', $admission) }}" class="mt-3">
+                        @csrf
+                        <button type="submit" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+                            onclick="return confirm('{{ __('Mark this payment as verified?') }}')">
+                            {{ __('Verify Payment') }}
+                        </button>
+                    </form>
+                @else
+                    <p class="mt-3 text-sm font-medium text-emerald-700">{{ __('Payment verified. The applicant can download the confirmation letter.') }}</p>
+                @endif
+            @endcan
+
             <h3 class="mt-8 text-sm font-semibold uppercase tracking-wide text-gray-500">{{ __('Documents') }}</h3>
             @if($admission->documents->isEmpty())
                 <p class="mt-2 text-sm text-gray-600">{{ __('No documents uploaded.') }}</p>

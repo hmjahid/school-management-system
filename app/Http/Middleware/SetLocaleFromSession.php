@@ -33,7 +33,10 @@ class SetLocaleFromSession
      */
     protected function resolveLocale(Request $request): string
     {
-        $isDashboard = $request->is('dashboard*') || $request->routeIs('dashboard*');
+        $isDashboard = $request->is('dashboard*')
+            || $request->routeIs('dashboard*')
+            || $request->is('messages*')
+            || $request->routeIs('messages*');
 
         if ($isDashboard) {
             return session('dashboard_locale') ?? session('locale') ?? $this->defaultLocale();

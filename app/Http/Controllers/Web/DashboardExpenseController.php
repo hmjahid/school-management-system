@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\Budget;
 use App\Models\ChartOfAccount;
 use App\Models\Expense;
+use App\Models\ExpenseCategory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
@@ -31,10 +33,42 @@ class DashboardExpenseController extends Controller
         $rows = $query->orderByDesc('date')->orderByDesc('id')->paginate(20)->withQueryString();
         $total = (clone $query)->sum('amount');
 
+        $now = now();
+        $monthStart = $now->copy()->startOfMonth();
+        $monthEnd = $now->copy()->endOfMonth();
+
+        $budgets = Budget::query()
+            ->with('category')
+            ->where('period_type', 'monthly')
+            ->where('period_start', '<=', $now)
+            ->where('period_end', '>=', $now)
+            ->get();
+
+        $budgetStatus = $budgets->map(function (Budget $budget) use ($monthStart, $monthEnd) {
+            $spent = Expense::query()
+                ->where('expense_category_id', $budget->expense_category_id)
+                ->whereBetween('date', [$monthStart, $monthEnd])
+                ->sum('amount');
+
+            $amount = (float) $budget->amount;
+            $spent = (float) $spent;
+            $variance = $amount - $spent;
+
+            return (object) [
+                'category' => $budget->category?->name ?? __('Uncategorized'),
+                'budget' => $amount,
+                'spent' => $spent,
+                'variance' => $variance,
+                'pct' => $amount > 0 ? min(100, round(($spent / $amount) * 100)) : 0,
+                'over' => $spent > $amount,
+            ];
+        });
+
         return view('dashboard.expenses.index', [
             'rows' => $rows,
             'total' => $total,
-            'categories' => Expense::query()->select('category')->distinct()->pluck('category'),
+            'categories' => ExpenseCategory::where('is_active', true)->orderBy('name')->get(),
+            'budgetStatus' => $budgetStatus,
         ]);
     }
 
@@ -44,6 +78,7 @@ class DashboardExpenseController extends Controller
 
         return view('dashboard.expenses.create', [
             'accounts' => ChartOfAccount::where('type', ChartOfAccount::TYPE_EXPENSE)->where('is_active', true)->orderBy('code')->get(),
+            'categories' => ExpenseCategory::where('is_active', true)->orderBy('name')->get(),
         ]);
     }
 
@@ -52,7 +87,8 @@ class DashboardExpenseController extends Controller
         abort_unless($request->user()?->can('manage_expenses'), 403);
 
         $data = $request->validate([
-            'category' => ['required', 'string', 'max:64'],
+            'expense_category_id' => ['nullable', 'integer', 'exists:expense_categories,id'],
+            'category' => ['nullable', 'string', 'max:64'],
             'amount' => ['required', 'numeric', 'min:0.01'],
             'date' => ['required', 'date'],
             'vendor' => ['nullable', 'string', 'max:191'],
@@ -75,6 +111,7 @@ class DashboardExpenseController extends Controller
         return view('dashboard.expenses.edit', [
             'expense' => $expense,
             'accounts' => ChartOfAccount::where('type', ChartOfAccount::TYPE_EXPENSE)->where('is_active', true)->orderBy('code')->get(),
+            'categories' => ExpenseCategory::where('is_active', true)->orderBy('name')->get(),
         ]);
     }
 
@@ -83,7 +120,8 @@ class DashboardExpenseController extends Controller
         abort_unless($request->user()?->can('manage_expenses'), 403);
 
         $data = $request->validate([
-            'category' => ['required', 'string', 'max:64'],
+            'expense_category_id' => ['nullable', 'integer', 'exists:expense_categories,id'],
+            'category' => ['nullable', 'string', 'max:64'],
             'amount' => ['required', 'numeric', 'min:0.01'],
             'date' => ['required', 'date'],
             'vendor' => ['nullable', 'string', 'max:191'],
@@ -134,8 +172,9 @@ class DashboardExpenseController extends Controller
     {
         $value = (string) $value;
         if (str_contains($value, ',') || str_contains($value, '"') || str_contains($value, "\n")) {
-            return '"' . str_replace('"', '""', $value) . '"';
+            return '"'.str_replace('"', '""', $value).'"';
         }
+
         return $value;
     }
 }

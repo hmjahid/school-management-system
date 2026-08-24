@@ -32,6 +32,15 @@
                     @endforeach
                 </select>
             </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">{{ __('Shift') }}</label>
+                <select name="shift" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                    <option value="">{{ __('None') }}</option>
+                    @foreach ($shifts as $value => $label)
+                        <option value="{{ $value }}" @selected(old('shift', $schoolClass->shift) == $value)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
             <div><label class="block text-sm font-medium text-gray-700">{{ __('Max students') }}</label><input type="number" name="max_students" value="{{ old('max_students', $schoolClass->max_students) }}" min="1" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"></div>
             <div><label class="block text-sm font-medium text-gray-700">{{ __('Monthly fee') }} *</label><input type="number" step="0.01" name="monthly_fee" value="{{ old('monthly_fee', $schoolClass->monthly_fee) }}" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"></div>
             <div><label class="block text-sm font-medium text-gray-700">{{ __('Admission fee') }} *</label><input type="number" step="0.01" name="admission_fee" value="{{ old('admission_fee', $schoolClass->admission_fee) }}" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"></div>

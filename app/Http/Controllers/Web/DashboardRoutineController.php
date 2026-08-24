@@ -20,6 +20,11 @@ class DashboardRoutineController extends Controller
     {
         $this->authorize('viewAny', Routine::class);
         $query = Routine::with(['schoolClass', 'section', 'subject', 'teacher.user', 'batch']);
+        $type = $request->input('type', Routine::TYPE_CLASS);
+        if (! array_key_exists($type, Routine::getTypes())) {
+            $type = Routine::TYPE_CLASS;
+        }
+        $query->where('type', $type);
         if ($classId = $request->integer('class_id')) {
             $query->where('school_class_id', $classId);
         }
@@ -32,12 +37,14 @@ class DashboardRoutineController extends Controller
         $routines = $query->orderBy('day_of_week')->orderBy('start_time')->paginate(20)->withQueryString();
         $classes = SchoolClass::orderBy('name')->get();
         $sections = Section::orderBy('name')->get();
-        return view('dashboard.routines.index', compact('routines', 'classes', 'sections'));
+
+        return view('dashboard.routines.index', compact('routines', 'classes', 'sections', 'type'));
     }
 
     public function create(): View
     {
         $this->authorize('create', Routine::class);
+
         return view('dashboard.routines.create', [
             'classes' => SchoolClass::orderBy('name')->get(),
             'sections' => Section::orderBy('name')->get(),
@@ -46,6 +53,7 @@ class DashboardRoutineController extends Controller
             'batches' => Batch::orderBy('id')->limit(100)->get(),
             'sessions' => AcademicSession::orderByDesc('is_current')->orderByDesc('start_date')->get(),
             'days' => Routine::DAYS,
+            'types' => Routine::getTypes(),
         ]);
     }
 
@@ -53,6 +61,7 @@ class DashboardRoutineController extends Controller
     {
         $this->authorize('create', Routine::class);
         $validated = $request->validate([
+            'type' => 'nullable|in:class,exam',
             'school_class_id' => 'required|exists:school_classes,id',
             'section_id' => 'nullable|exists:sections,id',
             'subject_id' => 'required|exists:subjects,id',
@@ -66,6 +75,7 @@ class DashboardRoutineController extends Controller
             'is_active' => 'boolean',
         ]);
         Routine::create($validated);
+
         return redirect()->route('dashboard.routines.index')->with('status', __('Routine entry created.'));
     }
 
@@ -73,12 +83,14 @@ class DashboardRoutineController extends Controller
     {
         $this->authorize('view', $routine);
         $routine->load(['schoolClass', 'section', 'subject', 'teacher.user', 'batch', 'academicSession']);
+
         return view('dashboard.routines.show', ['routine' => $routine]);
     }
 
     public function edit(Routine $routine): View
     {
         $this->authorize('update', $routine);
+
         return view('dashboard.routines.edit', [
             'routine' => $routine,
             'classes' => SchoolClass::orderBy('name')->get(),
@@ -88,6 +100,7 @@ class DashboardRoutineController extends Controller
             'batches' => Batch::orderBy('id')->limit(100)->get(),
             'sessions' => AcademicSession::orderByDesc('is_current')->orderByDesc('start_date')->get(),
             'days' => Routine::DAYS,
+            'types' => Routine::getTypes(),
         ]);
     }
 
@@ -95,6 +108,7 @@ class DashboardRoutineController extends Controller
     {
         $this->authorize('update', $routine);
         $validated = $request->validate([
+            'type' => 'nullable|in:class,exam',
             'school_class_id' => 'required|exists:school_classes,id',
             'section_id' => 'nullable|exists:sections,id',
             'subject_id' => 'required|exists:subjects,id',
@@ -108,6 +122,7 @@ class DashboardRoutineController extends Controller
             'is_active' => 'boolean',
         ]);
         $routine->update($validated);
+
         return redirect()->route('dashboard.routines.index')->with('status', __('Routine updated.'));
     }
 
@@ -115,6 +130,7 @@ class DashboardRoutineController extends Controller
     {
         $this->authorize('delete', $routine);
         $routine->delete();
+
         return redirect()->route('dashboard.routines.index')->with('status', __('Routine entry removed.'));
     }
 
@@ -124,8 +140,8 @@ class DashboardRoutineController extends Controller
         $sectionId = $request->integer('section_id');
 
         $routines = Routine::with(['subject', 'teacher.user', 'schoolClass', 'section'])
-            ->when($classId, fn($q) => $q->where('school_class_id', $classId))
-            ->when($sectionId, fn($q) => $q->where('section_id', $sectionId))
+            ->when($classId, fn ($q) => $q->where('school_class_id', $classId))
+            ->when($sectionId, fn ($q) => $q->where('section_id', $sectionId))
             ->where('is_active', true)
             ->orderBy('day_of_week')->orderBy('start_time')
             ->get()

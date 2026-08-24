@@ -2,9 +2,13 @@
 @section('title', __('Routines') . ' — ' . config('app.name'))
 @section('content')
 <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
-    <h1 class="text-2xl font-bold text-gray-900">{{ __('Class routines') }}</h1>
+    <h1 class="text-2xl font-bold text-gray-900">{{ $type === 'exam' ? __('Exam routines') : __('Class routines') }}</h1>
+    <div class="flex gap-2">
+        <a href="{{ route('dashboard.routines.index', ['type' => 'class']) }}" class="rounded-lg px-4 py-2 text-sm font-semibold {{ $type === 'class' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">{{ __('Class Routine') }}</a>
+        <a href="{{ route('dashboard.routines.index', ['type' => 'exam']) }}" class="rounded-lg px-4 py-2 text-sm font-semibold {{ $type === 'exam' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">{{ __('Exam Routine') }}</a>
+    </div>
     @can('create', App\Models\Routine::class)
-        <a href="{{ route('dashboard.routines.create') }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Add entry') }}</a>
+        <a href="{{ route('dashboard.routines.create', ['type' => $type]) }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Add entry') }}</a>
     @endcan
 </div>
 <form method="get" class="mb-6 flex flex-wrap gap-3">

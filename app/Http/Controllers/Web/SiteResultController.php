@@ -8,6 +8,8 @@ use App\Models\Exam;
 use App\Models\ExamResult;
 use App\Models\SchoolClass;
 use App\Models\Student;
+use App\Models\WebsiteSetting;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -32,7 +34,7 @@ class SiteResultController extends Controller
                 ->where(function ($q) use ($request) {
                     $roll = $request->string('roll')->toString();
                     $q->where('roll_no', $roll)
-                      ->orWhere('roll_number', $roll);
+                        ->orWhere('roll_number', $roll);
                 })
                 ->first();
 
@@ -53,5 +55,43 @@ class SiteResultController extends Controller
         }
 
         return view('site.results', compact('classes', 'sessions', 'result', 'student'));
+    }
+
+    public function download(Request $request)
+    {
+        $request->validate([
+            'class_id' => ['required', 'integer', 'exists:school_classes,id'],
+            'academic_session_id' => ['required', 'integer', 'exists:academic_sessions,id'],
+            'roll' => ['required', 'string', 'max:32'],
+        ]);
+
+        $student = Student::where('class_id', $request->integer('class_id'))
+            ->where(function ($q) use ($request) {
+                $roll = $request->string('roll')->toString();
+                $q->where('roll_no', $roll)
+                    ->orWhere('roll_number', $roll);
+            })
+            ->firstOrFail();
+
+        $exams = Exam::where('is_published_to_public', true)
+            ->where('academic_session_id', $request->integer('academic_session_id'))
+            ->where('batch_id', $student->batch_id)
+            ->pluck('id');
+
+        $result = ExamResult::with(['student.user', 'exam', 'subject'])
+            ->whereIn('exam_id', $exams)
+            ->where('student_id', $student->id)
+            ->where('is_published', true)
+            ->get();
+
+        $settings = WebsiteSetting::getSettings();
+
+        $html = view('site.results-pdf', compact('student', 'result', 'settings'))->render();
+
+        $pdf = Pdf::loadHTML($html);
+
+        $filename = 'marksheet-'.($student->roll_number ?? $student->roll_no ?? 'student').'-'.$request->integer('academic_session_id').'.pdf';
+
+        return $pdf->download($filename);
     }
 }

@@ -7,8 +7,8 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class DashboardUserController extends Controller
 {
@@ -21,7 +21,7 @@ class DashboardUserController extends Controller
         if ($search = $request->string('search')->toString()) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -72,6 +72,14 @@ class DashboardUserController extends Controller
             $user->syncPermissions($request->input('direct_permissions', []));
         }
 
+        activity()->performedOn($user)
+            ->causedBy($request->user())
+            ->withProperties([
+                'role' => $role->name,
+                'permissions' => $request->input('direct_permissions', []),
+            ])
+            ->log('role_changed');
+
         return redirect()->route('dashboard.users.index')
             ->with('status', __('User created successfully.'));
     }
@@ -104,7 +112,7 @@ class DashboardUserController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'required|email|max:255|unique:users,email,'.$user->id,
             'phone' => 'nullable|string|max:20',
             'password' => 'nullable|string|min:8|confirmed',
             'role_id' => 'required|exists:roles,id',
@@ -136,6 +144,14 @@ class DashboardUserController extends Controller
         } else {
             $user->syncPermissions([]);
         }
+
+        activity()->performedOn($user)
+            ->causedBy($request->user())
+            ->withProperties([
+                'role' => $role->name,
+                'permissions' => $request->input('direct_permissions', []),
+            ])
+            ->log('role_changed');
 
         return redirect()->route('dashboard.users.index')
             ->with('status', __('User updated successfully.'));

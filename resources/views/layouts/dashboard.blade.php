@@ -37,6 +37,57 @@
             --brand-700: color-mix(in srgb, {{ $dashSettings->theme_primary_color ?? '#2563eb' }} 65%, black);
             --accent-500: {{ $dashSettings->theme_secondary_color ?? '#f97316' }};
             --accent-600: color-mix(in srgb, {{ $dashSettings->theme_secondary_color ?? '#f97316' }} 80%, black);
+
+            /* Theme style variables (overridden by body.theme-* classes) */
+            --theme-radius: 0.75rem;
+            --theme-card-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --theme-heading-weight: 600;
+            --theme-accent: var(--brand-500);
+        }
+
+        /* Multiple theme styles */
+        body.theme-modern {
+            --theme-radius: 1rem;
+            --theme-card-shadow: 0 12px 32px -12px rgb(0 0 0 / 0.22);
+            --theme-heading-weight: 700;
+            --theme-accent: var(--accent-500);
+        }
+        body.theme-classic {
+            --theme-radius: 0.375rem;
+            --theme-card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.12);
+            --theme-heading-weight: 600;
+            --theme-accent: var(--brand-700);
+        }
+        body.theme-minimal {
+            --theme-radius: 0.5rem;
+            --theme-card-shadow: none;
+            --theme-heading-weight: 500;
+            --theme-accent: var(--brand-500);
+        }
+
+        /* Apply theme style to dashboard cards and headings */
+        body.theme-modern .rounded-xl,
+        body.theme-classic .rounded-xl,
+        body.theme-minimal .rounded-xl {
+            border-radius: var(--theme-radius) !important;
+            box-shadow: var(--theme-card-shadow) !important;
+        }
+        body.theme-modern h1,
+        body.theme-modern h2,
+        body.theme-modern h3,
+        body.theme-classic h1,
+        body.theme-classic h2,
+        body.theme-classic h3,
+        body.theme-minimal h1,
+        body.theme-minimal h2,
+        body.theme-minimal h3 {
+            font-weight: var(--theme-heading-weight) !important;
+        }
+        /* Accent bar uses the theme accent */
+        body.theme-modern .bg-brand-600.border-l-4,
+        body.theme-classic .bg-brand-600.border-l-4,
+        body.theme-minimal .bg-brand-600.border-l-4 {
+            background-color: var(--theme-accent) !important;
         }
     </style>
     @if (file_exists(public_path('build/manifest.json')))
@@ -47,7 +98,7 @@
     @endif
     @stack('head')
 </head>
-<body class="bg-slate-50 font-sans text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-100">
+<body class="bg-slate-50 font-sans text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-100 theme-{{ $dashSettings->theme_style ?? 'default' }}">
     <div id="loading-bar" class="fixed left-0 top-0 z-[200] h-1 bg-brand-600 transition-all duration-300 ease-out" style="width:0; opacity:0;"></div>
 
     <div class="admin-shell flex h-screen overflow-hidden">

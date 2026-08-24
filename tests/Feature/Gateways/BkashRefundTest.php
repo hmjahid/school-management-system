@@ -22,15 +22,17 @@ class BkashRefundTest extends TestCase
     {
         parent::setUp();
 
+        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+
         // Create test users
         $this->admin = User::factory()->create(['email' => 'admin@example.com']);
+        $this->admin->assignRole('admin');
         $this->user = User::factory()->create(['email' => 'user@example.com']);
 
         // Create a completed bKash payment
         $this->payment = Payment::factory()->create([
-            'user_id' => $this->user->id,
+            'created_by' => $this->user->id,
             'amount' => 1000.00,
-            'currency' => 'BDT',
             'payment_status' => Payment::STATUS_COMPLETED,
             'payment_method' => 'bkash',
             'transaction_id' => 'TRX' . uniqid(),
@@ -74,8 +76,13 @@ class BkashRefundTest extends TestCase
                 'intent' => 'sale',
                 'paymentExecuteTime' => now()->toIso8601String(),
             ], 200),
+        ]);
+    }
 
-            // Mock bKash refund endpoint
+    /** @test */
+    public function it_processes_bkash_refund_successfully()
+    {
+        Http::fake([
             'tokenized/checkout/payment/refund' => Http::response([
                 'statusCode' => '0000',
                 'statusMessage' => 'Refund request has been executed successfully',
@@ -87,13 +94,9 @@ class BkashRefundTest extends TestCase
                 'originalTrxID' => $this->payment->transaction_id,
             ], 200),
         ]);
-    }
 
-    /** @test */
-    public function it_processes_bkash_refund_successfully()
-    {
         // Process refund
-        $response = $this->actingAs($this->admin, 'api')
+        $response = $this->actingAs($this->admin, 'sanctum')
             ->postJson("/api/payments/{$this->payment->id}/refunds", [
                 'amount' => 500.00,
                 'reason' => 'Customer requested partial refund',
@@ -134,7 +137,7 @@ class BkashRefundTest extends TestCase
             ], 400),
         ]);
 
-        $response = $this->actingAs($this->admin, 'api')
+        $response = $this->actingAs($this->admin, 'sanctum')
             ->postJson("/api/payments/{$this->payment->id}/refunds", [
                 'amount' => 500.00,
                 'reason' => 'Test refund',
@@ -155,18 +158,31 @@ class BkashRefundTest extends TestCase
     /** @test */
     public function it_handles_concurrent_refund_attempts()
     {
+        Http::fake([
+            'tokenized/checkout/payment/refund' => Http::response([
+                'statusCode' => '0000',
+                'statusMessage' => 'Refund request has been executed successfully',
+                'refundTrxID' => 'R' . uniqid(),
+                'amount' => 500.00,
+                'currency' => 'BDT',
+                'transactionStatus' => 'Completed',
+                'completedTime' => now()->toIso8601String(),
+                'originalTrxID' => $this->payment->transaction_id,
+            ], 200),
+        ]);
+
         // Simulate concurrent refund attempts
         $responses = [];
         
         // First request - should succeed
-        $responses[] = $this->actingAs($this->admin, 'api')
+        $responses[] = $this->actingAs($this->admin, 'sanctum')
             ->postJson("/api/payments/{$this->payment->id}/refunds", [
                 'amount' => 500.00,
                 'reason' => 'First refund',
             ]);
 
         // Second concurrent request - should fail (duplicate)
-        $responses[] = $this->actingAs($this->admin, 'api')
+        $responses[] = $this->actingAs($this->admin, 'sanctum')
             ->postJson("/api/payments/{$this->payment->id}/refunds", [
                 'amount' => 500.00,
                 'reason' => 'Duplicate refund',

@@ -269,7 +269,7 @@ class TeacherController extends Controller
         $response = [
             'status' => 'success',
             'message' => $message,
-            'data' => $data,
+            'data' => $data instanceof \Illuminate\Pagination\AbstractPaginator ? $data->items() : $data,
         ];
 
         if ($data instanceof \Illuminate\Pagination\LengthAwarePaginator) {

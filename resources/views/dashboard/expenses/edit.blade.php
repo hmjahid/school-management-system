@@ -20,7 +20,12 @@
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
                     <label class="mb-1 block text-sm font-medium text-slate-700">{{ __('Category') }}</label>
-                    <input type="text" name="category" required maxlength="64" value="{{ old('category', $expense->category) }}" class="admin-input">
+                    <select name="expense_category_id" class="admin-select">
+                        <option value="">{{ __('Uncategorized') }}</option>
+                        @foreach($categories as $c)
+                            <option value="{{ $c->id }}" @selected(old('expense_category_id', $expense->expense_category_id) == $c->id)>{{ $c->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div>
                     <label class="mb-1 block text-sm font-medium text-slate-700">{{ __('Amount') }}</label>

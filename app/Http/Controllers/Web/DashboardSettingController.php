@@ -158,6 +158,7 @@ class DashboardSettingController extends Controller
             'theme_footer_style' => ['nullable', 'string', 'in:dark,light'],
             'theme_button_style' => ['nullable', 'string', 'in:rounded,square,pill'],
             'theme_section_spacing' => ['nullable', 'string', 'in:compact,default,spacious'],
+            'theme_style' => ['nullable', 'string', 'in:default,modern,classic,minimal'],
         ]);
 
         $settings = WebsiteSetting::firstOrNew([]);
@@ -261,7 +262,9 @@ class DashboardSettingController extends Controller
         $listPaths = $this->listPaths($defaults);
 
         foreach (['en', 'bn'] as $locale) {
-            if (!isset($data[$locale])) continue;
+            if (! isset($data[$locale])) {
+                continue;
+            }
             $data[$locale] = $this->normalizeListValues($data[$locale], $listPaths, '');
         }
 
@@ -284,6 +287,7 @@ class DashboardSettingController extends Controller
                 $paths = array_merge($paths, $this->listPaths($val, $path));
             }
         }
+
         return $paths;
     }
 
@@ -293,13 +297,14 @@ class DashboardSettingController extends Controller
         foreach ($data as $key => $val) {
             $path = $prefix ? "{$prefix}.{$key}" : $key;
             if (in_array($path, $listPaths)) {
-                $result[$key] = is_string($val) ? array_filter(array_map('trim', explode("\n", $val)), fn($v) => $v !== '') : $val;
+                $result[$key] = is_string($val) ? array_filter(array_map('trim', explode("\n", $val)), fn ($v) => $v !== '') : $val;
             } elseif (is_array($val)) {
                 $result[$key] = $this->normalizeListValues($val, $listPaths, $path);
             } else {
                 $result[$key] = $val;
             }
         }
+
         return $result;
     }
 
@@ -329,19 +334,29 @@ class DashboardSettingController extends Controller
                 $result = array_merge($result, $this->flattenLabels($val, $overrides, $path));
             }
         }
+
         return $result;
     }
 
     private function isSimpleList($val): bool
     {
-        if (!is_array($val)) return false;
-        if ($val === []) return true;
+        if (! is_array($val)) {
+            return false;
+        }
+        if ($val === []) {
+            return true;
+        }
         foreach ($val as $k => $v) {
-            if (!is_int($k)) return false;
+            if (! is_int($k)) {
+                return false;
+            }
             if (is_array($v)) {
-                if (!empty($v)) return false;
+                if (! empty($v)) {
+                    return false;
+                }
             }
         }
+
         return true;
     }
 
@@ -386,12 +401,12 @@ class DashboardSettingController extends Controller
                 $pEn = trim((string) ($row['paragraphs_en'] ?? ''));
                 $hBn = trim((string) ($row['heading_bn'] ?? ''));
                 $pBn = trim((string) ($row['paragraphs_bn'] ?? ''));
-                $parasEn = $pEn !== '' ? array_filter(explode("\n\n", $pEn), fn($p) => trim($p) !== '') : [];
-                $parasBn = $pBn !== '' ? array_filter(explode("\n\n", $pBn), fn($p) => trim($p) !== '') : [];
-                if ($hEn !== '' || !empty($parasEn)) {
+                $parasEn = $pEn !== '' ? array_filter(explode("\n\n", $pEn), fn ($p) => trim($p) !== '') : [];
+                $parasBn = $pBn !== '' ? array_filter(explode("\n\n", $pBn), fn ($p) => trim($p) !== '') : [];
+                if ($hEn !== '' || ! empty($parasEn)) {
                     $sectionsEn[] = ['heading' => $hEn, 'paragraphs' => array_values($parasEn)];
                 }
-                if ($hBn !== '' || !empty($parasBn)) {
+                if ($hBn !== '' || ! empty($parasBn)) {
                     $sectionsBn[] = ['heading' => $hBn, 'paragraphs' => array_values($parasBn)];
                 }
             }

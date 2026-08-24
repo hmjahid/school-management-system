@@ -44,8 +44,17 @@
             </span>
         </div>
         <div class="flex flex-wrap items-center justify-center gap-3 lg:justify-end">
+            @php $siteLocales = config('school.supported_locales', ['en']); @endphp
+            @if(count($siteLocales) > 2)
+                <select onchange="window.location.href='{{ route('locale.switch', ['locale' => 'LOCALE']) }}'.replace('LOCALE', this.value)" class="rounded border border-blue-400/60 bg-blue-700/40 px-2 py-1 text-[0.7rem] font-bold uppercase tracking-wide text-white focus:outline-none">
+                    @foreach ($siteLocales as $loc)
+                        @php $locLabel = ['en' => 'EN', 'bn' => 'বাংলা'][$loc] ?? strtoupper($loc); @endphp
+                        <option value="{{ $loc }}" {{ app()->getLocale() === $loc ? 'selected' : '' }} class="bg-white text-gray-900">{{ $locLabel }}</option>
+                    @endforeach
+                </select>
+            @else
             <div class="flex items-center gap-1">
-                @foreach (config('school.supported_locales', ['en']) as $loc)
+                @foreach ($siteLocales as $loc)
                     <a href="{{ route('locale.switch', ['locale' => $loc]) }}"
                         @php $locLabel = ['en' => 'EN', 'bn' => 'বাংলা'][$loc] ?? strtoupper($loc); @endphp
                         aria-label="{{ $locLabel }}"
@@ -54,6 +63,7 @@
                     </a>
                 @endforeach
             </div>
+            @endif
             <span class="hidden h-4 w-px bg-blue-600 sm:block" aria-hidden="true"></span>
             <div class="flex items-center gap-2 text-blue-200">
                 @include('partials.site.social-links', ['settings' => $siteSettings, 'linkClass' => 'text-blue-200 hover:text-white', 'placeholderClass' => 'opacity-55'])
@@ -355,14 +365,24 @@
                 <div class="mt-5">
                     <p class="{{ $sectionTitle }}">{{ __('Language') }}</p>
                     <div class="mx-1 flex overflow-hidden rounded-xl border border-gray-200 bg-gray-50 p-1">
-                        @foreach (config('school.supported_locales', ['en']) as $loc)
-                            @php $locLabel = ['en' => 'English', 'bn' => 'বাংলা'][$loc] ?? strtoupper($loc); @endphp
-                            <a data-site-nav-link href="{{ route('locale.switch', ['locale' => $loc]) }}"
-                                aria-label="{{ $locLabel }}"
-                                class="flex-1 text-center rounded-lg px-3 py-2.5 text-sm font-semibold transition-all duration-200 {{ app()->getLocale() === $loc ? 'bg-white text-blue-700 shadow-sm ring-1 ring-gray-200' : 'text-gray-500 hover:text-gray-700' }}">
-                                {{ $locLabel }}
-                            </a>
-                        @endforeach
+                        @php $mobileLocales = config('school.supported_locales', ['en']); @endphp
+                        @if(count($mobileLocales) > 2)
+                            <select onchange="window.location.href='{{ route('locale.switch', ['locale' => 'LOCALE']) }}'.replace('LOCALE', this.value)" class="w-full rounded-lg bg-white px-3 py-2.5 text-sm font-semibold text-gray-700 focus:outline-none">
+                                @foreach ($mobileLocales as $loc)
+                                    @php $locLabel = ['en' => 'English', 'bn' => 'বাংলা'][$loc] ?? strtoupper($loc); @endphp
+                                    <option value="{{ $loc }}" {{ app()->getLocale() === $loc ? 'selected' : '' }}>{{ $locLabel }}</option>
+                                @endforeach
+                            </select>
+                        @else
+                            @foreach ($mobileLocales as $loc)
+                                @php $locLabel = ['en' => 'English', 'bn' => 'বাংলা'][$loc] ?? strtoupper($loc); @endphp
+                                <a data-site-nav-link href="{{ route('locale.switch', ['locale' => $loc]) }}"
+                                    aria-label="{{ $locLabel }}"
+                                    class="flex-1 text-center rounded-lg px-3 py-2.5 text-sm font-semibold transition-all duration-200 {{ app()->getLocale() === $loc ? 'bg-white text-blue-700 shadow-sm ring-1 ring-gray-200' : 'text-gray-500 hover:text-gray-700' }}">
+                                    {{ $locLabel }}
+                                </a>
+                            @endforeach
+                        @endif
                     </div>
                 </div>
 

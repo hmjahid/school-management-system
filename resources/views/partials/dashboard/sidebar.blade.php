@@ -291,10 +291,8 @@
         </details>
         @endcan
 
-        @can('viewAny', App\Models\Event::class)
-            <x-admin-nav-link :href="route('dashboard.events')" route-is="dashboard.events*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z\' clip-rule=\'evenodd\'/></svg>'">{{ __('dashboard.events') }}</x-admin-nav-link>
-            <x-admin-nav-link :href="route('dashboard.events.calendar')" route-is="dashboard.events.calendar" :icon="'<svg class=\'h-5 w-5\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z\'/></svg>'">{{ __('dashboard.calendar') }}</x-admin-nav-link>
-        @endcan
+        <x-admin-nav-link :href="route('dashboard.events')" route-is="dashboard.events*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z\' clip-rule=\'evenodd\'/></svg>'">{{ __('dashboard.events') }}</x-admin-nav-link>
+        <x-admin-nav-link :href="route('dashboard.events.calendar')" route-is="dashboard.events.calendar" :icon="'<svg class=\'h-5 w-5\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z\'/></svg>'">{{ __('dashboard.calendar') }}</x-admin-nav-link>
         @if ($canFees)
             @can('manage_vehicles')
                 <x-admin-nav-link :href="route('dashboard.transport.vehicles.index')" route-is="dashboard.transport.*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z\'/><path d=\'M3 4a1 1 0 00-1 1v3a1 1 0 001 1h1l1.6 4.4A2 2 0 007.4 15h7.2a2 2 0 001.8-1.6L17 9h2a1 1 0 100-2h-3.28l-.6-2H11v2h2.28l1.2 4H8.52L7.4 6.6A2 2 0 005.6 5H3z\'/></svg>'">{{ __('dashboard.transport') }}</x-admin-nav-link>

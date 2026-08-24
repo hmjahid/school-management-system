@@ -16,13 +16,37 @@
         </x-slot:actions>
     </x-page-header>
 
+    @if($budgetStatus->isNotEmpty())
+        <x-card class="mb-6">
+            <h2 class="mb-4 text-sm font-semibold text-slate-700">{{ __('Budget status') }} — {{ now()->format('F Y') }}</h2>
+            <div class="space-y-4">
+                @foreach($budgetStatus as $bs)
+                    <div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="font-medium text-slate-800">{{ $bs->category }}</span>
+                            <span class="text-slate-600">
+                                {{ number_format($bs->spent, 2) }} / {{ number_format($bs->budget, 2) }}
+                                <span class="{{ $bs->over ? 'text-red-700' : 'text-green-700' }}">
+                                    ({{ $bs->over ? __('Over by') : __('Remaining') }}: {{ number_format(abs($bs->variance), 2) }})
+                                </span>
+                            </span>
+                        </div>
+                        <div class="mt-1 h-2 w-full overflow-hidden rounded-full bg-slate-200">
+                            <div class="h-full rounded-full {{ $bs->over ? 'bg-red-500' : 'bg-green-500' }}" style="width: {{ $bs->pct }}%"></div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </x-card>
+    @endif
+
     <form method="get" class="mb-6 grid gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-4">
         <input type="date" name="from" value="{{ request('from') }}" class="admin-input" placeholder="{{ __('From') }}">
         <input type="date" name="to" value="{{ request('to') }}" class="admin-input" placeholder="{{ __('To') }}">
         <select name="category" class="admin-select">
             <option value="">{{ __('All categories') }}</option>
             @foreach($categories as $c)
-                <option value="{{ $c }}" @selected(request('category') === $c)>{{ $c }}</option>
+                <option value="{{ $c->name }}" @selected(request('category') === $c->name)>{{ $c->name }}</option>
             @endforeach
         </select>
         <x-button type="submit" variant="secondary">{{ __('Filter') }}</x-button>
@@ -49,7 +73,7 @@
                     @forelse($rows as $row)
                         <tr>
                             <td class="px-4 py-3 text-slate-700">{{ $row->date?->format('Y-m-d') }}</td>
-                            <td class="px-4 py-3 font-medium text-slate-900">{{ $row->category }}</td>
+                            <td class="px-4 py-3 font-medium text-slate-900">{{ $row->category?->name ?? $row->category ?? __('Uncategorized') }}</td>
                             <td class="px-4 py-3 text-slate-700">{{ $row->vendor ?: '—' }}</td>
                             <td class="px-4 py-3 text-slate-700">{{ strtoupper($row->payment_method ?? 'cash') }}</td>
                             <td class="px-4 py-3 text-right font-semibold text-slate-900">{{ number_format((float) $row->amount, 2) }}</td>

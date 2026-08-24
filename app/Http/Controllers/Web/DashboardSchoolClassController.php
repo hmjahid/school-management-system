@@ -21,6 +21,7 @@ class DashboardSchoolClassController extends Controller
         return view('dashboard.classes.create', [
             'sessions' => AcademicSession::orderByDesc('is_current')->orderByDesc('start_date')->get(),
             'teachers' => Teacher::with('user')->orderBy('id')->limit(200)->get(),
+            'shifts' => SchoolClass::getShifts(),
         ]);
     }
 
@@ -51,6 +52,7 @@ class DashboardSchoolClassController extends Controller
             'schoolClass' => $class,
             'sessions' => AcademicSession::orderByDesc('is_current')->orderByDesc('start_date')->get(),
             'teachers' => Teacher::with('user')->orderBy('id')->limit(200)->get(),
+            'shifts' => SchoolClass::getShifts(),
         ]);
     }
 

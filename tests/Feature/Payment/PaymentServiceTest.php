@@ -6,26 +6,63 @@ use App\Models\Payment;
 use App\Models\PaymentGateway;
 use App\Services\PaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class PaymentServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $paymentService;
+    protected PaymentService $paymentService;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->paymentService = app(PaymentService::class);
-        
-        // Seed payment gateways
-        $this->seed(\Database\Seeders\PaymentGatewaySeeder::class);
+    }
+
+    protected function createBkashGateway(): PaymentGateway
+    {
+        return PaymentGateway::create([
+            'code' => 'bkash',
+            'name' => 'bKash',
+            'type' => 'mobile_financial_service',
+            'is_active' => true,
+            'is_online' => true,
+            'has_api' => true,
+            'test_mode' => true,
+            'sandbox_url' => 'https://sandbox.bkash.com',
+            'live_url' => 'https://api.bkash.com',
+            'api_key' => 'test_key',
+            'api_secret' => 'test_secret',
+            'api_username' => 'test_user',
+            'api_password' => 'test_pass',
+            'callback_url' => 'https://example.com/callback',
+            'currency' => 'BDT',
+            'config' => [
+                'test_mode' => true,
+                'api_url' => 'https://sandbox.bkash.com',
+                'api_key' => 'test_key',
+                'api_secret' => 'test_secret',
+                'api_username' => 'test_user',
+                'api_password' => 'test_pass',
+            ],
+        ]);
     }
 
     /** @test */
     public function it_can_initialize_offline_payment()
     {
+        PaymentGateway::create([
+            'code' => 'cash',
+            'name' => 'Cash',
+            'type' => 'other',
+            'is_active' => true,
+            'is_online' => false,
+            'has_api' => false,
+            'instructions' => 'Pay at the school office',
+        ]);
+
         $payment = Payment::factory()->create([
             'total_amount' => 1000,
             'payment_status' => Payment::STATUS_PENDING,
@@ -35,41 +72,103 @@ class PaymentServiceTest extends TestCase
 
         $this->assertTrue($result['success']);
         $this->assertEquals('cash', $result['gateway']);
-        $this->assertArrayHasKey('offline_instructions', $result);
+        $this->assertEquals('Pay at the school office', $result['offline_instructions']);
     }
 
     /** @test */
-    public function it_throws_exception_for_invalid_gateway()
+    public function it_throws_exception_for_inactive_gateway()
     {
+        PaymentGateway::create([
+            'code' => 'bkash',
+            'name' => 'bKash',
+            'type' => 'mobile_financial_service',
+            'is_active' => false,
+            'is_online' => true,
+            'has_api' => true,
+            'test_mode' => true,
+            'sandbox_url' => 'https://sandbox.bkash.com',
+        ]);
+
         $payment = Payment::factory()->create();
 
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Payment gateway is not active');
-        
-        $this->paymentService->initializePayment($payment, 'invalid_gateway');
+
+        $this->paymentService->initializePayment($payment, 'bkash');
+    }
+
+    /** @test */
+    public function it_throws_exception_for_unknown_gateway()
+    {
+        $payment = Payment::factory()->create();
+
+        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+
+        $this->paymentService->initializePayment($payment, 'does_not_exist');
+    }
+
+    /** @test */
+    public function it_can_initialize_bkash_payment()
+    {
+        $this->createBkashGateway();
+
+        $payment = Payment::factory()->create([
+            'payment_method' => 'bkash',
+            'payment_status' => Payment::STATUS_PENDING,
+            'invoice_number' => 'INV'.uniqid(),
+            'payment_details' => ['description' => 'Test'],
+        ]);
+
+        Http::fake([
+            '*sandbox.bkash.com/checkout/token/grant*' => Http::response(['id_token' => 'TEST_TOKEN'], 200),
+            '*sandbox.bkash.com/checkout/create*' => Http::response([
+                'paymentID' => 'PID123',
+                'bkashURL' => 'https://bkash.com/pay/123',
+                'createTime' => now()->toIso8601String(),
+                'orgLogo' => 'logo.png',
+            ], 200),
+        ]);
+
+        $result = $this->paymentService->initializePayment($payment, 'bkash');
+
+        $this->assertTrue($result['success']);
+        $this->assertEquals('https://bkash.com/pay/123', $result['redirect_url']);
+        $this->assertDatabaseHas('payments', [
+            'id' => $payment->id,
+            'payment_details->bkash_payment_id' => 'PID123',
+        ]);
     }
 
     /** @test */
     public function it_can_process_bkash_callback()
     {
+        $gateway = $this->createBkashGateway();
+
         $payment = Payment::factory()->create([
             'payment_method' => 'bkash',
             'payment_status' => Payment::STATUS_PENDING,
+            'invoice_number' => 'INV'.uniqid(),
             'payment_details' => [
                 'bkash_payment_id' => 'TRX12345',
                 'bkash_token' => 'test_token',
             ],
         ]);
 
-        $callbackData = [
+        Http::fake([
+            '*sandbox.bkash.com/checkout/execute*' => Http::response([
+                'paymentID' => 'TRX12345',
+                'trxID' => 'TXN987',
+                'transactionStatus' => 'Completed',
+                'amount' => $payment->total_amount,
+            ], 200),
+        ]);
+
+        $result = $this->paymentService->processCallback('bkash', [
             'paymentID' => 'TRX12345',
             'merchantInvoiceNumber' => $payment->invoice_number,
             'transactionStatus' => 'Completed',
             'amount' => $payment->total_amount,
-            'currency' => 'BDT',
-        ];
-
-        $result = $this->paymentService->processCallback('bkash', $callbackData);
+        ]);
 
         $this->assertEquals(Payment::STATUS_COMPLETED, $result->payment_status);
         $this->assertEquals($payment->total_amount, $result->paid_amount);
@@ -78,41 +177,69 @@ class PaymentServiceTest extends TestCase
     /** @test */
     public function it_can_verify_payment_status()
     {
+        $this->createBkashGateway();
+
         $payment = Payment::factory()->create([
             'payment_method' => 'bkash',
             'payment_status' => Payment::STATUS_PENDING,
-            'payment_details' => [
-                'bkash_payment_id' => 'TRX12345',
-            ],
+            'payment_details' => ['bkash_payment_id' => 'TRX12345'],
         ]);
 
-        // In a real test, you would mock the HTTP client to return a specific response
-        // For this example, we'll just test that the method runs without errors
+        Http::fake([
+            '*sandbox.bkash.com/checkout/token/grant*' => Http::response(['id_token' => 'TEST_TOKEN'], 200),
+            '*sandbox.bkash.com/checkout/payment/status*' => Http::response([
+                'paymentID' => 'TRX12345',
+                'transactionStatus' => 'Completed',
+                'completedTime' => now()->toIso8601String(),
+            ], 200),
+        ]);
+
         $result = $this->paymentService->verifyPayment($payment);
-        
+
         $this->assertInstanceOf(Payment::class, $result);
+        $this->assertEquals(Payment::STATUS_COMPLETED, $result->payment_status);
+        $this->assertArrayHasKey('verification_response', $result->payment_details);
     }
 
     /** @test */
-    public function it_can_handle_webhook_events()
+    public function it_processes_refunds()
     {
+        $this->createBkashGateway();
+
+        Http::fake([
+            '*checkout.sandbox.bka.sh/tokenized/checkout/token/grant*' => Http::response(['id_token' => 'TEST_TOKEN'], 200),
+            '*checkout.sandbox.bka.sh/tokenized/checkout/payment/refund*' => Http::response([
+                'statusCode' => '0000',
+                'statusMessage' => 'success',
+                'refundTrxID' => 'R123',
+            ], 200),
+        ]);
+
+        $result = $this->paymentService->processRefund('bkash', 'TRX12345', 1000, 'Test refund');
+
+        $this->assertTrue($result['success']);
+        $this->assertArrayHasKey('transaction_id', $result);
+    }
+
+    /** @test */
+    public function it_throws_on_failed_gateway_initialization()
+    {
+        $this->createBkashGateway();
+
         $payment = Payment::factory()->create([
             'payment_method' => 'bkash',
             'payment_status' => Payment::STATUS_PENDING,
-            'payment_details' => [
-                'bkash_payment_id' => 'TRX12345',
-            ],
+            'invoice_number' => 'INV'.uniqid(),
+            'payment_details' => ['description' => 'Test'],
         ]);
 
-        $webhookData = [
-            'paymentID' => 'TRX12345',
-            'status' => 'COMPLETED',
-            'amount' => $payment->total_amount,
-            'currency' => 'BDT',
-        ];
+        Http::fake([
+            '*sandbox.bkash.com/checkout/token/grant*' => Http::response([], 400),
+        ]);
 
-        $result = $this->paymentService->processCallback('bkash', $webhookData);
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Failed to initialize bKash payment');
 
-        $this->assertEquals(Payment::STATUS_COMPLETED, $result->payment_status);
+        $this->paymentService->initializePayment($payment, 'bkash');
     }
 }

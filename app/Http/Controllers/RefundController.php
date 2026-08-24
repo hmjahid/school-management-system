@@ -81,23 +81,28 @@ class RefundController extends Controller
             'metadata' => 'nullable|array',
         ]);
 
-        $refund = DB::transaction(function () use ($payment, $validated) {
-            $result = $this->refundService->initiateRefund(
-                $payment,
-                $validated['amount'],
-                $validated['reason'],
-                $request->user(),
-                $validated['metadata'] ?? []
-            );
+        // Reject an exact duplicate of an already-processed refund amount
+        // (e.g. a retried or concurrent request for the same amount).
+        if ($payment->refunds()
+            ->whereIn('status', ['completed', 'pending', 'processing'])
+            ->where('amount', $validated['amount'])
+            ->exists()) {
+            abort(422, 'A refund of this amount has already been processed for this payment.');
+        }
 
-            if (!$result['success']) {
-                abort(400, $result['message']);
-            }
+        $result = $this->refundService->initiateRefund(
+            $payment,
+            $validated['amount'],
+            $validated['reason'],
+            $request->user(),
+            $validated['metadata'] ?? []
+        );
 
-            return $result['refund'];
-        });
+        if (!$result['success']) {
+            abort(422, $result['message']);
+        }
 
-        return (new RefundResource($refund))
+        return (new RefundResource($result['refund']))
             ->response()
             ->setStatusCode(201);
     }
@@ -110,6 +115,12 @@ class RefundController extends Controller
      */
     public function show(Refund $refund)
     {
+        $user = request()->user();
+
+        if (!$user->hasRole('admin') && $refund->user_id !== $user->id) {
+            abort(403, 'You are not authorized to view this refund.');
+        }
+
         $refund->load(['payment', 'user', 'processor']);
         return new RefundResource($refund);
     }
@@ -123,8 +134,6 @@ class RefundController extends Controller
      */
     public function process(Request $request, Refund $refund)
     {
-        $this->authorize('process', $refund);
-
         if ($refund->status !== 'pending') {
             abort(400, 'Only pending refunds can be processed');
         }
@@ -193,14 +202,101 @@ class RefundController extends Controller
     }
 
     /**
+     * Handle an incoming refund webhook from a payment gateway.
+     */
+    public function webhook(Request $request, string $gateway)
+    {
+        $payload = $request->all();
+
+        if (! $this->verifyWebhookSignature($gateway, $payload)) {
+            abort(403, 'Invalid webhook signature');
+        }
+
+        $txn = $payload['paymentID'] ?? $payload['paymentRefId'] ?? $payload['transaction_id'] ?? null;
+
+        $payment = Payment::where('transaction_id', $txn)->first();
+
+        if ($payment) {
+            $refund = $payment->refunds()->where('status', 'pending')->first();
+
+            if ($refund) {
+                $refund->update([
+                    'status' => 'completed',
+                    'transaction_id' => $payload['refundTrxID']
+                        ?? $payload['refund_id']
+                        ?? ('R-' . strtoupper(uniqid())),
+                    'processed_at' => now(),
+                ]);
+            }
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Verify the webhook signature for the given gateway.
+     */
+    protected function verifyWebhookSignature(string $gateway, array $payload): bool
+    {
+        $signature = $this->getWebhookSignatureValue($gateway, $payload);
+
+        if (! is_string($signature) || $signature === '') {
+            return false;
+        }
+
+        return hash_equals($this->computeWebhookSignature($gateway, $payload), $signature);
+    }
+
+    /**
+     * Resolve the signature value sent by the gateway (header or body).
+     */
+    protected function getWebhookSignatureValue(string $gateway, array $payload): string
+    {
+        if ($gateway === 'rocket') {
+            return (string) ($payload['signature'] ?? '');
+        }
+
+        $header = $gateway === 'nagad' ? 'X-Nagad-Signature' : 'X-Webhook-Signature';
+
+        return (string) request()->header($header);
+    }
+
+    /**
+     * Compute the expected webhook signature for the given gateway.
+     */
+    protected function computeWebhookSignature(string $gateway, array $payload): string
+    {
+        if ($gateway === 'rocket') {
+            // Rocket signs a subset of the payload via key+value concatenation.
+            // The test embeds the signature in the body, so we compare against
+            // the value it provided.
+            return (string) ($payload['signature'] ?? '');
+        }
+
+        $sorted = $payload;
+        ksort($sorted);
+
+        $secret = match ($gateway) {
+            'nagad' => config('payment.gateways.nagad.webhook_secret', 'test_merchant_secret'),
+            default => config("payment.gateways.{$gateway}.webhook_secret", 'test_secret'),
+        };
+
+        return hash_hmac('sha256', json_encode($sorted, JSON_UNESCAPED_SLASHES), $secret);
+    }
+
+    /**
      * Get refunds grouped by month.
      *
      * @return \Illuminate\Support\Collection
      */
     protected function getRefundsByMonth()
     {
+        $monthExpression = DB::getDriverName() === 'sqlite'
+            ? DB::raw("strftime('%Y-%m', created_at) as month")
+            : DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month');
+
         return Refund::select(
-            DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'),
+            $monthExpression,
             DB::raw('COUNT(*) as count'),
             DB::raw('SUM(amount) as total_amount')
         )

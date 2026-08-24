@@ -9,7 +9,6 @@ use App\Support\CmsPageRegistry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -60,11 +59,15 @@ class CmsWebController extends Controller
             'bn' => $bn,
         ];
 
+        $visibilityKeys = config("cms_section_visibility.{$page}", []);
+
         return view('dashboard.cms.edit', [
             'content' => $content,
             'page' => $page,
             'def' => $def,
             'values' => $values,
+            'visibilityKeys' => $visibilityKeys,
+            'sectionVis' => optional(\App\Models\WebsiteSetting::first())->section_visibility ?? [],
         ]);
     }
 
@@ -117,6 +120,29 @@ class CmsWebController extends Controller
                 'is_active' => $request->boolean('is_active'),
             ]
         );
+
+        // Persist per-section visibility for this CMS page. Only touch
+        // visibility when the form submitted the `section_visibility` array.
+        $visibilityKeys = config("cms_section_visibility.{$page}", []);
+        if ($visibilityKeys !== [] && $request->has('section_visibility')) {
+            $settings = \App\Models\WebsiteSetting::first() ?: \App\Models\WebsiteSetting::create([
+                'school_name' => config('app.name'),
+                'established_year' => (int) now()->format('Y'),
+                'address' => '',
+                'city' => '',
+                'state' => '',
+                'country' => '',
+                'postal_code' => '',
+                'phone' => '',
+                'email' => '',
+            ]);
+            $existing = $settings->section_visibility ?? [];
+            foreach ($visibilityKeys as $key => $label) {
+                $existing[$key] = $request->boolean("section_visibility.{$key}");
+            }
+            $settings->section_visibility = $existing;
+            $settings->save();
+        }
 
         return redirect()
             ->route('dashboard.cms.edit', ['page' => $page])
@@ -430,7 +456,7 @@ class CmsWebController extends Controller
                             'file_size' => $file->getSize(),
                         ]);
 
-                        $v = url('storage/' . ltrim($path, '/'));
+                        $v = '/storage/'.ltrim($path, '/');
                     } else {
                         $v = trim((string) data_get($all, $dotKey, ''));
                     }
@@ -479,7 +505,7 @@ class CmsWebController extends Controller
                 'file_size' => $file->getSize(),
             ]);
 
-            return url('storage/' . ltrim($path, '/'));
+            return '/storage/'.ltrim($path, '/');
         }
 
         return trim((string) $request->input($formKey, ''));

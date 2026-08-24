@@ -25,15 +25,17 @@ class RocketRefundTest extends TestCase
     {
         parent::setUp();
 
+        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+
         // Create test users
         $this->admin = User::factory()->create(['email' => 'admin@example.com']);
+        $this->admin->assignRole('admin');
         $this->user = User::factory()->create(['email' => 'user@example.com']);
 
         // Create a completed Rocket payment
         $this->payment = Payment::factory()->create([
-            'user_id' => $this->user->id,
+            'created_by' => $this->user->id,
             'amount' => 2000.00,
-            'currency' => 'BDT',
             'payment_status' => Payment::STATUS_COMPLETED,
             'payment_method' => 'rocket',
             'transaction_id' => 'RKT' . uniqid(),
@@ -72,18 +74,6 @@ class RocketRefundTest extends TestCase
                 'status' => 'success',
             ], 200),
 
-            // Mock Rocket refund endpoint
-            'api.razo.com.bd/api/v1/refund' => Http::response([
-                'status' => 'success',
-                'message' => 'Refund request has been executed successfully',
-                'refund_id' => 'RFD' . uniqid(),
-                'transaction_id' => $this->payment->transaction_id,
-                'refund_amount' => '1000.00',
-                'currency' => 'BDT',
-                'status' => 'Completed',
-                'refund_date' => now()->toIso8601String(),
-            ], 200),
-
             // Mock Rocket refund status check
             'api.razo.com.bd/api/v1/refund/status/*' => Http::response([
                 'status' => 'success',
@@ -100,8 +90,21 @@ class RocketRefundTest extends TestCase
     /** @test */
     public function it_processes_rocket_refund_successfully()
     {
+        Http::fake([
+            'api.razo.com.bd/api/v1/refund' => Http::response([
+                'status' => 'success',
+                'message' => 'Refund request has been executed successfully',
+                'refund_id' => 'RFD' . uniqid(),
+                'transaction_id' => $this->payment->transaction_id,
+                'refund_amount' => '1000.00',
+                'currency' => 'BDT',
+                'status' => 'Completed',
+                'refund_date' => now()->toIso8601String(),
+            ], 200),
+        ]);
+
         // Process refund
-        $response = $this->actingAs($this->admin, 'api')
+        $response = $this->actingAs($this->admin, 'sanctum')
             ->postJson("/api/payments/{$this->payment->id}/refunds", [
                 'amount' => 1000.00,
                 'reason' => 'Customer requested partial refund',
@@ -135,7 +138,7 @@ class RocketRefundTest extends TestCase
             ], 400),
         ]);
 
-        $response = $this->actingAs($this->admin, 'api')
+        $response = $this->actingAs($this->admin, 'sanctum')
             ->postJson("/api/payments/{$this->payment->id}/refunds", [
                 'amount' => 1000.00,
                 'reason' => 'Test refund',
@@ -195,18 +198,31 @@ class RocketRefundTest extends TestCase
     /** @test */
     public function it_handles_concurrent_refund_requests()
     {
+        Http::fake([
+            'api.razo.com.bd/api/v1/refund' => Http::response([
+                'status' => 'success',
+                'message' => 'Refund request has been executed successfully',
+                'refund_id' => 'RFD' . uniqid(),
+                'transaction_id' => $this->payment->transaction_id,
+                'refund_amount' => '1000.00',
+                'currency' => 'BDT',
+                'status' => 'Completed',
+                'refund_date' => now()->toIso8601String(),
+            ], 200),
+        ]);
+
         // Simulate multiple concurrent refund requests
         $responses = [];
         
         // First request - should succeed
-        $responses[] = $this->actingAs($this->admin, 'api')
+        $responses[] = $this->actingAs($this->admin, 'sanctum')
             ->postJson("/api/payments/{$this->payment->id}/refunds", [
                 'amount' => 1000.00,
                 'reason' => 'First refund',
             ]);
 
         // Second concurrent request - should be blocked by database lock
-        $responses[] = $this->actingAs($this->admin, 'api')
+        $responses[] = $this->actingAs($this->admin, 'sanctum')
             ->postJson("/api/payments/{$this->payment->id}/refunds", [
                 'amount' => 1000.00,
                 'reason' => 'Concurrent refund',
@@ -223,8 +239,21 @@ class RocketRefundTest extends TestCase
     /** @test */
     public function it_handles_partial_refunds_correctly()
     {
+        Http::fake([
+            'api.razo.com.bd/api/v1/refund' => Http::response([
+                'status' => 'success',
+                'message' => 'Refund request has been executed successfully',
+                'refund_id' => 'RFD' . uniqid(),
+                'transaction_id' => $this->payment->transaction_id,
+                'refund_amount' => '1000.00',
+                'currency' => 'BDT',
+                'status' => 'Completed',
+                'refund_date' => now()->toIso8601String(),
+            ], 200),
+        ]);
+
         // First partial refund
-        $response1 = $this->actingAs($this->admin, 'api')
+        $response1 = $this->actingAs($this->admin, 'sanctum')
             ->postJson("/api/payments/{$this->payment->id}/refunds", [
                 'amount' => 1000.00,
                 'reason' => 'First partial refund',
@@ -233,7 +262,7 @@ class RocketRefundTest extends TestCase
         $response1->assertStatus(201);
 
         // Second partial refund
-        $response2 = $this->actingAs($this->admin, 'api')
+        $response2 = $this->actingAs($this->admin, 'sanctum')
             ->postJson("/api/payments/{$this->payment->id}/refunds", [
                 'amount' => 800.00,
                 'reason' => 'Second partial refund',
@@ -247,7 +276,7 @@ class RocketRefundTest extends TestCase
         $this->assertEquals('partially_refunded', $this->payment->refresh()->refund_status);
 
         // Third refund that would exceed the payment amount
-        $response3 = $this->actingAs($this->admin, 'api')
+        $response3 = $this->actingAs($this->admin, 'sanctum')
             ->postJson("/api/payments/{$this->payment->id}/refunds", [
                 'amount' => 300.00,
                 'reason' => 'Third partial refund',
@@ -256,7 +285,7 @@ class RocketRefundTest extends TestCase
         $response3->assertStatus(422);
 
         // Verify only 200.00 is refundable now
-        $response4 = $this->actingAs($this->admin, 'api')
+        $response4 = $this->actingAs($this->admin, 'sanctum')
             ->postJson("/api/payments/{$this->payment->id}/refunds", [
                 'amount' => 200.00,
                 'reason' => 'Final partial refund',

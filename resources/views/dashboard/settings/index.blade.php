@@ -114,6 +114,16 @@
                             <option value="spacious" @selected(old('theme_section_spacing', $settings->theme_section_spacing ?? '') === 'spacious')>{{ __('Spacious') }}</option>
                         </select>
                     </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Theme style') }}</label>
+                        <select name="theme_style" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <option value="default" @selected(old('theme_style', $settings->theme_style ?? 'default') === 'default')>{{ __('Default') }}</option>
+                            <option value="modern" @selected(old('theme_style', $settings->theme_style ?? 'default') === 'modern')>{{ __('Modern') }}</option>
+                            <option value="classic" @selected(old('theme_style', $settings->theme_style ?? 'default') === 'classic')>{{ __('Classic') }}</option>
+                            <option value="minimal" @selected(old('theme_style', $settings->theme_style ?? 'default') === 'minimal')>{{ __('Minimal') }}</option>
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500">{{ __('Adjusts the overall look of the dashboard (radius, heading weight, card shadow).') }}</p>
+                    </div>
                 </div>
             </div>
             <div class="mt-6 flex justify-end">

@@ -40,7 +40,7 @@ class DashboardMediaController extends Controller
         abort_unless($request->user()?->hasRole('admin') || $request->user()?->can('manage_media'), 403);
 
         $data = $request->validate([
-            'file' => ['required', 'file', 'max:20480'],
+            'file' => ['required', 'file', 'max:20480', 'mimes:jpg,jpeg,png,webp,gif,pdf,doc,docx,xls,xlsx,txt'],
             'title' => ['nullable', 'string', 'max:255'],
             'category' => ['nullable', 'string', 'max:120'],
         ]);

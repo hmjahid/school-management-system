@@ -3,11 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SchoolClass extends Model
 {
+    public const SHIFT_MORNING = 'morning';
+
+    public const SHIFT_DAY = 'day';
+
+    public const SHIFT_EVENING = 'evening';
 
     protected $fillable = [
         'name',
@@ -22,7 +27,8 @@ class SchoolClass extends Model
         'admission_fee',
         'exam_fee',
         'other_fees',
-        'notes'
+        'notes',
+        'shift',
     ];
 
     protected $casts = [
@@ -154,7 +160,8 @@ class SchoolClass extends Model
     {
         $status = $this->is_active ? 'active' : 'inactive';
         $color = $this->is_active ? 'success' : 'secondary';
-        return "<span class='badge bg-{$color}'>" . ucfirst($status) . "</span>";
+
+        return "<span class='badge bg-{$color}'>".ucfirst($status).'</span>';
     }
 
     /**
@@ -171,6 +178,18 @@ class SchoolClass extends Model
     public function scopeInactive($query)
     {
         return $query->where('is_active', false);
+    }
+
+    /**
+     * Get the available shift options.
+     */
+    public static function getShifts(): array
+    {
+        return [
+            self::SHIFT_MORNING => 'Morning',
+            self::SHIFT_DAY => 'Day',
+            self::SHIFT_EVENING => 'Evening',
+        ];
     }
 
     /**

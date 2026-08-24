@@ -1,3 +1,6 @@
+@php
+    $siteSettings = $siteSettings ?? new \App\Models\WebsiteSetting();
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
@@ -31,7 +34,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="{{ $siteSettings->school_name ?? config('app.name', 'SchoolEase') }}">
-    <link rel="apple-touch-icon" href="{{ $siteSettings->logo_url ?: asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ optional($siteSettings)->logo_url ?: asset('favicon.ico') }}">
 
     {{-- Open Graph --}}
     <meta property="og:title" content="@yield('og_title', $siteSettings->site_name ?? config('app.name'))">

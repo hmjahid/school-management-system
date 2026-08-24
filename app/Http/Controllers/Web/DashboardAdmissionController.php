@@ -183,4 +183,27 @@ class DashboardAdmissionController extends Controller
 
         return back()->with('status', __('Test removed.'));
     }
+
+    public function verifyPayment(Request $request, Admission $admission): RedirectResponse
+    {
+        abort_unless($request->user()?->can('edit_admissions'), 403);
+
+        if ($admission->payment_status === Admission::PAYMENT_VERIFIED) {
+            return back()->with('status', __('Payment is already verified.'));
+        }
+
+        if (empty($admission->transaction_id)) {
+            return back()->withErrors(['payment' => __('No transaction ID was submitted by the applicant.')]);
+        }
+
+        $admission->payment_status = Admission::PAYMENT_VERIFIED;
+        $admission->verified_at = now();
+        $admission->verified_by = $request->user()->id;
+        $admission->save();
+
+        Notification::route('mail', $admission->email)
+            ->notify(new AdmissionPaymentVerifiedNotification($admission));
+
+        return back()->with('status', __('Payment verified. The applicant can now download the confirmation letter.'));
+    }
 }

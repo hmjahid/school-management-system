@@ -21,7 +21,13 @@ class Expense extends Model
     protected $casts = [
         'date' => 'date',
         'amount' => 'decimal:2',
+        'expense_category_id' => 'integer',
     ];
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(ExpenseCategory::class, 'expense_category_id');
+    }
 
     public function account(): BelongsTo
     {

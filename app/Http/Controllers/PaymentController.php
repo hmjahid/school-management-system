@@ -462,12 +462,9 @@ class PaymentController extends Controller
      * @param  string  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show($id)
+    public function show(Payment $payment)
     {
-        $payment = Payment::with(['createdBy', 'updatedBy', 'paymentable'])
-            ->where('id', $id)
-            ->orWhere('invoice_number', $id)
-            ->firstOrFail();
+        $payment->load(['createdBy', 'updatedBy', 'paymentable']);
 
         // Check if user has permission to view this payment
         $this->authorize('view', $payment);
@@ -481,10 +478,8 @@ class PaymentController extends Controller
      * @param  string  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function updateStatus($id, Request $request)
+    public function updateStatus(Payment $payment, Request $request)
     {
-        $payment = Payment::findOrFail($id);
-
         // Check if user has permission to update this payment
         $this->authorize('update', $payment);
 
@@ -591,10 +586,8 @@ class PaymentController extends Controller
      * @param  string  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function refund($id, Request $request)
+    public function refund(Payment $payment, Request $request)
     {
-        $payment = Payment::findOrFail($id);
-
         // Check if user has permission to refund this payment
         $this->authorize('refund', $payment);
 

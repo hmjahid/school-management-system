@@ -22,6 +22,7 @@ class Routine extends Model
         'batch_id',
         'academic_session_id',
         'is_active',
+        'type',
     ];
 
     protected $casts = [
@@ -39,6 +40,28 @@ class Routine extends Model
         6 => 'Saturday',
         7 => 'Sunday',
     ];
+
+    const TYPE_CLASS = 'class';
+
+    const TYPE_EXAM = 'exam';
+
+    public function scopeClass($query)
+    {
+        return $query->where('type', self::TYPE_CLASS);
+    }
+
+    public function scopeExam($query)
+    {
+        return $query->where('type', self::TYPE_EXAM);
+    }
+
+    public static function getTypes(): array
+    {
+        return [
+            self::TYPE_CLASS => 'Class Routine',
+            self::TYPE_EXAM => 'Exam Routine',
+        ];
+    }
 
     public function schoolClass(): BelongsTo
     {

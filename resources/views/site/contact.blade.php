@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', ($content->title ?? site_ui('contact_page.title_fallback')) . ' — ' . ($siteSettings->school_name ?? config('app.name')))
-@section('meta_description', $content->meta_description)
+@section('meta_description', $content->meta_description ?? '')
 
 @section('content')
     @php

@@ -9,10 +9,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class ChartOfAccount extends Model
 {
     public const TYPE_ASSET = 'asset';
+
     public const TYPE_LIABILITY = 'liability';
+
     public const TYPE_INCOME = 'income';
+
     public const TYPE_EXPENSE = 'expense';
+
     public const TYPE_EQUITY = 'equity';
+
+    public const TYPE_BANK = 'bank';
 
     protected $fillable = ['code', 'name_en', 'name_bn', 'type', 'parent_id', 'is_active'];
 
@@ -43,6 +49,7 @@ class ChartOfAccount extends Model
             $query->where('date', '<=', $endDate);
         }
         $row = $query->selectRaw('COALESCE(SUM(debit),0) as d, COALESCE(SUM(credit),0) as c')->first();
+
         // For asset/expense: balance = debit - credit
         // For liability/income/equity: balance = credit - debit
         return in_array($this->type, [self::TYPE_ASSET, self::TYPE_EXPENSE], true)

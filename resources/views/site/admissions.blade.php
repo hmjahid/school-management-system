@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', ($content->title ?? site_ui('nav.admissions')) . ' — ' . ($siteSettings->school_name ?? config('app.name')))
-@section('meta_description', $content->meta_description)
+@section('meta_description', $content->meta_description ?? '')
 
 @section('content')
     <div class="bg-white">

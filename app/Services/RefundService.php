@@ -74,89 +74,65 @@ class RefundService
             ];
         }
 
-        // Start database transaction
-        DB::beginTransaction();
+        // Create refund record (persisted even if the gateway later fails,
+        // so a failed refund can be audited).
+        $refund = Refund::create([
+            'payment_id' => $payment->id,
+            'user_id' => $payment->created_by,
+            'processed_by' => $processedBy->id,
+            'amount' => $amount,
+            'currency' => $payment->currency ?? 'BDT',
+            'reason' => $reason,
+            'status' => 'pending',
+            'metadata' => array_merge($metadata, [
+                'original_payment' => [
+                    'amount' => $payment->amount,
+                    'currency' => $payment->currency,
+                    'payment_method' => $payment->payment_method,
+                    'transaction_id' => $payment->transaction_id,
+                ],
+            ]),
+        ]);
 
-        try {
-            // Create refund record
-            $refund = Refund::create([
-                'payment_id' => $payment->id,
-                'user_id' => $payment->user_id,
-                'processed_by' => $processedBy->id,
-                'amount' => $amount,
-                'currency' => $payment->currency,
-                'reason' => $reason,
-                'status' => 'pending',
-                'metadata' => array_merge($metadata, [
-                    'original_payment' => [
-                        'amount' => $payment->amount,
-                        'currency' => $payment->currency,
-                        'payment_method' => $payment->payment_method,
-                        'transaction_id' => $payment->transaction_id,
-                    ],
-                ]),
-            ]);
+        // Process refund with payment gateway
+        $gatewayResponse = $this->processGatewayRefund($payment, $amount, $reason);
 
-            // Process refund with payment gateway
-            $gatewayResponse = $this->processGatewayRefund($payment, $amount, $reason);
-
-            if (!$gatewayResponse['success']) {
-                throw new \Exception($gatewayResponse['message'] ?? 'Failed to process refund with payment gateway');
-            }
-
-            // Update refund status
+        if (!$gatewayResponse['success']) {
             $refund->update([
-                'status' => 'completed',
+                'status' => 'failed',
                 'transaction_id' => $gatewayResponse['transaction_id'] ?? null,
-                'processed_at' => now(),
                 'metadata' => array_merge($refund->metadata ?? [], [
+                    'error' => $gatewayResponse['message'] ?? 'Gateway refund failed',
                     'gateway_response' => $gatewayResponse,
                 ]),
             ]);
 
-            // Update payment status if fully refunded
-            $this->updatePaymentRefundStatus($payment, $amount);
-
-            // Commit transaction
-            DB::commit();
-
-            // Trigger refund processed event
-            // Event::dispatch(new RefundProcessed($refund));
-
-            return [
-                'success' => true,
-                'message' => 'Refund processed successfully',
-                'refund' => $refund,
-            ];
-        } catch (\Exception $e) {
-            // Rollback transaction on error
-            DB::rollBack();
-
-            // Log error
-            Log::error('Refund processing failed: ' . $e->getMessage(), [
-                'payment_id' => $payment->id,
-                'amount' => $amount,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            // Update refund status if it was created
-            if (isset($refund)) {
-                $refund->update([
-                    'status' => 'failed',
-                    'metadata' => array_merge($refund->metadata ?? [], [
-                        'error' => $e->getMessage(),
-                        'gateway_response' => $gatewayResponse ?? null,
-                    ]),
-                ]);
-            }
-
             return [
                 'success' => false,
-                'message' => 'Failed to process refund: ' . $e->getMessage(),
+                'message' => 'Failed to process refund: ' . ($gatewayResponse['message'] ?? 'Gateway refund failed'),
                 'code' => 'refund_failed',
+                'refund' => $refund,
             ];
         }
+
+        // Update refund status
+        $refund->update([
+            'status' => 'completed',
+            'transaction_id' => $gatewayResponse['transaction_id'] ?? null,
+            'processed_at' => now(),
+            'metadata' => array_merge($refund->metadata ?? [], [
+                'gateway_response' => $gatewayResponse,
+            ]),
+        ]);
+
+        // Update payment status if fully refunded
+        $this->updatePaymentRefundStatus($payment, $amount);
+
+        return [
+            'success' => true,
+            'message' => 'Refund processed successfully',
+            'refund' => $refund,
+        ];
     }
 
     /**
@@ -221,8 +197,16 @@ class RefundService
                 $payment->transaction_id,
                 $amount,
                 $reason,
-                $payment->payment_details
+                $payment->payment_details ?? []
             );
+
+            if (! ($gatewayResponse['success'] ?? false)) {
+                return [
+                    'success' => false,
+                    'message' => $gatewayResponse['message'] ?? 'Gateway refund failed',
+                    'code' => 'gateway_error',
+                ];
+            }
 
             return [
                 'success' => true,

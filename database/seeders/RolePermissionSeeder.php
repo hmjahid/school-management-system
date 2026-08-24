@@ -23,7 +23,8 @@ class RolePermissionSeeder extends Seeder
             'student' => 'Student',
             'parent' => 'Parent',
             'accountant' => 'Accountant',
-            'librarian' => 'Librarian'
+            'librarian' => 'Librarian',
+            'user' => 'User',
         ];
 
         foreach ($roles as $name => $description) {
@@ -31,17 +32,29 @@ class RolePermissionSeeder extends Seeder
                 ['name' => $name],
                 [
                     'guard_name' => 'web',
-                    'description' => $description
+                    'description' => $description,
                 ]
             );
-            
+
             // Store roles in variables for permission assignment
-            if ($name === 'admin') $adminRole = $role;
-            if ($name === 'teacher') $teacherRole = $role;
-            if ($name === 'student') $studentRole = $role;
-            if ($name === 'parent') $parentRole = $role;
-            if ($name === 'accountant') $accountantRole = $role;
-            if ($name === 'librarian') $librarianRole = $role;
+            if ($name === 'admin') {
+                $adminRole = $role;
+            }
+            if ($name === 'teacher') {
+                $teacherRole = $role;
+            }
+            if ($name === 'student') {
+                $studentRole = $role;
+            }
+            if ($name === 'parent') {
+                $parentRole = $role;
+            }
+            if ($name === 'accountant') {
+                $accountantRole = $role;
+            }
+            if ($name === 'librarian') {
+                $librarianRole = $role;
+            }
         }
 
         // Define permissions
@@ -51,7 +64,7 @@ class RolePermissionSeeder extends Seeder
             'create gallery',
             'edit gallery',
             'delete gallery',
-            
+
             // Career Permissions
             'view careers',
             'create careers',
@@ -59,7 +72,7 @@ class RolePermissionSeeder extends Seeder
             'delete careers',
             'view job applications',
             'manage job applications',
-            
+
             // User Management
             'manage_users' => 'Manage users (full access)',
             'manage_roles' => 'Manage roles (full access)',
@@ -93,7 +106,7 @@ class RolePermissionSeeder extends Seeder
             'edit_students' => 'Edit students',
             'update_students' => 'Update students',
             'delete_students' => 'Delete students',
-            
+
             // Admission Management
             'view_admissions' => 'View admissions',
             'create_admissions' => 'Create admissions',
@@ -151,6 +164,17 @@ class RolePermissionSeeder extends Seeder
             'manage_chart_of_accounts' => 'Manage chart of accounts',
             'approve_payments' => 'Approve payments',
 
+            // Payment Management (names must match App\Policies\PaymentPolicy)
+            'payments.view' => 'View payments',
+            'payments.create' => 'Create payments',
+            'payments.update' => 'Update payments',
+            'payments.delete' => 'Delete payments',
+            'payments.update_status' => 'Update payment status',
+            'payments.record_offline' => 'Record offline payments',
+            'payments.refund' => 'Refund payments',
+            'payments.export' => 'Export payments',
+            'payments.reports' => 'View payment reports',
+
             // Library
             'manage_books' => 'Manage books',
             'issue_books' => 'Issue books',
@@ -195,6 +219,24 @@ class RolePermissionSeeder extends Seeder
 
             // SMS
             'send_bulk_sms' => 'Send bulk SMS',
+
+            // Refund Permissions (names must match App\Policies\RefundPolicy)
+            'refunds.view_any',
+            'refunds.view',
+            'refunds.create',
+            'refunds.update',
+            'refunds.delete',
+            'refunds.delete_any',
+            'refunds.force_delete',
+            'refunds.force_delete_any',
+            'refunds.restore',
+            'refunds.restore_any',
+            'refunds.replicate',
+            'refunds.reorder',
+            'refunds.process',
+            'refunds.cancel',
+            'refunds.export',
+            'refunds.view_receipt',
         ];
 
         // Create permissions (string keys are names; numeric keys use the label string as name)

@@ -25,15 +25,17 @@ class NagadRefundTest extends TestCase
     {
         parent::setUp();
 
+        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+
         // Create test users
         $this->admin = User::factory()->create(['email' => 'admin@example.com']);
+        $this->admin->assignRole('admin');
         $this->user = User::factory()->create(['email' => 'user@example.com']);
 
         // Create a completed Nagad payment
         $this->payment = Payment::factory()->create([
-            'user_id' => $this->user->id,
+            'created_by' => $this->user->id,
             'amount' => 1500.00,
-            'currency' => 'BDT',
             'payment_status' => Payment::STATUS_COMPLETED,
             'payment_method' => 'nagad',
             'transaction_id' => 'N' . uniqid(),
@@ -56,21 +58,8 @@ class NagadRefundTest extends TestCase
 
     protected function mockNagadApis()
     {
-        // Mock Nagad token endpoint
+        // Mock Nagad refund status check
         Http::fake([
-            'api.mynagad.com/api/dfs/refund/initialize' => Http::response([
-                'status' => 'Success',
-                'message' => 'Refund request received successfully',
-                'refundRefNo' => 'R' . uniqid(),
-                'issuerPaymentRefNo' => $this->payment->payment_details['issuer_payment_ref_no'],
-                'refundTrxID' => 'RT' . uniqid(),
-                'amount' => '500.00',
-                'charge' => '0.00',
-                'referenceNo' => $this->payment->payment_details['order_id'],
-                'dateTime' => now()->toIso8601String(),
-            ], 200),
-
-            // Mock Nagad refund status check
             'api.mynagad.com/api/query/refund/status/*' => Http::response([
                 'status' => 'Success',
                 'refundTrxID' => 'RT' . uniqid(),
@@ -86,8 +75,22 @@ class NagadRefundTest extends TestCase
     /** @test */
     public function it_processes_nagad_refund_successfully()
     {
+        Http::fake([
+            'api.mynagad.com/api/dfs/refund/initialize' => Http::response([
+                'status' => 'Success',
+                'message' => 'Refund request received successfully',
+                'refundRefNo' => 'R' . uniqid(),
+                'issuerPaymentRefNo' => $this->payment->payment_details['issuer_payment_ref_no'],
+                'refundTrxID' => 'RT' . uniqid(),
+                'amount' => '500.00',
+                'charge' => '0.00',
+                'referenceNo' => $this->payment->payment_details['order_id'],
+                'dateTime' => now()->toIso8601String(),
+            ], 200),
+        ]);
+
         // Process refund
-        $response = $this->actingAs($this->admin, 'api')
+        $response = $this->actingAs($this->admin, 'sanctum')
             ->postJson("/api/payments/{$this->payment->id}/refunds", [
                 'amount' => 500.00,
                 'reason' => 'Customer requested partial refund',
@@ -121,7 +124,7 @@ class NagadRefundTest extends TestCase
             ], 400),
         ]);
 
-        $response = $this->actingAs($this->admin, 'api')
+        $response = $this->actingAs($this->admin, 'sanctum')
             ->postJson("/api/payments/{$this->payment->id}/refunds", [
                 'amount' => 500.00,
                 'reason' => 'Test refund',
@@ -184,18 +187,32 @@ class NagadRefundTest extends TestCase
     /** @test */
     public function it_handles_race_conditions()
     {
+        Http::fake([
+            'api.mynagad.com/api/dfs/refund/initialize' => Http::response([
+                'status' => 'Success',
+                'message' => 'Refund request received successfully',
+                'refundRefNo' => 'R' . uniqid(),
+                'issuerPaymentRefNo' => $this->payment->payment_details['issuer_payment_ref_no'],
+                'refundTrxID' => 'RT' . uniqid(),
+                'amount' => '500.00',
+                'charge' => '0.00',
+                'referenceNo' => $this->payment->payment_details['order_id'],
+                'dateTime' => now()->toIso8601String(),
+            ], 200),
+        ]);
+
         // Simulate multiple concurrent refund requests
         $responses = [];
         
         // First request - should succeed
-        $responses[] = $this->actingAs($this->admin, 'api')
+        $responses[] = $this->actingAs($this->admin, 'sanctum')
             ->postJson("/api/payments/{$this->payment->id}/refunds", [
                 'amount' => 500.00,
                 'reason' => 'First refund',
             ]);
 
         // Second concurrent request - should be blocked by database lock
-        $responses[] = $this->actingAs($this->admin, 'api')
+        $responses[] = $this->actingAs($this->admin, 'sanctum')
             ->postJson("/api/payments/{$this->payment->id}/refunds", [
                 'amount' => 500.00,
                 'reason' => 'Concurrent refund',

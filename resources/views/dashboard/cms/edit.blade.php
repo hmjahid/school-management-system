@@ -35,6 +35,29 @@
 
         @include('dashboard.cms.partials.page-meta-fields', ['content' => $content])
 
+        @if(! empty($visibilityKeys))
+            <details class="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4">
+                    <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ __('Section visibility') }}</span>
+                    <svg class="h-5 w-5 text-slate-400 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </summary>
+                <div class="border-t border-slate-200 px-5 py-4 dark:border-slate-700">
+                    <p class="mb-4 text-xs text-slate-500">{{ __('Show or hide individual sections of this page on the public website.') }}</p>
+                    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                        @foreach($visibilityKeys as $key => $label)
+                            <label class="inline-flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+                                <input type="hidden" name="section_visibility[{{ $key }}]" value="0">
+                                <input type="checkbox" name="section_visibility[{{ $key }}]" value="1"
+                                    @checked(old("section_visibility.{$key}", $sectionVis[$key] ?? true))
+                                    class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-600">
+                                <span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ $label }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+            </details>
+        @endif
+
         {{-- Body sections, rendered from the registry --}}
         @foreach ($def['sections'] ?? [] as $section)
             @php

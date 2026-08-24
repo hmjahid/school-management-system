@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\ClassModel;
+use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\Grade;
 use App\Models\Subject;
@@ -91,6 +92,11 @@ class TeacherControllerTest extends TestCase
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
+        // The API controller resolves teacher classes via the `classes` table,
+        // while Student.class_id is a FK to `school_classes`. A matching
+        // school_classes row (id 1) keeps the student FK valid.
+        SchoolClass::create(['name' => 'Test School Class']);
 
         // Create a role for the student
         $studentRole = Role::firstOrCreate(['name' => 'student']);
@@ -203,7 +209,7 @@ class TeacherControllerTest extends TestCase
         ]);
 
         // Login and get token
-        $response = $this->postJson('/api/auth/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'teacher@example.com',
             'password' => 'password'
         ]);
@@ -217,7 +223,7 @@ class TeacherControllerTest extends TestCase
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
             'Accept' => 'application/json'
-        ])->get('/api/teacher/classes');
+        ])->get('/api/v1/teacher/classes');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -246,7 +252,7 @@ class TeacherControllerTest extends TestCase
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
             'Accept' => 'application/json'
-        ])->get("/api/teacher/classes/{$this->class->id}/students");
+        ])->get("/api/v1/teacher/classes/{$this->class->id}/students");
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -277,7 +283,7 @@ class TeacherControllerTest extends TestCase
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
             'Accept' => 'application/json'
-        ])->get("/api/teacher/classes/{$this->class->id}/grades");
+        ])->get("/api/v1/teacher/classes/{$this->class->id}/grades");
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -319,7 +325,7 @@ class TeacherControllerTest extends TestCase
             'name' => 'Other Teacher',
             'email' => 'other@example.com',
             'password' => Hash::make('password'),
-            'role_id' => $teacherRole->id
+            'role_id' => Role::firstOrCreate(['name' => 'teacher'])->id
         ]);
         $otherTeacher->assignRole('teacher');
 
@@ -327,7 +333,7 @@ class TeacherControllerTest extends TestCase
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
             'Accept' => 'application/json'
-        ])->get("/api/teacher/classes/999999/students");
+        ])->get("/api/v1/teacher/classes/999999/students");
 
         $response->assertStatus(422);
     }

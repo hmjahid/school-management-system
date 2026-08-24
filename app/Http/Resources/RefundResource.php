@@ -12,7 +12,7 @@ class RefundResource extends JsonResource
      *
      * @var string|null
      */
-    public static $wrap = 'refund';
+    public static $wrap = 'data';
 
     /**
      * Transform the resource into an array.
@@ -68,7 +68,7 @@ class RefundResource extends JsonResource
             // Links
             'links' => [
                 'self' => route('api.refunds.show', $this->id),
-                'payment' => route('api.payments.show', $this->payment_id),
+                'payment' => route('payments.show', $this->payment_id),
             ],
         ];
     }
