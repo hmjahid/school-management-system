@@ -582,17 +582,22 @@ is full to do list completed?
 
 run the project fisrt
 
+is schooler a good choice?
 
-
-
-
-
+schilex?
 
 suppose you are a senior laravel developer and software engineer. audit whole codebase, find out loop holes, security issues, functions and features mismacth, architecture faults & errors and add them in a file
 
-suppose you are a senior laravel developer and software engineer.. cretae full unit tests for this school management system
+suppose you are a senior laravel developer and software engineer. cretae full workflow for this school management system an dadd in a file
 
-name our school management system "Schooler". the wordpress theme also will be the same name
+
+
+
+we will build total 3 application/product. 1. app 2. wordpress theme and 3. website for this apllication/theme marketing/branding/selling. all application codes will be inside schilex-app folder, theme codes inside schilex-theme folder and website codes inside schilex-website folder for managing the codes easily. now move the management software code inside schilex-app folder.
+
+suppose you are a senior laravel developer and software engineer. cretae full unit tests for this school management system
+
+name our school management system "schilex". the dahboard sidebar top name will be nmaed after this name and the pwa appliction also will be named after this name. the wordpress theme also will be the same name
 
 add all demo cerdentails in users so that I can manage them all
 
