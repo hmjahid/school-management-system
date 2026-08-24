@@ -3,8 +3,7 @@
 ## Project structure
 
 - **Root** = the whole app (Laravel 12, PHP 8.2+). Standard Laravel layout — `app/`, `config/`, `routes/`, `resources/`, `public/`, etc.
-- **`archive/`** = old copies (former backend + frontend). Do not modify.
-- **`frontend/`** = README only. The old React SPA is in `archive/frontend/` — do not touch.
+- **`archive/`** = old backend + frontend copies, including the legacy React SPA in `archive/frontend/`. Do not modify.
 
 ## Key packages
 
@@ -44,6 +43,8 @@ npm run dev              # Vite HMR
 | `php artisan test --testsuite=Feature --filter=SpecificTest` | single test |
 | `npm run build` | Vite production build |
 | `php artisan migrate:fresh --seed` | full reset |
+| `./vendor/bin/pint` | auto-fix code style (Laravel Pint) |
+| `./vendor/bin/pint --test` | check code style without writing |
 
 ## Key conventions
 
@@ -51,8 +52,13 @@ npm run dev              # Vite HMR
 - **Site UI text** goes in `lang/{locale}/site_frontend.php` under the proper key, then referenced with `site_ui('nav.xxx')` or `site_ui('home.xxx')` etc.
 - **Navigation items** must be added in both `lang/en/site_frontend.php` (nav section) and `lang/bn/site_frontend.php`, then wired in `resources/views/partials/site/nav.blade.php` inside the appropriate `$dropdownGroup()` call.
 - **Exam/result schema**: `exams` table uses `batch_id` + `academic_session_id` + `section_id`. No `class_id` or `year` columns. `exam_results` uses `obtained_marks` (not `marks_obtained`) and `total_marks` lives on the `Exam` model, not `ExamResult`.
-- **Student lookup**: Students have `class_id` (FK to `school_classes`), `batch_id` (FK to `batches`), and `roll_no`/`roll_number`. Exam results are connected via student's `batch_id` → `exam.batch_id`.
+- **Student lookup**: Students have `class_id` (FK to `school_classes`), `batch_id` (FK to `batches`), and `roll_number`. Exam results are connected via student's `batch_id` → `exam.batch_id`.
 - **Public result lookup**: `GET /results` → `SiteResultController@lookup` → `site.results.blade.php`. API: `GET /api/v1/academics/results/lookup` → `ResultController@lookup`.
+
+## Migration gotchas
+
+- Several migrations are duplicated/legacy (e.g. two `create_exams_table`, two `create_exam_results_table`) and guarded with `Schema::hasTable(...)`. They are intentional — do not delete them as "duplicates," or a fresh `migrate` will break.
+- The canonical `exams` schema (from the earliest `create_exams_table`) has `batch_id` + `academic_session_id` + `section_id` and no `class_id`/`year`. The later guarded duplicate that adds `class_id` never runs.
 
 ## Testing
 
