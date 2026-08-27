@@ -134,6 +134,24 @@ class WebsiteSetting extends Model
     ];
 
     /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'bkash_merchant_number',
+        'bkash_api_key',
+        'bkash_api_secret',
+        'bkash_username',
+        'bkash_password',
+        'bkash_app_key',
+        'bkash_app_secret',
+        'twilio_sid',
+        'twilio_auth_token',
+        'twilio_from_number',
+    ];
+
+    /**
      * Default attribute values for new instances.
      *
      * @var array<string, mixed>

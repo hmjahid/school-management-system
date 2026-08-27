@@ -71,6 +71,7 @@ class DashboardBulkController extends Controller
         $headers = fgetcsv($handle);
         if (! $headers) {
             fclose($handle);
+
             return back()->withErrors(['file' => __('Empty file.')]);
         }
         $headers = array_map(fn ($h) => Str::slug(trim($h), '_'), $headers);
@@ -82,6 +83,7 @@ class DashboardBulkController extends Controller
         $missing = array_diff($required, $headers);
         if (! empty($missing)) {
             fclose($handle);
+
             return back()->withErrors(['file' => __('Missing columns: :cols', ['cols' => implode(', ', $missing)])]);
         }
 
@@ -106,9 +108,13 @@ class DashboardBulkController extends Controller
                     } else {
                         $result = $this->importTeacher($row_data);
                     }
-                    if ($result === 'created') $created++;
-                    elseif ($result === 'updated') $updated++;
-                    else $skipped++;
+                    if ($result === 'created') {
+                        $created++;
+                    } elseif ($result === 'updated') {
+                        $updated++;
+                    } else {
+                        $skipped++;
+                    }
                 } catch (\Throwable $e) {
                     $errors[] = __('Row :n: :msg', ['n' => $row, 'msg' => $e->getMessage()]);
                 }
@@ -117,7 +123,9 @@ class DashboardBulkController extends Controller
         } catch (\Throwable $e) {
             DB::rollBack();
             fclose($handle);
-            return back()->withErrors(['file' => $e->getMessage()]);
+            report($e);
+
+            return back()->withErrors(['file' => __('Import failed. Please check the file and try again.')]);
         }
         fclose($handle);
 
@@ -125,7 +133,7 @@ class DashboardBulkController extends Controller
             'c' => $created, 'u' => $updated, 's' => $skipped,
         ]);
         if (! empty($errors)) {
-            $message .= ' ' . __('Errors: :n', ['n' => count($errors)]);
+            $message .= ' '.__('Errors: :n', ['n' => count($errors)]);
         }
 
         return redirect()
@@ -158,12 +166,16 @@ class DashboardBulkController extends Controller
             ['email' => $email],
             [
                 'name' => $name,
-                'password' => Hash::make((string) ($row['password'] ?? 'password')),
                 'email_verified_at' => now(),
-                'role_id' => $studentRole?->id,
             ]
         );
         $created = ! $user->wasRecentlyCreated === false;
+
+        if ($created) {
+            $user->password = Hash::make((string) ($row['password'] ?? 'password'));
+            $user->role_id = $studentRole?->id;
+            $user->save();
+        }
 
         if (! $user->hasRole('student')) {
             $user->assignRole('student');
@@ -205,15 +217,20 @@ class DashboardBulkController extends Controller
             return 'skipped';
         }
 
+        $teacherRoleId = Role::where('name', 'teacher')->value('id');
         $user = User::firstOrCreate(
             ['email' => $email],
             [
                 'name' => $name,
-                'password' => Hash::make((string) ($row['password'] ?? 'password')),
                 'email_verified_at' => now(),
-                'role_id' => Role::where('name', 'teacher')->value('id'),
             ]
         );
+
+        if ($user->wasRecentlyCreated) {
+            $user->password = Hash::make((string) ($row['password'] ?? 'password'));
+            $user->role_id = $teacherRoleId;
+            $user->save();
+        }
 
         if (! $user->hasRole('teacher')) {
             $user->assignRole('teacher');
@@ -239,7 +256,8 @@ class DashboardBulkController extends Controller
 
     protected function exportStudents(): StreamedResponse
     {
-        $filename = 'students-' . now()->format('Ymd-His') . '.csv';
+        $filename = 'students-'.now()->format('Ymd-His').'.csv';
+
         return response()->streamDownload(function () {
             $out = fopen('php://output', 'w');
             fputcsv($out, $this->studentHeaders());
@@ -266,7 +284,8 @@ class DashboardBulkController extends Controller
 
     protected function exportTeachers(): StreamedResponse
     {
-        $filename = 'teachers-' . now()->format('Ymd-His') . '.csv';
+        $filename = 'teachers-'.now()->format('Ymd-His').'.csv';
+
         return response()->streamDownload(function () {
             $out = fopen('php://output', 'w');
             fputcsv($out, $this->teacherHeaders());
@@ -292,7 +311,8 @@ class DashboardBulkController extends Controller
 
     protected function exportFees(): StreamedResponse
     {
-        $filename = 'fees-' . now()->format('Ymd-His') . '.csv';
+        $filename = 'fees-'.now()->format('Ymd-His').'.csv';
+
         return response()->streamDownload(function () {
             $out = fopen('php://output', 'w');
             fputcsv($out, ['student', 'fee', 'amount', 'due_date', 'status', 'paid_at']);
@@ -314,7 +334,8 @@ class DashboardBulkController extends Controller
 
     protected function exportAttendances(): StreamedResponse
     {
-        $filename = 'attendances-' . now()->format('Ymd-His') . '.csv';
+        $filename = 'attendances-'.now()->format('Ymd-His').'.csv';
+
         return response()->streamDownload(function () {
             $out = fopen('php://output', 'w');
             fputcsv($out, ['date', 'student', 'class', 'status', 'remarks']);

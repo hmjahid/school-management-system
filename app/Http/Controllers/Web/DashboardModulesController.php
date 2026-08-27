@@ -17,7 +17,6 @@ use App\Models\WebsiteSetting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -242,9 +241,25 @@ class DashboardModulesController extends Controller
             $query->where('fee_type', $request->fee_type);
         }
 
+        $classId = $request->integer('class_id');
+        $sectionId = $request->integer('section_id');
+
+        if ($classId) {
+            $query->where('class_id', $classId);
+        }
+        if ($sectionId) {
+            $query->where('section_id', $sectionId);
+        }
+
         $fees = $query->latest()->paginate(15)->withQueryString();
 
-        return view('dashboard.modules.fees', compact('fees'));
+        $classes = SchoolClass::orderBy('name')->get(['id', 'name']);
+        $sections = Section::query()
+            ->when($classId, fn ($q) => $q->where('class_id', $classId))
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return view('dashboard.modules.fees', compact('fees', 'classes', 'sections'));
     }
 
     public function settings(): View
@@ -452,7 +467,7 @@ class DashboardModulesController extends Controller
     protected function setEnvValue(string $key, ?string $value): void
     {
         $path = base_path('.env');
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             return;
         }
 
@@ -460,10 +475,10 @@ class DashboardModulesController extends Controller
 
         $contents = file_get_contents($path);
 
-        if (preg_match('/^' . preg_quote($key, '/') . '=.*/m', $contents)) {
-            $contents = preg_replace('/^' . preg_quote($key, '/') . '=.*/m', $key . '="' . $escaped . '"', $contents);
+        if (preg_match('/^'.preg_quote($key, '/').'=.*/m', $contents)) {
+            $contents = preg_replace('/^'.preg_quote($key, '/').'=.*/m', $key.'="'.$escaped.'"', $contents);
         } else {
-            $contents .= "\n" . $key . '="' . $escaped . '"';
+            $contents .= "\n".$key.'="'.$escaped.'"';
         }
 
         file_put_contents($path, $contents);

@@ -22,7 +22,7 @@ Route::prefix('admissions')->group(function () {
     
     // Check admission status (public endpoint with token)
     Route::get('/status/{admission:application_number}', [AdmissionController::class, 'status'])
-        ->name('admissions.status');
+        ->name('api.admissions.status');
 });
 
 // Protected routes (require authentication)
@@ -58,8 +58,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::delete('/{document}', [AdmissionController::class, 'deleteDocument'])
                 ->name('admissions.documents.delete');
                 
-            // View document
-            Route::get('/{document}', [AdmissionController::class, 'viewDocument'])
+            // Download document
+            Route::get('/{document}', [AdmissionController::class, 'downloadDocument'])
                 ->name('admissions.documents.view');
         });
     });

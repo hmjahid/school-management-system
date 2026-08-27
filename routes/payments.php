@@ -14,13 +14,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Public routes (no authentication required)
+// Public routes (gateway-facing only)
 Route::prefix('payments')->group(function () {
     // Get list of available payment gateways
     Route::get('/gateways', [PaymentController::class, 'gateways'])->name('payments.gateways');
-
-    // Initiate a new payment
-    Route::post('/initiate', [PaymentController::class, 'initiate'])->name('payments.initiate');
 
     // Payment callback from gateway (public endpoint)
     Route::post('/callback/{gateway}', [PaymentController::class, 'callback'])
@@ -29,15 +26,20 @@ Route::prefix('payments')->group(function () {
     // Payment webhook from gateway (public endpoint)
     Route::post('/webhook/{gateway}', [PaymentController::class, 'webhook'])
         ->name('payments.webhook');
-
-    // Check payment status (public endpoint)
-    Route::get('/status/{payment}', [PaymentController::class, 'status'])
-        ->name('payments.status');
 });
 
 // Protected routes (authentication required)
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('payments')->group(function () {
+        // Initiate a new payment (authenticated only)
+        Route::post('/initiate', [PaymentController::class, 'initiate'])
+            ->name('payments.initiate')
+            ->middleware('can:initiate,App\Models\Payment');
+
+        // Check payment status (owner or permission)
+        Route::get('/status/{payment}', [PaymentController::class, 'status'])
+            ->name('payments.status');
+
         // List all payments (with filters)
         Route::get('/', [PaymentController::class, 'index'])
             ->name('payments.index')
@@ -62,11 +64,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/{payment}/status', [PaymentController::class, 'updateStatus'])
             ->name('payments.update.status')
             ->middleware('can:updateStatus,payment');
-
-        // Refund a payment
-        Route::post('/{payment}/refund', [PaymentController::class, 'refund'])
-            ->name('payments.refund')
-            ->middleware('can:refund,payment');
     });
 
     // Payment gateway management (admin only)

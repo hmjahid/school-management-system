@@ -33,7 +33,7 @@
     </div>
 
     <div class="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <div class="admin-stat-card">
+        <a href="{{ route('dashboard.students') }}" class="admin-stat-card block">
             <div class="flex items-center justify-between">
                 <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ __('Students') }}</p>
                 <span class="rounded-full bg-brand-50 p-1.5 text-brand-600 dark:bg-brand-900/30 dark:text-brand-400">
@@ -42,8 +42,13 @@
             </div>
             <p class="mt-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{{ number_format($stats['totalStudents'] ?? 0) }}</p>
             <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">{{ __('Active enrollment') }}</p>
-        </div>
-        <div class="admin-stat-card">
+            @if(($stats['pendingAdmissions'] ?? 0) > 0)
+                <a href="{{ route('dashboard.admissions.index') }}" class="mt-3 inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-400">
+                    {{ __(':n pending admissions', ['n' => number_format((int) ($stats['pendingAdmissions'] ?? 0))]) }}
+                </a>
+            @endif
+        </a>
+        <a href="{{ route('dashboard.teachers') }}" class="admin-stat-card block">
             <div class="flex items-center justify-between">
                 <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ __('Teachers') }}</p>
                 <span class="rounded-full bg-emerald-50 p-1.5 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
@@ -52,8 +57,8 @@
             </div>
             <p class="mt-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{{ number_format($stats['totalTeachers'] ?? 0) }}</p>
             <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">{{ __('Full-time staff') }}</p>
-        </div>
-        <div class="admin-stat-card">
+        </a>
+        <a href="{{ route('dashboard.parents') }}" class="admin-stat-card block">
             <div class="flex items-center justify-between">
                 <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ __('Parents') }}</p>
                 <span class="rounded-full bg-amber-50 p-1.5 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
@@ -62,8 +67,8 @@
             </div>
             <p class="mt-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{{ number_format($stats['totalParents'] ?? 0) }}</p>
             <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">{{ __('Registered guardians') }}</p>
-        </div>
-        <div class="admin-stat-card">
+        </a>
+        <a href="{{ route('dashboard.attendance') }}" class="admin-stat-card block">
             <div class="flex items-center justify-between">
                 <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ __('Attendance') }}</p>
                 <span class="rounded-full bg-sky-50 p-1.5 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400">
@@ -72,8 +77,8 @@
             </div>
             <p class="mt-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{{ $stats['attendanceRate'] ?? 0 }}%</p>
             <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">{{ __('Last 7 days') }}</p>
-        </div>
-        <div class="admin-stat-card">
+        </a>
+        <a href="{{ route('dashboard.fee-payments.index') }}" class="admin-stat-card block">
             <div class="flex items-center justify-between">
                 <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ __('Revenue') }}</p>
                 <span class="rounded-full bg-violet-50 p-1.5 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
@@ -82,7 +87,12 @@
             </div>
             <p class="mt-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{{ number_format($stats['totalRevenue'] ?? 0, 2) }}</p>
             <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">{{ __('Total collected') }}</p>
-        </div>
+            @if(($stats['pendingDues'] ?? 0) > 0)
+                <span class="mt-3 inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                    {{ __(':n pending dues', ['n' => number_format((float) ($stats['pendingDues'] ?? 0), 2)]) }}
+                </span>
+            @endif
+        </a>
     </div>
 
     <div class="mb-8 grid gap-6 lg:grid-cols-2">

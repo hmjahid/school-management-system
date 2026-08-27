@@ -32,7 +32,7 @@ class AuthController extends Controller
                 return $this->error('Specified role not found', 400, null, 'INVALID_ROLE');
             }
 
-            $user = User::create([
+            $user = User::createWithCredential([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),

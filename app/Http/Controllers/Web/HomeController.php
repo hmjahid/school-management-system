@@ -14,7 +14,6 @@ use App\Models\User;
 use App\Models\WebsiteContent;
 use App\Models\WebsiteSetting;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class HomeController extends Controller
@@ -66,7 +65,7 @@ class HomeController extends Controller
                     ->get()
                     ->map(function (Event $e): array {
                         return [
-                            'image' => $e->image ? url('storage/' . ltrim($e->image, '/')) : null,
+                            'image' => $e->image ? url('storage/'.ltrim($e->image, '/')) : null,
                             'title' => $e->title,
                             'caption' => $e->location ?? '',
                             'link' => route('site.events'),
@@ -129,7 +128,9 @@ class HomeController extends Controller
                 $stats['students'] = Student::count();
             }
             if (Schema::hasTable('users')) {
-                $stats['teachers'] = User::role('teacher')->count();
+                $stats['teachers'] = User::query()
+                    ->whereHas('schoolRole', fn ($q) => $q->where('name', 'teacher'))
+                    ->count();
             }
         } catch (\Throwable) {
             //

@@ -9,7 +9,6 @@ use App\Models\PaymentWebhookEvent;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class PaymentController extends Controller
@@ -370,6 +369,8 @@ class PaymentController extends Controller
             ->orWhere('invoice_number', $paymentId)
             ->firstOrFail();
 
+        $this->authorize('view', $payment);
+
         // If payment is not completed, try to verify with the gateway
         if (! in_array($payment->payment_status, [Payment::STATUS_COMPLETED, Payment::STATUS_REFUNDED])) {
             try {
@@ -578,101 +579,6 @@ class PaymentController extends Controller
             'message' => 'Offline payment recorded successfully',
             'data' => new PaymentResource($payment),
         ], 201);
-    }
-
-    /**
-     * Refund a payment
-     *
-     * @param  string  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function refund(Payment $payment, Request $request)
-    {
-        // Check if user has permission to refund this payment
-        $this->authorize('refund', $payment);
-
-        $validated = $request->validate([
-            'amount' => ['required', 'numeric', 'min:0.01', 'max:'.$payment->paid_amount],
-            'reason' => ['required', 'string', 'max:255'],
-            'notes' => ['nullable', 'string', 'max:1000'],
-        ]);
-
-        try {
-            // Process refund with the payment gateway if it's an online payment
-            $refunded = false;
-            $refundId = null;
-
-            if ($payment->payment_method !== 'cash' && $payment->payment_method !== 'cheque') {
-                // In a real implementation, you would call the gateway's refund API here
-                // For example: $refundResponse = $this->paymentService->refund($payment, $validated['amount']);
-                // $refundId = $refundResponse['refund_id'];
-
-                // For this example, we'll just generate a random refund ID
-                $refundId = 'RFND'.strtoupper(Str::random(8));
-            }
-
-            // Create a refund record
-            $refund = new \App\Models\Refund([
-                'payment_id' => $payment->id,
-                'amount' => $validated['amount'],
-                'currency' => $payment->currency,
-                'reason' => $validated['reason'],
-                'notes' => $validated['notes'] ?? null,
-                'refund_id' => $refundId,
-                'status' => 'completed', // In a real implementation, this would depend on the gateway response
-                'processed_by' => auth()->id(),
-                'processed_at' => now(),
-                'metadata' => [
-                    'original_payment' => $payment->toArray(),
-                    'refunded_by' => auth()->user()->toArray(),
-                ],
-            ]);
-
-            $refund->save();
-
-            // Update payment status and amounts
-            $payment->update([
-                'paid_amount' => $payment->paid_amount - $validated['amount'],
-                'due_amount' => $payment->total_amount - ($payment->paid_amount - $validated['amount']),
-                'payment_status' => $payment->paid_amount - $validated['amount'] <= 0 ? 'refunded' : 'partially_refunded',
-                'payment_details' => array_merge($payment->payment_details ?? [], [
-                    'refunds' => array_merge($payment->payment_details['refunds'] ?? [], [
-                        [
-                            'id' => $refund->id,
-                            'amount' => $validated['amount'],
-                            'currency' => $payment->currency,
-                            'reason' => $validated['reason'],
-                            'refund_id' => $refundId,
-                            'processed_at' => now(),
-                            'processed_by' => auth()->id(),
-                        ],
-                    ]),
-                ]),
-            ]);
-
-            // Trigger refund processed event
-            event(new \App\Events\PaymentRefunded($payment, $refund));
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Refund processed successfully',
-                'data' => [
-                    'payment' => new PaymentResource($payment->fresh()),
-                    'refund' => $refund,
-                ],
-            ]);
-
-        } catch (\Exception $e) {
-            \Log::error('Refund failed: '.$e->getMessage(), [
-                'payment_id' => $id,
-                'exception' => $e,
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to process refund. '.$e->getMessage(),
-            ], 500);
-        }
     }
 
     /**

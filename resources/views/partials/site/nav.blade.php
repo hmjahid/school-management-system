@@ -10,7 +10,7 @@
     $email = $emailReal ?: config('school.placeholder_email');
     $addr = $addrReal ?: config('school.placeholder_address');
     $phTip = __('Example — set real details in Dashboard → School settings');
-    $currentRoute = request()->route()->getName();
+    $currentRoute = request()->route()?->getName();
     $isActive = fn($patterns) => collect((array)$patterns)->contains(fn($p) => request()->routeIs($p));
 @endphp
 

@@ -55,6 +55,18 @@ npm run dev              # Vite HMR
 - **Student lookup**: Students have `class_id` (FK to `school_classes`), `batch_id` (FK to `batches`), and `roll_number`. Exam results are connected via student's `batch_id` → `exam.batch_id`.
 - **Public result lookup**: `GET /results` → `SiteResultController@lookup` → `site.results.blade.php`. API: `GET /api/v1/academics/results/lookup` → `ResultController@lookup`.
 
+## Payment configuration
+
+- Runtime gateway credentials live in the `payment_gateways` table (`App\Models\PaymentGateway`).
+- Fallback defaults and offline/bank-transfer account details live in `config/payment.php`, driven by environment variables (see `.env.example`).
+- Do not put real secrets in `config/payment.php`; set them in `.env`.
+
+## Exam publish semantics
+
+- `Exam::$is_published` is the boolean column.
+- `Exam::STATUS_PUBLISHED` is the workflow status value.
+- An exam is considered "fully published" only when **both** are true. Use `$exam->isFullyPublished()` instead of relying on the column alone.
+
 ## Migration gotchas
 
 - Several migrations are duplicated/legacy (e.g. two `create_exams_table`, two `create_exam_results_table`) and guarded with `Schema::hasTable(...)`. They are intentional — do not delete them as "duplicates," or a fresh `migrate` will break.

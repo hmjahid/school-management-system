@@ -52,7 +52,8 @@ class DashboardMediaController extends Controller
             'title' => $data['title'] ?: pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
             'category' => $data['category'] ?? null,
             'file_path' => $path,
-            'mime_type' => $file->getClientMimeType(),
+            'mime_type' => $file->getMimeType()
+                ?: ($file->getClientMimeType() ?: 'application/octet-stream'),
             'file_size' => $file->getSize(),
         ]);
 

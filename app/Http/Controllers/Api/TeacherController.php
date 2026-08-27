@@ -3,25 +3,20 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Grade;
+use App\Models\SchoolClass;
+use App\Models\Section;
+use App\Models\Student;
+use App\Models\Subject;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
-use App\Models\User;
-use App\Models\ClassModel;
-use App\Models\Student;
-use App\Models\Grade;
-use App\Models\Subject;
-use App\Models\Section;
-use App\Models\Exam;
-use Illuminate\Support\Facades\Log;
 
 class TeacherController extends Controller
 {
     /**
      * Get all classes for the authenticated teacher with pagination and filtering
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function getTeacherClasses(Request $request)
@@ -42,36 +37,29 @@ class TeacherController extends Controller
         }
 
         // Generate cache key based on request parameters
-        $cacheKey = 'teacher_classes_' . auth()->id() . '_' . md5(json_encode($request->all()));
+        $cacheKey = 'teacher_classes_'.auth()->id().'_'.md5(json_encode($request->all()));
+
+        $teacher = auth()->user()?->teacher;
+
+        if (! $teacher) {
+            return $this->errorResponse('No teacher profile found for authenticated user', [], 403);
+        }
 
         // Use cache with 1 hour TTL
-        return Cache::remember($cacheKey, now()->addHour(), function() use ($request) {
-            $query = ClassModel::where('teacher_id', auth()->id())
-                ->with(['subject', 'section'])
+        return Cache::remember($cacheKey, now()->addHour(), function () use ($request, $teacher) {
+            $query = SchoolClass::whereHas('teachers', function ($q) use ($teacher) {
+                $q->where('teacher_id', $teacher->id);
+            })
+                ->with(['sections', 'subjects', 'classTeacher.user'])
                 ->withCount('students');
 
             // Apply search
             if ($request->has('search')) {
                 $search = $request->search;
-                $query->where(function($q) use ($search) {
+                $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
-                      ->orWhereHas('subject', function($q) use ($search) {
-                          $q->where('name', 'like', "%{$search}%");
-                      });
+                        ->orWhere('code', 'like', "%{$search}%");
                 });
-            }
-
-            // Apply filters
-            if ($request->has('academic_year')) {
-                $query->where('academic_year', $request->academic_year);
-            }
-
-            if ($request->has('subject_id')) {
-                $query->where('subject_id', $request->subject_id);
-            }
-
-            if ($request->has('section_id')) {
-                $query->where('section_id', $request->section_id);
             }
 
             // Apply sorting
@@ -82,6 +70,15 @@ class TeacherController extends Controller
             // Paginate results
             $perPage = $request->input('per_page', 15);
             $classes = $query->paginate($perPage);
+
+            // Backward-compatible shape: expose the first subject and section.
+            $classes->getCollection()->transform(function ($class) {
+                $array = $class->toArray();
+                $array['subject'] = $class->subjects->first()?->only(['id', 'name']) ?? null;
+                $array['section'] = $class->sections->first()?->only(['id', 'name']) ?? null;
+
+                return $array;
+            });
 
             return $this->paginatedResponse(
                 $classes,
@@ -94,16 +91,21 @@ class TeacherController extends Controller
      * Get students in a specific class with pagination and search
      *
      * @param  int  $classId
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function getClassStudents($classId, Request $request)
     {
+        $teacher = auth()->user()?->teacher;
+
+        if (! $teacher) {
+            return $this->errorResponse('No teacher profile found for authenticated user', [], 403);
+        }
+
         // Validate request
         $validator = Validator::make(
             array_merge($request->all(), ['class_id' => $classId]),
             [
-                'class_id' => 'required|exists:classes,id,teacher_id,' . auth()->id(),
+                'class_id' => 'required|exists:school_classes,id',
                 'per_page' => 'sometimes|integer|min:1|max:100',
                 'search' => 'sometimes|string|max:255',
             ]
@@ -113,18 +115,29 @@ class TeacherController extends Controller
             return $this->errorResponse('Validation failed', $validator->errors(), 422);
         }
 
-        $cacheKey = "class_{$classId}_students_" . md5(json_encode($request->all()));
+        // Ensure the teacher is assigned to this school class
+        $assigned = SchoolClass::where('id', $classId)
+            ->whereHas('teachers', function ($q) use ($teacher) {
+                $q->where('teacher_id', $teacher->id);
+            })
+            ->exists();
 
-        return Cache::remember($cacheKey, now()->addMinutes(30), function() use ($classId, $request) {
+        if (! $assigned) {
+            return $this->errorResponse('You are not assigned to this class', [], 403);
+        }
+
+        $cacheKey = "class_{$classId}_students_".md5(json_encode($request->all()));
+
+        return Cache::remember($cacheKey, now()->addMinutes(30), function () use ($classId, $request) {
             $query = Student::where('class_id', $classId)
                 ->with(['user', 'class']);
 
             // Apply search
             if ($request->has('search')) {
                 $search = $request->search;
-                $query->whereHas('user', function($q) use ($search) {
+                $query->whereHas('user', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%");
+                        ->orWhere('email', 'like', "%{$search}%");
                 });
             }
 
@@ -143,7 +156,6 @@ class TeacherController extends Controller
      * Get grades for students in a specific class with filtering
      *
      * @param  int  $classId
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function getClassGrades($classId, Request $request)
@@ -152,7 +164,7 @@ class TeacherController extends Controller
         $validator = Validator::make(
             array_merge($request->all(), ['class_id' => $classId]),
             [
-                'class_id' => 'required|exists:classes,id,teacher_id,' . auth()->id(),
+                'class_id' => 'required|exists:classes,id,teacher_id,'.auth()->id(),
                 'exam_id' => 'sometimes|exists:exams,id',
                 'subject_id' => 'sometimes|exists:subjects,id',
                 'per_page' => 'sometimes|integer|min:1|max:100',
@@ -163,9 +175,9 @@ class TeacherController extends Controller
             return $this->errorResponse('Validation failed', $validator->errors(), 422);
         }
 
-        $cacheKey = "class_{$classId}_grades_" . md5(json_encode($request->all()));
+        $cacheKey = "class_{$classId}_grades_".md5(json_encode($request->all()));
 
-        return Cache::remember($cacheKey, now()->addMinutes(30), function() use ($classId, $request) {
+        return Cache::remember($cacheKey, now()->addMinutes(30), function () use ($classId, $request) {
             $query = Grade::where('class_id', $classId)
                 ->with(['student.user', 'subject', 'exam']);
 
@@ -181,17 +193,17 @@ class TeacherController extends Controller
             // Group by student and calculate overall performance
             $grades = $query->get()
                 ->groupBy('student_id')
-                ->map(function($studentGrades) {
+                ->map(function ($studentGrades) {
                     $firstGrade = $studentGrades->first();
                     $totalMarks = $studentGrades->sum('marks_obtained');
                     $maxMarks = $studentGrades->sum('total_marks');
                     $percentage = $maxMarks > 0 ? round(($totalMarks / $maxMarks) * 100, 2) : 0;
-                    
+
                     return [
                         'student_id' => $firstGrade->student_id,
                         'student_name' => $firstGrade->student->user->name,
                         'roll_number' => $firstGrade->student->roll_number,
-                        'subjects' => $studentGrades->map(function($grade) {
+                        'subjects' => $studentGrades->map(function ($grade) {
                             return [
                                 'id' => $grade->subject_id,
                                 'name' => $grade->subject->name,
@@ -232,11 +244,22 @@ class TeacherController extends Controller
      */
     private function calculateGrade($percentage)
     {
-        if ($percentage >= 90) return 'A+';
-        if ($percentage >= 80) return 'A';
-        if ($percentage >= 70) return 'B';
-        if ($percentage >= 60) return 'C';
-        if ($percentage >= 50) return 'D';
+        if ($percentage >= 90) {
+            return 'A+';
+        }
+        if ($percentage >= 80) {
+            return 'A';
+        }
+        if ($percentage >= 70) {
+            return 'B';
+        }
+        if ($percentage >= 60) {
+            return 'C';
+        }
+        if ($percentage >= 50) {
+            return 'D';
+        }
+
         return 'F';
     }
 
@@ -251,6 +274,7 @@ class TeacherController extends Controller
     private function paginateCollection($collection, $perPage, $page)
     {
         $offset = ($page - 1) * $perPage;
+
         return $collection->slice($offset, $perPage)->values();
     }
 

@@ -29,6 +29,7 @@ class CmsController extends Controller
     public function showPage(string $page): JsonResponse
     {
         $content = WebsiteContent::where('page', $page)->firstOrFail();
+
         return response()->json(['success' => true, 'data' => $content]);
     }
 
@@ -86,11 +87,11 @@ class CmsController extends Controller
         $storagePath = storage_path('app/public/cms');
         if (is_dir($storagePath)) {
             $files = collect(Storage::disk('public')->files('cms'))
-                ->map(fn($path) => [
+                ->map(fn ($path) => [
                     'id' => md5($path),
                     'filename' => basename($path),
                     'path' => $path,
-                    'url' => url('storage/' . ltrim($path, '/')),
+                    'url' => url('storage/'.ltrim($path, '/')),
                     'mime_type' => Storage::mimeType($path),
                     'size' => Storage::size($path),
                     'created_at' => date('c', Storage::lastModified($path)),
@@ -125,13 +126,14 @@ class CmsController extends Controller
     public function destroyMedia(string $id): JsonResponse
     {
         $files = Storage::disk('public')->files('cms');
-        $target = collect($files)->first(fn($path) => md5($path) === $id);
+        $target = collect($files)->first(fn ($path) => md5($path) === $id);
 
-        if (!$target) {
+        if (! $target) {
             return response()->json(['success' => false, 'message' => 'File not found'], 404);
         }
 
         Storage::disk('public')->delete($target);
+
         return response()->json(['success' => true, 'message' => 'Media deleted successfully']);
     }
 
@@ -166,13 +168,69 @@ class CmsController extends Controller
     public function settings(): JsonResponse
     {
         $settings = WebsiteSetting::first();
+
         return response()->json(['success' => true, 'data' => $settings ?? []]);
     }
 
     public function updateSettings(Request $request): JsonResponse
     {
+        $validated = $request->validate([
+            'school_name' => 'nullable|string|max:255',
+            'school_name_bn' => 'nullable|string|max:255',
+            'tagline' => 'nullable|string|max:500',
+            'tagline_bn' => 'nullable|string|max:500',
+            'established_year' => 'nullable|integer|min:1800|max:2100',
+            'address' => 'nullable|string|max:500',
+            'city' => 'nullable|string|max:255',
+            'state' => 'nullable|string|max:255',
+            'country' => 'nullable|string|max:255',
+            'postal_code' => 'nullable|string|max:20',
+            'phone' => 'nullable|string|max:50',
+            'email' => 'nullable|email|max:255',
+            'website' => 'nullable|url|max:255',
+            'opening_hours' => 'nullable|array',
+            'facebook_url' => 'nullable|url|max:255',
+            'twitter_url' => 'nullable|url|max:255',
+            'instagram_url' => 'nullable|url|max:255',
+            'linkedin_url' => 'nullable|url|max:255',
+            'youtube_url' => 'nullable|url|max:255',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
+            'meta_keywords' => 'nullable|string|max:500',
+            'timezone' => 'nullable|string|max:100',
+            'date_format' => 'nullable|string|max:50',
+            'time_format' => 'nullable|string|max:50',
+            'default_locale' => 'nullable|in:en,bn',
+            'section_visibility' => 'nullable|array',
+            'maintenance_mode' => 'boolean',
+            'maintenance_message' => 'nullable|string|max:1000',
+            'send_absence_sms' => 'boolean',
+            'absence_sms_template' => 'nullable|string|max:1000',
+            'sms_sender_id' => 'nullable|string|max:50',
+            'theme_primary_color' => 'nullable|string|max:50',
+            'theme_secondary_color' => 'nullable|string|max:50',
+            'theme_font_family' => 'nullable|string|max:100',
+            'theme_border_radius' => 'nullable|string|max:50',
+            'currency' => 'nullable|string|size:3',
+            'default_payment_method' => 'nullable|in:bkash,nagad,rocket,cash,bank',
+            'theme_header_style' => 'nullable|string|max:50',
+            'theme_footer_style' => 'nullable|string|max:50',
+            'theme_button_style' => 'nullable|string|max:50',
+            'theme_section_spacing' => 'nullable|string|max:50',
+            'theme_style' => 'nullable|string|max:50',
+            'academic_start_month' => 'nullable|integer|min:1|max:12',
+            'student_id_prefix' => 'nullable|string|max:20',
+            'website_url' => 'nullable|url|max:255',
+            'footer_description' => 'nullable|string|max:1000',
+            'show_facebook' => 'boolean',
+            'show_twitter' => 'boolean',
+            'show_instagram' => 'boolean',
+            'show_linkedin' => 'boolean',
+            'show_youtube' => 'boolean',
+        ]);
+
         $settings = WebsiteSetting::firstOrNew();
-        $settings->fill($request->all());
+        $settings->fill($validated);
         $settings->save();
 
         return response()->json([
@@ -186,13 +244,22 @@ class CmsController extends Controller
     public function header(): JsonResponse
     {
         $header = WebsiteSetting::select('school_name', 'tagline', 'logo_path')->first();
+
         return response()->json(['success' => true, 'data' => $header ?? []]);
     }
 
     public function updateHeader(Request $request): JsonResponse
     {
+        $validated = $request->validate([
+            'school_name' => 'nullable|string|max:255',
+            'school_name_bn' => 'nullable|string|max:255',
+            'tagline' => 'nullable|string|max:500',
+            'tagline_bn' => 'nullable|string|max:500',
+            'logo_path' => 'nullable|string|max:500',
+        ]);
+
         $settings = WebsiteSetting::firstOrNew();
-        $settings->fill($request->only(['school_name', 'tagline', 'logo_path']));
+        $settings->fill($validated);
         $settings->save();
 
         return response()->json([
@@ -205,13 +272,27 @@ class CmsController extends Controller
     public function footer(): JsonResponse
     {
         $footer = WebsiteSetting::select('school_name', 'address', 'phone', 'email', 'facebook_url', 'twitter_url', 'instagram_url')->first();
+
         return response()->json(['success' => true, 'data' => $footer ?? []]);
     }
 
     public function updateFooter(Request $request): JsonResponse
     {
+        $validated = $request->validate([
+            'school_name' => 'nullable|string|max:255',
+            'school_name_bn' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:500',
+            'phone' => 'nullable|string|max:50',
+            'email' => 'nullable|email|max:255',
+            'facebook_url' => 'nullable|url|max:255',
+            'twitter_url' => 'nullable|url|max:255',
+            'instagram_url' => 'nullable|url|max:255',
+            'linkedin_url' => 'nullable|url|max:255',
+            'youtube_url' => 'nullable|url|max:255',
+        ]);
+
         $settings = WebsiteSetting::firstOrNew();
-        $settings->fill($request->only(['school_name', 'address', 'phone', 'email', 'facebook_url', 'twitter_url', 'instagram_url']));
+        $settings->fill($validated);
         $settings->save();
 
         return response()->json([
@@ -235,7 +316,7 @@ class CmsController extends Controller
         $blocks = $settings ? ($settings->content_blocks ?? []) : [];
         $block = collect($blocks)->firstWhere('id', $id);
 
-        if (!$block) {
+        if (! $block) {
             return response()->json(['success' => false, 'message' => 'Block not found'], 404);
         }
 
@@ -269,7 +350,7 @@ class CmsController extends Controller
     {
         $settings = WebsiteSetting::firstOrNew();
         $blocks = collect($settings->content_blocks ?? []);
-        $index = $blocks->search(fn($b) => ($b['id'] ?? null) == $id);
+        $index = $blocks->search(fn ($b) => ($b['id'] ?? null) == $id);
 
         if ($index === false) {
             return response()->json(['success' => false, 'message' => 'Block not found'], 404);
@@ -291,7 +372,7 @@ class CmsController extends Controller
     {
         $settings = WebsiteSetting::firstOrNew();
         $blocks = collect($settings->content_blocks ?? []);
-        $filtered = $blocks->reject(fn($b) => ($b['id'] ?? null) == $id)->values();
+        $filtered = $blocks->reject(fn ($b) => ($b['id'] ?? null) == $id)->values();
         $settings->content_blocks = $filtered->toArray();
         $settings->save();
 

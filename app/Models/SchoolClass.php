@@ -98,14 +98,6 @@ class SchoolClass extends Model
     }
 
     /**
-     * Get the exams for the class.
-     */
-    public function exams(): HasMany
-    {
-        return $this->hasMany(Exam::class, 'class_id');
-    }
-
-    /**
      * Get the fees for the class.
      */
     public function fees(): HasMany

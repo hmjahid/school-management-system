@@ -63,9 +63,8 @@ class DashboardUserController extends Controller
         }
 
         $validated['password'] = bcrypt($validated['password']);
-        $user = User::create($validated);
-
         $role = Role::findOrFail($validated['role_id']);
+        $user = User::createWithCredential($validated);
         $user->assignRole($role->name);
 
         if ($request->has('direct_permissions')) {
@@ -128,15 +127,18 @@ class DashboardUserController extends Controller
             unset($validated['photo']);
         }
 
-        if (empty($validated['password'])) {
-            unset($validated['password']);
-        } else {
-            $validated['password'] = bcrypt($validated['password']);
+        $role = Role::findOrFail($validated['role_id']);
+
+        if (! empty($validated['password'])) {
+            $user->password = bcrypt($validated['password']);
+            $user->save();
         }
 
-        $user->update($validated);
+        $user->role_id = $role->id;
+        $user->save();
 
-        $role = Role::findOrFail($validated['role_id']);
+        $user->update(array_diff_key($validated, array_flip(['password', 'role_id'])));
+
         $user->syncRoles([$role->name]);
 
         if ($request->has('direct_permissions')) {

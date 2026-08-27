@@ -23,3 +23,14 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Block PHP execution in storage directory (defense in depth)
+<IfModule mod_php.c>
+    <FilesMatch "^storage/">
+        php_flag engine off
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteRule ^storage/.*\.php$ - [F,L]
+</IfModule>

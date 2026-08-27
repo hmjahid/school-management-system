@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ExamResource extends JsonResource
@@ -34,7 +33,7 @@ class ExamResource extends JsonResource
             'grading_type_label' => $this->grading_type ? ucfirst(str_replace('_', ' ', $this->grading_type)) : null,
             'grading_scale' => $this->grading_scale,
             'weightage' => (float) $this->weightage,
-            'is_published' => (bool) $this->is_published,
+            'is_published' => $this->isFullyPublished(),
             'publish_date' => $this->publish_date ? $this->publish_date->format('Y-m-d H:i:s') : null,
             'publish_remarks' => $this->publish_remarks,
             'is_upcoming' => $this->is_upcoming,
@@ -113,19 +112,19 @@ class ExamResource extends JsonResource
                     'view_results' => $request->user() ? $request->user()->can('viewResults', $this->resource) : false,
                     'view_statistics' => $request->user() ? $request->user()->can('viewStatistics', $this->resource) : false,
                 ],
-                'statuses' => collect(\App\Models\Exam::getStatuses())->map(function($label, $value) {
+                'statuses' => collect(\App\Models\Exam::getStatuses())->map(function ($label, $value) {
                     return [
                         'value' => $value,
                         'label' => $label,
                     ];
                 })->values(),
-                'types' => collect(\App\Models\Exam::getTypes())->map(function($label, $value) {
+                'types' => collect(\App\Models\Exam::getTypes())->map(function ($label, $value) {
                     return [
                         'value' => $value,
                         'label' => $label,
                     ];
                 })->values(),
-                'grading_types' => collect(\App\Models\Exam::getGradingTypes())->map(function($label, $value) {
+                'grading_types' => collect(\App\Models\Exam::getGradingTypes())->map(function ($label, $value) {
                     return [
                         'value' => $value,
                         'label' => $label,

@@ -590,14 +590,31 @@ suppose you are a senior laravel developer and software engineer. audit whole co
 
 suppose you are a senior laravel developer and software engineer. cretae full workflow for this school management system an dadd in a file
 
+suppose you are a senior product desiger. review this school management system and add review of fetaures, adjustemsts suggestions, fixing in a file
+
+which model of this go package is best for executing these tasks and cheaper also?
+
+create a implementation plan of executing codebase-audit.md, system-workflow.md and product-design-review-24-08-2026.md file
+
+start executing. continue untill finished the whole tasks
+
+is comleted tasks are marked and incompleted also marked?
 
 
-
-we will build total 3 application/product. 1. app 2. wordpress theme and 3. website for this apllication/theme marketing/branding/selling. all application codes will be inside schilex-app folder, theme codes inside schilex-theme folder and website codes inside schilex-website folder for managing the codes easily. now move the management software code inside schilex-app folder.
 
 suppose you are a senior laravel developer and software engineer. cretae full unit tests for this school management system
 
-name our school management system "schilex". the dahboard sidebar top name will be nmaed after this name and the pwa appliction also will be named after this name. the wordpress theme also will be the same name
+suppose you are a system architect. review this school management system and add review of whole system in a file
+
+
+
+name our school management system "schooler". the dahboard sidebar top name will be nmaed after this name and the pwa appliction also will be named after this name. the wordpress theme also will be the same name
+
+we will build total 3 application/product. 1. app 2. wordpress theme and 3. website for this apllication/theme marketing/branding/selling. all application codes will be inside schooler-app folder, theme codes inside schilex-theme folder and website codes inside schooler-website folder for managing the codes easily. now move the management software code inside schooler-app folder.
+
+suppose you are a senior laravel developer and software engineer. cretae full unit tests for this school management system
+
+
 
 add all demo cerdentails in users so that I can manage them all
 

@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\StudentResource;
-use App\Models\Student;
-use App\Models\User;
-use App\Models\SchoolClass;
-use App\Models\Section;
 use App\Models\Batch;
 use App\Models\Guardian;
+use App\Models\SchoolClass;
+use App\Models\Section;
+use App\Models\Student;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -43,13 +43,13 @@ class StudentController extends Controller
 
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('admission_number', 'like', "%{$search}%")
-                  ->orWhere('roll_number', 'like', "%{$search}%")
-                  ->orWhereHas('user', function($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%");
-                  });
+                    ->orWhere('roll_number', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -62,14 +62,13 @@ class StudentController extends Controller
                 'per_page' => $students->perPage(),
                 'current_page' => $students->currentPage(),
                 'last_page' => $students->lastPage(),
-            ]
+            ],
         ]);
     }
 
     /**
      * Store a newly created student in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
@@ -114,7 +113,7 @@ class StudentController extends Controller
 
         $student = DB::transaction(function () use ($validated) {
             // Create user account
-            $user = User::create([
+            $user = User::createWithCredential([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
@@ -131,39 +130,36 @@ class StudentController extends Controller
                 $validated,
                 ['user_id' => $user->id]
             );
-            
+
             // Remove user creation fields
             unset($studentData['name'], $studentData['email'], $studentData['password'], $studentData['password_confirmation']);
-            
+
             return Student::create($studentData);
         });
 
         return response()->json([
             'message' => 'Student created successfully',
-            'data' => new StudentResource($student->load(['user', 'class', 'section', 'batch', 'guardian']))
+            'data' => new StudentResource($student->load(['user', 'class', 'section', 'batch', 'guardian'])),
         ], 201);
     }
 
     /**
      * Display the specified student.
      *
-     * @param  \App\Models\Student  $student
      * @return \Illuminate\Http\JsonResponse
      */
     public function show(Student $student)
     {
         $this->authorize('view', $student);
-        
+
         return response()->json([
-            'data' => new StudentResource($student->load(['user', 'class', 'section', 'batch', 'guardian']))
+            'data' => new StudentResource($student->load(['user', 'class', 'section', 'batch', 'guardian'])),
         ]);
     }
 
     /**
      * Update the specified student in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Student  $student
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, Student $student)
@@ -178,7 +174,7 @@ class StudentController extends Controller
                 'string',
                 'email',
                 'max:255',
-                Rule::unique('users', 'email')->ignore($student->user_id)
+                Rule::unique('users', 'email')->ignore($student->user_id),
             ],
             'password' => 'sometimes|nullable|string|min:8|confirmed',
             'class_id' => 'sometimes|required|exists:school_classes,id',
@@ -189,7 +185,7 @@ class StudentController extends Controller
                 'sometimes',
                 'required',
                 'string',
-                Rule::unique('students', 'admission_number')->ignore($student->id)
+                Rule::unique('students', 'admission_number')->ignore($student->id),
             ],
             'admission_date' => 'sometimes|required|date',
             'roll_number' => 'nullable|string|max:50',
@@ -243,14 +239,13 @@ class StudentController extends Controller
 
         return response()->json([
             'message' => 'Student updated successfully',
-            'data' => new StudentResource($student->fresh()->load(['user', 'class', 'section', 'batch', 'guardian']))
+            'data' => new StudentResource($student->fresh()->load(['user', 'class', 'section', 'batch', 'guardian'])),
         ]);
     }
 
     /**
      * Remove the specified student from storage.
      *
-     * @param  \App\Models\Student  $student
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Student $student)
@@ -260,13 +255,13 @@ class StudentController extends Controller
         DB::transaction(function () use ($student) {
             // Soft delete the user
             $student->user->delete();
-            
+
             // Soft delete the student
             $student->delete();
         });
 
         return response()->json([
-            'message' => 'Student deleted successfully'
+            'message' => 'Student deleted successfully',
         ]);
     }
 
@@ -284,11 +279,11 @@ class StudentController extends Controller
             'guardians' => Guardian::with('user:id,name')
                 ->select('id', 'user_id', 'phone')
                 ->get()
-                ->map(function($guardian) {
+                ->map(function ($guardian) {
                     return [
                         'id' => $guardian->id,
                         'name' => $guardian->user->name,
-                        'phone' => $guardian->phone
+                        'phone' => $guardian->phone,
                     ];
                 }),
             'statuses' => [
@@ -296,7 +291,7 @@ class StudentController extends Controller
                 ['value' => 'inactive', 'label' => 'Inactive'],
                 ['value' => 'graduated', 'label' => 'Graduated'],
                 ['value' => 'transferred', 'label' => 'Transferred'],
-            ]
+            ],
         ]);
     }
 }

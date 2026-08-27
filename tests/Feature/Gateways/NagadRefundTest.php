@@ -52,6 +52,9 @@ class NagadRefundTest extends TestCase
 
         $this->paymentService = app(PaymentService::class);
 
+        // Configure test webhook secret
+        config(['payment.gateways.nagad.webhook_secret' => 'test_merchant_secret']);
+
         // Mock Nagad API responses
         $this->mockNagadApis();
     }
@@ -228,10 +231,7 @@ class NagadRefundTest extends TestCase
 
     protected function generateNagadSignature(array $data): string
     {
-        // In a real implementation, this would use the same signature generation as the Nagad SDK
-        // This is a simplified version for testing
-        ksort($data);
-        $signatureData = json_encode($data, JSON_UNESCAPED_SLASHES);
-        return hash_hmac('sha256', $signatureData, 'test_merchant_secret');
+        // Match server-side HMAC verification: HMAC-SHA256 of the raw JSON body.
+        return hash_hmac('sha256', json_encode($data, JSON_UNESCAPED_SLASHES), 'test_merchant_secret');
     }
 }

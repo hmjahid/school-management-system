@@ -57,20 +57,20 @@ class QuickActionController extends Controller
             'class_id' => 'required|exists:school_classes,id',
         ]);
 
-        $user = User::create([
+        $user = User::createWithCredential([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make('password123'),
         ]);
         $user->assignRole('student');
 
-            $student = Student::create([
-                'user_id' => $user->id,
-                'class_id' => $data['class_id'],
-                'first_name' => $data['name'],
-                'admission_date' => now(),
-                'admission_number' => 'STA-' . strtoupper(uniqid()),
-            ]);
+        $student = Student::create([
+            'user_id' => $user->id,
+            'class_id' => $data['class_id'],
+            'first_name' => $data['name'],
+            'admission_date' => now(),
+            'admission_number' => 'STA-'.strtoupper(uniqid()),
+        ]);
 
         return ['student_id' => $student->id, 'user_id' => $user->id];
     }
@@ -82,7 +82,7 @@ class QuickActionController extends Controller
             'email' => 'required|email|unique:users,email',
         ]);
 
-        $user = User::create([
+        $user = User::createWithCredential([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make('password123'),
@@ -104,7 +104,7 @@ class QuickActionController extends Controller
         activity()
             ->causedBy($request->user())
             ->event('announcement')
-            ->log($data['title'] . ': ' . $data['message']);
+            ->log($data['title'].': '.$data['message']);
 
         return ['sent' => true, 'title' => $data['title']];
     }

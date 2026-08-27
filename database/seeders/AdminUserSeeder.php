@@ -14,14 +14,24 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
+        $adminEmail = env('ADMIN_EMAIL', 'admin@school.com');
+        $adminPassword = env('ADMIN_PASSWORD');
+
+        if (app()->isProduction() && (empty($adminPassword) || $adminPassword === 'password')) {
+            throw new \RuntimeException(
+                'Refusing to seed default admin credentials in production. '.
+                'Set ADMIN_EMAIL and ADMIN_PASSWORD in your .env file before seeding.'
+            );
+        }
+
         // Create admin user
         $adminRole = Role::where('name', 'admin')->firstOrFail();
-        
+
         $admin = User::firstOrCreate(
-            ['email' => 'admin@school.com'],
+            ['email' => $adminEmail],
             [
                 'name' => 'Administrator',
-                'password' => Hash::make('password'),
+                'password' => Hash::make($adminPassword ?? 'password'),
                 'role_id' => $adminRole->id,
                 'email_verified_at' => now(),
                 'phone' => '+1234567890',
@@ -60,7 +70,12 @@ class AdminUserSeeder extends Seeder
         }
 
         $this->command->info('Admin user created successfully!');
-        $this->command->info('Email: admin@school.com');
-        $this->command->info('Password: password');
+        $this->command->info("Email: {$adminEmail}");
+
+        if (app()->isProduction()) {
+            $this->command->info('Password was read from ADMIN_PASSWORD in your environment.');
+        } else {
+            $this->command->warn('This is a non-production environment. Use a strong password in production via ADMIN_PASSWORD.');
+        }
     }
 }

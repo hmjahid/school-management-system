@@ -4,9 +4,22 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Notice extends Model
 {
+    use LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['title', 'title_bn', 'content', 'content_bn', 'pinned', 'audience'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('notices');
+    }
+
     protected $fillable = [
         'title',
         'title_bn',
@@ -30,6 +43,7 @@ class Notice extends Model
         if ($locale === 'bn' && ! empty($this->title_bn)) {
             return $this->title_bn;
         }
+
         return $this->title;
     }
 
@@ -39,6 +53,7 @@ class Notice extends Model
         if ($locale === 'bn' && ! empty($this->content_bn)) {
             return $this->content_bn;
         }
+
         return $this->content;
     }
 

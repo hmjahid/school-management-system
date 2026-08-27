@@ -281,11 +281,14 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard/events', [DashboardEventController::class, 'index'])->name('dashboard.events');
     Route::get('/dashboard/events/calendar', [DashboardEventController::class, 'calendar'])->name('dashboard.events.calendar');
-    Route::get('/dashboard/events/create', [DashboardEventController::class, 'create'])->name('dashboard.events.create');
-    Route::post('/dashboard/events', [DashboardEventController::class, 'store'])->name('dashboard.events.store');
-    Route::get('/dashboard/events/{event}/edit', [DashboardEventController::class, 'edit'])->name('dashboard.events.edit');
-    Route::put('/dashboard/events/{event}', [DashboardEventController::class, 'update'])->name('dashboard.events.update');
-    Route::delete('/dashboard/events/{event}', [DashboardEventController::class, 'destroy'])->name('dashboard.events.destroy');
+
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/dashboard/events/create', [DashboardEventController::class, 'create'])->name('dashboard.events.create');
+        Route::post('/dashboard/events', [DashboardEventController::class, 'store'])->name('dashboard.events.store');
+        Route::get('/dashboard/events/{event}/edit', [DashboardEventController::class, 'edit'])->name('dashboard.events.edit');
+        Route::put('/dashboard/events/{event}', [DashboardEventController::class, 'update'])->name('dashboard.events.update');
+        Route::delete('/dashboard/events/{event}', [DashboardEventController::class, 'destroy'])->name('dashboard.events.destroy');
+    });
 
     Route::get('/dashboard/help', [DashboardHelpController::class, 'index'])->name('dashboard.help');
     Route::get('/dashboard/about', function () {
@@ -383,7 +386,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard/exams/create', [DashboardExamController::class, 'create'])->name('dashboard.exams.create');
     Route::post('/dashboard/exams', [DashboardExamController::class, 'store'])->name('dashboard.exams.store');
-    Route::post('/dashboard/exams/{exam}/publish', [DashboardExamController::class, 'publishToggle'])->name('dashboard.exams.publish');
+    Route::post('/dashboard/exams/{exam}/visibility', [DashboardExamController::class, 'publishToggle'])->name('dashboard.exams.visibility');
     Route::get('/dashboard/exams', [DashboardModulesController::class, 'exams'])->name('dashboard.exams');
 
     Route::get('/dashboard/fees/create', [DashboardFeeController::class, 'create'])->name('dashboard.fees.create');

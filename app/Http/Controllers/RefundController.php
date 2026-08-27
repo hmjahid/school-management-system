@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\RefundResource;
+use App\Jobs\ProcessRefundJob;
 use App\Models\Payment;
 use App\Models\Refund;
 use App\Services\RefundService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
@@ -22,13 +24,12 @@ class RefundController extends Controller
     /**
      * Create a new controller instance.
      *
-     * @param  \App\Services\RefundService  $refundService
      * @return void
      */
     public function __construct(RefundService $refundService)
     {
         $this->refundService = $refundService;
-        
+
         // Apply policy for all methods
         $this->authorizeResource(Refund::class, 'refund');
     }
@@ -36,7 +37,6 @@ class RefundController extends Controller
     /**
      * Display a listing of refunds.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -69,14 +69,12 @@ class RefundController extends Controller
     /**
      * Store a newly created refund in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Payment  $payment
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request, Payment $payment)
     {
         $validated = $request->validate([
-            'amount' => 'required|numeric|min:0.01|max:' . $this->refundService->getRefundableAmount($payment),
+            'amount' => 'required|numeric|min:0.01|max:'.$this->refundService->getRefundableAmount($payment),
             'reason' => 'required|string|max:255',
             'metadata' => 'nullable|array',
         ]);
@@ -98,7 +96,7 @@ class RefundController extends Controller
             $validated['metadata'] ?? []
         );
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             abort(422, $result['message']);
         }
 
@@ -110,26 +108,24 @@ class RefundController extends Controller
     /**
      * Display the specified refund.
      *
-     * @param  \App\Models\Refund  $refund
      * @return \App\Http\Resources\RefundResource
      */
     public function show(Refund $refund)
     {
         $user = request()->user();
 
-        if (!$user->hasRole('admin') && $refund->user_id !== $user->id) {
+        if (! $user->hasRole('admin') && $refund->user_id !== $user->id) {
             abort(403, 'You are not authorized to view this refund.');
         }
 
         $refund->load(['payment', 'user', 'processor']);
+
         return new RefundResource($refund);
     }
 
     /**
      * Process a pending refund.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Refund  $refund
      * @return \App\Http\Resources\RefundResource
      */
     public function process(Request $request, Refund $refund)
@@ -142,21 +138,9 @@ class RefundController extends Controller
             'transaction_id' => 'nullable|string|max:255',
         ]);
 
-        // In a real application, this would involve calling the payment gateway
-        // For this example, we'll just mark it as completed
-        $refund->update([
-            'status' => 'processing',
-        ]);
-
-        // Simulate processing delay
-        // In a real application, this would be handled by a queue job
-        sleep(2);
-
-        $refund->update([
-            'status' => 'completed',
-            'transaction_id' => $validated['transaction_id'] ?? ('R-' . strtoupper(uniqid())),
-            'processed_at' => now(),
-        ]);
+        // Hand off to a queue job; in testing QUEUE_CONNECTION=sync so the
+        // refund is completed before the response is returned.
+        ProcessRefundJob::dispatch($refund, $validated['transaction_id'] ?? null);
 
         return new RefundResource($refund->fresh());
     }
@@ -164,8 +148,6 @@ class RefundController extends Controller
     /**
      * Cancel a pending refund.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Refund  $refund
      * @return \App\Http\Resources\RefundResource
      */
     public function cancel(Request $request, Refund $refund)
@@ -212,6 +194,11 @@ class RefundController extends Controller
             abort(403, 'Invalid webhook signature');
         }
 
+        $idempotencyKey = $this->webhookIdempotencyKey($gateway, $payload);
+        if (Cache::has($idempotencyKey)) {
+            return response()->json(['success' => true, 'idempotent' => true]);
+        }
+
         $txn = $payload['paymentID'] ?? $payload['paymentRefId'] ?? $payload['transaction_id'] ?? null;
 
         $payment = Payment::where('transaction_id', $txn)->first();
@@ -224,13 +211,27 @@ class RefundController extends Controller
                     'status' => 'completed',
                     'transaction_id' => $payload['refundTrxID']
                         ?? $payload['refund_id']
-                        ?? ('R-' . strtoupper(uniqid())),
+                        ?? ('R-'.strtoupper(uniqid())),
                     'processed_at' => now(),
                 ]);
             }
         }
 
+        Cache::put($idempotencyKey, true, now()->addDay());
+
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Build a cache key used to de-duplicate identical webhook deliveries.
+     */
+    protected function webhookIdempotencyKey(string $gateway, array $payload): string
+    {
+        $signature = $this->getWebhookSignatureValue($gateway, $payload);
+        $txn = $payload['paymentID'] ?? $payload['paymentRefId'] ?? $payload['transaction_id'] ?? '';
+        $refundId = $payload['refundTrxID'] ?? $payload['refund_id'] ?? '';
+
+        return 'webhook:refund:'.$gateway.':'.md5($signature.':'.$txn.':'.$refundId.':'.json_encode($payload));
     }
 
     /**
@@ -238,6 +239,10 @@ class RefundController extends Controller
      */
     protected function verifyWebhookSignature(string $gateway, array $payload): bool
     {
+        if (! in_array($gateway, ['bkash', 'nagad', 'rocket'], true)) {
+            return false;
+        }
+
         $signature = $this->getWebhookSignatureValue($gateway, $payload);
 
         if (! is_string($signature) || $signature === '') {
@@ -252,36 +257,37 @@ class RefundController extends Controller
      */
     protected function getWebhookSignatureValue(string $gateway, array $payload): string
     {
-        if ($gateway === 'rocket') {
-            return (string) ($payload['signature'] ?? '');
-        }
-
-        $header = $gateway === 'nagad' ? 'X-Nagad-Signature' : 'X-Webhook-Signature';
+        $header = match ($gateway) {
+            'nagad' => 'X-Nagad-Signature',
+            'rocket' => 'X-Rocket-Signature',
+            default => 'X-Webhook-Signature',
+        };
 
         return (string) request()->header($header);
     }
 
     /**
      * Compute the expected webhook signature for the given gateway.
+     *
+     * Uses the server-side webhook secret from config/payment.php and the
+     * raw request body. Never echoes the client-supplied signature.
      */
     protected function computeWebhookSignature(string $gateway, array $payload): string
     {
-        if ($gateway === 'rocket') {
-            // Rocket signs a subset of the payload via key+value concatenation.
-            // The test embeds the signature in the body, so we compare against
-            // the value it provided.
-            return (string) ($payload['signature'] ?? '');
+        $secret = config("payment.gateways.{$gateway}.webhook_secret");
+
+        if (empty($secret)) {
+            // Without a configured secret we cannot verify the signature.
+            return '';
         }
 
-        $sorted = $payload;
-        ksort($sorted);
+        $body = request()->getContent();
 
-        $secret = match ($gateway) {
-            'nagad' => config('payment.gateways.nagad.webhook_secret', 'test_merchant_secret'),
-            default => config("payment.gateways.{$gateway}.webhook_secret", 'test_secret'),
-        };
+        if ($body === '' && $payload !== []) {
+            $body = json_encode($payload, JSON_UNESCAPED_SLASHES);
+        }
 
-        return hash_hmac('sha256', json_encode($sorted, JSON_UNESCAPED_SLASHES), $secret);
+        return hash_hmac('sha256', (string) $body, $secret);
     }
 
     /**

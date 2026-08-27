@@ -4,25 +4,23 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Exceptions\PermissionDoesNotExist;
 use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use Laravel\Sanctum\NewAccessToken;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasPermissions, HasRoles, LogsActivity {
+    use HasApiTokens, HasFactory, HasPermissions, HasRoles, LogsActivity, Notifiable, SoftDeletes {
         HasPermissions::hasPermissionTo as spatieHasPermissionTo;
     }
 
@@ -49,8 +47,35 @@ class User extends Authenticatable
         'date_of_birth',
         'photo',
         'password',
-        'role_id',
     ];
+
+    /**
+     * Create a user while explicitly assigning the administrative role_id field.
+     * Prevents privilege escalation through mass assignment of role_id.
+     */
+    public static function createWithCredential(array $attributes): self
+    {
+        $safe = array_diff_key($attributes, array_flip(['role_id']));
+        $user = static::create($safe);
+
+        if (! empty($attributes['role_id'])) {
+            $user->role_id = $attributes['role_id'];
+            $user->save();
+        }
+
+        return $user;
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $user) {
+            if (empty($user->role_id)) {
+                $user->role_id = \Spatie\Permission\Models\Role::firstOrCreate(
+                    ['name' => 'student', 'guard_name' => config('auth.defaults.guard', 'web')]
+                )->id;
+            }
+        });
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -74,7 +99,7 @@ class User extends Authenticatable
         'password' => 'hashed',
         'date_of_birth' => 'date',
     ];
-    
+
     /**
      * The accessors to append to the model's array form.
      *
@@ -152,18 +177,12 @@ class User extends Authenticatable
 
     /**
      * Create a new access token and refresh token for the user.
-     *
-     * @param  string  $name
-     * @param  array  $abilities
-     * @param  \DateTimeInterface|null  $accessTokenExpiresAt
-     * @param  \DateTimeInterface|null  $refreshTokenExpiresAt
-     * @return array
      */
-    public function createTokenPair(string $name = 'auth_token', array $abilities = ['*'], 
+    public function createTokenPair(string $name = 'auth_token', array $abilities = ['*'],
         ?\DateTimeInterface $accessTokenExpiresAt = null, ?\DateTimeInterface $refreshTokenExpiresAt = null): array
     {
         $accessToken = $this->createToken($name, $abilities, $accessTokenExpiresAt);
-        
+
         $refreshToken = $this->refreshTokens()->create([
             'token' => hash('sha256', $plainTextRefreshToken = Str::random(80)),
             'ip_address' => request()->ip(),
@@ -175,8 +194,8 @@ class User extends Authenticatable
             'access_token' => $accessToken->plainTextToken,
             'refresh_token' => $plainTextRefreshToken,
             'token_type' => 'Bearer',
-            'expires_in' => $accessTokenExpiresAt 
-                ? now()->diffInSeconds($accessTokenExpiresAt) 
+            'expires_in' => $accessTokenExpiresAt
+                ? now()->diffInSeconds($accessTokenExpiresAt)
                 : config('sanctum.expiration', 60) * 60,
         ];
     }
@@ -205,7 +224,7 @@ class User extends Authenticatable
         $this->tokens()
             ->where('id', '!=', $currentToken->id)
             ->delete();
-            
+
         $this->refreshTokens()
             ->where('id', '!=', $currentToken->id)
             ->delete();
@@ -227,28 +246,22 @@ class User extends Authenticatable
         } else {
             return $this->hasPermission($permissions);
         }
-        
+
         return false;
     }
 
-
-    
     /**
      * Get the URL to the user's profile photo.
-     *
-     * @return string
      */
     public function getProfilePhotoUrlAttribute(): string
     {
         return $this->photo
-                    ? asset('storage/' . $this->photo)
+                    ? asset('storage/'.$this->photo)
                     : $this->defaultProfilePhotoUrl();
     }
-    
+
     /**
      * Get the default profile photo URL if no profile photo has been uploaded.
-     *
-     * @return string
      */
     protected function defaultProfilePhotoUrl(): string
     {

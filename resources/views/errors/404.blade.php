@@ -14,7 +14,7 @@
         </div>
         <div class="mt-6 flex justify-center gap-4">
             <a href="{{ url('/') }}" class="btn-primary">Back to Home</a>
-            <a href="{{ route('contact') }}" class="rounded-lg border border-slate-300 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Contact Support</a>
+            <a href="{{ route('site.contact') }}" class="rounded-lg border border-slate-300 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Contact Support</a>
         </div>
     </div>
 </div>

@@ -2,12 +2,9 @@
 
 namespace App\Services;
 
-use App\Models\FeePayment;
 use App\Models\Payment;
 use App\Models\PaymentGateway;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
+use App\Services\Payment\GatewayAdapterFactory;
 
 class PaymentService
 {
@@ -18,7 +15,6 @@ class PaymentService
     {
         $gateway = PaymentGateway::where('code', $gatewayCode)->firstOrFail();
 
-        // Validate gateway is active and configured
         if (! $gateway->is_active) {
             throw new \Exception('Payment gateway is not active');
         }
@@ -27,36 +23,24 @@ class PaymentService
             throw new \Exception('Payment gateway is not properly configured');
         }
 
-        // For offline payments, just return the payment details
         if (! $gateway->is_online) {
             return [
-                'success' => true,
-                'gateway' => $gateway->code,
-                'payment_id' => $payment->id,
-                'invoice_number' => $payment->invoice_number,
-                'amount' => $payment->total_amount,
-                'currency' => $payment->currency ?? $gateway->currency,
-                'redirect_url' => null,
+                'success' => true, 'gateway' => $gateway->code, 'payment_id' => $payment->id,
+                'invoice_number' => $payment->invoice_number, 'amount' => $payment->total_amount,
+                'currency' => $payment->currency ?? $gateway->currency, 'redirect_url' => null,
                 'offline_instructions' => $gateway->instructions,
                 'payment_details' => [
-                    'account_name' => config('app.name').' School',
-                    'account_number' => '1234567890',
-                    'bank_name' => 'Example Bank',
-                    'branch' => 'Main Branch',
-                    'routing_number' => '123456789',
+                    'account_name' => config('payment.offline.account_name'),
+                    'account_number' => config('payment.offline.account_number') ?? 'Not configured',
+                    'bank_name' => config('payment.offline.bank_name') ?? 'Not configured',
+                    'branch' => config('payment.offline.branch') ?? 'Not configured',
+                    'routing_number' => config('payment.offline.routing_number') ?? 'Not configured',
                     'reference' => $payment->invoice_number,
                 ],
             ];
         }
 
-        // For online payments, initialize with the specific gateway
-        $method = 'initialize'.Str::studly($gateway->code).'Payment';
-
-        if (method_exists($this, $method)) {
-            return $this->$method($payment, $gateway, $options);
-        }
-
-        throw new \Exception("Payment method not implemented: {$gateway->code}");
+        return GatewayAdapterFactory::make($gatewayCode)->initialize($payment, $gateway, $options);
     }
 
     /**
@@ -66,13 +50,11 @@ class PaymentService
     {
         $gateway = PaymentGateway::where('code', $gatewayCode)->firstOrFail();
 
-        $method = 'process'.Str::studly($gateway->code).'Callback';
-
-        if (method_exists($this, $method)) {
-            return $this->$method($data, $gateway);
+        try {
+            return GatewayAdapterFactory::make($gatewayCode)->processCallback($data, $gateway);
+        } catch (\Exception $e) {
+            throw new \Exception("Callback processing not implemented for gateway: {$gatewayCode}");
         }
-
-        throw new \Exception("Callback processing not implemented for gateway: {$gateway->code}");
     }
 
     /**
@@ -85,474 +67,60 @@ class PaymentService
             : PaymentGateway::where('code', $payment->payment_method)->first();
 
         if (! $gateway) {
-            return $payment; // No verification for cash payments or unknown gateways
+            return $payment;
         }
 
-        $method = 'verify'.Str::studly($gateway->code).'Payment';
-
-        if (method_exists($this, $method)) {
-            return $this->$method($payment, $gateway);
+        try {
+            return GatewayAdapterFactory::make($gateway->code)->verifyPayment($payment, $gateway);
+        } catch (\Exception $e) {
+            return $payment;
         }
-
-        return $payment; // Return as-is if verification not implemented
     }
 
     /**
-     * Initialize bKash payment.
-     */
-    protected function initializeBkashPayment(Payment $payment, PaymentGateway $gateway, array $options = []): array
-    {
-        $config = $gateway->getApiConfig();
-        $baseUrl = $config['test_mode'] ? $gateway->sandbox_url : $gateway->live_url;
-
-        // Step 1: Get auth token
-        $tokenResponse = Http::withHeaders([
-            'username' => $config['api_username'],
-            'password' => $config['api_password'],
-        ])->post("$baseUrl/checkout/token/grant", [
-            'app_key' => $config['api_key'],
-            'app_secret' => $config['api_secret'],
-        ]);
-
-        if (! $tokenResponse->successful()) {
-            Log::error('Failed to get bKash token', $tokenResponse->json());
-            throw new \Exception('Failed to initialize bKash payment');
-        }
-
-        $tokenData = $tokenResponse->json();
-        $idToken = $tokenData['id_token'];
-
-        // Step 2: Create payment
-        $paymentResponse = Http::withHeaders([
-            'Authorization' => $idToken,
-            'X-APP-Key' => $config['api_key'],
-        ])->post("$baseUrl/checkout/create", [
-            'mode' => '0000', // For test mode
-            'payerReference' => 'INV'.$payment->invoice_number,
-            'callbackURL' => $gateway->callback_url,
-            'amount' => number_format($payment->total_amount, 2, '.', ''),
-            'currency' => $payment->currency ?? $gateway->currency,
-            'intent' => 'sale',
-            'merchantInvoiceNumber' => $payment->invoice_number,
-        ]);
-
-        if (! $paymentResponse->successful()) {
-            Log::error('Failed to create bKash payment', $paymentResponse->json());
-            throw new \Exception('Failed to create bKash payment');
-        }
-
-        $paymentData = $paymentResponse->json();
-
-        // Store the payment ID and token for verification
-        $payment->update([
-            'payment_details' => array_merge($payment->payment_details ?? [], [
-                'bkash_payment_id' => $paymentData['paymentID'],
-                'bkash_token' => $idToken,
-            ]),
-        ]);
-
-        return [
-            'success' => true,
-            'gateway' => 'bkash',
-            'payment_id' => $payment->id,
-            'invoice_number' => $payment->invoice_number,
-            'amount' => $payment->total_amount,
-            'currency' => $payment->currency ?? $gateway->currency,
-            'redirect_url' => $paymentData['bkashURL'],
-            'payment_details' => [
-                'payment_id' => $paymentData['paymentID'],
-                'create_time' => $paymentData['createTime'],
-                'org_logo' => $paymentData['orgLogo'],
-            ],
-        ];
-    }
-
-    /**
-     * Process bKash callback.
-     */
-    protected function processBkashCallback(array $data, PaymentGateway $gateway): Payment
-    {
-        $payment = Payment::where('invoice_number', $data['merchantInvoiceNumber'])
-            ->orWhere('payment_details->bkash_payment_id', $data['paymentID'])
-            ->firstOrFail();
-
-        $config = $gateway->getApiConfig();
-        $baseUrl = $config['test_mode'] ? $gateway->sandbox_url : $gateway->live_url;
-
-        // Verify the payment with bKash
-        $verifyResponse = Http::withHeaders([
-            'Authorization' => $payment->payment_details['bkash_token'] ?? '',
-            'X-APP-Key' => $config['api_key'],
-        ])->post("$baseUrl/checkout/execute", [
-            'paymentID' => $data['paymentID'],
-        ]);
-
-        if (! $verifyResponse->successful()) {
-            Log::error('Failed to verify bKash payment', $verifyResponse->json());
-            throw new \Exception('Failed to verify bKash payment');
-        }
-
-        $verifyData = $verifyResponse->json();
-
-        // Update payment status based on bKash response
-        if (isset($verifyData['transactionStatus']) && $verifyData['transactionStatus'] === 'Completed') {
-            $payment->update([
-                'payment_status' => Payment::STATUS_COMPLETED,
-                'paid_amount' => $payment->total_amount,
-                'due_amount' => 0,
-                'payment_date' => now(),
-                'payment_details' => array_merge($payment->payment_details ?? [], [
-                    'transaction_id' => $verifyData['trxID'],
-                    'payment_status' => $verifyData['transactionStatus'],
-                    'payment_method_details' => $verifyData,
-                ]),
-            ]);
-
-            $this->applyPaymentSideEffects($payment, [
-                'gateway' => $gateway->code,
-                'transaction_id' => $verifyData['trxID'] ?? null,
-                'raw' => $verifyData,
-            ]);
-
-            // Trigger payment success event
-            // event(new \App\Events\PaymentProcessed($payment));
-        } else {
-            $payment->update([
-                'payment_status' => Payment::STATUS_FAILED,
-                'payment_details' => array_merge($payment->payment_details ?? [], [
-                    'transaction_id' => $verifyData['trxID'] ?? null,
-                    'payment_status' => $verifyData['transactionStatus'] ?? 'Failed',
-                    'failure_reason' => $verifyData['statusMessage'] ?? 'Payment verification failed',
-                    'payment_method_details' => $verifyData,
-                ]),
-            ]);
-        }
-
-        return $payment;
-    }
-
-    /**
-     * Apply payment completion to domain records (FeePayment, etc.).
+     * Process a refund with the payment gateway.
      *
-     * @param  array<string, mixed>  $context
+     * @param  array<string, mixed>  $paymentDetails
+     * @return array{success: bool, transaction_id: string|null, gateway_response: mixed, message?: string, code?: string}
      */
-    protected function applyPaymentSideEffects(Payment $payment, array $context = []): void
+    public function processRefund(string $gatewayCode, string $transactionId, float $amount, string $reason, array $paymentDetails = []): array
     {
-        $feePaymentId = $payment->metadata['fee_payment_id'] ?? null;
-        if (! $feePaymentId) {
-            return;
+        if ($gatewayCode === 'test_gateway') {
+            return [
+                'success' => true,
+                'transaction_id' => 'R-'.strtoupper(substr(md5($transactionId.$amount), 0, 12)),
+                'gateway_response' => ['status' => 'Completed'],
+            ];
         }
 
-        $feePayment = FeePayment::query()->find($feePaymentId);
-        if (! $feePayment) {
-            return;
-        }
+        $gateway = PaymentGateway::where('code', $gatewayCode)->first();
 
-        if ($feePayment->status === FeePayment::STATUS_PAID) {
-            return;
-        }
+        if (! $gateway) {
+            $fromConfig = config("payment.gateways.{$gatewayCode}");
 
-        $feePayment->update([
-            'status' => FeePayment::STATUS_PAID,
-            'paid_amount' => $feePayment->amount,
-            'balance' => 0,
-            'transaction_id' => $context['transaction_id'] ?? $feePayment->transaction_id,
-            'payment_method' => FeePayment::METHOD_ONLINE_PAYMENT,
-            'metadata' => array_merge($feePayment->metadata ?? [], [
-                'gateway' => $context['gateway'] ?? $payment->payment_method,
-                'payment_id' => $payment->id,
-                'invoice_number' => $payment->invoice_number,
-            ]),
-        ]);
-    }
-
-    /**
-     * Verify bKash payment status.
-     */
-    protected function verifyBkashPayment(Payment $payment, PaymentGateway $gateway): Payment
-    {
-        if (empty($payment->payment_details['bkash_payment_id'])) {
-            return $payment;
-        }
-
-        $config = $gateway->getApiConfig();
-        $baseUrl = $config['test_mode'] ? $gateway->sandbox_url : $gateway->live_url;
-
-        // Get a new token for verification
-        $tokenResponse = Http::withHeaders([
-            'username' => $config['api_username'],
-            'password' => $config['api_password'],
-        ])->post("$baseUrl/checkout/token/grant", [
-            'app_key' => $config['api_key'],
-            'app_secret' => $config['api_secret'],
-        ]);
-
-        if (! $tokenResponse->successful()) {
-            Log::error('Failed to get bKash token for verification', $tokenResponse->json());
-
-            return $payment;
-        }
-
-        $tokenData = $tokenResponse->json();
-        $idToken = $tokenData['id_token'];
-
-        // Query payment status
-        $response = Http::withHeaders([
-            'Authorization' => $idToken,
-            'X-APP-Key' => $config['api_key'],
-        ])->post("$baseUrl/checkout/payment/status", [
-            'paymentID' => $payment->payment_details['bkash_payment_id'],
-        ]);
-
-        if (! $response->successful()) {
-            Log::error('Failed to verify bKash payment status', $response->json());
-
-            return $payment;
-        }
-
-        $statusData = $response->json();
-
-        // Update payment status if it has changed
-        if (isset($statusData['transactionStatus'])) {
-            $newStatus = $this->mapBkashStatus($statusData['transactionStatus']);
-
-            if ($newStatus !== $payment->payment_status) {
-                $payment->update([
-                    'payment_status' => $newStatus,
-                    'payment_details' => array_merge($payment->payment_details ?? [], [
-                        'last_verified_at' => now(),
-                        'verification_response' => $statusData,
-                    ]),
-                ]);
-
-                if ($newStatus === Payment::STATUS_COMPLETED) {
-                    $payment->update([
-                        'paid_amount' => $payment->total_amount,
-                        'due_amount' => 0,
-                        'payment_date' => $statusData['completedTime'] ?? now(),
-                    ]);
-
-                    // Trigger payment success event if it was just completed
-                    if ($payment->wasChanged('payment_status')) {
-                        event(new \App\Events\PaymentProcessed($payment));
-                    }
-                }
+            if (! is_array($fromConfig)) {
+                return ['success' => false, 'message' => "Payment gateway not configured: {$gatewayCode}"];
             }
-        }
 
-        return $payment;
-    }
-
-    /**
-     * Map bKash status to our payment status.
-     */
-    protected function mapBkashStatus(string $bkashStatus): string
-    {
-        $statusMap = [
-            'Initiated' => Payment::STATUS_PENDING,
-            'Incomplete' => Payment::STATUS_PROCESSING,
-            'Completed' => Payment::STATUS_COMPLETED,
-            'Failed' => Payment::STATUS_FAILED,
-            'Canceled' => Payment::STATUS_CANCELLED,
-            'Expired' => Payment::STATUS_EXPIRED,
-            'Refunded' => Payment::STATUS_REFUNDED,
-        ];
-
-        return $statusMap[$bkashStatus] ?? Payment::STATUS_PENDING;
-    }
-
-    /**
-     * Initialize Nagad payment.
-     */
-    protected function initializeNagadPayment(Payment $payment, PaymentGateway $gateway, array $options = []): array
-    {
-        $config = $gateway->getApiConfig();
-        $baseUrl = $config['test_mode'] ? $gateway->sandbox_url : $gateway->live_url;
-
-        // Generate a random string for request ID
-        $requestId = Str::uuid()->toString();
-
-        // Step 1: Initialize payment
-        $initResponse = Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'X-KM-IP-V4' => request()->ip(),
-            'X-KM-Client-Type' => 'PC_WEB',
-            'X-KM-Api-Version' => 'v-0.2.0',
-        ])->post("$baseUrl/checkout/initialize/", [
-            'accountNumber' => $config['merchant_account'],
-            'dateTime' => now()->format('YmdHis'),
-            'additionalMerchantInfo' => [
-                'reference' => $payment->invoice_number,
-                'purpose' => 'School Fee Payment',
-            ],
-            'amount' => (string) $payment->total_amount,
-            'orderId' => $payment->invoice_number,
-            'reference' => $payment->invoice_number,
-        ]);
-
-        if (! $initResponse->successful()) {
-            Log::error('Failed to initialize Nagad payment', $initResponse->json());
-            throw new \Exception('Failed to initialize Nagad payment');
-        }
-
-        $initData = $initResponse->json();
-
-        // Store the payment ID for verification
-        $payment->update([
-            'payment_details' => array_merge($payment->payment_details ?? [], [
-                'nagad_payment_id' => $initData['paymentReferenceId'],
-                'nagad_order_id' => $initData['orderId'],
-            ]),
-        ]);
-
-        // Step 2: Complete the payment (this would be called from the frontend after user completes payment)
-        // For now, we'll return the payment URL
-        $paymentUrl = $initData['callBackUrl'].'?paymentRefId='.$initData['paymentReferenceId'];
-
-        return [
-            'success' => true,
-            'gateway' => 'nagad',
-            'payment_id' => $payment->id,
-            'invoice_number' => $payment->invoice_number,
-            'amount' => $payment->total_amount,
-            'currency' => $payment->currency ?? $gateway->currency,
-            'redirect_url' => $paymentUrl,
-            'payment_details' => [
-                'payment_reference_id' => $initData['paymentReferenceId'],
-                'order_id' => $initData['orderId'],
-                'challenge' => $initData['challenge'],
-            ],
-        ];
-    }
-
-    /**
-     * Process Nagad callback.
-     */
-    protected function processNagadCallback(array $data, PaymentGateway $gateway): Payment
-    {
-        $payment = Payment::where('invoice_number', $data['orderId'])
-            ->orWhere('payment_details->nagad_payment_id', $data['paymentRefId'])
-            ->firstOrFail();
-
-        $config = $gateway->getApiConfig();
-        $baseUrl = $config['test_mode'] ? $gateway->sandbox_url : $gateway->live_url;
-
-        // Verify the payment with Nagad
-        $verifyResponse = Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'X-KM-IP-V4' => request()->ip(),
-            'X-KM-Client-Type' => 'PC_WEB',
-            'X-KM-Api-Version' => 'v-0.2.0',
-        ])->post("$baseUrl/verify/payment/", [
-            'paymentRefId' => $data['paymentRefId'],
-        ]);
-
-        if (! $verifyResponse->successful()) {
-            Log::error('Failed to verify Nagad payment', $verifyResponse->json());
-            throw new \Exception('Failed to verify Nagad payment');
-        }
-
-        $verifyData = $verifyResponse->json();
-
-        // Update payment status based on Nagad response
-        if (isset($verifyData['status']) && $verifyData['status'] === 'Success') {
-            $payment->update([
-                'payment_status' => Payment::STATUS_COMPLETED,
-                'paid_amount' => $payment->total_amount,
-                'due_amount' => 0,
-                'payment_date' => now(),
-                'payment_details' => array_merge($payment->payment_details ?? [], [
-                    'transaction_id' => $verifyData['paymentId'] ?? null,
-                    'payment_status' => $verifyData['status'],
-                    'payment_method_details' => $verifyData,
-                ]),
-            ]);
-
-            $this->applyPaymentSideEffects($payment, [
-                'gateway' => $gateway->code,
-                'transaction_id' => $verifyData['paymentId'] ?? null,
-                'raw' => $verifyData,
-            ]);
-
-            // Trigger payment success event
-            event(new \App\Events\PaymentProcessed($payment));
-        } else {
-            $payment->update([
-                'payment_status' => Payment::STATUS_FAILED,
-                'payment_details' => array_merge($payment->payment_details ?? [], [
-                    'transaction_id' => $verifyData['paymentId'] ?? null,
-                    'payment_status' => $verifyData['status'] ?? 'Failed',
-                    'failure_reason' => $verifyData['statusMessage'] ?? 'Payment verification failed',
-                    'payment_method_details' => $verifyData,
-                ]),
+            $gateway = new PaymentGateway([
+                'code' => $gatewayCode, 'name' => $gatewayCode, 'type' => 'other',
+                'is_active' => true, 'is_online' => true, 'has_api' => true,
+                'test_mode' => $fromConfig['test_mode'] ?? false,
+                'sandbox_url' => $fromConfig['sandbox_url'] ?? null,
+                'live_url' => $fromConfig['live_url'] ?? null,
+                'api_key' => $fromConfig['api_key'] ?? null,
+                'api_secret' => $fromConfig['api_secret'] ?? null,
+                'api_username' => $fromConfig['api_username'] ?? null,
+                'api_password' => $fromConfig['api_password'] ?? null,
+                'currency' => $fromConfig['currency'] ?? 'BDT',
             ]);
         }
 
-        return $payment;
-    }
-
-    /**
-     * Initialize Rocket payment.
-     */
-    protected function initializeRocketPayment(Payment $payment, PaymentGateway $gateway, array $options = []): array
-    {
-        $config = $gateway->getApiConfig();
-        $baseUrl = $config['test_mode'] ? $gateway->sandbox_url : $gateway->live_url;
-
-        // Generate a unique transaction ID
-        $transactionId = 'TXN'.time().Str::random(6);
-
-        // Store the transaction ID for verification
-        $payment->update([
-            'payment_details' => array_merge($payment->payment_details ?? [], [
-                'rocket_transaction_id' => $transactionId,
-            ]),
-        ]);
-
-        // For Rocket, we'll return the payment details for the frontend to handle
-        return [
-            'success' => true,
-            'gateway' => 'rocket',
-            'payment_id' => $payment->id,
-            'invoice_number' => $payment->invoice_number,
-            'amount' => $payment->total_amount,
-            'currency' => $payment->currency ?? $gateway->currency,
-            'redirect_url' => $gateway->success_url.'?payment_id='.$payment->id,
-            'payment_details' => [
-                'transaction_id' => $transactionId,
-                'biller_id' => $config['biller_id'] ?? 'SCHOOL',
-                'bill_number' => $payment->invoice_number,
-                'amount' => $payment->total_amount,
-                'instructions' => 'Dial *322# and follow the instructions to complete the payment.',
-            ],
-        ];
-    }
-
-    /**
-     * Process Rocket payment verification.
-     */
-    public function verifyRocketPayment(Payment $payment, array $verificationData): Payment
-    {
-        // In a real implementation, you would verify the payment with Rocket's API
-        // For this example, we'll assume the verification was successful
-
-        $payment->update([
-            'payment_status' => Payment::STATUS_COMPLETED,
-            'paid_amount' => $payment->total_amount,
-            'due_amount' => 0,
-            'payment_date' => now(),
-            'payment_details' => array_merge($payment->payment_details ?? [], [
-                'transaction_id' => $verificationData['transaction_id'] ?? ('TXN'.time().Str::random(6)),
-                'payment_status' => 'Completed',
-                'payment_method_details' => $verificationData,
-                'verified_at' => now(),
-            ]),
-        ]);
-
-        // Trigger payment success event
-        event(new \App\Events\PaymentProcessed($payment));
-
-        return $payment;
+        try {
+            return GatewayAdapterFactory::make($gatewayCode)->refund($gateway, $transactionId, $amount, $reason, $paymentDetails);
+        } catch (\Exception $e) {
+            return ['success' => false, 'message' => "Refunds are not supported for gateway: {$gatewayCode}"];
+        }
     }
 
     /**
@@ -564,140 +132,25 @@ class PaymentService
     }
 
     /**
-     * Process a refund with the payment gateway.
-     *
-     * @return array{success: bool, transaction_id: string|null, gateway_response: mixed, message?: string, code?: string}
+     * Resolve gateway configuration from DB, falling back to config/payment.php.
      */
-    public function processRefund(string $gatewayCode, string $transactionId, float $amount, string $reason, array $paymentDetails = []): array
+    public function resolveGatewayConfig(string $gatewayCode): ?array
     {
-        return match ($gatewayCode) {
-            'bkash' => $this->refundBkash($transactionId, $amount, $reason),
-            'nagad' => $this->refundNagad($transactionId, $amount, $reason, $paymentDetails),
-            'rocket' => $this->refundRocket($transactionId, $amount, $reason),
-            'test_gateway' => [
-                'success' => true,
-                'transaction_id' => 'R-' . strtoupper(substr(md5($transactionId . $amount), 0, 12)),
-                'gateway_response' => ['status' => 'Completed'],
-            ],
-            default => [
-                'success' => false,
-                'message' => "Refunds are not supported for gateway: {$gatewayCode}",
-            ],
-        };
-    }
+        $fromConfig = config("payment.gateways.{$gatewayCode}");
 
-    protected function refundBkash(string $transactionId, float $amount, string $reason): array
-    {
-        $base = 'https://checkout.sandbox.bka.sh';
-
-        $tokenResponse = Http::withHeaders([
-            'username' => config('payment.gateways.bkash.api_username', 'bkash_user'),
-            'password' => config('payment.gateways.bkash.api_password', 'bkash_pass'),
-        ])->post("$base/tokenized/checkout/token/grant", [
-            'app_key' => config('payment.gateways.bkash.api_key', 'bkash_app_key'),
-            'app_secret' => config('payment.gateways.bkash.api_secret', 'bkash_app_secret'),
-        ]);
-
-        if (! $tokenResponse->successful()) {
-            return ['success' => false, 'message' => 'Failed to authenticate with bKash'];
+        if (! is_array($fromConfig)) {
+            return null;
         }
 
-        $idToken = $tokenResponse->json()['id_token'] ?? null;
+        $gateway = PaymentGateway::where('code', $gatewayCode)->first();
 
-        if (! $idToken) {
-            return ['success' => false, 'message' => 'Failed to authenticate with bKash'];
+        if ($gateway) {
+            $fromConfig = array_merge($fromConfig, $gateway->getApiConfig());
+            $fromConfig['base_url'] = $gateway->test_mode ? $gateway->sandbox_url : $gateway->live_url;
+        } else {
+            $fromConfig['base_url'] = $fromConfig['live_url'] ?? $fromConfig['sandbox_url'];
         }
 
-        $response = Http::withHeaders([
-            'Authorization' => $idToken,
-            'X-APP-Key' => config('payment.gateways.bkash.api_key', 'bkash_app_key'),
-        ])->post("$base/tokenized/checkout/payment/refund", [
-            'paymentID' => $transactionId,
-            'amount' => number_format($amount, 2, '.', ''),
-            'reason' => $reason,
-            'currency' => 'BDT',
-        ]);
-
-        $data = $response->json();
-
-        if ($response->successful() && ($data['statusCode'] ?? null) === '0000') {
-            return [
-                'success' => true,
-                'transaction_id' => $data['refundTrxID'] ?? ('R-' . strtoupper(substr(md5($transactionId . $amount), 0, 12))),
-                'gateway_response' => $data,
-            ];
-        }
-
-        return [
-            'success' => false,
-            'message' => $data['statusMessage'] ?? $data['errorMessage'] ?? 'bKash refund failed',
-        ];
-    }
-
-    protected function refundNagad(string $transactionId, float $amount, string $reason, array $paymentDetails = []): array
-    {
-        $base = 'https://api.mynagad.com/api';
-
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'X-KM-Api-Version' => 'v-0.2.0',
-        ])->post("$base/dfs/refund/initialize", [
-            'paymentRefId' => $transactionId,
-            'amount' => (string) $amount,
-            'reason' => $reason,
-            'reference' => $paymentDetails['reference'] ?? null,
-        ]);
-
-        $data = $response->json();
-
-        if ($response->successful() && ($data['status'] ?? null) === 'Success') {
-            return [
-                'success' => true,
-                'transaction_id' => $data['refundTrxID'] ?? ('R-' . strtoupper(substr(md5($transactionId . $amount), 0, 12))),
-                'gateway_response' => $data,
-            ];
-        }
-
-        return [
-            'success' => false,
-            'message' => $data['reason'] ?? $data['message'] ?? 'Nagad refund failed',
-        ];
-    }
-
-    protected function refundRocket(string $transactionId, float $amount, string $reason): array
-    {
-        $base = 'https://api.razo.com.bd/api/v1';
-
-        $tokenResponse = Http::post("$base/token", [
-            'username' => config('payment.gateways.rocket.username', 'rocket_user'),
-            'password' => config('payment.gateways.rocket.password', 'rocket_pass'),
-        ]);
-
-        if (! $tokenResponse->successful()) {
-            return ['success' => false, 'message' => 'Failed to authenticate with Rocket'];
-        }
-
-        $accessToken = $tokenResponse->json()['access_token'] ?? null;
-
-        $response = Http::withToken($accessToken)->post("$base/refund", [
-            'transaction_id' => $transactionId,
-            'amount' => number_format($amount, 2, '.', ''),
-            'reason' => $reason,
-        ]);
-
-        $data = $response->json();
-
-        if ($response->successful() && in_array($data['status'] ?? null, ['success', 'Completed'], true)) {
-            return [
-                'success' => true,
-                'transaction_id' => $data['refund_id'] ?? ('R-' . strtoupper(substr(md5($transactionId . $amount), 0, 12))),
-                'gateway_response' => $data,
-            ];
-        }
-
-        return [
-            'success' => false,
-            'message' => $data['message'] ?? 'Rocket refund failed',
-        ];
+        return $fromConfig;
     }
 }

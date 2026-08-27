@@ -50,13 +50,16 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
 
-        $middleware->trustProxies(at: '*');
+        $middleware->trustProxies(at: env('TRUSTED_PROXIES', '*'));
+        // TODO: In production set TRUSTED_PROXIES to your load balancer / CDN CIDRs,
+        // e.g. TRUSTED_PROXIES=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
 
         $middleware->alias([
             'guest' => \Illuminate\Auth\Middleware\RedirectIfAuthenticated::class,
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'student_guardian' => \App\Http\Middleware\StudentGuardianMiddleware::class,
             'request.id' => \App\Http\Middleware\RequestId::class,
             'force.json' => \App\Http\Middleware\ForceJsonResponse::class,
         ]);

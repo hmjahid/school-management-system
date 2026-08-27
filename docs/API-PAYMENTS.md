@@ -16,6 +16,24 @@ All endpoints require authentication using Bearer tokens.
 Authorization: Bearer your_access_token_here
 ```
 
+## Configuration Sources
+
+Payment configuration uses **two complementary sources**:
+
+1. **`config/payment.php`** — stores non-secret defaults and offline account
+   details. These values are loaded from environment variables and should be
+   set in `.env` (see `.env.example`). No real secrets or account numbers
+   should ever be committed to this file.
+
+2. **`payment_gateways` table (via `App\Models\PaymentGateway`)** — stores
+   runtime gateway configuration such as per-gateway API credentials, sandbox
+   mode, and endpoint URLs. Admin users configure these through the dashboard.
+   At runtime the system reads from the database first and falls back to
+   `config/payment.php` only when a value is missing.
+
+When adding a new gateway, create the `PaymentGateway` record and set the
+matching environment variables in `.env` as a safe fallback.
+
 ## Payment Gateway Endpoints
 
 ### List Available Gateways
@@ -262,11 +280,21 @@ POST /api/payments/{payment_id}/refund
 
 ## Webhook Integration
 
-Payment gateways will send webhook notifications to the following endpoint:
+Payment gateways will send payment webhook notifications to:
 
 ```
 POST /api/payments/webhook/{gateway}
 ```
+
+Refund-related gateway webhooks are delivered to:
+
+```
+POST /api/webhooks/{gateway}/refund
+```
+
+Both endpoints verify the gateway signature using the server-side webhook
+secret from `config/payment.php` (via `BKASH_WEBHOOK_SECRET`,
+`NAGAD_WEBHOOK_SECRET`, or `ROCKET_WEBHOOK_SECRET`).
 
 ### Webhook Headers
 

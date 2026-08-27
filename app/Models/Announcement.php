@@ -4,9 +4,22 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Notification;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Announcement extends Model
 {
+    use LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['title', 'title_bn', 'body', 'body_bn', 'audience', 'display_target', 'is_published', 'starts_at', 'ends_at'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('announcements');
+    }
+
     protected $fillable = [
         'title',
         'title_bn',
@@ -48,6 +61,7 @@ class Announcement extends Model
         if ($locale === 'bn' && ! empty($this->title_bn)) {
             return $this->title_bn;
         }
+
         return $this->title;
     }
 
@@ -57,6 +71,7 @@ class Announcement extends Model
         if ($locale === 'bn' && ! empty($this->body_bn)) {
             return $this->body_bn;
         }
+
         return $this->body;
     }
 

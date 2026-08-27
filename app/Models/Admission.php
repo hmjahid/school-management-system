@@ -12,7 +12,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Admission extends Model
 {
-    use SoftDeletes, LogsActivity;
+    use LogsActivity, SoftDeletes;
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -412,11 +412,10 @@ class Admission extends Model
             $this->save();
 
             // Create user account for the student
-            $user = User::create([
+            $user = User::createWithCredential([
                 'name' => $this->full_name,
                 'email' => $this->email,
-                'password' => bcrypt(Str::random(10)), // Random password, will need to be reset
-                'status' => User::STATUS_ACTIVE,
+                'password' => Str::random(10), // Random password, will need to be reset
             ]);
 
             if ($user) {

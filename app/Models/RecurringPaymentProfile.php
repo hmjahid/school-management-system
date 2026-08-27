@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class RecurringPaymentProfile extends Model
@@ -278,7 +279,7 @@ class RecurringPaymentProfile extends Model
         ];
 
         $frequency = $this->billing_frequency > 1 
-            ? "Every {$this->billing_frequency} " . str_plural($this->billing_period, $this->billing_frequency)
+            ? "Every {$this->billing_frequency} " . Str::plural($this->billing_period, $this->billing_frequency)
             : $periods[$this->billing_period] ?? ucfirst($this->billing_period);
 
         return $frequency;

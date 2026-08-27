@@ -122,8 +122,8 @@ Route::prefix('v1')->group(function () {
             Route::post('/{payment}/cancel', [FeePaymentController::class, 'cancel']);
         });
 
-        // Events (authenticated)
-        Route::prefix('events')->group(function () {
+        // Events (admin only)
+        Route::prefix('events')->middleware('role:admin')->group(function () {
             Route::post('/', [EventController::class, 'store']);
             Route::put('/{event}', [EventController::class, 'update']);
             Route::delete('/{event}', [EventController::class, 'destroy']);

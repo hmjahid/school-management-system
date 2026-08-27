@@ -147,7 +147,8 @@ class PaymentControllerTest extends TestCase
             ], 200),
         ]);
 
-        $response = $this->getJson('/api/v1/payments/status/'.$this->payment->invoice_number);
+        $response = $this->actingAs($this->regularUser)
+            ->getJson('/api/v1/payments/status/'.$this->payment->invoice_number);
 
         $response->assertStatus(200)
             ->assertJson([

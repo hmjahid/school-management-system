@@ -350,12 +350,12 @@ class AdmissionController extends Controller
                 'migration_certificate',
                 'other'
             ])],
-            'file' => 'required|file|max:10240', // Max 10MB
+            'file' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:5120', // Max 5MB
             'description' => 'nullable|string|max:500',
         ]);
 
         $file = $request->file('file');
-        $path = $file->store("admissions/{$admission->id}/documents", 'public');
+        $path = $file->store("admissions/{$admission->id}/documents", 'local');
 
         $document = $admission->documents()->create([
             'type' => $validated['type'],
@@ -384,14 +384,40 @@ class AdmissionController extends Controller
         $this->authorize('deleteDocument', [$admission, $document]);
 
         // Delete the file from storage
-        Storage::disk('public')->delete($document->file_path);
-        
+        Storage::disk('local')->delete($document->file_path);
+
         // Delete the document record
         $document->delete();
 
         return response()->json([
             'message' => 'Document deleted successfully'
         ]);
+    }
+
+    /**
+     * Download an admission document.
+     *
+     * @param  \App\Models\Admission  $admission
+     * @param  \App\Models\AdmissionDocument  $document
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse|\Illuminate\Http\JsonResponse
+     */
+    public function downloadDocument(Admission $admission, AdmissionDocument $document)
+    {
+        $this->authorize('viewDocuments', $admission);
+
+        if ($document->admission_id !== $admission->id) {
+            return response()->json(['message' => 'Document does not belong to this admission'], 403);
+        }
+
+        if (! Storage::disk('local')->exists($document->file_path)) {
+            return response()->json(['message' => 'File not found'], 404);
+        }
+
+        return Storage::disk('local')->download(
+            $document->file_path,
+            $document->name,
+            ['Content-Type' => $document->file_type]
+        );
     }
 
     /**

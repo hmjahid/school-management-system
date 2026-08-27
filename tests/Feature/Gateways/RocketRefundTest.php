@@ -59,6 +59,9 @@ class RocketRefundTest extends TestCase
 
         $this->paymentService = app(PaymentService::class);
 
+        // Configure test webhook secret
+        config(['payment.gateways.rocket.webhook_secret' => 'test_store_password']);
+
         // Mock Rocket API responses
         $this->mockRocketApis();
     }
@@ -67,7 +70,7 @@ class RocketRefundTest extends TestCase
     {
         // Mock Rocket token endpoint
         Http::fake([
-            'api.razo.com.bd/api/v1/token' => Http::response([
+            'api.rocket.com.bd/api/v1/token' => Http::response([
                 'token_type' => 'Bearer',
                 'access_token' => 'rocket_test_access_token',
                 'expires_in' => 3600,
@@ -75,7 +78,7 @@ class RocketRefundTest extends TestCase
             ], 200),
 
             // Mock Rocket refund status check
-            'api.razo.com.bd/api/v1/refund/status/*' => Http::response([
+            'api.rocket.com.bd/api/v1/refund/status/*' => Http::response([
                 'status' => 'success',
                 'refund_id' => 'RFD' . uniqid(),
                 'transaction_id' => $this->payment->transaction_id,
@@ -91,7 +94,7 @@ class RocketRefundTest extends TestCase
     public function it_processes_rocket_refund_successfully()
     {
         Http::fake([
-            'api.razo.com.bd/api/v1/refund' => Http::response([
+            'api.rocket.com.bd/api/v1/refund' => Http::response([
                 'status' => 'success',
                 'message' => 'Refund request has been executed successfully',
                 'refund_id' => 'RFD' . uniqid(),
@@ -131,7 +134,7 @@ class RocketRefundTest extends TestCase
     {
         // Mock Rocket refund failure
         Http::fake([
-            'api.razo.com.bd/api/v1/refund' => Http::response([
+            'api.rocket.com.bd/api/v1/refund' => Http::response([
                 'status' => 'failed',
                 'message' => 'Insufficient balance',
                 'code' => 'insufficient_balance',
@@ -177,14 +180,11 @@ class RocketRefundTest extends TestCase
             'status' => 'Completed',
             'refund_date' => now()->toIso8601String(),
             'reason' => 'Customer requested refund',
-            'signature' => $this->generateRocketSignature([
-                'refund_id' => 'RFD' . uniqid(),
-                'transaction_id' => $this->payment->transaction_id,
-                'refund_amount' => '1000.00',
-            ]),
         ];
 
-        $response = $this->postJson('/api/webhooks/rocket/refund', $webhookPayload);
+        $response = $this->postJson('/api/webhooks/rocket/refund', $webhookPayload, [
+            'X-Rocket-Signature' => $this->generateRocketSignature($webhookPayload),
+        ]);
 
         $response->assertStatus(200);
         
@@ -199,7 +199,7 @@ class RocketRefundTest extends TestCase
     public function it_handles_concurrent_refund_requests()
     {
         Http::fake([
-            'api.razo.com.bd/api/v1/refund' => Http::response([
+            'api.rocket.com.bd/api/v1/refund' => Http::response([
                 'status' => 'success',
                 'message' => 'Refund request has been executed successfully',
                 'refund_id' => 'RFD' . uniqid(),
@@ -240,7 +240,7 @@ class RocketRefundTest extends TestCase
     public function it_handles_partial_refunds_correctly()
     {
         Http::fake([
-            'api.razo.com.bd/api/v1/refund' => Http::response([
+            'api.rocket.com.bd/api/v1/refund' => Http::response([
                 'status' => 'success',
                 'message' => 'Refund request has been executed successfully',
                 'refund_id' => 'RFD' . uniqid(),
@@ -297,15 +297,7 @@ class RocketRefundTest extends TestCase
 
     protected function generateRocketSignature(array $data): string
     {
-        // In a real implementation, this would use the same signature generation as the Rocket SDK
-        // This is a simplified version for testing
-        ksort($data);
-        $signatureString = implode('', array_map(
-            fn($key, $value) => $key . $value,
-            array_keys($data),
-            $data
-        ));
-        
-        return hash_hmac('sha256', $signatureString, 'test_store_password');
+        // Match server-side HMAC verification: HMAC-SHA256 of the raw JSON body.
+        return hash_hmac('sha256', json_encode($data, JSON_UNESCAPED_SLASHES), 'test_store_password');
     }
 }

@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Exam;
 use App\Models\ExamResult;
+use App\Models\Guardian;
 use App\Models\Student;
+use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class DashboardExamResultController extends Controller
 {
@@ -31,9 +33,6 @@ class DashboardExamResultController extends Controller
         }
         if ($exam->section_id) {
             $studentsQuery->where('section_id', $exam->section_id);
-        }
-        if ($exam->class_id) {
-            $studentsQuery->where('class_id', $exam->class_id);
         }
 
         $students = $studentsQuery->limit(500)->get();
@@ -58,7 +57,7 @@ class DashboardExamResultController extends Controller
 
         $data = $request->validate([
             'marks' => 'required|array',
-            'marks.*' => 'nullable|numeric|min:0|max:' . (float) ($exam->total_marks ?: 100),
+            'marks.*' => 'nullable|numeric|min:0|max:'.(float) ($exam->total_marks ?: 100),
         ]);
 
         $saved = 0;
@@ -132,7 +131,7 @@ class DashboardExamResultController extends Controller
     {
         $this->authorize('viewAny', ExamResult::class);
 
-        $filename = 'exam-' . ($exam->code ?: $exam->id) . '-results.csv';
+        $filename = 'exam-'.($exam->code ?: $exam->id).'-results.csv';
 
         $results = ExamResult::with(['student.user', 'student.class', 'student.section'])
             ->where('exam_id', $exam->id)
@@ -168,9 +167,11 @@ class DashboardExamResultController extends Controller
 
     public function downloadMarksheet(Request $request, Exam $exam, ExamResult $result): \Illuminate\Http\Response
     {
-        $this->authorize('view', $exam);
+        $user = $request->user();
 
-        $result->load(['student.user', 'student.class', 'student.section', 'exam.subject', 'exam.batch', 'exam.academicSession']);
+        $this->authorizeMarksheet($user, $exam, $result);
+
+        $result->load(['student.user', 'student.class', 'student.section', 'student.batch', 'exam.subject', 'exam.batch', 'exam.academicSession']);
 
         $settings = \App\Models\WebsiteSetting::getSettings();
 
@@ -182,9 +183,39 @@ class DashboardExamResultController extends Controller
 
         $pdf = Pdf::loadHTML($html);
 
-        $filename = 'marksheet-' . ($result->student?->admission_number ?? $result->student_id) . '-' . ($exam->code ?? $exam->id) . '.pdf';
+        $filename = 'marksheet-'.($result->student?->admission_number ?? $result->student_id).'-'.($exam->code ?? $exam->id).'.pdf';
 
         return $pdf->download($filename);
+    }
+
+    /**
+     * Restrict marksheet downloads: admins any, students/parents only their
+     * own, teachers/staff must pass exam visibility (assigned or permitted).
+     */
+    protected function authorizeMarksheet(?User $user, Exam $exam, ExamResult $result): void
+    {
+        if (! $user || $user->hasRole('admin')) {
+            return;
+        }
+
+        if ($user->hasRole('student')) {
+            $own = Student::query()->where('user_id', $user->id)->value('id');
+
+            abort_unless($own && (int) $own === (int) $result->student_id, 403);
+
+            return;
+        }
+
+        if ($user->hasRole('parent')) {
+            $guardian = Guardian::query()->where('user_id', $user->id)->first();
+            $owns = $guardian && $guardian->students()->whereKey($result->student_id)->exists();
+
+            abort_unless($owns, 403);
+
+            return;
+        }
+
+        $this->authorize('view', $exam);
     }
 
     public function studentResults(Request $request, Student $student): View

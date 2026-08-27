@@ -46,6 +46,9 @@ class BkashRefundTest extends TestCase
 
         $this->paymentService = app(PaymentService::class);
 
+        // Configure test webhook secret
+        config(['payment.gateways.bkash.webhook_secret' => 'test_secret']);
+
         // Mock bKash API responses
         $this->mockBkashApis();
     }
@@ -235,10 +238,7 @@ class BkashRefundTest extends TestCase
 
     protected function generateBkashSignature(array $data): string
     {
-        // In a real implementation, this would use the same signature generation as the bKash SDK
-        // This is a simplified version for testing
-        ksort($data);
-        $signatureData = json_encode($data, JSON_UNESCAPED_SLASHES);
-        return hash_hmac('sha256', $signatureData, 'test_secret');
+        // Match server-side HMAC verification: HMAC-SHA256 of the raw JSON body.
+        return hash_hmac('sha256', json_encode($data, JSON_UNESCAPED_SLASHES), 'test_secret');
     }
 }

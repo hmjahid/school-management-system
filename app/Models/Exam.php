@@ -3,17 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class Exam extends Model
 {
-    use SoftDeletes, LogsActivity;
+    use LogsActivity, SoftDeletes;
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -26,26 +26,41 @@ class Exam extends Model
 
     // Exam types
     public const TYPE_QUIZ = 'quiz';
+
     public const TYPE_MID_TERM = 'mid_term';
+
     public const TYPE_FINAL = 'final';
+
     public const TYPE_ASSIGNMENT = 'assignment';
+
     public const TYPE_PROJECT = 'project';
+
     public const TYPE_PRACTICAL = 'practical';
+
     public const TYPE_ORAL = 'oral';
+
     public const TYPE_OTHER = 'other';
 
     // Exam statuses
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_SCHEDULED = 'scheduled';
+
     public const STATUS_ONGOING = 'ongoing';
+
     public const STATUS_COMPLETED = 'completed';
+
     public const STATUS_CANCELLED = 'cancelled';
+
     public const STATUS_PUBLISHED = 'published';
 
     // Grading types
     public const GRADING_PERCENTAGE = 'percentage';
+
     public const GRADING_GRADE = 'grade';
+
     public const GRADING_PASS_FAIL = 'pass_fail';
+
     public const GRADING_CUSTOM = 'custom';
 
     protected $fillable = [
@@ -165,27 +180,11 @@ class Exam extends Model
     }
 
     /**
-     * Get the exam schedule for the exam.
-     */
-    public function schedule(): HasOne
-    {
-        return $this->hasOne(ExamSchedule::class);
-    }
-
-    /**
      * Get the exam results for the exam.
      */
     public function results(): HasMany
     {
         return $this->hasMany(ExamResult::class);
-    }
-
-    /**
-     * Get the exam questions for the exam.
-     */
-    public function questions(): HasMany
-    {
-        return $this->hasMany(ExamQuestion::class);
     }
 
     /**
@@ -224,7 +223,7 @@ class Exam extends Model
      */
     public function getIsUpcomingAttribute(): bool
     {
-        return in_array($this->status, [self::STATUS_DRAFT, self::STATUS_SCHEDULED]) && 
+        return in_array($this->status, [self::STATUS_DRAFT, self::STATUS_SCHEDULED]) &&
                $this->start_date > now();
     }
 
@@ -233,7 +232,7 @@ class Exam extends Model
      */
     public function getIsOngoingAttribute(): bool
     {
-        return $this->status === self::STATUS_ONGOING || 
+        return $this->status === self::STATUS_ONGOING ||
                ($this->start_date <= now() && $this->end_date >= now());
     }
 
@@ -242,16 +241,19 @@ class Exam extends Model
      */
     public function getIsCompletedAttribute(): bool
     {
-        return in_array($this->status, [self::STATUS_COMPLETED, self::STATUS_PUBLISHED]) || 
+        return in_array($this->status, [self::STATUS_COMPLETED, self::STATUS_PUBLISHED]) ||
                $this->end_date < now();
     }
 
     /**
-     * Check if the exam is published.
+     * Determine whether the exam is fully published.
+     *
+     * Both the status column and the is_published flag must be set. This avoids
+     * accidental exposure when only one of the two flags is flipped.
      */
-    public function getIsPublishedAttribute(): bool
+    public function isFullyPublished(): bool
     {
-        return $this->status === self::STATUS_PUBLISHED && ($this->attributes['is_published'] ?? false);
+        return $this->status === self::STATUS_PUBLISHED && (bool) ($this->attributes['is_published'] ?? false);
     }
 
     /**
@@ -259,7 +261,7 @@ class Exam extends Model
      */
     public function getDurationFormattedAttribute(): string
     {
-        if (!$this->duration) {
+        if (! $this->duration) {
             return 'N/A';
         }
 
@@ -268,10 +270,10 @@ class Exam extends Model
 
         $result = [];
         if ($hours > 0) {
-            $result[] = $hours . ' ' . str_plural('hour', $hours);
+            $result[] = $hours.' '.Str::plural('hour', $hours);
         }
         if ($minutes > 0) {
-            $result[] = $minutes . ' ' . str_plural('minute', $minutes);
+            $result[] = $minutes.' '.Str::plural('minute', $minutes);
         }
 
         return implode(' ', $result);
@@ -283,7 +285,7 @@ class Exam extends Model
     public function scopeUpcoming($query)
     {
         return $query->whereIn('status', [self::STATUS_DRAFT, self::STATUS_SCHEDULED])
-                    ->where('start_date', '>', now());
+            ->where('start_date', '>', now());
     }
 
     /**
@@ -291,12 +293,12 @@ class Exam extends Model
      */
     public function scopeOngoing($query)
     {
-        return $query->where(function($q) {
+        return $query->where(function ($q) {
             $q->where('status', self::STATUS_ONGOING)
-              ->orWhere(function($q) {
-                  $q->where('start_date', '<=', now())
-                    ->where('end_date', '>=', now());
-              });
+                ->orWhere(function ($q) {
+                    $q->where('start_date', '<=', now())
+                        ->where('end_date', '>=', now());
+                });
         });
     }
 
@@ -305,9 +307,9 @@ class Exam extends Model
      */
     public function scopeCompleted($query)
     {
-        return $query->where(function($q) {
+        return $query->where(function ($q) {
             $q->whereIn('status', [self::STATUS_COMPLETED, self::STATUS_PUBLISHED])
-              ->orWhere('end_date', '<', now());
+                ->orWhere('end_date', '<', now());
         });
     }
 
@@ -317,7 +319,7 @@ class Exam extends Model
     public function scopePublished($query)
     {
         return $query->where('status', self::STATUS_PUBLISHED)
-                    ->where('is_published', true);
+            ->where('is_published', true);
     }
 
     /**
@@ -421,7 +423,7 @@ class Exam extends Model
     public function calculateGrade(float $score): array
     {
         $gradingScale = $this->grading_scale ?? self::getDefaultGradingScale();
-        
+
         foreach ($gradingScale as $grade) {
             if ($score >= $grade['min'] && $score <= $grade['max']) {
                 return [
@@ -463,7 +465,7 @@ class Exam extends Model
     {
         $results = $this->results()->get();
         $totalStudents = $results->count();
-        
+
         if ($totalStudents === 0) {
             return [
                 'total_students' => 0,
@@ -480,23 +482,23 @@ class Exam extends Model
             ];
         }
 
-        $participated = $results->where('status', 'submitted')->count();
-        $passed = $results->where('is_passed', true)->count();
-        $scores = $results->where('status', 'submitted')->pluck('obtained_marks')->filter()->toArray();
-        
+        $participated = $results->whereIn('status', [ExamResult::STATUS_PASSED, ExamResult::STATUS_FAILED])->count();
+        $passed = $results->where('status', ExamResult::STATUS_PASSED)->count();
+        $scores = $results->whereIn('status', [ExamResult::STATUS_PASSED, ExamResult::STATUS_FAILED])->pluck('obtained_marks')->filter()->toArray();
+
         $averageScore = count($scores) > 0 ? array_sum($scores) / count($scores) : 0;
         $highestScore = count($scores) > 0 ? max($scores) : 0;
         $lowestScore = count($scores) > 0 ? min($scores) : 0;
-        
+
         // Calculate grade distribution
         $gradeDistribution = [];
         $gradingScale = $this->grading_scale ?? self::getDefaultGradingScale();
-        
+
         foreach ($gradingScale as $grade) {
-            $count = $results->filter(function($result) use ($grade) {
+            $count = $results->filter(function ($result) use ($grade) {
                 return $result->obtained_marks >= $grade['min'] && $result->obtained_marks <= $grade['max'];
             })->count();
-            
+
             $gradeDistribution[] = [
                 'grade' => $grade['grade'],
                 'count' => $count,

@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -44,8 +43,12 @@ class ExamResult extends Model
         'reviewed_at',
         'review_remarks',
         'is_published',
+        'publish_remarks',
         'published_at',
         'published_by',
+        'unpublish_remarks',
+        'unpublished_at',
+        'unpublished_by',
     ];
 
     protected $casts = [
@@ -55,6 +58,7 @@ class ExamResult extends Model
         'submitted_at' => 'datetime',
         'reviewed_at' => 'datetime',
         'published_at' => 'datetime',
+        'unpublished_at' => 'datetime',
     ];
 
     /**
@@ -74,51 +78,27 @@ class ExamResult extends Model
     }
 
     /**
-     * Get the staff who submitted the result.
+     * Get the user who submitted the result.
      */
     public function submittedBy(): BelongsTo
     {
-        return $this->belongsTo(Staff::class, 'submitted_by');
+        return $this->belongsTo(User::class, 'submitted_by');
     }
 
     /**
-     * Get the staff who reviewed the result.
+     * Get the user who reviewed the result.
      */
     public function reviewedBy(): BelongsTo
     {
-        return $this->belongsTo(Staff::class, 'reviewed_by');
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 
     /**
-     * Get the staff who published the result.
+     * Get the user who published the result.
      */
     public function publishedBy(): BelongsTo
     {
-        return $this->belongsTo(Staff::class, 'published_by');
-    }
-
-    /**
-     * Get the result details.
-     */
-    public function details(): HasMany
-    {
-        return $this->hasMany(ExamResultDetail::class);
-    }
-
-    /**
-     * Get the result remarks.
-     */
-    public function remarks(): HasMany
-    {
-        return $this->hasMany(ExamRemark::class);
-    }
-
-    /**
-     * Get the latest remark.
-     */
-    public function latestRemark(): HasOne
-    {
-        return $this->hasOne(ExamRemark::class)->latest();
+        return $this->belongsTo(User::class, 'published_by');
     }
 
     /**

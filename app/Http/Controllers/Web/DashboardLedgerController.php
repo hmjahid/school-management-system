@@ -81,7 +81,7 @@ class DashboardLedgerController extends Controller
     {
         abort_unless($request->user()?->can('manage_chart_of_accounts') || $request->user()?->can('manage_expenses'), 403);
 
-        $account = ChartOfAccount::where('code', '1000')->firstOrFail();
+        $account = ChartOfAccount::where('code', '1000')->first();
 
         return $this->accountReport($request, $account, 'dashboard.ledger.cashbook', 'Cashbook');
     }
@@ -90,7 +90,7 @@ class DashboardLedgerController extends Controller
     {
         abort_unless($request->user()?->can('manage_chart_of_accounts') || $request->user()?->can('manage_expenses'), 403);
 
-        $account = ChartOfAccount::where('code', '1010')->firstOrFail();
+        $account = ChartOfAccount::where('code', '1010')->first();
 
         return $this->accountReport($request, $account, 'dashboard.ledger.bankbook', 'Bankbook');
     }
@@ -105,8 +105,8 @@ class DashboardLedgerController extends Controller
         $incomeAccounts = ChartOfAccount::where('type', ChartOfAccount::TYPE_INCOME)->orderBy('code')->get();
         $expenseAccounts = ChartOfAccount::where('type', ChartOfAccount::TYPE_EXPENSE)->orderBy('code')->get();
 
-        $incomeRows = $incomeAccounts->map(fn($a) => ['account' => $a, 'amount' => $a->balance($from, $to)])->filter(fn($r) => $r['amount'] != 0);
-        $expenseRows = $expenseAccounts->map(fn($a) => ['account' => $a, 'amount' => $a->balance($from, $to)])->filter(fn($r) => $r['amount'] != 0);
+        $incomeRows = $incomeAccounts->map(fn ($a) => ['account' => $a, 'amount' => $a->balance($from, $to)])->filter(fn ($r) => $r['amount'] != 0);
+        $expenseRows = $expenseAccounts->map(fn ($a) => ['account' => $a, 'amount' => $a->balance($from, $to)])->filter(fn ($r) => $r['amount'] != 0);
 
         $totalIncome = $incomeRows->sum('amount');
         $totalExpense = $expenseRows->sum('amount');
@@ -122,11 +122,11 @@ class DashboardLedgerController extends Controller
         $asOf = $request->filled('as_of') ? $request->string('as_of')->toString() : now()->toDateString();
 
         $assets = ChartOfAccount::where('type', ChartOfAccount::TYPE_ASSET)->orderBy('code')->get()
-            ->map(fn($a) => ['account' => $a, 'amount' => $a->balance(null, $asOf)]);
+            ->map(fn ($a) => ['account' => $a, 'amount' => $a->balance(null, $asOf)]);
         $liabilities = ChartOfAccount::where('type', ChartOfAccount::TYPE_LIABILITY)->orderBy('code')->get()
-            ->map(fn($a) => ['account' => $a, 'amount' => $a->balance(null, $asOf)]);
+            ->map(fn ($a) => ['account' => $a, 'amount' => $a->balance(null, $asOf)]);
         $equity = ChartOfAccount::where('type', ChartOfAccount::TYPE_EQUITY)->orderBy('code')->get()
-            ->map(fn($a) => ['account' => $a, 'amount' => $a->balance(null, $asOf)]);
+            ->map(fn ($a) => ['account' => $a, 'amount' => $a->balance(null, $asOf)]);
 
         $totalAssets = $assets->sum('amount');
         $totalLiabilities = $liabilities->sum('amount');
@@ -157,14 +157,16 @@ class DashboardLedgerController extends Controller
         ]);
     }
 
-    protected function accountReport(Request $request, ChartOfAccount $account, string $view, string $title): View
+    protected function accountReport(Request $request, ?ChartOfAccount $account, string $view, string $title): View
     {
         $from = $request->filled('from') ? $request->string('from')->toString() : now()->startOfMonth()->toDateString();
         $to = $request->filled('to') ? $request->string('to')->toString() : now()->toDateString();
 
-        $entries = $account->entries()->whereBetween('date', [$from, $to])->orderBy('date')->orderBy('id')->get();
-        $opening = $account->balance(null, $from);
-        $closing = $account->balance(null, $to);
+        $entries = $account
+            ? $account->entries()->whereBetween('date', [$from, $to])->orderBy('date')->orderBy('id')->get()
+            : collect();
+        $opening = $account?->balance(null, $from) ?? 0;
+        $closing = $account?->balance(null, $to) ?? 0;
 
         return view($view, [
             'account' => $account,

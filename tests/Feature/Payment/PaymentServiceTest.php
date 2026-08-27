@@ -31,8 +31,8 @@ class PaymentServiceTest extends TestCase
             'is_online' => true,
             'has_api' => true,
             'test_mode' => true,
-            'sandbox_url' => 'https://sandbox.bkash.com',
-            'live_url' => 'https://api.bkash.com',
+            'sandbox_url' => 'https://checkout.sandbox.bka.sh',
+            'live_url' => 'https://checkout.bka.sh',
             'api_key' => 'test_key',
             'api_secret' => 'test_secret',
             'api_username' => 'test_user',
@@ -41,7 +41,7 @@ class PaymentServiceTest extends TestCase
             'currency' => 'BDT',
             'config' => [
                 'test_mode' => true,
-                'api_url' => 'https://sandbox.bkash.com',
+                'api_url' => 'https://checkout.sandbox.bka.sh',
                 'api_key' => 'test_key',
                 'api_secret' => 'test_secret',
                 'api_username' => 'test_user',
@@ -86,7 +86,7 @@ class PaymentServiceTest extends TestCase
             'is_online' => true,
             'has_api' => true,
             'test_mode' => true,
-            'sandbox_url' => 'https://sandbox.bkash.com',
+            'sandbox_url' => 'https://checkout.sandbox.bka.sh',
         ]);
 
         $payment = Payment::factory()->create();
@@ -120,8 +120,8 @@ class PaymentServiceTest extends TestCase
         ]);
 
         Http::fake([
-            '*sandbox.bkash.com/checkout/token/grant*' => Http::response(['id_token' => 'TEST_TOKEN'], 200),
-            '*sandbox.bkash.com/checkout/create*' => Http::response([
+            '*checkout.sandbox.bka.sh/checkout/token/grant*' => Http::response(['id_token' => 'TEST_TOKEN'], 200),
+            '*checkout.sandbox.bka.sh/checkout/create*' => Http::response([
                 'paymentID' => 'PID123',
                 'bkashURL' => 'https://bkash.com/pay/123',
                 'createTime' => now()->toIso8601String(),
@@ -155,7 +155,7 @@ class PaymentServiceTest extends TestCase
         ]);
 
         Http::fake([
-            '*sandbox.bkash.com/checkout/execute*' => Http::response([
+            '*checkout.sandbox.bka.sh/checkout/execute*' => Http::response([
                 'paymentID' => 'TRX12345',
                 'trxID' => 'TXN987',
                 'transactionStatus' => 'Completed',
@@ -186,8 +186,8 @@ class PaymentServiceTest extends TestCase
         ]);
 
         Http::fake([
-            '*sandbox.bkash.com/checkout/token/grant*' => Http::response(['id_token' => 'TEST_TOKEN'], 200),
-            '*sandbox.bkash.com/checkout/payment/status*' => Http::response([
+            '*checkout.sandbox.bka.sh/checkout/token/grant*' => Http::response(['id_token' => 'TEST_TOKEN'], 200),
+            '*checkout.sandbox.bka.sh/checkout/payment/status*' => Http::response([
                 'paymentID' => 'TRX12345',
                 'transactionStatus' => 'Completed',
                 'completedTime' => now()->toIso8601String(),
@@ -234,7 +234,7 @@ class PaymentServiceTest extends TestCase
         ]);
 
         Http::fake([
-            '*sandbox.bkash.com/checkout/token/grant*' => Http::response([], 400),
+            '*checkout.sandbox.bka.sh/checkout/token/grant*' => Http::response([], 400),
         ]);
 
         $this->expectException(\Exception::class);

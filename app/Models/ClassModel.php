@@ -54,14 +54,6 @@ class ClassModel extends Model
     }
 
     /**
-     * Get the students enrolled in the class.
-     */
-    public function students(): HasMany
-    {
-        return $this->hasMany(Student::class, 'class_id');
-    }
-
-    /**
      * Get the grades for the class.
      */
     public function grades(): HasMany

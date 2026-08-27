@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\TeacherResource;
-use App\Models\Teacher;
-use App\Models\User;
 use App\Models\SchoolClass;
 use App\Models\Subject;
+use App\Models\Teacher;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -18,7 +18,6 @@ class TeacherController extends Controller
     /**
      * Display a listing of the teachers.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -34,12 +33,12 @@ class TeacherController extends Controller
 
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('employee_id', 'like', "%{$search}%")
-                  ->orWhereHas('user', function($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('user', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -52,14 +51,13 @@ class TeacherController extends Controller
                 'per_page' => $teachers->perPage(),
                 'current_page' => $teachers->currentPage(),
                 'last_page' => $teachers->lastPage(),
-            ]
+            ],
         ]);
     }
 
     /**
      * Store a newly created teacher in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
@@ -106,7 +104,7 @@ class TeacherController extends Controller
 
         $teacher = DB::transaction(function () use ($validated) {
             // Create user account
-            $user = User::create([
+            $user = User::createWithCredential([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
@@ -123,16 +121,16 @@ class TeacherController extends Controller
                 collect($validated)->except(['name', 'email', 'password', 'password_confirmation', 'subjects', 'classes'])->toArray(),
                 ['user_id' => $user->id]
             );
-            
+
             $teacher = Teacher::create($teacherData);
 
             // Attach subjects if provided
-            if (!empty($validated['subjects'])) {
+            if (! empty($validated['subjects'])) {
                 $teacher->subjects()->sync($validated['subjects']);
             }
 
             // Attach classes if provided
-            if (!empty($validated['classes'])) {
+            if (! empty($validated['classes'])) {
                 $classData = [];
                 foreach ($validated['classes'] as $classItem) {
                     $classData[$classItem['class_id']] = [
@@ -148,30 +146,27 @@ class TeacherController extends Controller
 
         return response()->json([
             'message' => 'Teacher created successfully',
-            'data' => new TeacherResource($teacher)
+            'data' => new TeacherResource($teacher),
         ], 201);
     }
 
     /**
      * Display the specified teacher.
      *
-     * @param  \App\Models\Teacher  $teacher
      * @return \Illuminate\Http\JsonResponse
      */
     public function show(Teacher $teacher)
     {
         $this->authorize('view', $teacher);
-        
+
         return response()->json([
-            'data' => new TeacherResource($teacher->load(['user', 'subjects', 'classes']))
+            'data' => new TeacherResource($teacher->load(['user', 'subjects', 'classes'])),
         ]);
     }
 
     /**
      * Update the specified teacher in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Teacher  $teacher
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, Teacher $teacher)
@@ -186,14 +181,14 @@ class TeacherController extends Controller
                 'string',
                 'email',
                 'max:255',
-                Rule::unique('users', 'email')->ignore($teacher->user_id)
+                Rule::unique('users', 'email')->ignore($teacher->user_id),
             ],
             'password' => 'sometimes|nullable|string|min:8|confirmed',
             'employee_id' => [
                 'sometimes',
                 'required',
                 'string',
-                Rule::unique('teachers', 'employee_id')->ignore($teacher->id)
+                Rule::unique('teachers', 'employee_id')->ignore($teacher->id),
             ],
             'qualification' => 'nullable|string|max:255',
             'gender' => 'sometimes|required|in:male,female,other',
@@ -270,14 +265,13 @@ class TeacherController extends Controller
 
         return response()->json([
             'message' => 'Teacher updated successfully',
-            'data' => new TeacherResource($teacher->fresh()->load(['user', 'subjects', 'classes']))
+            'data' => new TeacherResource($teacher->fresh()->load(['user', 'subjects', 'classes'])),
         ]);
     }
 
     /**
      * Remove the specified teacher from storage.
      *
-     * @param  \App\Models\Teacher  $teacher
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Teacher $teacher)
@@ -287,13 +281,13 @@ class TeacherController extends Controller
         DB::transaction(function () use ($teacher) {
             // Soft delete the user
             $teacher->user->delete();
-            
+
             // Soft delete the teacher
             $teacher->delete();
         });
 
         return response()->json([
-            'message' => 'Teacher deleted successfully'
+            'message' => 'Teacher deleted successfully',
         ]);
     }
 
@@ -321,7 +315,6 @@ class TeacherController extends Controller
     /**
      * Get the teacher's dashboard statistics.
      *
-     * @param  \App\Models\Teacher  $teacher
      * @return \Illuminate\Http\JsonResponse
      */
     public function getDashboardStats(Teacher $teacher)
@@ -336,7 +329,7 @@ class TeacherController extends Controller
         ];
 
         return response()->json([
-            'data' => $stats
+            'data' => $stats,
         ]);
     }
 }

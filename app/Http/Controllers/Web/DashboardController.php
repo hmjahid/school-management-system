@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admission;
 use App\Models\Attendance;
+use App\Models\FeePayment;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Models\User;
@@ -32,7 +34,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * @return array{totalStudents: int, totalTeachers: int, totalParents: int, totalRevenue: float|int, attendanceRate: int}
+     * @return array{totalStudents: int, totalTeachers: int, totalParents: int, totalRevenue: float|int, attendanceRate: int, pendingAdmissions: int, pendingDues: int}
      */
     protected function stats(): array
     {
@@ -42,6 +44,8 @@ class DashboardController extends Controller
             'totalParents' => 0,
             'totalRevenue' => 0,
             'attendanceRate' => 0,
+            'pendingAdmissions' => 0,
+            'pendingDues' => 0,
         ];
 
         try {
@@ -69,6 +73,16 @@ class DashboardController extends Controller
                     ])
                     ->count();
                 $defaults['attendanceRate'] = $total > 0 ? (int) round(100 * $present / $total) : 0;
+            }
+            if (Schema::hasTable('admissions')) {
+                $defaults['pendingAdmissions'] = Admission::query()
+                    ->where('status', Admission::STATUS_SUBMITTED)
+                    ->count();
+            }
+            if (Schema::hasTable('fee_payments')) {
+                $defaults['pendingDues'] = FeePayment::query()
+                    ->whereIn('status', [FeePayment::STATUS_PENDING, FeePayment::STATUS_PARTIAL])
+                    ->sum('balance');
             }
         } catch (\Throwable) {
             //

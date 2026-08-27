@@ -95,6 +95,13 @@ class PaymentGateway extends Model
         'api_password' => 'encrypted',
     ];
 
+    protected $hidden = [
+        'api_key',
+        'api_secret',
+        'api_username',
+        'api_password',
+    ];
+
     protected $appends = [
         'type_label',
         'is_configured',

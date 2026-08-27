@@ -24,16 +24,23 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-        $defaultRoleId = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web'])->id;
-
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
-            'role_id' => $defaultRoleId,
         ];
+    }
+
+    public function configure(): static
+    {
+        return $this->afterCreating(function (\App\Models\User $user) {
+            $defaultRoleId = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web'])->id;
+
+            $user->role_id = $defaultRoleId;
+            $user->save();
+        });
     }
 
     /**
