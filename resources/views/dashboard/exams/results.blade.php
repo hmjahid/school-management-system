@@ -16,10 +16,12 @@
         <div class="flex flex-wrap gap-2">
             @if ($stats['total_students'] > 0)
                 <a href="{{ route('dashboard.exams.results.export', $exam) }}" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{{ __('Export CSV') }}</a>
-                <form method="post" action="{{ route('dashboard.exams.publish', $exam) }}" onsubmit="return confirm({{ json_encode(__('Publish all results?')) }});">
-                    @csrf
-                    <button type="submit" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">{{ __('Publish all') }}</button>
-                </form>
+                <button
+                    type="button"
+                    onclick="document.getElementById('publish-summary-modal').classList.remove('hidden'); document.getElementById('publish-summary-modal').setAttribute('aria-hidden','false'); document.body.style.overflow='hidden';"
+                    class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+                    @unless (auth()->user()?->can('review_exam_results')) disabled title="{{ __('You do not have permission to publish results.') }}" @endunless
+                >{{ __('Publish all') }}</button>
                 <form method="post" action="{{ route('dashboard.exams.unpublish', $exam) }}" onsubmit="return confirm({{ json_encode(__('Unpublish all?')) }});">
                     @csrf
                     <button type="submit" class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700">{{ __('Unpublish all') }}</button>
@@ -117,7 +119,13 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="px-4 py-8 text-center text-gray-500">{{ __('No students match this exam.') }}</td>
+                                <td colspan="8" class="px-4 py-10">
+                                    <x-empty-state
+                                        icon="document"
+                                        :title="__('No students match this exam')"
+                                        :message="__('Enter marks for students so results can be published.')"
+                                    />
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -131,4 +139,62 @@
             </div>
         @endif
     </form>
+
+    <div id="publish-summary-modal" class="hidden" aria-hidden="true">
+        <div class="fixed inset-0 z-[90] flex items-center justify-center bg-slate-900/50 p-4" onclick="closePublishSummaryModal()">
+            <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-xl" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="publish-summary-title">
+                <h3 id="publish-summary-title" class="text-lg font-semibold text-gray-900">{{ __('Publish results') }}</h3>
+                <p class="mt-1 text-sm text-gray-600">{{ __('Confirm the details before publishing. Once published, results become visible to students and parents.') }}</p>
+
+                <dl class="mt-5 space-y-3 border-t border-gray-100 pt-4 text-sm">
+                    <div class="flex items-center justify-between gap-4">
+                        <dt class="text-gray-500">{{ __('Exam') }}</dt>
+                        <dd class="font-medium text-gray-900">{{ $exam->name }}</dd>
+                    </div>
+                    <div class="flex items-center justify-between gap-4">
+                        <dt class="text-gray-500">{{ __('Class / Section') }}</dt>
+                        <dd class="font-medium text-gray-900">
+                            {{ collect([$exam->section?->name, $exam->batch?->name])->filter()->implode(' · ') ?: __('All') }}
+                        </dd>
+                    </div>
+                    <div class="flex items-center justify-between gap-4">
+                        <dt class="text-gray-500">{{ __('Students in exam') }}</dt>
+                        <dd class="font-medium text-gray-900">{{ number_format($students->count()) }}</dd>
+                    </div>
+                    <div class="flex items-center justify-between gap-4">
+                        <dt class="text-gray-500">{{ __('Results entered') }}</dt>
+                        <dd class="font-medium text-gray-900">{{ number_format((int) ($stats['participated'] ?? 0)) }}</dd>
+                    </div>
+                    <div class="flex items-center justify-between gap-4">
+                        <dt class="text-gray-500">{{ __('Guardians to notify') }}</dt>
+                        <dd class="font-medium text-gray-900">{{ number_format((int) ($smsRecipients ?? 0)) }}</dd>
+                    </div>
+                </dl>
+
+                @php $missing = $students->count() - (int) ($stats['participated'] ?? 0); @endphp
+                @if ($missing > 0)
+                    <p class="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                        {{ __(':n student(s) do not have marks yet. Publishing will expose only entered results.', ['n' => $missing]) }}
+                    </p>
+                @endif
+
+                <div class="mt-6 flex flex-wrap justify-end gap-2">
+                    <button type="button" onclick="closePublishSummaryModal()" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">{{ __('Cancel') }}</button>
+                    <form method="post" action="{{ route('dashboard.exams.publish', $exam) }}">
+                        @csrf
+                        <button type="submit" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">{{ __('Confirm publish') }}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function closePublishSummaryModal() {
+            var m = document.getElementById('publish-summary-modal');
+            m.classList.add('hidden');
+            m.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        }
+    </script>
 @endsection

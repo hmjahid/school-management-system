@@ -29,6 +29,10 @@ class DashboardAdmissionController extends Controller
             $query->where('status', $request->string('status')->toString());
         }
 
+        if ($request->filled('payment_status')) {
+            $query->where('payment_status', $request->string('payment_status')->toString());
+        }
+
         if ($request->filled('q')) {
             $q = $request->string('q')->toString();
             $query->where(function ($b) use ($q) {
@@ -202,7 +206,7 @@ class DashboardAdmissionController extends Controller
         $admission->save();
 
         Notification::route('mail', $admission->email)
-            ->notify(new AdmissionPaymentVerifiedNotification($admission));
+            ->notify(new AdmissionPaymentVerifiedNotification($admission, 'verified'));
 
         return back()->with('status', __('Payment verified. The applicant can now download the confirmation letter.'));
     }

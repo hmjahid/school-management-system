@@ -21,10 +21,15 @@
         </div>
     </div>
 
+    <div class="mb-3">
+        @include('dashboard.partials.bulk-actions-bar', ['action' => route('dashboard.announcements.bulk'), 'publishable' => true])
+    </div>
+
     <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <table class="min-w-full divide-y divide-gray-200 text-sm">
+        <table class="min-w-full divide-y divide-gray-200 text-sm" data-bulk-table>
             <thead class="bg-gray-50">
                 <tr>
+                    <th class="w-10 px-4 py-3"><input type="checkbox" class="bulk-all rounded border-gray-300" aria-label="{{ __('Select all') }}"></th>
                     <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Title') }}</th>
                     <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Audience') }}</th>
                     <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Active window') }}</th>
@@ -35,6 +40,7 @@
             <tbody class="divide-y divide-gray-100">
                 @forelse($rows as $row)
                     <tr>
+                        <td class="w-10 px-4 py-3"><input type="checkbox" class="bulk-check rounded border-gray-300" value="{{ $row->id }}" aria-label="{{ __('Select') }}"></td>
                         <td class="px-4 py-3 font-medium text-gray-900">{{ $row->title }}</td>
                         <td class="px-4 py-3 text-gray-700">
                             @if(is_array($row->audience))
@@ -56,16 +62,27 @@
                             @endif
                         </td>
                         <td class="px-4 py-3 text-right">
-                            <a href="{{ route('dashboard.announcements.edit', $row) }}" class="text-blue-600 hover:underline">{{ __('Edit') }}</a>
-                            <form method="post" action="{{ route('dashboard.announcements.destroy', $row) }}" class="inline" onsubmit="return confirm('{{ __('Delete this item?') }}')">
-                                @csrf
-                                @method('delete')
-                                <button class="ml-3 text-red-600 hover:underline" type="submit">{{ __('Delete') }}</button>
-                            </form>
+                            <div class="inline-flex items-center gap-1">
+                                <a href="{{ route('dashboard.announcements.edit', $row) }}" class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100">{{ __('Edit') }}</a>
+                                <form method="post" action="{{ route('dashboard.announcements.destroy', $row) }}" onsubmit="return confirm('{{ __('Delete this item?') }}')">
+                                    @csrf
+                                    @method('delete')
+                                    <button class="inline-flex items-center rounded-md bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-100" type="submit">{{ __('Delete') }}</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="5" class="px-4 py-8 text-center text-gray-500">{{ __('No announcements yet.') }}</td></tr>
+                    <tr>
+                        <td colspan="6" class="px-4 py-10">
+                            <x-empty-state
+                                icon="sparkles"
+                                :title="__('No announcements yet')"
+                                :message="__('Let everyone know what is happening around the school.')"
+                                :cta="['label' => __('Add announcement'), 'url' => route('dashboard.announcements.create')]"
+                            />
+                        </td>
+                    </tr>
                 @endforelse
             </tbody>
         </table>

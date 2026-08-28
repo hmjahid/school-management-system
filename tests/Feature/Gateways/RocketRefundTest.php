@@ -108,7 +108,7 @@ class RocketRefundTest extends TestCase
 
         // Process refund
         $response = $this->actingAs($this->admin, 'sanctum')
-            ->postJson("/api/payments/{$this->payment->id}/refunds", [
+            ->postJson("/api/v1/payments/{$this->payment->id}/refunds", [
                 'amount' => 1000.00,
                 'reason' => 'Customer requested partial refund',
             ]);
@@ -142,7 +142,7 @@ class RocketRefundTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->admin, 'sanctum')
-            ->postJson("/api/payments/{$this->payment->id}/refunds", [
+            ->postJson("/api/v1/payments/{$this->payment->id}/refunds", [
                 'amount' => 1000.00,
                 'reason' => 'Test refund',
             ]);
@@ -216,14 +216,14 @@ class RocketRefundTest extends TestCase
         
         // First request - should succeed
         $responses[] = $this->actingAs($this->admin, 'sanctum')
-            ->postJson("/api/payments/{$this->payment->id}/refunds", [
+            ->postJson("/api/v1/payments/{$this->payment->id}/refunds", [
                 'amount' => 1000.00,
                 'reason' => 'First refund',
             ]);
 
         // Second concurrent request - should be blocked by database lock
         $responses[] = $this->actingAs($this->admin, 'sanctum')
-            ->postJson("/api/payments/{$this->payment->id}/refunds", [
+            ->postJson("/api/v1/payments/{$this->payment->id}/refunds", [
                 'amount' => 1000.00,
                 'reason' => 'Concurrent refund',
             ]);
@@ -254,7 +254,7 @@ class RocketRefundTest extends TestCase
 
         // First partial refund
         $response1 = $this->actingAs($this->admin, 'sanctum')
-            ->postJson("/api/payments/{$this->payment->id}/refunds", [
+            ->postJson("/api/v1/payments/{$this->payment->id}/refunds", [
                 'amount' => 1000.00,
                 'reason' => 'First partial refund',
             ]);
@@ -263,7 +263,7 @@ class RocketRefundTest extends TestCase
 
         // Second partial refund
         $response2 = $this->actingAs($this->admin, 'sanctum')
-            ->postJson("/api/payments/{$this->payment->id}/refunds", [
+            ->postJson("/api/v1/payments/{$this->payment->id}/refunds", [
                 'amount' => 800.00,
                 'reason' => 'Second partial refund',
             ]);
@@ -277,7 +277,7 @@ class RocketRefundTest extends TestCase
 
         // Third refund that would exceed the payment amount
         $response3 = $this->actingAs($this->admin, 'sanctum')
-            ->postJson("/api/payments/{$this->payment->id}/refunds", [
+            ->postJson("/api/v1/payments/{$this->payment->id}/refunds", [
                 'amount' => 300.00,
                 'reason' => 'Third partial refund',
             ]);
@@ -286,7 +286,7 @@ class RocketRefundTest extends TestCase
 
         // Verify only 200.00 is refundable now
         $response4 = $this->actingAs($this->admin, 'sanctum')
-            ->postJson("/api/payments/{$this->payment->id}/refunds", [
+            ->postJson("/api/v1/payments/{$this->payment->id}/refunds", [
                 'amount' => 200.00,
                 'reason' => 'Final partial refund',
             ]);

@@ -109,11 +109,12 @@
             {{ __('dashboard.dashboard') }}
         </x-admin-nav-link>
 
-        <x-admin-nav-link :href="route('messages.index')" route-is="messages*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z\'/><path d=\'M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z\'/></svg>'">
+        <x-admin-nav-link :href="route('messages.index')" route-is="messages*" :badge="$sidebarPendingCounts['unreadMessages'] > 0 ? $sidebarPendingCounts['unreadMessages'] : null" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z\'/><path d=\'M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z\'/></svg>'">
             {{ __('dashboard.messages') }}
         </x-admin-nav-link>
 
         @can('send_bulk_sms')
+            <x-admin-nav-link :href="route('dashboard.communications')" route-is="dashboard.communications" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M2 5a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H9l-4 3v-3H4a2 2 0 01-2-2V5zm3 2a1 1 0 100 2h10a1 1 0 100-2H5zm0 4a1 1 0 100 2h6a1 1 0 100-2H5z\' clip-rule=\'evenodd\'/></svg>'">{{ __('dashboard.communications') }}</x-admin-nav-link>
             <x-admin-nav-link :href="route('dashboard.sms.index')" route-is="dashboard.sms*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0L9 8.586l4.293-4.293a1 1 0 111.414 1.414L10.414 10l4.293 4.293a1 1 0 01-1.414 1.414L9 11.414l-2.293 2.293a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414z\'/></svg>'">{{ __('dashboard.bulk_sms') }}</x-admin-nav-link>
         @endcan
 
@@ -166,8 +167,11 @@
                     <a href="{{ route('dashboard.classes') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.classes*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.classes') }}</a>
                 @endcan
                 @can('viewAny', App\Models\Exam::class)
-                    <a href="{{ route('dashboard.exams') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.exams*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.exams') }}</a>
+                    <a href="{{ route('dashboard.exams') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.exams') && !request()->routeIs('dashboard.exams.my-results') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.exams') }}</a>
                 @endcan
+                @if (auth()->user()?->hasAnyRole(['admin', 'teacher']) && auth()->user()?->can('viewAny', App\Models\ExamResult::class))
+                    <a href="{{ route('dashboard.exams.my-results') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.exams.my-results') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.my_results') }}</a>
+                @endif
                 @can('manage_assignments')
                     <a href="{{ route('dashboard.assignments.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.assignments*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.assignments') }}</a>
                 @endcan
@@ -178,7 +182,7 @@
         </details>
 
         @if (auth()->user()?->can('view_admissions'))
-            <x-admin-nav-link :href="route('dashboard.admissions.index')" route-is="dashboard.admissions*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M7 2a1 1 0 00-1 1v1H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H8V3a1 1 0 00-1-1z\'/><path d=\'M6 10a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1z\'/></svg>'">{{ __('dashboard.admissions') }}</x-admin-nav-link>
+            <x-admin-nav-link :href="route('dashboard.admissions.index')" route-is="dashboard.admissions*" :badge="$sidebarPendingCounts['admissions'] > 0 ? $sidebarPendingCounts['admissions'] : null" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M7 2a1 1 0 00-1 1v1H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H8V3a1 1 0 00-1-1z\'/><path d=\'M6 10a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1z\'/></svg>'">{{ __('dashboard.admissions') }}</x-admin-nav-link>
         @endif
 
         {{-- Daily --}}
@@ -213,7 +217,14 @@
                 </summary>
                 <div class="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3 dark:border-slate-700">
                     <a href="{{ route('dashboard.fees') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.fees*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.fees') }}</a>
-                    <a href="{{ route('dashboard.fee-payments.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.fee-payments*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.payments') }}</a>
+                    <a href="{{ route('dashboard.fee-payments.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.fee-payments*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">
+                        <span class="inline-flex w-full items-center justify-between gap-2">
+                            <span>{{ __('dashboard.payments') }}</span>
+                            @if(($sidebarPendingCounts['pendingFeeApprovals'] ?? 0) > 0)
+                                <span class="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">{{ $sidebarPendingCounts['pendingFeeApprovals'] }}</span>
+                            @endif
+                        </span>
+                    </a>
                     @can('manage_expenses')
                         <a href="{{ route('dashboard.expenses.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.expenses*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.expenses') }}</a>
                     @endcan
@@ -235,7 +246,14 @@
             </summary>
             <div class="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3 dark:border-slate-700">
                 @if(auth()->user()->hasAnyRole(['admin','staff','teacher']))
-                    <a href="{{ route('dashboard.leaves.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.leaves*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.leaves') }}</a>
+                    <a href="{{ route('dashboard.leaves.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.leaves*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">
+                        <span class="inline-flex w-full items-center justify-between gap-2">
+                            <span>{{ __('dashboard.leaves') }}</span>
+                            @if(auth()->user()?->hasRole('admin') && ($sidebarPendingCounts['leaves'] ?? 0) > 0)
+                                <span class="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">{{ $sidebarPendingCounts['leaves'] }}</span>
+                            @endif
+                        </span>
+                    </a>
                 @endif
                 @can('view_teacher_salaries')
                     <a href="{{ route('dashboard.payroll.payslips') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.payroll*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">{{ __('dashboard.payroll') }}</a>

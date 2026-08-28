@@ -50,7 +50,13 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-4 py-8 text-center text-gray-500">{{ __('No teachers found.') }}</td>
+                            <td colspan="4" class="px-4 py-10">
+                                <x-empty-state
+                                    icon="users"
+                                    :title="__('No teachers found')"
+                                    :message="__('Add teaching staff to assign classes and track attendance.')"
+                                />
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>

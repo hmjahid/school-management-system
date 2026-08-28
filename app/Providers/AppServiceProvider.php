@@ -71,5 +71,38 @@ class AppServiceProvider extends ServiceProvider
             $view->with('siteSettings', $settings);
             $view->with('siteUi', SiteFrontend::merged());
         });
+
+        View::composer('partials.dashboard.sidebar', function ($view) {
+            $user = auth()->user();
+            $pending = [
+                'admissions' => 0,
+                'leaves' => 0,
+                'unreadMessages' => 0,
+                'unreadNotifications' => 0,
+                'pendingFeeApprovals' => 0,
+            ];
+
+            if ($user) {
+                try {
+                    if (Schema::hasTable('admissions')) {
+                        $pending['admissions'] = \App\Models\Admission::where('status', \App\Models\Admission::STATUS_SUBMITTED)->count();
+                    }
+                    if (Schema::hasTable('leave_requests')) {
+                        $pending['leaves'] = \App\Models\LeaveRequest::where('status', \App\Models\LeaveRequest::STATUS_PENDING)->count();
+                    }
+                    if (Schema::hasTable('messages')) {
+                        $pending['unreadMessages'] = \App\Models\Message::where('receiver_id', $user->id)->unread()->count();
+                    }
+                    $pending['unreadNotifications'] = $user->unreadNotifications()->count();
+                    if (Schema::hasTable('fee_payments')) {
+                        $pending['pendingFeeApprovals'] = \App\Models\FeePayment::where('status', \App\Models\FeePayment::STATUS_PENDING)->count();
+                    }
+                } catch (\Throwable $e) {
+                    $pending = array_fill_keys(array_keys($pending), 0);
+                }
+            }
+
+            $view->with('sidebarPendingCounts', $pending);
+        });
     }
 }

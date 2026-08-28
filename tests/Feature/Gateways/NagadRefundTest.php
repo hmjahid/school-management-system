@@ -94,7 +94,7 @@ class NagadRefundTest extends TestCase
 
         // Process refund
         $response = $this->actingAs($this->admin, 'sanctum')
-            ->postJson("/api/payments/{$this->payment->id}/refunds", [
+            ->postJson("/api/v1/payments/{$this->payment->id}/refunds", [
                 'amount' => 500.00,
                 'reason' => 'Customer requested partial refund',
             ]);
@@ -128,7 +128,7 @@ class NagadRefundTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->admin, 'sanctum')
-            ->postJson("/api/payments/{$this->payment->id}/refunds", [
+            ->postJson("/api/v1/payments/{$this->payment->id}/refunds", [
                 'amount' => 500.00,
                 'reason' => 'Test refund',
             ]);
@@ -209,14 +209,14 @@ class NagadRefundTest extends TestCase
         
         // First request - should succeed
         $responses[] = $this->actingAs($this->admin, 'sanctum')
-            ->postJson("/api/payments/{$this->payment->id}/refunds", [
+            ->postJson("/api/v1/payments/{$this->payment->id}/refunds", [
                 'amount' => 500.00,
                 'reason' => 'First refund',
             ]);
 
         // Second concurrent request - should be blocked by database lock
         $responses[] = $this->actingAs($this->admin, 'sanctum')
-            ->postJson("/api/payments/{$this->payment->id}/refunds", [
+            ->postJson("/api/v1/payments/{$this->payment->id}/refunds", [
                 'amount' => 500.00,
                 'reason' => 'Concurrent refund',
             ]);

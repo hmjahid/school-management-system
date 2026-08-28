@@ -55,9 +55,15 @@
                         <a href="{{ route('dashboard.fee-payments.show', $p) }}" class="text-blue-600 hover:text-blue-800">{{ __('View') }}</a>
                     </td>
                 </tr>
-            @empty
-                <tr><td colspan="8" class="px-4 py-8 text-center text-gray-500">{{ __('No payments found.') }}</td></tr>
-            @endforelse
+@empty
+            <tr><td colspan="8" class="px-4 py-10">
+                <x-empty-state
+                    icon="chart"
+                    :title="__('No payments found')"
+                    :message="__('Payments collected from guardians will appear here for approval.')"
+                />
+            </td></tr>
+        @endforelse
         </tbody>
     </table>
 </div>

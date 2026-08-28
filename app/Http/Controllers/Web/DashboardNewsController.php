@@ -102,6 +102,29 @@ class DashboardNewsController extends Controller
         return redirect()->route('dashboard.news.index')->with('status', __('News deleted.'));
     }
 
+    public function bulk(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'ids' => ['required', 'array'],
+            'ids.*' => ['integer'],
+            'action' => ['required', 'in:delete,publish,unpublish'],
+        ]);
+
+        $rows = News::whereIn('id', $data['ids'])->get();
+
+        if ($rows->isEmpty()) {
+            return back()->with('status', __('No matching news items found.'));
+        }
+
+        match ($data['action']) {
+            'delete' => News::whereIn('id', $rows->pluck('id'))->get()->each->delete(),
+            'publish' => $rows->each->update(['is_published' => true, 'published_at' => now()]),
+            'unpublish' => $rows->each->update(['is_published' => false, 'published_at' => null]),
+        };
+
+        return back()->with('status', __('Bulk action applied to :count news item(s).', ['count' => $rows->count()]));
+    }
+
     /**
      * @return array<string, mixed>
      */

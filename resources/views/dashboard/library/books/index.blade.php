@@ -66,17 +66,28 @@
                         @endif
                     </td>
                     <td class="px-4 py-3">
-                        <a href="{{ route('dashboard.library.books.show', $book) }}" class="text-blue-600 hover:text-blue-800">{{ __('View') }}</a>
-                        <a href="{{ route('dashboard.library.books.edit', $book) }}" class="ml-2 text-indigo-600 hover:text-indigo-800">{{ __('Edit') }}</a>
-                        <form method="post" action="{{ route('dashboard.library.books.destroy', $book) }}" class="inline" onsubmit="return confirm('{{ __('Are you sure?') }}')">
-                            @csrf @method('delete')
-                            <button type="submit" class="ml-2 text-red-600 hover:text-red-800">{{ __('Delete') }}</button>
-                        </form>
+                        <div class="inline-flex items-center gap-1">
+                            <a href="{{ route('dashboard.library.books.show', $book) }}" class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100">{{ __('View') }}</a>
+                            <a href="{{ route('dashboard.library.books.edit', $book) }}" class="inline-flex items-center rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100">{{ __('Edit') }}</a>
+                            <form method="post" action="{{ route('dashboard.library.books.destroy', $book) }}" onsubmit="return confirm('{{ __('Are you sure?') }}')">
+                                @csrf @method('delete')
+                                <button type="submit" class="inline-flex items-center rounded-md bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-100">{{ __('Delete') }}</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
-            @empty
-                <tr><td colspan="8" class="px-4 py-8 text-center text-gray-500">{{ __('dashboard.no_books_found') }}</td></tr>
-            @endforelse
+@empty
+            <tr>
+                <td colspan="8" class="px-4 py-10">
+                    <x-empty-state
+                        icon="document"
+                        :title="__('No books found')"
+                        :message="__('Add your first book to build the library catalogue.')"
+                        :cta="['label' => __('Add book'), 'url' => route('dashboard.library.books.create')]"
+                    />
+                </td>
+            </tr>
+        @endforelse
         </tbody>
     </table>
 </div>

@@ -201,7 +201,8 @@ class DashboardSmsController extends Controller
 
         return view('dashboard.sms.due-reminder', [
             'recipients' => $recipients->take(50),
-            'total' => $recipients->count(),
+            'recipientCount' => $recipients->count(),
+            'totalDue' => (float) $recipients->sum('due'),
             'defaultMessage' => $defaultMessage,
         ]);
     }

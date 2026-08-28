@@ -70,6 +70,31 @@ class DashboardAnnouncementController extends Controller
         return redirect()->route('dashboard.announcements.index')->with('status', __('Announcement deleted.'));
     }
 
+    public function bulk(Request $request): RedirectResponse
+    {
+        abort_unless($request->user()?->hasRole('admin'), 403);
+
+        $data = $request->validate([
+            'ids' => ['required', 'array'],
+            'ids.*' => ['integer'],
+            'action' => ['required', 'in:delete,publish,unpublish'],
+        ]);
+
+        $rows = Announcement::whereIn('id', $data['ids'])->get();
+
+        if ($rows->isEmpty()) {
+            return back()->with('status', __('No matching announcements found.'));
+        }
+
+        match ($data['action']) {
+            'delete' => Announcement::whereIn('id', $rows->pluck('id'))->delete(),
+            'publish' => $rows->each->update(['is_published' => true]),
+            'unpublish' => $rows->each->update(['is_published' => false]),
+        };
+
+        return back()->with('status', __('Bulk action applied to :count announcement(s).', ['count' => $rows->count()]));
+    }
+
     /**
      * @return array<string, mixed>
      */

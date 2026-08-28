@@ -26,10 +26,15 @@
         </div>
     </div>
 
+    <div class="mb-3">
+        @include('dashboard.partials.bulk-actions-bar', ['action' => route('dashboard.news.bulk'), 'publishable' => true])
+    </div>
+
     <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <table class="min-w-full divide-y divide-gray-200 text-sm">
+        <table class="min-w-full divide-y divide-gray-200 text-sm" data-bulk-table>
             <thead class="bg-gray-50">
                 <tr>
+                    <th class="w-10 px-4 py-3"><input type="checkbox" class="bulk-all rounded border-gray-300" aria-label="{{ __('Select all') }}"></th>
                     <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Title') }}</th>
                     <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Category') }}</th>
                     <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Status') }}</th>
@@ -40,6 +45,7 @@
             <tbody class="divide-y divide-gray-100">
                 @forelse($rows as $row)
                     <tr>
+                        <td class="w-10 px-4 py-3"><input type="checkbox" class="bulk-check rounded border-gray-300" value="{{ $row->id }}" aria-label="{{ __('Select') }}"></td>
                         <td class="px-4 py-3">
                             <div class="font-medium text-gray-900">{{ $row->title }}</div>
                             <div class="text-xs text-gray-500">{{ $row->slug }}</div>
@@ -57,16 +63,27 @@
                         </td>
                         <td class="px-4 py-3 text-gray-700">{{ $row->published_at?->format('Y-m-d') ?: '—' }}</td>
                         <td class="px-4 py-3 text-right">
-                            <a class="text-blue-600 hover:underline" href="{{ route('dashboard.news.edit', $row) }}">{{ __('Edit') }}</a>
-                            <form method="post" action="{{ route('dashboard.news.destroy', $row) }}" class="inline" onsubmit="return confirm('{{ __('Delete this item?') }}')">
-                                @csrf
-                                @method('delete')
-                                <button class="ml-3 text-red-600 hover:underline" type="submit">{{ __('Delete') }}</button>
-                            </form>
+                            <div class="inline-flex items-center gap-1">
+                                <a class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100" href="{{ route('dashboard.news.edit', $row) }}">{{ __('Edit') }}</a>
+                                <form method="post" action="{{ route('dashboard.news.destroy', $row) }}" onsubmit="return confirm('{{ __('Delete this item?') }}')">
+                                    @csrf
+                                    @method('delete')
+                                    <button class="inline-flex items-center rounded-md bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-100" type="submit">{{ __('Delete') }}</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="5" class="px-4 py-8 text-center text-gray-500">{{ __('No news yet.') }}</td></tr>
+                    <tr>
+                        <td colspan="6" class="px-4 py-10">
+                            <x-empty-state
+                                icon="sparkles"
+                                :title="__('No news yet')"
+                                :message="__('Share your first update to keep students and parents informed.')"
+                                :cta="['label' => __('Add news'), 'url' => route('dashboard.news.create')]"
+                            />
+                        </td>
+                    </tr>
                 @endforelse
             </tbody>
         </table>

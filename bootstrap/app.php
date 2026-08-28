@@ -26,6 +26,13 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->prefix('api/v1')
                 ->group(base_path('routes/notifications.php'));
 
+            Route::middleware(['api', 'request.id', 'force.json'])
+                ->prefix('api/v1')
+                ->group(base_path('routes/refunds.php'));
+
+            Route::middleware('web')
+                ->group(base_path('routes/dashboard.php'));
+
             Route::middleware(['api', 'request.id', 'force.json', 'auth:sanctum', 'role:admin'])
                 ->prefix('api/v1/admin')
                 ->group(base_path('routes/admin/notifications.php'));

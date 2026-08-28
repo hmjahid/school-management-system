@@ -41,6 +41,15 @@ class DashboardExamResultController extends Controller
             ->get()
             ->keyBy('student_id');
 
+        $students->loadMissing(['guardian.user']);
+        $smsRecipients = $students
+            ->pluck('guardian')
+            ->filter()
+            ->pluck('phone')
+            ->filter()
+            ->unique()
+            ->count();
+
         $stats = $exam->getStatistics();
 
         return view('dashboard.exams.results', [
@@ -48,6 +57,7 @@ class DashboardExamResultController extends Controller
             'students' => $students,
             'results' => $results,
             'stats' => $stats,
+            'smsRecipients' => $smsRecipients,
         ]);
     }
 
@@ -216,6 +226,67 @@ class DashboardExamResultController extends Controller
         }
 
         $this->authorize('view', $exam);
+    }
+
+    public function myResults(Request $request): View
+    {
+        $user = $request->user();
+        $this->authorize('viewAny', ExamResult::class);
+
+        $query = Exam::with(['subject', 'batch', 'section', 'academicSession'])
+            ->withCount([
+                'results',
+                'results as published_results_count' => fn ($q) => $q->where('is_published', true),
+            ]);
+
+        $teacher = $user->teacher;
+        if ($user->hasRole('admin')) {
+            // admins see every exam
+        } elseif ($teacher) {
+            $query->whereHas('teachers', fn ($q) => $q->whereKey($teacher->id));
+        } else {
+            $query->whereRaw('1 = 0');
+        }
+
+        $exams = $query->latest('start_date')->limit(100)->get();
+
+        // Precompute active student counts by batch/section so we can tell
+        // whether marks have been entered for every candidate.
+        $countRows = Student::where('status', 'active')
+            ->selectRaw('COALESCE(batch_id,0) AS batch_id, COALESCE(section_id,0) AS section_id, COUNT(*) AS c')
+            ->groupByRaw('COALESCE(batch_id,0), COALESCE(section_id,0)')
+            ->get();
+
+        $byBatch = [];
+        $bySection = [];
+        $byPair = [];
+        foreach ($countRows as $row) {
+            $byBatch[$row->batch_id] = ($byBatch[$row->batch_id] ?? 0) + $row->c;
+            $bySection[$row->section_id] = ($bySection[$row->section_id] ?? 0) + $row->c;
+            $byPair[$row->batch_id.':'.$row->section_id] = $row->c;
+        }
+
+        $exams->each(function (Exam $exam) use ($byBatch, $bySection, $byPair) {
+            $total = 0;
+            if ($exam->batch_id && $exam->section_id) {
+                $total = $byPair[$exam->batch_id.':'.$exam->section_id] ?? 0;
+            } elseif ($exam->batch_id) {
+                $total = $byBatch[$exam->batch_id] ?? 0;
+            } elseif ($exam->section_id) {
+                $total = $bySection[$exam->section_id] ?? 0;
+            }
+
+            $exam->total_students = $total;
+        });
+
+        $published = $exams->filter(fn (Exam $e) => $e->isFullyPublished());
+        $ready = $exams->filter(fn (Exam $e) => ! $e->isFullyPublished()
+            && $e->total_students > 0
+            && $e->results_count >= $e->total_students);
+        $pending = $exams->filter(fn (Exam $e) => ! $e->isFullyPublished()
+            && ! ($e->total_students > 0 && $e->results_count >= $e->total_students));
+
+        return view('dashboard.exams.my-results', compact('published', 'ready', 'pending'));
     }
 
     public function studentResults(Request $request, Student $student): View

@@ -54,7 +54,13 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-4 py-8 text-center text-gray-500">{{ __('No guardians found.') }}</td>
+                            <td colspan="4" class="px-4 py-10">
+                                <x-empty-state
+                                    icon="users"
+                                    :title="__('No guardians found')"
+                                    :message="__('Link parents to students so families can follow progress and fees.')"
+                                />
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>

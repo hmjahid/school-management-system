@@ -600,6 +600,14 @@ start executing. continue untill finished the whole tasks
 
 is comleted tasks are marked and incompleted also marked?
 
+read unified-implementation-plan-24-08-2026.md file and complete the balance/incomplete tasks. continue untill finished
+
+check the file again and ensure that all incompleted tasks are coppleted
+
+
+
+
+
 
 
 suppose you are a senior laravel developer and software engineer. cretae full unit tests for this school management system

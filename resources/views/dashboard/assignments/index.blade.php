@@ -34,9 +34,15 @@
                         @endcan
                     </td>
                 </tr>
-            @empty
-                <tr><td colspan="5" class="px-4 py-8 text-center text-gray-500">{{ __('No assignments found.') }}</td></tr>
-            @endforelse
+@empty
+            <tr><td colspan="5" class="px-4 py-10">
+                <x-empty-state
+                    icon="document"
+                    :title="__('No assignments found')"
+                    :message="__('Create homework and classwork for your students.')"
+                />
+            </td></tr>
+        @endforelse
         </tbody>
     </table>
 </div>

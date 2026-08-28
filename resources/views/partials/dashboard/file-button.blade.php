@@ -6,6 +6,8 @@
   @param string|null $id  Stable id avoids duplicate-id if omitted uses hash of name+accept
   @param string|null $buttonLabel  Defaults to "Choose file"
   @param bool $required
+  @param string|null $previewId  If set, a live thumbnail preview is shown after picking an image.
+  @param string|null $previewSrc  Optional existing image URL to show before any file is chosen.
 --}}
 @php
     $fileId = $id ?? 'dash_file_' . str_replace('.', '', uniqid('', true));
@@ -23,6 +25,15 @@
             class="sr-only"
             @if(! empty($accept)) accept="{{ $accept }}" @endif
             @if(! empty($required)) required @endif
+            @if(! empty($previewId)) data-image-preview="{{ $previewId }}" @endif
         >
     </label>
+    @if(! empty($previewId))
+        <img
+            id="{{ $previewId }}"
+            src="{{ $previewSrc ?? '' }}"
+            alt="{{ __('Preview') }}"
+            class="mt-3 h-32 w-full max-w-xs rounded-lg border border-gray-200 object-cover {{ ! empty($previewSrc) ? '' : 'hidden' }}"
+        >
+    @endif
 </div>

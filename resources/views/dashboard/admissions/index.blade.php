@@ -19,6 +19,13 @@
                         <option value="{{ $s }}" @selected(request('status') === $s)>{{ ucfirst(str_replace('_',' ',$s)) }}</option>
                     @endforeach
                 </select>
+                <select name="payment_status" class="admin-select" onchange="this.form.submit()">
+                    <option value="">{{ __('All payments') }}</option>
+                    <option value="unpaid" @selected(request('payment_status') === 'unpaid')>{{ __('Unpaid') }}</option>
+                    <option value="submitted" @selected(request('payment_status') === 'submitted')>{{ __('Payment submitted') }}</option>
+                    <option value="verified" @selected(request('payment_status') === 'verified')>{{ __('Payment verified') }}</option>
+                    <option value="rejected" @selected(request('payment_status') === 'rejected')>{{ __('Payment rejected') }}</option>
+                </select>
                 <x-button type="submit" variant="secondary" size="sm">{{ __('Filter') }}</x-button>
             </form>
         </x-slot:actions>
@@ -136,6 +143,7 @@
             ['label' => __('Application')],
             ['label' => __('Applicant')],
             ['label' => __('Status')],
+            ['label' => __('Payment')],
             ['label' => __('Test')],
             ['label' => __('Actions'), 'class' => 'text-right'],
         ]"
@@ -145,6 +153,20 @@
         empty-icon="document"
     >
         @foreach ($rows as $row)
+            @php
+                $pClass = match($row->payment_status) {
+                    'verified' => 'bg-emerald-100 text-emerald-800',
+                    'submitted' => 'bg-blue-100 text-blue-800',
+                    'rejected' => 'bg-red-100 text-red-800',
+                    default => 'bg-amber-100 text-amber-800',
+                };
+                $pLabel = match($row->payment_status) {
+                    'verified' => __('Verified'),
+                    'submitted' => 'Pending Payment',
+                    'rejected' => __('Rejected'),
+                    default => __('Unpaid'),
+                };
+            @endphp
             <tr class="admin-table-row">
                 <td class="px-4 py-3.5">
                     <div class="font-mono text-xs font-medium text-slate-800">{{ $row->application_number }}</div>
@@ -156,6 +178,12 @@
                 </td>
                 <td class="px-4 py-3.5">
                     <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $row->status_badge }}">{{ $row->status_label }}</span>
+                </td>
+                <td class="px-4 py-3.5">
+                    <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $pClass }}">{{ $pLabel }}</span>
+                    @if($row->payment_status === 'verified' && $row->payment_method)
+                        <div class="mt-0.5 text-xs text-slate-500">{{ strtoupper($row->payment_method) }}</div>
+                    @endif
                 </td>
                 <td class="px-4 py-3.5 text-slate-700">
                     @if($row->latestTest?->scheduled_at)

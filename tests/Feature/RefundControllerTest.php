@@ -64,7 +64,7 @@ class RefundControllerTest extends TestCase
     public function it_lists_refunds()
     {
         $response = $this->actingAs($this->admin, 'sanctum')
-            ->getJson('/api/refunds');
+            ->getJson('/api/v1/refunds');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -87,7 +87,7 @@ class RefundControllerTest extends TestCase
     public function it_creates_a_refund()
     {
         $response = $this->actingAs($this->admin, 'sanctum')
-            ->postJson("/api/payments/{$this->payment->id}/refunds", [
+            ->postJson("/api/v1/payments/{$this->payment->id}/refunds", [
                 'amount' => 300.00,
                 'reason' => 'Customer requested refund',
             ]);
@@ -115,7 +115,7 @@ class RefundControllerTest extends TestCase
     public function it_shows_refund_details()
     {
         $response = $this->actingAs($this->admin, 'sanctum')
-            ->getJson("/api/refunds/{$this->refund->id}");
+            ->getJson("/api/v1/refunds/{$this->refund->id}");
 
         $response->assertStatus(200)
             ->assertJson([
@@ -141,7 +141,7 @@ class RefundControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->admin, 'sanctum')
-            ->postJson("/api/refunds/{$pendingRefund->id}/process", [
+            ->postJson("/api/v1/refunds/{$pendingRefund->id}/process", [
                 'transaction_id' => 'R-' . uniqid(),
             ]);
 
@@ -168,7 +168,7 @@ class RefundControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->admin, 'sanctum')
-            ->postJson("/api/refunds/{$pendingRefund->id}/cancel", [
+            ->postJson("/api/v1/refunds/{$pendingRefund->id}/cancel", [
                 'reason' => 'Customer changed mind',
             ]);
 
@@ -190,7 +190,7 @@ class RefundControllerTest extends TestCase
     public function it_gets_refund_statistics()
     {
         $response = $this->actingAs($this->admin, 'sanctum')
-            ->getJson('/api/refunds/statistics');
+            ->getJson('/api/v1/refunds/statistics');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -209,14 +209,14 @@ class RefundControllerTest extends TestCase
     {
         // Test required fields
         $response = $this->actingAs($this->admin, 'sanctum')
-            ->postJson("/api/payments/{$this->payment->id}/refunds", []);
+            ->postJson("/api/v1/payments/{$this->payment->id}/refunds", []);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['amount', 'reason']);
 
         // Test amount validation
         $response = $this->actingAs($this->admin, 'sanctum')
-            ->postJson("/api/payments/{$this->payment->id}/refunds", [
+            ->postJson("/api/v1/payments/{$this->payment->id}/refunds", [
                 'amount' => 0,
                 'reason' => 'Test',
             ]);
@@ -226,7 +226,7 @@ class RefundControllerTest extends TestCase
 
         // Test amount exceeding available balance
         $response = $this->actingAs($this->admin, 'sanctum')
-            ->postJson("/api/payments/{$this->payment->id}/refunds", [
+            ->postJson("/api/v1/payments/{$this->payment->id}/refunds", [
                 'amount' => 2000.00, // More than the payment amount
                 'reason' => 'Test',
             ]);
@@ -240,17 +240,17 @@ class RefundControllerTest extends TestCase
     {
         // Regular user can't view all refunds
         $response = $this->actingAs($this->user, 'sanctum')
-            ->getJson('/api/refunds');
+            ->getJson('/api/v1/refunds');
         $response->assertStatus(403);
 
         // Regular user can view their own refunds
         $response = $this->actingAs($this->user, 'sanctum')
-            ->getJson("/api/refunds/{$this->refund->id}");
+            ->getJson("/api/v1/refunds/{$this->refund->id}");
         $response->assertStatus(200);
 
         // Regular user can't create refunds
         $response = $this->actingAs($this->user, 'sanctum')
-            ->postJson("/api/payments/{$this->payment->id}/refunds", [
+            ->postJson("/api/v1/payments/{$this->payment->id}/refunds", [
                 'amount' => 100.00,
                 'reason' => 'Test',
             ]);
@@ -271,7 +271,7 @@ class RefundControllerTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->admin, 'sanctum')
-            ->postJson("/api/refunds/{$pendingRefund->id}/process");
+            ->postJson("/api/v1/refunds/{$pendingRefund->id}/process");
 
         $response->assertStatus(400)
             ->assertJson([

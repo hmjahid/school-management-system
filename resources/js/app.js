@@ -659,3 +659,35 @@ window.debounce = function(fn, delay = 300) {
         });
     });
 })();
+
+// ---------- Inline image previews ----------
+document.addEventListener('change', (e) => {
+    const input = e.target.closest('input[type="file"][data-image-preview]');
+    if (!input) return;
+    const target = document.getElementById(input.dataset.imagePreview);
+    if (!target) return;
+    const file = input.files && input.files[0];
+    if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = () => {
+            target.src = reader.result;
+            target.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+document.addEventListener('input', (e) => {
+    const input = e.target.closest('input[data-image-url-preview]');
+    if (!input) return;
+    const target = document.getElementById(input.dataset.imageUrlPreview);
+    if (!target) return;
+    const url = input.value.trim();
+    if (url) {
+        target.src = url;
+        target.classList.remove('hidden');
+    } else {
+        target.classList.add('hidden');
+        target.removeAttribute('src');
+    }
+});

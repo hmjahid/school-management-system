@@ -67,7 +67,14 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-4 py-8 text-center text-gray-500">{{ __('No events found.') }}</td>
+                            <td colspan="5" class="px-4 py-10">
+                                <x-empty-state
+                                    icon="clock"
+                                    :title="__('No events found')"
+                                    :message="__('Schedule upcoming events so families can plan ahead.')"
+                                    :cta="['label' => __('Add event'), 'url' => route('dashboard.events.create')]"
+                                />
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>

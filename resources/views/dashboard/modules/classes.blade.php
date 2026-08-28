@@ -46,7 +46,13 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-4 py-8 text-center text-gray-500">{{ __('No classes found.') }}</td>
+                            <td colspan="6" class="px-4 py-10">
+                                <x-empty-state
+                                    icon="document"
+                                    :title="__('No classes found')"
+                                    :message="__('Create classes and sections to organise students and routines.')"
+                                />
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>

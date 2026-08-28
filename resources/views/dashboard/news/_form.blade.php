@@ -65,10 +65,9 @@
                 'accept' => 'image/*',
                 'id' => 'dashboard_news_image',
                 'buttonLabel' => __('Choose image'),
+                'previewId' => 'news-image-preview',
+                'previewSrc' => $news->image_url ?? null,
             ])
-            @if($isEdit && $news->image_url)
-                <p class="mt-2 text-xs text-gray-500">{{ __('Current:') }} {{ $news->image_url }}</p>
-            @endif
         </div>
     </div>
 </div>

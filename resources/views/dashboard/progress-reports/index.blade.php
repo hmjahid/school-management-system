@@ -51,9 +51,15 @@
                         <a href="{{ route('dashboard.progress-reports.generate', ['student' => $student, 'view' => 1]) }}" target="_blank" class="ml-2 rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-200">{{ __('Preview') }}</a>
                     </td>
                 </tr>
-            @empty
-                <tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">{{ __('No students found.') }}</td></tr>
-            @endforelse
+@empty
+            <tr><td colspan="6" class="px-4 py-10">
+                <x-empty-state
+                    icon="document"
+                    :title="__('No students found')"
+                    :message="__('Select a class with students to generate progress reports.')"
+                />
+            </td></tr>
+        @endforelse
         </tbody>
     </table>
 </div>

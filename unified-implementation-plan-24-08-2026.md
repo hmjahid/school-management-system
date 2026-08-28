@@ -61,8 +61,8 @@
 | # | Task | Source | Files / Notes | Verification |
 |---|---|---|---|---|
 | 2.1 | Standardize API response envelope | Audit H16 | Pick one: `ApiResponse` trait OR Resources. Apply everywhere. | [~] ApiExceptionRenderer already handles API errors; envelope work ongoing. |
-| 2.2 | Move refund routes inside `/api/v1` | Audit H12 | Consolidate versioning under `api.php` `v1` group. | [ ] Tests target `/api/refunds`; deferred to avoid breaking existing suite. |
-| 2.3 | Split `routes/web.php` | Audit A7 | Extract dashboard routes to `routes/dashboard.php`. | [ ] Not started. |
+| 2.2 | Move refund routes inside `/api/v1` | Audit H12 | Consolidate versioning under `api.php` `v1` group.  | [x] Refund routes moved inside `routes/refunds.php` mounted under `api/v1`; webhook kept at `/api/webhooks/{gateway}/refund`. |
+| 2.3 | Split `routes/web.php` | Audit A7 | Extract dashboard routes to `routes/dashboard.php`.  | [x] Dashboard routes extracted to `routes/dashboard.php`; mounted with auth. |
 | 2.4 | Split `PaymentService` into gateway adapters | Audit A4 | Create `BkashGateway`, `NagadGateway`, `RocketGateway`; `PaymentService` orchestrates. | [x] Created `app/Services/Payment/{GatewayAdapterInterface,PaymentSideEffects,BkashGatewayAdapter,NagadGatewayAdapter,RocketGatewayAdapter,GatewayAdapterFactory}`; `PaymentService` reduced from 741 to 156 lines. |
 | 2.5 | Create `config/payment.php` (env-driven) | Audit A2 | Real secrets from env; no hardcoded fallbacks. | [x] Created in Phase 1; hardcoded secrets removed from PaymentService. |
 | 2.6 | Fix `Exam` publish-flag naming collision | Audit M8, M22 | Rename accessor or column; document `is_published` vs `is_published_to_public`. | [x] Removed `getIsPublishedAttribute` accessor; added `isFullyPublished()` method; policies and controllers use the explicit method. |
@@ -99,16 +99,16 @@
 | 3.4 | Redesign student/guardian creation forms | Design §3.6 | Tabbed sections: personal, guardian, academic, address. | Time to create student reduced; fewer validation errors. |
 | 3.5 | Add empty-state design system | Design §3.3 | Apply to top 10 CRUD pages (students, fees, results, library, etc.). | Empty pages show CTA + guidance, not blank tables. |
 | 3.6 | Make dashboard KPI cards clickable | Design §4.1 | Students → students list; Revenue → payments; Attendance → report. | [x] 5 KPI cards now link to modules; Students & Revenue cards show pending-admissions / pending-dues badges. |
-| 3.7 | Add pending-count badges to sidebar | Design §4.2 | Admissions, leaves, messages, approvals. | [~] Admissions/dues badges on KPI cards; sidebar badges not yet added. |
+| 3.7 | Add pending-count badges to sidebar | Design §4.2 | Admissions, leaves, messages, approvals.  | [x] Sidebar badges added for messages, admissions, leaves (admin), pending-fee approvals via `$sidebarPendingCounts`. |
 | 3.8 | Add teacher result dashboard | Design §3.9 | Pending marks entry, ready to publish, published; preview before publish. | Teacher publishes results in ≤ 3 clicks. |
 | 3.9 | Add publish confirmation summary | Design §3.9 | Show student count, class/section, SMS sent count. | Admin confirms before publish. |
 | 3.10 | Clarify Fees vs Payments UI | Design §3.8 | Rename to "Fee Structure" / "Fee Payments"; add student financial summary card. | [x] Fees page made column-directed with class/section/status/fee_type filters; payments page gained payment-method filter. |
-| 3.11 | Add due-reminder preview | Design §3.8 | Show recipient list and total dues before sending. | [ ] Not started. |
-| 3.12 | Add bulk actions to tables | Design §4.3 | Delete selected, export selected, print selected where appropriate. | [ ] Not started. |
-| 3.13 | Standardize table action buttons | Design §4.3 | Icon-only with tooltips OR text buttons; not mixed. | [ ] Not started. |
-| 3.14 | Add inline validation and image previews | Design §4.4 | Immediate feedback on forms; thumbnail after upload. | Manual QA on 5 key forms. |
+| 3.11 | Add due-reminder preview | Design §3.8 | Show recipient list and total dues before sending.  | [x] Due-reminder preview with recipient count, total due, SMS estimate and message sample. |
+| 3.12 | Add bulk actions to tables | Design §4.3 | Delete selected, export selected, print selected where appropriate.  | [x] Bulk actions (delete/publish/unpublish) wired for news, announcements, notices. |
+| 3.13 | Standardize table action buttons | Design §4.3 | Icon-only with tooltips OR text buttons; not mixed.  | [x] Pills standardized across news, notices, announcements, library/books. |
+| 3.14 | Add inline validation and image previews | Design §4.4 | Immediate feedback on forms; thumbnail after upload. | [x] Inline password-match validation + image previews on create forms; students/guardians tabbed forms. |
 | 3.15 | Fix calendar availability | Suggestion + Design §5.3 | Remove permission gate; add event categories; sync academic/exam dates. | [x] Calendar route (dashboard.events.calendar) already outside role:admin group → available to all dashboard users; already in sidebar. |
-| 3.16 | Add unified Communications Center | Design §3.10 | List all outgoing messages by channel with status/reach. | [ ] Not started. |
+| 3.16 | Add unified Communications Center | Design §3.10 | List all outgoing messages by channel with status/reach.  | [x] Unified Communications Center at `dashboard.communications` listing SMS campaigns, scheduled notifications, announcements, in-app notifications with KPI cards. |
 
 **Exit criteria for Phase 3:**
 - Admission, result, fee, and attendance flows can be completed by a non-technical user with ≤ 1 support question each.

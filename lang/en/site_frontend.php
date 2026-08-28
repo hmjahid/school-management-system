@@ -379,6 +379,19 @@ return [
         'not_found' => 'No application found for that number. Check for typos or contact admissions.',
     ],
 
+    'admission_steps' => [
+        'applied' => 'Applied',
+        'payment' => 'Payment',
+        'review' => 'Under review',
+        'decision' => 'Decision',
+        'next_pay' => 'Submit your payment details to complete the admission.',
+        'next_wait' => 'Your payment is being verified. Check back soon.',
+        'next_review' => 'Your application is under review.',
+        'next_approved' => 'Congratulations! Download your admission approval letter.',
+        'next_rejected' => 'Your application was not approved. Contact the admissions office.',
+        'save_number' => 'Keep your application number :num safe. You will need it to track your admission.',
+    ],
+
     'fee_receipt' => [
         'page_title' => 'Receipt',
         'heading' => 'Payment receipt',

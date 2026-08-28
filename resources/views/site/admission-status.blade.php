@@ -21,6 +21,37 @@
     @if($applicationNumber)
         <div class="mt-10 rounded-xl border border-gray-200 bg-gray-50 p-6 shadow-md">
             @if($admission)
+                @php
+                    $step = match(true) {
+                        $admission->status === 'approved' || $admission->status === 'enrolled' => 4,
+                        $admission->payment_status === 'verified' || $admission->status === 'under_review' => 3,
+                        $admission->payment_status === 'submitted' => 2,
+                        $admission->payment_status === 'unpaid' || $admission->status === 'draft' => 1,
+                        default => 0,
+                    };
+                    $steps = [
+                        ['label' => site_ui('admission_steps.applied')],
+                        ['label' => site_ui('admission_steps.payment')],
+                        ['label' => site_ui('admission_steps.review')],
+                        ['label' => site_ui('admission_steps.decision')],
+                    ];
+                @endphp
+                <div class="mb-6 flex items-start gap-2 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">
+                    <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" /></svg>
+                    <p>{{ site_ui('admission_steps.save_number', ['num' => '<span class="font-mono font-semibold">'.$admission->application_number.'</span>']) }}
+                        <span class="block font-mono text-sm">{{ $admission->application_number }}</span>
+                    </p>
+                </div>
+
+                <ol class="mb-6 grid grid-cols-4 gap-2">
+                    @foreach($steps as $i => $s)
+                        <li class="text-center">
+                            <div class="mx-auto flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold {{ $i + 1 <= $step ? 'bg-emerald-600 text-white' : ($i + 1 === $step + 1 ? 'bg-blue-600 text-white ring-4 ring-blue-100' : 'bg-gray-200 text-gray-500') }}">{{ $i + 1 }}</div>
+                            <div class="mt-1 text-xs font-medium {{ $i + 1 <= $step ? 'text-emerald-700' : 'text-gray-500' }}">{{ $s['label'] }}</div>
+                        </li>
+                    @endforeach
+                </ol>
+
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
                         <div class="text-xs uppercase tracking-wide text-gray-500">{{ site_ui('admission_status.application_number') }}</div>
@@ -127,6 +158,11 @@
                                 <button class="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">{{ __('Resubmit') }}</button>
                             </div>
                         </form>
+                    </div>
+                @elseif($admission->payment_status === 'verified' && $admission->status !== 'approved')
+                    <div class="mt-8 rounded-lg border border-emerald-300 bg-emerald-50 p-5 text-sm text-emerald-900">
+                        <div class="font-semibold">{{ __('Payment verified') }}</div>
+                        <p class="mt-1">{{ __('Your payment has been verified successfully. Your application is now being reviewed. We will notify you once a decision is made.') }}</p>
                     </div>
                 @endif
 

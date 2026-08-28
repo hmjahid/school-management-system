@@ -74,6 +74,25 @@ class DashboardNoticeController extends Controller
         return redirect()->route('dashboard.notices.index')->with('status', __('Notice deleted.'));
     }
 
+    public function bulk(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'ids' => ['required', 'array'],
+            'ids.*' => ['integer'],
+            'action' => ['required', 'in:delete'],
+        ]);
+
+        $rows = Notice::whereIn('id', $data['ids'])->get();
+
+        if ($rows->isEmpty()) {
+            return back()->with('status', __('No matching notices found.'));
+        }
+
+        Notice::whereIn('id', $rows->pluck('id'))->delete();
+
+        return back()->with('status', __('Deleted :count notice(s).', ['count' => $rows->count()]));
+    }
+
     /**
      * @return array<string, mixed>
      */
