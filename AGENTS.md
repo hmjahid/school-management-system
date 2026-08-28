@@ -17,8 +17,31 @@
 - **Laravel Blade** (`resources/views/`) is the frontend. Tailwind CSS 4 + Vite.
 - CSS is Tailwind v4 utility classes only (`@tailwindcss/vite` plugin).
 - Multi-language: English (`lang/en/site_frontend.php`) + Bengali (`lang/bn/site_frontend.php`). Navigation labels use `site_ui('nav.xxx')` helper (`app/helpers.php`) which reads from the lang file merged with CMS overrides.
-- The `routes/web.php` has all routes — site pages, auth, dashboard.
-- The `routes/api.php` has REST JSON endpoints (mostly public + admin CRUD).
+- The `routes/web.php` has the public site + auth routes; `routes/dashboard.php` (mounted with `web` + `throttle.dashboard`) has all admin/dashboard routes; `routes/api.php` + mounted groups under `/api/v1` (`payments.php`, `refunds.php`, `admissions.php`, `notifications.php`) for the JSON API.
+
+## API envelope (IMPORTANT)
+
+- Every `api/*` JSON response is normalized by `App\Http\Middleware\StandardizeApiResponse` (registered in the `api` middleware group) to `{success, message, data[, meta]}`.
+- Pagination hoists under `meta.pagination` (`current_page`, `per_page`, `total`, `last_page`); resource `{data: …}` wrappers are unwrapped so `data` is a single payload.
+- Gateway webhook paths (`*/webhook/*`, `*/callback/*`) are **never** rewrapped.
+- Controllers should use the `ApiResponse` trait helpers (`success()/created()/paginated()/error()`); already-enveloped payloads with a boolean `success` key are normalized (missing `message` added) but not double-wrapped.
+
+## Middleware
+
+| alias | where | purpose |
+|---|---|---|
+| `throttle.dashboard` | `routes/dashboard.php` mount | rate-limits dashboard **write** methods (POST/PUT/PATCH/DELETE), 120/min/user/IP |
+| `StandardizeApiResponse` | api group | enforces the JSON envelope above |
+| `request.id` / `force.json` / `cors` | api group | request-ID header, JSON-only responses, CORS |
+
+## Scheduled jobs & ops commands
+
+| command | schedule | purpose |
+|---|---|---|
+| `backup:database` | daily 02:00 | self-contained DB backup (sqlite/mysql/pgsql) to `storage/app/backups`, prunes to 7 by default |
+| `queue:monitor-failed` | every 5 min | reports failed queue jobs to the default log channel / Slack (`LOG_SLACK_WEBHOOK_URL`) |
+
+Ops docs: `docs/PRODUCTION-CHECKLIST.md`, `docs/RUNBOOKS.md`, `docs/BACKUP-RESTORE.md`.
 
 ## Running the app
 
@@ -43,6 +66,8 @@ npm run dev              # Vite HMR
 | `php artisan test --testsuite=Feature --filter=SpecificTest` | single test |
 | `npm run build` | Vite production build |
 | `php artisan migrate:fresh --seed` | full reset |
+| `php artisan backup:database` | on-demand DB backup (retention `--keep`) |
+| `php artisan queue:monitor-failed` | list/report recent failed queue jobs |
 | `./vendor/bin/pint` | auto-fix code style (Laravel Pint) |
 | `./vendor/bin/pint --test` | check code style without writing |
 

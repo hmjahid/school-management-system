@@ -134,6 +134,9 @@
     </div>
 
     <div id="toast-root" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    @include('partials.dashboard.help-modal')
+    @include('partials.dashboard.document-preview-modal')
     <div id="confirm-modal-root" class="fixed inset-0 z-[90] hidden items-center justify-center" aria-hidden="true">
         <div data-confirm-backdrop class="modal-backdrop"></div>
         <div class="modal-panel mx-4" role="alertdialog" aria-labelledby="confirm-title" aria-describedby="confirm-message">
@@ -221,6 +224,11 @@
                 e.preventDefault();
                 openSearch();
             }
+            if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                var tag = e.target && e.target.tagName ? e.target.tagName.toLowerCase() : '';
+                var editable = e.target && (e.target.isContentEditable || ['input', 'textarea', 'select'].indexOf(tag) !== -1);
+                if (!editable) { e.preventDefault(); openSearch(); }
+            }
             if (e.key === 'Escape') closeSearch();
         });
 
@@ -253,9 +261,12 @@
                         student: '<svg class="h-5 w-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>',
                         teacher: '<svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>',
                         class: '<svg class="h-5 w-5 text-purple-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>',
-                        notice: '<svg class="h-5 w-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 3a1 1 0 00-1.447-.894L8.763 6H5a3 3 0 000 6h.28l1.771 5.316A1 1 0 008 18h1a1 1 0 001-1v-4.382l6.553 3.276A1 1 0 0018 15V3z" clip-rule="evenodd"/></svg>'
+                        notice: '<svg class="h-5 w-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 3a1 1 0 00-1.447-.894L8.763 6H5a3 3 0 000 6h.28l1.771 5.316A1 1 0 008 18h1a1 1 0 001-1v-4.382l6.553 3.276A1 1 0 0018 15V3z" clip-rule="evenodd"/></svg>',
+                        fee: '<svg class="h-5 w-5 text-slate-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zm6 9H8.914l1.293 1.293a1 1 0 01-1.414 1.414L5.586 10.41a1 1 0 010-1.414l3.207-3.207a1 1 0 011.414 1.414L9.414 8H16a1 1 0 110 2z" clip-rule="evenodd"/></svg>',
+                        payment: '<svg class="h-5 w-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm13 4H3v6h14V8z" clip-rule="evenodd"/></svg>',
+                        link: '<svg class="h-5 w-5 text-indigo-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd"/></svg>'
                     };
-                    var typeLabels = { student: '{{ __("Student") }}', teacher: '{{ __("Teacher") }}', class: '{{ __("Class") }}', notice: '{{ __("Notice") }}' };
+                    var typeLabels = { student: '{{ __("Student") }}', teacher: '{{ __("Teacher") }}', class: '{{ __("Class") }}', notice: '{{ __("Notice") }}', fee: '{{ __("Fee") }}', payment: '{{ __("Payment") }}', link: '{{ __("Link") }}' };
                     var html = '';
                     items.forEach(function(item) {
                         html += '<a href="' + item.url + '" class="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700">';

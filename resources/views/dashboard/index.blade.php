@@ -10,9 +10,9 @@
         }
         if (empty($trendBars)) { $trendBars = [0, 0, 0, 0, 0, 0, 0]; }
 
-        $months = ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-        $revenueData = [85000, 92000, 88000, 95000, 91000, 98000, 102000, 96000, 99000, 105000, 101000, 108000];
-        $expenseData = [62000, 58000, 64000, 61000, 67000, 63000, 69000, 65000, 71000, 68000, 72000, 70000];
+        $months = $revenueExpense['months'] ?? ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+        $revenueData = $revenueExpense['revenue'] ?? array_fill(0, 12, 0);
+        $expenseData = $revenueExpense['expenses'] ?? array_fill(0, 12, 0);
     @endphp
 
     <div class="mb-6 flex items-center justify-between">
@@ -31,6 +31,40 @@
             </a>
         </div>
     </div>
+
+    @if(! ($setupComplete ?? true))
+        <div class="mb-6 overflow-hidden rounded-xl border border-sky-200/70 bg-gradient-to-r from-sky-50 via-white to-white shadow-sm dark:border-sky-900/50 dark:from-sky-950/40 dark:via-slate-800 dark:to-slate-800" data-setup-reminder>
+            <div class="flex flex-wrap items-center gap-4 p-5">
+                <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-400">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                </span>
+                <div class="min-w-0 flex-1">
+                    <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ __('dashboard.setup.remaining', ['n' => count(array_filter($setupItems, fn($i) => ! $i['done'])), 'total' => count($setupItems)]) }}</p>
+                    <div class="mt-2 h-1.5 w-full max-w-md overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
+                        <div class="h-full rounded-full bg-gradient-to-r from-sky-400 to-brand-500 transition-all" style="width: {{ $setupPercent }}%"></div>
+                    </div>
+                </div>
+                <a href="{{ route('dashboard.onboarding') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-sky-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-sky-700 dark:bg-sky-500 dark:hover:bg-sky-600">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    {{ __('dashboard.setup.start_now') }}
+                </a>
+                <button type="button" data-setup-dismiss class="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-300" aria-label="{{ __('Close') }}">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+        </div>
+        <script>
+        (function(){
+            var el = document.querySelector('[data-setup-reminder]');
+            if (!el) return;
+            if (localStorage.getItem('dc_setup_reminder_dismissed') === '1') { el.remove(); return; }
+            el.querySelector('[data-setup-dismiss]')?.addEventListener('click', function(){
+                localStorage.setItem('dc_setup_reminder_dismissed', '1');
+                el.remove();
+            });
+        })();
+        </script>
+    @endif
 
     <div class="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <a href="{{ route('dashboard.students') }}" class="admin-stat-card block">
@@ -211,4 +245,20 @@
             </div>
         </div>
     </div>
+
+    @if($workbench)
+        <div class="mt-6 admin-card">
+            <div class="admin-card-header">
+                <h2 class="text-base font-semibold text-slate-900 dark:text-white">{{ $workbench['title'] }}</h2>
+            </div>
+            <div class="admin-card-body grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                @foreach($workbench['items'] as $item)
+                    <a href="{{ $item['url'] }}" class="group rounded-xl border border-slate-200 bg-slate-50 p-4 transition hover:border-brand-300 hover:bg-brand-50/50 dark:border-slate-700 dark:bg-slate-700/50 dark:hover:border-brand-700">
+                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ $item['label'] }}</p>
+                        <p class="mt-2 text-2xl font-bold text-slate-900 dark:text-white">{{ $item['value'] }}</p>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    @endif
 @endsection

@@ -116,6 +116,9 @@
                 {{ __('Page is active') }}
             </label>
             <div class="flex items-center gap-2">
+                <button type="button" data-cms-preview-open class="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
+                    {{ __('Preview') }}
+                </button>
                 <a href="{{ route('home') }}{{ $page === 'home' ? '' : '/' . $page }}" target="_blank" rel="noopener" class="text-sm font-medium text-gray-600 hover:text-gray-900">
                     {{ __('Preview public page') }} ↗
                 </a>
@@ -125,6 +128,28 @@
             </div>
         </div>
     </form>
+
+    {{-- Live preview modal --}}
+    <div id="cms-preview-overlay" class="fixed inset-0 z-50 hidden flex-col bg-black/70" role="dialog" aria-modal="true" aria-label="{{ __('Page preview') }}" style="display:none;">
+        <div class="mx-auto flex w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl" style="height:90vh;">
+            <div class="flex items-center justify-between gap-3 border-b border-gray-200 px-5 py-3">
+                <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                    <svg class="h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    {{ __('Live preview') }} — {{ $def['label'] ?? $page }}
+                </h3>
+                <div class="flex items-center gap-2">
+                    <div class="flex overflow-hidden rounded-lg border border-gray-300" data-cms-preview-lang>
+                        <button type="button" data-lang="en" class="px-3 py-1 text-xs font-semibold text-white bg-indigo-600">EN</button>
+                        <button type="button" data-lang="bn" class="px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50">বাংলা</button>
+                    </div>
+                    <button type="button" data-cms-preview-close class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600" aria-label="{{ __('Close preview') }}">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+            </div>
+            <iframe id="cms-preview-frame" src="" title="{{ __('Page preview') }}" class="flex-1 border-0 bg-white"></iframe>
+        </div>
+    </div>
 
     {{-- Media library browser modal (rendered once) --}}
     <div id="media-browser-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60" style="display:none;">
@@ -141,6 +166,69 @@
 
         <script>
         (function () {
+            // Live preview modal
+            var previewOverlay = document.getElementById('cms-preview-overlay');
+            var previewFrame = document.getElementById('cms-preview-frame');
+            var previewOpen = document.querySelector('[data-cms-preview-open]');
+            var previewClose = document.querySelector('[data-cms-preview-close]');
+            var previewLang = document.querySelector('[data-cms-preview-lang]');
+
+            if (previewOverlay && previewFrame) {
+                var pageSlug = @json($page);
+                var baseUrl = window.location.origin;
+                var pagePath = pageSlug === 'home' ? '/' : '/' + pageSlug;
+                var previewUrl = baseUrl + pagePath;
+
+                function currentLang() {
+                    return previewLang && previewLang.querySelector('button[data-lang].bg-indigo-600')
+                        ? previewLang.querySelector('button[data-lang].bg-indigo-600').getAttribute('data-lang')
+                        : 'en';
+                }
+
+                function setPreviewLang(lang) {
+                    if (! previewLang) return;
+                    previewLang.querySelectorAll('button[data-lang]').forEach(function (btn) {
+                        var active = btn.getAttribute('data-lang') === lang;
+                        btn.classList.toggle('bg-indigo-600', active);
+                        btn.classList.toggle('text-white', active);
+                        btn.classList.toggle('text-gray-600', !active);
+                        btn.classList.toggle('hover:bg-gray-50', !active);
+                    });
+                    previewFrame.src = previewUrl + '?lang=' + lang;
+                }
+
+                if (previewOpen) {
+                    previewOpen.addEventListener('click', function () {
+                        previewOverlay.style.display = 'flex';
+                        var lang = currentLang();
+                        previewFrame.src = previewUrl + '?lang=' + lang;
+                        document.body.style.overflow = 'hidden';
+                    });
+                }
+                if (previewClose) {
+                    previewClose.addEventListener('click', function () {
+                        previewOverlay.style.display = 'none';
+                        previewFrame.src = '';
+                        document.body.style.overflow = '';
+                    });
+                }
+                if (previewLang) {
+                    previewLang.querySelectorAll('button[data-lang]').forEach(function (btn) {
+                        btn.addEventListener('click', function () {
+                            setPreviewLang(btn.getAttribute('data-lang'));
+                        });
+                    });
+                }
+                window.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape' && previewOverlay.style.display === 'flex') {
+                        previewClose.click();
+                    }
+                });
+                previewOverlay.addEventListener('click', function (e) {
+                    if (e.target === previewOverlay) previewClose.click();
+                });
+            }
+
             // Media library browser
             window.openMediaBrowser = function (btn) {
                 var input = btn.closest('div').querySelector('input[type="url"]');

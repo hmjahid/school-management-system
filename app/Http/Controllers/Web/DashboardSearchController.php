@@ -81,6 +81,53 @@ class DashboardSearchController extends Controller
             $results = array_merge($results, $notices->toArray());
         } catch (\Throwable) {}
 
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('fees')) {
+                $fees = \App\Models\Fee::where('name', 'like', "%{$query}%")
+                    ->limit(5)
+                    ->get()
+                    ->map(fn ($f) => [
+                        'id' => $f->id,
+                        'type' => 'fee',
+                        'name' => $f->name,
+                        'subtitle' => $f->schoolClass?->name ?? '',
+                        'url' => route('dashboard.fees'),
+                    ]);
+                $results = array_merge($results, $fees->toArray());
+            }
+        } catch (\Throwable) {}
+
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('payments')) {
+                $payments = \App\Models\Payment::where('invoice_no', 'like', "%{$query}%")
+                    ->orWhere('reference', 'like', "%{$query}%")
+                    ->limit(5)
+                    ->get()
+                    ->map(fn ($p) => [
+                        'id' => $p->id,
+                        'type' => 'payment',
+                        'name' => $p->invoice_no ?? ('#'.$p->id),
+                        'subtitle' => number_format((float) ($p->total ?? 0), 2).' — '.($p->payment_status ?? ''),
+                        'url' => route('dashboard.fee-payments.index'),
+                    ]);
+                $results = array_merge($results, $payments->toArray());
+            }
+        } catch (\Throwable) {}
+
+        $quickLinks = [
+            ['pattern' => 'report', 'type' => 'link', 'name' => __('Reports'), 'subtitle' => '', 'url' => route('dashboard.reports')],
+            ['pattern' => 'setting', 'type' => 'link', 'name' => __('Settings'), 'subtitle' => '', 'url' => route('dashboard.settings.index')],
+            ['pattern' => 'user', 'type' => 'link', 'name' => __('Users'), 'subtitle' => '', 'url' => route('dashboard.users.index')],
+            ['pattern' => 'role', 'type' => 'link', 'name' => __('Roles'), 'subtitle' => '', 'url' => route('dashboard.roles.index')],
+            ['pattern' => 'permission', 'type' => 'link', 'name' => __('Permissions'), 'subtitle' => '', 'url' => route('dashboard.permissions.index')],
+        ];
+        $needle = strtolower($query);
+        foreach ($quickLinks as $link) {
+            if (str_contains($needle, $link['pattern']) || str_contains($link['pattern'], $needle)) {
+                $results[] = $link;
+            }
+        }
+
         return response()->json(['data' => $results]);
     }
 }

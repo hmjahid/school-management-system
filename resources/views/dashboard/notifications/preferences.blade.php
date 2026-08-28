@@ -7,7 +7,7 @@
         <x-slot:breadcrumbs>
             <x-admin-breadcrumbs :items="[
                 ['label' => __('Dashboard'), 'url' => route('dashboard')],
-                ['label' => __('Notifications'), 'url' => route('dashboard.notifications.index')],
+                ['label' => __('Notifications'), 'url' => route('notifications.index')],
                 ['label' => __('Preferences')],
             ]" />
         </x-slot:breadcrumbs>

@@ -11,8 +11,8 @@
 <footer class="no-print border-t border-slate-200 bg-slate-900 text-slate-300">
     {{-- Main footer columns --}}
     <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {{-- Column 1: School info --}}
+        <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+            {{-- Column 1: School info + social --}}
             <div>
                 <div class="flex items-center gap-3">
                     @if($siteSettings->footer_logo_url ?? false)
@@ -28,9 +28,6 @@
                     </div>
                 </div>
                 <p class="mt-4 text-sm leading-relaxed text-slate-400">{{ $siteSettings->footer_description ?? site_ui('footer.about_fallback') }}</p>
-                <div class="mt-5 flex flex-wrap gap-3">
-                    @include('partials.site.social-links', ['settings' => $siteSettings, 'linkClass' => 'text-slate-400 hover:text-white', 'placeholderClass' => 'opacity-50'])
-                </div>
             </div>
 
             {{-- Column 2: Quick Links --}}
@@ -43,26 +40,43 @@
                     <li><a href="{{ route('site.faculty') }}" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('nav.faculty') }}</a></li>
                     <li><a href="{{ route('site.committee') }}" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('nav.committee') }}</a></li>
                     <li><a href="{{ route('site.news') }}" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('nav.news') }}</a></li>
-                    <li><a href="{{ route('site.events') }}" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('nav.events') }}</a></li>
                     <li><a href="{{ route('site.gallery') }}" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('nav.gallery') }}</a></li>
-                    <li><a href="{{ route('site.contact') }}" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('nav.contact') }}</a></li>
                 </ul>
             </div>
 
-            {{-- Column 3: Programs / Academics --}}
+            {{-- Column 3: Important / ministry links --}}
             <div>
-                <h3 class="text-sm font-semibold uppercase tracking-wider text-white">{{ site_ui('footer.programs_title') }}</h3>
+                <h3 class="text-sm font-semibold uppercase tracking-wider text-white">{{ site_ui('footer.important_title') }}</h3>
                 <ul class="mt-4 space-y-2.5">
-                    <li><a href="#" class="text-sm text-slate-400 transition-colors hover:text-white">{{ __('Play to KG-2') }}</a></li>
-                    <li><a href="#" class="text-sm text-slate-400 transition-colors hover:text-white">{{ __('Primary (Class 1-5)') }}</a></li>
-                    <li><a href="#" class="text-sm text-slate-400 transition-colors hover:text-white">{{ __('Junior (Class 6-8)') }}</a></li>
-                    <li><a href="#" class="text-sm text-slate-400 transition-colors hover:text-white">{{ __('Secondary (Class 9-10)') }}</a></li>
-                    <li><a href="#" class="text-sm text-slate-400 transition-colors hover:text-white">{{ __('Extracurricular') }}</a></li>
-                    <li><a href="{{ route('site.transport') }}" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('nav.transport') }}</a></li>
+                    @php
+                        $ministryLinks = collect(site_ui('footer.ministry_links', []));
+                    @endphp
+                    @forelse($ministryLinks as $entry)
+                        @php
+                            if (is_array($entry)) {
+                                $label = $entry['label'] ?? $entry['title'] ?? '';
+                                $url = $entry['url'] ?? $entry['href'] ?? '#';
+                            } else {
+                                [$label, $url] = array_pad(explode('|', (string) $entry, 2), 2, '#');
+                            }
+                        @endphp
+                        @if($label)
+                            <li>
+                                <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-start gap-2 text-sm text-slate-400 transition-colors hover:text-white">
+                                    <svg class="mt-0.5 h-4 w-4 shrink-0 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 010 5.656l-4 4a4 4 0 01-5.656-5.656l1.5-1.5"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.172 13.828a4 4 0 010-5.656l4-4a4 4 0 015.656 5.656l-1.5 1.5"/></svg>
+                                    {{ $label }}
+                                </a>
+                            </li>
+                        @endif
+                    @empty
+                        <li><a href="https://www.moedu.gov.bd" target="_blank" rel="noopener noreferrer" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('footer.link_ministry_education_ministry') }}</a></li>
+                        <li><a href="#" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('footer.link_ministry_primary_education') }}</a></li>
+                    @endforelse
+                    <li class="pt-2"><a href="{{ route('site.transport') }}" class="inline-flex items-center gap-2 text-sm font-medium text-slate-300 transition-colors hover:text-white">{{ site_ui('nav.transport') }}</a></li>
                 </ul>
             </div>
 
-            {{-- Column 4: Contact & Newsletter --}}
+            {{-- Column 4: Contact, Follow Us & Newsletter --}}
             <div>
                 <h3 class="text-sm font-semibold uppercase tracking-wider text-white">{{ site_ui('footer.contact_title') }}</h3>
                 <ul class="mt-4 space-y-3">
@@ -80,12 +94,20 @@
                     </li>
                 </ul>
 
+                <div class="mt-6">
+                    <h4 class="text-sm font-semibold uppercase tracking-wider text-white">{{ site_ui('footer.follow_us') }}</h4>
+                    <div class="mt-3 flex gap-3">
+                        @include('partials.site.social-links', ['settings' => $siteSettings, 'linkClass' => 'flex h-9 w-9 items-center justify-center rounded-full bg-slate-800 text-slate-300 ring-1 ring-slate-700 transition hover:bg-brand-600 hover:text-white', 'placeholderClass' => 'opacity-50'])
+                    </div>
+                </div>
+
                 {{-- Newsletter --}}
                 <div class="mt-6">
-                    <h4 class="text-sm font-semibold text-white">{{ __('Newsletter') }}</h4>
-                    <form class="mt-2 flex gap-2">
-                        <input type="email" placeholder="{{ __('Your email') }}" class="min-w-0 flex-1 rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30">
-                        <button type="submit" class="rounded-lg bg-brand-600 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-700">
+                    <h4 class="text-sm font-semibold text-white">{{ site_ui('footer.newsletter_title') }}</h4>
+                    <form action="{{ route('site.newsletter.store') }}" method="post" class="mt-2 flex gap-2" novalidate>
+                        @csrf
+                        <input type="email" name="email" id="newsletter-email" required placeholder="{{ site_ui('footer.newsletter_placeholder') }}" aria-label="{{ site_ui('footer.newsletter_email_label') }}" class="min-w-0 flex-1 rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30">
+                        <button type="submit" class="rounded-lg bg-brand-600 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-700" aria-label="{{ site_ui('footer.newsletter_button') }}">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                         </button>
                     </form>

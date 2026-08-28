@@ -126,11 +126,11 @@
             {{-- Hamburger: visible below 1367px --}}
             <button type="button" data-site-nav-trigger aria-controls="site-nav-panel" aria-expanded="false"
                 aria-label="{{ site_ui('nav.menu') }}"
-                class="inline-flex items-center justify-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 min-[1367px]:hidden">
-                <svg data-icon-menu class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                class="inline-flex items-center justify-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 min-[1367px]:hidden">
+                <svg data-icon-menu class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/>
                 </svg>
-                <svg data-icon-close class="hidden h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <svg data-icon-close class="hidden size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6l12 12M18 6L6 18"/>
                 </svg>
                 <span class="hidden sm:inline">{{ site_ui('nav.menu') }}</span>
@@ -254,7 +254,7 @@
         <div class="mx-auto max-w-3xl px-4 py-6">
             <form action="{{ route('site.search') }}" method="GET" class="relative">
                 <svg class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                <input type="search" name="q" placeholder="Search for pages, news, events..." autocomplete="off"
+                <input type="search" name="q" placeholder="{{ site_ui('nav.search_placeholder') }}" autocomplete="off" aria-label="{{ site_ui('nav.search_label') }}"
                     class="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-12 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20">
                 <button type="button" data-search-close class="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-gray-400 hover:text-gray-600">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -265,9 +265,9 @@
 
     {{-- Responsive panel: visible below 1366px --}}
     <div id="site-nav-panel" data-site-nav-panel hidden
-        class="min-[1367px]:hidden border-t border-gray-100 bg-white shadow-lg"
+        class="site-nav-panel fixed inset-0 z-40 hidden min-[1367px]:hidden overflow-y-auto bg-white shadow-2xl"
         role="dialog" aria-modal="false" aria-label="{{ site_ui('nav.menu') }}">
-        <nav class="mx-auto max-h-[calc(100vh-5rem)] max-w-7xl overflow-y-auto pb-24" aria-label="{{ site_ui('nav.menu') }}">
+        <nav class="mx-auto min-h-full max-w-7xl pb-44" aria-label="{{ site_ui('nav.menu') }}">
             @php
                 $linkMobile = fn ($active) => 'flex items-center justify-between rounded-xl px-4 py-3 text-[0.95rem] font-medium transition-all duration-200 '.($active ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-100 shadow-sm' : 'text-gray-700 hover:bg-gray-50 active:bg-blue-50');
                 $sectionTitle = 'mb-2 px-5 text-[0.65rem] font-bold uppercase tracking-[0.15em] text-gray-400';
@@ -296,7 +296,7 @@
             <div class="px-5 pt-4 pb-2">
                 <form action="{{ route('site.search') }}" method="GET" class="relative">
                     <svg class="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    <input type="search" name="q" placeholder="{{ __('Search...') }}" autocomplete="off"
+                    <input type="search" name="q" placeholder="{{ site_ui('nav.search_placeholder') }}" autocomplete="off" aria-label="{{ site_ui('nav.search_label') }}"
                         class="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 transition-all duration-200 focus:border-blue-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20">
                 </form>
             </div>
@@ -321,7 +321,7 @@
                         @php $g = $mobileGroup($group); @endphp
                         <li data-site-nav-accordion class="rounded-xl {{ $g['isGroupActive'] ? 'bg-blue-50/70 ring-1 ring-blue-100/80 shadow-sm' : '' }}">
                             <button type="button" data-site-nav-accordion-trigger aria-expanded="false"
-                                class="flex w-full items-center justify-between rounded-xl px-4 py-3.5 text-[0.95rem] font-medium transition-all duration-200 {{ $g['isGroupActive'] ? 'text-blue-700' : 'text-gray-700 hover:bg-gray-50 active:bg-blue-50' }}">
+                                class="flex w-full items-center justify-between rounded-xl px-4 py-4 text-[0.95rem] font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 {{ $g['isGroupActive'] ? 'text-blue-700' : 'text-gray-700 hover:bg-gray-50 active:bg-blue-50' }}">
                                 <div class="flex items-center gap-3">
                                     @if($group['active'])
                                         <span class="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0"></span>
@@ -465,6 +465,8 @@
         panel.setAttribute('aria-modal', open ? 'true' : 'false');
         if (open) {
             panel.removeAttribute('hidden');
+            var first = panel.querySelector('a[href], button:not([disabled])');
+            if (first && !first.closest('.min-[1367px]:hidden')) first.focus({ preventScroll: true });
         } else {
             panel.setAttribute('hidden', '');
         }

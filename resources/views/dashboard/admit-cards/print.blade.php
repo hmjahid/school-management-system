@@ -56,6 +56,10 @@
         <p>{{ __('Authorized signature') }}: ___________________</p>
     </div>
 </div>
-<script>window.print();</script>
+<script>
+    @if(! ($preview ?? false))
+        window.print();
+    @endif
+</script>
 </body>
 </html>

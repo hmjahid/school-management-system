@@ -594,6 +594,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 paletteCtrl.open();
             }
+            if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey
+                && !document.getElementById('dashboard-search-modal')) {
+                const tag = e.target && e.target.tagName ? e.target.tagName.toLowerCase() : '';
+                const editing = e.target && (e.target.isContentEditable || ['input', 'textarea', 'select'].includes(tag));
+                if (!editing) { e.preventDefault(); paletteCtrl.open(); }
+            }
         });
     });
 })();
@@ -691,3 +697,123 @@ document.addEventListener('input', (e) => {
         target.removeAttribute('src');
     }
 });
+
+// ---------- Dashboard favorites (pinned pages) ----------
+(function () {
+    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    function syncStar(btn, isFav) {
+        if (!btn) return;
+        btn.dataset.favorited = isFav ? '1' : '0';
+        const empty = btn.querySelector('[data-favorite-icon-empty]');
+        const filled = btn.querySelector('[data-favorite-icon-filled]');
+        if (empty) empty.style.display = isFav ? 'none' : '';
+        if (filled) filled.style.display = isFav ? '' : 'none';
+    }
+
+    document.addEventListener('click', async (e) => {
+        const btn = e.target.closest('[data-favorite-toggle]');
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        const endpoint = btn.dataset.endpoint;
+        if (!endpoint || !token) return;
+
+        const payload = {
+            url: window.location.pathname,
+            label: (document.title || '').replace(/\s*[—–|-]\s*.*$/, '').trim().slice(0, 120),
+        };
+        if (btn.hasAttribute('data-pin-url')) {
+            payload.url = btn.dataset.pinUrl;
+            payload.label = btn.dataset.pinLabel || payload.label;
+        }
+
+        const toggling = btn.dataset.favorited !== '1';
+        btn.disabled = true;
+
+        try {
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                },
+                body: JSON.stringify(payload),
+            });
+            const data = await res.json().catch(() => ({}));
+
+            if (res.ok) {
+                syncStar(btn, !!data.favorite);
+
+                const group = document.querySelector('[data-favorites-group]');
+                const list = document.querySelector('[data-favorites-list]');
+                if (group && list) {
+                    if (data.favorite && !list.querySelector(`[data-fav-url="${window.CSS?.escape ? CSS.escape(payload.url) : payload.url}"]`)) {
+                        const row = document.createElement('div');
+                        row.innerHTML = `<div class="relative group">
+                            <a href="${escapeHtml(payload.url)}" class="block truncate rounded-lg py-2 pl-2 pr-8 text-sm text-slate-600 transition hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400" data-new-fav-link>${escapeHtml(payload.label)}</a>
+                            <button type="button" data-unpin-fav data-pin-url="${escapeHtml(payload.url)}" class="absolute right-1 top-1/2 hidden -translate-y-1/2 rounded p-1 text-slate-400 transition hover:bg-slate-100 hover:text-red-500 group-hover:block dark:hover:bg-slate-700" aria-label="Unpin" title="Unpin">
+                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>`;
+                        list.prepend(row.firstChild);
+                    } else if (!data.favorite) {
+                        const row = list.querySelector(`[data-fav-url="${window.CSS?.escape ? CSS.escape(payload.url) : payload.url}"]`);
+                        if (row) row.remove();
+                    }
+                    group.hidden = !list.querySelector('a');
+                }
+            }
+        } finally {
+            btn.disabled = false;
+        }
+    });
+
+    document.addEventListener('click', async (e) => {
+        const unpin = e.target.closest('[data-unpin-fav]');
+        if (!unpin) return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        const endpoint = document.querySelector('[data-favorite-toggle]')?.dataset.endpoint;
+        if (!endpoint || !token) return;
+
+        const payload = { url: unpin.dataset.pinUrl || unpin.dataset.url };
+        const row = unpin.closest('[data-fav-url]') || unpin.closest('.relative');
+
+        try {
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                },
+                body: JSON.stringify(payload),
+            });
+            if (res.ok) {
+                if (row) row.remove();
+                if (unpin.hasAttribute('data-favorite-toggle')) {
+                    syncStar(unpin, false);
+                }
+                const group = document.querySelector('[data-favorites-group]');
+                const list = document.querySelector('[data-favorites-list]');
+                if (group && list && !list.querySelector('a')) {
+                    group.hidden = true;
+                }
+                if (window.location.pathname === (payload.url || '').split('?')[0]) {
+                    const star = document.querySelector('[data-favorite-toggle]');
+                    if (star) syncStar(star, false);
+                }
+            }
+        } catch {}
+    });
+})();

@@ -21,7 +21,7 @@
             </div>
             <h2 id="contact-success-title" class="mt-5 text-xl font-bold text-slate-900">{{ __('Thank You!') }}</h2>
             <p class="mt-2 text-sm leading-relaxed text-slate-600">{{ session('contact_success') }}</p>
-            <button type="button" data-contact-modal-close class="mt-6 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700 hover:shadow-xl">
+            <button type="button" data-contact-modal-close autofocus class="mt-6 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700 hover:shadow-xl">
                 {{ __('OK') }}
             </button>
         </div>

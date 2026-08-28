@@ -291,7 +291,7 @@ class TeacherController extends Controller
     private function paginatedResponse($data, $message, $total = null, $perPage = null, $currentPage = null)
     {
         $response = [
-            'status' => 'success',
+            'success' => true,
             'message' => $message,
             'data' => $data instanceof \Illuminate\Pagination\AbstractPaginator ? $data->items() : $data,
         ];
@@ -336,7 +336,7 @@ class TeacherController extends Controller
     private function errorResponse($message, $errors = [], $statusCode = 400)
     {
         return response()->json([
-            'status' => 'error',
+            'success' => false,
             'message' => $message,
             'errors' => $errors,
         ], $statusCode);

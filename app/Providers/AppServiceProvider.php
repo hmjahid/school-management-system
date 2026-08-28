@@ -13,8 +13,8 @@ use App\Observers\FinanceObserver;
 use App\Services\LogPushNotificationService;
 use App\Services\LogSmsService;
 use App\Support\SiteFrontend;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Cache;
@@ -72,8 +72,9 @@ class AppServiceProvider extends ServiceProvider
             $view->with('siteUi', SiteFrontend::merged());
         });
 
-        View::composer('partials.dashboard.sidebar', function ($view) {
+        View::composer(['partials.dashboard.sidebar', 'partials.dashboard.topbar'], function ($view) {
             $user = auth()->user();
+            $view->with('dashboardHelpSection', dashboard_help_section_for_route(request()->route()?->getName()));
             $pending = [
                 'admissions' => 0,
                 'leaves' => 0,
@@ -103,6 +104,22 @@ class AppServiceProvider extends ServiceProvider
             }
 
             $view->with('sidebarPendingCounts', $pending);
+
+            try {
+                if ($user && Schema::hasTable('dashboard_favorites')) {
+                    $view->with(
+                        'dashboardFavorites',
+                        \App\Models\DashboardFavorite::where('user_id', $user->id)
+                            ->orderByDesc('updated_at')
+                            ->limit(12)
+                            ->get()
+                    );
+                } else {
+                    $view->with('dashboardFavorites', collect());
+                }
+            } catch (\Throwable) {
+                $view->with('dashboardFavorites', collect());
+            }
         });
     }
 }

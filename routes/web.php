@@ -50,6 +50,7 @@ Route::middleware('auth')->get('/payments/receipts/{feePayment}', [FeePaymentRec
     ->name('site.payments.receipts.show');
 
 Route::get('/portal', [PortalController::class, 'index'])->name('portal');
+Route::post('/portal/message', [PortalController::class, 'messageTeacher'])->name('portal.message');
 Route::get('/portal/register', function () {
     return redirect()
         ->route('admissions.apply')

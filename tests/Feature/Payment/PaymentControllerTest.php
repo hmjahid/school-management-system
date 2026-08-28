@@ -62,6 +62,8 @@ class PaymentControllerTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
+                'success',
+                'message',
                 'data' => [
                     '*' => [
                         'id',
@@ -71,8 +73,7 @@ class PaymentControllerTest extends TestCase
                         'created_at',
                     ],
                 ],
-                'links',
-                'meta',
+                'meta' => ['pagination' => ['current_page', 'per_page', 'total', 'last_page']],
             ]);
     }
 

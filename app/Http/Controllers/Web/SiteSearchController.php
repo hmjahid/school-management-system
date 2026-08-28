@@ -15,6 +15,7 @@ class SiteSearchController extends Controller
     public function index(Request $request): View
     {
         $query = $request->input('q', '');
+        $activeType = $request->input('type', 'all');
         $results = collect();
 
         if (strlen($query) >= 2) {
@@ -29,6 +30,7 @@ class SiteSearchController extends Controller
                             ->limit(10)
                             ->get()
                             ->map(fn ($item) => [
+                                'type_key' => 'news',
                                 'title' => $item->title,
                                 'excerpt' => \Illuminate\Support\Str::limit(strip_tags($item->content), 150),
                                 'url' => route('site.news.show', $item->slug),
@@ -48,6 +50,7 @@ class SiteSearchController extends Controller
                             ->limit(10)
                             ->get()
                             ->map(fn ($item) => [
+                                'type_key' => 'notice',
                                 'title' => $item->localizedTitle(),
                                 'excerpt' => \Illuminate\Support\Str::limit(strip_tags($item->localizedContent()), 150),
                                 'url' => route('site.notices'),
@@ -68,6 +71,7 @@ class SiteSearchController extends Controller
                             ->limit(10)
                             ->get()
                             ->map(fn ($item) => [
+                                'type_key' => 'event',
                                 'title' => $item->title,
                                 'excerpt' => \Illuminate\Support\Str::limit(strip_tags($item->description), 150),
                                 'url' => route('site.events'),
@@ -92,6 +96,7 @@ class SiteSearchController extends Controller
                             $text = $content->title . ' ' . strip_tags(json_encode($content->content));
                             if (stripos($text, $query) !== false) {
                                 $results->push([
+                                    'type_key' => 'page',
                                     'title' => $content->title ?? $meta['title'],
                                     'excerpt' => \Illuminate\Support\Str::limit(strip_tags(json_encode($content->content)), 150),
                                     'url' => $meta['url'],
@@ -107,6 +112,13 @@ class SiteSearchController extends Controller
             }
         }
 
-        return view('site.search', compact('query', 'results'));
+        if ($activeType !== 'all') {
+            $results = $results->where('type_key', $activeType)->values();
+        }
+
+        $grouped = $results->groupBy('type_key');
+        $typeCounts = $results->countBy('type_key');
+
+        return view('site.search', compact('query', 'results', 'grouped', 'typeCounts', 'activeType'));
     }
 }

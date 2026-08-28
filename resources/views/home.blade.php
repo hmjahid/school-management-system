@@ -126,15 +126,15 @@
                     <div class="lg:col-span-2">
                         <div class="relative mx-auto w-full max-w-xs">
                             @if(!empty($principal['photo']))
-                                <img src="{{ $principal['photo'] }}" alt="{{ $principal['name'] ?? __('Principal') }}"
-                                    class="aspect-[4/3] w-full rounded-2xl object-cover shadow-xl ring-1 ring-slate-200">
+                                <img src="{{ $principal['photo'] }}" alt="{{ $principal['name'] ?? site_ui('home.principal_fallback') }}"
+                                    class="aspect-[4/3] w-full rounded-2xl object-cover object-top shadow-xl ring-1 ring-slate-200">
                             @else
                                 <div class="flex aspect-[4/3] w-full items-center justify-center rounded-2xl bg-gradient-to-br from-blue-100 to-indigo-100">
                                     <svg class="h-20 w-20 text-blue-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
                                 </div>
                             @endif
                             @if(!empty($principal['name']))
-                                <div class="absolute -bottom-5 left-1/2 w-max -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-orange-500 to-orange-600 px-5 py-2 text-sm font-semibold text-white shadow-lg">
+                                <div class="absolute -bottom-5 left-1/2 w-max max-w-full -translate-x-1/2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 px-5 py-2 text-sm font-semibold text-white shadow-lg">
                                     {{ $principal['name'] }}
                                     @if(!empty($principal['designation']))
                                         <span class="font-normal text-orange-100">· {{ $principal['designation'] }}</span>
@@ -145,11 +145,11 @@
                     </div>
                     <div class="lg:col-span-3">
                         <div class="relative rounded-2xl border border-orange-100 bg-orange-50/50 p-8 sm:p-10">
-                            <svg class="absolute -top-5 -left-4 h-12 w-12 text-orange-300" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10H14.017zM0 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151C7.544 6.068 5.982 8.79 5.982 11H10v10H0z"/></svg>
+                            <svg class="absolute -top-5 -left-4 h-12 w-12 text-orange-300" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10H14.017zM0 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151C7.544 6.068 5.982 8.79 5.982 11H10v10H0z"/></svg>
                             <blockquote class="mt-2 text-lg leading-relaxed text-gray-700">{{ $principalMessage }}</blockquote>
                             <div class="mt-6 flex items-center gap-3">
                                 <div class="h-1 w-10 rounded-full bg-orange-400"></div>
-                                <p class="text-sm font-medium uppercase tracking-wide text-gray-500">{{ $principal['designation'] ?? __('Principal') }}</p>
+                                <p class="text-sm font-medium uppercase tracking-wide text-gray-500">{{ $principal['designation'] ?? site_ui('home.principal_fallback') }}</p>
                             </div>
                         </div>
                     </div>
@@ -177,21 +177,25 @@
                 <div data-teachers-track class="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 -mx-2 px-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                     @foreach($teachers as $teacher)
                         @php
-                            $name = $teacher->user?->name ?? __('Teacher');
+                            $name = $teacher->user?->name ?? site_ui('home.teacher_fallback');
                             $initials = implode('', array_map(fn($w) => strtoupper(substr($w, 0, 1)), explode(' ', $name)));
                         @endphp
-                        <div class="w-full min-w-0 snap-start shrink-0 md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] group rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-100 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                        <div class="w-full min-w-0 snap-center shrink-0 md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] group rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-100 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
                             <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 text-2xl font-bold text-blue-600 ring-4 ring-white shadow-lg transition-transform duration-300 group-hover:scale-105">
                                 {{ $initials }}
                             </div>
                             <h3 class="mt-4 text-lg font-semibold text-gray-900">{{ $name }}</h3>
-                            <p class="mt-1 text-sm text-gray-500">{{ $teacher->qualification ?? __('Teacher') }}</p>
+                            <p class="mt-1 text-sm text-gray-500">{{ $teacher->qualification ?? site_ui('home.teacher_fallback') }}</p>
                             @if($teacher->subjects)
                                 <p class="mt-2 text-xs text-gray-400">{{ is_array($teacher->subjects) ? implode(', ', $teacher->subjects) : $teacher->subjects }}</p>
                             @endif
                         </div>
                     @endforeach
                 </div>
+                <p class="mt-2 flex items-center justify-center gap-1.5 text-xs text-gray-400 md:hidden">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                    {{ site_ui('home.swipe_hint') }}
+                </p>
             </div>
             <div class="mt-10 text-center reveal">
                 <a href="{{ route('site.faculty') }}" class="inline-flex items-center gap-1.5 font-medium text-blue-600 hover:text-blue-800 transition-colors">
@@ -250,7 +254,7 @@
             @else
             <div class="py-12 text-center">
                 <svg class="mx-auto h-16 w-16 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/></svg>
-                <p class="mt-4 text-gray-500">{{ __('Committee members will be displayed here once added in the dashboard.') }}</p>
+                <p class="mt-4 text-gray-500">{{ site_ui('home.committee_empty') }}</p>
             </div>
             @endif
             <div class="mt-10 text-center reveal">
@@ -304,7 +308,7 @@
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 @foreach($remarkableStudents as $student)
                     @php
-                        $name = $student->user?->name ?? __('Student');
+                        $name = $student->user?->name ?? site_ui('home.student_fallback');
                         $initials = implode('', array_map(fn($w) => strtoupper(substr($w, 0, 1)), explode(' ', $name)));
                     @endphp
                     <div class="group rounded-2xl bg-white p-6 shadow-md ring-1 ring-gray-100 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1 reveal">
@@ -338,10 +342,10 @@
                 </div>
 
                 <div class="relative" data-slider-carousel>
-                    <button type="button" data-slider-prev class="absolute -left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg ring-1 ring-gray-200 transition hover:bg-gray-50 hover:shadow-xl sm:-left-5" aria-label="{{ __('Previous') }}">
+                    <button type="button" data-slider-prev class="absolute -left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg ring-1 ring-gray-200 transition hover:bg-gray-50 hover:shadow-xl sm:-left-5" aria-label="{{ site_ui('home.slider_prev') }}">
                         <svg class="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     </button>
-                    <button type="button" data-slider-next class="absolute -right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg ring-1 ring-gray-200 transition hover:bg-gray-50 hover:shadow-xl sm:-right-5" aria-label="{{ __('Next') }}">
+                    <button type="button" data-slider-next class="absolute -right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-lg ring-1 ring-gray-200 transition hover:bg-gray-50 hover:shadow-xl sm:-right-5" aria-label="{{ site_ui('home.slider_next') }}">
                         <svg class="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </button>
 
@@ -434,7 +438,7 @@
                                     </div>
                                 @endif
                                 <div class="absolute top-4 left-4">
-                                    <span class="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white">{{ $item->category ?? __('News') }}</span>
+                                    <span class="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white">{{ $item->category ?? site_ui('home.news_badge') }}</span>
                                 </div>
                             </div>
                             <div class="p-6">
@@ -571,6 +575,9 @@
             }, 4000);
             track.addEventListener('mouseenter', function() { clearInterval(autoScroll); });
             track.addEventListener('touchstart', function() { clearInterval(autoScroll); }, { passive: true });
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                clearInterval(autoScroll);
+            }
         }
     }
 
@@ -597,6 +604,9 @@
             }, 4000);
             cTrack.addEventListener('mouseenter', function() { clearInterval(committeeAutoScroll); });
             cTrack.addEventListener('touchstart', function() { clearInterval(committeeAutoScroll); }, { passive: true });
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                clearInterval(committeeAutoScroll);
+            }
         }
     }
 })();

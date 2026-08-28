@@ -103,6 +103,32 @@
     })();
     </script>
 
+    {{-- Pinned favorites --}}
+    @php
+        $dashboardFavorites = $dashboardFavorites ?? collect();
+    @endphp
+    <div data-favorites-group @if($dashboardFavorites->isEmpty()) hidden @endif>
+        <p class="mb-2 flex items-center gap-1.5 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            <svg class="h-3.5 w-3.5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            {{ __('dashboard.favorites') }}
+        </p>
+        <div class="mb-3 space-y-0.5" data-favorites-list>
+            @foreach($dashboardFavorites as $fav)
+                <div data-fav-url="{{ e(parse_url($fav->url, PHP_URL_PATH) ?: $fav->url) }}">
+                    <a href="{{ $fav->url }}" class="group relative block rounded-lg py-2 pl-2 pr-8 text-sm text-slate-600 transition hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400">
+                        <span class="truncate">{{ $fav->label ?: $fav->url }}</span>
+                        <button type="button" data-unpin-fav data-url="{{ e($fav->url) }}"
+                            class="absolute right-1 top-1/2 hidden -translate-y-1/2 rounded p-1 text-slate-400 transition hover:bg-slate-100 hover:text-red-500 group-hover:block dark:hover:bg-slate-700"
+                            aria-label="{{ __('dashboard.unpin') }}"
+                            title="{{ __('dashboard.unpin') }}">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </a>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
     <p class="mb-2 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ __('dashboard.main') }}</p>
     <div class="space-y-0.5">
         <x-admin-nav-link :href="route('dashboard')" route-is="dashboard" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z\'/></svg>'">

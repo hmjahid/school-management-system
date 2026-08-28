@@ -38,7 +38,7 @@
             <div class="mt-10 flex items-center gap-8">
                 <div>
                     <div class="text-3xl font-black text-slate-900">100%</div>
-                    <div class="mt-1 text-sm font-medium text-slate-500">{{ __('Focused learning') }}</div>
+                    <div class="mt-1 text-sm font-medium text-slate-500">{{ site_ui('home.focused_learning') }}</div>
                 </div>
                 <div class="h-10 w-px bg-slate-200"></div>
                 <div>

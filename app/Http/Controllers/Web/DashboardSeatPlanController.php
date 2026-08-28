@@ -8,6 +8,7 @@ use App\Models\Student;
 use App\Models\WebsiteSetting;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 class DashboardSeatPlanController extends Controller
@@ -25,7 +26,7 @@ class DashboardSeatPlanController extends Controller
         return view('dashboard.seat-plans.index', compact('exams'));
     }
 
-    public function generate(Request $request, Exam $exam): View
+    public function generate(Request $request, Exam $exam): View|Response
     {
         $perRoom = (int) $request->input('per_room', 30);
         if ($perRoom < 1) {

@@ -34,6 +34,22 @@
             </div>
             <p class="mt-2 text-sm text-gray-600">{{ __('Enrolment by class, status, and gender.') }}</p>
             <p class="mt-4 text-sm font-medium text-blue-600 group-hover:text-blue-800">{{ __('Open report') }} →</p>
+        <a href="{{ route('dashboard.analytics') }}" class="group rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition hover:border-blue-300 hover:shadow">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-900">{{ __('Analytics') }}</h2>
+                <span class="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">📊</span>
+            </div>
+            <p class="mt-2 text-sm text-gray-600">{{ __('Growth, fee target, attendance heatmap, teacher workload.') }}</p>
+            <p class="mt-4 text-sm font-medium text-blue-600 group-hover:text-blue-800">{{ __('Open analytics') }} →</p>
+        </a>
+
+        <a href="{{ route('dashboard.reports.builder') }}" class="group rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition hover:border-blue-300 hover:shadow">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-900">{{ __('Report builder') }}</h2>
+                <span class="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-medium text-rose-800">⚙</span>
+            </div>
+            <p class="mt-2 text-sm text-gray-600">{{ __('Select fields and filters, then export a custom CSV.') }}</p>
+            <p class="mt-4 text-sm font-medium text-blue-600 group-hover:text-blue-800">{{ __('Build report') }} →</p>
         </a>
     </div>
 @endsection

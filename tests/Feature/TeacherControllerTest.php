@@ -252,7 +252,7 @@ class TeacherControllerTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'status',
+                'success',
                 'message',
                 'data' => [
                     '*' => [
@@ -281,7 +281,7 @@ class TeacherControllerTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'status',
+                'success',
                 'message',
                 'data' => [
                     '*' => [
@@ -312,7 +312,7 @@ class TeacherControllerTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'status',
+                'success',
                 'message',
                 'data' => [
                     '*' => [

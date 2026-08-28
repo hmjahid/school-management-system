@@ -51,7 +51,7 @@
                     {{ $headline }}
                 </h1>
 
-                <p class="mt-6 max-w-xl text-lg leading-relaxed text-white/70 sm:text-xl">{{ $sub }}</p>
+                <p class="mt-6 max-w-xl text-lg leading-relaxed text-white/90 sm:text-xl">{{ $sub }}</p>
 
                 <div class="mt-10 flex flex-wrap items-center gap-4">
                     @if($admissionsOpen)

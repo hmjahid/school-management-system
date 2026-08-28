@@ -4,7 +4,10 @@
 <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <h1 class="text-2xl font-bold text-gray-900">{{ __('Admit cards') }}</h1>
     @can('create', App\Models\AdmitCard::class)
-        <a href="{{ route('dashboard.admit-cards.create') }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Generate admit card') }}</a>
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ route('dashboard.admit-cards.batch.create') }}" class="rounded-lg border border-blue-600 bg-white px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50">{{ __('Batch generate') }}</a>
+            <a href="{{ route('dashboard.admit-cards.create') }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Generate admit card') }}</a>
+        </div>
     @endcan
 </div>
 <form method="get" class="mb-6 flex flex-wrap gap-3">
@@ -25,6 +28,7 @@
                     <td class="px-4 py-3">{{ $ac->issue_date?->format('d M Y') }}</td>
                     <td class="px-4 py-3">
                         <a href="{{ route('dashboard.admit-cards.show', $ac) }}" class="text-blue-600 hover:text-blue-800">{{ __('View') }}</a>
+                        <button type="button" data-preview-url="{{ route('dashboard.admit-cards.preview', $ac) }}" class="ml-2 text-purple-600 hover:text-purple-800">{{ __('Preview') }}</button>
                         <a href="{{ route('dashboard.admit-cards.print', $ac) }}" target="_blank" class="ml-2 text-green-600 hover:text-green-800">{{ __('Print') }}</a>
                         @can('update', $ac)
                             <a href="{{ route('dashboard.admit-cards.edit', $ac) }}" class="ml-2 text-indigo-600 hover:text-indigo-800">{{ __('Edit') }}</a>

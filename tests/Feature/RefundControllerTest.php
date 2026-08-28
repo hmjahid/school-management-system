@@ -68,6 +68,8 @@ class RefundControllerTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
+                'success',
+                'message',
                 'data' => [
                     '*' => [
                         'id',
@@ -78,8 +80,7 @@ class RefundControllerTest extends TestCase
                         'user' => ['id', 'name', 'email'],
                     ]
                 ],
-                'links',
-                'meta',
+                'meta' => ['pagination' => ['current_page', 'per_page', 'total', 'last_page']],
             ]);
     }
 
@@ -194,13 +195,17 @@ class RefundControllerTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'total_refunded',
-                'pending_count',
-                'completed_count',
-                'failed_count',
-                'refunds_by_month' => [],
-                'refunds_by_status' => [],
-                'refunds_by_payment_method' => [],
+                'success',
+                'message',
+                'data' => [
+                    'total_refunded',
+                    'pending_count',
+                    'completed_count',
+                    'failed_count',
+                    'refunds_by_month' => [],
+                    'refunds_by_status' => [],
+                    'refunds_by_payment_method' => [],
+                ],
             ]);
     }
 

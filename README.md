@@ -1,11 +1,16 @@
 # School Management System
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Laravel](https://img.shields.io/badge/Laravel-10.x-FF2D20?logo=laravel&logoColor=white)](https://laravel.com/)
+[![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?logo=laravel&logoColor=white)](https://laravel.com/)
 [![Blade](https://img.shields.io/badge/UI-Laravel_Blade-FF2D20?logo=laravel&logoColor=white)](https://laravel.com/docs/blade)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.x-06B6D4?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-A School Management System built with **Laravel Blade** only: session auth, **SchoolEase**-style indigo sidebar, dashboard overview (live stats from your DB), and the same module URLs as the old React app (`/dashboard/students`, `/dashboard/cms/pages`, etc.). Module screens are Blade placeholders ready to wire to your controllers. JSON API routes remain under `/api` if needed.
+A School Management System built with **Laravel Blade** (repo root = the app): session
+auth, SchoolEase-style indigo sidebar, live-stat dashboard, full admin modules
+(students, fees, exams/results, admissions, attendance, library, SMS, documents),
+a public website with CMS, and a JSON API under `/api/v1` (payments, refunds,
+admissions, notifications). The legacy React SPA is preserved in `archive/frontend/`
+for reference only.
 
 ![School Management System Dashboard Preview](https://via.placeholder.com/1200x600/4F46E5/FFFFFF?text=School+Management+System+Dashboard)
 
@@ -50,27 +55,29 @@ A School Management System built with **Laravel Blade** only: session auth, **Sc
 ## 🚀 Technology Stack
 
 ### Backend
-- **Framework**: Laravel 10+
-- **API**: RESTful API
-- **Authentication**: Laravel Sanctum
-- **Database**: MySQL/PostgreSQL
-- **Caching**: Redis
-- **Search**: Laravel Scout with Meilisearch
+- **Framework**: Laravel 12 (PHP 8.2+)
+- **API**: RESTful JSON under `/api/v1` with a standard `{success, message, data}` envelope
+- **Authentication**: Laravel Sanctum (web login via session routes)
+- **Database**: SQLite (default dev) / MySQL 8 / PostgreSQL
+- **Payments**: bKash, Nagad, Rocket adapters + offline/bank transfers, refunds
+- **Caching/Queues**: database (default) or Redis
+- **Search**: DB-native (public + dashboard search)
 
 ### Frontend (server-rendered)
-- **Templates**: Laravel Blade (`backend/resources/views`)
-- **Routes**: `backend/routes/web.php` (session authentication)
-- **Assets**: Vite + Tailwind CSS 4 (`backend/vite.config.js`)
+
+- **Templates**: Laravel Blade (`resources/views`)
+- **Routes**: `routes/web.php` (public site) + `routes/dashboard.php` (admin), `routes/api.php` + mounted groups for `/api/v1`
+- **Assets**: Vite + Tailwind CSS 4 (`vite.config.js`)
 - The old React SPA is preserved in `archive/frontend/` for reference only; the `frontend/` folder at the repo root is a short pointer README.
 
 ## 🛠️ Installation
 
 ### Prerequisites
-- PHP 8.1+
+- PHP 8.2+
 - Composer 2.0+
-- Node.js 16+
-- MySQL 5.7+ or PostgreSQL 10+
-- Redis (Optional, for caching)
+- Node.js 18+
+- SQLite (dev, no external DB needed) or MySQL 8 / PostgreSQL 10+
+- Redis (optional, for caching)
 
 ### Quick Start
 
@@ -80,63 +87,50 @@ A School Management System built with **Laravel Blade** only: session auth, **Sc
    cd school-management-system
    ```
 
-2. **Install Backend Dependencies**
+2. **Install Dependencies**
    ```bash
-   cd backend
    composer install
    cp .env.example .env
    php artisan key:generate
-   ```
-
-3. **Install Vite / Tailwind (for Blade assets)**
-   ```bash
-   cd backend
    npm install
    ```
 
-4. **Configure Environment**
-   - Update `backend/.env` with your database and app settings (ensure `SESSION_DRIVER` is set, e.g. `database` or `file`, for web login)
-
-5. **Run Migrations & Seeders**
+3. **Run Migrations & Seeders** (SQLite by default — no DB server required)
    ```bash
-   cd backend
-   php artisan migrate --seed
+   php artisan migrate:fresh --seed
    ```
 
-6. **Start development**
+4. **Start development** (app, queue, Vite HMR and log tail all at once)
    ```bash
-   cd backend
-   php artisan serve
-   # optional: in another terminal, for hot-reload of CSS/JS
-   npm run dev
+   composer dev
    ```
 
-   Open **http://127.0.0.1:8000** — **/login**, then **/dashboard** (sidebar + stats). Demo users: see `unnecessary-files/demo-credentials.md`.
+   Open **http://127.0.0.1:8000** — `/login`, then `/dashboard`. Admin credentials come from `ADMIN_EMAIL`/`ADMIN_PASSWORD` in `.env` (see `.env.example`).
 
 ## 🚀 Deployment
 
-Choose your preferred deployment method:
+Production deployment and operations guidance:
 
-### 1. Shared Web Hosting
-See `unnecessary-files/hosting-architecture.md` for detailed instructions.
+- Production security checklist: `docs/PRODUCTION-CHECKLIST.md`
+- Runbooks (deploy, rollback, credential rotation, incidents): `docs/RUNBOOKS.md`
+- Backup & restore: `docs/BACKUP-RESTORE.md`
+- Payments deployment notes: `docs/PAYMENT-DEPLOYMENT.md`
 
-### 2. VPS/Cloud Hosting
-See `unnecessary-files/hosting-architecture.md` for complete setup.
-
-### 3. Docker
+### Docker (production-like stack)
 ```bash
 docker-compose up -d
-docker-compose exec app composer install
-docker-compose exec app php artisan migrate --seed
+docker-compose exec php php artisan migrate --seed --force
 ```
 Access at: **http://localhost:8080** (nginx → Laravel `public/`)
 
 ## 📚 Documentation
 
-- [Architecture Overview](unnecessary-files/architecture-plan.md)
-- [API Documentation](docs/API.md) (Coming Soon)
-- [Payment Integration](unnecessary-files/payment-integration-prompt.md)
-- [Hosting Guide](unnecessary-files/hosting-architecture.md)
+- [API — Payments & Refunds](docs/API-PAYMENTS.md)
+- [Admissions](docs/ADMISSIONS.md)
+- [Dashboard troubleshooting](docs/DASHBOARD_TROUBLESHOOTING.md)
+- [Production checklist](docs/PRODUCTION-CHECKLIST.md)
+- [Runbooks](docs/RUNBOOKS.md)
+- [Backup & Restore](docs/BACKUP-RESTORE.md)
 
 ## 🤝 Contributing
 

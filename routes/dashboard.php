@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\Web\AuthSessionController;
+use App\Http\Controllers\Web\CmsWebController;
 use App\Http\Controllers\Web\DashboardActivityController;
-use App\Http\Controllers\Web\DashboardAdmitCardController;
 use App\Http\Controllers\Web\DashboardAdmissionController;
+use App\Http\Controllers\Web\DashboardAdmitCardController;
 use App\Http\Controllers\Web\DashboardAnnouncementController;
 use App\Http\Controllers\Web\DashboardAssignmentController;
 use App\Http\Controllers\Web\DashboardAttendanceController;
@@ -10,11 +12,11 @@ use App\Http\Controllers\Web\DashboardBackupController;
 use App\Http\Controllers\Web\DashboardBankReconciliationController;
 use App\Http\Controllers\Web\DashboardBookCategoryController;
 use App\Http\Controllers\Web\DashboardBookController;
-use App\Http\Controllers\Web\DashboardCommunicationsController;
 use App\Http\Controllers\Web\DashboardBookIssueController;
 use App\Http\Controllers\Web\DashboardBudgetController;
 use App\Http\Controllers\Web\DashboardBulkController;
 use App\Http\Controllers\Web\DashboardCertificateController;
+use App\Http\Controllers\Web\DashboardCommunicationsController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\DashboardDocumentController;
 use App\Http\Controllers\Web\DashboardEventController;
@@ -22,6 +24,7 @@ use App\Http\Controllers\Web\DashboardExamController;
 use App\Http\Controllers\Web\DashboardExamResultController;
 use App\Http\Controllers\Web\DashboardExpenseCategoryController;
 use App\Http\Controllers\Web\DashboardExpenseController;
+use App\Http\Controllers\Web\DashboardFavoriteController;
 use App\Http\Controllers\Web\DashboardFeeController;
 use App\Http\Controllers\Web\DashboardFeePaymentController;
 use App\Http\Controllers\Web\DashboardGalleryController;
@@ -37,10 +40,12 @@ use App\Http\Controllers\Web\DashboardModulesController;
 use App\Http\Controllers\Web\DashboardNewsController;
 use App\Http\Controllers\Web\DashboardNoticeController;
 use App\Http\Controllers\Web\DashboardNotificationPreferencesController;
+use App\Http\Controllers\Web\DashboardOnboardingController;
 use App\Http\Controllers\Web\DashboardPayrollController;
 use App\Http\Controllers\Web\DashboardPermissionController;
 use App\Http\Controllers\Web\DashboardProfileController;
 use App\Http\Controllers\Web\DashboardProgressReportController;
+use App\Http\Controllers\Web\DashboardReportBuilderController;
 use App\Http\Controllers\Web\DashboardReportController;
 use App\Http\Controllers\Web\DashboardRoleController;
 use App\Http\Controllers\Web\DashboardRoutineController;
@@ -56,8 +61,6 @@ use App\Http\Controllers\Web\DashboardTestimonialController;
 use App\Http\Controllers\Web\DashboardTransportController;
 use App\Http\Controllers\Web\DashboardUserController;
 use App\Http\Controllers\Web\DashboardVisitorLogController;
-use App\Http\Controllers\Web\CmsWebController;
-use App\Http\Controllers\Web\AuthSessionController;
 use App\Http\Controllers\Web\MessageController;
 use App\Http\Controllers\Web\NotificationController;
 use App\Http\Controllers\Web\PortalAdmissionController;
@@ -162,10 +165,14 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard/search', [DashboardSearchController::class, 'search'])->name('dashboard.search');
 
+    Route::post('/dashboard/favorites/toggle', [DashboardFavoriteController::class, 'toggle'])->name('dashboard.favorites.toggle');
+
     Route::get('/dashboard/profile', [DashboardProfileController::class, 'edit'])->name('dashboard.profile.edit');
     Route::put('/dashboard/profile', [DashboardProfileController::class, 'update'])->name('dashboard.profile.update');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/dashboard/onboarding', [DashboardOnboardingController::class, 'index'])->name('dashboard.onboarding');
 
     Route::get('/portal/admission', [PortalAdmissionController::class, 'show'])->name('portal.admission');
     Route::get('/portal/progress', [PortalProgressController::class, 'index'])->name('portal.progress');
@@ -195,6 +202,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/reports/attendance', [DashboardReportController::class, 'attendance'])->name('dashboard.reports.attendance');
     Route::get('/dashboard/reports/students', [DashboardReportController::class, 'students'])->name('dashboard.reports.students');
     Route::get('/dashboard/reports/export/{type}', [DashboardReportController::class, 'export'])->name('dashboard.reports.export');
+
+    Route::get('/dashboard/analytics', [DashboardReportController::class, 'analytics'])->name('dashboard.analytics');
+    Route::get('/dashboard/reports/builder', [DashboardReportBuilderController::class, 'index'])->name('dashboard.reports.builder');
+    Route::post('/dashboard/reports/builder/export', [DashboardReportBuilderController::class, 'export'])->name('dashboard.reports.builder.export');
 
     Route::get('/dashboard/events', [DashboardEventController::class, 'index'])->name('dashboard.events');
     Route::get('/dashboard/events/calendar', [DashboardEventController::class, 'calendar'])->name('dashboard.events.calendar');
@@ -489,27 +500,33 @@ Route::middleware('auth')->group(function () {
             Route::get('/', [DashboardAdmitCardController::class, 'index'])->name('index');
             Route::get('/create', [DashboardAdmitCardController::class, 'create'])->name('create');
             Route::post('/', [DashboardAdmitCardController::class, 'store'])->name('store');
+            Route::get('/batch/create', [DashboardAdmitCardController::class, 'batchCreate'])->name('batch.create');
+            Route::post('/batch', [DashboardAdmitCardController::class, 'batchStore'])->name('batch.store');
             Route::get('/{admitCard}', [DashboardAdmitCardController::class, 'show'])->name('show');
             Route::get('/{admitCard}/edit', [DashboardAdmitCardController::class, 'edit'])->name('edit');
             Route::put('/{admitCard}', [DashboardAdmitCardController::class, 'update'])->name('update');
             Route::delete('/{admitCard}', [DashboardAdmitCardController::class, 'destroy'])->name('destroy');
             Route::get('/{admitCard}/print', [DashboardAdmitCardController::class, 'print'])->name('print');
+            Route::get('/{admitCard}/preview', [DashboardAdmitCardController::class, 'preview'])->name('preview');
         });
 
         Route::prefix('dashboard/student-id-cards')->name('dashboard.student-id-cards.')->group(function () {
             Route::get('/', [DashboardStudentIdCardController::class, 'index'])->name('index');
             Route::get('/create', [DashboardStudentIdCardController::class, 'create'])->name('create');
             Route::post('/', [DashboardStudentIdCardController::class, 'store'])->name('store');
+            Route::get('/batch/create', [DashboardStudentIdCardController::class, 'batchCreate'])->name('batch.create');
+            Route::post('/batch', [DashboardStudentIdCardController::class, 'batchStore'])->name('batch.store');
             Route::get('/{studentIdCard}', [DashboardStudentIdCardController::class, 'show'])->name('show');
             Route::get('/{studentIdCard}/edit', [DashboardStudentIdCardController::class, 'edit'])->name('edit');
             Route::put('/{studentIdCard}', [DashboardStudentIdCardController::class, 'update'])->name('update');
             Route::delete('/{studentIdCard}', [DashboardStudentIdCardController::class, 'destroy'])->name('destroy');
             Route::get('/{studentIdCard}/print', [DashboardStudentIdCardController::class, 'print'])->name('print');
+            Route::get('/{studentIdCard}/preview', [DashboardStudentIdCardController::class, 'preview'])->name('preview');
         });
 
-    Route::get('/dashboard/communications', [DashboardCommunicationsController::class, 'index'])->name('dashboard.communications');
+        Route::get('/dashboard/communications', [DashboardCommunicationsController::class, 'index'])->name('dashboard.communications');
 
-    Route::prefix('dashboard/sms')->name('dashboard.sms.')->group(function () {
+        Route::prefix('dashboard/sms')->name('dashboard.sms.')->group(function () {
             Route::get('/', [DashboardSmsController::class, 'index'])->name('index');
             Route::get('/compose', [DashboardSmsController::class, 'compose'])->name('compose');
             Route::post('/preview', [DashboardSmsController::class, 'preview'])->name('preview');

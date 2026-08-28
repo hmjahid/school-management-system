@@ -33,6 +33,12 @@ class SetLocaleFromSession
      */
     protected function resolveLocale(Request $request): string
     {
+        $locales = config('school.supported_locales', ['en']);
+
+        if (($queryLang = $request->query('lang')) && in_array($queryLang, $locales, true)) {
+            return $queryLang;
+        }
+
         $isDashboard = $request->is('dashboard*')
             || $request->routeIs('dashboard*')
             || $request->is('messages*')

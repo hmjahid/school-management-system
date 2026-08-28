@@ -159,12 +159,40 @@
         @php $spacing = $siteSettings->theme_section_spacing ?? 'default'; @endphp
         @if($spacing === 'compact')
             section.py-20, section[class*="py-20"] { padding-top: 3rem !important; padding-bottom: 3rem !important; }
+            section.py-16, section[class*="py-16"] { padding-top: 2.5rem !important; padding-bottom: 2.5rem !important; }
+            section.py-12, section[class*="py-12"] { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+            section.py-8, section[class*="py-8"] { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
         @elseif($spacing === 'spacious')
-            section.py-20, section[class*="py-20"] { padding-top: 6rem !important; padding-bottom: 6rem !important; }
+            section.py-20, section[class*="py-20"] { padding-top: 7rem !important; padding-bottom: 7rem !important; }
+            section.py-16, section[class*="py-16"] { padding-top: 5.5rem !important; padding-bottom: 5.5rem !important; }
+            section.py-12, section[class*="py-12"] { padding-top: 4rem !important; padding-bottom: 4rem !important; }
+            section.py-8, section[class*="py-8"] { padding-top: 2.5rem !important; padding-bottom: 2.5rem !important; }
+        @endif
+
+        /* Theme style presets */
+        @php $themeStyle = $siteSettings->theme_style ?? 'default'; @endphp
+        @if($themeStyle === 'classic')
+            body.theme-style-classic { --theme-font: 'Georgia', 'Times New Roman', serif; }
+            body.theme-style-classic h1, body.theme-style-classic h2, body.theme-style-classic h3 { font-weight: 700; letter-spacing: -0.01em; }
+            body.theme-style-classic section.py-20 { padding-top: 5rem !important; padding-bottom: 5rem !important; }
+            body.theme-style-classic .bg-gradient-to-r, body.theme-style-classic .bg-gradient-to-br { background-image: none !important; background-color: var(--theme-primary); }
+            body.theme-style-classic .theme-btn-primary, body.theme-style-classic .theme-btn-secondary { border-radius: 0.375rem !important; }
+            body.theme-style-classic .rounded-2xl, body.theme-style-classic .rounded-xl { border-radius: 0.5rem !important; }
+        @elseif($themeStyle === 'modern')
+            body.theme-style-modern h1, body.theme-style-modern h2 { font-weight: 800; letter-spacing: -0.025em; }
+            body.theme-style-modern section.py-20 { padding-top: 6rem !important; padding-bottom: 6rem !important; }
+            body.theme-style-modern .shadow-md { box-shadow: 0 8px 30px rgba(0,0,0,0.08) !important; }
+            body.theme-style-modern .theme-btn-primary, body.theme-style-modern .theme-btn-secondary { background-image: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary)) !important; }
+        @elseif($themeStyle === 'minimal')
+            body.theme-style-minimal { --theme-radius: 0.375rem; }
+            body.theme-style-minimal section.py-20 { padding-top: 7rem !important; padding-bottom: 7rem !important; }
+            body.theme-style-minimal .shadow-md { box-shadow: none !important; }
+            body.theme-style-minimal .bg-gradient-to-r, body.theme-style-minimal .bg-gradient-to-br, body.theme-style-minimal .bg-gradient-to-t { background-image: none !important; }
+            body.theme-style-minimal .theme-btn-primary, body.theme-style-minimal .theme-btn-secondary { border-radius: 0.25rem !important; }
         @endif
     </style>
 </head>
-<body class="flex min-h-screen flex-col bg-surface font-sans text-on-surface antialiased" style="font-family: var(--theme-font);">
+<body class="flex min-h-screen flex-col bg-surface font-sans text-on-surface antialiased theme-style-{{ $themeStyle }}" style="font-family: var(--theme-font);">
     {{-- Loading bar --}}
     <div id="loading-bar" class="fixed left-0 top-0 z-[200] h-1 bg-brand-600 transition-all duration-300 ease-out" style="width:0; opacity:0;"></div>
 
@@ -233,6 +261,27 @@
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js');
         }
+    </script>
+
+    {{-- Pause marquee/tickers on tap (single tap pauses, tap again resumes) --}}
+    <script>
+    (function () {
+        var running = document.querySelectorAll('.animate-marquee, .notice-scroll-content');
+        if (!running.length) return;
+        var prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var paused = false;
+        function toggle(value) {
+            paused = value;
+            running.forEach(function (el) { el.classList.toggle('paused', value); });
+        }
+        if (prefersReduced) { document.addEventListener('DOMContentLoaded', function () { toggle(true); }); }
+        document.addEventListener('touchstart', function (e) {
+            var t = e.target.closest('.animate-marquee, .notice-scroll-content');
+            if (!t) return;
+            e.preventDefault();
+            toggle(!paused);
+        }, { passive: false });
+    })();
     </script>
 </body>
 </html>

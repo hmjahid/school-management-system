@@ -5,11 +5,9 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Payment;
-use App\Models\SchoolClass;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -157,7 +155,7 @@ class DashboardReportController extends Controller
     public function export(Request $request, string $type): StreamedResponse
     {
         abort_unless(in_array($type, ['fees', 'attendance', 'students'], true), 404);
-        $filename = "report-{$type}-" . now()->format('Ymd-His') . '.csv';
+        $filename = "report-{$type}-".now()->format('Ymd-His').'.csv';
 
         return response()->streamDownload(function () use ($type) {
             $out = fopen('php://output', 'w');
@@ -171,7 +169,7 @@ class DashboardReportController extends Controller
                     ->get()
                     ->each(fn ($r) => fputcsv($out, [$r->bucket, $r->total, $r->count]));
             } elseif ($type === 'attendance') {
-                fputcsv($out, ['date', 'present', 'total']);
+                fputcsv($out, ['date', 'class', 'present', 'total']);
                 Attendance::query()
                     ->join('students', 'attendances.student_id', '=', 'students.id')
                     ->join('school_classes', 'students.class_id', '=', 'school_classes.id')
@@ -195,6 +193,120 @@ class DashboardReportController extends Controller
 
             fclose($out);
         }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    public function analytics(Request $request): View
+    {
+        $months = collect(range(11, 0))->map(fn ($i) => now()->subMonths($i))->all();
+        $monthLabels = collect($months)->map(fn ($m) => $m->format('M Y'))->all();
+
+        $studentGrowth = array_fill(0, 12, 0);
+        $revenue = array_fill(0, 12, 0.0);
+        $expenses = array_fill(0, 12, 0.0);
+        $feeTarget = 0.0;
+        $feeCollected = 0.0;
+        $attendanceByClass = collect();
+        $teacherWorkload = collect();
+
+        try {
+            if (Schema::hasTable('students')) {
+                Student::query()
+                    ->where('created_at', '>=', now()->subMonths(11)->startOfMonth())
+                    ->selectRaw("strftime('%Y-%m', created_at) as bucket, COUNT(*) as total")
+                    ->groupBy('bucket')
+                    ->get()
+                    ->each(function ($row) use (&$studentGrowth, $months) {
+                        foreach ($months as $idx => $m) {
+                            if ($m->format('Y-m') === $row->bucket) {
+                                $studentGrowth[$idx] = (int) $row->total;
+                            }
+                        }
+                    });
+            }
+
+            if (Schema::hasTable('payments')) {
+                Payment::query()
+                    ->where('payment_status', Payment::STATUS_COMPLETED)
+                    ->where('payment_date', '>=', now()->subMonths(11)->startOfMonth())
+                    ->selectRaw("strftime('%Y-%m', payment_date) as bucket, SUM(paid_amount) as total")
+                    ->groupBy('bucket')
+                    ->get()
+                    ->each(function ($row) use (&$revenue, $months) {
+                        foreach ($months as $idx => $m) {
+                            if ($m->format('Y-m') === $row->bucket) {
+                                $revenue[$idx] = (float) $row->total;
+                            }
+                        }
+                    });
+
+                $feeCollected = (float) Payment::query()
+                    ->where('payment_status', Payment::STATUS_COMPLETED)
+                    ->where('payment_date', '>=', now()->startOfMonth())
+                    ->sum('paid_amount');
+            }
+
+            if (Schema::hasTable('expenses')) {
+                Expense::query()
+                    ->where('date', '>=', now()->subMonths(11)->startOfMonth())
+                    ->selectRaw("strftime('%Y-%m', date) as bucket, SUM(amount) as total")
+                    ->groupBy('bucket')
+                    ->get()
+                    ->each(function ($row) use (&$expenses, $months) {
+                        foreach ($months as $idx => $m) {
+                            if ($m->format('Y-m') === $row->bucket) {
+                                $expenses[$idx] = (float) $row->total;
+                            }
+                        }
+                    });
+            }
+
+            if (Schema::hasTable('fees') && Schema::hasTable('students')) {
+                $totalStudents = Student::query()->where('status', 'active')->count();
+                $monthlyFees = \App\Models\Fee::query()
+                    ->where('status', 'active')
+                    ->whereIn('frequency', ['monthly', 'recurring'])
+                    ->sum('amount');
+                $feeTarget = (float) $monthlyFees * max(1, $totalStudents);
+            }
+
+            if (Schema::hasTable('attendances')) {
+                $from = now()->subDays(30);
+                $attendanceByClass = Attendance::query()
+                    ->where('date', '>=', $from->startOfDay())
+                    ->join('students', 'attendances.student_id', '=', 'students.id')
+                    ->join('school_classes', 'students.class_id', '=', 'school_classes.id')
+                    ->selectRaw('school_classes.name as class_name,
+                        ROUND(100.0 * SUM(CASE WHEN attendances.status IN (\'present\',\'late\',\'half_day\') THEN 1 ELSE 0 END) / COUNT(*), 1) as rate')
+                    ->groupBy('school_classes.name')
+                    ->orderBy('school_classes.name')
+                    ->get();
+            }
+
+            if (Schema::hasTable('class_teacher') && Schema::hasTable('teachers') && Schema::hasTable('users')) {
+                $teacherWorkload = \App\Models\Teacher::query()
+                    ->join('users', 'teachers.user_id', '=', 'users.id')
+                    ->selectRaw('users.name as teacher_name, COUNT(DISTINCT class_teacher.class_id) as classes_count')
+                    ->join('class_teacher', 'teachers.id', '=', 'class_teacher.teacher_id')
+                    ->groupBy('users.name')
+                    ->orderByDesc('classes_count')
+                    ->limit(10)
+                    ->get();
+            }
+        } catch (\Throwable) {
+            //
+        }
+
+        return view('dashboard.reports.analytics', [
+            'months' => $monthLabels,
+            'studentGrowth' => $studentGrowth,
+            'revenue' => $revenue,
+            'expenses' => $expenses,
+            'feeTarget' => $feeTarget,
+            'feeCollected' => $feeCollected,
+            'feeTargetPercent' => $feeTarget > 0 ? round(100 * $feeCollected / $feeTarget, 1) : 0,
+            'attendanceByClass' => $attendanceByClass,
+            'teacherWorkload' => $teacherWorkload,
+        ]);
     }
 
     protected function parseDate(mixed $raw, Carbon $fallback): Carbon

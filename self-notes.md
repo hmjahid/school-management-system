@@ -620,6 +620,12 @@ name our school management system "schooler". the dahboard sidebar top name will
 
 we will build total 3 application/product. 1. app 2. wordpress theme and 3. website for this apllication/theme marketing/branding/selling. all application codes will be inside schooler-app folder, theme codes inside schilex-theme folder and website codes inside schooler-website folder for managing the codes easily. now move the management software code inside schooler-app folder.
 
+we will build app internation version and a php version and the theme also a international version. the php version also will be a another international version. app will be total 2 folder: 1. schooler-app, 2. schooler-app-int. theme will be two folders: 1. schooler-theme, 2. schooler-theme-int. app php version also will be two folders: 1. schooler-php, 2. schooler-php-int
+
+the website for this apllication/theme marketing/branding/selling will be a fully funxtional website will ackend for managing uswers/customers, licensing, subscriptions, payments, expiration, rnewals and more.
+
+
+
 suppose you are a senior laravel developer and software engineer. cretae full unit tests for this school management system
 
 

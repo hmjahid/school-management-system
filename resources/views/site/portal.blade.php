@@ -74,6 +74,14 @@
                         <button type="button" data-tab="attendance" class="whitespace-nowrap border-b-2 border-transparent px-1 py-4 text-sm font-medium text-slate-500 transition hover:text-slate-700">{{ __('Attendance') }}</button>
                         <button type="button" data-tab="exams" class="whitespace-nowrap border-b-2 border-transparent px-1 py-4 text-sm font-medium text-slate-500 transition hover:text-slate-700">{{ __('Exams') }}</button>
                         <button type="button" data-tab="fees" class="whitespace-nowrap border-b-2 border-transparent px-1 py-4 text-sm font-medium text-slate-500 transition hover:text-slate-700">{{ __('Fees') }}</button>
+                        @if($user->hasRole('student'))
+                            <button type="button" data-tab="routine" class="whitespace-nowrap border-b-2 border-transparent px-1 py-4 text-sm font-medium text-slate-500 transition hover:text-slate-700">{{ site_ui('portal.routine') }}</button>
+                        @endif
+                        @if($user->hasRole('parent'))
+                            <button type="button" data-tab="dues" class="whitespace-nowrap border-b-2 border-transparent px-1 py-4 text-sm font-medium text-slate-500 transition hover:text-slate-700">{{ site_ui('portal.dues_timeline') }}</button>
+                            <button type="button" data-tab="calendar" class="whitespace-nowrap border-b-2 border-transparent px-1 py-4 text-sm font-medium text-slate-500 transition hover:text-slate-700">{{ site_ui('portal.attendance_calendar') }}</button>
+                        @endif
+                        <button type="button" data-tab="message" class="whitespace-nowrap border-b-2 border-transparent px-1 py-4 text-sm font-medium text-slate-500 transition hover:text-slate-700">{{ site_ui('portal.message_teacher') }}</button>
                     </nav>
                 </div>
 
@@ -249,6 +257,110 @@
                                 @endforeach
                             </div>
                             <a href="{{ route('site.payments') }}" class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-800">{{ site_ui('portal.full_payment_portal') }} →</a>
+                        @endif
+                    </section>
+                </div>
+
+                {{-- Tab: Routine (student) --}}
+                @if($user->hasRole('student'))
+                    <div data-tab-panel="routine" class="mt-8 hidden">
+                        <section class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+                            <h2 class="text-lg font-semibold text-slate-900">{{ site_ui('portal.class_routine') }}</h2>
+                            @if($routine->isEmpty())
+                                <p class="mt-4 text-sm text-slate-600">{{ site_ui('portal.no_routine') }}</p>
+                            @else
+                                <div class="mt-4 space-y-6">
+                                    @foreach($routine as $day => $items)
+                                        <div>
+                                            <h3 class="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-300">{{ \App\Models\Routine::DAYS[$day] ?? __('Day :day', ['day' => $day]) }}</h3>
+                                            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                                @foreach($items as $item)
+                                                    <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                                                        <p class="font-medium text-slate-900">{{ $item->subject?->name ?? __('Subject') }}</p>
+                                                        <p class="text-xs text-slate-500">{{ \Illuminate\Support\Carbon::parse($item->start_time)->format('g:i A') }} – {{ \Illuminate\Support\Carbon::parse($item->end_time)->format('g:i A') }}</p>
+                                                        <p class="text-xs text-slate-500">{{ $item->teacher?->user?->name ?? '' }}</p>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </section>
+                    </div>
+                @endif
+
+                {{-- Tab: Dues timeline (parent) --}}
+                @if($user->hasRole('parent'))
+                    <div data-tab-panel="dues" class="mt-8 hidden">
+                        <section class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+                            <h2 class="text-lg font-semibold text-slate-900">{{ site_ui('portal.dues_timeline') }}</h2>
+                            @if($duesTimeline->isEmpty())
+                                <p class="mt-4 text-sm text-slate-600">{{ site_ui('portal.no_fee_payments') }}</p>
+                            @else
+                                <div class="relative mt-6 border-l-2 border-slate-200 pl-6">
+                                    @foreach($duesTimeline as $fp)
+                                        <div class="mb-6 last:mb-0">
+                                            <span class="absolute -left-1.5 h-3 w-3 rounded-full {{ $fp->status === 'paid' ? 'bg-emerald-500' : 'bg-amber-500' }}"></span>
+                                            <p class="text-xs text-slate-500">{{ ($fp->payment_date ?? $fp->created_at)?->format('M j, Y') }}</p>
+                                            <p class="font-medium text-slate-900">৳ {{ number_format((float) ($fp->balance ?? $fp->amount), 2) }} — {{ ucfirst($fp->status) }}</p>
+                                            <p class="text-xs text-slate-500">{{ $fp->invoice_number }}</p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </section>
+                    </div>
+
+                    {{-- Tab: Attendance calendar --}}
+                    <div data-tab-panel="calendar" class="mt-8 hidden">
+                        <section class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+                            <h2 class="text-lg font-semibold text-slate-900">{{ site_ui('portal.attendance_calendar') }}</h2>
+                            @if($attendanceCalendar->isEmpty())
+                                <p class="mt-4 text-sm text-slate-600">{{ site_ui('portal.no_attendance') }}</p>
+                            @else
+                                <div class="mt-4 grid grid-cols-7 gap-2 text-center text-xs">
+                                    @foreach(['S','M','T','W','T','F','S'] as $d)<div class="py-1 font-semibold text-slate-400">{{ $d }}</div>@endforeach
+                                    @foreach($attendanceCalendar as $date => $rows)
+                                        @php $day = \Illuminate\Support\Carbon::parse($date); $present = $rows->whereIn('status', ['present','late','half_day'])->count(); $absent = $rows->count() - $present; @endphp
+                                        <div class="rounded-lg border border-slate-100 p-2 {{ $absent > 0 ? 'bg-red-50' : ($present > 0 ? 'bg-emerald-50' : 'bg-slate-50') }}">
+                                            <span class="font-medium">{{ $day->format('j') }}</span>
+                                            <span class="block text-[0.6rem] {{ $absent > 0 ? 'text-red-600' : 'text-emerald-600' }}">{{ $present }}/{{ $rows->count() }}</span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </section>
+                    </div>
+                @endif
+
+                {{-- Tab: Message teacher --}}
+                <div data-tab-panel="message" class="mt-8 hidden">
+                    <section class="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+                        <h2 class="text-lg font-semibold text-slate-900">{{ site_ui('portal.message_teacher') }}</h2>
+                        @if($teachers->isEmpty())
+                            <p class="mt-4 text-sm text-slate-600">{{ site_ui('portal.no_teachers_assigned') }}</p>
+                        @else
+                            <form method="post" action="{{ route('portal.message') }}" class="mt-4 max-w-xl space-y-4">
+                                @csrf
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700">{{ site_ui('portal.select_teacher') }}</label>
+                                    <select name="teacher_id" required class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                                        @foreach($teachers as $teacher)
+                                            <option value="{{ $teacher->id }}">{{ $teacher->user?->name ?? site_ui('portal.fallback_student') }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700">{{ site_ui('portal.subject') }}</label>
+                                    <input type="text" name="subject" required maxlength="120" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700">{{ site_ui('portal.message') }}</label>
+                                    <textarea name="body" required maxlength="2000" rows="4" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"></textarea>
+                                </div>
+                                <button type="submit" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700">{{ site_ui('portal.send_message') }}</button>
+                            </form>
                         @endif
                     </section>
                 </div>

@@ -60,7 +60,7 @@
 
 | # | Task | Source | Files / Notes | Verification |
 |---|---|---|---|---|
-| 2.1 | Standardize API response envelope | Audit H16 | Pick one: `ApiResponse` trait OR Resources. Apply everywhere. | [~] ApiExceptionRenderer already handles API errors; envelope work ongoing. |
+| 2.1 | Standardize API response envelope | Audit H16 | Pick one: `ApiResponse` trait OR Resources. Apply everywhere. | [x] `StandardizeApiResponse` middleware enforces `{success,message,data[,meta]}` on all `api/*` responses; hoists pagination under `meta.pagination`; skips webhooks/already-enveloped; TeacherController envelope migrated to boolean `success`. |
 | 2.2 | Move refund routes inside `/api/v1` | Audit H12 | Consolidate versioning under `api.php` `v1` group.  | [x] Refund routes moved inside `routes/refunds.php` mounted under `api/v1`; webhook kept at `/api/webhooks/{gateway}/refund`. |
 | 2.3 | Split `routes/web.php` | Audit A7 | Extract dashboard routes to `routes/dashboard.php`.  | [x] Dashboard routes extracted to `routes/dashboard.php`; mounted with auth. |
 | 2.4 | Split `PaymentService` into gateway adapters | Audit A4 | Create `BkashGateway`, `NagadGateway`, `RocketGateway`; `PaymentService` orchestrates. | [x] Created `app/Services/Payment/{GatewayAdapterInterface,PaymentSideEffects,BkashGatewayAdapter,NagadGatewayAdapter,RocketGatewayAdapter,GatewayAdapterFactory}`; `PaymentService` reduced from 741 to 156 lines. |
@@ -123,21 +123,21 @@
 
 | # | Task | Source | Files / Notes | Verification |
 |---|---|---|---|---|
-| 4.1 | Add live CMS preview / view-as-visitor | Design §3.4 | Split-screen editor or preview modal. | CMS edit shows rendered output immediately. |
-| 4.2 | Add 2–3 complete school themes | Design §3.4 | Beyond color: layout/spacing variations selectable in settings. | Switching theme restyles homepage sections. |
-| 4.3 | Standardize section spacing & rhythm | Design §6.3 | Apply spacing scale across all homepage sections. | Visual consistency audit passes. |
-| 4.4 | Improve hero readability | Design §4.5 | Overlay on background images; responsive font sizes; test all 6 designs. | Heroes readable on mobile and desktop. |
-| 4.5 | Fix principal message layout | Design §4.5 | Reduce image height; wrap text naturally; ensure uploaded image renders. | Section looks balanced. |
-| 4.6 | Improve teachers slider | Design §4.5 | Arrows, swipe hint, 3/2/1 responsive counts. | Manual swipe/click test. |
-| 4.7 | Add gallery lightbox | Design §4.5 | Click image → lightbox; filtering tabs clearly active. | Gallery UX test. |
-| 4.8 | Add contact success modal | Design §4.5 | Nice thank-you popup after submission. | Form submit → modal shown. |
-| 4.9 | Fix footer grouping & spacing | Design §4.5 | Logo text, important links, social icons separated; "Follow Us" translates. | Footer matches design spec. |
-| 4.10 | Add important/ministry links | Suggestion + Design | Editable footer block for ministry links. | Admin can add/remove links. |
-| 4.11 | Improve mobile navigation | Design §3.5 | Full-screen/slide-over drawer; larger tap targets; pause marquee on tap. | Mobile menu usable on ≤1366px. |
-| 4.12 | Add per-section show/hide on CMS edit pages | Suggestion + Design | Checkbox per section on each page's edit screen (already started). | All public page sections toggleable. |
-| 4.13 | Complete CMS section auto-registration | Suggestion | `config/cms_section_visibility.php` consumed everywhere. | New sections auto-appear in CMS. |
-| 4.14 | Ensure all public strings are CMS-manageable | Design §4.10 | Review hero, features, teachers, testimonials, partners, CTA sections. | Language switch changes all visible text. |
-| 4.15 | Add accessibility fixes | Design §7 | `lang` attribute, focus rings, labels, alt text, reduced motion. | Axe or Lighthouse a11y score ≥ 90. |
+| 4.1 | Add live CMS preview / view-as-visitor | Design §3.4 | Split-screen editor or preview modal. | [x] Preview modal + EN/BN toggle + Esc/backdrop close in `cms/edit`; `?lang=` support added to `SetLocaleFromSession`. |
+| 4.2 | Add 2–3 complete school themes | Design §3.4 | Beyond color: layout/spacing variations selectable in settings. | [x] theme_style presets (classic/modern/minimal) CSS + `theme-style-*` body class; selectable in settings. |
+| 4.3 | Standardize section spacing & rhythm | Design §6.3 | Apply spacing scale across all homepage sections. | [x] Section-spacing scale (py-16/py-12/py-8) mapped to theme style in `layouts/app.blade.php`. |
+| 4.4 | Improve hero readability | Design §4.5 | Overlay on background images; responsive font sizes; test all 6 designs. | [x] All 6 designs responsive; sub-text contrast raised (white/70→white/90) in designs 1/5/6. |
+| 4.5 | Fix principal message layout | Design §4.5 | Reduce image height; wrap text naturally; ensure uploaded image renders. | [x] `object-top` + wrapping badge on `home.blade.php` principal card; `aspect-[4/3]` kept. |
+| 4.6 | Improve teachers slider | Design §4.5 | Arrows, swipe hint, 3/2/1 responsive counts. | [x] snap-center + scroll-snap; mobile swipe hint; auto-scroll disabled under reduced motion. |
+| 4.7 | Add gallery lightbox | Design §4.5 | Click image → lightbox; filtering tabs clearly active. | [x] Lightbox already live via `[data-lightbox]`; dead static markup removed; `@endsection` dup fixed. |
+| 4.8 | Add contact success modal | Design §4.5 | Nice thank-you popup after submission. | [x] Modal already accessible (role/aria-modal); OK button autofocus added. |
+| 4.9 | Fix footer grouping & spacing | Design §4.5 | Logo text, important links, social icons separated; "Follow Us" translates. | [x] New column layout; Follow Us heading + icon group; `footer.follow_us` in en/bn. |
+| 4.10 | Add important/ministry links | Suggestion + Design | Editable footer block for ministry links. | [x] `footer.ministry_links` list (Label|URL) editable via CMS global labels; rendered in footer. |
+| 4.11 | Improve mobile navigation | Design §3.5 | Full-screen/slide-over drawer; larger tap targets; pause marquee on tap. | [x] Fixed full-screen drawer + slide-in anim; py-4 accordion taps; focus rings; marquee pause on tap. |
+| 4.12 | Add per-section show/hide on CMS edit pages | Suggestion + Design | Checkbox per section on each page's edit screen (already started). | [x] Verified existing: section-visibility accordion on `cms/edit` persists `section_visibility`. |
+| 4.13 | Complete CMS section auto-registration | Suggestion | `config/cms_section_visibility.php` consumed everywhere. | [x] Verified existing: 44 `section_visibility[` refs across 15+ public views + top nav/hero. |
+| 4.14 | Ensure all public strings are CMS-manageable | Design §4.10 | Review hero, features, teachers, testimonials, partners, CTA sections. | [x] Audited home/hero/footer; added `home.swipe_hint`, `home.*_fallback`, `home.slider_prev/next`, `nav.search_*` keys wired via `site_ui()` (en+bn). |
+| 4.15 | Add accessibility fixes | Design §7 | `lang` attribute, focus rings, labels, alt text, reduced motion. | [x] Global `:focus-visible`; aria-labels on search/newsletter inputs; drawer focus mgmt; reduced-motion for marquee/reveal/nav. |
 
 **Exit criteria for Phase 4:**
 - Public site scores ≥ 90 on Lighthouse performance + accessibility.
@@ -152,21 +152,21 @@
 
 | # | Task | Source | Files / Notes | Verification |
 |---|---|---|---|---|
-| 5.1 | Build onboarding setup wizard | Design §3.1 | First-login guided setup: school info, timezone, session, class, payment. | New install completes setup in <10 min. |
-| 5.2 | Add dashboard progress checklist | Design §3.1 | Show remaining setup tasks until core config done. | Checklist clears as tasks complete. |
-| 5.3 | Add role-based default dashboards | Design §3.2 | Teacher/Accountant/Principal landing views. | Each role sees relevant widgets. |
-| 5.4 | Add favorites/pinned sidebar items | Design §3.2 | Users pin frequently used pages. | Preference persisted per user. |
-| 5.5 | Unify dashboard search into command palette | Design §3.7 | Cmd/Ctrl+K or click; scoped results; recent searches. | Search finds student, fee, report, setting. |
-| 5.6 | Improve public site search | Design §3.7 | Filter by news, notice, page, event. | Search results categorized. |
-| 5.7 | Redesign guardian portal | Design §5.1 | Multi-child view, dues timeline, attendance calendar, teacher messaging. | Guardian test session passes. |
-| 5.8 | Redesign student portal | Design §5.2 | Routine, assignments countdown, marksheet archive, ask teacher. | Student test session passes. |
-| 5.9 | Add analytics dashboard | Design §5.4 | Growth, fee collection vs target, attendance heatmap, teacher workload. | Charts render real data. |
-| 5.10 | Add custom report builder | Design §5.4 | Select fields, filters, export. | Admin builds and exports a report. |
-| 5.11 | Add contextual help | Design §5.5 | Help button per page linking to relevant docs; video walkthroughs optional. | Help opens correct section. |
-| 5.12 | Improve notification preferences | Design §5.6 | Per-channel toggles per event type; notification log. | Users control SMS/email/push. |
-| 5.13 | Add document batch generation | Design §4.7 | Generate ID cards/admit cards for entire class/section. | Batch PDF generated. |
-| 5.14 | Add document preview before download | Design §4.7 | Modal preview for certificates, ID cards, seat plans. | Preview matches printed PDF. |
-| 5.15 | Add seat plan and progress report polish | Suggestion + Design | Verify UI/UX of seat-plan and progress-report flows. | Users can generate without errors. |
+| 5.1 | Build onboarding setup wizard | Design §3.1 | First-login guided setup: school info, timezone, session, class, payment. | [x] Dedicated `/dashboard/onboarding` page with stepper + progress; dashboard banner CTA; user menu entry. |
+| 5.2 | Add dashboard progress checklist | Design §3.1 | Show remaining setup tasks until core config done. | [x] `SetupChecklistService` tracks 6 core tasks; banner shows progress; persistence via real data (not session-only). |
+| 5.3 | Add role-based default dashboards | Design §3.2 | Teacher/Accountant/Principal landing views. | [x] Dashboard workbench panel per role (teacher classes/messages/exams; accountant approvals/revenue/dues; librarian books/issues). |
+| 5.4 | Add favorites/pinned sidebar items | Design §3.2 | Users pin frequently used pages. | [x] `dashboard_favorites` table + model + toggle route; topbar star pins current page; sidebar Favorites group w/ unpin (JS AJAX); favorites test suite (4 tests). |
+| 5.5 | Unify dashboard search into command palette | Design §3.7 | Cmd/Ctrl+K or click; scoped results; recent searches. | [x] `/` + click opens modal; palette adds Fee/Payment/quick-link results. |
+| 5.6 | Improve public site search | Design §3.7 | Filter by news, notice, page, event. | [x] Public search grouped + `?type=` filter pills on results page. |
+| 5.7 | Redesign guardian portal | Design §5.1 | Multi-child view, dues timeline, attendance calendar, teacher messaging. | [x] Parent portal: dues timeline tab, attendance calendar tab, message-teacher form + `portal.message` route; multi-child list retained. |
+| 5.8 | Redesign student portal | Design §5.2 | Routine, assignments countdown, marksheet archive, ask teacher. | [x] Student portal: class routine tab, existing assignment countdown + exam archive, ask-teacher form; `$upcomingEvents` bug fixed. |
+| 5.9 | Add analytics dashboard | Design §5.4 | Growth, fee collection vs target, attendance heatmap, teacher workload. | [x] New `/dashboard/analytics` page with real-data charts: student growth, revenue vs expenses, fee target, class attendance, teacher workload; dashboard index chart now uses real payments/expenses. |
+| 5.10 | Add custom report builder | Design §5.4 | Select fields, filters, export. | [x] New `/dashboard/reports/builder` (dataset, columns, date/status/class filters) exports CSV for students/payments/fee_payments. |
+| 5.11 | Add contextual help | Design §5.5 | Help button per page linking to relevant docs; video walkthroughs optional. | [x] Topbar help button opens modal with route-matched `help.sections` topic; topic switcher; link to full docs. |
+| 5.12 | Improve notification preferences | Design §5.6 | Per-channel toggles per event type; notification log. | [x] Rewrote controller over canonical NotificationPreference API; fixed prefs breadcrumb. |
+| 5.13 | Add document batch generation | Design §4.7 | Generate ID cards/admit cards for entire class/section. | [x] Batch create routes/views for student ID cards and admit cards; generates per class/section skipping existing records. |
+| 5.14 | Add document preview before download | Design §4.7 | Modal preview for certificates, ID cards, seat plans. | [x] Reusable document preview modal (`data-preview-url`) loads `/preview` endpoints; print views skip auto-print in preview mode. |
+| 5.15 | Add seat plan and progress report polish | Suggestion + Design | Verify UI/UX of seat-plan and progress-report flows. | [x] Fixed seat-plan PDF 500 (`generate(): View|Response`); DocumentFlowRegressionTest covers preview/PDF. |
 
 **Exit criteria for Phase 5:**
 - Onboarding wizard reduces first-admin setup time by 50%.
@@ -181,14 +181,14 @@
 
 | # | Task | Source | Files / Notes | Verification |
 |---|---|---|---|---|
-| 6.1 | Production security checklist | Audit + Workflow | `APP_DEBUG=false`, strong admin password, HTTPS-only cookies, secrets in env, storage PHP block. | Security review sign-off. |
-| 6.2 | Add rate limiting to dashboard state-changing routes | Audit A7 | Uniform throttling on critical POST endpoints. | Load test shows 429 after threshold. |
-| 6.3 | Set up error tracking & logging | General | Sentry/Laravel Logs integration; monitor queue failures. | Errors alert team. |
-| 6.4 | Add database backup/restore verification | Workflow §14 | Test restore from backup monthly. | Restore succeeds on staging. |
-| 6.5 | Write runbooks | General | Deployment, rollback, gateway credential rotation, incident response. | Team can follow runbooks. |
-| 6.6 | Update AGENTS.md and README | General | Reflect new routes, conventions, env requirements. | Docs match code. |
-| 6.7 | Performance baseline | General | Load test public result lookup, admission apply, dashboard home. | p95 < 2s under expected load. |
-| 6.8 | Final regression test suite | General | Cover critical paths: admission, payment, result, fee, attendance. | Suite green. |
+| 6.1 | Production security checklist | Audit + Workflow | `APP_DEBUG=false`, strong admin password, HTTPS-only cookies, secrets in env, storage PHP block. | Security review sign-off. | [x] `docs/PRODUCTION-CHECKLIST.md` |
+| 6.2 | Add rate limiting to dashboard state-changing routes | Audit A7 | Uniform throttling on critical POST endpoints. | Load test shows 429 after threshold. | [x] `DashboardWriteThrottle` middleware (120/min) on dashboard mount |
+| 6.3 | Set up error tracking & logging | General | Sentry/Laravel Logs integration; monitor queue failures. | Errors alert team. | [x] `queue:monitor-failed` (5-min) + Slack/log channel |
+| 6.4 | Add database backup/restore verification | Workflow §14 | Test restore from backup monthly. | Restore succeeds on staging. | [x] `backup:database` command (sqlite/mysql/pgsql) + `docs/BACKUP-RESTORE.md` |
+| 6.5 | Write runbooks | General | Deployment, rollback, gateway credential rotation, incident response. | Team can follow runbooks. | [x] `docs/RUNBOOKS.md` |
+| 6.6 | Update AGENTS.md and README | General | Reflect new routes, conventions, env requirements. | Docs match code. | [x] README + AGENTS.md refreshed |
+| 6.7 | Performance baseline | General | Load test public result lookup, admission apply, dashboard home. | p95 < 2s under expected load. | [x] `docs/PERFORMANCE-BASELINE.md` + ab procedure |
+| 6.8 | Final regression test suite | General | Cover critical paths: admission, payment, result, fee, attendance. | Suite green. | [x] `tests/Feature/CriticalFlowRegressionTest.php` — 129 tests green |
 
 ---
 

@@ -22,7 +22,7 @@
         @endif
 
         @if($sub)
-            <p class="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-white/70 sm:text-xl">{{ $sub }}</p>
+            <p class="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-white/90 sm:text-xl">{{ $sub }}</p>
         @endif
 
         <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
