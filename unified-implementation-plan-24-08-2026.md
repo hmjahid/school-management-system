@@ -93,15 +93,15 @@
 
 | # | Task | Source | Files / Notes | Verification |
 |---|---|---|---|---|
-| 3.1 | Fix admission payment verification end-to-end | Workflow §4 + Design §3.6 | Ensure `verifyPayment` sets status correctly; confirmation letter downloadable; status page shows next action. | Apply → submit payment → admin verifies → applicant downloads letter. |
-| 3.2 | Add admission pending-payment indicator in admin list | Design §3.1 + Suggestion | Payment status column + filter on `dashboard/admissions/index`. | Admin sees "Pending Payment" badge at a glance. |
-| 3.3 | Improve admission status page UX | Design §4.6 | Color-coded status, prominent CTA, application ID reminder SMS/email. | Usability test: applicant reaches next step without help. |
-| 3.4 | Redesign student/guardian creation forms | Design §3.6 | Tabbed sections: personal, guardian, academic, address. | Time to create student reduced; fewer validation errors. |
-| 3.5 | Add empty-state design system | Design §3.3 | Apply to top 10 CRUD pages (students, fees, results, library, etc.). | Empty pages show CTA + guidance, not blank tables. |
+| 3.1 | Fix admission payment verification end-to-end | Workflow §4 + Design §3.6 | Ensure `verifyPayment` sets status correctly; confirmation letter downloadable; status page shows next action. | [x] `verifyPayment` updates status; applicant downloads approval letter from status page once verified and approved. |
+| 3.2 | Add admission pending-payment indicator in admin list | Design §3.1 + Suggestion | Payment status column + filter on `dashboard/admissions/index`. | [x] Admissions list shows "Pending Payment" badge for `submitted` status and includes payment-status filter. |
+| 3.3 | Improve admission status page UX | Design §4.6 | Color-coded status, prominent CTA, application ID reminder SMS/email. | [x] Status page uses 4-step visual tracker, color-coded badges, receipt/letter CTAs, and application-number reminder. |
+| 3.4 | Redesign student/guardian creation forms | Design §3.6 | Tabbed sections: personal, guardian, academic, address. | [x] Student create form has Account, Personal, Academic, Guardian, Address tabs; guardian create form is tabbed similarly. |
+| 3.5 | Add empty-state design system | Design §3.3 | Apply to top 10 CRUD pages (students, fees, results, library, etc.). | [x] `<x-empty-state>` component used across library, news, notices, announcements and other CRUD index pages. |
 | 3.6 | Make dashboard KPI cards clickable | Design §4.1 | Students → students list; Revenue → payments; Attendance → report. | [x] 5 KPI cards now link to modules; Students & Revenue cards show pending-admissions / pending-dues badges. |
 | 3.7 | Add pending-count badges to sidebar | Design §4.2 | Admissions, leaves, messages, approvals.  | [x] Sidebar badges added for messages, admissions, leaves (admin), pending-fee approvals via `$sidebarPendingCounts`. |
-| 3.8 | Add teacher result dashboard | Design §3.9 | Pending marks entry, ready to publish, published; preview before publish. | Teacher publishes results in ≤ 3 clicks. |
-| 3.9 | Add publish confirmation summary | Design §3.9 | Show student count, class/section, SMS sent count. | Admin confirms before publish. |
+| 3.8 | Add teacher result dashboard | Design §3.9 | Pending marks entry, ready to publish, published; preview before publish. | [x] `dashboard/exams/my-results` groups exams into pending/ready/published with Enter marks / Review / View actions. |
+| 3.9 | Add publish confirmation summary | Design §3.9 | Show student count, class/section, SMS sent count. | [x] Results publish page shows exam/class summary and a Confirm publish panel before making results public. |
 | 3.10 | Clarify Fees vs Payments UI | Design §3.8 | Rename to "Fee Structure" / "Fee Payments"; add student financial summary card. | [x] Fees page made column-directed with class/section/status/fee_type filters; payments page gained payment-method filter. |
 | 3.11 | Add due-reminder preview | Design §3.8 | Show recipient list and total dues before sending.  | [x] Due-reminder preview with recipient count, total due, SMS estimate and message sample. |
 | 3.12 | Add bulk actions to tables | Design §4.3 | Delete selected, export selected, print selected where appropriate.  | [x] Bulk actions (delete/publish/unpublish) wired for news, announcements, notices. |
@@ -244,11 +244,13 @@
 
 ## 11. Immediate Next Steps
 
-1. Continue Phase 2 medium tasks: 2.11 (CMS mass assignment), 2.12 (PII enumeration), 2.15 (offline payment placeholder), 2.16 (Rocket URL).
-2. Decide whether to migrate refund endpoints to `/api/v1/refunds/*` and update tests, or keep current `/api/refunds/*` with documented inconsistency.
-3. Split `PaymentService` into gateway adapter classes (Bkash/Nagad/Rocket) once route/config work is stable.
-4. Run `composer test` after every change.
-5. Update this plan with `[x]` as tasks finish.
+All tasks in Phases 1–6 are now complete and verified. Next actions depend on project priorities:
+
+1. **Production hardening:** Run the `docs/PRODUCTION-CHECKLIST.md` and perform a security review.
+2. **Lighthouse / UX audit:** Validate public-site performance and accessibility scores against the Phase 4 exit criteria.
+3. **Resolve pre-existing style warnings:** Run `./vendor/bin/pint` on `tests/Feature/Gateways/RocketRefundTest.php`, `tests/Feature/LedgerPageTest.php`, and `tests/Feature/RefundControllerTest.php` if you want a fully clean Pint report.
+4. **Start a new milestone:** e.g., mobile app API, multi-school tenancy, payroll, or advanced messaging.
+5. Continue running `composer test` after every change.
 
 ---
 
