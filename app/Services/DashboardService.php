@@ -209,17 +209,18 @@ class DashboardService
     public function attendanceStats(): array
     {
         $today = now()->toDateString();
-        $weekStart = now()->subDays(6)->toDateString();
+        $weekStart = now()->subDays(6)->startOfDay();
+        $weekEnd = now()->endOfDay();
 
         $todayCounts = DB::table('attendances')
             ->select('status', DB::raw('COUNT(*) as c'))
-            ->where('date', $today)
+            ->whereDate('date', $today)
             ->groupBy('status')
             ->pluck('c', 'status');
 
         $trend = DB::table('attendances')
             ->select('date', DB::raw("SUM(CASE WHEN status = 'present' THEN 1 ELSE 0 END) as present"), DB::raw('COUNT(*) as total'))
-            ->whereBetween('date', [$weekStart, $today])
+            ->whereBetween('date', [$weekStart, $weekEnd])
             ->groupBy('date')
             ->orderBy('date')
             ->get();

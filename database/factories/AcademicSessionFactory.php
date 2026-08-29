@@ -12,10 +12,11 @@ class AcademicSessionFactory extends Factory
     public function definition(): array
     {
         $year = (int) now()->format('Y');
+        $suffix = $this->faker->unique()->numberBetween(1000, 9999);
 
         return [
-            'name' => (string) $year,
-            'code' => (string) $year,
+            'name' => $year.'-'.$suffix,
+            'code' => $year.'-'.$suffix,
             'start_date' => now()->startOfYear()->toDateString(),
             'end_date' => now()->endOfYear()->toDateString(),
             'is_active' => true,

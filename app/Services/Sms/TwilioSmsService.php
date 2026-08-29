@@ -91,11 +91,11 @@ class TwilioSmsService extends BaseSmsService
      */
     protected function wasSuccessful($response): bool
     {
-        if (!is_object($response) || !method_exists($response, 'sid')) {
+        if (!is_object($response) || empty($response->sid)) {
             return false;
         }
-        
-        return !empty($response->sid);
+
+        return true;
     }
 
     /**

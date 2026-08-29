@@ -10,6 +10,13 @@ use Illuminate\Support\Facades\Log;
 class MailChannel
 {
     /**
+     * The default mailer to use when none is specified on the message.
+     *
+     * @var string|null
+     */
+    protected $mailer;
+
+    /**
      * Send the given notification.
      *
      * @param  mixed  $notifiable
@@ -83,7 +90,7 @@ class MailChannel
 
         // Log the email sending attempt
         Log::info('Email notification sent', [
-            'to' => $recipients,
+            'to' => $message->to ?? $notifiable->routeNotificationFor('mail', $notification),
             'subject' => $message->subject,
             'notification' => get_class($notification),
         ]);

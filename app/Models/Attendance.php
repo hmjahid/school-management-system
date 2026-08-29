@@ -28,6 +28,7 @@ class Attendance extends Model
         'date',
         'status',
         'type',
+        'school_class_id',
         'batch_id',
         'section_id',
         'subject_id',
@@ -38,6 +39,7 @@ class Attendance extends Model
         'remarks',
         'recorded_by',
         'updated_by',
+        'marked_by',
         'metadata',
     ];
 

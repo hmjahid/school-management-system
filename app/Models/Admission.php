@@ -310,6 +310,14 @@ class Admission extends Model
     }
 
     /**
+     * Check if the admission is under review.
+     */
+    public function isUnderReview(): bool
+    {
+        return $this->status === self::STATUS_UNDER_REVIEW;
+    }
+
+    /**
      * Submit the admission.
      */
     public function submit(): bool

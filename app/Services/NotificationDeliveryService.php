@@ -126,6 +126,7 @@ class NotificationDeliveryService
     protected function sendDatabaseNotification(User $user, string $type, array $data = [])
     {
         $notification = $user->notifications()->create([
+            'id' => (string) Str::uuid(),
             'type' => $type,
             'data' => $data,
             'read_at' => null,
@@ -316,13 +317,19 @@ class NotificationDeliveryService
     {
         try {
             NotificationLog::create([
-                'user_id' => $user->id,
                 'type' => $type,
-                'data' => $data,
-                'channels' => $channels,
-                'results' => $results,
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent(),
+                'notifiable_type' => get_class($user),
+                'notifiable_id' => $user->id,
+                'content' => json_encode($data),
+                'channel' => implode(',', $channels),
+                'status' => 'sent',
+                'metadata' => [
+                    'data' => $data,
+                    'channels' => $channels,
+                    'results' => $results,
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                ],
             ]);
         } catch (\Exception $e) {
             // Log the error but don't fail the notification

@@ -46,9 +46,9 @@ class SmsChannel
         }
 
         $response = $this->smsService->send(
-            $to, 
+            $to,
             $message->content,
-            $message->from ?? null
+            $message->from ? ['from' => $message->from] : []
         );
 
         // Log the SMS sending attempt

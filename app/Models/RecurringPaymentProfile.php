@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
@@ -102,9 +103,9 @@ class RecurringPaymentProfile extends Model
     /**
      * Get the payments for the recurring payment profile.
      */
-    public function payments(): HasMany
+    public function payments(): MorphMany
     {
-        return $this->hasMany(Payment::class, 'recurring_payment_profile_id');
+        return $this->morphMany(Payment::class, 'paymentable');
     }
 
     /**

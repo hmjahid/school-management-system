@@ -11,6 +11,6 @@ class SmsCampaignRecipient extends Model
 
     public function campaign(): BelongsTo
     {
-        return $this->belongsTo(SmsCampaign::class);
+        return $this->belongsTo(SmsCampaign::class, 'sms_campaign_id');
     }
 }

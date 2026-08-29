@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -32,7 +33,7 @@ class NotificationReadAll implements ShouldBroadcast
      * @param  string  $readAt
      * @return void
      */
-    public function __construct(int $userId, string $readAt)
+    public function __construct(int $userId, ?string $readAt = null)
     {
         $this->userId = $userId;
         $this->readAt = $readAt;
