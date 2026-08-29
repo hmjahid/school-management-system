@@ -4,12 +4,14 @@ namespace App\Services\Payment;
 
 use App\Models\Payment;
 use App\Models\PaymentGateway;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class RocketGatewayAdapter implements GatewayAdapterInterface
 {
     use PaymentSideEffects;
+    use VerifiesWebhookSignature;
 
     /**
      * Initialize Rocket payment.
@@ -135,5 +137,15 @@ class RocketGatewayAdapter implements GatewayAdapterInterface
             'success' => false,
             'message' => $data['message'] ?? 'Rocket refund failed',
         ];
+    }
+
+    /**
+     * Verify a Rocket webhook/IPN signature (fail-closed).
+     *
+     * @see \App\Services\Payment\VerifiesWebhookSignature
+     */
+    public function verifyWebhookSignature(Request $request, PaymentGateway $gateway): bool
+    {
+        return $this->verifyHmacSignature($request, $gateway, 'X-Rocket-Signature');
     }
 }

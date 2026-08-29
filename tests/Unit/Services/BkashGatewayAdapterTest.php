@@ -7,6 +7,7 @@ use App\Models\PaymentGateway;
 use App\Services\Payment\BkashGatewayAdapter;
 use App\Services\Payment\GatewayAdapterInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -172,5 +173,46 @@ class BkashGatewayAdapterTest extends TestCase
 
         $this->assertTrue($result['success']);
         $this->assertEquals('RREF123', $result['transaction_id']);
+    }
+
+    /** @test */
+    public function it_accepts_a_valid_webhook_signature(): void
+    {
+        $adapter = new BkashGatewayAdapter;
+        $gateway = $this->gateway();
+
+        $body = 'paymentID=BKPAY123&merchantInvoiceNumber=INV1';
+        $signature = hash_hmac('sha256', $body, $gateway->api_secret);
+
+        $request = Request::create('/webhook', 'POST', [], [], [], [
+            'HTTP_X_BKASH_SIGNATURE' => $signature,
+        ], $body);
+
+        $this->assertTrue($adapter->verifyWebhookSignature($request, $gateway));
+    }
+
+    /** @test */
+    public function it_rejects_a_webhook_with_missing_signature(): void
+    {
+        $adapter = new BkashGatewayAdapter;
+        $gateway = $this->gateway();
+
+        $request = Request::create('/webhook', 'POST', [], [], [], [], 'paymentID=BKPAY123');
+
+        $this->assertFalse($adapter->verifyWebhookSignature($request, $gateway));
+    }
+
+    /** @test */
+    public function it_rejects_a_webhook_with_invalid_signature(): void
+    {
+        $adapter = new BkashGatewayAdapter;
+        $gateway = $this->gateway();
+
+        $body = 'paymentID=BKPAY123';
+        $request = Request::create('/webhook', 'POST', [], [], [], [
+            'HTTP_X_BKASH_SIGNATURE' => 'tampered',
+        ], $body);
+
+        $this->assertFalse($adapter->verifyWebhookSignature($request, $gateway));
     }
 }

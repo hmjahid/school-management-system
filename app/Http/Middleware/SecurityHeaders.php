@@ -22,7 +22,7 @@ class SecurityHeaders
         $response->headers->set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
         $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin');
 
-        if ($request->isSecure()) {
+        if ($request->isSecure() || config('app.env') === 'production') {
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         }
 

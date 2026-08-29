@@ -172,7 +172,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/dashboard/onboarding', [DashboardOnboardingController::class, 'index'])->name('dashboard.onboarding');
+    Route::get('/dashboard/onboarding', [DashboardOnboardingController::class, 'index'])->name('dashboard.onboarding')->middleware('role:admin');
 
     Route::get('/portal/admission', [PortalAdmissionController::class, 'show'])->name('portal.admission');
     Route::get('/portal/progress', [PortalProgressController::class, 'index'])->name('portal.progress');
@@ -219,16 +219,18 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::get('/dashboard/help', [DashboardHelpController::class, 'index'])->name('dashboard.help');
-    Route::get('/dashboard/about', function () {
-        abort_unless(auth()->user()?->hasRole('admin'), 403);
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/dashboard/about', function () {
+            return view('dashboard.software');
+        })->name('dashboard.about');
+    });
 
-        return view('dashboard.software');
-    })->name('dashboard.about');
-
-    Route::get('/dashboard/bulk', [DashboardBulkController::class, 'index'])->name('dashboard.bulk');
-    Route::get('/dashboard/bulk/export/{resource}', [DashboardBulkController::class, 'export'])->name('dashboard.bulk.export');
-    Route::get('/dashboard/bulk/import/{resource}', [DashboardBulkController::class, 'import'])->name('dashboard.bulk.import');
-    Route::post('/dashboard/bulk/import/{resource}', [DashboardBulkController::class, 'importStore'])->name('dashboard.bulk.import.store');
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/dashboard/bulk', [DashboardBulkController::class, 'index'])->name('dashboard.bulk');
+        Route::get('/dashboard/bulk/export/{resource}', [DashboardBulkController::class, 'export'])->name('dashboard.bulk.export');
+        Route::get('/dashboard/bulk/import/{resource}', [DashboardBulkController::class, 'import'])->name('dashboard.bulk.import');
+        Route::post('/dashboard/bulk/import/{resource}', [DashboardBulkController::class, 'importStore'])->name('dashboard.bulk.import.store');
+    });
 
     Route::get('/dashboard/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/dashboard/notifications/list', [NotificationController::class, 'list'])->name('notifications.list');

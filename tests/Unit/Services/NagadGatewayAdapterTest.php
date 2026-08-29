@@ -158,4 +158,45 @@ class NagadGatewayAdapterTest extends TestCase
         $this->assertTrue($result['success']);
         $this->assertEquals('NAGREFUND123', $result['transaction_id']);
     }
+
+    /** @test */
+    public function it_accepts_a_valid_webhook_signature(): void
+    {
+        $adapter = new NagadGatewayAdapter;
+        $gateway = $this->gateway();
+
+        $body = json_encode(['orderId' => 'NAGORD123', 'paymentRefId' => 'NAGREF123']);
+        $signature = hash_hmac('sha256', $body, $gateway->api_secret);
+
+        $request = Request::create('/webhook', 'POST', [], [], [], [
+            'HTTP_X_NAGAD_SIGNATURE' => $signature,
+        ], $body);
+
+        $this->assertTrue($adapter->verifyWebhookSignature($request, $gateway));
+    }
+
+    /** @test */
+    public function it_rejects_a_webhook_with_missing_signature(): void
+    {
+        $adapter = new NagadGatewayAdapter;
+        $gateway = $this->gateway();
+
+        $request = Request::create('/webhook', 'POST', [], [], [], [], 'orderId=NAGORD123');
+
+        $this->assertFalse($adapter->verifyWebhookSignature($request, $gateway));
+    }
+
+    /** @test */
+    public function it_rejects_a_webhook_with_invalid_signature(): void
+    {
+        $adapter = new NagadGatewayAdapter;
+        $gateway = $this->gateway();
+
+        $body = json_encode(['orderId' => 'NAGORD123']);
+        $request = Request::create('/webhook', 'POST', [], [], [], [
+            'HTTP_X_NAGAD_SIGNATURE' => 'tampered',
+        ], $body);
+
+        $this->assertFalse($adapter->verifyWebhookSignature($request, $gateway));
+    }
 }

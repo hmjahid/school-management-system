@@ -2,25 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AdmissionDocumentResource;
+use App\Http\Resources\AdmissionResource;
+use App\Models\AcademicSession;
 use App\Models\Admission;
 use App\Models\AdmissionDocument;
-use App\Models\AcademicSession;
 use App\Models\Batch;
-use App\Http\Resources\AdmissionResource;
-use App\Http\Resources\AdmissionDocumentResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Carbon\Carbon;
 
 class AdmissionController extends Controller
 {
     /**
      * Display a listing of the admissions.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -32,7 +29,7 @@ class AdmissionController extends Controller
             'batch',
             'createdBy',
             'updatedBy',
-            'documents'
+            'documents',
         ]);
 
         // Apply filters
@@ -51,19 +48,19 @@ class AdmissionController extends Controller
         // Search
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('application_number', 'like', "%{$search}%")
-                  ->orWhere('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%");
+                    ->orWhere('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
             });
         }
 
         // Sorting
         $sortField = $request->input('sort_field', 'created_at');
         $sortOrder = $request->input('sort_order', 'desc');
-        
+
         if (in_array($sortField, ['application_number', 'first_name', 'last_name', 'email', 'phone', 'status', 'created_at'])) {
             $query->orderBy($sortField, $sortOrder);
         }
@@ -77,7 +74,6 @@ class AdmissionController extends Controller
     /**
      * Store a newly created admission in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
@@ -86,29 +82,33 @@ class AdmissionController extends Controller
 
         $validated = $this->validateAdmission($request);
 
+        // Applicants must not be able to set the workflow status directly;
+        // new applications always start as a draft (the public submitter or an
+        // explicit submit/approve action moves it forward).
+        unset($validated['status']);
+
         // Handle file uploads
         $validated = $this->handleFileUploads($request, $validated);
 
         // Create admission
         $admission = DB::transaction(function () use ($validated) {
             $admission = Admission::create($validated);
-            
+
             // Create document records
             $this->createDocumentRecords($admission, $validated);
-            
+
             return $admission->load('documents');
         });
 
         return response()->json([
             'message' => 'Admission application submitted successfully',
-            'data' => new AdmissionResource($admission)
+            'data' => new AdmissionResource($admission),
         ], 201);
     }
 
     /**
      * Display the specified admission.
      *
-     * @param  \App\Models\Admission  $admission
      * @return \Illuminate\Http\JsonResponse
      */
     public function show(Admission $admission)
@@ -116,19 +116,17 @@ class AdmissionController extends Controller
         $this->authorize('view', $admission);
 
         return new AdmissionResource($admission->load([
-            'academicSession', 
-            'batch', 
+            'academicSession',
+            'batch',
             'documents',
             'createdBy',
-            'updatedBy'
+            'updatedBy',
         ]));
     }
 
     /**
      * Update the specified admission in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Admission  $admission
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, Admission $admission)
@@ -136,37 +134,36 @@ class AdmissionController extends Controller
         $this->authorize('update', $admission);
 
         // Only allow updates for draft or under review admissions
-        if (!in_array($admission->status, [Admission::STATUS_DRAFT, Admission::STATUS_UNDER_REVIEW])) {
+        if (! in_array($admission->status, [Admission::STATUS_DRAFT, Admission::STATUS_UNDER_REVIEW])) {
             return response()->json([
-                'message' => 'Cannot update admission with current status: ' . $admission->status
+                'message' => 'Cannot update admission with current status: '.$admission->status,
             ], 403);
         }
 
         $validated = $this->validateAdmission($request, $admission->id);
-        
+
         // Handle file uploads
         $validated = $this->handleFileUploads($request, $validated, $admission);
 
         // Update admission
         $admission = DB::transaction(function () use ($admission, $validated) {
             $admission->update($validated);
-            
+
             // Update or create document records
             $this->createDocumentRecords($admission, $validated);
-            
+
             return $admission->load('documents');
         });
 
         return response()->json([
             'message' => 'Admission application updated successfully',
-            'data' => new AdmissionResource($admission)
+            'data' => new AdmissionResource($admission),
         ]);
     }
 
     /**
      * Submit the admission for review.
      *
-     * @param  \App\Models\Admission  $admission
      * @return \Illuminate\Http\JsonResponse
      */
     public function submit(Admission $admission)
@@ -175,23 +172,21 @@ class AdmissionController extends Controller
 
         if ($admission->submit()) {
             // TODO: Send notification to admin
-            
+
             return response()->json([
                 'message' => 'Admission submitted successfully',
-                'data' => new AdmissionResource($admission->fresh())
+                'data' => new AdmissionResource($admission->fresh()),
             ]);
         }
 
         return response()->json([
-            'message' => 'Unable to submit admission with current status: ' . $admission->status
+            'message' => 'Unable to submit admission with current status: '.$admission->status,
         ], 422);
     }
 
     /**
      * Approve the admission.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Admission  $admission
      * @return \Illuminate\Http\JsonResponse
      */
     public function approve(Request $request, Admission $admission)
@@ -204,23 +199,21 @@ class AdmissionController extends Controller
 
         if ($admission->approve($validated['notes'] ?? null)) {
             // TODO: Send notification to applicant
-            
+
             return response()->json([
                 'message' => 'Admission approved successfully',
-                'data' => new AdmissionResource($admission->fresh())
+                'data' => new AdmissionResource($admission->fresh()),
             ]);
         }
 
         return response()->json([
-            'message' => 'Unable to approve admission with current status: ' . $admission->status
+            'message' => 'Unable to approve admission with current status: '.$admission->status,
         ], 422);
     }
 
     /**
      * Reject the admission.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Admission  $admission
      * @return \Illuminate\Http\JsonResponse
      */
     public function reject(Request $request, Admission $admission)
@@ -233,23 +226,21 @@ class AdmissionController extends Controller
 
         if ($admission->reject($validated['reason'])) {
             // TODO: Send notification to applicant
-            
+
             return response()->json([
                 'message' => 'Admission rejected',
-                'data' => new AdmissionResource($admission->fresh())
+                'data' => new AdmissionResource($admission->fresh()),
             ]);
         }
 
         return response()->json([
-            'message' => 'Unable to reject admission with current status: ' . $admission->status
+            'message' => 'Unable to reject admission with current status: '.$admission->status,
         ], 422);
     }
 
     /**
      * Enroll the student.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Admission  $admission
      * @return \Illuminate\Http\JsonResponse
      */
     public function enroll(Request $request, Admission $admission)
@@ -280,18 +271,18 @@ class AdmissionController extends Controller
 
         if ($student) {
             // TODO: Send enrollment confirmation to student/parent
-            
+
             return response()->json([
                 'message' => 'Student enrolled successfully',
                 'data' => [
                     'admission' => new AdmissionResource($admission->fresh()),
-                    'student' => $student
-                ]
+                    'student' => $student,
+                ],
             ]);
         }
 
         return response()->json([
-            'message' => 'Unable to enroll student. Admission status: ' . $admission->status
+            'message' => 'Unable to enroll student. Admission status: '.$admission->status,
         ], 422);
     }
 
@@ -325,15 +316,13 @@ class AdmissionController extends Controller
                 ['value' => 'waitlisted', 'label' => 'Waitlisted'],
                 ['value' => 'enrolled', 'label' => 'Enrolled'],
                 ['value' => 'cancelled', 'label' => 'Cancelled'],
-            ]
+            ],
         ]);
     }
 
     /**
      * Upload admission document.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Admission  $admission
      * @return \Illuminate\Http\JsonResponse
      */
     public function uploadDocument(Request $request, Admission $admission)
@@ -348,7 +337,7 @@ class AdmissionController extends Controller
                 'mark_sheet',
                 'character_certificate',
                 'migration_certificate',
-                'other'
+                'other',
             ])],
             'file' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:5120', // Max 5MB
             'description' => 'nullable|string|max:500',
@@ -368,15 +357,13 @@ class AdmissionController extends Controller
 
         return response()->json([
             'message' => 'Document uploaded successfully',
-            'data' => new AdmissionDocumentResource($document)
+            'data' => new AdmissionDocumentResource($document),
         ], 201);
     }
 
     /**
      * Delete admission document.
      *
-     * @param  \App\Models\Admission  $admission
-     * @param  \App\Models\AdmissionDocument  $document
      * @return \Illuminate\Http\JsonResponse
      */
     public function deleteDocument(Admission $admission, AdmissionDocument $document)
@@ -390,15 +377,13 @@ class AdmissionController extends Controller
         $document->delete();
 
         return response()->json([
-            'message' => 'Document deleted successfully'
+            'message' => 'Document deleted successfully',
         ]);
     }
 
     /**
      * Download an admission document.
      *
-     * @param  \App\Models\Admission  $admission
-     * @param  \App\Models\AdmissionDocument  $document
      * @return \Symfony\Component\HttpFoundation\StreamedResponse|\Illuminate\Http\JsonResponse
      */
     public function downloadDocument(Admission $admission, AdmissionDocument $document)
@@ -423,7 +408,6 @@ class AdmissionController extends Controller
     /**
      * Validate admission data.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int|null  $admissionId
      * @return array
      */
@@ -433,7 +417,7 @@ class AdmissionController extends Controller
             // Application Information
             'academic_session_id' => 'required|exists:academic_sessions,id',
             'batch_id' => 'required|exists:batches,id',
-            
+
             // Student Information
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
@@ -443,13 +427,13 @@ class AdmissionController extends Controller
             'religion' => 'nullable|string|max:50',
             'nationality' => 'nullable|string|max:50|default:Bangladeshi',
             'photo' => 'nullable|string',
-            
+
             // Contact Information
             'email' => [
                 'required',
                 'email',
                 'max:100',
-                Rule::unique('admissions', 'email')->ignore($admissionId)
+                Rule::unique('admissions', 'email')->ignore($admissionId),
             ],
             'phone' => 'required|string|max:20',
             'address' => 'required|string|max:255',
@@ -457,7 +441,7 @@ class AdmissionController extends Controller
             'state' => 'nullable|string|max:100',
             'country' => 'nullable|string|max:100|default:Bangladesh',
             'postal_code' => 'required|string|max:20',
-            
+
             // Parent/Guardian Information
             'father_name' => 'required|string|max:100',
             'father_phone' => 'required|string|max:20',
@@ -468,17 +452,17 @@ class AdmissionController extends Controller
             'guardian_name' => 'nullable|string|max:100',
             'guardian_relation' => 'nullable|string|max:50',
             'guardian_phone' => 'nullable|string|max:20',
-            
+
             // Previous Education
             'previous_school' => 'nullable|string|max:255',
             'previous_class' => 'nullable|string|max:100',
             'previous_grade' => 'nullable|string|max:50',
-            
+
             // Documents
             'transfer_certificate' => 'nullable|string',
             'birth_certificate' => 'nullable|string',
             'other_documents' => 'nullable|array',
-            
+
             // Status
             'status' => 'sometimes|in:draft,submitted,under_review,approved,rejected,waitlisted,enrolled,cancelled',
             'admission_notes' => 'nullable|string|max:1000',
@@ -490,9 +474,6 @@ class AdmissionController extends Controller
     /**
      * Handle file uploads for admission.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  array  $validated
-     * @param  \App\Models\Admission|null  $admission
      * @return array
      */
     protected function handleFileUploads(Request $request, array $validated, ?Admission $admission = null)
@@ -530,7 +511,7 @@ class AdmissionController extends Controller
         }
 
         // Store uploaded files in metadata for later processing
-        if (!empty($uploadedFiles)) {
+        if (! empty($uploadedFiles)) {
             $validated['metadata'] = array_merge(
                 $validated['metadata'] ?? [],
                 ['uploaded_files' => $uploadedFiles]
@@ -543,8 +524,6 @@ class AdmissionController extends Controller
     /**
      * Create document records from uploaded files.
      *
-     * @param  \App\Models\Admission  $admission
-     * @param  array  $validated
      * @return void
      */
     protected function createDocumentRecords(Admission $admission, array $validated)

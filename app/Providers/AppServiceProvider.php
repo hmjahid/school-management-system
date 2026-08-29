@@ -20,6 +20,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -33,6 +34,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        if (config('app.env') === 'production') {
+            URL::forceHttps();
+        }
+
         Paginator::defaultView('vendor.pagination.tailwind');
         Paginator::defaultSimpleView('vendor.pagination.simple-tailwind');
 

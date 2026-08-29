@@ -4,6 +4,7 @@ namespace App\Services\Payment;
 
 use App\Models\Payment;
 use App\Models\PaymentGateway;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -11,6 +12,7 @@ use Illuminate\Support\Str;
 class NagadGatewayAdapter implements GatewayAdapterInterface
 {
     use PaymentSideEffects;
+    use VerifiesWebhookSignature;
 
     /**
      * Initialize Nagad payment.
@@ -192,5 +194,15 @@ class NagadGatewayAdapter implements GatewayAdapterInterface
             'success' => false,
             'message' => $data['reason'] ?? $data['message'] ?? 'Nagad refund failed',
         ];
+    }
+
+    /**
+     * Verify a Nagad webhook/IPN signature (fail-closed).
+     *
+     * @see \App\Services\Payment\VerifiesWebhookSignature
+     */
+    public function verifyWebhookSignature(Request $request, PaymentGateway $gateway): bool
+    {
+        return $this->verifyHmacSignature($request, $gateway, 'X-Nagad-Signature');
     }
 }

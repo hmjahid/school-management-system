@@ -24,6 +24,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
             Route::middleware(['api', 'request.id', 'force.json'])
                 ->prefix('api/v1')
+                ->group(base_path('routes/students.php'));
+
+            Route::middleware(['api', 'request.id', 'force.json'])
+                ->prefix('api/v1')
                 ->group(base_path('routes/notifications.php'));
 
             Route::middleware(['api', 'request.id', 'force.json'])
@@ -72,9 +76,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
 
-        $middleware->trustProxies(at: env('TRUSTED_PROXIES', '*'));
-        // TODO: In production set TRUSTED_PROXIES to your load balancer / CDN CIDRs,
-        // e.g. TRUSTED_PROXIES=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+        // Default to trusting NO proxy. In production, set TRUSTED_PROXIES to your
+        // load balancer / CDN CIDRs, e.g. TRUSTED_PROXIES=10.0.0.0/8,172.16.0.0/12
+        $middleware->trustProxies(at: env('TRUSTED_PROXIES', ''));
 
         $middleware->throttleApi();
     })

@@ -4,6 +4,7 @@ namespace App\Services\Payment;
 
 use App\Models\Payment;
 use App\Models\PaymentGateway;
+use Illuminate\Http\Request;
 
 interface GatewayAdapterInterface
 {
@@ -26,6 +27,14 @@ interface GatewayAdapterInterface
      * Verify a payment status with the gateway.
      */
     public function verifyPayment(Payment $payment, PaymentGateway $gateway): Payment;
+
+    /**
+     * Verify the authenticity of an incoming webhook/IPN request.
+     *
+     * Implementations MUST fail closed: return false when the signature is
+     * missing, empty, or does not match the gateway secret.
+     */
+    public function verifyWebhookSignature(Request $request, PaymentGateway $gateway): bool;
 
     /**
      * Process a refund with the gateway.

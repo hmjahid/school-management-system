@@ -7,6 +7,7 @@ use App\Models\PaymentGateway;
 use App\Services\Payment\GatewayAdapterInterface;
 use App\Services\Payment\RocketGatewayAdapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
@@ -124,5 +125,46 @@ class RocketGatewayAdapterTest extends TestCase
 
         $this->assertTrue($result['success']);
         $this->assertEquals('RKTREF123', $result['transaction_id']);
+    }
+
+    /** @test */
+    public function it_accepts_a_valid_webhook_signature(): void
+    {
+        $adapter = new RocketGatewayAdapter;
+        $gateway = $this->gateway();
+
+        $body = json_encode(['paymentID' => 'RKTPAY123']);
+        $signature = hash_hmac('sha256', $body, $gateway->api_secret);
+
+        $request = Request::create('/webhook', 'POST', [], [], [], [
+            'HTTP_X_ROCKET_SIGNATURE' => $signature,
+        ], $body);
+
+        $this->assertTrue($adapter->verifyWebhookSignature($request, $gateway));
+    }
+
+    /** @test */
+    public function it_rejects_a_webhook_with_missing_signature(): void
+    {
+        $adapter = new RocketGatewayAdapter;
+        $gateway = $this->gateway();
+
+        $request = Request::create('/webhook', 'POST', [], [], [], [], 'paymentID=RKTPAY123');
+
+        $this->assertFalse($adapter->verifyWebhookSignature($request, $gateway));
+    }
+
+    /** @test */
+    public function it_rejects_a_webhook_with_invalid_signature(): void
+    {
+        $adapter = new RocketGatewayAdapter;
+        $gateway = $this->gateway();
+
+        $body = json_encode(['paymentID' => 'RKTPAY123']);
+        $request = Request::create('/webhook', 'POST', [], [], [], [
+            'HTTP_X_ROCKET_SIGNATURE' => 'tampered',
+        ], $body);
+
+        $this->assertFalse($adapter->verifyWebhookSignature($request, $gateway));
     }
 }

@@ -4,12 +4,14 @@ namespace App\Services\Payment;
 
 use App\Models\Payment;
 use App\Models\PaymentGateway;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class BkashGatewayAdapter implements GatewayAdapterInterface
 {
     use PaymentSideEffects;
+    use VerifiesWebhookSignature;
 
     /**
      * Initialize bKash payment.
@@ -298,5 +300,15 @@ class BkashGatewayAdapter implements GatewayAdapterInterface
         ];
 
         return $statusMap[$bkashStatus] ?? Payment::STATUS_PENDING;
+    }
+
+    /**
+     * Verify a bKash webhook/IPN signature (fail-closed).
+     *
+     * @see \App\Services\Payment\VerifiesWebhookSignature
+     */
+    public function verifyWebhookSignature(Request $request, PaymentGateway $gateway): bool
+    {
+        return $this->verifyHmacSignature($request, $gateway, 'X-Bkash-Signature');
     }
 }

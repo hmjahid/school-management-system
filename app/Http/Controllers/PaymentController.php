@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Payment\InitiatePaymentRequest;
 use App\Http\Resources\PaymentResource;
 use App\Models\Payment;
 use App\Models\PaymentGateway;
 use App\Models\PaymentWebhookEvent;
+use App\Services\Payment\GatewayAdapterFactory;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class PaymentController extends Controller
@@ -77,30 +78,17 @@ class PaymentController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function initiate(Request $request)
+    public function initiate(InitiatePaymentRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'gateway' => ['required', 'string', 'exists:payment_gateways,code'],
-            'amount' => ['required', 'numeric', 'min:1'],
-            'currency' => ['required', 'string', 'size:3'],
-            'paymentable_type' => ['required', 'string', 'in:admission,tuition,exam,library,transport,hostel,other'],
-            'paymentable_id' => ['required', 'numeric'],
-            'description' => ['nullable', 'string', 'max:255'],
-            'metadata' => ['nullable', 'array'],
-            'return_url' => ['nullable', 'url'],
-            'cancel_url' => ['nullable', 'url'],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
+        $validated = array_merge([
+            'description' => null,
+            'metadata' => null,
+            'return_url' => null,
+            'cancel_url' => null,
+        ], $request->validated());
 
         // Get the payment gateway
-        $gateway = PaymentGateway::where('code', $request->gateway)->firstOrFail();
+        $gateway = PaymentGateway::where('code', $validated['gateway'])->firstOrFail();
 
         // Check if gateway is active and configured
         if (! $gateway->is_active) {
@@ -118,14 +106,14 @@ class PaymentController extends Controller
         }
 
         // Check amount against gateway limits
-        if ($gateway->min_amount !== null && $request->amount < $gateway->min_amount) {
+        if ($gateway->min_amount !== null && $validated['amount'] < $gateway->min_amount) {
             return response()->json([
                 'success' => false,
                 'message' => "Minimum payment amount is {$gateway->currency} {$gateway->min_amount} for {$gateway->name}.",
             ], 400);
         }
 
-        if ($gateway->max_amount !== null && $request->amount > $gateway->max_amount) {
+        if ($gateway->max_amount !== null && $validated['amount'] > $gateway->max_amount) {
             return response()->json([
                 'success' => false,
                 'message' => "Maximum payment amount is {$gateway->currency} {$gateway->max_amount} for {$gateway->name}.",
@@ -133,7 +121,7 @@ class PaymentController extends Controller
         }
 
         // Check if currency is supported
-        if (! in_array($request->currency, $gateway->supported_currencies ?? [$gateway->currency])) {
+        if (! in_array($validated['currency'], $gateway->supported_currencies ?? [$gateway->currency])) {
             return response()->json([
                 'success' => false,
                 'message' => "The selected currency is not supported by {$gateway->name}.",
@@ -141,15 +129,15 @@ class PaymentController extends Controller
         }
 
         // Calculate fees
-        $fee = $gateway->fee_fixed + ($request->amount * $gateway->fee_percentage / 100);
-        $totalAmount = $request->amount + $fee;
+        $fee = $gateway->fee_fixed + ($validated['amount'] * $gateway->fee_percentage / 100);
+        $totalAmount = $validated['amount'] + $fee;
 
         try {
             // Create a new payment record
             $payment = new Payment([
-                'paymentable_type' => $request->paymentable_type,
-                'paymentable_id' => $request->paymentable_id,
-                'amount' => $request->amount,
+                'paymentable_type' => $validated['paymentable_type'],
+                'paymentable_id' => $validated['paymentable_id'],
+                'amount' => $validated['amount'],
                 'paid_amount' => 0,
                 'due_amount' => $totalAmount,
                 'discount_amount' => 0,
@@ -162,16 +150,16 @@ class PaymentController extends Controller
                 'reference_number' => null,
                 'transaction_id' => null,
                 'payment_details' => [
-                    'description' => $request->description,
-                    'metadata' => $request->metadata,
+                    'description' => $validated['description'],
+                    'metadata' => $validated['metadata'],
                     'fee_percentage' => $gateway->fee_percentage,
                     'fee_fixed' => $gateway->fee_fixed,
                     'fee_amount' => $fee,
-                    'return_url' => $request->return_url,
-                    'cancel_url' => $request->cancel_url,
+                    'return_url' => $validated['return_url'],
+                    'cancel_url' => $validated['cancel_url'],
                 ],
-                'notes' => $request->description,
-                'metadata' => $request->metadata,
+                'notes' => $validated['description'],
+                'metadata' => $validated['metadata'],
             ]);
 
             // Associate with the authenticated user if available
@@ -187,8 +175,8 @@ class PaymentController extends Controller
                 $payment,
                 $gateway->code,
                 [
-                    'return_url' => $request->return_url,
-                    'cancel_url' => $request->cancel_url,
+                    'return_url' => $validated['return_url'],
+                    'cancel_url' => $validated['cancel_url'],
                 ]
             );
 
@@ -283,17 +271,27 @@ class PaymentController extends Controller
      */
     public function webhook($gateway, Request $request)
     {
+        $gatewayModel = PaymentGateway::where('code', (string) $gateway)->first();
+
+        // Fail-closed: an unknown gateway can never present a valid signature.
+        abort_unless($gatewayModel instanceof PaymentGateway, 403, 'Unknown payment gateway');
+
+        // Mandatory provider signature verification (no bypass path).
+        // A missing or invalid signature is rejected before any payment state
+        // changes. The gateway adapter owns the concrete per-provider algorithm.
         try {
-            $gatewayModel = PaymentGateway::where('code', (string) $gateway)->first();
+            $adapter = GatewayAdapterFactory::make($gatewayModel->code);
+        } catch (\Exception $e) {
+            abort(403, 'Unsupported payment gateway');
+        }
 
-            // Optional signature verification when configured per gateway.
-            $secret = $gatewayModel?->extra_attributes['webhook_secret'] ?? null;
-            if ($secret) {
-                $provided = (string) ($request->header('X-Webhook-Signature') ?? '');
-                $expected = hash_hmac('sha256', (string) $request->getContent(), (string) $secret);
-                abort_unless(hash_equals($expected, $provided), 401);
-            }
+        abort_unless(
+            $adapter->verifyWebhookSignature($request, $gatewayModel),
+            403,
+            'Invalid webhook signature'
+        );
 
+        try {
             $raw = (string) $request->getContent();
             $hash = hash('sha256', $gateway.'|'.$raw);
 
