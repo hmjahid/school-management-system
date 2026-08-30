@@ -258,7 +258,7 @@ class PaymentController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Payment processing failed. '.$e->getMessage(),
+                'message' => 'Payment processing failed. Please try again later.',
             ], 400);
         }
     }
@@ -350,7 +350,7 @@ class PaymentController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Webhook processing failed: '.$e->getMessage(),
+                'message' => 'Webhook processing failed. Please try again later.',
             ], 400);
         }
     }

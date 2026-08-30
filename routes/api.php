@@ -1,25 +1,25 @@
 <?php
 
-use App\Http\Controllers\Api\Admin\DashboardController;
-use App\Http\Controllers\Api\ApiController;
-use App\Http\Controllers\Api\AnalyticsController;
+use App\Http\Controllers\Admin\WebsiteSettingController as AdminWebsiteSettingController;
+use App\Http\Controllers\Api\AcademicController;
 use App\Http\Controllers\Api\ActivityController;
-use App\Http\Controllers\Api\QuickActionController;
+use App\Http\Controllers\Api\Admin\DashboardController;
+use App\Http\Controllers\Api\AnalyticsController;
+use App\Http\Controllers\Api\ApiController;
+use App\Http\Controllers\Api\CareerController;
 use App\Http\Controllers\Api\CmsController;
-use App\Http\Controllers\Api\SearchController;
+use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\FeeController;
 use App\Http\Controllers\Api\FeePaymentController;
-use App\Http\Controllers\Api\WebsiteContentController;
-use App\Http\Controllers\Api\EventController;
-use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\Api\AcademicController;
-use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\GalleryController;
-use App\Http\Controllers\Api\CareerController;
-use App\Http\Controllers\Api\TeacherController;
 use App\Http\Controllers\Api\LegalController;
+use App\Http\Controllers\Api\NewsController;
+use App\Http\Controllers\Api\QuickActionController;
 use App\Http\Controllers\Api\ResultController;
-use App\Http\Controllers\Admin\WebsiteSettingController as AdminWebsiteSettingController;
+use App\Http\Controllers\Api\SearchController;
+use App\Http\Controllers\Api\TeacherController;
+use App\Http\Controllers\Api\WebsiteContentController;
+use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -101,13 +101,17 @@ Route::prefix('v1')->group(function () {
         // Fee management
         Route::prefix('fees')->group(function () {
             Route::get('/', [FeeController::class, 'index']);
-            Route::post('/', [FeeController::class, 'store']);
             Route::get('/types', [FeeController::class, 'getFeeTypes']);
             Route::get('/statistics', [FeeController::class, 'getStatistics']);
             Route::get('/{fee}', [FeeController::class, 'show']);
-            Route::put('/{fee}', [FeeController::class, 'update']);
-            Route::delete('/{fee}', [FeeController::class, 'destroy']);
             Route::get('/{fee}/payments', [FeePaymentController::class, 'index']);
+
+            Route::middleware('role:admin')->group(function () {
+                Route::post('/', [FeeController::class, 'store']);
+                Route::put('/{fee}', [FeeController::class, 'update']);
+                Route::delete('/{fee}', [FeeController::class, 'destroy']);
+            });
+
             Route::post('/{fee}/payments', [FeePaymentController::class, 'store']);
         });
 
@@ -116,9 +120,12 @@ Route::prefix('v1')->group(function () {
             Route::get('/statuses', [FeePaymentController::class, 'getStatuses']);
             Route::get('/methods', [FeePaymentController::class, 'getPaymentMethods']);
             Route::get('/{payment}', [FeePaymentController::class, 'show']);
-            Route::put('/{payment}', [FeePaymentController::class, 'update']);
-            Route::post('/{payment}/approve', [FeePaymentController::class, 'approve']);
-            Route::post('/{payment}/cancel', [FeePaymentController::class, 'cancel']);
+
+            Route::middleware('role:admin')->group(function () {
+                Route::put('/{payment}', [FeePaymentController::class, 'update']);
+                Route::post('/{payment}/approve', [FeePaymentController::class, 'approve']);
+                Route::post('/{payment}/cancel', [FeePaymentController::class, 'cancel']);
+            });
         });
 
         // Events (admin only)

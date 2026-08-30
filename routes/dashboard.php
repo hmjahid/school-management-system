@@ -177,38 +177,43 @@ Route::middleware('auth')->group(function () {
     Route::get('/portal/admission', [PortalAdmissionController::class, 'show'])->name('portal.admission');
     Route::get('/portal/progress', [PortalProgressController::class, 'index'])->name('portal.progress');
 
-    Route::get('/dashboard/students/promote', [DashboardStudentController::class, 'promoteForm'])->name('dashboard.students.promote');
-    Route::post('/dashboard/students/promote', [DashboardStudentController::class, 'promote'])->name('dashboard.students.promote.store');
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/dashboard/students/promote', [DashboardStudentController::class, 'promoteForm'])->name('dashboard.students.promote');
+        Route::post('/dashboard/students/promote', [DashboardStudentController::class, 'promote'])->name('dashboard.students.promote.store');
 
-    Route::get('/dashboard/students/create', [DashboardStudentController::class, 'create'])->name('dashboard.students.create');
-    Route::post('/dashboard/students', [DashboardStudentController::class, 'store'])->name('dashboard.students.store');
-    Route::get('/dashboard/students/{student}/edit', [DashboardStudentController::class, 'edit'])->name('dashboard.students.edit');
-    Route::put('/dashboard/students/{student}', [DashboardStudentController::class, 'update'])->name('dashboard.students.update');
-    Route::delete('/dashboard/students/{student}', [DashboardStudentController::class, 'destroy'])->name('dashboard.students.destroy');
-    Route::get('/dashboard/students/{student}', [DashboardStudentController::class, 'show'])->name('dashboard.students.show');
-    Route::get('/dashboard/students/{student}/results', [DashboardExamResultController::class, 'studentResults'])->name('dashboard.students.results');
-    Route::get('/dashboard/students', [DashboardModulesController::class, 'students'])->name('dashboard.students');
+        Route::get('/dashboard/students/create', [DashboardStudentController::class, 'create'])->name('dashboard.students.create');
+        Route::post('/dashboard/students', [DashboardStudentController::class, 'store'])->name('dashboard.students.store');
+        Route::get('/dashboard/students/{student}/edit', [DashboardStudentController::class, 'edit'])->name('dashboard.students.edit');
+        Route::put('/dashboard/students/{student}', [DashboardStudentController::class, 'update'])->name('dashboard.students.update');
+        Route::delete('/dashboard/students/{student}', [DashboardStudentController::class, 'destroy'])->name('dashboard.students.destroy');
+        Route::get('/dashboard/students/{student}', [DashboardStudentController::class, 'show'])->name('dashboard.students.show');
+        Route::get('/dashboard/students/{student}/results', [DashboardExamResultController::class, 'studentResults'])->name('dashboard.students.results');
+        Route::get('/dashboard/students', [DashboardModulesController::class, 'students'])->name('dashboard.students');
+    });
 
     Route::get('/dashboard/my-results', [DashboardExamResultController::class, 'myResults'])->name('dashboard.exams.my-results');
-    Route::get('/dashboard/exams/{exam}/results', [DashboardExamResultController::class, 'index'])->name('dashboard.exams.results');
-    Route::post('/dashboard/exams/{exam}/results', [DashboardExamResultController::class, 'store'])->name('dashboard.exams.results.store');
-    Route::get('/dashboard/exams/{exam}/results/export', [DashboardExamResultController::class, 'export'])->name('dashboard.exams.results.export');
     Route::get('/dashboard/exams/{exam}/results/{result}/marksheet', [DashboardExamResultController::class, 'downloadMarksheet'])->name('dashboard.exams.results.marksheet');
-    Route::post('/dashboard/exams/{exam}/publish', [DashboardExamResultController::class, 'publish'])->name('dashboard.exams.publish');
-    Route::post('/dashboard/exams/{exam}/unpublish', [DashboardExamResultController::class, 'unpublish'])->name('dashboard.exams.unpublish');
 
-    Route::get('/dashboard/reports', [DashboardReportController::class, 'index'])->name('dashboard.reports');
-    Route::get('/dashboard/reports/fees', [DashboardReportController::class, 'fees'])->name('dashboard.reports.fees');
-    Route::get('/dashboard/reports/attendance', [DashboardReportController::class, 'attendance'])->name('dashboard.reports.attendance');
-    Route::get('/dashboard/reports/students', [DashboardReportController::class, 'students'])->name('dashboard.reports.students');
-    Route::get('/dashboard/reports/export/{type}', [DashboardReportController::class, 'export'])->name('dashboard.reports.export');
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/dashboard/exams/{exam}/results', [DashboardExamResultController::class, 'index'])->name('dashboard.exams.results');
+        Route::post('/dashboard/exams/{exam}/results', [DashboardExamResultController::class, 'store'])->name('dashboard.exams.results.store');
+        Route::get('/dashboard/exams/{exam}/results/export', [DashboardExamResultController::class, 'export'])->name('dashboard.exams.results.export');
+        Route::post('/dashboard/exams/{exam}/publish', [DashboardExamResultController::class, 'publish'])->name('dashboard.exams.publish');
+        Route::post('/dashboard/exams/{exam}/unpublish', [DashboardExamResultController::class, 'unpublish'])->name('dashboard.exams.unpublish');
 
-    Route::get('/dashboard/analytics', [DashboardReportController::class, 'analytics'])->name('dashboard.analytics');
-    Route::get('/dashboard/reports/builder', [DashboardReportBuilderController::class, 'index'])->name('dashboard.reports.builder');
-    Route::post('/dashboard/reports/builder/export', [DashboardReportBuilderController::class, 'export'])->name('dashboard.reports.builder.export');
+        Route::get('/dashboard/reports', [DashboardReportController::class, 'index'])->name('dashboard.reports');
+        Route::get('/dashboard/reports/fees', [DashboardReportController::class, 'fees'])->name('dashboard.reports.fees');
+        Route::get('/dashboard/reports/attendance', [DashboardReportController::class, 'attendance'])->name('dashboard.reports.attendance');
+        Route::get('/dashboard/reports/students', [DashboardReportController::class, 'students'])->name('dashboard.reports.students');
+        Route::get('/dashboard/reports/export/{type}', [DashboardReportController::class, 'export'])->name('dashboard.reports.export');
 
-    Route::get('/dashboard/events', [DashboardEventController::class, 'index'])->name('dashboard.events');
-    Route::get('/dashboard/events/calendar', [DashboardEventController::class, 'calendar'])->name('dashboard.events.calendar');
+        Route::get('/dashboard/analytics', [DashboardReportController::class, 'analytics'])->name('dashboard.analytics');
+        Route::get('/dashboard/reports/builder', [DashboardReportBuilderController::class, 'index'])->name('dashboard.reports.builder');
+        Route::post('/dashboard/reports/builder/export', [DashboardReportBuilderController::class, 'export'])->name('dashboard.reports.builder.export');
+
+        Route::get('/dashboard/events', [DashboardEventController::class, 'index'])->name('dashboard.events');
+        Route::get('/dashboard/events/calendar', [DashboardEventController::class, 'calendar'])->name('dashboard.events.calendar');
+    });
 
     Route::middleware('role:admin')->group(function () {
         Route::get('/dashboard/events/create', [DashboardEventController::class, 'create'])->name('dashboard.events.create');
@@ -239,98 +244,100 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/notifications/preferences', [DashboardNotificationPreferencesController::class, 'show'])->name('notifications.preferences');
     Route::post('/dashboard/notifications/preferences', [DashboardNotificationPreferencesController::class, 'update'])->name('notifications.preferences.update');
 
-    Route::get('/dashboard/teachers/create', [DashboardTeacherController::class, 'create'])->name('dashboard.teachers.create');
-    Route::post('/dashboard/teachers', [DashboardTeacherController::class, 'store'])->name('dashboard.teachers.store');
-    Route::get('/dashboard/teachers/{teacher}/edit', [DashboardTeacherController::class, 'edit'])->name('dashboard.teachers.edit');
-    Route::put('/dashboard/teachers/{teacher}', [DashboardTeacherController::class, 'update'])->name('dashboard.teachers.update');
-    Route::delete('/dashboard/teachers/{teacher}', [DashboardTeacherController::class, 'destroy'])->name('dashboard.teachers.destroy');
-    Route::get('/dashboard/teachers/{teacher}', [DashboardTeacherController::class, 'show'])->name('dashboard.teachers.show');
-    Route::get('/dashboard/teachers', [DashboardModulesController::class, 'teachers'])->name('dashboard.teachers');
-    Route::get('/dashboard/staff', [DashboardModulesController::class, 'staff'])->name('dashboard.staff');
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/dashboard/teachers/create', [DashboardTeacherController::class, 'create'])->name('dashboard.teachers.create');
+        Route::post('/dashboard/teachers', [DashboardTeacherController::class, 'store'])->name('dashboard.teachers.store');
+        Route::get('/dashboard/teachers/{teacher}/edit', [DashboardTeacherController::class, 'edit'])->name('dashboard.teachers.edit');
+        Route::put('/dashboard/teachers/{teacher}', [DashboardTeacherController::class, 'update'])->name('dashboard.teachers.update');
+        Route::delete('/dashboard/teachers/{teacher}', [DashboardTeacherController::class, 'destroy'])->name('dashboard.teachers.destroy');
+        Route::get('/dashboard/teachers/{teacher}', [DashboardTeacherController::class, 'show'])->name('dashboard.teachers.show');
+        Route::get('/dashboard/teachers', [DashboardModulesController::class, 'teachers'])->name('dashboard.teachers');
+        Route::get('/dashboard/staff', [DashboardModulesController::class, 'staff'])->name('dashboard.staff');
 
-    Route::get('/dashboard/parents/create', [DashboardGuardianController::class, 'create'])->name('dashboard.parents.create');
-    Route::post('/dashboard/parents', [DashboardGuardianController::class, 'store'])->name('dashboard.parents.store');
-    Route::get('/dashboard/parents/{guardian}/edit', [DashboardGuardianController::class, 'edit'])->name('dashboard.parents.edit');
-    Route::put('/dashboard/parents/{guardian}', [DashboardGuardianController::class, 'update'])->name('dashboard.parents.update');
-    Route::delete('/dashboard/parents/{guardian}', [DashboardGuardianController::class, 'destroy'])->name('dashboard.parents.destroy');
-    Route::get('/dashboard/parents/{guardian}', [DashboardGuardianController::class, 'show'])->name('dashboard.parents.show');
-    Route::get('/dashboard/parents', [DashboardModulesController::class, 'parents'])->name('dashboard.parents');
+        Route::get('/dashboard/parents/create', [DashboardGuardianController::class, 'create'])->name('dashboard.parents.create');
+        Route::post('/dashboard/parents', [DashboardGuardianController::class, 'store'])->name('dashboard.parents.store');
+        Route::get('/dashboard/parents/{guardian}/edit', [DashboardGuardianController::class, 'edit'])->name('dashboard.parents.edit');
+        Route::put('/dashboard/parents/{guardian}', [DashboardGuardianController::class, 'update'])->name('dashboard.parents.update');
+        Route::delete('/dashboard/parents/{guardian}', [DashboardGuardianController::class, 'destroy'])->name('dashboard.parents.destroy');
+        Route::get('/dashboard/parents/{guardian}', [DashboardGuardianController::class, 'show'])->name('dashboard.parents.show');
+        Route::get('/dashboard/parents', [DashboardModulesController::class, 'parents'])->name('dashboard.parents');
 
-    Route::get('/dashboard/classes/create', [DashboardSchoolClassController::class, 'create'])->name('dashboard.classes.create');
-    Route::post('/dashboard/classes', [DashboardSchoolClassController::class, 'store'])->name('dashboard.classes.store');
-    Route::get('/dashboard/classes/{class}/edit', [DashboardSchoolClassController::class, 'edit'])->name('dashboard.classes.edit');
-    Route::put('/dashboard/classes/{class}', [DashboardSchoolClassController::class, 'update'])->name('dashboard.classes.update');
-    Route::delete('/dashboard/classes/{class}', [DashboardSchoolClassController::class, 'destroy'])->name('dashboard.classes.destroy');
-    Route::get('/dashboard/classes/{class}', [DashboardSchoolClassController::class, 'show'])->name('dashboard.classes.show');
-    Route::get('/dashboard/classes', [DashboardModulesController::class, 'classes'])->name('dashboard.classes');
+        Route::get('/dashboard/classes/create', [DashboardSchoolClassController::class, 'create'])->name('dashboard.classes.create');
+        Route::post('/dashboard/classes', [DashboardSchoolClassController::class, 'store'])->name('dashboard.classes.store');
+        Route::get('/dashboard/classes/{class}/edit', [DashboardSchoolClassController::class, 'edit'])->name('dashboard.classes.edit');
+        Route::put('/dashboard/classes/{class}', [DashboardSchoolClassController::class, 'update'])->name('dashboard.classes.update');
+        Route::delete('/dashboard/classes/{class}', [DashboardSchoolClassController::class, 'destroy'])->name('dashboard.classes.destroy');
+        Route::get('/dashboard/classes/{class}', [DashboardSchoolClassController::class, 'show'])->name('dashboard.classes.show');
+        Route::get('/dashboard/classes', [DashboardModulesController::class, 'classes'])->name('dashboard.classes');
 
-    Route::get('/dashboard/attendance/create', [DashboardAttendanceController::class, 'create'])->name('dashboard.attendance.create');
-    Route::post('/dashboard/attendance', [DashboardAttendanceController::class, 'store'])->name('dashboard.attendance.store');
-    Route::get('/dashboard/attendance/bulk', [DashboardAttendanceController::class, 'bulk'])->name('dashboard.attendance.bulk');
-    Route::post('/dashboard/attendance/bulk', [DashboardAttendanceController::class, 'bulkStore'])->name('dashboard.attendance.bulk.store');
-    Route::get('/dashboard/attendance', [DashboardModulesController::class, 'attendance'])->name('dashboard.attendance');
+        Route::get('/dashboard/attendance/create', [DashboardAttendanceController::class, 'create'])->name('dashboard.attendance.create');
+        Route::post('/dashboard/attendance', [DashboardAttendanceController::class, 'store'])->name('dashboard.attendance.store');
+        Route::get('/dashboard/attendance/bulk', [DashboardAttendanceController::class, 'bulk'])->name('dashboard.attendance.bulk');
+        Route::post('/dashboard/attendance/bulk', [DashboardAttendanceController::class, 'bulkStore'])->name('dashboard.attendance.bulk.store');
+        Route::get('/dashboard/attendance', [DashboardModulesController::class, 'attendance'])->name('dashboard.attendance');
 
-    Route::get('/dashboard/staff-attendance', [DashboardStaffAttendanceController::class, 'index'])->name('dashboard.staff-attendance.index');
-    Route::post('/dashboard/staff-attendance', [DashboardStaffAttendanceController::class, 'store'])->name('dashboard.staff-attendance.store');
-    Route::get('/dashboard/staff-attendance/report', [DashboardStaffAttendanceController::class, 'report'])->name('dashboard.staff-attendance.report');
+        Route::get('/dashboard/staff-attendance', [DashboardStaffAttendanceController::class, 'index'])->name('dashboard.staff-attendance.index');
+        Route::post('/dashboard/staff-attendance', [DashboardStaffAttendanceController::class, 'store'])->name('dashboard.staff-attendance.store');
+        Route::get('/dashboard/staff-attendance/report', [DashboardStaffAttendanceController::class, 'report'])->name('dashboard.staff-attendance.report');
 
-    Route::prefix('dashboard/leaves')->name('dashboard.leaves.')->group(function () {
-        Route::get('/', [DashboardLeaveController::class, 'index'])->name('index');
-        Route::get('/create', [DashboardLeaveController::class, 'create'])->name('create');
-        Route::post('/', [DashboardLeaveController::class, 'store'])->name('store');
-        Route::get('/{leave}', [DashboardLeaveController::class, 'show'])->name('show');
-        Route::post('/{leave}/approve', [DashboardLeaveController::class, 'approve'])->name('approve');
-        Route::post('/{leave}/reject', [DashboardLeaveController::class, 'reject'])->name('reject');
-        Route::post('/{leave}/cancel', [DashboardLeaveController::class, 'cancel'])->name('cancel');
-    });
+        Route::prefix('dashboard/leaves')->name('dashboard.leaves.')->group(function () {
+            Route::get('/', [DashboardLeaveController::class, 'index'])->name('index');
+            Route::get('/create', [DashboardLeaveController::class, 'create'])->name('create');
+            Route::post('/', [DashboardLeaveController::class, 'store'])->name('store');
+            Route::get('/{leave}', [DashboardLeaveController::class, 'show'])->name('show');
+            Route::post('/{leave}/approve', [DashboardLeaveController::class, 'approve'])->name('approve');
+            Route::post('/{leave}/reject', [DashboardLeaveController::class, 'reject'])->name('reject');
+            Route::post('/{leave}/cancel', [DashboardLeaveController::class, 'cancel'])->name('cancel');
+        });
 
-    Route::prefix('dashboard/payroll')->name('dashboard.payroll.')->group(function () {
-        Route::get('/structures', [DashboardPayrollController::class, 'structures'])->name('structures');
-        Route::post('/structures', [DashboardPayrollController::class, 'storeStructure'])->name('structures.store');
-        Route::get('/generate', [DashboardPayrollController::class, 'generate'])->name('generate');
-        Route::post('/generate', [DashboardPayrollController::class, 'generateStore'])->name('generate.store');
-        Route::get('/payslips', [DashboardPayrollController::class, 'payslips'])->name('payslips');
-        Route::get('/payslips/{payslip}', [DashboardPayrollController::class, 'showPayslip'])->name('payslips.show');
-        Route::post('/payslips/{payslip}/paid', [DashboardPayrollController::class, 'markPaid'])->name('payslips.markPaid');
-    });
+        Route::prefix('dashboard/payroll')->name('dashboard.payroll.')->group(function () {
+            Route::get('/structures', [DashboardPayrollController::class, 'structures'])->name('structures');
+            Route::post('/structures', [DashboardPayrollController::class, 'storeStructure'])->name('structures.store');
+            Route::get('/generate', [DashboardPayrollController::class, 'generate'])->name('generate');
+            Route::post('/generate', [DashboardPayrollController::class, 'generateStore'])->name('generate.store');
+            Route::get('/payslips', [DashboardPayrollController::class, 'payslips'])->name('payslips');
+            Route::get('/payslips/{payslip}', [DashboardPayrollController::class, 'showPayslip'])->name('payslips.show');
+            Route::post('/payslips/{payslip}/paid', [DashboardPayrollController::class, 'markPaid'])->name('payslips.markPaid');
+        });
 
-    Route::prefix('dashboard/transport')->name('dashboard.transport.')->group(function () {
-        Route::get('/vehicles', [DashboardTransportController::class, 'vehicles'])->name('vehicles.index');
-        Route::get('/vehicles/create', [DashboardTransportController::class, 'vehiclesCreate'])->name('vehicles.create');
-        Route::post('/vehicles', [DashboardTransportController::class, 'vehiclesStore'])->name('vehicles.store');
-        Route::get('/vehicles/{vehicle}/edit', [DashboardTransportController::class, 'vehiclesEdit'])->name('vehicles.edit');
-        Route::put('/vehicles/{vehicle}', [DashboardTransportController::class, 'vehiclesUpdate'])->name('vehicles.update');
-        Route::delete('/vehicles/{vehicle}', [DashboardTransportController::class, 'vehiclesDestroy'])->name('vehicles.destroy');
+        Route::prefix('dashboard/transport')->name('dashboard.transport.')->group(function () {
+            Route::get('/vehicles', [DashboardTransportController::class, 'vehicles'])->name('vehicles.index');
+            Route::get('/vehicles/create', [DashboardTransportController::class, 'vehiclesCreate'])->name('vehicles.create');
+            Route::post('/vehicles', [DashboardTransportController::class, 'vehiclesStore'])->name('vehicles.store');
+            Route::get('/vehicles/{vehicle}/edit', [DashboardTransportController::class, 'vehiclesEdit'])->name('vehicles.edit');
+            Route::put('/vehicles/{vehicle}', [DashboardTransportController::class, 'vehiclesUpdate'])->name('vehicles.update');
+            Route::delete('/vehicles/{vehicle}', [DashboardTransportController::class, 'vehiclesDestroy'])->name('vehicles.destroy');
 
-        Route::get('/routes', [DashboardTransportController::class, 'routes'])->name('routes.index');
-        Route::get('/routes/create', [DashboardTransportController::class, 'routesCreate'])->name('routes.create');
-        Route::post('/routes', [DashboardTransportController::class, 'routesStore'])->name('routes.store');
-        Route::get('/routes/{route}/edit', [DashboardTransportController::class, 'routesEdit'])->name('routes.edit');
-        Route::put('/routes/{route}', [DashboardTransportController::class, 'routesUpdate'])->name('routes.update');
-        Route::delete('/routes/{route}', [DashboardTransportController::class, 'routesDestroy'])->name('routes.destroy');
+            Route::get('/routes', [DashboardTransportController::class, 'routes'])->name('routes.index');
+            Route::get('/routes/create', [DashboardTransportController::class, 'routesCreate'])->name('routes.create');
+            Route::post('/routes', [DashboardTransportController::class, 'routesStore'])->name('routes.store');
+            Route::get('/routes/{route}/edit', [DashboardTransportController::class, 'routesEdit'])->name('routes.edit');
+            Route::put('/routes/{route}', [DashboardTransportController::class, 'routesUpdate'])->name('routes.update');
+            Route::delete('/routes/{route}', [DashboardTransportController::class, 'routesDestroy'])->name('routes.destroy');
 
-        Route::get('/assignments', [DashboardTransportController::class, 'assignments'])->name('assignments.index');
-        Route::post('/assignments', [DashboardTransportController::class, 'assignmentsStore'])->name('assignments.store');
-        Route::delete('/assignments/{assignment}', [DashboardTransportController::class, 'assignmentsDestroy'])->name('assignments.destroy');
-    });
+            Route::get('/assignments', [DashboardTransportController::class, 'assignments'])->name('assignments.index');
+            Route::post('/assignments', [DashboardTransportController::class, 'assignmentsStore'])->name('assignments.store');
+            Route::delete('/assignments/{assignment}', [DashboardTransportController::class, 'assignmentsDestroy'])->name('assignments.destroy');
+        });
 
-    Route::get('/dashboard/exams/create', [DashboardExamController::class, 'create'])->name('dashboard.exams.create');
-    Route::post('/dashboard/exams', [DashboardExamController::class, 'store'])->name('dashboard.exams.store');
-    Route::post('/dashboard/exams/{exam}/visibility', [DashboardExamController::class, 'publishToggle'])->name('dashboard.exams.visibility');
-    Route::get('/dashboard/exams', [DashboardModulesController::class, 'exams'])->name('dashboard.exams');
+        Route::get('/dashboard/exams/create', [DashboardExamController::class, 'create'])->name('dashboard.exams.create');
+        Route::post('/dashboard/exams', [DashboardExamController::class, 'store'])->name('dashboard.exams.store');
+        Route::post('/dashboard/exams/{exam}/visibility', [DashboardExamController::class, 'publishToggle'])->name('dashboard.exams.visibility');
+        Route::get('/dashboard/exams', [DashboardModulesController::class, 'exams'])->name('dashboard.exams');
 
-    Route::get('/dashboard/fees/create', [DashboardFeeController::class, 'create'])->name('dashboard.fees.create');
-    Route::post('/dashboard/fees', [DashboardFeeController::class, 'store'])->name('dashboard.fees.store');
-    Route::get('/dashboard/fees/{fee}/edit', [DashboardFeeController::class, 'edit'])->name('dashboard.fees.edit');
-    Route::put('/dashboard/fees/{fee}', [DashboardFeeController::class, 'update'])->name('dashboard.fees.update');
-    Route::delete('/dashboard/fees/{fee}', [DashboardFeeController::class, 'destroy'])->name('dashboard.fees.destroy');
-    Route::get('/dashboard/fees', [DashboardModulesController::class, 'fees'])->name('dashboard.fees');
+        Route::get('/dashboard/fees/create', [DashboardFeeController::class, 'create'])->name('dashboard.fees.create');
+        Route::post('/dashboard/fees', [DashboardFeeController::class, 'store'])->name('dashboard.fees.store');
+        Route::get('/dashboard/fees/{fee}/edit', [DashboardFeeController::class, 'edit'])->name('dashboard.fees.edit');
+        Route::put('/dashboard/fees/{fee}', [DashboardFeeController::class, 'update'])->name('dashboard.fees.update');
+        Route::delete('/dashboard/fees/{fee}', [DashboardFeeController::class, 'destroy'])->name('dashboard.fees.destroy');
+        Route::get('/dashboard/fees', [DashboardModulesController::class, 'fees'])->name('dashboard.fees');
 
-    Route::prefix('dashboard/fee-payments')->name('dashboard.fee-payments.')->group(function () {
-        Route::get('/', [DashboardFeePaymentController::class, 'index'])->name('index');
-        Route::get('/{feePayment}', [DashboardFeePaymentController::class, 'show'])->name('show');
-        Route::post('/{feePayment}/approve', [DashboardFeePaymentController::class, 'approve'])->name('approve');
-        Route::post('/{feePayment}/cancel', [DashboardFeePaymentController::class, 'cancel'])->name('cancel');
+        Route::prefix('dashboard/fee-payments')->name('dashboard.fee-payments.')->group(function () {
+            Route::get('/', [DashboardFeePaymentController::class, 'index'])->name('index');
+            Route::get('/{feePayment}', [DashboardFeePaymentController::class, 'show'])->name('show');
+            Route::post('/{feePayment}/approve', [DashboardFeePaymentController::class, 'approve'])->name('approve');
+            Route::post('/{feePayment}/cancel', [DashboardFeePaymentController::class, 'cancel'])->name('cancel');
+        });
     });
 
     Route::middleware(['permission:manage_expenses'])->group(function () {
@@ -353,18 +360,20 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard/bank-reconciliation/reconcile', [DashboardBankReconciliationController::class, 'reconcile'])->name('dashboard.bank-reconciliation.reconcile');
     });
 
-    Route::prefix('dashboard/ledger')->name('dashboard.ledger.')->group(function () {
-        Route::get('/', [DashboardLedgerController::class, 'index'])->name('index');
-        Route::get('/journal', [DashboardLedgerController::class, 'journalForm'])->name('journal');
-        Route::post('/journal', [DashboardLedgerController::class, 'journalStore'])->name('journal.store');
-        Route::get('/cashbook', [DashboardLedgerController::class, 'cashbook'])->name('cashbook');
-        Route::get('/bankbook', [DashboardLedgerController::class, 'bankbook'])->name('bankbook');
-    });
+    Route::middleware(['permission:manage_expenses'])->group(function () {
+        Route::prefix('dashboard/ledger')->name('dashboard.ledger.')->group(function () {
+            Route::get('/', [DashboardLedgerController::class, 'index'])->name('index');
+            Route::get('/journal', [DashboardLedgerController::class, 'journalForm'])->name('journal');
+            Route::post('/journal', [DashboardLedgerController::class, 'journalStore'])->name('journal.store');
+            Route::get('/cashbook', [DashboardLedgerController::class, 'cashbook'])->name('cashbook');
+            Route::get('/bankbook', [DashboardLedgerController::class, 'bankbook'])->name('bankbook');
+        });
 
-    Route::prefix('dashboard/reports')->name('dashboard.reports.')->group(function () {
-        Route::get('/income-statement', [DashboardLedgerController::class, 'incomeStatement'])->name('income-statement');
-        Route::get('/balance-sheet', [DashboardLedgerController::class, 'balanceSheet'])->name('balance-sheet');
-        Route::get('/cash-flow', [DashboardLedgerController::class, 'cashFlow'])->name('cash-flow');
+        Route::prefix('dashboard/reports')->name('dashboard.reports.')->group(function () {
+            Route::get('/income-statement', [DashboardLedgerController::class, 'incomeStatement'])->name('income-statement');
+            Route::get('/balance-sheet', [DashboardLedgerController::class, 'balanceSheet'])->name('balance-sheet');
+            Route::get('/cash-flow', [DashboardLedgerController::class, 'cashFlow'])->name('cash-flow');
+        });
     });
 
     Route::middleware(['role:admin'])->group(function () {
