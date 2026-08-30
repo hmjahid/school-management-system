@@ -604,25 +604,50 @@ read unified-implementation-plan-24-08-2026.md file and complete the balance/inc
 
 check the file again and ensure that all incompleted tasks are coppleted
 
+that menas all tasks from the file completed now?
 
+that I will do later
 
+suppose you are a senior laravel developer and software engineer. creete full unit tests for this school management system
+check alreday built tests in test/unit
 
-
-
-
-suppose you are a senior laravel developer and software engineer. cretae full unit tests for this school management system
+why its taking too long time?
 
 suppose you are a system architect. review this school management system and add review of whole system in a file
 
+is the school managemnet system fully reday for production deployment?
 
+check the last commit message, we have not compltede some tasksin the codes. find them whic needed brfoe reday for production deploymnet as per yesterday claud eaudit
+
+make sure that the school managemnet system is fully reday for production deployment by codes and features
+
+can you fix them?
+
+do all yourself. now I have internet
+
+
+
+
+notes these two tasks. I will do thse two later
+
+
+
+
+
+make sure that the school managemnet system is fully reday for production deployment
+
+
+
+iskoolent
 
 name our school management system "schooler". the dahboard sidebar top name will be nmaed after this name and the pwa appliction also will be named after this name. the wordpress theme also will be the same name
 
-we will build total 3 application/product. 1. app 2. wordpress theme and 3. website for this apllication/theme marketing/branding/selling. all application codes will be inside schooler-app folder, theme codes inside schilex-theme folder and website codes inside schooler-website folder for managing the codes easily. now move the management software code inside schooler-app folder.
+we will build total 3 application/product. 1. app 2. wordpress theme and 3. website for this apllication/theme marketing/branding/selling. all application codes will be inside schooler-app folder, theme codes inside schooler-theme folder and website codes inside schooler-website folder for managing the codes easily. now move the management software code inside schooler-app folder.
 
 we will build app internation version and a php version and the theme also a international version. the php version also will be a another international version. app will be total 2 folder: 1. schooler-app, 2. schooler-app-int. theme will be two folders: 1. schooler-theme, 2. schooler-theme-int. app php version also will be two folders: 1. schooler-php, 2. schooler-php-int
 
-the website for this apllication/theme marketing/branding/selling will be a fully funxtional website will ackend for managing uswers/customers, licensing, subscriptions, payments, expiration, rnewals and more.
+the website for this apllication/theme marketing/branding/selling will be a fully functional website with backend for managing uswers/customers, licensing, subscriptions, payments, expiration, rnewals and more. we wi;; add paddle for payemnt
+
 
 
 
@@ -655,5 +680,18 @@ now write a commit message for the chnages after the last commit
 is it possible to make this softaware a fully functional custimizable wordpress theme? how? tell me only.
 
 i want to name this software a nice name for branding. the dahboard sidebar top name will be nmaed after this name and the pwa appliction also will be named after this name. suggest me some best unique nmaes which not used before for this application/software. create  afile named name-suggetions.md and add the suggetsions in that file
+
+
+## TODO (to do later)
+
+1. Fix remaining pre-existing Pint style warnings in test files (untouched, fail `./vendor/bin/pint --test`):
+   tests/Unit/Services/MailChannelTest.php, NagadGatewayAdapterTest.php, NotificationDeliveryServiceTest.php, NotificationServiceTest.php, RocketGatewayAdapterTest.php, SmsChannelTest.php, TwilioSmsServiceTest.php + Feature gateway/ledger/refund tests.
+
+2. Production deployment sign-off:
+   - Set prod .env: APP_ENV=production, APP_DEBUG=false, APP_URL (https), SESSION_SECURE_COOKIE=true, TRUSTED_PROXIES, LOG_LEVEL=error, MAIL_*, real gateway creds, strong ADMIN_PASSWORD
+   - composer install --no-dev --optimize-autoloader
+   - php artisan migrate --force
+   - php artisan config:cache route:cache view:cache; storage:link
+   - verify backup:database; sign off docs/PRODUCTION-CHECKLIST.md
 
 
