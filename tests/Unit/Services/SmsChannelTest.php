@@ -32,14 +32,16 @@ class SmsChannelTest extends TestCase
             ->with('+8801700000000', 'Hello world', ['from' => 'School'])
             ->andReturn(true);
 
-        $notifiable = new class {
+        $notifiable = new class
+        {
             public function routeNotificationFor($channel, $notification = null)
             {
                 return $channel === 'sms' ? '+8801700000000' : null;
             }
         };
 
-        $notification = new class extends Notification {
+        $notification = new class extends Notification
+        {
             public function toSms($notifiable)
             {
                 return (new SmsMessage('Hello world'))->from('School');
@@ -58,14 +60,16 @@ class SmsChannelTest extends TestCase
         $smsService = Mockery::mock(SmsService::class);
         $smsService->shouldNotReceive('send');
 
-        $notifiable = new class {
+        $notifiable = new class
+        {
             public function routeNotificationFor($channel, $notification = null)
             {
                 return null;
             }
         };
 
-        $notification = new class extends Notification {
+        $notification = new class extends Notification
+        {
             public function toSms($notifiable)
             {
                 return new SmsMessage('Hello');

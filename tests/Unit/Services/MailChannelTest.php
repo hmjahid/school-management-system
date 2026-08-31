@@ -19,21 +19,23 @@ class MailChannelTest extends TestCase
     {
         Mail::fake();
 
-        $notifiable = new class {
+        $notifiable = new class
+        {
             public function routeNotificationFor($channel, $notification = null)
             {
                 return $channel === 'mail' ? 'a@b.com' : null;
             }
         };
 
-        $notification = new class extends Notification {
+        $notification = new class extends Notification
+        {
             public function toMail($notifiable)
             {
                 return new NotificationEmail(['subject' => 'Hi', 'content' => 'Body']);
             }
         };
 
-        $channel = new MailChannel();
+        $channel = new MailChannel;
         $channel->send($notifiable, $notification);
 
         Mail::assertSent(NotificationEmail::class);
@@ -44,21 +46,23 @@ class MailChannelTest extends TestCase
     {
         Mail::fake();
 
-        $notifiable = new class {
+        $notifiable = new class
+        {
             public function routeNotificationFor($channel, $notification = null)
             {
                 return null;
             }
         };
 
-        $notification = new class extends Notification {
+        $notification = new class extends Notification
+        {
             public function toMail($notifiable)
             {
-                return new MailMessage();
+                return new MailMessage;
             }
         };
 
-        $channel = new MailChannel();
+        $channel = new MailChannel;
         $channel->send($notifiable, $notification);
 
         Mail::assertNothingSent();

@@ -14,6 +14,7 @@ class TwilioSmsServiceTest extends TestCase
     {
         $r = new \ReflectionProperty($obj, $prop);
         $r->setAccessible(true);
+
         return $r->getValue($obj);
     }
 
@@ -21,6 +22,7 @@ class TwilioSmsServiceTest extends TestCase
     {
         $r = new \ReflectionMethod($obj, $method);
         $r->setAccessible(true);
+
         return $r->invokeArgs($obj, $args);
     }
 
@@ -56,7 +58,7 @@ class TwilioSmsServiceTest extends TestCase
         $service = $this->makeService();
 
         $this->assertTrue($this->callProtected($service, 'wasSuccessful', (object) ['sid' => 'SM123']));
-        $this->assertFalse($this->callProtected($service, 'wasSuccessful', new \stdClass()));
+        $this->assertFalse($this->callProtected($service, 'wasSuccessful', new \stdClass));
         $this->assertFalse($this->callProtected($service, 'wasSuccessful', null));
     }
 
@@ -84,12 +86,13 @@ namespace Twilio\Rest;
 class Client
 {
     public $messages;
+
     public $balance;
 
     public function __construct($sid = '', $token = '')
     {
-        $this->messages = new \Tests\Unit\Services\TwilioMessagesResource();
-        $this->balance = new \Tests\Unit\Services\TwilioBalanceResource();
+        $this->messages = new \Tests\Unit\Services\TwilioMessagesResource;
+        $this->balance = new \Tests\Unit\Services\TwilioBalanceResource;
     }
 
     public function messages($id = '')
@@ -100,9 +103,7 @@ class Client
 
 namespace Twilio\Exceptions;
 
-class TwilioException extends \Exception
-{
-}
+class TwilioException extends \Exception {}
 
 namespace Tests\Unit\Services;
 
@@ -125,24 +126,37 @@ class TwilioBalanceResource
 class TwilioMessageInstance
 {
     public $sid = 'SM123';
+
     public $status = 'delivered';
+
     public $dateCreated;
+
     public $dateUpdated;
+
     public $dateSent;
+
     public $errorCode = null;
+
     public $errorMessage = null;
+
     public $price = '0.00';
+
     public $priceUnit = 'USD';
+
     public $numSegments = 1;
+
     public $numMedia = 0;
+
     public $direction = 'outbound-api';
+
     public $apiVersion = '2010-04-01';
+
     public $uri = '/x';
 
     public function __construct($id = '')
     {
         $this->sid = $id ?: 'SM123';
-        $now = new \Carbon\Carbon();
+        $now = new \Carbon\Carbon;
         $this->dateCreated = $now;
         $this->dateUpdated = $now;
         $this->dateSent = $now;

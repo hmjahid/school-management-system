@@ -21,13 +21,14 @@ class NotificationServiceTest extends TestCase
     {
         $r = new \ReflectionProperty($obj, $prop);
         $r->setAccessible(true);
+
         return $r->getValue($obj);
     }
 
     /** @test */
     public function it_returns_self_from_fluent_setters(): void
     {
-        $service = new NotificationService();
+        $service = new NotificationService;
 
         $this->assertSame($service, $service->type('info'));
         $this->assertSame($service, $service->subject('Subject'));
@@ -44,7 +45,7 @@ class NotificationServiceTest extends TestCase
     /** @test */
     public function it_throws_when_sending_without_recipients(): void
     {
-        $service = (new NotificationService())
+        $service = (new NotificationService)
             ->type('info')
             ->content('Body');
 
@@ -57,7 +58,7 @@ class NotificationServiceTest extends TestCase
     /** @test */
     public function it_throws_when_sending_without_type(): void
     {
-        $service = (new NotificationService())
+        $service = (new NotificationService)
             ->content('Body')
             ->to($this->makeUser());
 
@@ -70,7 +71,7 @@ class NotificationServiceTest extends TestCase
     /** @test */
     public function it_throws_when_sending_without_content_or_template(): void
     {
-        $service = (new NotificationService())
+        $service = (new NotificationService)
             ->type('info')
             ->to($this->makeUser());
 
@@ -87,7 +88,7 @@ class NotificationServiceTest extends TestCase
         $u2 = $this->makeUser(['email' => 'b@example.com']);
         $collection = new \Illuminate\Database\Eloquent\Collection([$u1, $u2]);
 
-        $service = new NotificationService();
+        $service = new NotificationService;
 
         $service->to([$u1, $u2]);
         $this->assertCount(2, $this->getProtected($service, 'recipients'));
@@ -103,7 +104,7 @@ class NotificationServiceTest extends TestCase
     public function it_stores_a_database_notification_when_sent_via_database_channel(): void
     {
         $user = $this->makeUser();
-        $service = (new NotificationService())
+        $service = (new NotificationService)
             ->type('info')
             ->subject('Hello')
             ->content('World')
@@ -131,7 +132,7 @@ class NotificationServiceTest extends TestCase
         Mail::fake();
 
         $user = $this->makeUser();
-        $service = (new NotificationService())
+        $service = (new NotificationService)
             ->type('info')
             ->subject('Mail Subject')
             ->content('Mail Body')
@@ -162,7 +163,7 @@ class NotificationServiceTest extends TestCase
             'read_at' => null,
         ]);
 
-        $service = new NotificationService();
+        $service = new NotificationService;
 
         $this->assertTrue($service->markAsRead($notification->id, $user->id));
         $this->assertNotNull($notification->fresh()->read_at);
@@ -182,7 +183,7 @@ class NotificationServiceTest extends TestCase
             ]);
         }
 
-        $service = new NotificationService();
+        $service = new NotificationService;
 
         $this->assertSame(3, $service->getUnreadCount($user->id));
         $this->assertSame(3, $service->markAllAsRead($user->id));
@@ -202,7 +203,7 @@ class NotificationServiceTest extends TestCase
             ]);
         }
 
-        $service = new NotificationService();
+        $service = new NotificationService;
 
         $this->assertCount(2, $service->getNotifications($user->id, 2, 0));
         $this->assertCount(1, $service->getNotifications($user->id, 2, 2));

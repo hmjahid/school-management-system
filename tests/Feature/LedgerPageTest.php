@@ -27,6 +27,7 @@ class LedgerPageTest extends TestCase
             Permission::findOrCreate($perm, 'web');
             $user->givePermissionTo($perm);
         }
+
         return $user;
     }
 

@@ -7,9 +7,9 @@ use App\Models\PaymentGateway;
 use App\Services\Payment\GatewayAdapterInterface;
 use App\Services\Payment\NagadGatewayAdapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Request;
 use Tests\TestCase;
 
 class NagadGatewayAdapterTest extends TestCase

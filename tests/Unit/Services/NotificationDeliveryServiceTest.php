@@ -20,7 +20,7 @@ class NotificationDeliveryServiceTest extends TestCase
         parent::setUp();
 
         Event::fake([\App\Events\NotificationSent::class]);
-        $this->app->instance('request', new \Illuminate\Http\Request());
+        $this->app->instance('request', new \Illuminate\Http\Request);
     }
 
     protected function tearDown(): void

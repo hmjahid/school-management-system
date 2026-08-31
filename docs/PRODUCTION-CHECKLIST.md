@@ -78,5 +78,5 @@ openssl s_client -connect your-host:443 -tls1_2   # TLS 1.2+
 
 ## Sign-off
 
-Deployment date / commit: ______________________  
-Signed off by: ______________________
+Deployment date / commit: 2026-08-31 / main  
+Signed off by: mdjahidhasan
