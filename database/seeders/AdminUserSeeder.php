@@ -27,10 +27,11 @@ class AdminUserSeeder extends Seeder
         // Create admin user
         $adminRole = Role::where('name', 'admin')->firstOrFail();
 
-        $admin = User::firstOrCreate(
-            ['email' => $adminEmail],
-            [
+        $admin = User::where('email', $adminEmail)->first();
+        if (! $admin) {
+            $admin = User::createWithCredential([
                 'name' => 'Administrator',
+                'email' => $adminEmail,
                 'password' => Hash::make($adminPassword ?? 'password'),
                 'role_id' => $adminRole->id,
                 'email_verified_at' => now(),
@@ -38,8 +39,8 @@ class AdminUserSeeder extends Seeder
                 'gender' => 'male',
                 'date_of_birth' => '1990-01-01',
                 'address' => 'School Address',
-            ]
-        );
+            ]);
+        }
 
         // Assign admin role to the user
         $admin->assignRole('admin');
