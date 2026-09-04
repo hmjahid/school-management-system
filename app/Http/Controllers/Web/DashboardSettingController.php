@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\LibrarySetting;
 use App\Models\WebsiteContent;
 use App\Models\WebsiteSetting;
+use App\Services\MailSettingsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -30,8 +31,9 @@ class DashboardSettingController extends Controller
         $settings = WebsiteSetting::getSettings();
         $librarySettings = LibrarySetting::getSettings();
         $timezones = \DateTimeZone::listIdentifiers(\DateTimeZone::ALL);
+        $mailPresets = app(MailSettingsService::class)->providerPresets();
 
-        return view('dashboard.settings.index', compact('settings', 'librarySettings', 'timezones'));
+        return view('dashboard.settings.index', compact('settings', 'librarySettings', 'timezones', 'mailPresets'));
     }
 
     public function cmsSettings(): View
@@ -214,6 +216,60 @@ class DashboardSettingController extends Controller
         $settings->save();
 
         return redirect()->route('dashboard.settings.general', ['tab' => 'payment'])->with('status', __('Payment settings saved.'));
+    }
+
+    public function updateMail(Request $request): RedirectResponse
+    {
+        abort_unless(auth()->user()?->can('manage_school_settings'), 403);
+
+        $validated = $request->validate([
+            'mail_enabled' => ['nullable', 'boolean'],
+            'mail_driver' => ['nullable', 'string', 'max:32'],
+            'mail_host' => ['nullable', 'string', 'max:255'],
+            'mail_port' => ['nullable', 'string', 'max:10'],
+            'mail_username' => ['nullable', 'string', 'max:255'],
+            'mail_password' => ['nullable', 'string', 'max:255'],
+            'mail_encryption' => ['nullable', 'string', 'in:tls,ssl,'],
+            'mail_from_address' => ['nullable', 'email', 'max:255'],
+            'mail_from_name' => ['nullable', 'string', 'max:255'],
+            'mail_test_recipient' => ['nullable', 'email', 'max:255'],
+        ]);
+
+        $settings = WebsiteSetting::firstOrNew([]);
+        $settings->fill($validated);
+
+        if ($request->boolean('mail_enabled')) {
+            $settings->mail_enabled = true;
+        } else {
+            $settings->mail_enabled = false;
+        }
+
+        $settings->save();
+
+        app(MailSettingsService::class)->apply($settings);
+
+        return redirect()->route('dashboard.settings.general', ['tab' => 'mail'])->with('status', __('Mail settings saved.'));
+    }
+
+    public function testMail(Request $request): RedirectResponse
+    {
+        abort_unless(auth()->user()?->can('manage_school_settings'), 403);
+
+        $request->validate([
+            'to' => ['required', 'email', 'max:255'],
+        ]);
+
+        try {
+            app(MailSettingsService::class)->sendTest($request->input('to'));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('SMTP test failed: '.$e->getMessage());
+
+            return redirect()->route('dashboard.settings.general', ['tab' => 'mail'])
+                ->with('error', __('Failed to send test email').': '.($e->getMessage() ?: __('Unknown error')));
+        }
+
+        return redirect()->route('dashboard.settings.general', ['tab' => 'mail'])
+            ->with('status', __('Test email sent successfully.'));
     }
 
     public function updateLibrary(Request $request): RedirectResponse

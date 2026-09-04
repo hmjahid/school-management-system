@@ -292,6 +292,7 @@ return [
     'tab_localization' => 'Localization',
     'tab_payment' => 'Payment',
     'tab_library' => 'Library',
+    'tab_mail' => 'Mail / SMTP',
     'tab_admission' => 'Admission',
     'tab_homepage' => 'Homepage',
     'general' => 'General',

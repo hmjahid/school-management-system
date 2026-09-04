@@ -50,6 +50,10 @@ class AppServiceProvider extends ServiceProvider
             'expense' => Expense::class,
         ]);
 
+        if (Schema::hasTable('website_settings')) {
+            app(\App\Services\MailSettingsService::class)->apply();
+        }
+
         if (Schema::hasTable('attendances')) {
             Attendance::observe(AttendanceObserver::class);
         }

@@ -7,8 +7,6 @@ use App\Models\WebsiteSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class WebsiteSettingController extends Controller
 {
@@ -20,60 +18,61 @@ class WebsiteSettingController extends Controller
     public function index()
     {
         $settings = WebsiteSetting::first();
-        
-        if (!$settings) {
+
+        if (! $settings) {
             // If no settings exist, return default settings
-            $settings = new WebsiteSetting();
+            $settings = new WebsiteSetting;
         }
-        
+
         return response()->json([
             'success' => true,
-            'data' => $settings
+            'data' => $settings,
         ]);
     }
 
     /**
      * Update the website settings in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request)
     {
         $settings = WebsiteSetting::firstOrNew();
-        
+
         // Validate the request data
         $validatedData = $this->validateRequest($request, $settings->id);
-        
+
         try {
             // Handle file uploads
             if ($request->hasFile('logo')) {
                 $validatedData['logo_path'] = $this->uploadFile($request->file('logo'), 'logos', $settings->logo_path);
             }
-            
+
             if ($request->hasFile('favicon')) {
                 $validatedData['favicon_path'] = $this->uploadFile($request->file('favicon'), 'favicons', $settings->favicon_path);
             }
-            
+
             // Update or create the settings
             $settings->fill($validatedData);
             $settings->save();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Website settings updated successfully',
-                'data' => $settings
+                'data' => $settings,
             ]);
-            
+
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to update website settings: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update website settings',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : null,
             ], 500);
         }
     }
-    
+
     /**
      * Validate the request data.
      *
@@ -90,7 +89,7 @@ class WebsiteSettingController extends Controller
             'tagline_bn' => 'nullable|string|max:500',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'favicon' => 'nullable|image|mimes:ico,png|max:1024',
-            'established_year' => 'required|integer|min:1800|max:' . (date('Y') + 1),
+            'established_year' => 'required|integer|min:1800|max:'.(date('Y') + 1),
             'address' => 'required|string|max:255',
             'city' => 'required|string|max:100',
             'state' => 'required|string|max:100',
@@ -119,10 +118,10 @@ class WebsiteSettingController extends Controller
             'maintenance_mode' => 'boolean',
             'maintenance_message' => 'nullable|string|max:1000',
         ];
-        
+
         return $request->validate($rules);
     }
-    
+
     /**
      * Upload a file and return the path.
      *
@@ -137,18 +136,18 @@ class WebsiteSettingController extends Controller
         if ($oldFilePath && Storage::exists($oldFilePath)) {
             Storage::delete($oldFilePath);
         }
-        
+
         // Generate a unique filename
         $extension = $file->getClientOriginalExtension();
-        $filename = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '-' . time() . '.' . $extension;
-        
+        $filename = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)).'-'.time().'.'.$extension;
+
         // Store the file in the specified folder (e.g., 'public/logos' or 'public/favicons')
-        $path = $file->storeAs('public/' . $folder, $filename);
-        
+        $path = $file->storeAs('public/'.$folder, $filename);
+
         // Return the path relative to the storage directory
         return str_replace('public/', '', $path);
     }
-    
+
     /**
      * Get the website settings for public access.
      *
@@ -157,14 +156,14 @@ class WebsiteSettingController extends Controller
     public function publicSettings()
     {
         $settings = WebsiteSetting::first();
-        
-        if (!$settings) {
+
+        if (! $settings) {
             return response()->json([
                 'success' => true,
-                'data' => new WebsiteSetting()
+                'data' => new WebsiteSetting,
             ]);
         }
-        
+
         // Return only the necessary fields for public access
         return response()->json([
             'success' => true,
@@ -192,7 +191,7 @@ class WebsiteSettingController extends Controller
                     'youtube' => $settings->youtube_url,
                 ],
                 'opening_hours' => $settings->opening_hours,
-            ]
+            ],
         ]);
     }
 }

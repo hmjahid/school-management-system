@@ -96,6 +96,7 @@ npm run dev              # Vite HMR
 
 - Several migrations are duplicated/legacy (e.g. two `create_exams_table`, two `create_exam_results_table`) and guarded with `Schema::hasTable(...)`. They are intentional — do not delete them as "duplicates," or a fresh `migrate` will break.
 - The canonical `exams` schema (from the earliest `create_exams_table`) has `batch_id` + `academic_session_id` + `section_id` and no `class_id`/`year`. The later guarded duplicate that adds `class_id` never runs.
+- **Legacy class model (do not merge unless you plan a data migration):** `App\Models\ClassModel` maps to the legacy `classes` table and is **not dead code**. `App\Models\Grade` (table `grades`) still has `class_id` FK → `classes.id` via `Grade::class()` (`app/Models/Grade.php:38`), and the legacy grade system reads/writes it (`TeacherController::getClassGrades`, `GradeFactory`, `GradeTest`, `ClassModelTest`). The rest of the app uses `SchoolClass` (table `school_classes`). These are two separate class tables by design (legacy). Consolidating `Grade.class_id` from `classes` → `school_classes` requires a schema + data migration and rewriting the legacy grade tests — treat it as a separate ticket, not a quick cleanup.
 
 ## Testing
 

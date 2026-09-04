@@ -34,6 +34,9 @@
             <button type="button" data-tab="sms" class="tab-link whitespace-nowrap border-b-2 px-1 pb-3 {{ $tab === 'sms' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }}">
                 {{ __('SMS') }}
             </button>
+            <button type="button" data-tab="mail" class="tab-link whitespace-nowrap border-b-2 px-1 pb-3 {{ $tab === 'mail' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }}">
+                {{ __('dashboard.tab_mail') ?? __('Mail / SMTP') }}
+            </button>
         </nav>
     </div>
 
@@ -426,6 +429,120 @@
         </form>
     </div>
 
+    {{-- Tab: Mail / SMTP --}}
+    <div id="tab-mail" class="tab-panel {{ $tab !== 'mail' ? 'hidden' : '' }}">
+        <div class="max-w-3xl">
+            <form method="post" action="{{ route('dashboard.settings.update.mail') }}">
+                @csrf
+                <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                    <h2 class="text-lg font-semibold text-gray-900">{{ __('Mail / SMTP settings') }}</h2>
+                    <p class="mb-5 text-sm text-gray-500">{{ __('Configure an SMTP server so the application can send transactional emails.') }}</p>
+
+                    <div class="mb-6 flex items-center gap-3">
+                        <input type="hidden" name="mail_enabled" value="0">
+                        <input type="checkbox" name="mail_enabled" value="1" id="mail_enabled" @checked(old('mail_enabled', $settings->mail_enabled ?? false))
+                            class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <label for="mail_enabled" class="text-sm font-medium text-gray-700">{{ __('Enable SMTP sending') }}</label>
+                        <p class="text-xs text-gray-500">{{ __('When disabled, mail falls back to the log driver.') }}</p>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Provider preset') }}</label>
+                        <select id="mail-preset" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <option value="">{{ __('Custom / Generic SMTP') }}</option>
+                            @foreach($mailPresets as $code => $preset)
+                                <option value="{{ $code }}" data-host="{{ $preset['host'] }}" data-port="{{ $preset['port'] }}" data-encryption="{{ $preset['encryption'] }}" @selected($settings->mail_host === $preset['host'])>{{ ucfirst($code) }}</option>
+                            @endforeach
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500">{{ __('Selecting a preset fills in the server defaults below.') }}</p>
+                    </div>
+
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Driver') }}</label>
+                            <select name="mail_driver" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option value="smtp" @selected(old('mail_driver', $settings->mail_driver ?? 'smtp') === 'smtp')>SMTP</option>
+                                <option value="log" @selected(old('mail_driver', $settings->mail_driver ?? 'smtp') === 'log')>{{ __('Log (testing)') }}</option>
+                                <option value="mailgun" @selected(old('mail_driver', $settings->mail_driver ?? 'smtp') === 'mailgun')>Mailgun</option>
+                                <option value="ses" @selected(old('mail_driver', $settings->mail_driver ?? 'smtp') === 'ses')>Amazon SES</option>
+                                <option value="postmark" @selected(old('mail_driver', $settings->mail_driver ?? 'smtp') === 'postmark')>Postmark</option>
+                                <option value="resend" @selected(old('mail_driver', $settings->mail_driver ?? 'smtp') === 'resend')>Resend</option>
+                            </select>
+                            <p class="mt-1 text-xs text-gray-500">{{ __('For SMTP-based providers keep this on SMTP.') }}</p>
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Host') }}</label>
+                            <input type="text" name="mail_host" id="mail_host" value="{{ old('mail_host', $settings->mail_host ?? '') }}" placeholder="smtp.example.com"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Port') }}</label>
+                            <input type="text" name="mail_port" id="mail_port" value="{{ old('mail_port', $settings->mail_port ?? '') }}" placeholder="587"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Encryption') }}</label>
+                            <select name="mail_encryption" id="mail_encryption" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option value="">None</option>
+                                <option value="tls" @selected(old('mail_encryption', $settings->mail_encryption ?? '') === 'tls')>TLS</option>
+                                <option value="ssl" @selected(old('mail_encryption', $settings->mail_encryption ?? '') === 'ssl')>SSL</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Username') }}</label>
+                            <input type="text" name="mail_username" value="{{ old('mail_username', $settings->mail_username ?? '') }}"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Password') }}</label>
+                            <input type="password" name="mail_password" value="{{ old('mail_password', $settings->mail_password ?? '') }}"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('From address') }}</label>
+                            <input type="email" name="mail_from_address" value="{{ old('mail_from_address', $settings->mail_from_address ?? '') }}" placeholder="noreply@example.com"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('From name') }}</label>
+                            <input type="text" name="mail_from_name" value="{{ old('mail_from_name', $settings->mail_from_name ?? '') }}" placeholder="{{ config('app.name') }}"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Test recipient') }}</label>
+                            <input type="email" name="mail_test_recipient" value="{{ old('mail_test_recipient', $settings->mail_test_recipient ?? '') }}" placeholder="admin@example.com"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <p class="mt-1 text-xs text-gray-500">{{ __('Optional. Saved for the one-click test button.') }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">
+                        {{ __('Save settings') }}
+                    </button>
+                </div>
+            </form>
+
+            <form method="post" action="{{ route('dashboard.settings.test.mail') }}" class="mt-6">
+                @csrf
+                <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-900">{{ __('Send test email') }}</h3>
+                    <p class="mb-4 text-sm text-gray-500">{{ __('Save your settings first, then send a test email to verify the connection.') }}</p>
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+                        <div class="flex-1">
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Recipient') }}</label>
+                            <input type="email" name="to" value="{{ old('to', $settings->mail_test_recipient ?? '') }}" required
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                        <button type="submit" class="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-700">
+                            {{ __('Send test email') }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Tab switching
@@ -467,6 +584,21 @@
                     textInput.value = colorInput.value;
                 });
             });
+
+            // Mail provider preset autofill
+            var presetSelect = document.getElementById('mail-preset');
+            var hostInput = document.getElementById('mail_host');
+            var portInput = document.getElementById('mail_port');
+            var encryptionSelect = document.getElementById('mail_encryption');
+            if (presetSelect && hostInput && portInput && encryptionSelect) {
+                presetSelect.addEventListener('change', function() {
+                    var option = this.selectedOptions[0];
+                    if (!option.value) return;
+                    hostInput.value = option.dataset.host;
+                    portInput.value = option.dataset.port;
+                    encryptionSelect.value = option.dataset.encryption || '';
+                });
+            }
         });
     </script>
 @endsection

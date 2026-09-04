@@ -101,6 +101,16 @@ class WebsiteSetting extends Model
         'twilio_sid',
         'twilio_auth_token',
         'twilio_from_number',
+        'mail_enabled',
+        'mail_driver',
+        'mail_host',
+        'mail_port',
+        'mail_username',
+        'mail_password',
+        'mail_encryption',
+        'mail_from_address',
+        'mail_from_name',
+        'mail_test_recipient',
     ];
 
     /**
@@ -131,6 +141,9 @@ class WebsiteSetting extends Model
         'twilio_sid' => 'encrypted',
         'twilio_auth_token' => 'encrypted',
         'twilio_from_number' => 'encrypted',
+        'mail_enabled' => 'boolean',
+        'mail_username' => 'encrypted',
+        'mail_password' => 'encrypted',
     ];
 
     /**
@@ -149,6 +162,8 @@ class WebsiteSetting extends Model
         'twilio_sid',
         'twilio_auth_token',
         'twilio_from_number',
+        'mail_username',
+        'mail_password',
     ];
 
     /**

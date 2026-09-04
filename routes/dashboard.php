@@ -384,6 +384,8 @@ Route::middleware('auth')->group(function () {
             Route::post('/theme', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateTheme'])->name('update.theme');
             Route::post('/localization', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateLocalization'])->name('update.localization');
             Route::post('/payment', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updatePayment'])->name('update.payment');
+            Route::post('/mail', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateMail'])->name('update.mail');
+            Route::post('/mail/test', [\App\Http\Controllers\Web\DashboardSettingController::class, 'testMail'])->name('test.mail');
             Route::post('/library', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateLibrary'])->name('update.library');
             Route::get('/cms', [\App\Http\Controllers\Web\DashboardSettingController::class, 'cmsSettings'])->name('cms');
             Route::post('/cms', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateGeneral'])->name('update.cms');
@@ -545,26 +547,6 @@ Route::middleware('auth')->group(function () {
             Route::get('/templates', [DashboardSmsController::class, 'templates'])->name('templates');
             Route::get('/due-reminder', [DashboardSmsController::class, 'dueReminder'])->name('dashboard.sms.due-reminder');
             Route::post('/due-reminder', [DashboardSmsController::class, 'dueReminder'])->name('dashboard.sms.due-reminder.send');
-        });
-
-        Route::prefix('dashboard/transport')->name('dashboard.transport.')->group(function () {
-            Route::get('/vehicles', [DashboardTransportController::class, 'vehicles'])->name('vehicles.index');
-            Route::get('/vehicles/create', [DashboardTransportController::class, 'vehiclesCreate'])->name('vehicles.create');
-            Route::post('/vehicles', [DashboardTransportController::class, 'vehiclesStore'])->name('vehicles.store');
-            Route::get('/vehicles/{vehicle}/edit', [DashboardTransportController::class, 'vehiclesEdit'])->name('vehicles.edit');
-            Route::put('/vehicles/{vehicle}', [DashboardTransportController::class, 'vehiclesUpdate'])->name('vehicles.update');
-            Route::delete('/vehicles/{vehicle}', [DashboardTransportController::class, 'vehiclesDestroy'])->name('vehicles.destroy');
-
-            Route::get('/routes', [DashboardTransportController::class, 'routes'])->name('routes.index');
-            Route::get('/routes/create', [DashboardTransportController::class, 'routesCreate'])->name('routes.create');
-            Route::post('/routes', [DashboardTransportController::class, 'routesStore'])->name('routes.store');
-            Route::get('/routes/{route}/edit', [DashboardTransportController::class, 'routesEdit'])->name('routes.edit');
-            Route::put('/routes/{route}', [DashboardTransportController::class, 'routesUpdate'])->name('routes.update');
-            Route::delete('/routes/{route}', [DashboardTransportController::class, 'routesDestroy'])->name('routes.destroy');
-
-            Route::get('/assignments', [DashboardTransportController::class, 'assignments'])->name('assignments.index');
-            Route::post('/assignments', [DashboardTransportController::class, 'assignmentsStore'])->name('assignments.store');
-            Route::delete('/assignments/{assignment}', [DashboardTransportController::class, 'assignmentsDestroy'])->name('assignments.destroy');
         });
 
         Route::prefix('dashboard/hostels')->name('dashboard.hostels.')->group(function () {
