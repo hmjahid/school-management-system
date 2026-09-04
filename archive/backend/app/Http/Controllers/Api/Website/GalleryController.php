@@ -4,44 +4,42 @@ namespace App\Http\Controllers\Api\Website;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class GalleryController extends Controller
 {
     /**
      * Get all gallery items with optional filtering
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
     {
         $filters = $request->only(['category', 'featured']);
-        
+
         // This is sample data - in a real app, this would come from a database
         $galleryItems = $this->getSampleGalleryItems();
-        
+
         // Apply filters if provided
-        if (!empty($filters['category']) && $filters['category'] !== 'all') {
-            $galleryItems = array_filter($galleryItems, function($item) use ($filters) {
+        if (! empty($filters['category']) && $filters['category'] !== 'all') {
+            $galleryItems = array_filter($galleryItems, function ($item) use ($filters) {
                 return $item['category'] === $filters['category'];
             });
         }
-        
+
         if (isset($filters['featured'])) {
             $isFeatured = filter_var($filters['featured'], FILTER_VALIDATE_BOOLEAN);
-            $galleryItems = array_filter($galleryItems, function($item) use ($isFeatured) {
+            $galleryItems = array_filter($galleryItems, function ($item) use ($isFeatured) {
                 return $item['featured'] === $isFeatured;
             });
         }
-        
+
         return response()->json([
             'success' => true,
             'data' => array_values($galleryItems), // Reindex array after filtering
-            'message' => 'Gallery items retrieved successfully.'
+            'message' => 'Gallery items retrieved successfully.',
         ]);
     }
-    
+
     /**
      * Get all available gallery categories
      *
@@ -56,14 +54,14 @@ class GalleryController extends Controller
             ['id' => 'academics', 'name' => 'Academics'],
             ['id' => 'cultural', 'name' => 'Cultural'],
         ];
-        
+
         return response()->json([
             'success' => true,
             'data' => $categories,
-            'message' => 'Gallery categories retrieved successfully.'
+            'message' => 'Gallery categories retrieved successfully.',
         ]);
     }
-    
+
     /**
      * Get sample gallery items
      * In a real application, this would come from a database

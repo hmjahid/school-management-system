@@ -2,8 +2,8 @@
 
 namespace App\Services\Channels;
 
-use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Channels\DatabaseChannel as BaseDatabaseChannel;
+use Illuminate\Notifications\Notification;
 
 class DatabaseChannel extends BaseDatabaseChannel
 {
@@ -11,7 +11,6 @@ class DatabaseChannel extends BaseDatabaseChannel
      * Send the given notification.
      *
      * @param  mixed  $notifiable
-     * @param  \Illuminate\Notifications\Notification  $notification
      * @return \Illuminate\Database\Eloquent\Model
      */
     public function send($notifiable, Notification $notification)
@@ -25,7 +24,6 @@ class DatabaseChannel extends BaseDatabaseChannel
      * Get the data for the notification.
      *
      * @param  mixed  $notifiable
-     * @param  \Illuminate\Notifications\Notification  $notification
      * @return array
      */
     protected function getData($notifiable, Notification $notification)

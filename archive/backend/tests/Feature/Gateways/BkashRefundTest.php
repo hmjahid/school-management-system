@@ -14,8 +14,11 @@ class BkashRefundTest extends TestCase
     use RefreshDatabase;
 
     protected $paymentService;
+
     protected $admin;
+
     protected $user;
+
     protected $payment;
 
     protected function setUp(): void
@@ -33,12 +36,12 @@ class BkashRefundTest extends TestCase
             'currency' => 'BDT',
             'payment_status' => Payment::STATUS_COMPLETED,
             'payment_method' => 'bkash',
-            'transaction_id' => 'TRX' . uniqid(),
+            'transaction_id' => 'TRX'.uniqid(),
             'payment_details' => [
                 'gateway' => 'bkash',
-                'trx_id' => 'TRX' . uniqid(),
+                'trx_id' => 'TRX'.uniqid(),
                 'sender' => '017XXXXXXXX',
-                'reference' => 'INV-' . uniqid(),
+                'reference' => 'INV-'.uniqid(),
             ],
         ]);
 
@@ -79,7 +82,7 @@ class BkashRefundTest extends TestCase
             'tokenized/checkout/payment/refund' => Http::response([
                 'statusCode' => '0000',
                 'statusMessage' => 'Refund request has been executed successfully',
-                'refundTrxID' => 'R' . uniqid(),
+                'refundTrxID' => 'R'.uniqid(),
                 'amount' => 500.00,
                 'currency' => 'BDT',
                 'transactionStatus' => 'Completed',
@@ -104,7 +107,7 @@ class BkashRefundTest extends TestCase
                 'data' => [
                     'amount' => '500.00',
                     'status' => 'completed',
-                ]
+                ],
             ]);
 
         // Verify refund was recorded
@@ -157,7 +160,7 @@ class BkashRefundTest extends TestCase
     {
         // Simulate concurrent refund attempts
         $responses = [];
-        
+
         // First request - should succeed
         $responses[] = $this->actingAs($this->admin, 'api')
             ->postJson("/api/payments/{$this->payment->id}/refunds", [
@@ -195,7 +198,7 @@ class BkashRefundTest extends TestCase
         // Simulate bKash webhook
         $webhookPayload = [
             'paymentID' => $this->payment->transaction_id,
-            'refundTrxID' => 'R' . uniqid(),
+            'refundTrxID' => 'R'.uniqid(),
             'amount' => '500.00',
             'transactionStatus' => 'Completed',
             'currency' => 'BDT',
@@ -208,7 +211,7 @@ class BkashRefundTest extends TestCase
         ]);
 
         $response->assertStatus(200);
-        
+
         // Verify refund was updated
         $this->assertDatabaseHas('refunds', [
             'id' => $refund->id,
@@ -223,6 +226,7 @@ class BkashRefundTest extends TestCase
         // This is a simplified version for testing
         ksort($data);
         $signatureData = json_encode($data, JSON_UNESCAPED_SLASHES);
+
         return hash_hmac('sha256', $signatureData, 'test_secret');
     }
 }

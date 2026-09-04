@@ -47,6 +47,6 @@ class AboutContent extends Model
 
     public static function getContent()
     {
-        return self::first() ?? new self();
+        return self::first() ?? new self;
     }
 }

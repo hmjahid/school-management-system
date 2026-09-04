@@ -21,11 +21,11 @@ class LogPushNotificationService implements PushNotificationService
 
         return [
             'success' => true,
-            'message_id' => 'mock-message-' . uniqid(),
+            'message_id' => 'mock-message-'.uniqid(),
             'device_token' => $deviceToken,
         ];
     }
-    
+
     /**
      * Send a push notification to multiple devices (logs it instead of actually sending).
      */
@@ -40,11 +40,11 @@ class LogPushNotificationService implements PushNotificationService
 
         return [
             'success' => true,
-            'message_id' => 'mock-message-' . uniqid(),
+            'message_id' => 'mock-message-'.uniqid(),
             'device_tokens' => $deviceTokens,
         ];
     }
-    
+
     /**
      * Send a push notification to a topic (logs it instead of actually sending).
      */
@@ -59,18 +59,18 @@ class LogPushNotificationService implements PushNotificationService
 
         return [
             'success' => true,
-            'message_id' => 'mock-message-' . uniqid(),
+            'message_id' => 'mock-message-'.uniqid(),
             'topic' => $topic,
         ];
     }
-    
+
     /**
      * Subscribe a device to a topic (logs it instead of actually subscribing).
      */
     public function subscribeToTopic($deviceTokens, string $topic): bool
     {
         $tokens = is_array($deviceTokens) ? $deviceTokens : [$deviceTokens];
-        
+
         Log::info('Subscribing devices to topic', [
             'device_tokens' => $tokens,
             'topic' => $topic,
@@ -78,14 +78,14 @@ class LogPushNotificationService implements PushNotificationService
 
         return true;
     }
-    
+
     /**
      * Unsubscribe a device from a topic (logs it instead of actually unsubscribing).
      */
     public function unsubscribeFromTopic($deviceTokens, string $topic): bool
     {
         $tokens = is_array($deviceTokens) ? $deviceTokens : [$deviceTokens];
-        
+
         Log::info('Unsubscribing devices from topic', [
             'device_tokens' => $tokens,
             'topic' => $topic,
@@ -93,26 +93,23 @@ class LogPushNotificationService implements PushNotificationService
 
         return true;
     }
-    
+
     /**
      * Unsubscribe a device from all topics (logs it instead of actually unsubscribing).
      */
     public function unsubscribeFromAllTopics($deviceTokens): bool
     {
         $tokens = is_array($deviceTokens) ? $deviceTokens : [$deviceTokens];
-        
+
         Log::info('Unsubscribing devices from all topics', [
             'device_tokens' => $tokens,
         ]);
 
         return true;
     }
-    
+
     /**
      * Get device information (mock implementation).
-     *
-     * @param  string  $deviceToken
-     * @return array
      */
     public function getDeviceInfo(string $deviceToken): array
     {
@@ -128,16 +125,13 @@ class LogPushNotificationService implements PushNotificationService
             'is_active' => true,
         ];
     }
-    
+
     /**
      * Validate a device token (mock implementation).
-     *
-     * @param  string  $deviceToken
-     * @return bool
      */
     public function validateDeviceToken(string $deviceToken): bool
     {
         // Simple validation - just check if it's not empty and has a minimum length
-        return !empty($deviceToken) && strlen($deviceToken) >= 10;
+        return ! empty($deviceToken) && strlen($deviceToken) >= 10;
     }
 }

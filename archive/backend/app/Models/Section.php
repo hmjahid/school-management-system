@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Section extends Model
 {
@@ -119,7 +119,8 @@ class Section extends Model
     {
         $status = $this->is_active ? 'active' : 'inactive';
         $color = $this->is_active ? 'success' : 'secondary';
-        return "<span class='badge bg-{$color}'>" . ucfirst($status) . "</span>";
+
+        return "<span class='badge bg-{$color}'>".ucfirst($status).'</span>';
     }
 
     /**
@@ -127,7 +128,7 @@ class Section extends Model
      */
     public function getFullNameAttribute(): string
     {
-        return $this->class ? $this->class->name . ' - ' . $this->name : $this->name;
+        return $this->class ? $this->class->name.' - '.$this->name : $this->name;
     }
 
     /**

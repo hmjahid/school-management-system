@@ -16,9 +16,6 @@ class RefundResource extends JsonResource
 
     /**
      * Transform the resource into an array.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
      */
     public function toArray(Request $request): array
     {
@@ -36,7 +33,7 @@ class RefundResource extends JsonResource
             'created_at' => $this->created_at->toIso8601String(),
             'updated_at' => $this->updated_at->toIso8601String(),
             'metadata' => $this->metadata ?? (object) [],
-            
+
             // Relationships
             'user' => $this->whenLoaded('user', function () {
                 return [
@@ -45,7 +42,7 @@ class RefundResource extends JsonResource
                     'email' => $this->user->email,
                 ];
             }),
-            
+
             'processor' => $this->whenLoaded('processor', function () {
                 return [
                     'id' => $this->processor->id,
@@ -53,7 +50,7 @@ class RefundResource extends JsonResource
                     'email' => $this->processor->email,
                 ];
             }),
-            
+
             'payment' => $this->whenLoaded('payment', function () {
                 return [
                     'id' => $this->payment->id,
@@ -64,7 +61,7 @@ class RefundResource extends JsonResource
                     'created_at' => $this->payment->created_at->toIso8601String(),
                 ];
             }),
-            
+
             // Links
             'links' => [
                 'self' => route('api.refunds.show', $this->id),

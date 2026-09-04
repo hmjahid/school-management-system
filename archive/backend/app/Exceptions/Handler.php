@@ -2,9 +2,8 @@
 
 namespace App\Exceptions;
 
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Auth\AuthenticationException;
-use Throwable;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
 {
@@ -42,7 +41,6 @@ class Handler extends ExceptionHandler
      * Convert an authentication exception into an unauthenticated response.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Illuminate\Auth\AuthenticationException  $exception
      * @return \Illuminate\Http\Response|
      */
     protected function unauthenticated($request, AuthenticationException $exception)

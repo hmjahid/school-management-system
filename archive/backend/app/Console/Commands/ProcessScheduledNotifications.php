@@ -32,7 +32,6 @@ class ProcessScheduledNotifications extends Command
     /**
      * Create a new command instance.
      *
-     * @param  \App\Services\Notification\ScheduledNotificationService  $scheduledNotificationService
      * @return void
      */
     public function __construct(ScheduledNotificationService $scheduledNotificationService)
@@ -50,26 +49,27 @@ class ProcessScheduledNotifications extends Command
     {
         if (! $this->option('force') && $this->laravel->environment('production') === false) {
             $this->warn('This command is running in a non-production environment. Use --force to run anyway.');
+
             return 1;
         }
 
         $limit = (int) $this->option('limit');
-        
+
         $this->info("Processing up to {$limit} scheduled notifications...");
-        
+
         $startTime = microtime(true);
         $processed = $this->scheduledNotificationService->processDueNotifications($limit);
         $elapsedTime = round((microtime(true) - $startTime) * 1000);
-        
+
         $this->info("Processed {$processed} scheduled notifications in {$elapsedTime}ms");
-        
+
         // Log the execution
         Log::info('Processed scheduled notifications', [
             'processed' => $processed,
             'elapsed_ms' => $elapsedTime,
             'batch_size' => $limit,
         ]);
-        
+
         return 0;
     }
 }

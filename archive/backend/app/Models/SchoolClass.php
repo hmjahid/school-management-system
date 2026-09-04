@@ -3,12 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SchoolClass extends Model
 {
-
     protected $fillable = [
         'name',
         'code',
@@ -22,7 +21,7 @@ class SchoolClass extends Model
         'admission_fee',
         'exam_fee',
         'other_fees',
-        'notes'
+        'notes',
     ];
 
     protected $casts = [
@@ -156,7 +155,8 @@ class SchoolClass extends Model
     {
         $status = $this->is_active ? 'active' : 'inactive';
         $color = $this->is_active ? 'success' : 'secondary';
-        return "<span class='badge bg-{$color}'>" . ucfirst($status) . "</span>";
+
+        return "<span class='badge bg-{$color}'>".ucfirst($status).'</span>';
     }
 
     /**

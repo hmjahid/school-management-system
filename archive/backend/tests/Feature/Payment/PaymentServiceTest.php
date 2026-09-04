@@ -3,7 +3,6 @@
 namespace Tests\Feature\Payment;
 
 use App\Models\Payment;
-use App\Models\PaymentGateway;
 use App\Services\PaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -18,7 +17,7 @@ class PaymentServiceTest extends TestCase
     {
         parent::setUp();
         $this->paymentService = app(PaymentService::class);
-        
+
         // Seed payment gateways
         $this->seed(\Database\Seeders\PaymentGatewaySeeder::class);
     }
@@ -45,7 +44,7 @@ class PaymentServiceTest extends TestCase
 
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Payment gateway is not active');
-        
+
         $this->paymentService->initializePayment($payment, 'invalid_gateway');
     }
 
@@ -89,7 +88,7 @@ class PaymentServiceTest extends TestCase
         // In a real test, you would mock the HTTP client to return a specific response
         // For this example, we'll just test that the method runs without errors
         $result = $this->paymentService->verifyPayment($payment);
-        
+
         $this->assertInstanceOf(Payment::class, $result);
     }
 

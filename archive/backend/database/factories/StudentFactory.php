@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\ClassModel;
 use App\Models\Student;
 use App\Models\User;
-use App\Models\ClassModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class StudentFactory extends Factory

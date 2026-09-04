@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ExamResource extends JsonResource
@@ -113,19 +112,19 @@ class ExamResource extends JsonResource
                     'view_results' => $request->user() ? $request->user()->can('viewResults', $this->resource) : false,
                     'view_statistics' => $request->user() ? $request->user()->can('viewStatistics', $this->resource) : false,
                 ],
-                'statuses' => collect(\App\Models\Exam::getStatuses())->map(function($label, $value) {
+                'statuses' => collect(\App\Models\Exam::getStatuses())->map(function ($label, $value) {
                     return [
                         'value' => $value,
                         'label' => $label,
                     ];
                 })->values(),
-                'types' => collect(\App\Models\Exam::getTypes())->map(function($label, $value) {
+                'types' => collect(\App\Models\Exam::getTypes())->map(function ($label, $value) {
                     return [
                         'value' => $value,
                         'label' => $label,
                     ];
                 })->values(),
-                'grading_types' => collect(\App\Models\Exam::getGradingTypes())->map(function($label, $value) {
+                'grading_types' => collect(\App\Models\Exam::getGradingTypes())->map(function ($label, $value) {
                     return [
                         'value' => $value,
                         'label' => $label,

@@ -2,9 +2,9 @@
 
 namespace App\Services\Channels;
 
+use App\Contracts\SmsService;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
-use App\Contracts\SmsService;
 
 class SmsChannel
 {
@@ -18,7 +18,6 @@ class SmsChannel
     /**
      * Create a new SMS channel instance.
      *
-     * @param  \App\Contracts\SmsService  $smsService
      * @return void
      */
     public function __construct(SmsService $smsService)
@@ -30,7 +29,6 @@ class SmsChannel
      * Send the given notification via SMS.
      *
      * @param  mixed  $notifiable
-     * @param  \Illuminate\Notifications\Notification  $notification
      * @return void
      */
     public function send($notifiable, Notification $notification)
@@ -46,7 +44,7 @@ class SmsChannel
         }
 
         $response = $this->smsService->send(
-            $to, 
+            $to,
             $message->content,
             $message->from ?? null
         );

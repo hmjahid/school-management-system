@@ -22,13 +22,12 @@ class RefundController extends Controller
     /**
      * Create a new controller instance.
      *
-     * @param  \App\Services\RefundService  $refundService
      * @return void
      */
     public function __construct(RefundService $refundService)
     {
         $this->refundService = $refundService;
-        
+
         // Apply policy for all methods
         $this->authorizeResource(Refund::class, 'refund');
     }
@@ -36,7 +35,6 @@ class RefundController extends Controller
     /**
      * Display a listing of refunds.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -69,14 +67,12 @@ class RefundController extends Controller
     /**
      * Store a newly created refund in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Payment  $payment
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request, Payment $payment)
     {
         $validated = $request->validate([
-            'amount' => 'required|numeric|min:0.01|max:' . $this->refundService->getRefundableAmount($payment),
+            'amount' => 'required|numeric|min:0.01|max:'.$this->refundService->getRefundableAmount($payment),
             'reason' => 'required|string|max:255',
             'metadata' => 'nullable|array',
         ]);
@@ -90,7 +86,7 @@ class RefundController extends Controller
                 $validated['metadata'] ?? []
             );
 
-            if (!$result['success']) {
+            if (! $result['success']) {
                 abort(400, $result['message']);
             }
 
@@ -105,20 +101,18 @@ class RefundController extends Controller
     /**
      * Display the specified refund.
      *
-     * @param  \App\Models\Refund  $refund
      * @return \App\Http\Resources\RefundResource
      */
     public function show(Refund $refund)
     {
         $refund->load(['payment', 'user', 'processor']);
+
         return new RefundResource($refund);
     }
 
     /**
      * Process a pending refund.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Refund  $refund
      * @return \App\Http\Resources\RefundResource
      */
     public function process(Request $request, Refund $refund)
@@ -145,7 +139,7 @@ class RefundController extends Controller
 
         $refund->update([
             'status' => 'completed',
-            'transaction_id' => $validated['transaction_id'] ?? ('R-' . strtoupper(uniqid())),
+            'transaction_id' => $validated['transaction_id'] ?? ('R-'.strtoupper(uniqid())),
             'processed_at' => now(),
         ]);
 
@@ -155,8 +149,6 @@ class RefundController extends Controller
     /**
      * Cancel a pending refund.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Refund  $refund
      * @return \App\Http\Resources\RefundResource
      */
     public function cancel(Request $request, Refund $refund)

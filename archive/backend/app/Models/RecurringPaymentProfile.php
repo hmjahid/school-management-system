@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Carbon\Carbon;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class RecurringPaymentProfile extends Model
 {
@@ -74,12 +74,10 @@ class RecurringPaymentProfile extends Model
 
     /**
      * Generate a unique profile ID.
-     *
-     * @return string
      */
     public static function generateProfileId(): string
     {
-        return 'RPP' . strtoupper(substr(md5(uniqid('', true)), 0, 10)) . time();
+        return 'RPP'.strtoupper(substr(md5(uniqid('', true)), 0, 10)).time();
     }
 
     /**
@@ -112,11 +110,11 @@ class RecurringPaymentProfile extends Model
     public function scopeActive($query)
     {
         return $query->where('status', 'active')
-                    ->where('next_billing_date', '<=', now())
-                    ->where(function ($query) {
-                        $query->whereNull('end_date')
-                              ->orWhere('end_date', '>', now());
-                    });
+            ->where('next_billing_date', '<=', now())
+            ->where(function ($query) {
+                $query->whereNull('end_date')
+                    ->orWhere('end_date', '>', now());
+            });
     }
 
     /**
@@ -124,7 +122,7 @@ class RecurringPaymentProfile extends Model
      */
     public function isActive(): bool
     {
-        return $this->status === 'active' && 
+        return $this->status === 'active' &&
                $this->next_billing_date <= now() &&
                ($this->end_date === null || $this->end_date > now());
     }
@@ -134,8 +132,8 @@ class RecurringPaymentProfile extends Model
      */
     public function calculateNextBillingDate(): Carbon
     {
-        $method = 'add' . ucfirst($this->billing_period) . 's';
-        
+        $method = 'add'.ucfirst($this->billing_period).'s';
+
         return $this->next_billing_date->$method($this->billing_frequency);
     }
 
@@ -172,7 +170,7 @@ class RecurringPaymentProfile extends Model
     public function recordFailedPayment(string $reason, array $details = []): self
     {
         $this->increment('failure_count');
-        
+
         if ($this->failure_count >= $this->max_failures) {
             $this->suspend($reason);
         }
@@ -198,7 +196,7 @@ class RecurringPaymentProfile extends Model
     /**
      * Suspend the recurring payment profile.
      */
-    public function suspend(string $reason = null): self
+    public function suspend(?string $reason = null): self
     {
         $this->update([
             'status' => 'suspended',
@@ -209,7 +207,7 @@ class RecurringPaymentProfile extends Model
         ]);
 
         // TODO: Trigger suspension event/notification
-        
+
         return $this;
     }
 
@@ -227,14 +225,14 @@ class RecurringPaymentProfile extends Model
         ]);
 
         // TODO: Trigger reactivation event/notification
-        
+
         return $this;
     }
 
     /**
      * Cancel the recurring payment profile.
      */
-    public function cancel(string $reason = null): self
+    public function cancel(?string $reason = null): self
     {
         $this->update([
             'status' => 'cancelled',
@@ -246,7 +244,7 @@ class RecurringPaymentProfile extends Model
         ]);
 
         // TODO: Trigger cancellation event/notification
-        
+
         return $this;
     }
 
@@ -277,8 +275,8 @@ class RecurringPaymentProfile extends Model
             'year' => 'Yearly',
         ];
 
-        $frequency = $this->billing_frequency > 1 
-            ? "Every {$this->billing_frequency} " . str_plural($this->billing_period, $this->billing_frequency)
+        $frequency = $this->billing_frequency > 1
+            ? "Every {$this->billing_frequency} ".str_plural($this->billing_period, $this->billing_frequency)
             : $periods[$this->billing_period] ?? ucfirst($this->billing_period);
 
         return $frequency;
@@ -289,6 +287,6 @@ class RecurringPaymentProfile extends Model
      */
     public function getFormattedAmountAttribute(): string
     {
-        return number_format($this->amount, 2) . ' ' . strtoupper($this->currency);
+        return number_format($this->amount, 2).' '.strtoupper($this->currency);
     }
 }

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\SubjectResource;
-use App\Models\Subject;
 use App\Models\SchoolClass;
+use App\Models\Subject;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +15,6 @@ class SubjectController extends Controller
     /**
      * Display a listing of the subjects.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -42,30 +41,30 @@ class SubjectController extends Controller
         }
 
         if ($request->has('class_id')) {
-            $query->whereHas('classes', function($q) use ($request) {
+            $query->whereHas('classes', function ($q) use ($request) {
                 $q->where('class_id', $request->class_id);
             });
         }
 
         if ($request->has('teacher_id')) {
-            $query->whereHas('teachers', function($q) use ($request) {
+            $query->whereHas('teachers', function ($q) use ($request) {
                 $q->where('teacher_id', $request->teacher_id);
             });
         }
 
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('code', 'like', "%{$search}%")
-                  ->orWhere('short_name', 'like', "%{$search}%");
+                    ->orWhere('code', 'like', "%{$search}%")
+                    ->orWhere('short_name', 'like', "%{$search}%");
             });
         }
 
         // Apply sorting
         $sortField = $request->input('sort_field', 'name');
         $sortOrder = $request->input('sort_order', 'asc');
-        
+
         if (in_array($sortField, ['name', 'code', 'type', 'created_at', 'priority'])) {
             $query->orderBy($sortField, $sortOrder);
         }
@@ -79,14 +78,13 @@ class SubjectController extends Controller
                 'per_page' => $subjects->perPage(),
                 'current_page' => $subjects->currentPage(),
                 'last_page' => $subjects->lastPage(),
-            ]
+            ],
         ]);
     }
 
     /**
      * Store a newly created subject in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
@@ -123,7 +121,7 @@ class SubjectController extends Controller
             $subject = Subject::create(collect($validated)->except(['classes', 'teachers'])->toArray());
 
             // Attach classes if provided
-            if (!empty($validated['classes'])) {
+            if (! empty($validated['classes'])) {
                 $classData = [];
                 foreach ($validated['classes'] as $class) {
                     $classData[$class['class_id']] = [
@@ -136,7 +134,7 @@ class SubjectController extends Controller
             }
 
             // Attach teachers if provided
-            if (!empty($validated['teachers'])) {
+            if (! empty($validated['teachers'])) {
                 $teacherData = [];
                 foreach ($validated['teachers'] as $teacher) {
                     $teacherData[$teacher['teacher_id']] = [
@@ -152,30 +150,27 @@ class SubjectController extends Controller
 
         return response()->json([
             'message' => 'Subject created successfully',
-            'data' => new SubjectResource($subject)
+            'data' => new SubjectResource($subject),
         ], 201);
     }
 
     /**
      * Display the specified subject.
      *
-     * @param  \App\Models\Subject  $subject
      * @return \Illuminate\Http\JsonResponse
      */
     public function show(Subject $subject)
     {
         $this->authorize('view', $subject);
-        
+
         return response()->json([
-            'data' => new SubjectResource($subject->load(['classes', 'teachers.user', 'syllabus']))
+            'data' => new SubjectResource($subject->load(['classes', 'teachers.user', 'syllabus'])),
         ]);
     }
 
     /**
      * Update the specified subject in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Subject  $subject
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, Subject $subject)
@@ -189,7 +184,7 @@ class SubjectController extends Controller
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('subjects', 'code')->ignore($subject->id)
+                Rule::unique('subjects', 'code')->ignore($subject->id),
             ],
             'type' => 'sometimes|required|in:theory,practical,both',
             'short_name' => 'nullable|string|max:20',
@@ -245,14 +240,13 @@ class SubjectController extends Controller
 
         return response()->json([
             'message' => 'Subject updated successfully',
-            'data' => new SubjectResource($subject->fresh()->load(['classes', 'teachers.user', 'syllabus']))
+            'data' => new SubjectResource($subject->fresh()->load(['classes', 'teachers.user', 'syllabus'])),
         ]);
     }
 
     /**
      * Remove the specified subject from storage.
      *
-     * @param  \App\Models\Subject  $subject
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Subject $subject)
@@ -262,25 +256,25 @@ class SubjectController extends Controller
         // Check if subject has any related records
         if ($subject->examResults()->exists()) {
             return response()->json([
-                'message' => 'Cannot delete subject with exam results.'
+                'message' => 'Cannot delete subject with exam results.',
             ], 422);
         }
 
         if ($subject->attendances()->exists()) {
             return response()->json([
-                'message' => 'Cannot delete subject with attendance records.'
+                'message' => 'Cannot delete subject with attendance records.',
             ], 422);
         }
 
         // Detach relationships
         $subject->classes()->detach();
         $subject->teachers()->detach();
-        
+
         // Soft delete the subject
         $subject->delete();
 
         return response()->json([
-            'message' => 'Subject deleted successfully'
+            'message' => 'Subject deleted successfully',
         ]);
     }
 
@@ -307,19 +301,19 @@ class SubjectController extends Controller
                 ->select('id', 'name', 'code')
                 ->orderBy('name')
                 ->get()
-                ->map(function($class) {
+                ->map(function ($class) {
                     return [
                         'value' => $class->id,
-                        'label' => $class->name . ' (' . $class->code . ')'
+                        'label' => $class->name.' ('.$class->code.')',
                     ];
                 }),
             'teachers' => Teacher::with('user:id,name')
                 ->select('id', 'user_id', 'employee_id')
                 ->get()
-                ->map(function($teacher) {
+                ->map(function ($teacher) {
                     return [
                         'value' => $teacher->id,
-                        'label' => $teacher->user->name . ' (' . $teacher->employee_id . ')'
+                        'label' => $teacher->user->name.' ('.$teacher->employee_id.')',
                     ];
                 }),
         ]);
@@ -345,17 +339,16 @@ class SubjectController extends Controller
         ];
 
         return response()->json([
-            'data' => $stats
+            'data' => $stats,
         ]);
     }
 
     /**
      * Get available classes for subject assignment.
      *
-     * @param  \App\Models\Subject  $subject
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getAvailableClasses(Subject $subject = null)
+    public function getAvailableClasses(?Subject $subject = null)
     {
         $this->authorize('manageClasses', $subject ?? Subject::class);
 
@@ -369,7 +362,7 @@ class SubjectController extends Controller
             ->select('id', 'name', 'code')
             ->orderBy('name')
             ->get()
-            ->map(function($class) {
+            ->map(function ($class) {
                 return [
                     'id' => $class->id,
                     'name' => $class->name,
@@ -378,17 +371,16 @@ class SubjectController extends Controller
             });
 
         return response()->json([
-            'data' => $classes
+            'data' => $classes,
         ]);
     }
 
     /**
      * Get available teachers for subject assignment.
      *
-     * @param  \App\Models\Subject  $subject
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getAvailableTeachers(Subject $subject = null)
+    public function getAvailableTeachers(?Subject $subject = null)
     {
         $this->authorize('manageTeachers', $subject ?? Subject::class);
 
@@ -400,7 +392,7 @@ class SubjectController extends Controller
 
         $teachers = $query->select('id', 'user_id', 'employee_id')
             ->get()
-            ->map(function($teacher) {
+            ->map(function ($teacher) {
                 return [
                     'id' => $teacher->id,
                     'name' => $teacher->user->name,
@@ -409,14 +401,12 @@ class SubjectController extends Controller
             });
 
         return response()->json([
-            'data' => $teachers
+            'data' => $teachers,
         ]);
     }
 
     /**
      * Get the current academic session ID.
-     * 
-     * @return int
      */
     protected function getCurrentAcademicSessionId(): int
     {

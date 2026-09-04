@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Batch extends Model
 {
@@ -60,8 +60,11 @@ class Batch extends Model
 
     // Status constants
     public const STATUS_UPCOMING = 'upcoming';
+
     public const STATUS_ONGOING = 'ongoing';
+
     public const STATUS_COMPLETED = 'completed';
+
     public const STATUS_CANCELLED = 'cancelled';
 
     /**
@@ -180,7 +183,7 @@ class Batch extends Model
      */
     public function getDurationWeeksAttribute(): ?int
     {
-        if (!$this->start_date || !$this->end_date) {
+        if (! $this->start_date || ! $this->end_date) {
             return null;
         }
 
@@ -193,12 +196,12 @@ class Batch extends Model
     public function getIsRegistrationOpenAttribute(): bool
     {
         $now = now();
-        
-        return $this->is_active 
-            && $this->registration_starts_at 
+
+        return $this->is_active
+            && $this->registration_starts_at
             && $this->registration_ends_at
             && $now->between(
-                $this->registration_starts_at, 
+                $this->registration_starts_at,
                 $this->registration_ends_at
             );
     }
@@ -232,13 +235,13 @@ class Batch extends Model
      */
     public function getProgressPercentageAttribute(): ?float
     {
-        if (!$this->start_date || !$this->end_date) {
+        if (! $this->start_date || ! $this->end_date) {
             return null;
         }
 
         $totalDays = $this->start_date->diffInDays($this->end_date);
         $elapsedDays = $this->start_date->diffInDays(now());
-        
+
         return min(100, max(0, ($elapsedDays / $totalDays) * 100));
     }
 
@@ -256,7 +259,7 @@ class Batch extends Model
             'draft' => 'secondary',
         ][$status] ?? 'secondary';
 
-        return "<span class='badge bg-{$badgeClass}'>" . ucfirst($status) . "</span>";
+        return "<span class='badge bg-{$badgeClass}'>".ucfirst($status).'</span>';
     }
 
     /**
@@ -282,7 +285,7 @@ class Batch extends Model
     {
         return $query->where(function ($q) {
             $q->whereNull('max_students')
-              ->orWhereRaw('max_students > (SELECT COUNT(*) FROM batch_student WHERE batch_student.batch_id = batches.id)');
+                ->orWhereRaw('max_students > (SELECT COUNT(*) FROM batch_student WHERE batch_student.batch_id = batches.id)');
         });
     }
 
@@ -292,7 +295,7 @@ class Batch extends Model
     public function scopeWithRegistrationOpen(Builder $query): Builder
     {
         $now = now();
-        
+
         return $query->where('is_active', true)
             ->whereNotNull('registration_starts_at')
             ->whereNotNull('registration_ends_at')
@@ -315,7 +318,7 @@ class Batch extends Model
     {
         return $query->where(function ($q) use ($teacherId) {
             $q->where('teacher_id', $teacherId)
-              ->orWhere('assistant_teacher_id', $teacherId);
+                ->orWhere('assistant_teacher_id', $teacherId);
         });
     }
 
@@ -325,24 +328,24 @@ class Batch extends Model
     public function getCurrentStatus(): string
     {
         $now = now();
-        
+
         if ($this->status === self::STATUS_CANCELLED) {
             return self::STATUS_CANCELLED;
         }
-        
+
         if ($this->end_date && $this->end_date->isPast()) {
             return self::STATUS_COMPLETED;
         }
-        
+
         if ($this->start_date && $this->start_date->isFuture()) {
             return self::STATUS_UPCOMING;
         }
-        
-        if ($this->start_date && $this->start_date->isPast() && 
-            (!$this->end_date || $this->end_date->isFuture())) {
+
+        if ($this->start_date && $this->start_date->isPast() &&
+            (! $this->end_date || $this->end_date->isFuture())) {
             return self::STATUS_ONGOING;
         }
-        
+
         return 'unknown';
     }
 
@@ -354,7 +357,7 @@ class Batch extends Model
         if ($this->max_students === null) {
             return false;
         }
-        
+
         return $this->students_count >= $this->max_students;
     }
 
@@ -381,9 +384,9 @@ class Batch extends Model
 
         $timing = '';
         if (isset($this->class_timing['start_time'], $this->class_timing['end_time'])) {
-            $timing = ' from ' . $this->class_timing['start_time'] . ' to ' . $this->class_timing['end_time'];
+            $timing = ' from '.$this->class_timing['start_time'].' to '.$this->class_timing['end_time'];
         }
 
-        return $days . $timing;
+        return $days.$timing;
     }
 }

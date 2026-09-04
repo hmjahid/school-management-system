@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class DashboardResource extends JsonResource
@@ -24,8 +23,8 @@ class DashboardResource extends JsonResource
             'pending_assignments' => $this->resource['pending_assignments'] ?? [],
             'meta' => [
                 'last_updated' => now()->toDateTimeString(),
-                'status' => 'success'
-            ]
+                'status' => 'success',
+            ],
         ];
     }
 

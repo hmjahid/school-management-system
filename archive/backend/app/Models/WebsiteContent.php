@@ -28,7 +28,6 @@ class WebsiteContent extends Model
     /**
      * Get content by page name
      *
-     * @param string $page
      * @return WebsiteContent
      */
     public static function getContent(string $page, array $default = [])

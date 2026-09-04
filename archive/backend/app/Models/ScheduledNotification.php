@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ScheduledNotification extends Model
 {
@@ -51,7 +51,7 @@ class ScheduledNotification extends Model
     public function scopeDue($query)
     {
         return $query->where('status', 'pending')
-                    ->where('scheduled_at', '<=', now());
+            ->where('scheduled_at', '<=', now());
     }
 
     /**
@@ -60,7 +60,7 @@ class ScheduledNotification extends Model
     public function scopeActive($query)
     {
         return $query->where('status', '!=', 'cancelled')
-                    ->whereNull('deleted_at');
+            ->whereNull('deleted_at');
     }
 
     /**
@@ -85,7 +85,7 @@ class ScheduledNotification extends Model
     /**
      * Mark the notification as failed.
      */
-    public function markAsFailed(string $error = null): bool
+    public function markAsFailed(?string $error = null): bool
     {
         return $this->update([
             'status' => 'failed',
@@ -148,8 +148,8 @@ class ScheduledNotification extends Model
     public function rescheduleForNextOccurrence(): bool
     {
         $nextSchedule = $this->getNextSchedule();
-        
-        if (!$nextSchedule) {
+
+        if (! $nextSchedule) {
             return false;
         }
 
@@ -159,7 +159,7 @@ class ScheduledNotification extends Model
         $newNotification->status = 'pending';
         $newNotification->sent_at = null;
         $newNotification->error_message = null;
-        
+
         return $newNotification->save();
     }
 }

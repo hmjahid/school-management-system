@@ -15,10 +15,6 @@ trait Notifiable
      * Send a notification to a user.
      *
      * @param  \App\Models\User|array|int  $users
-     * @param  string  $type
-     * @param  array  $data
-     * @param  array  $channels
-     * @return array
      */
     public function notify($users, string $type, array $data = [], array $channels = []): array
     {
@@ -42,11 +38,6 @@ trait Notifiable
 
     /**
      * Notify the model's owner.
-     *
-     * @param  string  $type
-     * @param  array  $data
-     * @param  array  $channels
-     * @return array
      */
     public function notifyOwner(string $type, array $data = [], array $channels = []): array
     {
@@ -62,9 +53,6 @@ trait Notifiable
 
     /**
      * Prepare notification data with model information.
-     *
-     * @param  array  $data
-     * @return array
      */
     protected function prepareNotificationData(array $data = []): array
     {
@@ -85,11 +73,6 @@ trait Notifiable
 
     /**
      * Get the notification message for a given type.
-     *
-     * @param  string  $type
-     * @param  string  $channel
-     * @param  array  $data
-     * @return string|null
      */
     public function getNotificationMessage(string $type, string $channel = 'database', array $data = []): ?string
     {
@@ -97,7 +80,7 @@ trait Notifiable
             ->where('channel', $channel)
             ->first();
 
-        if (!$template) {
+        if (! $template) {
             return null;
         }
 
@@ -106,34 +89,30 @@ trait Notifiable
 
     /**
      * Render a template with the given data.
-     *
-     * @param  string  $template
-     * @param  array  $data
-     * @return string
      */
     protected function renderTemplate(string $template, array $data): string
     {
         $placeholders = [];
         $replacements = [];
-        
+
         // Add model attributes to the data
         $modelData = $this->toArray();
-        
+
         foreach ($modelData as $key => $value) {
             if (is_scalar($value) || (is_object($value) && method_exists($value, '__toString'))) {
-                $placeholders[] = '{{' . $key . '}}';
+                $placeholders[] = '{{'.$key.'}}';
                 $replacements[] = (string) $value;
             }
         }
-        
+
         // Add custom data
         foreach ($data as $key => $value) {
             if (is_scalar($value) || (is_object($value) && method_exists($value, '__toString'))) {
-                $placeholders[] = '{{' . $key . '}}';
+                $placeholders[] = '{{'.$key.'}}';
                 $replacements[] = (string) $value;
             }
         }
-        
+
         return str_replace($placeholders, $replacements, $template);
     }
 }

@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::table('batches', function (Blueprint $table) {
             $table->foreignId('academic_session_id')
-                  ->after('school_class_id')
-                  ->nullable()
-                  ->constrained('academic_sessions')
-                  ->onDelete('set null');
-                  
+                ->after('school_class_id')
+                ->nullable()
+                ->constrained('academic_sessions')
+                ->onDelete('set null');
+
             // Add other missing columns
             $table->integer('capacity')->after('end_date')->default(30);
             $table->string('status')->after('capacity')->default('active');

@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\GuardianResource;
 use App\Models\Guardian;
-use App\Models\User;
 use App\Models\Student;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -17,7 +17,6 @@ class GuardianController extends Controller
     /**
      * Display a listing of the guardians.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -28,7 +27,7 @@ class GuardianController extends Controller
 
         // Apply filters
         if ($request->has('is_active')) {
-            $query->whereHas('user', function($q) use ($request) {
+            $query->whereHas('user', function ($q) use ($request) {
                 $q->where('is_active', filter_var($request->is_active, FILTER_VALIDATE_BOOLEAN));
             });
         }
@@ -43,20 +42,20 @@ class GuardianController extends Controller
 
         if ($request->has('search')) {
             $search = $request->search;
-            $query->whereHas('user', function($q) use ($search) {
+            $query->whereHas('user', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             })->orWhere('phone', 'like', "%{$search}%");
         }
 
         // Apply sorting
         $sortField = $request->input('sort_field', 'name');
         $sortOrder = $request->input('sort_order', 'asc');
-        
+
         if ($sortField === 'name' || $sortField === 'email') {
             $query->join('users', 'guardians.user_id', '=', 'users.id')
-                  ->orderBy("users.{$sortField}", $sortOrder)
-                  ->select('guardians.*');
+                ->orderBy("users.{$sortField}", $sortOrder)
+                ->select('guardians.*');
         } elseif (in_array($sortField, ['created_at', 'updated_at'])) {
             $query->orderBy($sortField, $sortOrder);
         }
@@ -70,14 +69,13 @@ class GuardianController extends Controller
                 'per_page' => $guardians->perPage(),
                 'current_page' => $guardians->currentPage(),
                 'last_page' => $guardians->lastPage(),
-            ]
+            ],
         ]);
     }
 
     /**
      * Store a newly created guardian in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
@@ -134,11 +132,11 @@ class GuardianController extends Controller
                 collect($validated)->except(['name', 'email', 'password', 'password_confirmation', 'students'])->toArray(),
                 ['user_id' => $user->id]
             );
-            
+
             $guardian = Guardian::create($guardianData);
 
             // Attach students if provided
-            if (!empty($validated['students'])) {
+            if (! empty($validated['students'])) {
                 $studentData = [];
                 foreach ($validated['students'] as $student) {
                     $studentData[$student['student_id']] = [
@@ -154,30 +152,27 @@ class GuardianController extends Controller
 
         return response()->json([
             'message' => 'Guardian created successfully',
-            'data' => new GuardianResource($guardian)
+            'data' => new GuardianResource($guardian),
         ], 201);
     }
 
     /**
      * Display the specified guardian.
      *
-     * @param  \App\Models\Guardian  $guardian
      * @return \Illuminate\Http\JsonResponse
      */
     public function show(Guardian $guardian)
     {
         $this->authorize('view', $guardian);
-        
+
         return response()->json([
-            'data' => new GuardianResource($guardian->load(['user', 'students.user', 'students.class']))
+            'data' => new GuardianResource($guardian->load(['user', 'students.user', 'students.class'])),
         ]);
     }
 
     /**
      * Update the specified guardian in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Guardian  $guardian
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, Guardian $guardian)
@@ -192,7 +187,7 @@ class GuardianController extends Controller
                 'string',
                 'email',
                 'max:255',
-                Rule::unique('users', 'email')->ignore($guardian->user_id)
+                Rule::unique('users', 'email')->ignore($guardian->user_id),
             ],
             'password' => 'sometimes|nullable|string|min:8|confirmed',
             'phone' => 'sometimes|required|string|max:20',
@@ -260,14 +255,13 @@ class GuardianController extends Controller
 
         return response()->json([
             'message' => 'Guardian updated successfully',
-            'data' => new GuardianResource($guardian->fresh()->load(['user', 'students.user', 'students.class']))
+            'data' => new GuardianResource($guardian->fresh()->load(['user', 'students.user', 'students.class'])),
         ]);
     }
 
     /**
      * Remove the specified guardian from storage.
      *
-     * @param  \App\Models\Guardian  $guardian
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Guardian $guardian)
@@ -277,27 +271,27 @@ class GuardianController extends Controller
         // Check if guardian has any students
         if ($guardian->students()->exists()) {
             return response()->json([
-                'message' => 'Cannot delete guardian with students. Please remove all student associations first.'
+                'message' => 'Cannot delete guardian with students. Please remove all student associations first.',
             ], 422);
         }
 
         // Check if guardian has any fee payments
         if ($guardian->feePayments()->exists()) {
             return response()->json([
-                'message' => 'Cannot delete guardian with fee payment history.'
+                'message' => 'Cannot delete guardian with fee payment history.',
             ], 422);
         }
 
         DB::transaction(function () use ($guardian) {
             // Soft delete the user
             $guardian->user->delete();
-            
+
             // Soft delete the guardian
             $guardian->delete();
         });
 
         return response()->json([
-            'message' => 'Guardian deleted successfully'
+            'message' => 'Guardian deleted successfully',
         ]);
     }
 
@@ -320,8 +314,8 @@ class GuardianController extends Controller
                 ['value' => '0', 'label' => 'Without Students'],
             ],
             'relationships' => [
-                'Father', 'Mother', 'Brother', 'Sister', 'Uncle', 'Aunt', 'Grandfather', 'Grandmother', 'Other'
-            ]
+                'Father', 'Mother', 'Brother', 'Sister', 'Uncle', 'Aunt', 'Grandfather', 'Grandmother', 'Other',
+            ],
         ]);
     }
 
@@ -336,7 +330,7 @@ class GuardianController extends Controller
 
         $stats = [
             'total_guardians' => Guardian::count(),
-            'active_guardians' => User::whereHas('roles', function($q) {
+            'active_guardians' => User::whereHas('roles', function ($q) {
                 $q->where('name', 'guardian');
             })->where('is_active', true)->count(),
             'guardians_with_students' => Guardian::has('students')->count(),
@@ -348,7 +342,7 @@ class GuardianController extends Controller
         ];
 
         return response()->json([
-            'data' => $stats
+            'data' => $stats,
         ]);
     }
 
@@ -362,11 +356,11 @@ class GuardianController extends Controller
         $this->authorize('manageStudents', Guardian::class);
 
         $students = Student::with(['user', 'class'])
-            ->whereDoesntHave('guardians', function($q) {
+            ->whereDoesntHave('guardians', function ($q) {
                 $q->where('is_primary', true);
             })
             ->get()
-            ->map(function($student) {
+            ->map(function ($student) {
                 return [
                     'id' => $student->id,
                     'name' => $student->user->name,
@@ -376,14 +370,13 @@ class GuardianController extends Controller
             });
 
         return response()->json([
-            'data' => $students
+            'data' => $students,
         ]);
     }
 
     /**
      * Get guardian's students with details.
      *
-     * @param  \App\Models\Guardian  $guardian
      * @return \Illuminate\Http\JsonResponse
      */
     public function getStudents(Guardian $guardian)
@@ -393,8 +386,9 @@ class GuardianController extends Controller
         $students = $guardian->students()
             ->with(['user', 'class', 'section'])
             ->get()
-            ->map(function($student) use ($guardian) {
+            ->map(function ($student) {
                 $pivot = $student->pivot;
+
                 return [
                     'id' => $student->id,
                     'name' => $student->user->name,
@@ -416,7 +410,7 @@ class GuardianController extends Controller
             });
 
         return response()->json([
-            'data' => $students
+            'data' => $students,
         ]);
     }
 }

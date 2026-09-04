@@ -11,22 +11,36 @@ class PaymentGateway extends Model
 
     // Gateway types
     public const TYPE_BANK = 'bank';
+
     public const TYPE_MOBILE_FINANCIAL_SERVICE = 'mobile_financial_service';
+
     public const TYPE_ONLINE_PAYMENT = 'online_payment';
+
     public const TYPE_OTHER = 'other';
 
     // Common gateways
     public const GATEWAY_BKASH = 'bkash';
+
     public const GATEWAY_NAGAD = 'nagad';
+
     public const GATEWAY_ROCKET = 'rocket';
+
     public const GATEWAY_STRIPE = 'stripe';
+
     public const GATEWAY_PAYPAL = 'paypal';
+
     public const GATEWAY_SSLCOMMERZ = 'sslcommerz';
+
     public const GATEWAY_PAYSTACK = 'paystack';
+
     public const GATEWAY_RAZORPAY = 'razorpay';
+
     public const GATEWAY_SQUARE = 'square';
+
     public const GATEWAY_CASH = 'cash';
+
     public const GATEWAY_CHEQUE = 'cheque';
+
     public const GATEWAY_BANK_TRANSFER = 'bank_transfer';
 
     protected $fillable = [
@@ -91,12 +105,12 @@ class PaymentGateway extends Model
         static::saving(function ($gateway) {
             // Ensure code is lowercase and slugified
             $gateway->code = strtolower(preg_replace('/[^A-Za-z0-9_]/', '_', $gateway->code));
-            
+
             // Set default values
             if (empty($gateway->currency)) {
                 $gateway->currency = 'BDT';
             }
-            
+
             if (empty($gateway->supported_currencies)) {
                 $gateway->supported_currencies = [$gateway->currency];
             }
@@ -123,7 +137,7 @@ class PaymentGateway extends Model
      */
     public function getIsConfiguredAttribute(): bool
     {
-        if (!$this->is_online) {
+        if (! $this->is_online) {
             return true; // Offline gateways don't need API configuration
         }
 
@@ -132,16 +146,16 @@ class PaymentGateway extends Model
             case self::GATEWAY_BKASH:
             case self::GATEWAY_NAGAD:
             case self::GATEWAY_ROCKET:
-                return !empty($this->api_key) && !empty($this->api_secret);
-                
+                return ! empty($this->api_key) && ! empty($this->api_secret);
+
             case self::GATEWAY_STRIPE:
             case self::GATEWAY_PAYPAL:
             case self::GATEWAY_SSLCOMMERZ:
             case self::GATEWAY_PAYSTACK:
             case self::GATEWAY_RAZORPAY:
             case self::GATEWAY_SQUARE:
-                return !empty($this->api_key) && !empty($this->api_secret) && !empty($this->callback_url);
-                
+                return ! empty($this->api_key) && ! empty($this->api_secret) && ! empty($this->callback_url);
+
             default:
                 return true; // For other gateways, assume they're configured
         }
@@ -168,11 +182,11 @@ class PaymentGateway extends Model
                 self::GATEWAY_CHEQUE => 'https://example.com/images/gateways/cheque.png',
                 self::GATEWAY_BANK_TRANSFER => 'https://example.com/images/gateways/bank-transfer.png',
             ];
-            
+
             return $defaultLogos[$this->code] ?? null;
         }
-        
-        return asset('storage/' . $this->logo);
+
+        return asset('storage/'.$this->logo);
     }
 
     /**
@@ -235,7 +249,7 @@ class PaymentGateway extends Model
      */
     public function getApiConfig(): array
     {
-        if (!$this->is_online) {
+        if (! $this->is_online) {
             return [];
         }
 

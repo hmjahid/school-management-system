@@ -2,13 +2,13 @@
 
 namespace App\Providers;
 
-use App\Services\NotificationService;
 use App\Services\NotificationDeliveryService;
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Event;
+use App\Services\NotificationService;
+use Illuminate\Notifications\Events\NotificationFailed;
 use Illuminate\Notifications\Events\NotificationSending;
 use Illuminate\Notifications\Events\NotificationSent;
-use Illuminate\Notifications\Events\NotificationFailed;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\ServiceProvider;
 
 class NotificationServiceProvider extends ServiceProvider
 {
@@ -21,7 +21,7 @@ class NotificationServiceProvider extends ServiceProvider
     {
         // Bind the NotificationService
         $this->app->singleton(NotificationService::class, function ($app) {
-            return new NotificationService();
+            return new NotificationService;
         });
 
         // Bind the NotificationDeliveryService
@@ -46,15 +46,13 @@ class NotificationServiceProvider extends ServiceProvider
     {
         // Register notification events
         $this->registerNotificationEvents();
-        
+
         // Publish configuration files
         $this->publishConfigs();
     }
 
     /**
      * Register notification events.
-     *
-     * @return void
      */
     protected function registerNotificationEvents(): void
     {
@@ -90,8 +88,6 @@ class NotificationServiceProvider extends ServiceProvider
 
     /**
      * Publish configuration files.
-     *
-     * @return void
      */
     protected function publishConfigs(): void
     {

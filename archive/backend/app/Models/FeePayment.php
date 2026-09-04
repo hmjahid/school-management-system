@@ -3,9 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FeePayment extends Model
 {
@@ -13,17 +12,26 @@ class FeePayment extends Model
 
     // Payment statuses
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_PAID = 'paid';
+
     public const STATUS_PARTIAL = 'partial';
+
     public const STATUS_CANCELLED = 'cancelled';
+
     public const STATUS_REFUNDED = 'refunded';
 
     // Payment methods
     public const METHOD_CASH = 'cash';
+
     public const METHOD_BANK_TRANSFER = 'bank_transfer';
+
     public const METHOD_CHECK = 'check';
+
     public const METHOD_ONLINE_PAYMENT = 'online_payment';
+
     public const METHOD_MOBILE_BANKING = 'mobile_banking';
+
     public const METHOD_OTHER = 'other';
 
     protected $fillable = [
@@ -82,7 +90,7 @@ class FeePayment extends Model
             if (empty($feePayment->invoice_number)) {
                 $feePayment->invoice_number = static::generateInvoiceNumber();
             }
-            
+
             if (auth()->check()) {
                 $feePayment->created_by = $feePayment->created_by ?? auth()->id();
             }
@@ -94,16 +102,16 @@ class FeePayment extends Model
      */
     public static function generateInvoiceNumber(): string
     {
-        $prefix = 'INV-' . date('Ymd') . '-';
-        $lastInvoice = static::where('invoice_number', 'like', $prefix . '%')
+        $prefix = 'INV-'.date('Ymd').'-';
+        $lastInvoice = static::where('invoice_number', 'like', $prefix.'%')
             ->orderBy('id', 'desc')
             ->first();
 
-        $number = $lastInvoice 
-            ? (int) str_replace($prefix, '', $lastInvoice->invoice_number) + 1 
+        $number = $lastInvoice
+            ? (int) str_replace($prefix, '', $lastInvoice->invoice_number) + 1
             : 1;
 
-        return $prefix . str_pad($number, 4, '0', STR_PAD_LEFT);
+        return $prefix.str_pad($number, 4, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -192,7 +200,8 @@ class FeePayment extends Model
         ];
 
         $color = $statuses[$this->status] ?? 'secondary';
-        return "<span class='badge bg-{$color}'>" . ucfirst($this->status) . "</span>";
+
+        return "<span class='badge bg-{$color}'>".ucfirst($this->status).'</span>';
     }
 
     /**

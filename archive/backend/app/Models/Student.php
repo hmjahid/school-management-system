@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Student extends Model
 {
-
     protected $fillable = [
         'user_id',
         'class_id',
@@ -135,7 +134,7 @@ class Student extends Model
             $this->city,
             $this->state,
             $this->zip_code,
-            $this->country
+            $this->country,
         ];
 
         return implode(', ', array_filter($address));
@@ -150,10 +149,11 @@ class Student extends Model
             'active' => 'success',
             'inactive' => 'secondary',
             'graduated' => 'info',
-            'transferred' => 'warning'
+            'transferred' => 'warning',
         ];
 
         $color = $statuses[$this->status] ?? 'secondary';
+
         return "<span class='badge bg-{$color}'>{$this->status}</span>";
     }
 }

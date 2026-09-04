@@ -1,8 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\ApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\ApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,10 +53,10 @@ Route::prefix('careers')->group(function () {
 Route::middleware('auth:sanctum')->prefix('teacher')->group(function () {
     // Get all classes for the authenticated teacher
     Route::get('/classes', [\App\Http\Controllers\Api\TeacherController::class, 'getTeacherClasses']);
-    
+
     // Get students in a specific class
     Route::get('/classes/{classId}/students', [\App\Http\Controllers\Api\TeacherController::class, 'getClassStudents']);
-    
+
     // Get grades for students in a specific class
     Route::get('/classes/{classId}/grades', [\App\Http\Controllers\Api\TeacherController::class, 'getClassGrades']);
 });
@@ -75,14 +75,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-    
+
     Route::get('/me', [\App\Http\Controllers\Auth\AuthController::class, 'me']);
 
     // Admin routes
     Route::prefix('admin')->group(function () {
         // Dashboard routes
         Route::get('/dashboard', [\App\Http\Controllers\Api\Admin\DashboardController::class, 'index']);
-        
+
         // Widget configuration routes
         Route::prefix('widgets')->group(function () {
             Route::get('/', [\App\Http\Controllers\Api\Admin\DashboardController::class, 'getWidgetConfig']);

@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\SchoolClass;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class SchoolClassPolicy
@@ -13,7 +13,6 @@ class SchoolClassPolicy
     /**
      * Determine whether the user can view any models.
      *
-     * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function viewAny(User $user)
@@ -24,8 +23,6 @@ class SchoolClassPolicy
     /**
      * Determine whether the user can view the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\SchoolClass  $class
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function view(User $user, SchoolClass $class)
@@ -58,7 +55,6 @@ class SchoolClassPolicy
     /**
      * Determine whether the user can create models.
      *
-     * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function create(User $user)
@@ -69,8 +65,6 @@ class SchoolClassPolicy
     /**
      * Determine whether the user can update the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\SchoolClass  $class
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function update(User $user, SchoolClass $class)
@@ -81,30 +75,26 @@ class SchoolClassPolicy
     /**
      * Determine whether the user can delete the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\SchoolClass  $class
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, SchoolClass $class = null)
+    public function delete(User $user, ?SchoolClass $class = null)
     {
         // For route model binding, we need to handle null class for create/any operations
         if ($class === null) {
             return $user->hasAnyPermission(['delete_classes', 'manage_classes']);
         }
-        
+
         // Only allow deletion if there are no students or sections
         if ($class->students()->exists() || $class->sections()->exists()) {
             return false;
         }
-        
+
         return $user->hasAnyPermission(['delete_classes', 'manage_classes']);
     }
 
     /**
      * Determine whether the user can restore the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\SchoolClass  $class
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function restore(User $user, SchoolClass $class)
@@ -115,8 +105,6 @@ class SchoolClassPolicy
     /**
      * Determine whether the user can permanently delete the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\SchoolClass  $class
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function forceDelete(User $user, SchoolClass $class)
@@ -127,8 +115,6 @@ class SchoolClassPolicy
     /**
      * Determine whether the user can view students in the class.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\SchoolClass  $class
      * @return bool
      */
     public function viewStudents(User $user, SchoolClass $class)
@@ -161,42 +147,36 @@ class SchoolClassPolicy
     /**
      * Determine whether the user can manage class subjects.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\SchoolClass  $class
      * @return bool
      */
-    public function manageSubjects(User $user, SchoolClass $class = null)
+    public function manageSubjects(User $user, ?SchoolClass $class = null)
     {
         // For route model binding, we need to handle null class for create/any operations
         if ($class === null) {
             return $user->hasAnyPermission(['manage_class_subjects', 'manage_classes']);
         }
-        
+
         return $user->hasAnyPermission(['manage_class_subjects', 'manage_classes']);
     }
 
     /**
      * Determine whether the user can manage class teachers.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\SchoolClass  $class
      * @return bool
      */
-    public function manageTeachers(User $user, SchoolClass $class = null)
+    public function manageTeachers(User $user, ?SchoolClass $class = null)
     {
         // For route model binding, we need to handle null class for create/any operations
         if ($class === null) {
             return $user->hasAnyPermission(['manage_class_teachers', 'manage_classes']);
         }
-        
+
         return $user->hasAnyPermission(['manage_class_teachers', 'manage_classes']);
     }
 
     /**
      * Determine whether the user can view the class timetable.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\SchoolClass  $class
      * @return bool
      */
     public function viewTimetable(User $user, SchoolClass $class)

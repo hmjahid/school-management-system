@@ -14,8 +14,11 @@ class RefundControllerTest extends TestCase
     use RefreshDatabase;
 
     protected $admin;
+
     protected $user;
+
     protected $payment;
+
     protected $refund;
 
     protected function setUp(): void
@@ -27,7 +30,7 @@ class RefundControllerTest extends TestCase
             'email' => 'admin@example.com',
             'password' => Hash::make('password'),
         ]);
-        
+
         $this->user = User::factory()->create([
             'email' => 'user@example.com',
             'password' => Hash::make('password'),
@@ -40,7 +43,7 @@ class RefundControllerTest extends TestCase
             'currency' => 'BDT',
             'payment_status' => Payment::STATUS_COMPLETED,
             'payment_method' => 'test_gateway',
-            'transaction_id' => 'TXN' . uniqid(),
+            'transaction_id' => 'TXN'.uniqid(),
         ]);
 
         // Create a test refund
@@ -52,7 +55,7 @@ class RefundControllerTest extends TestCase
             'currency' => 'BDT',
             'status' => 'completed',
             'reason' => 'Test refund',
-            'transaction_id' => 'R-' . uniqid(),
+            'transaction_id' => 'R-'.uniqid(),
         ]);
 
         // Assign admin role
@@ -75,7 +78,7 @@ class RefundControllerTest extends TestCase
                         'status',
                         'created_at',
                         'user' => ['id', 'name', 'email'],
-                    ]
+                    ],
                 ],
                 'links',
                 'meta',
@@ -100,7 +103,7 @@ class RefundControllerTest extends TestCase
                     'status',
                     'reason',
                     'created_at',
-                ]
+                ],
             ]);
 
         $this->assertDatabaseHas('refunds', [
@@ -122,7 +125,7 @@ class RefundControllerTest extends TestCase
                     'id' => $this->refund->id,
                     'amount' => number_format($this->refund->amount, 2, '.', ''),
                     'status' => 'completed',
-                ]
+                ],
             ]);
     }
 
@@ -141,7 +144,7 @@ class RefundControllerTest extends TestCase
 
         $response = $this->actingAs($this->admin, 'api')
             ->postJson("/api/refunds/{$pendingRefund->id}/process", [
-                'transaction_id' => 'R-' . uniqid(),
+                'transaction_id' => 'R-'.uniqid(),
             ]);
 
         $response->assertStatus(200)
@@ -149,7 +152,7 @@ class RefundControllerTest extends TestCase
                 'data' => [
                     'id' => $pendingRefund->id,
                     'status' => 'completed',
-                ]
+                ],
             ]);
     }
 
@@ -176,7 +179,7 @@ class RefundControllerTest extends TestCase
                 'data' => [
                     'id' => $pendingRefund->id,
                     'status' => 'cancelled',
-                ]
+                ],
             ]);
 
         $this->assertDatabaseHas('refunds', [

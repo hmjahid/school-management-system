@@ -11,8 +11,7 @@ class CareerController extends Controller
 {
     /**
      * Get all career opportunities
-     * 
-     * @param Request $request
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -20,30 +19,30 @@ class CareerController extends Controller
         try {
             $query = Career::where('is_published', true)
                 ->orderBy('created_at', 'desc');
-                
+
             $careers = $query->get();
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $careers,
-                'message' => 'Career opportunities retrieved successfully.'
+                'message' => 'Career opportunities retrieved successfully.',
             ]);
-            
+
         } catch (\Exception $e) {
-            Log::error('Error fetching careers: ' . $e->getMessage());
-            
+            Log::error('Error fetching careers: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve career opportunities.',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 500);
         }
     }
-    
+
     /**
      * Get a specific career opportunity
-     * 
-     * @param string $id
+     *
+     * @param  string  $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function show($id)
@@ -51,34 +50,33 @@ class CareerController extends Controller
         try {
             $career = Career::where('is_published', true)
                 ->findOrFail($id);
-                
+
             return response()->json([
                 'success' => true,
                 'data' => $career,
-                'message' => 'Career opportunity retrieved successfully.'
+                'message' => 'Career opportunity retrieved successfully.',
             ]);
-            
+
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Career opportunity not found.'
+                'message' => 'Career opportunity not found.',
             ], 404);
-            
+
         } catch (\Exception $e) {
-            Log::error('Error fetching career: ' . $e->getMessage());
-            
+            Log::error('Error fetching career: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve career opportunity.',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 500);
         }
     }
-    
+
     /**
      * Submit a job application
-     * 
-     * @param Request $request
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function apply(Request $request)
@@ -92,36 +90,36 @@ class CareerController extends Controller
                 'resume' => 'required|file|mimes:pdf,doc,docx|max:2048',
                 'cover_letter' => 'nullable|string',
             ]);
-            
+
             // Handle file upload
             if ($request->hasFile('resume')) {
                 $path = $request->file('resume')->store('resumes', 'public');
                 $validated['resume_path'] = $path;
             }
-            
+
             // In a real app, you would save this to the database
             // For now, we'll just return a success response
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Application submitted successfully!',
-                'data' => $validated
+                'data' => $validated,
             ]);
-            
+
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Validation failed',
-                'errors' => $e->errors()
+                'errors' => $e->errors(),
             ], 422);
-            
+
         } catch (\Exception $e) {
-            Log::error('Error submitting job application: ' . $e->getMessage());
-            
+            Log::error('Error submitting job application: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to submit application',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 500);
         }
     }

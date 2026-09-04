@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Student;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class StudentPolicy
@@ -13,7 +13,6 @@ class StudentPolicy
     /**
      * Determine whether the user can view any models.
      *
-     * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function viewAny(User $user)
@@ -24,8 +23,6 @@ class StudentPolicy
     /**
      * Determine whether the user can view the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Student  $student
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function view(User $user, Student $student)
@@ -48,9 +45,9 @@ class StudentPolicy
         // Allow teachers to view students in their classes
         if ($user->hasRole('teacher')) {
             return $user->teacher->classes()->where('class_id', $student->class_id)->exists() ||
-                   $user->teacher->subjects()->whereHas('classSections', function($q) use ($student) {
+                   $user->teacher->subjects()->whereHas('classSections', function ($q) use ($student) {
                        $q->where('class_id', $student->class_id)
-                         ->where('section_id', $student->section_id);
+                           ->where('section_id', $student->section_id);
                    })->exists();
         }
 
@@ -60,7 +57,6 @@ class StudentPolicy
     /**
      * Determine whether the user can create models.
      *
-     * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function create(User $user)
@@ -71,8 +67,6 @@ class StudentPolicy
     /**
      * Determine whether the user can update the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Student  $student
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function update(User $user, Student $student)
@@ -98,25 +92,21 @@ class StudentPolicy
     /**
      * Determine whether the user can delete the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Student  $student
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, Student $student = null)
+    public function delete(User $user, ?Student $student = null)
     {
         // For route model binding, we need to handle null student for create/any operations
         if ($student === null) {
             return $user->hasAnyPermission(['delete_students', 'manage_students']);
         }
-        
+
         return $user->hasAnyPermission(['delete_students', 'manage_students']);
     }
 
     /**
      * Determine whether the user can restore the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Student  $student
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function restore(User $user, Student $student)
@@ -127,8 +117,6 @@ class StudentPolicy
     /**
      * Determine whether the user can permanently delete the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Student  $student
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function forceDelete(User $user, Student $student)
@@ -139,8 +127,6 @@ class StudentPolicy
     /**
      * Determine whether the user can view student's attendance.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Student  $student
      * @return bool
      */
     public function viewAttendance(User $user, Student $student)
@@ -163,9 +149,9 @@ class StudentPolicy
         // Teachers can view attendance for students in their classes
         if ($user->hasRole('teacher')) {
             return $user->teacher->classes()->where('class_id', $student->class_id)->exists() ||
-                   $user->teacher->subjects()->whereHas('classSections', function($q) use ($student) {
+                   $user->teacher->subjects()->whereHas('classSections', function ($q) use ($student) {
                        $q->where('class_id', $student->class_id)
-                         ->where('section_id', $student->section_id);
+                           ->where('section_id', $student->section_id);
                    })->exists();
         }
 
@@ -175,8 +161,6 @@ class StudentPolicy
     /**
      * Determine whether the user can view student's exam results.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Student  $student
      * @return bool
      */
     public function viewResults(User $user, Student $student)
@@ -199,9 +183,9 @@ class StudentPolicy
         // Teachers can view results for students in their classes
         if ($user->hasRole('teacher')) {
             return $user->teacher->classes()->where('class_id', $student->class_id)->exists() ||
-                   $user->teacher->subjects()->whereHas('classSections', function($q) use ($student) {
+                   $user->teacher->subjects()->whereHas('classSections', function ($q) use ($student) {
                        $q->where('class_id', $student->class_id)
-                         ->where('section_id', $student->section_id);
+                           ->where('section_id', $student->section_id);
                    })->exists();
         }
 
@@ -211,8 +195,6 @@ class StudentPolicy
     /**
      * Determine whether the user can view student's fee information.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Student  $student
      * @return bool
      */
     public function viewFees(User $user, Student $student)

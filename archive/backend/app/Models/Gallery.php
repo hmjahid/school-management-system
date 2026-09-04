@@ -16,7 +16,7 @@ class Gallery extends Model
         'description',
         'image_path',
         'category',
-        'is_published'
+        'is_published',
     ];
 
     /**

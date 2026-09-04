@@ -2,9 +2,7 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -39,7 +37,7 @@ class NotificationSent implements ShouldBroadcast
     {
         $this->user = $user;
         $this->notification = $notification;
-        
+
         // Ensure we don't try to serialize the entire user model
         $this->dontBroadcastToCurrentUser();
     }
@@ -51,9 +49,9 @@ class NotificationSent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('App.User.' . $this->user->id);
+        return new PrivateChannel('App.User.'.$this->user->id);
     }
-    
+
     /**
      * The event's broadcast name.
      *
@@ -63,7 +61,7 @@ class NotificationSent implements ShouldBroadcast
     {
         return 'notification.sent';
     }
-    
+
     /**
      * Get the data to broadcast.
      *

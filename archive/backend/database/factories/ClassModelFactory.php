@@ -3,8 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\ClassModel;
-use App\Models\Subject;
 use App\Models\Section;
+use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -15,7 +15,7 @@ class ClassModelFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->words(3, true) . ' Class',
+            'name' => $this->faker->words(3, true).' Class',
             'teacher_id' => User::factory(),
             'subject_id' => Subject::factory(),
             'section_id' => Section::factory(),

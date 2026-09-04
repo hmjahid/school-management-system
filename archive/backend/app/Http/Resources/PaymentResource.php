@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PaymentResource extends JsonResource
@@ -61,7 +60,7 @@ class PaymentResource extends JsonResource
             }),
             // Additional calculated fields
             'payment_method_label' => $this->method_label,
-            'formatted_amount' => number_format($this->total_amount, 2) . ' ' . ($this->currency ?? 'BDT'),
+            'formatted_amount' => number_format($this->total_amount, 2).' '.($this->currency ?? 'BDT'),
             'can_edit' => $request->user()?->can('update', $this->resource) ?? false,
             'can_delete' => $request->user()?->can('delete', $this->resource) ?? false,
         ];

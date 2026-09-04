@@ -14,11 +14,17 @@ class RocketRefundTest extends TestCase
     use RefreshDatabase;
 
     protected $paymentService;
+
     protected $admin;
+
     protected $user;
+
     protected $payment;
+
     protected $apiKey = 'rocket_test_api_key';
+
     protected $storeId = 'rocket_store_123';
+
     protected $storePassword = 'test_password';
 
     protected function setUp(): void
@@ -36,11 +42,11 @@ class RocketRefundTest extends TestCase
             'currency' => 'BDT',
             'payment_status' => Payment::STATUS_COMPLETED,
             'payment_method' => 'rocket',
-            'transaction_id' => 'RKT' . uniqid(),
+            'transaction_id' => 'RKT'.uniqid(),
             'payment_details' => [
                 'gateway' => 'rocket',
-                'invoice_no' => 'INV-' . uniqid(),
-                'bank_tran_id' => 'BT' . uniqid(),
+                'invoice_no' => 'INV-'.uniqid(),
+                'bank_tran_id' => 'BT'.uniqid(),
                 'card_issuer' => 'Rocket',
                 'card_brand' => 'Rocket',
                 'card_issuer_country' => 'Bangladesh',
@@ -48,7 +54,7 @@ class RocketRefundTest extends TestCase
                 'store_amount' => '1975.00',
                 'currency_type' => 'BDT',
                 'currency_amount' => '2000.00',
-                'verify_sign' => 'verified_' . md5(uniqid()),
+                'verify_sign' => 'verified_'.md5(uniqid()),
                 'verify_key' => 'amount,currency_type,currency_amount,payment_status,validation_date',
                 'risk_level' => 0,
                 'risk_title' => 'Safe',
@@ -76,7 +82,7 @@ class RocketRefundTest extends TestCase
             'api.razo.com.bd/api/v1/refund' => Http::response([
                 'status' => 'success',
                 'message' => 'Refund request has been executed successfully',
-                'refund_id' => 'RFD' . uniqid(),
+                'refund_id' => 'RFD'.uniqid(),
                 'transaction_id' => $this->payment->transaction_id,
                 'refund_amount' => '1000.00',
                 'currency' => 'BDT',
@@ -87,7 +93,7 @@ class RocketRefundTest extends TestCase
             // Mock Rocket refund status check
             'api.razo.com.bd/api/v1/refund/status/*' => Http::response([
                 'status' => 'success',
-                'refund_id' => 'RFD' . uniqid(),
+                'refund_id' => 'RFD'.uniqid(),
                 'transaction_id' => $this->payment->transaction_id,
                 'refund_amount' => '1000.00',
                 'currency' => 'BDT',
@@ -112,7 +118,7 @@ class RocketRefundTest extends TestCase
                 'data' => [
                     'amount' => '1000.00',
                     'status' => 'completed',
-                ]
+                ],
             ]);
 
         // Verify refund was recorded
@@ -167,7 +173,7 @@ class RocketRefundTest extends TestCase
 
         // Simulate Rocket webhook
         $webhookPayload = [
-            'refund_id' => 'RFD' . uniqid(),
+            'refund_id' => 'RFD'.uniqid(),
             'transaction_id' => $this->payment->transaction_id,
             'refund_amount' => '1000.00',
             'currency' => 'BDT',
@@ -175,7 +181,7 @@ class RocketRefundTest extends TestCase
             'refund_date' => now()->toIso8601String(),
             'reason' => 'Customer requested refund',
             'signature' => $this->generateRocketSignature([
-                'refund_id' => 'RFD' . uniqid(),
+                'refund_id' => 'RFD'.uniqid(),
                 'transaction_id' => $this->payment->transaction_id,
                 'refund_amount' => '1000.00',
             ]),
@@ -184,7 +190,7 @@ class RocketRefundTest extends TestCase
         $response = $this->postJson('/api/webhooks/rocket/refund', $webhookPayload);
 
         $response->assertStatus(200);
-        
+
         // Verify refund was updated
         $this->assertDatabaseHas('refunds', [
             'id' => $refund->id,
@@ -197,7 +203,7 @@ class RocketRefundTest extends TestCase
     {
         // Simulate multiple concurrent refund requests
         $responses = [];
-        
+
         // First request - should succeed
         $responses[] = $this->actingAs($this->admin, 'api')
             ->postJson("/api/payments/{$this->payment->id}/refunds", [
@@ -272,11 +278,11 @@ class RocketRefundTest extends TestCase
         // This is a simplified version for testing
         ksort($data);
         $signatureString = implode('', array_map(
-            fn($key, $value) => $key . $value,
+            fn ($key, $value) => $key.$value,
             array_keys($data),
             $data
         ));
-        
+
         return hash_hmac('sha256', $signatureString, 'test_store_password');
     }
 }

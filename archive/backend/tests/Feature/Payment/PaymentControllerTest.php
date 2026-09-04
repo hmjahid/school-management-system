@@ -7,7 +7,6 @@ use App\Models\PaymentGateway;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class PaymentControllerTest extends TestCase
@@ -15,26 +14,28 @@ class PaymentControllerTest extends TestCase
     use RefreshDatabase;
 
     protected $adminUser;
+
     protected $regularUser;
+
     protected $payment;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Seed roles and permissions
         $this->seed(RolePermissionSeeder::class);
-        
+
         // Create test users
         $this->adminUser = User::factory()->create();
         $this->adminUser->assignRole('admin');
-        
+
         $this->regularUser = User::factory()->create();
         $this->regularUser->assignRole('user');
-        
+
         // Seed payment gateways
         $this->seed(\Database\Seeders\PaymentGatewaySeeder::class);
-        
+
         // Create a test payment
         $this->payment = Payment::factory()->create([
             'created_by' => $this->regularUser->id,
@@ -47,8 +48,8 @@ class PaymentControllerTest extends TestCase
     {
         $response = $this->getJson('/api/payments');
         $response->assertStatus(401);
-        
-        $response = $this->getJson('/api/payments/' . $this->payment->id);
+
+        $response = $this->getJson('/api/payments/'.$this->payment->id);
         $response->assertStatus(401);
     }
 
@@ -57,7 +58,7 @@ class PaymentControllerTest extends TestCase
     {
         $response = $this->actingAs($this->regularUser)
             ->getJson('/api/payments');
-            
+
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
@@ -67,7 +68,7 @@ class PaymentControllerTest extends TestCase
                         'amount',
                         'payment_status',
                         'created_at',
-                    ]
+                    ],
                 ],
                 'links',
                 'meta',
@@ -78,14 +79,14 @@ class PaymentControllerTest extends TestCase
     public function admin_can_view_any_payment()
     {
         $response = $this->actingAs($this->adminUser)
-            ->getJson('/api/payments/' . $this->payment->id);
-            
+            ->getJson('/api/payments/'.$this->payment->id);
+
         $response->assertStatus(200)
             ->assertJson([
                 'data' => [
                     'id' => $this->payment->id,
                     'invoice_number' => $this->payment->invoice_number,
-                ]
+                ],
             ]);
     }
 
@@ -93,7 +94,7 @@ class PaymentControllerTest extends TestCase
     public function user_can_initiate_payment()
     {
         $gateway = PaymentGateway::where('code', 'bkash')->first();
-        
+
         $response = $this->actingAs($this->regularUser)
             ->postJson('/api/payments/initiate', [
                 'gateway' => 'bkash',
@@ -103,7 +104,7 @@ class PaymentControllerTest extends TestCase
                 'paymentable_id' => 1,
                 'description' => 'Test payment',
             ]);
-            
+
         $response->assertStatus(200)
             ->assertJson([
                 'success' => true,
@@ -118,25 +119,25 @@ class PaymentControllerTest extends TestCase
             ->postJson('/api/payments/initiate', [
                 // Missing required fields
             ]);
-            
+
         $response->assertStatus(422)
             ->assertJsonValidationErrors([
-                'gateway', 'amount', 'currency', 'paymentable_type', 'paymentable_id'
+                'gateway', 'amount', 'currency', 'paymentable_type', 'paymentable_id',
             ]);
     }
 
     /** @test */
     public function user_can_check_payment_status()
     {
-        $response = $this->getJson('/api/payments/status/' . $this->payment->invoice_number);
-        
+        $response = $this->getJson('/api/payments/status/'.$this->payment->invoice_number);
+
         $response->assertStatus(200)
             ->assertJson([
                 'success' => true,
                 'data' => [
                     'id' => $this->payment->id,
                     'invoice_number' => $this->payment->invoice_number,
-                ]
+                ],
             ]);
     }
 
@@ -148,14 +149,14 @@ class PaymentControllerTest extends TestCase
                 'status' => 'completed',
                 'notes' => 'Payment verified manually',
             ]);
-            
+
         $response->assertStatus(200)
             ->assertJson([
                 'data' => [
                     'payment_status' => 'completed',
-                ]
+                ],
             ]);
-            
+
         $this->assertDatabaseHas('payments', [
             'id' => $this->payment->id,
             'payment_status' => 'completed',
@@ -175,13 +176,13 @@ class PaymentControllerTest extends TestCase
                 'payment_date' => now()->format('Y-m-d'),
                 'description' => 'Offline cash payment',
             ]);
-            
+
         $response->assertStatus(201)
             ->assertJson([
                 'success' => true,
                 'message' => 'Offline payment recorded successfully',
             ]);
-            
+
         $this->assertDatabaseHas('payments', [
             'payment_method' => 'cash',
             'amount' => 1500,
@@ -194,7 +195,7 @@ class PaymentControllerTest extends TestCase
     {
         $response = $this->actingAs($this->adminUser)
             ->getJson('/api/payments/export?format=csv');
-            
+
         $response->assertStatus(200)
             ->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
     }

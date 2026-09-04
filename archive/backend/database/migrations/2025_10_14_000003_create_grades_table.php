@@ -19,7 +19,7 @@ class CreateGradesTable extends Migration
             $table->string('grade');
             $table->text('remarks')->nullable();
             $table->timestamps();
-            
+
             $table->unique(['student_id', 'class_id', 'subject_id', 'exam_id']);
         });
     }

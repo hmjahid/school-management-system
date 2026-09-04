@@ -41,8 +41,6 @@ class UserWidgetPreference extends Model
 
     /**
      * Get the default widget configuration.
-     *
-     * @return array
      */
     public static function getDefaultWidgets(): array
     {
@@ -50,41 +48,38 @@ class UserWidgetPreference extends Model
             'quick_stats' => [
                 'enabled' => true,
                 'position' => 1,
-                'settings' => ['show_revenue' => true, 'show_students' => true, 'show_attendance' => true]
+                'settings' => ['show_revenue' => true, 'show_students' => true, 'show_attendance' => true],
             ],
             'revenue_chart' => [
                 'enabled' => true,
                 'position' => 2,
-                'settings' => ['timeframe' => 'monthly', 'show_average' => true]
+                'settings' => ['timeframe' => 'monthly', 'show_average' => true],
             ],
             'recent_activity' => [
                 'enabled' => true,
                 'position' => 3,
-                'settings' => ['limit' => 10, 'show_timestamps' => true]
+                'settings' => ['limit' => 10, 'show_timestamps' => true],
             ],
             'upcoming_events' => [
                 'enabled' => true,
                 'position' => 4,
-                'settings' => ['limit' => 5, 'show_location' => true]
+                'settings' => ['limit' => 5, 'show_location' => true],
             ],
             'class_distribution' => [
                 'enabled' => true,
                 'position' => 5,
-                'settings' => ['show_legend' => true, 'max_items' => 10]
+                'settings' => ['show_legend' => true, 'max_items' => 10],
             ],
             'performance_metrics' => [
                 'enabled' => true,
                 'position' => 6,
-                'settings' => ['show_growth' => true, 'compare_period' => 'previous_period']
+                'settings' => ['show_growth' => true, 'compare_period' => 'previous_period'],
             ],
         ];
     }
 
     /**
      * Get widget configuration for a user.
-     *
-     * @param int $userId
-     * @return array
      */
     public static function getForUser(int $userId): array
     {
@@ -96,7 +91,7 @@ class UserWidgetPreference extends Model
         return collect($defaults)
             ->map(function ($default, $widgetId) use ($preferences) {
                 $preference = $preferences->get($widgetId);
-                
+
                 return [
                     'id' => $widgetId,
                     'enabled' => $preference->enabled ?? $default['enabled'],
@@ -104,7 +99,7 @@ class UserWidgetPreference extends Model
                     'settings' => array_merge(
                         $default['settings'] ?? [],
                         $preference->settings ?? []
-                    )
+                    ),
                 ];
             })
             ->sortBy('position')
@@ -114,10 +109,6 @@ class UserWidgetPreference extends Model
 
     /**
      * Save widget configuration for a user.
-     *
-     * @param int $userId
-     * @param array $widgets
-     * @return void
      */
     public static function saveForUser(int $userId, array $widgets): void
     {

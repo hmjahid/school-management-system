@@ -29,28 +29,28 @@ return [
         'log' => [
             'driver' => 'log',
         ],
-        
+
         'twilio' => [
             'driver' => 'twilio',
             'account_sid' => env('TWILIO_ACCOUNT_SID'),
             'auth_token' => env('TWILIO_AUTH_TOKEN'),
             'from' => env('TWILIO_FROM_NUMBER'),
         ],
-        
+
         'nexmo' => [
             'driver' => 'nexmo',
             'api_key' => env('NEXMO_KEY'),
             'api_secret' => env('NEXMO_SECRET'),
             'from' => env('NEXMO_FROM_NUMBER'),
         ],
-        
+
         'textlocal' => [
             'driver' => 'textlocal',
             'api_key' => env('TEXTLOCAL_API_KEY'),
             'sender' => env('TEXTLOCAL_SENDER'),
             'test_mode' => env('TEXTLOCAL_TEST_MODE', false),
         ],
-        
+
         'africastalking' => [
             'driver' => 'africastalking',
             'api_key' => env('AFRICASTALKING_API_KEY'),

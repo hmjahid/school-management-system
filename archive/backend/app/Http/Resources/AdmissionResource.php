@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class AdmissionResource extends JsonResource
@@ -25,7 +24,7 @@ class AdmissionResource extends JsonResource
             'full_name' => $this->full_name,
             'email' => $this->email,
             'phone' => $this->phone,
-            'photo_url' => $this->photo ? asset('storage/' . $this->photo) : null,
+            'photo_url' => $this->photo ? asset('storage/'.$this->photo) : null,
             'date_of_birth' => $this->date_of_birth?->format('Y-m-d'),
             'age' => $this->date_of_birth ? $this->date_of_birth->age : null,
             'gender' => $this->gender,
@@ -33,7 +32,7 @@ class AdmissionResource extends JsonResource
             'blood_group' => $this->blood_group,
             'religion' => $this->religion,
             'nationality' => $this->nationality,
-            
+
             // Contact Information
             'address' => [
                 'address_line' => $this->address,
@@ -42,7 +41,7 @@ class AdmissionResource extends JsonResource
                 'country' => $this->country,
                 'postal_code' => $this->postal_code,
             ],
-            
+
             // Parent/Guardian Information
             'father' => [
                 'name' => $this->father_name,
@@ -59,14 +58,14 @@ class AdmissionResource extends JsonResource
                 'relation' => $this->guardian_relation,
                 'phone' => $this->guardian_phone,
             ] : null,
-            
+
             // Previous Education
             'previous_education' => [
                 'school' => $this->previous_school,
                 'class' => $this->previous_class,
                 'grade' => $this->previous_grade,
             ],
-            
+
             // Academic Information
             'academic_session' => [
                 'id' => $this->academic_session_id,
@@ -77,7 +76,7 @@ class AdmissionResource extends JsonResource
                 'name' => $this->whenLoaded('batch', $this->batch?->name),
                 'course_name' => $this->whenLoaded('batch', $this->batch?->course?->name),
             ],
-            
+
             // Documents
             'documents' => $this->whenLoaded('documents', function () {
                 return $this->documents->map(function ($document) {
@@ -86,7 +85,7 @@ class AdmissionResource extends JsonResource
                         'type' => $document->type,
                         'type_label' => $document->type_label,
                         'name' => $document->name,
-                        'file_url' => asset('storage/' . $document->file_path),
+                        'file_url' => asset('storage/'.$document->file_path),
                         'file_type' => $document->file_type,
                         'file_size' => $document->file_size,
                         'file_size_formatted' => $document->file_size_formatted,
@@ -100,7 +99,7 @@ class AdmissionResource extends JsonResource
                     ];
                 });
             }),
-            
+
             // Status Timestamps
             'timestamps' => [
                 'submitted_at' => $this->submitted_at?->format('Y-m-d H:i:s'),
@@ -111,7 +110,7 @@ class AdmissionResource extends JsonResource
                 'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
                 'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
             ],
-            
+
             // User References
             'created_by' => $this->whenLoaded('createdBy', function () {
                 return [
@@ -141,12 +140,12 @@ class AdmissionResource extends JsonResource
                     'email' => $this->rejectedBy?->email,
                 ] : null;
             }),
-            
+
             // Additional Information
             'admission_notes' => $this->admission_notes,
             'rejection_reason' => $this->rejection_reason,
             'metadata' => $this->metadata,
-            
+
             // Student Information (if enrolled)
             'student' => $this->whenLoaded('student', function () {
                 return $this->student ? [
@@ -157,7 +156,7 @@ class AdmissionResource extends JsonResource
             }),
         ];
     }
-    
+
     /**
      * Get additional data that should be returned with the resource array.
      *

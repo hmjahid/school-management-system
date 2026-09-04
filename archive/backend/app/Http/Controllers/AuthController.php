@@ -46,9 +46,9 @@ class AuthController extends Controller
         // Attempt to authenticate the user
         $credentials = $request->only('email', 'password');
 
-        if (!Auth::attempt($credentials)) {
+        if (! Auth::attempt($credentials)) {
             return response()->json([
-                'message' => 'Invalid login details'
+                'message' => 'Invalid login details',
             ], 401);
         }
 
@@ -65,9 +65,9 @@ class AuthController extends Controller
         $token = $accessToken->plainTextToken;
 
         return response()->json([
-           'access_token' => $token,
-           'token_type' => 'Bearer',
-           'user' => $user,
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'user' => $user,
         ]);
     }
 
@@ -81,7 +81,7 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'Logged out successfully'
+            'message' => 'Logged out successfully',
         ]);
     }
 }

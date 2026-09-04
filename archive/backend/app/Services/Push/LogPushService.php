@@ -17,7 +17,6 @@ class LogPushService implements PushNotificationService
     /**
      * Create a new log push service instance.
      *
-     * @param  array  $config
      * @return void
      */
     public function __construct(array $config = [])
@@ -27,17 +26,11 @@ class LogPushService implements PushNotificationService
 
     /**
      * Send a push notification to a specific device.
-     *
-     * @param  string  $deviceToken
-     * @param  array  $notification
-     * @param  array  $data
-     * @param  array  $options
-     * @return array
      */
     public function sendToDevice(string $deviceToken, array $notification, array $data = [], array $options = []): array
     {
         $logMessage = sprintf(
-            "[Push] To: %s, Title: %s, Body: %s, Data: %s",
+            '[Push] To: %s, Title: %s, Body: %s, Data: %s',
             $deviceToken,
             $notification['title'] ?? 'No Title',
             $notification['body'] ?? 'No Body',
@@ -58,12 +51,6 @@ class LogPushService implements PushNotificationService
 
     /**
      * Send a push notification to multiple devices.
-     *
-     * @param  array  $deviceTokens
-     * @param  array  $notification
-     * @param  array  $data
-     * @param  array  $options
-     * @return array
      */
     public function sendToDevices(array $deviceTokens, array $notification, array $data = [], array $options = []): array
     {
@@ -76,7 +63,7 @@ class LogPushService implements PushNotificationService
         foreach ($deviceTokens as $token) {
             $response = $this->sendToDevice($token, $notification, $data, $options);
             $results['responses'][] = $response;
-            
+
             if ($response['success']) {
                 $results['success']++;
             } else {
@@ -89,17 +76,11 @@ class LogPushService implements PushNotificationService
 
     /**
      * Send a push notification to a topic.
-     *
-     * @param  string  $topic
-     * @param  array  $notification
-     * @param  array  $data
-     * @param  array  $options
-     * @return array
      */
     public function sendToTopic(string $topic, array $notification, array $data = [], array $options = []): array
     {
         $logMessage = sprintf(
-            "[Push] Topic: %s, Title: %s, Body: %s, Data: %s",
+            '[Push] Topic: %s, Title: %s, Body: %s, Data: %s',
             $topic,
             $notification['title'] ?? 'No Title',
             $notification['body'] ?? 'No Body',
@@ -122,18 +103,16 @@ class LogPushService implements PushNotificationService
      * Subscribe a device to a topic.
      *
      * @param  string|array  $deviceTokens
-     * @param  string  $topic
-     * @return bool
      */
     public function subscribeToTopic($deviceTokens, string $topic): bool
     {
         $deviceTokens = (array) $deviceTokens;
-        
+
         Log::channel($this->config['log_channel'] ?? 'stack')->info(
             'Subscribed devices to topic',
             ['devices' => $deviceTokens, 'topic' => $topic]
         );
-        
+
         return true;
     }
 
@@ -141,26 +120,21 @@ class LogPushService implements PushNotificationService
      * Unsubscribe a device from a topic.
      *
      * @param  string|array  $deviceTokens
-     * @param  string  $topic
-     * @return bool
      */
     public function unsubscribeFromTopic($deviceTokens, string $topic): bool
     {
         $deviceTokens = (array) $deviceTokens;
-        
+
         Log::channel($this->config['log_channel'] ?? 'stack')->info(
             'Unsubscribed devices from topic',
             ['devices' => $deviceTokens, 'topic' => $topic]
         );
-        
+
         return true;
     }
 
     /**
      * Get information about a specific device token.
-     *
-     * @param  string  $deviceToken
-     * @return array
      */
     public function getDeviceInfo(string $deviceToken): array
     {
@@ -168,7 +142,7 @@ class LogPushService implements PushNotificationService
             'Fetching device info',
             ['device_token' => $deviceToken]
         );
-        
+
         return [
             'success' => true,
             'device_token' => $deviceToken,
@@ -181,9 +155,6 @@ class LogPushService implements PushNotificationService
 
     /**
      * Validate a device token.
-     *
-     * @param  string  $deviceToken
-     * @return bool
      */
     public function validateDeviceToken(string $deviceToken): bool
     {

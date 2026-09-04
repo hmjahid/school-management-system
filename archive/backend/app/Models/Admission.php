@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Admission extends Model
 {
@@ -14,12 +14,19 @@ class Admission extends Model
 
     // Admission statuses
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_SUBMITTED = 'submitted';
+
     public const STATUS_UNDER_REVIEW = 'under_review';
+
     public const STATUS_APPROVED = 'approved';
+
     public const STATUS_REJECTED = 'rejected';
+
     public const STATUS_WAITLISTED = 'waitlisted';
+
     public const STATUS_ENROLLED = 'enrolled';
+
     public const STATUS_CANCELLED = 'cancelled';
 
     protected $fillable = [
@@ -89,7 +96,7 @@ class Admission extends Model
             if (empty($admission->application_number)) {
                 $admission->application_number = static::generateApplicationNumber();
             }
-            
+
             if (auth()->check()) {
                 $admission->created_by = auth()->id();
                 $admission->updated_by = auth()->id();
@@ -108,16 +115,16 @@ class Admission extends Model
      */
     public static function generateApplicationNumber(): string
     {
-        $prefix = 'APP' . date('Y');
-        $lastApp = static::where('application_number', 'like', $prefix . '%')
+        $prefix = 'APP'.date('Y');
+        $lastApp = static::where('application_number', 'like', $prefix.'%')
             ->orderBy('id', 'desc')
             ->first();
 
-        $number = $lastApp 
-            ? (int) substr($lastApp->application_number, 7) + 1 
+        $number = $lastApp
+            ? (int) substr($lastApp->application_number, 7) + 1
             : 1;
 
-        return $prefix . str_pad($number, 5, '0', STR_PAD_LEFT);
+        return $prefix.str_pad($number, 5, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -181,7 +188,7 @@ class Admission extends Model
      */
     public function getFullNameAttribute(): string
     {
-        return trim($this->first_name . ' ' . $this->last_name);
+        return trim($this->first_name.' '.$this->last_name);
     }
 
     /**
@@ -259,16 +266,17 @@ class Admission extends Model
         if ($this->isDraft()) {
             $this->status = self::STATUS_SUBMITTED;
             $this->submitted_at = now();
+
             return $this->save();
         }
-        
+
         return false;
     }
 
     /**
      * Approve the admission.
      */
-    public function approve(string $notes = null): bool
+    public function approve(?string $notes = null): bool
     {
         if ($this->isSubmitted() || $this->isUnderReview()) {
             $this->status = self::STATUS_APPROVED;
@@ -276,9 +284,10 @@ class Admission extends Model
             $this->admission_notes = $notes;
             $this->approved_by = auth()->id();
             $this->approved_at = now();
+
             return $this->save();
         }
-        
+
         return false;
     }
 
@@ -292,9 +301,10 @@ class Admission extends Model
             $this->rejection_reason = $reason;
             $this->rejected_by = auth()->id();
             $this->rejected_at = now();
+
             return $this->save();
         }
-        
+
         return false;
     }
 
@@ -303,7 +313,7 @@ class Admission extends Model
      */
     public function enroll(array $studentData = []): ?Student
     {
-        if (!$this->isApproved() || $this->isEnrolled()) {
+        if (! $this->isApproved() || $this->isEnrolled()) {
             return null;
         }
 

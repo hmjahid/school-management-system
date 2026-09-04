@@ -4,8 +4,8 @@ namespace App\Providers;
 
 use App\Contracts\PushNotificationService;
 use App\Services\Push\FirebasePushService;
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\ServiceProvider;
 
 class PushNotificationServiceProvider extends ServiceProvider
 {
@@ -23,10 +23,10 @@ class PushNotificationServiceProvider extends ServiceProvider
         $this->app->singleton(PushNotificationService::class, function ($app) {
             $driver = Config::get('fcm.driver', 'firebase');
             $config = Config::get('fcm', []);
-            
+
             return $this->createPushService($driver, $config);
         });
-        
+
         // Register the Push facade
         $this->app->alias(PushNotificationService::class, 'push');
     }
@@ -47,10 +47,7 @@ class PushNotificationServiceProvider extends ServiceProvider
     /**
      * Create an instance of the push notification service.
      *
-     * @param  string  $driver
-     * @param  array  $config
-     * @return \App\Contracts\PushNotificationService
-     * 
+     *
      * @throws \InvalidArgumentException
      */
     protected function createPushService(string $driver, array $config = []): PushNotificationService
@@ -58,9 +55,9 @@ class PushNotificationServiceProvider extends ServiceProvider
         switch (strtolower($driver)) {
             case 'firebase':
                 return new FirebasePushService($config);
-                
-            // Add more drivers here as needed
-            
+
+                // Add more drivers here as needed
+
             default:
                 throw new \InvalidArgumentException("Unsupported push notification driver: {$driver}");
         }

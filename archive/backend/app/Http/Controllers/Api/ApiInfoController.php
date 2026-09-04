@@ -25,8 +25,8 @@ class ApiInfoController extends Controller
                 ],
                 'admin' => [
                     'dashboard' => url('/api/admin/dashboard'),
-                ]
-            ]
+                ],
+            ],
         ]);
     }
 }

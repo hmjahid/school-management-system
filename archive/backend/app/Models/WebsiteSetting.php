@@ -110,6 +110,6 @@ class WebsiteSetting extends Model
      */
     public static function getSettings()
     {
-        return static::first() ?? new static();
+        return static::first() ?? new static;
     }
 }

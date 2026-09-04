@@ -14,11 +14,17 @@ class NagadRefundTest extends TestCase
     use RefreshDatabase;
 
     protected $paymentService;
+
     protected $admin;
+
     protected $user;
+
     protected $payment;
+
     protected $merchantId = 'NAGAD_MERCHANT_ID';
+
     protected $merchantPrivateKey = 'MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQ...';
+
     protected $merchantCertificate = 'MIIE...';
 
     protected function setUp(): void
@@ -36,13 +42,13 @@ class NagadRefundTest extends TestCase
             'currency' => 'BDT',
             'payment_status' => Payment::STATUS_COMPLETED,
             'payment_method' => 'nagad',
-            'transaction_id' => 'N' . uniqid(),
+            'transaction_id' => 'N'.uniqid(),
             'payment_details' => [
                 'gateway' => 'nagad',
                 'merchant_id' => $this->merchantId,
-                'order_id' => 'ORD-' . uniqid(),
-                'payment_ref_id' => 'P' . uniqid(),
-                'issuer_payment_ref_no' => 'IP' . uniqid(),
+                'order_id' => 'ORD-'.uniqid(),
+                'payment_ref_id' => 'P'.uniqid(),
+                'issuer_payment_ref_no' => 'IP'.uniqid(),
                 'customer_msisdn' => '017XXXXXXXX',
                 'status' => 'Success',
             ],
@@ -61,9 +67,9 @@ class NagadRefundTest extends TestCase
             'api.mynagad.com/api/dfs/refund/initialize' => Http::response([
                 'status' => 'Success',
                 'message' => 'Refund request received successfully',
-                'refundRefNo' => 'R' . uniqid(),
+                'refundRefNo' => 'R'.uniqid(),
                 'issuerPaymentRefNo' => $this->payment->payment_details['issuer_payment_ref_no'],
-                'refundTrxID' => 'RT' . uniqid(),
+                'refundTrxID' => 'RT'.uniqid(),
                 'amount' => '500.00',
                 'charge' => '0.00',
                 'referenceNo' => $this->payment->payment_details['order_id'],
@@ -73,7 +79,7 @@ class NagadRefundTest extends TestCase
             // Mock Nagad refund status check
             'api.mynagad.com/api/query/refund/status/*' => Http::response([
                 'status' => 'Success',
-                'refundTrxID' => 'RT' . uniqid(),
+                'refundTrxID' => 'RT'.uniqid(),
                 'amount' => '500.00',
                 'refundStatus' => 'Completed',
                 'dateTime' => now()->toIso8601String(),
@@ -98,7 +104,7 @@ class NagadRefundTest extends TestCase
                 'data' => [
                     'amount' => '500.00',
                     'status' => 'completed',
-                ]
+                ],
             ]);
 
         // Verify refund was recorded
@@ -156,8 +162,8 @@ class NagadRefundTest extends TestCase
             'merchantId' => $this->merchantId,
             'orderId' => $this->payment->payment_details['order_id'],
             'paymentRefId' => $this->payment->transaction_id,
-            'refundRefNo' => 'R' . uniqid(),
-            'refundTrxID' => 'RT' . uniqid(),
+            'refundRefNo' => 'R'.uniqid(),
+            'refundTrxID' => 'RT'.uniqid(),
             'amount' => '500.00',
             'refundStatus' => 'Completed',
             'refundDate' => now()->toIso8601String(),
@@ -172,7 +178,7 @@ class NagadRefundTest extends TestCase
         ]);
 
         $response->assertStatus(200);
-        
+
         // Verify refund was updated
         $this->assertDatabaseHas('refunds', [
             'id' => $refund->id,
@@ -186,7 +192,7 @@ class NagadRefundTest extends TestCase
     {
         // Simulate multiple concurrent refund requests
         $responses = [];
-        
+
         // First request - should succeed
         $responses[] = $this->actingAs($this->admin, 'api')
             ->postJson("/api/payments/{$this->payment->id}/refunds", [
@@ -215,6 +221,7 @@ class NagadRefundTest extends TestCase
         // This is a simplified version for testing
         ksort($data);
         $signatureData = json_encode($data, JSON_UNESCAPED_SLASHES);
+
         return hash_hmac('sha256', $signatureData, 'test_merchant_secret');
     }
 }

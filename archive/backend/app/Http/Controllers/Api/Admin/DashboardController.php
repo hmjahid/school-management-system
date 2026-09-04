@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
-use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Validation\ValidatesRequests;
 use App\Http\Resources\DashboardResource;
 use App\Models\UserWidgetPreference;
 use App\Services\DashboardService;
 use Carbon\Carbon;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,6 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 class DashboardController extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
+
     /**
      * @var DashboardService
      */
@@ -27,7 +26,6 @@ class DashboardController extends BaseController
     /**
      * Create a new controller instance.
      *
-     * @param DashboardService $dashboardService
      * @return void
      */
     public function __construct(DashboardService $dashboardService)
@@ -40,13 +38,11 @@ class DashboardController extends BaseController
     /**
      * Get admin dashboard statistics
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \App\Http\Resources\DashboardResource|\Illuminate\Http\JsonResponse
      */
     /**
      * Get dashboard data with optional filters
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \App\Http\Resources\DashboardResource|\Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -67,7 +63,7 @@ class DashboardController extends BaseController
                 return response()->json([
                     'success' => false,
                     'message' => 'Validation failed',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             }
 
@@ -86,27 +82,27 @@ class DashboardController extends BaseController
                     'user_activity',
                     'performance_metrics',
                     'quick_stats',
-                    'widget_config'
+                    'widget_config',
                 ]),
                 'activity_limit' => min($request->input('activity_limit', 10), 50), // Max 50 items
                 'events_limit' => min($request->input('events_limit', 5), 20), // Max 20 items
                 'assignments_limit' => min($request->input('assignments_limit', 5), 20), // Max 20 items
                 'user_id' => $user->id,
-                'role' => $user->roles->first()?->name
+                'role' => $user->roles->first()?->name,
             ];
 
             // Get dashboard data from service with the specified options
             $dashboardData = $this->dashboardService->getDashboardData($options);
 
             return new DashboardResource($dashboardData);
-            
+
         } catch (\Exception $e) {
-            Log::error('DashboardController error: ' . $e->getMessage());
-            
+            Log::error('DashboardController error: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to load dashboard data.',
-                'error' => config('app.debug') ? $e->getMessage() : null
+                'error' => config('app.debug') ? $e->getMessage() : null,
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -114,7 +110,6 @@ class DashboardController extends BaseController
     /**
      * Get widget configuration for the authenticated user
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function getWidgetConfig(Request $request)
@@ -122,22 +117,22 @@ class DashboardController extends BaseController
         try {
             $user = $request->user();
             $widgets = $this->dashboardService->getUserWidgetConfig($user->id);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => [
                     'widgets' => $widgets,
-                    'defaults' => UserWidgetPreference::getDefaultWidgets()
-                ]
+                    'defaults' => UserWidgetPreference::getDefaultWidgets(),
+                ],
             ]);
-            
+
         } catch (\Exception $e) {
-            Log::error('Error getting widget config: ' . $e->getMessage());
-            
+            Log::error('Error getting widget config: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to load widget configuration',
-                'error' => config('app.debug') ? $e->getMessage() : null
+                'error' => config('app.debug') ? $e->getMessage() : null,
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -145,7 +140,6 @@ class DashboardController extends BaseController
     /**
      * Save widget configuration for the authenticated user
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function saveWidgetConfig(Request $request)
@@ -156,14 +150,14 @@ class DashboardController extends BaseController
                 'widgets.*.id' => 'required|string',
                 'widgets.*.enabled' => 'required|boolean',
                 'widgets.*.position' => 'required|integer|min:1|max:20',
-                'widgets.*.settings' => 'nullable|array'
+                'widgets.*.settings' => 'nullable|array',
             ]);
 
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Validation failed',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             }
 
@@ -174,7 +168,7 @@ class DashboardController extends BaseController
                         'id' => $widget['id'],
                         'enabled' => $widget['enabled'],
                         'position' => $widget['position'],
-                        'settings' => $widget['settings'] ?? []
+                        'settings' => $widget['settings'] ?? [],
                     ];
                 })
                 ->toArray();
@@ -182,26 +176,26 @@ class DashboardController extends BaseController
             // Save the widget configuration
             $result = $this->dashboardService->saveUserWidgetConfig($user->id, $widgets);
 
-            if (!$result) {
+            if (! $result) {
                 throw new \Exception('Failed to save widget configuration');
             }
-            
+
             // Return the updated widget configuration
             return response()->json([
                 'success' => true,
                 'message' => 'Widget configuration saved successfully',
                 'data' => [
-                    'widgets' => $this->dashboardService->getUserWidgetConfig($user->id)
-                ]
+                    'widgets' => $this->dashboardService->getUserWidgetConfig($user->id),
+                ],
             ]);
-            
+
         } catch (\Exception $e) {
-            Log::error('Error saving widget config: ' . $e->getMessage());
-            
+            Log::error('Error saving widget config: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to save widget configuration',
-                'error' => config('app.debug') ? $e->getMessage() : null
+                'error' => config('app.debug') ? $e->getMessage() : null,
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -209,39 +203,38 @@ class DashboardController extends BaseController
     /**
      * Reset widget configuration to defaults for the authenticated user
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function resetWidgetConfig(Request $request)
     {
         try {
             $user = $request->user();
-            
+
             // Delete all widget preferences for the user
             UserWidgetPreference::where('user_id', $user->id)->delete();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Widget configuration reset to defaults',
                 'data' => [
-                    'widgets' => $this->dashboardService->getUserWidgetConfig($user->id)
-                ]
+                    'widgets' => $this->dashboardService->getUserWidgetConfig($user->id),
+                ],
             ]);
-            
+
         } catch (\Exception $e) {
-            Log::error('Error resetting widget config: ' . $e->getMessage());
-            
+            Log::error('Error resetting widget config: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to reset widget configuration',
-                'error' => config('app.debug') ? $e->getMessage() : null
+                'error' => config('app.debug') ? $e->getMessage() : null,
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     /**
      * Get dashboard statistics
-     * 
+     *
      * @return array
      */
     protected function getDashboardStats()
@@ -273,10 +266,10 @@ class DashboardController extends BaseController
                       max($monthlyRevenue[count($monthlyRevenue) - 2], 1)) * 100, 1) : 0,
         ];
     }
-    
+
     /**
      * Get dashboard charts data
-     * 
+     *
      * @return array
      */
     protected function getDashboardCharts()
@@ -286,7 +279,7 @@ class DashboardController extends BaseController
         $monthlyRevenue = [];
         $monthlyNewStudents = [];
         $attendanceRates = [];
-        
+
         // Generate sample data (replace with actual data from your database)
         for ($i = 0; $i < 6; $i++) {
             $monthlyLabels[] = now()->subMonths(5 - $i)->format('M Y');
@@ -294,7 +287,7 @@ class DashboardController extends BaseController
             $monthlyNewStudents[] = rand(5, 50);
             $attendanceRates[] = rand(80, 100);
         }
-        
+
         // Sample class distribution
         $classDistribution = collect([
             'Class 1' => rand(20, 40),
@@ -319,14 +312,14 @@ class DashboardController extends BaseController
                 'data' => $monthlyRevenue,
                 'title' => 'Monthly Revenue',
                 'type' => 'line',
-                'color' => 'primary'
+                'color' => 'primary',
             ],
             'newStudents' => [
                 'labels' => $monthlyLabels,
                 'data' => $monthlyNewStudents,
                 'title' => 'New Students',
                 'type' => 'bar',
-                'color' => 'success'
+                'color' => 'success',
             ],
             'attendanceTrend' => [
                 'labels' => $monthlyLabels,
@@ -334,28 +327,28 @@ class DashboardController extends BaseController
                 'title' => 'Attendance Rate',
                 'type' => 'line',
                 'color' => 'info',
-                'suffix' => '%'
+                'suffix' => '%',
             ],
             'classDistribution' => [
                 'labels' => $classDistribution->keys()->toArray(),
                 'data' => $classDistribution->values()->toArray(),
                 'title' => 'Students by Class',
                 'type' => 'doughnut',
-                'color' => 'warning'
+                'color' => 'warning',
             ],
             'studentPerformance' => [
                 'labels' => array_keys($studentPerformance),
                 'data' => array_values($studentPerformance),
                 'title' => 'Student Performance',
                 'type' => 'bar',
-                'color' => 'danger'
-            ]
+                'color' => 'danger',
+            ],
         ];
     }
-    
+
     /**
      * Get recent activity data
-     * 
+     *
      * @return array
      */
     protected function getRecentActivity()
@@ -367,7 +360,7 @@ class DashboardController extends BaseController
                 'type' => 'new_student',
                 'message' => 'New student registered: John Doe',
                 'time' => '2 minutes ago',
-                'icon' => 'user-add'
+                'icon' => 'user-add',
             ],
             [
                 'id' => 2,
@@ -375,15 +368,15 @@ class DashboardController extends BaseController
                 'message' => 'Payment received from Jane Smith',
                 'amount' => 250.00,
                 'time' => '1 hour ago',
-                'icon' => 'currency-dollar'
+                'icon' => 'currency-dollar',
             ],
             // Add more sample activities as needed
         ];
     }
-    
+
     /**
      * Get quick actions for the dashboard
-     * 
+     *
      * @return array
      */
     protected function getQuickActions()
@@ -393,38 +386,37 @@ class DashboardController extends BaseController
                 'title' => 'Add New Student',
                 'icon' => 'user-add',
                 'url' => '/students/create',
-                'color' => 'indigo'
+                'color' => 'indigo',
             ],
             [
                 'title' => 'Record Payment',
                 'icon' => 'currency-dollar',
                 'url' => '/payments/create',
-                'color' => 'green'
+                'color' => 'green',
             ],
             [
                 'title' => 'Send Announcement',
                 'icon' => 'announcement',
                 'url' => '/announcements/create',
-                'color' => 'blue'
+                'color' => 'blue',
             ],
             [
                 'title' => 'Generate Report',
                 'icon' => 'document-report',
                 'url' => '/reports',
-                'color' => 'purple'
-            ]
+                'color' => 'purple',
+            ],
         ];
     }
-    
+
     /**
      * Get error response for dashboard errors
-     * 
-     * @param \Exception $e
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     protected function getErrorResponse(\Exception $e)
     {
-        \Log::error('Dashboard error: ' . $e->getMessage());
+        \Log::error('Dashboard error: '.$e->getMessage());
 
         return response()->json([
             'success' => false,
@@ -440,8 +432,8 @@ class DashboardController extends BaseController
                 'pendingAssignments' => 0,
                 'upcomingEvents' => 0,
                 'newStudentsThisMonth' => 0,
-                'revenueGrowth' => 0
-            ]
+                'revenueGrowth' => 0,
+            ],
         ], 500);
     }
 }

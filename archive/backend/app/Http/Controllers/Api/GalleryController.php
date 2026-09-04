@@ -10,20 +10,19 @@ class GalleryController extends Controller
 {
     /**
      * Get all gallery items
-     * 
-     * @param Request $request
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
     {
         $query = \App\Models\Gallery::query();
-        
+
         // Filter by category if provided
         if ($request->has('category')) {
             $query->where('category', $request->category);
         }
-        
-        $items = $query->orderBy('created_at', 'desc')->get()->map(function($item) {
+
+        $items = $query->orderBy('created_at', 'desc')->get()->map(function ($item) {
             return [
                 'id' => $item->id,
                 'title' => $item->title,
@@ -31,19 +30,19 @@ class GalleryController extends Controller
                 'category' => $item->category,
                 'image' => $item->image_path,
                 'date' => $item->created_at->toDateString(),
-                'featured' => $item->is_featured ?? false
+                'featured' => $item->is_featured ?? false,
             ];
         });
-        
+
         return response()->json([
             'success' => true,
-            'data' => $items
+            'data' => $items,
         ]);
     }
-    
+
     /**
      * Get all available gallery categories
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function categories()
@@ -52,29 +51,29 @@ class GalleryController extends Controller
             ->distinct()
             ->pluck('category')
             ->filter()
-            ->map(function($category) {
+            ->map(function ($category) {
                 return [
                     'id' => $category,
-                    'name' => ucfirst($category)
+                    'name' => ucfirst($category),
                 ];
             })
             ->values();
-            
+
         // Add 'All' category at the beginning
         $categories->prepend([
             'id' => 'all',
-            'name' => 'All'
+            'name' => 'All',
         ]);
-            
+
         return response()->json([
             'success' => true,
-            'data' => $categories
+            'data' => $categories,
         ]);
     }
-    
+
     /**
      * Get all unique categories
-     * 
+     *
      * @return \Illuminate\Support\Collection
      */
     private function getCategories()

@@ -43,8 +43,6 @@ class NotificationPreference extends Model
 
     /**
      * Get the default notification preferences.
-     *
-     * @return array
      */
     public static function getDefaultPreferences(): array
     {
@@ -90,8 +88,6 @@ class NotificationPreference extends Model
 
     /**
      * Get the available notification types.
-     *
-     * @return array
      */
     public static function getAvailableTypes(): array
     {
@@ -100,8 +96,6 @@ class NotificationPreference extends Model
 
     /**
      * Get the available notification channels.
-     *
-     * @return array
      */
     public static function getAvailableChannels(): array
     {
@@ -110,9 +104,6 @@ class NotificationPreference extends Model
 
     /**
      * Get the default preferences for a specific notification type.
-     *
-     * @param  string  $type
-     * @return array|null
      */
     public static function getDefaultPreferenceForType(string $type): ?array
     {
@@ -121,9 +112,6 @@ class NotificationPreference extends Model
 
     /**
      * Check if a notification type is valid.
-     *
-     * @param  string  $type
-     * @return bool
      */
     public static function isValidType(string $type): bool
     {
@@ -132,9 +120,6 @@ class NotificationPreference extends Model
 
     /**
      * Check if a channel is valid.
-     *
-     * @param  string  $channel
-     * @return bool
      */
     public static function isValidChannel(string $channel): bool
     {
@@ -143,16 +128,10 @@ class NotificationPreference extends Model
 
     /**
      * Get the user's preference for a specific notification type and channel.
-     *
-     * @param  int  $userId
-     * @param  string  $type
-     * @param  string  $channel
-     * @param  bool  $default
-     * @return bool
      */
     public static function getUserPreference(int $userId, string $type, string $channel, bool $default = false): bool
     {
-        if (!self::isValidType($type) || !self::isValidChannel($channel)) {
+        if (! self::isValidType($type) || ! self::isValidChannel($channel)) {
             return $default;
         }
 
@@ -160,8 +139,9 @@ class NotificationPreference extends Model
             ->where('notification_type', $type)
             ->first();
 
-        if (!$preference) {
+        if (! $preference) {
             $defaults = self::getDefaultPreferenceForType($type);
+
             return $defaults[$channel] ?? $default;
         }
 
@@ -170,16 +150,10 @@ class NotificationPreference extends Model
 
     /**
      * Set the user's preference for a specific notification type and channel.
-     *
-     * @param  int  $userId
-     * @param  string  $type
-     * @param  string  $channel
-     * @param  bool  $value
-     * @return bool
      */
     public static function setUserPreference(int $userId, string $type, string $channel, bool $value): bool
     {
-        if (!self::isValidType($type) || !self::isValidChannel($channel)) {
+        if (! self::isValidType($type) || ! self::isValidChannel($channel)) {
             return false;
         }
 
@@ -189,14 +163,12 @@ class NotificationPreference extends Model
         ]);
 
         $preference->{$channel} = $value;
+
         return $preference->save();
     }
 
     /**
      * Get all preferences for a user.
-     *
-     * @param  int  $userId
-     * @return array
      */
     public static function getUserPreferences(int $userId): array
     {
@@ -206,7 +178,7 @@ class NotificationPreference extends Model
 
         foreach ($defaults as $type => $channels) {
             $userPref = $userPreferences->where('notification_type', $type)->first();
-            
+
             $preferences[$type] = [];
             foreach ($channels as $channel => $defaultValue) {
                 $preferences[$type][$channel] = $userPref ? (bool) $userPref->{$channel} : $defaultValue;
@@ -218,36 +190,32 @@ class NotificationPreference extends Model
 
     /**
      * Set multiple preferences for a user at once.
-     *
-     * @param  int  $userId
-     * @param  array  $preferences
-     * @return bool
      */
     public static function setUserPreferences(int $userId, array $preferences): bool
     {
         $success = true;
-        
+
         foreach ($preferences as $type => $channels) {
-            if (!self::isValidType($type)) {
+            if (! self::isValidType($type)) {
                 continue;
             }
-            
+
             $pref = self::firstOrNew([
                 'user_id' => $userId,
                 'notification_type' => $type,
             ]);
-            
+
             foreach ($channels as $channel => $value) {
                 if (self::isValidChannel($channel)) {
                     $pref->{$channel} = (bool) $value;
                 }
             }
-            
-            if (!$pref->save()) {
+
+            if (! $pref->save()) {
                 $success = false;
             }
         }
-        
+
         return $success;
     }
 }

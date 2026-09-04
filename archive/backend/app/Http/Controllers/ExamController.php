@@ -3,13 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ExamResource;
-use App\Models\Exam;
 use App\Models\Batch;
+use App\Models\Exam;
 use App\Models\Section;
+use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Teacher;
-use App\Models\Student;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -19,7 +18,6 @@ class ExamController extends Controller
     /**
      * Display a listing of the exams.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -76,7 +74,7 @@ class ExamController extends Controller
         }
 
         if ($request->has('teacher_id')) {
-            $query->whereHas('teachers', function($q) use ($request) {
+            $query->whereHas('teachers', function ($q) use ($request) {
                 $q->where('teacher_id', $request->teacher_id);
             });
         }
@@ -95,46 +93,46 @@ class ExamController extends Controller
         // Apply search
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('code', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhereHas('batch', function($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('code', 'like', "%{$search}%");
-                  })
-                  ->orWhereHas('section', function($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%");
-                  })
-                  ->orWhereHas('subject', function($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('code', 'like', "%{$search}%");
-                  });
+                    ->orWhere('code', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhereHas('batch', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('code', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('section', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('subject', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('code', 'like', "%{$search}%");
+                    });
             });
         }
 
         // Apply sorting
         $sortField = $request->input('sort_field', 'start_date');
         $sortOrder = $request->input('sort_order', 'desc');
-        
+
         if (in_array($sortField, ['name', 'code', 'type', 'status', 'start_date', 'end_date', 'created_at'])) {
             $query->orderBy($sortField, $sortOrder);
         } elseif ($sortField === 'batch') {
             $query->join('batches', 'exams.batch_id', '=', 'batches.id')
-                  ->orderBy('batches.name', $sortOrder)
-                  ->select('exams.*');
+                ->orderBy('batches.name', $sortOrder)
+                ->select('exams.*');
         } elseif ($sortField === 'section') {
             $query->join('sections', 'exams.section_id', '=', 'sections.id')
-                  ->orderBy('sections.name', $sortOrder)
-                  ->select('exams.*');
+                ->orderBy('sections.name', $sortOrder)
+                ->select('exams.*');
         } elseif ($sortField === 'subject') {
             $query->join('subjects', 'exams.subject_id', '=', 'subjects.id')
-                  ->orderBy('subjects.name', $sortOrder)
-                  ->select('exams.*');
+                ->orderBy('subjects.name', $sortOrder)
+                ->select('exams.*');
         } elseif ($sortField === 'created_by') {
             $query->join('users', 'exams.created_by', '=', 'users.id')
-                  ->orderBy('users.name', $sortOrder)
-                  ->select('exams.*');
+                ->orderBy('users.name', $sortOrder)
+                ->select('exams.*');
         }
 
         $perPage = $request->per_page ?? 20;
@@ -147,14 +145,13 @@ class ExamController extends Controller
                 'per_page' => $exams->perPage(),
                 'current_page' => $exams->currentPage(),
                 'last_page' => $exams->lastPage(),
-            ]
+            ],
         ]);
     }
 
     /**
      * Store a newly created exam in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
@@ -164,7 +161,7 @@ class ExamController extends Controller
         $validated = $this->validateExamData($request);
 
         // Set default grading scale if not provided
-        if (!isset($validated['grading_scale']) || empty($validated['grading_scale'])) {
+        if (! isset($validated['grading_scale']) || empty($validated['grading_scale'])) {
             $validated['grading_scale'] = Exam::getDefaultGradingScale();
         }
 
@@ -173,7 +170,7 @@ class ExamController extends Controller
         $validated['updated_by'] = auth()->id();
 
         // Handle exam creation in transaction
-        $exam = DB::transaction(function () use ($validated, $request) {
+        $exam = DB::transaction(function () use ($validated) {
             $exam = Exam::create($validated);
 
             // Attach teachers if provided
@@ -194,20 +191,19 @@ class ExamController extends Controller
 
         return response()->json([
             'message' => 'Exam created successfully',
-            'data' => new ExamResource($exam)
+            'data' => new ExamResource($exam),
         ], 201);
     }
 
     /**
      * Display the specified exam.
      *
-     * @param  \App\Models\Exam  $exam
      * @return \Illuminate\Http\JsonResponse
      */
     public function show(Exam $exam)
     {
         $this->authorize('view', $exam);
-        
+
         $exam->load([
             'academicSession',
             'batch',
@@ -221,15 +217,13 @@ class ExamController extends Controller
         ]);
 
         return response()->json([
-            'data' => new ExamResource($exam)
+            'data' => new ExamResource($exam),
         ]);
     }
 
     /**
      * Update the specified exam in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Exam  $exam
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, Exam $exam)
@@ -267,14 +261,13 @@ class ExamController extends Controller
 
         return response()->json([
             'message' => 'Exam updated successfully',
-            'data' => new ExamResource($exam)
+            'data' => new ExamResource($exam),
         ]);
     }
 
     /**
      * Remove the specified exam from storage.
      *
-     * @param  \App\Models\Exam  $exam
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Exam $exam)
@@ -292,15 +285,15 @@ class ExamController extends Controller
         DB::transaction(function () use ($exam) {
             // Delete exam questions
             $exam->questions()->delete();
-            
+
             // Delete exam schedule if exists
             if ($exam->schedule) {
                 $exam->schedule()->delete();
             }
-            
+
             // Detach teachers
             $exam->teachers()->detach();
-            
+
             // Delete the exam
             $exam->delete();
         });
@@ -313,7 +306,6 @@ class ExamController extends Controller
     /**
      * Publish the specified exam.
      *
-     * @param  \App\Models\Exam  $exam
      * @return \Illuminate\Http\JsonResponse
      */
     public function publish(Exam $exam)
@@ -338,7 +330,7 @@ class ExamController extends Controller
             'status' => Exam::STATUS_PUBLISHED,
             'is_published' => true,
             'publish_date' => now(),
-            'publish_remarks' => 'Published by ' . auth()->user()->name,
+            'publish_remarks' => 'Published by '.auth()->user()->name,
             'updated_by' => auth()->id(),
         ]);
 
@@ -354,14 +346,13 @@ class ExamController extends Controller
     /**
      * Unpublish the specified exam.
      *
-     * @param  \App\Models\Exam  $exam
      * @return \Illuminate\Http\JsonResponse
      */
     public function unpublish(Exam $exam)
     {
         $this->authorize('unpublish', $exam);
 
-        if (!$exam->is_published) {
+        if (! $exam->is_published) {
             return response()->json([
                 'message' => 'Exam is not published.',
             ], 422);
@@ -371,7 +362,7 @@ class ExamController extends Controller
         $exam->update([
             'status' => Exam::STATUS_COMPLETED,
             'is_published' => false,
-            'publish_remarks' => 'Unpublished by ' . auth()->user()->name,
+            'publish_remarks' => 'Unpublished by '.auth()->user()->name,
             'updated_by' => auth()->id(),
         ]);
 
@@ -384,7 +375,6 @@ class ExamController extends Controller
     /**
      * Get exam statistics.
      *
-     * @param  \App\Models\Exam  $exam
      * @return \Illuminate\Http\JsonResponse
      */
     public function statistics(Exam $exam)
@@ -402,8 +392,6 @@ class ExamController extends Controller
     /**
      * Get exam results.
      *
-     * @param  \App\Models\Exam  $exam
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function results(Exam $exam, Request $request)
@@ -416,7 +404,7 @@ class ExamController extends Controller
                 'submittedBy.user',
                 'reviewedBy.user',
                 'publishedBy.user',
-                'latestRemark'
+                'latestRemark',
             ]);
 
         // Apply filters
@@ -435,28 +423,28 @@ class ExamController extends Controller
         // Apply search
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('grade', 'like', "%{$search}%")
-                  ->orWhere('remarks', 'like', "%{$search}%")
-                  ->orWhere('review_remarks', 'like', "%{$search}%")
-                  ->orWhereHas('student.user', function($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%");
-                  });
+                    ->orWhere('remarks', 'like', "%{$search}%")
+                    ->orWhere('review_remarks', 'like', "%{$search}%")
+                    ->orWhereHas('student.user', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
             });
         }
 
         // Apply sorting
         $sortField = $request->input('sort_field', 'obtained_marks');
         $sortOrder = $request->input('sort_order', 'desc');
-        
+
         if (in_array($sortField, ['obtained_marks', 'grade_point', 'created_at', 'updated_at'])) {
             $query->orderBy($sortField, $sortOrder);
         } elseif ($sortField === 'student') {
             $query->join('students', 'exam_results.student_id', '=', 'students.id')
-                  ->join('users', 'students.user_id', '=', 'users.id')
-                  ->orderBy('users.name', $sortOrder)
-                  ->select('exam_results.*');
+                ->join('users', 'students.user_id', '=', 'users.id')
+                ->orderBy('users.name', $sortOrder)
+                ->select('exam_results.*');
         }
 
         $perPage = $request->per_page ?? 20;
@@ -469,15 +457,13 @@ class ExamController extends Controller
                 'per_page' => $results->perPage(),
                 'current_page' => $results->currentPage(),
                 'last_page' => $results->lastPage(),
-            ]
+            ],
         ]);
     }
 
     /**
      * Submit exam result.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Exam  $exam
      * @return \Illuminate\Http\JsonResponse
      */
     public function submitResult(Request $request, Exam $exam)
@@ -486,7 +472,7 @@ class ExamController extends Controller
 
         $validated = $request->validate([
             'student_id' => 'required|exists:students,id',
-            'obtained_marks' => 'required|numeric|min:0|max:' . $exam->total_marks,
+            'obtained_marks' => 'required|numeric|min:0|max:'.$exam->total_marks,
             'grade' => 'nullable|string|max:10',
             'grade_point' => 'nullable|numeric|min:0|max:4',
             'remarks' => 'nullable|string|max:500',
@@ -504,7 +490,7 @@ class ExamController extends Controller
             $validated['reviewed_by'] = auth()->user()->staff->id;
             $validated['reviewed_at'] = now();
             $validated['is_published'] = $request->input('is_published', false);
-            
+
             if ($validated['is_published']) {
                 $validated['published_by'] = auth()->user()->staff->id;
                 $validated['published_at'] = now();
@@ -518,7 +504,7 @@ class ExamController extends Controller
         );
 
         // Add remark if provided
-        if (!empty($validated['review_remarks'])) {
+        if (! empty($validated['review_remarks'])) {
             $result->remarks()->create([
                 'remarks' => $validated['review_remarks'],
                 'created_by' => auth()->id(),
@@ -530,15 +516,13 @@ class ExamController extends Controller
 
         return response()->json([
             'message' => 'Exam result submitted successfully',
-            'data' => $result->load(['student.user', 'submittedBy.user'])
+            'data' => $result->load(['student.user', 'submittedBy.user']),
         ], 201);
     }
 
     /**
      * Update exam result.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Exam  $exam
      * @param  int  $resultId
      * @return \Illuminate\Http\JsonResponse
      */
@@ -549,7 +533,7 @@ class ExamController extends Controller
         $result = $exam->results()->findOrFail($resultId);
 
         $validated = $request->validate([
-            'obtained_marks' => 'required|numeric|min:0|max:' . $exam->total_marks,
+            'obtained_marks' => 'required|numeric|min:0|max:'.$exam->total_marks,
             'grade' => 'nullable|string|max:10',
             'grade_point' => 'nullable|numeric|min:0|max:4',
             'remarks' => 'nullable|string|max:500',
@@ -572,15 +556,15 @@ class ExamController extends Controller
 
         // Handle publication status
         if (isset($validated['is_published'])) {
-            if ($validated['is_published'] && !$result->is_published) {
+            if ($validated['is_published'] && ! $result->is_published) {
                 $result->publish(auth()->user()->staff->id, 'Published via result update');
-            } elseif (!$validated['is_published'] && $result->is_published) {
+            } elseif (! $validated['is_published'] && $result->is_published) {
                 $result->unpublish(auth()->user()->staff->id, 'Unpublished via result update');
             }
         }
 
         // Add remark if provided
-        if (!empty($validated['review_remarks'])) {
+        if (! empty($validated['review_remarks'])) {
             $result->remarks()->create([
                 'remarks' => $validated['review_remarks'],
                 'created_by' => auth()->id(),
@@ -592,14 +576,13 @@ class ExamController extends Controller
 
         return response()->json([
             'message' => 'Exam result updated successfully',
-            'data' => $result->fresh(['student.user', 'submittedBy.user', 'reviewedBy.user'])
+            'data' => $result->fresh(['student.user', 'submittedBy.user', 'reviewedBy.user']),
         ]);
     }
 
     /**
      * Update exam status based on results.
      *
-     * @param  \App\Models\Exam  $exam
      * @return void
      */
     protected function updateExamStatus(Exam $exam)
@@ -637,10 +620,10 @@ class ExamController extends Controller
             ->select('id', 'name', 'code')
             ->orderBy('name')
             ->get()
-            ->map(function($batch) {
+            ->map(function ($batch) {
                 return [
                     'value' => $batch->id,
-                    'label' => $batch->name . ' (' . $batch->code . ')'
+                    'label' => $batch->name.' ('.$batch->code.')',
                 ];
             });
 
@@ -648,10 +631,10 @@ class ExamController extends Controller
             ->select('id', 'name', 'code')
             ->orderBy('name')
             ->get()
-            ->map(function($section) {
+            ->map(function ($section) {
                 return [
                     'value' => $section->id,
-                    'label' => $section->name . ' (' . $section->code . ')'
+                    'label' => $section->name.' ('.$section->code.')',
                 ];
             });
 
@@ -659,20 +642,20 @@ class ExamController extends Controller
             ->select('id', 'name', 'code')
             ->orderBy('name')
             ->get()
-            ->map(function($subject) {
+            ->map(function ($subject) {
                 return [
                     'value' => $subject->id,
-                    'label' => $subject->name . ' (' . $subject->code . ')'
+                    'label' => $subject->name.' ('.$subject->code.')',
                 ];
             });
 
         $teachers = Teacher::with('user')
             ->select('id', 'user_id', 'employee_id')
             ->get()
-            ->map(function($teacher) {
+            ->map(function ($teacher) {
                 return [
                     'value' => $teacher->id,
-                    'label' => $teacher->user->name . ' (' . $teacher->employee_id . ')'
+                    'label' => $teacher->user->name.' ('.$teacher->employee_id.')',
                 ];
             });
 
@@ -688,17 +671,17 @@ class ExamController extends Controller
                 ['value' => 'ongoing', 'label' => 'Ongoing'],
                 ['value' => 'completed', 'label' => 'Completed'],
                 ['value' => 'published', 'label' => 'Published'],
-                ...collect(Exam::getStatuses())->map(function($label, $value) {
+                ...collect(Exam::getStatuses())->map(function ($label, $value) {
                     return ['value' => $value, 'label' => $label];
                 })->values()->toArray(),
             ],
-            'types' => collect(Exam::getTypes())->map(function($label, $value) {
+            'types' => collect(Exam::getTypes())->map(function ($label, $value) {
                 return [
                     'value' => $value,
                     'label' => $label,
                 ];
             })->values(),
-            'grading_types' => collect(Exam::getGradingTypes())->map(function($label, $value) {
+            'grading_types' => collect(Exam::getGradingTypes())->map(function ($label, $value) {
                 return [
                     'value' => $value,
                     'label' => $label,
@@ -725,7 +708,6 @@ class ExamController extends Controller
     /**
      * Validate exam data.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int|null  $examId
      * @return array
      */
@@ -770,14 +752,12 @@ class ExamController extends Controller
     /**
      * Sync teachers for the exam.
      *
-     * @param  \App\Models\Exam  $exam
-     * @param  array  $teachers
      * @return void
      */
     protected function syncTeachers(Exam $exam, array $teachers)
     {
         $teacherData = [];
-        
+
         foreach ($teachers as $teacher) {
             $teacherData[$teacher['id']] = [
                 'is_chief_examiner' => $teacher['is_chief_examiner'] ?? false,
@@ -785,14 +765,13 @@ class ExamController extends Controller
                 'responsibilities' => $teacher['responsibilities'] ?? null,
             ];
         }
-        
+
         $exam->teachers()->sync($teacherData);
     }
 
     /**
      * Notify students and parents about published results.
      *
-     * @param  \App\Models\Exam  $exam
      * @return void
      */
     protected function notifyPublishedResults(Exam $exam)
@@ -801,7 +780,7 @@ class ExamController extends Controller
         $students = $exam->results()
             ->with(['student.user', 'student.guardians.user'])
             ->get()
-            ->map(function($result) {
+            ->map(function ($result) {
                 return [
                     'student' => $result->student,
                     'guardians' => $result->student->guardians,
@@ -813,13 +792,13 @@ class ExamController extends Controller
         foreach ($students as $data) {
             $student = $data['student'];
             $result = $data['result'];
-            
+
             // Notify student
             if ($student->user) {
                 // Example: Send notification to student
                 // $student->user->notify(new ExamResultPublished($exam, $result));
             }
-            
+
             // Notify guardians
             foreach ($data['guardians'] as $guardian) {
                 if ($guardian->user) {
@@ -828,7 +807,7 @@ class ExamController extends Controller
                 }
             }
         }
-        
+
         // Notify teachers
         foreach ($exam->teachers as $teacher) {
             if ($teacher->user) {

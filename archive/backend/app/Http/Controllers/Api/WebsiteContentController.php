@@ -19,7 +19,7 @@ class WebsiteContentController extends Controller
             ->where('is_active', true)
             ->first();
 
-        if (!$content) {
+        if (! $content) {
             // Return default content if page not found
             $content = new WebsiteContent([
                 'page' => $page,
@@ -103,7 +103,7 @@ class WebsiteContentController extends Controller
 
         $content = WebsiteContent::where('page', $page)->firstOrFail();
         $path = $request->file('image')->store('website/images', 'public');
-        
+
         // Update the images array
         $images = $content->images ?? [];
         $images[$request->field_name] = $path;
@@ -112,7 +112,7 @@ class WebsiteContentController extends Controller
 
         return response()->json([
             'success' => true,
-            'url' => asset('storage/' . $path),
+            'url' => asset('storage/'.$path),
             'path' => $path,
         ]);
     }

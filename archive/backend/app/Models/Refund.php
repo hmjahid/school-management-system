@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Refund extends Model
 {
@@ -78,7 +78,7 @@ class Refund extends Model
      */
     public function getFormattedAmountAttribute(): string
     {
-        return number_format($this->amount, 2) . ' ' . strtoupper($this->currency);
+        return number_format($this->amount, 2).' '.strtoupper($this->currency);
     }
 
     /**
@@ -124,7 +124,7 @@ class Refund extends Model
     /**
      * Mark the refund as completed.
      */
-    public function markAsCompleted(string $transactionId = null): bool
+    public function markAsCompleted(?string $transactionId = null): bool
     {
         return $this->update([
             'status' => 'completed',
@@ -136,7 +136,7 @@ class Refund extends Model
     /**
      * Mark the refund as failed.
      */
-    public function markAsFailed(string $error = null): bool
+    public function markAsFailed(?string $error = null): bool
     {
         return $this->update([
             'status' => 'failed',

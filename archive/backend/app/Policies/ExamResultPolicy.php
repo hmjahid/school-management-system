@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\ExamResult;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ExamResultPolicy
@@ -13,7 +13,6 @@ class ExamResultPolicy
     /**
      * Determine whether the user can view any models.
      *
-     * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function viewAny(User $user)
@@ -24,8 +23,6 @@ class ExamResultPolicy
     /**
      * Determine whether the user can view the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\ExamResult  $examResult
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function view(User $user, ExamResult $examResult)
@@ -36,14 +33,13 @@ class ExamResultPolicy
         $isParent = $user->guardian && $user->guardian->students()->where('students.id', $examResult->student_id)->exists();
         $isTeacher = $examResult->exam->teachers()->where('teacher_id', $user->teacher?->id)->exists();
         $isAdmin = $user->hasRole('admin');
-        
+
         return $user->can('view_exam_result') && ($isStudent || $isParent || $isTeacher || $isAdmin);
     }
 
     /**
      * Determine whether the user can create models.
      *
-     * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function create(User $user)
@@ -55,8 +51,6 @@ class ExamResultPolicy
     /**
      * Determine whether the user can update the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\ExamResult  $examResult
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function update(User $user, ExamResult $examResult)
@@ -64,15 +58,13 @@ class ExamResultPolicy
         // Only teachers assigned to the exam or admins can update results
         $isAssignedTeacher = $examResult->exam->teachers()->where('teacher_id', $user->teacher?->id)->exists();
         $isAdmin = $user->hasRole('admin');
-        
+
         return $user->can('edit_exam_result') && ($isAssignedTeacher || $isAdmin);
     }
 
     /**
      * Determine whether the user can delete the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\ExamResult  $examResult
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function delete(User $user, ExamResult $examResult)
@@ -84,8 +76,6 @@ class ExamResultPolicy
     /**
      * Determine whether the user can restore the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\ExamResult  $examResult
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function restore(User $user, ExamResult $examResult)
@@ -96,8 +86,6 @@ class ExamResultPolicy
     /**
      * Determine whether the user can permanently delete the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\ExamResult  $examResult
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function forceDelete(User $user, ExamResult $examResult)
@@ -108,8 +96,6 @@ class ExamResultPolicy
     /**
      * Determine whether the user can publish the result.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\ExamResult  $examResult
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function publish(User $user, ExamResult $examResult)
@@ -118,15 +104,13 @@ class ExamResultPolicy
         $canReview = $user->can('review_exam_results');
         $isAssignedTeacher = $examResult->exam->teachers()->where('teacher_id', $user->teacher?->id)->exists();
         $isAdmin = $user->hasRole('admin');
-        
+
         return $canReview && ($isAssignedTeacher || $isAdmin);
     }
 
     /**
      * Determine whether the user can unpublish the result.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\ExamResult  $examResult
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function unpublish(User $user, ExamResult $examResult)
@@ -134,14 +118,13 @@ class ExamResultPolicy
         // Only the teacher who published it or an admin can unpublish
         $isPublisher = $examResult->published_by === $user->staff?->id;
         $isAdmin = $user->hasRole('admin');
-        
+
         return $user->can('unpublish_exam_result') && ($isPublisher || $isAdmin);
     }
 
     /**
      * Determine whether the user can view the student's own results.
      *
-     * @param  \App\Models\User  $user
      * @param  \App\Models\ExamResult  $examResult
      * @return \Illuminate\Auth\Access\Response|bool
      */
@@ -153,13 +136,12 @@ class ExamResultPolicy
     /**
      * Determine whether the user can view their child's results.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\ExamResult  $examResult
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function viewChild(User $user, ExamResult $examResult)
     {
         $isParent = $user->guardian && $user->guardian->students()->where('students.id', $examResult->student_id)->exists();
+
         return $isParent && $user->can('view_child_exam_results');
     }
 }

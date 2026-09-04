@@ -2,30 +2,35 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\ClassModel;
-use App\Models\Student;
-use App\Models\Grade;
-use App\Models\Subject;
-use App\Models\Section;
 use App\Models\Exam;
-use App\Models\AcademicYear;
+use App\Models\Grade;
 use App\Models\Guardian;
+use App\Models\Section;
+use App\Models\Student;
+use App\Models\Subject;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
+use Tests\TestCase;
 
 class TeacherControllerTest extends TestCase
 {
     use RefreshDatabase;
 
     private $teacher;
+
     private $class;
+
     private $student;
+
     private $subject;
+
     private $section;
+
     private $exam;
+
     private $token;
 
     protected function setUp(): void
@@ -34,15 +39,15 @@ class TeacherControllerTest extends TestCase
 
         // Create a role for the teacher
         $teacherRole = \Spatie\Permission\Models\Role::create(['name' => 'teacher']);
-        
+
         // Create a teacher user
         $this->teacher = User::factory()->create([
             'name' => 'Test Teacher',
             'email' => 'teacher@example.com',
             'password' => Hash::make('password'),
-            'role_id' => $teacherRole->id
+            'role_id' => $teacherRole->id,
         ]);
-        
+
         // Assign the teacher role to the user
         $this->teacher->assignRole('teacher');
 
@@ -94,7 +99,7 @@ class TeacherControllerTest extends TestCase
 
         // Create a role for the student
         $studentRole = Role::firstOrCreate(['name' => 'student']);
-        
+
         // Create a student user
         $studentUser = User::create([
             'name' => 'Test Student',
@@ -134,10 +139,10 @@ class TeacherControllerTest extends TestCase
         // Create student record with all required fields from the migration
         $studentData = [
             'user_id' => $studentUser->id,
-            'admission_no' => 'ADM' . rand(1000, 9999), // Required and unique
-            'admission_number' => 'ADMNUM' . rand(1000, 9999), // Required and unique
-            'roll_no' => 'S' . rand(100, 999), // Required
-            'roll_number' => 'ROLL' . rand(1000, 9999), // Required
+            'admission_no' => 'ADM'.rand(1000, 9999), // Required and unique
+            'admission_number' => 'ADMNUM'.rand(1000, 9999), // Required and unique
+            'roll_no' => 'S'.rand(100, 999), // Required
+            'roll_number' => 'ROLL'.rand(1000, 9999), // Required
             'class_id' => $this->class->id, // Required foreign key
             'school_class_id' => $this->class->id, // Required foreign key
             'guardian_id' => $guardian->id, // Required foreign key
@@ -149,7 +154,7 @@ class TeacherControllerTest extends TestCase
             'gender' => 'male',
             'blood_group' => 'A+',
             'religion' => 'Islam',
-            'phone' => '01' . rand(300000000, 999999999),
+            'phone' => '01'.rand(300000000, 999999999),
             'city' => 'Test City',
             'state' => 'Test State',
             'country' => 'Bangladesh', // Default value
@@ -157,17 +162,17 @@ class TeacherControllerTest extends TestCase
             'created_at' => now(),
             'updated_at' => now(),
         ];
-        
+
         // Debug: Log the data being used to create the student
-        fwrite(STDERR, "Creating student with data: " . print_r($studentData, true) . "\n");
-        
+        fwrite(STDERR, 'Creating student with data: '.print_r($studentData, true)."\n");
+
         try {
             $this->student = Student::create($studentData);
-            fwrite(STDERR, "Student created successfully with ID: " . $this->student->id . "\n");
+            fwrite(STDERR, 'Student created successfully with ID: '.$this->student->id."\n");
         } catch (\Exception $e) {
-            fwrite(STDERR, "Error creating student: " . $e->getMessage() . "\n");
-            fwrite(STDERR, "SQL: " . $e->getSql() . "\n");
-            fwrite(STDERR, "Bindings: " . print_r($e->getBindings(), true) . "\n");
+            fwrite(STDERR, 'Error creating student: '.$e->getMessage()."\n");
+            fwrite(STDERR, 'SQL: '.$e->getSql()."\n");
+            fwrite(STDERR, 'Bindings: '.print_r($e->getBindings(), true)."\n");
             throw $e;
         }
 
@@ -203,7 +208,7 @@ class TeacherControllerTest extends TestCase
         // Login and get token
         $response = $this->postJson('/api/auth/login', [
             'email' => 'teacher@example.com',
-            'password' => 'password'
+            'password' => 'password',
         ]);
 
         $this->token = $response->json('access_token');
@@ -213,8 +218,8 @@ class TeacherControllerTest extends TestCase
     public function it_can_get_teacher_classes()
     {
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $this->token,
-            'Accept' => 'application/json'
+            'Authorization' => 'Bearer '.$this->token,
+            'Accept' => 'application/json',
         ])->get('/api/teacher/classes');
 
         $response->assertStatus(200)
@@ -229,12 +234,12 @@ class TeacherControllerTest extends TestCase
                         'section' => ['id', 'name'],
                         'students_count',
                         'created_at',
-                        'updated_at'
-                    ]
+                        'updated_at',
+                    ],
                 ],
                 'meta' => [
-                    'total', 'per_page', 'current_page', 'last_page', 'from', 'to'
-                ]
+                    'total', 'per_page', 'current_page', 'last_page', 'from', 'to',
+                ],
             ]);
     }
 
@@ -242,8 +247,8 @@ class TeacherControllerTest extends TestCase
     public function it_can_get_class_students()
     {
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $this->token,
-            'Accept' => 'application/json'
+            'Authorization' => 'Bearer '.$this->token,
+            'Accept' => 'application/json',
         ])->get("/api/teacher/classes/{$this->class->id}/students");
 
         $response->assertStatus(200)
@@ -260,12 +265,12 @@ class TeacherControllerTest extends TestCase
                         'created_at',
                         'updated_at',
                         'user' => ['id', 'name', 'email'],
-                        'class' => ['id', 'name']
-                    ]
+                        'class' => ['id', 'name'],
+                    ],
                 ],
                 'meta' => [
-                    'total', 'per_page', 'current_page', 'last_page', 'from', 'to'
-                ]
+                    'total', 'per_page', 'current_page', 'last_page', 'from', 'to',
+                ],
             ]);
     }
 
@@ -273,8 +278,8 @@ class TeacherControllerTest extends TestCase
     public function it_can_get_class_grades()
     {
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $this->token,
-            'Accept' => 'application/json'
+            'Authorization' => 'Bearer '.$this->token,
+            'Accept' => 'application/json',
         ])->get("/api/teacher/classes/{$this->class->id}/grades");
 
         $response->assertStatus(200)
@@ -294,18 +299,18 @@ class TeacherControllerTest extends TestCase
                                 'total_marks',
                                 'grade',
                                 'exam',
-                                'exam_date'
-                            ]
+                                'exam_date',
+                            ],
                         ],
                         'overall_percentage',
                         'overall_grade',
                         'total_marks_obtained',
-                        'total_max_marks'
-                    ]
+                        'total_max_marks',
+                    ],
                 ],
                 'meta' => [
-                    'total', 'per_page', 'current_page', 'last_page', 'from', 'to'
-                ]
+                    'total', 'per_page', 'current_page', 'last_page', 'from', 'to',
+                ],
             ]);
     }
 
@@ -317,15 +322,15 @@ class TeacherControllerTest extends TestCase
             'name' => 'Other Teacher',
             'email' => 'other@example.com',
             'password' => Hash::make('password'),
-            'role_id' => $teacherRole->id
+            'role_id' => $teacherRole->id,
         ]);
         $otherTeacher->assignRole('teacher');
 
         // Try to access the class as the other teacher
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $this->token,
-            'Accept' => 'application/json'
-        ])->get("/api/teacher/classes/999999/students");
+            'Authorization' => 'Bearer '.$this->token,
+            'Accept' => 'application/json',
+        ])->get('/api/teacher/classes/999999/students');
 
         $response->assertStatus(422);
     }

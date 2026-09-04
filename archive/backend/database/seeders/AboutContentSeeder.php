@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class AboutContentSeeder extends Seeder
@@ -13,7 +12,7 @@ class AboutContentSeeder extends Seeder
     public function run(): void
     {
         // Check if the about_contents table exists
-        if (!\Schema::hasTable('about_contents')) {
+        if (! \Schema::hasTable('about_contents')) {
             return;
         }
 
@@ -28,14 +27,14 @@ class AboutContentSeeder extends Seeder
             ['name' => 'Excellence', 'description' => 'Striving for the highest standards in education'],
             ['name' => 'Integrity', 'description' => 'Upholding honesty and strong moral principles'],
             ['name' => 'Innovation', 'description' => 'Encouraging creative thinking and new ideas'],
-            ['name' => 'Diversity', 'description' => 'Valuing and respecting differences in people']
+            ['name' => 'Diversity', 'description' => 'Valuing and respecting differences in people'],
         ];
 
         $socialLinks = [
             ['platform' => 'facebook', 'url' => 'https://facebook.com/exampleschool'],
             ['platform' => 'twitter', 'url' => 'https://twitter.com/exampleschool'],
             ['platform' => 'instagram', 'url' => 'https://instagram.com/exampleschool'],
-            ['platform' => 'linkedin', 'url' => 'https://linkedin.com/school/exampleschool']
+            ['platform' => 'linkedin', 'url' => 'https://linkedin.com/school/exampleschool'],
         ];
 
         $contactInfo = [
@@ -43,16 +42,16 @@ class AboutContentSeeder extends Seeder
                 'name' => 'Dr. Jane Smith',
                 'email' => 'principal@exampleschool.edu',
                 'phone' => '+1 (555) 123-4567',
-                'office_hours' => 'Monday-Friday, 8:00 AM - 4:00 PM'
+                'office_hours' => 'Monday-Friday, 8:00 AM - 4:00 PM',
             ],
             'admissions' => [
                 'email' => 'admissions@exampleschool.edu',
-                'phone' => '+1 (555) 123-4568'
+                'phone' => '+1 (555) 123-4568',
             ],
             'general' => [
                 'email' => 'info@exampleschool.edu',
-                'phone' => '+1 (555) 123-4569'
-            ]
+                'phone' => '+1 (555) 123-4569',
+            ],
         ];
 
         \DB::table('about_contents')->insert([

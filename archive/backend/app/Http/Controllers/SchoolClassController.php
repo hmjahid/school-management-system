@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\SchoolClassResource;
-use App\Models\SchoolClass;
-use App\Models\Teacher;
-use App\Models\Subject;
 use App\Models\AcademicSession;
+use App\Models\SchoolClass;
+use App\Models\Subject;
+use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -16,7 +16,6 @@ class SchoolClassController extends Controller
     /**
      * Display a listing of the classes.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -36,17 +35,17 @@ class SchoolClassController extends Controller
 
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('code', 'like', "%{$search}%")
-                  ->orWhere('grade_level', 'like', "%{$search}%");
+                    ->orWhere('code', 'like', "%{$search}%")
+                    ->orWhere('grade_level', 'like', "%{$search}%");
             });
         }
 
         // Apply sorting
         $sortField = $request->input('sort_field', 'grade_level');
         $sortOrder = $request->input('sort_order', 'asc');
-        
+
         if (in_array($sortField, ['name', 'code', 'grade_level', 'created_at'])) {
             $query->orderBy($sortField, $sortOrder);
         }
@@ -60,14 +59,13 @@ class SchoolClassController extends Controller
                 'per_page' => $classes->perPage(),
                 'current_page' => $classes->currentPage(),
                 'last_page' => $classes->lastPage(),
-            ]
+            ],
         ]);
     }
 
     /**
      * Store a newly created class in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
@@ -100,19 +98,19 @@ class SchoolClassController extends Controller
             $class = SchoolClass::create($validated);
 
             // Attach subjects if provided
-            if (!empty($validated['subjects'])) {
+            if (! empty($validated['subjects'])) {
                 $class->subjects()->attach($validated['subjects'], [
-                    'academic_session_id' => $validated['academic_session_id']
+                    'academic_session_id' => $validated['academic_session_id'],
                 ]);
             }
 
             // Attach teachers if provided
-            if (!empty($validated['teachers'])) {
+            if (! empty($validated['teachers'])) {
                 $teacherData = [];
                 foreach ($validated['teachers'] as $teacher) {
                     $teacherData[$teacher['teacher_id']] = [
                         'is_class_teacher' => $teacher['is_class_teacher'] ?? false,
-                        'academic_session_id' => $validated['academic_session_id']
+                        'academic_session_id' => $validated['academic_session_id'],
                     ];
                 }
                 $class->teachers()->attach($teacherData);
@@ -123,36 +121,33 @@ class SchoolClassController extends Controller
 
         return response()->json([
             'message' => 'Class created successfully',
-            'data' => new SchoolClassResource($class)
+            'data' => new SchoolClassResource($class),
         ], 201);
     }
 
     /**
      * Display the specified class.
      *
-     * @param  \App\Models\SchoolClass  $class
      * @return \Illuminate\Http\JsonResponse
      */
     public function show(SchoolClass $class)
     {
         $this->authorize('view', $class);
-        
+
         return response()->json([
             'data' => new SchoolClassResource($class->load([
-                'classTeacher', 
-                'academicSession', 
-                'subjects', 
+                'classTeacher',
+                'academicSession',
+                'subjects',
                 'teachers',
-                'sections'
-            ]))
+                'sections',
+            ])),
         ]);
     }
 
     /**
      * Update the specified class in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\SchoolClass  $class
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, SchoolClass $class)
@@ -166,7 +161,7 @@ class SchoolClassController extends Controller
                 'required',
                 'string',
                 'max:20',
-                Rule::unique('school_classes', 'code')->ignore($class->id)
+                Rule::unique('school_classes', 'code')->ignore($class->id),
             ],
             'description' => 'nullable|string',
             'grade_level' => 'sometimes|required|string|max:20',
@@ -204,7 +199,7 @@ class SchoolClassController extends Controller
                 foreach ($validated['teachers'] as $teacher) {
                     $teacherData[$teacher['teacher_id']] = [
                         'is_class_teacher' => $teacher['is_class_teacher'] ?? false,
-                        'academic_session_id' => $validated['academic_session_id'] ?? $class->academic_session_id
+                        'academic_session_id' => $validated['academic_session_id'] ?? $class->academic_session_id,
                     ];
                 }
                 $class->teachers()->sync($teacherData);
@@ -214,19 +209,18 @@ class SchoolClassController extends Controller
         return response()->json([
             'message' => 'Class updated successfully',
             'data' => new SchoolClassResource($class->fresh()->load([
-                'classTeacher', 
-                'academicSession', 
-                'subjects', 
+                'classTeacher',
+                'academicSession',
+                'subjects',
                 'teachers',
-                'sections'
-            ]))
+                'sections',
+            ])),
         ]);
     }
 
     /**
      * Remove the specified class from storage.
      *
-     * @param  \App\Models\SchoolClass  $class
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(SchoolClass $class)
@@ -236,26 +230,26 @@ class SchoolClassController extends Controller
         // Check if class has students
         if ($class->students()->exists()) {
             return response()->json([
-                'message' => 'Cannot delete class with students. Please remove all students first.'
+                'message' => 'Cannot delete class with students. Please remove all students first.',
             ], 422);
         }
 
         // Check if class has sections
         if ($class->sections()->exists()) {
             return response()->json([
-                'message' => 'Cannot delete class with sections. Please remove all sections first.'
+                'message' => 'Cannot delete class with sections. Please remove all sections first.',
             ], 422);
         }
 
         // Delete related records
         $class->subjects()->detach();
         $class->teachers()->detach();
-        
+
         // Soft delete the class
         $class->delete();
 
         return response()->json([
-            'message' => 'Class deleted successfully'
+            'message' => 'Class deleted successfully',
         ]);
     }
 
@@ -275,25 +269,24 @@ class SchoolClassController extends Controller
             'teachers' => Teacher::with('user:id,name')
                 ->select('id', 'user_id', 'employee_id')
                 ->get()
-                ->map(function($teacher) {
+                ->map(function ($teacher) {
                     return [
                         'id' => $teacher->id,
                         'name' => $teacher->user->name,
-                        'employee_id' => $teacher->employee_id
+                        'employee_id' => $teacher->employee_id,
                     ];
                 }),
             'subjects' => Subject::select('id', 'name', 'code')->get(),
             'statuses' => [
                 ['value' => '1', 'label' => 'Active'],
                 ['value' => '0', 'label' => 'Inactive'],
-            ]
+            ],
         ]);
     }
 
     /**
      * Get class statistics.
      *
-     * @param  \App\Models\SchoolClass  $class
      * @return \Illuminate\Http\JsonResponse
      */
     public function getStatistics(SchoolClass $class)
@@ -305,24 +298,23 @@ class SchoolClassController extends Controller
             'total_teachers' => $class->teachers()->count(),
             'total_subjects' => $class->subjects()->count(),
             'total_sections' => $class->sections()->count(),
-            'male_students' => $class->students()->whereHas('user', function($q) {
+            'male_students' => $class->students()->whereHas('user', function ($q) {
                 $q->where('gender', 'male');
             })->count(),
-            'female_students' => $class->students()->whereHas('user', function($q) {
+            'female_students' => $class->students()->whereHas('user', function ($q) {
                 $q->where('gender', 'female');
             })->count(),
             'attendance_rate' => 0, // TODO: Implement attendance calculation
         ];
 
         return response()->json([
-            'data' => $stats
+            'data' => $stats,
         ]);
     }
 
     /**
      * Get class timetable.
      *
-     * @param  \App\Models\SchoolClass  $class
      * @return \Illuminate\Http\JsonResponse
      */
     public function getTimetable(SchoolClass $class)
@@ -333,14 +325,13 @@ class SchoolClassController extends Controller
         $timetable = [];
 
         return response()->json([
-            'data' => $timetable
+            'data' => $timetable,
         ]);
     }
 
     /**
      * Get class students with their details.
      *
-     * @param  \App\Models\SchoolClass  $class
      * @return \Illuminate\Http\JsonResponse
      */
     public function getStudents(SchoolClass $class)
@@ -353,7 +344,7 @@ class SchoolClassController extends Controller
             ->get();
 
         return response()->json([
-            'data' => $students->map(function($student) {
+            'data' => $students->map(function ($student) {
                 return [
                     'id' => $student->id,
                     'user_id' => $student->user_id,
@@ -362,12 +353,12 @@ class SchoolClassController extends Controller
                     'admission_number' => $student->admission_number,
                     'section' => $student->section ? [
                         'id' => $student->section->id,
-                        'name' => $student->section->name
+                        'name' => $student->section->name,
                     ] : null,
                     'attendance_rate' => 0, // TODO: Implement attendance calculation
                     'last_attendance' => null, // TODO: Implement last attendance
                 ];
-            })
+            }),
         ]);
     }
 }

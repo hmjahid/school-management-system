@@ -8,34 +8,53 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Payment extends Model
 {
-
     // Payment statuses
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_PROCESSING = 'processing';
+
     public const STATUS_COMPLETED = 'completed';
+
     public const STATUS_FAILED = 'failed';
+
     public const STATUS_REFUNDED = 'refunded';
+
     public const STATUS_CANCELLED = 'cancelled';
+
     public const STATUS_EXPIRED = 'expired';
 
     // Payment methods
     public const METHOD_CASH = 'cash';
+
     public const METHOD_BANK_TRANSFER = 'bank_transfer';
+
     public const METHOD_CHEQUE = 'cheque';
+
     public const METHOD_BKASH = 'bkash';
+
     public const METHOD_NAGAD = 'nagad';
+
     public const METHOD_ROCKET = 'rocket';
+
     public const METHOD_STRIPE = 'stripe';
+
     public const METHOD_PAYPAL = 'paypal';
+
     public const METHOD_OTHER = 'other';
 
     // Payment purposes
     public const PURPOSE_ADMISSION = 'admission';
+
     public const PURPOSE_TUITION = 'tuition';
+
     public const PURPOSE_EXAM = 'exam';
+
     public const PURPOSE_LIBRARY = 'library';
+
     public const PURPOSE_TRANSPORT = 'transport';
+
     public const PURPOSE_HOSTEL = 'hostel';
+
     public const PURPOSE_OTHER = 'other';
 
     protected $fillable = [
@@ -94,7 +113,7 @@ class Payment extends Model
             if (empty($payment->invoice_number)) {
                 $payment->invoice_number = static::generateInvoiceNumber();
             }
-            
+
             if (auth()->check()) {
                 $payment->created_by = auth()->id();
                 $payment->updated_by = auth()->id();
@@ -113,16 +132,16 @@ class Payment extends Model
      */
     public static function generateInvoiceNumber(): string
     {
-        $prefix = 'INV' . date('Ymd');
-        $lastInvoice = static::where('invoice_number', 'like', $prefix . '%')
+        $prefix = 'INV'.date('Ymd');
+        $lastInvoice = static::where('invoice_number', 'like', $prefix.'%')
             ->orderBy('id', 'desc')
             ->first();
 
-        $number = $lastInvoice 
-            ? (int) substr($lastInvoice->invoice_number, 11) + 1 
+        $number = $lastInvoice
+            ? (int) substr($lastInvoice->invoice_number, 11) + 1
             : 1;
 
-        return $prefix . str_pad($number, 4, '0', STR_PAD_LEFT);
+        return $prefix.str_pad($number, 4, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -200,7 +219,7 @@ class Payment extends Model
      */
     public function getIsOverdueAttribute(): bool
     {
-        return $this->due_date && $this->due_date->isPast() && !$this->isFullyPaid;
+        return $this->due_date && $this->due_date->isPast() && ! $this->isFullyPaid;
     }
 
     /**
@@ -248,21 +267,21 @@ class Payment extends Model
         $this->due_amount = 0;
         $this->payment_date = now();
         $this->payment_details = array_merge($this->payment_details ?? [], $details);
-        
+
         return $this->save();
     }
 
     /**
      * Mark the payment as failed.
      */
-    public function markAsFailed(string $reason = null): bool
+    public function markAsFailed(?string $reason = null): bool
     {
         $this->payment_status = self::STATUS_FAILED;
         $this->payment_details = array_merge($this->payment_details ?? [], [
             'failed_at' => now(),
             'failure_reason' => $reason,
         ]);
-        
+
         return $this->save();
     }
 
@@ -273,7 +292,7 @@ class Payment extends Model
     {
         $this->paid_amount += $amount;
         $this->due_amount = max(0, $this->total_amount - $this->paid_amount);
-        
+
         if ($this->paid_amount >= $this->total_amount) {
             $this->payment_status = self::STATUS_COMPLETED;
             $this->paid_amount = $this->total_amount;
@@ -281,7 +300,7 @@ class Payment extends Model
         } else {
             $this->payment_status = self::STATUS_PROCESSING;
         }
-        
+
         $this->payment_date = now();
         $this->payment_details = array_merge($this->payment_details ?? [], [
             'payments' => array_merge(
@@ -293,7 +312,7 @@ class Payment extends Model
                 ]
             ),
         ]);
-        
+
         return $this->save();
     }
 
@@ -303,7 +322,7 @@ class Payment extends Model
     public function getGatewayConfig(string $gateway): array
     {
         $config = config("payment.gateways.{$gateway}", []);
-        
+
         return array_merge([
             'enabled' => false,
             'test_mode' => true,

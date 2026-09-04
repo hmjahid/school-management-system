@@ -20,7 +20,7 @@ return new class extends Migration
             $table->timestamp('expires_at');
             $table->timestamp('last_used_at')->nullable();
             $table->timestamps();
-            
+
             // Indexes
             $table->index(['user_id', 'token']);
         });

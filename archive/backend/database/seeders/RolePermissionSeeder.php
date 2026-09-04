@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class RolePermissionSeeder extends Seeder
 {
@@ -24,7 +23,7 @@ class RolePermissionSeeder extends Seeder
             'student' => 'Student',
             'parent' => 'Parent',
             'accountant' => 'Accountant',
-            'librarian' => 'Librarian'
+            'librarian' => 'Librarian',
         ];
 
         foreach ($roles as $name => $description) {
@@ -32,17 +31,29 @@ class RolePermissionSeeder extends Seeder
                 ['name' => $name],
                 [
                     'guard_name' => 'web',
-                    'description' => $description
+                    'description' => $description,
                 ]
             );
-            
+
             // Store roles in variables for permission assignment
-            if ($name === 'admin') $adminRole = $role;
-            if ($name === 'teacher') $teacherRole = $role;
-            if ($name === 'student') $studentRole = $role;
-            if ($name === 'parent') $parentRole = $role;
-            if ($name === 'accountant') $accountantRole = $role;
-            if ($name === 'librarian') $librarianRole = $role;
+            if ($name === 'admin') {
+                $adminRole = $role;
+            }
+            if ($name === 'teacher') {
+                $teacherRole = $role;
+            }
+            if ($name === 'student') {
+                $studentRole = $role;
+            }
+            if ($name === 'parent') {
+                $parentRole = $role;
+            }
+            if ($name === 'accountant') {
+                $accountantRole = $role;
+            }
+            if ($name === 'librarian') {
+                $librarianRole = $role;
+            }
         }
 
         // Define permissions
@@ -52,7 +63,7 @@ class RolePermissionSeeder extends Seeder
             'create gallery',
             'edit gallery',
             'delete gallery',
-            
+
             // Career Permissions
             'view careers',
             'create careers',
@@ -60,7 +71,7 @@ class RolePermissionSeeder extends Seeder
             'delete careers',
             'view job applications',
             'manage job applications',
-            
+
             // User Management
             'view_users' => 'View users',
             'create_users' => 'Create users',
@@ -90,7 +101,7 @@ class RolePermissionSeeder extends Seeder
             'create_students' => 'Create students',
             'edit_students' => 'Edit students',
             'delete_students' => 'Delete students',
-            
+
             // Admission Management
             'view_admissions' => 'View admissions',
             'create_admissions' => 'Create admissions',

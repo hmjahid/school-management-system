@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
-use App\Contracts\SmsService;
 use App\Contracts\PushNotificationService;
-use App\Services\LogSmsService;
+use App\Contracts\SmsService;
 use App\Services\LogPushNotificationService;
+use App\Services\LogSmsService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider

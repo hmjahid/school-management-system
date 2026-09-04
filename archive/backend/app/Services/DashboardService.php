@@ -2,33 +2,30 @@
 
 namespace App\Services;
 
+use App\Models\Activity;
+use App\Models\Assignment;
+use App\Models\Event;
+use App\Models\Payment;
+use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\Teacher;
-use App\Models\SchoolClass;
-use App\Models\Payment;
-use App\Models\Activity;
-use App\Models\Event;
-use App\Models\Assignment;
 use App\Models\User;
 use App\Models\UserWidgetPreference;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Collection;
 
 class DashboardService
 {
     /**
      * Get dashboard data with caching
-     *
-     * @param array $options
-     * @return array
      */
     public function getDashboardData(array $options = []): array
     {
-        $cacheKey = 'dashboard_data_' . md5(json_encode($options));
+        $cacheKey = 'dashboard_data_'.md5(json_encode($options));
         $cacheTime = $options['cache_time'] ?? 60; // Default cache for 1 minute
 
         return Cache::remember($cacheKey, $cacheTime, function () use ($options) {
@@ -46,7 +43,7 @@ class DashboardService
                 'user_activity' => $userId ? $this->getUserActivityStats($userId, $startDate, $endDate) : null,
                 'performance_metrics' => $this->getPerformanceMetrics($startDate, $endDate),
                 'quick_stats' => $this->getQuickStats(),
-                'widget_config' => $this->getUserWidgetConfig($userId)
+                'widget_config' => $this->getUserWidgetConfig($userId),
             ];
         });
     }
@@ -57,7 +54,7 @@ class DashboardService
             'students' => Student::count(),
             'teachers' => Teacher::count(),
             'classes' => SchoolClass::count(),
-            'staff' => User::whereHas('roles', function($q) {
+            'staff' => User::whereHas('roles', function ($q) {
                 $q->where('name', 'staff');
             })->count(),
         ];
@@ -65,10 +62,6 @@ class DashboardService
 
     /**
      * Get monthly data for the given date range
-     *
-     * @param Carbon $startDate
-     * @param Carbon $endDate
-     * @return array
      */
     protected function getMonthlyData(Carbon $startDate, Carbon $endDate): array
     {
@@ -95,7 +88,7 @@ class DashboardService
                 'attendance_rate' => $this->calculateAttendanceRate($startOfMonth, $endOfMonth),
                 'completion_rate' => $this->calculateCourseCompletionRate($startOfMonth, $endOfMonth),
                 'start_date' => $startOfMonth->toDateString(),
-                'end_date' => $endOfMonth->toDateString()
+                'end_date' => $endOfMonth->toDateString(),
             ];
         }
 
@@ -108,7 +101,7 @@ class DashboardService
             ->orderBy('name')
             ->limit(10)
             ->get()
-            ->mapWithKeys(fn($class) => [$class->name => $class->students_count]);
+            ->mapWithKeys(fn ($class) => [$class->name => $class->students_count]);
     }
 
     protected function getRecentActivity($limit = 5)
@@ -117,7 +110,7 @@ class DashboardService
             ->latest()
             ->limit($limit)
             ->get()
-            ->map(function($activity) {
+            ->map(function ($activity) {
                 return [
                     'id' => $activity->id,
                     'type' => $activity->type,
@@ -125,16 +118,13 @@ class DashboardService
                     'message' => $activity->message,
                     'time' => $activity->created_at->diffForHumans(),
                     'icon' => $activity->icon,
-                    'color' => $activity->color
+                    'color' => $activity->color,
                 ];
             });
     }
 
     /**
      * Get upcoming events with additional metadata
-     *
-     * @param int $limit
-     * @return Collection
      */
     protected function getUpcomingEvents(int $limit = 5): Collection
     {
@@ -143,7 +133,7 @@ class DashboardService
             ->orderBy('start_date')
             ->limit($limit)
             ->get()
-            ->map(function($event) {
+            ->map(function ($event) {
                 return [
                     'id' => $event->id,
                     'title' => $event->title,
@@ -154,7 +144,7 @@ class DashboardService
                     'organizer' => $event->createdBy?->name,
                     'attendee_count' => $event->attendees->count(),
                     'is_virtual' => $event->is_virtual ?? false,
-                    'registration_deadline' => $event->registration_deadline?->format('Y-m-d H:i')
+                    'registration_deadline' => $event->registration_deadline?->format('Y-m-d H:i'),
                 ];
             });
     }
@@ -165,23 +155,19 @@ class DashboardService
             ->where('due_date', '>=', now())
             ->orderBy('due_date')
             ->get()
-            ->map(function($assignment) {
+            ->map(function ($assignment) {
                 return [
                     'id' => $assignment->id,
                     'title' => $assignment->title,
                     'due_date' => $assignment->due_date->format('Y-m-d H:i'),
                     'class_name' => $assignment->class->name ?? 'N/A',
-                    'subject' => $assignment->subject->name ?? 'N/A'
+                    'subject' => $assignment->subject->name ?? 'N/A',
                 ];
             });
     }
 
     /**
      * Calculate attendance rate for the given period
-     *
-     * @param Carbon $startDate
-     * @param Carbon $endDate
-     * @return float
      */
     protected function calculateAttendanceRate(Carbon $startDate, Carbon $endDate): float
     {
@@ -194,26 +180,24 @@ class DashboardService
             if ($attendance && $attendance->total > 0) {
                 return round(($attendance->present / $attendance->total) * 100, 2);
             }
+
             return 0;
         } catch (\Exception $e) {
-            Log::error('Error calculating attendance rate: ' . $e->getMessage());
+            Log::error('Error calculating attendance rate: '.$e->getMessage());
+
             return 0;
         }
     }
 
     /**
      * Get active students count for the period
-     *
-     * @param Carbon $startDate
-     * @param Carbon $endDate
-     * @return int
      */
     protected function getActiveStudentsCount(Carbon $startDate, Carbon $endDate): int
     {
         return Student::where('status', 'active')
-            ->where(function($query) use ($startDate, $endDate) {
+            ->where(function ($query) use ($startDate, $endDate) {
                 $query->whereBetween('enrollment_date', [$startDate, $endDate])
-                    ->orWhereHas('attendances', function($q) use ($startDate, $endDate) {
+                    ->orWhereHas('attendances', function ($q) use ($startDate, $endDate) {
                         $q->whereBetween('date', [$startDate, $endDate]);
                     });
             })
@@ -222,10 +206,6 @@ class DashboardService
 
     /**
      * Calculate course completion rate
-     *
-     * @param Carbon $startDate
-     * @param Carbon $endDate
-     * @return float
      */
     protected function calculateCourseCompletionRate(Carbon $startDate, Carbon $endDate): float
     {
@@ -238,20 +218,17 @@ class DashboardService
             if ($result && $result->total > 0) {
                 return round(($result->completed / $result->total) * 100, 2);
             }
+
             return 0;
         } catch (\Exception $e) {
-            Log::error('Error calculating course completion rate: ' . $e->getMessage());
+            Log::error('Error calculating course completion rate: '.$e->getMessage());
+
             return 0;
         }
     }
 
     /**
      * Get user activity statistics
-     *
-     * @param int $userId
-     * @param Carbon $startDate
-     * @param Carbon $endDate
-     * @return array
      */
     protected function getUserActivityStats(int $userId, Carbon $startDate, Carbon $endDate): array
     {
@@ -266,16 +243,12 @@ class DashboardService
             'total_activities' => $activities->sum('count'),
             'activity_trend' => $activities->pluck('count', 'date'),
             'most_active_day' => $activities->sortByDesc('count')->first(),
-            'average_daily_activities' => $activities->avg('count')
+            'average_daily_activities' => $activities->avg('count'),
         ];
     }
 
     /**
      * Get performance metrics
-     *
-     * @param Carbon $startDate
-     * @param Carbon $endDate
-     * @return array
      */
     protected function getPerformanceMetrics(Carbon $startDate, Carbon $endDate): array
     {
@@ -287,7 +260,7 @@ class DashboardService
             'revenue' => Payment::whereBetween('payment_date', [$startDate, $endDate])
                 ->where('payment_status', 'completed')
                 ->sum('total_amount'),
-            'attendance' => $this->calculateAttendanceRate($startDate, $endDate)
+            'attendance' => $this->calculateAttendanceRate($startDate, $endDate),
         ];
 
         $previousStats = [
@@ -295,7 +268,7 @@ class DashboardService
             'revenue' => Payment::whereBetween('payment_date', [$previousPeriodStart, $previousPeriodEnd])
                 ->where('payment_status', 'completed')
                 ->sum('total_amount'),
-            'attendance' => $this->calculateAttendanceRate($previousPeriodStart, $previousPeriodEnd)
+            'attendance' => $this->calculateAttendanceRate($previousPeriodStart, $previousPeriodEnd),
         ];
 
         return [
@@ -304,30 +277,25 @@ class DashboardService
             'growth' => [
                 'enrollments' => $this->calculateGrowth($currentStats['enrollments'], $previousStats['enrollments']),
                 'revenue' => $this->calculateGrowth($currentStats['revenue'], $previousStats['revenue']),
-                'attendance' => $this->calculateGrowth($currentStats['attendance'], $previousStats['attendance'])
-            ]
+                'attendance' => $this->calculateGrowth($currentStats['attendance'], $previousStats['attendance']),
+            ],
         ];
     }
 
     /**
      * Calculate growth percentage
-     *
-     * @param float $current
-     * @param float $previous
-     * @return float
      */
     protected function calculateGrowth(float $current, float $previous): float
     {
         if ($previous == 0) {
             return $current > 0 ? 100 : 0;
         }
+
         return round((($current - $previous) / $previous) * 100, 2);
     }
 
     /**
      * Get quick stats for the dashboard
-     *
-     * @return array
      */
     protected function getQuickStats(): array
     {
@@ -342,19 +310,16 @@ class DashboardService
             'expiring_soon' => Student::where('status', 'active')
                 ->where('membership_expiry', '>=', now())
                 ->where('membership_expiry', '<=', now()->addDays(30))
-                ->count()
+                ->count(),
         ];
     }
 
     /**
      * Get user's widget configuration
-     *
-     * @param int|null $userId
-     * @return array
      */
     protected function getUserWidgetConfig(?int $userId = null): array
     {
-        if (!$userId) {
+        if (! $userId) {
             return $this->getDefaultWidgets();
         }
 
@@ -363,37 +328,33 @@ class DashboardService
 
     /**
      * Get default widget configuration
-     * 
-     * @return array
      */
     protected function getDefaultWidgets(): array
     {
         $defaults = UserWidgetPreference::getDefaultWidgets();
-        
+
         return array_map(function ($widget, $widgetId) {
             return [
                 'id' => $widgetId,
                 'enabled' => $widget['enabled'],
                 'position' => $widget['position'],
-                'settings' => $widget['settings']
+                'settings' => $widget['settings'],
             ];
         }, $defaults, array_keys($defaults));
     }
-    
+
     /**
      * Save user's widget configuration
-     *
-     * @param int $userId
-     * @param array $widgets
-     * @return bool
      */
     public function saveUserWidgetConfig(int $userId, array $widgets): bool
     {
         try {
             UserWidgetPreference::saveForUser($userId, $widgets);
+
             return true;
         } catch (\Exception $e) {
-            Log::error('Failed to save widget config: ' . $e->getMessage());
+            Log::error('Failed to save widget config: '.$e->getMessage());
+
             return false;
         }
     }

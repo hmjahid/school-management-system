@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Attendance extends Model
 {
@@ -13,15 +13,22 @@ class Attendance extends Model
 
     // Attendance status constants
     public const STATUS_PRESENT = 'present';
+
     public const STATUS_ABSENT = 'absent';
+
     public const STATUS_LATE = 'late';
+
     public const STATUS_HALF_DAY = 'half_day';
+
     public const STATUS_HOLIDAY = 'holiday';
+
     public const STATUS_LEAVE = 'on_leave';
 
     // Attendance types
     public const TYPE_DAILY = 'daily';
+
     public const TYPE_SUBJECT_WISE = 'subject_wise';
+
     public const TYPE_SPECIAL_EVENT = 'special_event';
 
     protected $fillable = [
@@ -185,6 +192,7 @@ class Attendance extends Model
     public function scopeDateRange($query, $startDate, $endDate = null)
     {
         $endDate = $endDate ?? $startDate;
+
         return $query->whereBetween('date', [$startDate, $endDate]);
     }
 

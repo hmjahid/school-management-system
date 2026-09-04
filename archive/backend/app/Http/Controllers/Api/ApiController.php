@@ -25,18 +25,15 @@ class ApiController extends Controller
                 ],
                 'admin' => [
                     'dashboard' => url('/api/admin/dashboard'),
-                ]
-            ]
+                ],
+            ],
         ]);
     }
 
     /**
      * Return a success JSON response
      *
-     * @param mixed $data
-     * @param string|null $message
-     * @param int $statusCode
-     * @return JsonResponse
+     * @param  mixed  $data
      */
     protected function successResponse($data, ?string $message = null, int $statusCode = 200): JsonResponse
     {

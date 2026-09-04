@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Api\ApiController;
-use Illuminate\Http\Request;
-
 class AcademicController extends ApiController
 {
     /**
@@ -29,11 +26,11 @@ class AcademicController extends ApiController
                         'Mathematics & Statistics',
                         'Sciences (Physics, Chemistry, Biology)',
                         'Languages & Literature',
-                        'Social Studies & Humanities'
-                    ]
-                ]
+                        'Social Studies & Humanities',
+                    ],
+                ],
                 // Additional programs can be added here
-            ]
+            ],
         ];
 
         return $this->successResponse($data);
@@ -59,11 +56,11 @@ class AcademicController extends ApiController
                         'Literacy & Numeracy Focus',
                         'Exploratory Learning',
                         'Social-Emotional Development',
-                        'Creative Expression'
-                    ]
-                ]
+                        'Creative Expression',
+                    ],
+                ],
                 // Additional programs can be added here
-            ]
+            ],
         ];
 
         return $this->successResponse($data);
@@ -86,10 +83,10 @@ class AcademicController extends ApiController
                     'name' => 'Dr. Sarah Johnson',
                     'position' => 'Head of Science Department',
                     'bio' => 'PhD in Physics with 15 years of teaching experience',
-                    'image' => '/images/faculty/sarah-johnson.jpg'
-                ]
+                    'image' => '/images/faculty/sarah-johnson.jpg',
+                ],
                 // Additional faculty members can be added here
-            ]
+            ],
         ];
 
         return $this->successResponse($data);

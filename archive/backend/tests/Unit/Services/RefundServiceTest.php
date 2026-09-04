@@ -16,9 +16,13 @@ class RefundServiceTest extends TestCase
     use RefreshDatabase;
 
     protected RefundService $refundService;
+
     protected PaymentService $paymentService;
+
     protected User $admin;
+
     protected User $user;
+
     protected Payment $payment;
 
     protected function setUp(): void
@@ -36,7 +40,7 @@ class RefundServiceTest extends TestCase
             'currency' => 'BDT',
             'payment_status' => Payment::STATUS_COMPLETED,
             'payment_method' => 'test_gateway',
-            'transaction_id' => 'TXN' . uniqid(),
+            'transaction_id' => 'TXN'.uniqid(),
         ]);
 
         // Mock the PaymentService
@@ -51,7 +55,7 @@ class RefundServiceTest extends TestCase
         $this->paymentService->method('processRefund')
             ->willReturn([
                 'success' => true,
-                'transaction_id' => 'R-' . uniqid(),
+                'transaction_id' => 'R-'.uniqid(),
             ]);
 
         $result = $this->refundService->initiateRefund(
@@ -123,7 +127,7 @@ class RefundServiceTest extends TestCase
 
         $this->assertFalse($result['success']);
         $this->assertEquals('Failed to process refund: Insufficient funds', $result['message']);
-        
+
         // Verify the refund was created with failed status
         $refund = Refund::where('payment_id', $this->payment->id)->first();
         $this->assertNotNull($refund);
@@ -261,7 +265,7 @@ class RefundServiceTest extends TestCase
         // Simulate a database failure during refund processing
         DB::shouldReceive('beginTransaction')->once();
         DB::shouldReceive('rollBack')->once();
-        
+
         // Mock the payment service to throw an exception
         $this->paymentService->method('processRefund')
             ->willThrowException(new \Exception('Database connection failed'));

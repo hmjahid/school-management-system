@@ -4,8 +4,8 @@ namespace App\Providers;
 
 use App\Contracts\SmsService;
 use App\Services\Sms\TwilioSmsService;
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\ServiceProvider;
 
 class SmsServiceProvider extends ServiceProvider
 {
@@ -19,10 +19,10 @@ class SmsServiceProvider extends ServiceProvider
         $this->app->singleton(SmsService::class, function ($app) {
             $driver = Config::get('sms.default', 'log');
             $config = Config::get("sms.drivers.{$driver}", []);
-            
+
             return $this->createSmsService($driver, $config);
         });
-        
+
         // Register the SMS facade
         $this->app->alias(SmsService::class, 'sms');
     }
@@ -43,10 +43,7 @@ class SmsServiceProvider extends ServiceProvider
     /**
      * Create an instance of the SMS service.
      *
-     * @param  string  $driver
-     * @param  array  $config
-     * @return \App\Contracts\SmsService
-     * 
+     *
      * @throws \InvalidArgumentException
      */
     protected function createSmsService(string $driver, array $config = []): SmsService
@@ -54,12 +51,12 @@ class SmsServiceProvider extends ServiceProvider
         switch ($driver) {
             case 'twilio':
                 return new TwilioSmsService($config);
-                
+
             case 'log':
                 return new \App\Services\Sms\LogSmsService($config);
-                
-            // Add more drivers here as needed
-            
+
+                // Add more drivers here as needed
+
             default:
                 throw new \InvalidArgumentException("Unsupported SMS driver: {$driver}");
         }

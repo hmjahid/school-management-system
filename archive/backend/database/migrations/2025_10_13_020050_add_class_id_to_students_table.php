@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::table('students', function (Blueprint $table) {
             $table->unsignedBigInteger('class_id')->nullable()->after('id');
             $table->foreign('class_id')
-                  ->references('id')
-                  ->on('school_classes')
-                  ->onDelete('set null');
+                ->references('id')
+                ->on('school_classes')
+                ->onDelete('set null');
         });
     }
 

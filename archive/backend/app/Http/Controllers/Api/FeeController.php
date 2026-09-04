@@ -8,7 +8,6 @@ use App\Models\Fee;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class FeeController extends Controller
@@ -48,9 +47,9 @@ class FeeController extends Controller
         // Search by name or code
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('code', 'like', "%{$search}%");
+                    ->orWhere('code', 'like', "%{$search}%");
             });
         }
 
@@ -100,7 +99,7 @@ class FeeController extends Controller
         // Prevent deletion if there are payments
         if ($fee->payments()->exists()) {
             return response()->json([
-                'message' => 'Cannot delete fee with existing payments.'
+                'message' => 'Cannot delete fee with existing payments.',
             ], 422);
         }
 
@@ -115,7 +114,7 @@ class FeeController extends Controller
     public function getFeeTypes()
     {
         return response()->json([
-            'data' => Fee::getFeeTypes()
+            'data' => Fee::getFeeTypes(),
         ]);
     }
 
@@ -125,7 +124,7 @@ class FeeController extends Controller
     public function getFrequencies()
     {
         return response()->json([
-            'data' => Fee::getFrequencies()
+            'data' => Fee::getFrequencies(),
         ]);
     }
 
@@ -170,17 +169,17 @@ class FeeController extends Controller
     public function getStudentFeeStructure(Student $student)
     {
         $fees = Fee::query()
-            ->where(function($query) use ($student) {
+            ->where(function ($query) use ($student) {
                 $query->where('class_id', $student->class_id)
                     ->whereNull('student_id')
                     ->where('status', 'active');
-                
+
                 if ($student->section_id) {
                     $query->orWhere('section_id', $student->section_id)
                         ->whereNull('student_id')
                         ->where('status', 'active');
                 }
-                
+
                 $query->orWhere('student_id', $student->id)
                     ->where('status', 'active');
             })

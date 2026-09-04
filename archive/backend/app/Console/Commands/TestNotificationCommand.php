@@ -37,7 +37,6 @@ class TestNotificationCommand extends Command
     /**
      * Create a new command instance.
      *
-     * @param  \App\Services\NotificationDeliveryService  $notificationService
      * @return void
      */
     public function __construct(NotificationDeliveryService $notificationService)
@@ -59,16 +58,17 @@ class TestNotificationCommand extends Command
         $message = $this->option('message') ?? 'This is a test notification';
 
         $user = User::find($userId);
-        
-        if (!$user) {
+
+        if (! $user) {
             $this->error("User with ID {$userId} not found.");
+
             return 1;
         }
 
         $this->info("Sending test notification to user: {$user->name} ({$user->email})");
         $this->info("Notification type: {$type}");
-        $this->info("Channels: " . implode(', ', $channels));
-        
+        $this->info('Channels: '.implode(', ', $channels));
+
         $data = [
             'message' => $message,
             'time' => now()->toDateTimeString(),
@@ -77,53 +77,50 @@ class TestNotificationCommand extends Command
 
         try {
             $results = $this->notificationService->send($user, $type, $data, $channels);
-            
+
             $this->info("\nNotification sent successfully!");
             $this->line('');
-            
+
             $this->table(
                 ['Channel', 'Status', 'Details'],
                 $this->formatResults($results)
             );
-            
+
             return 0;
         } catch (\Exception $e) {
-            $this->error("Failed to send notification: " . $e->getMessage());
+            $this->error('Failed to send notification: '.$e->getMessage());
             Log::error('Failed to send test notification', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            
+
             return 1;
         }
     }
-    
+
     /**
      * Format the results for display.
-     *
-     * @param  array  $results
-     * @return array
      */
     protected function formatResults(array $results): array
     {
         $formatted = [];
-        
+
         foreach ($results as $channel => $result) {
             $status = $result['success'] ? '<fg=green>✓ Success</>' : '<fg=red>✗ Failed</>';
             $details = json_encode($result['data'] ?? $result['error'] ?? 'No details');
-            
+
             if (isset($result['error'])) {
-                $details = "<fg=red>{$result['error']}</>" . PHP_EOL . $details;
+                $details = "<fg=red>{$result['error']}</>".PHP_EOL.$details;
             }
-            
+
             $formatted[] = [
                 $channel,
                 $status,
                 $details,
             ];
         }
-        
+
         return $formatted;
     }
 }
