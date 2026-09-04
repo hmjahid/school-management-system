@@ -19,6 +19,8 @@ records, organized into the folders below so the root stays clean.
 - `BACKUP-RESTORE.md` — database backup & restore
 - `DASHBOARD_TROUBLESHOOTING.md` — common dashboard issues
 - `DEMO-CREDENTIALS.md` — seeded demo account credentials
+- `FEATURE-IMPROVEMENTS.md` — senior-engineer feature & engineering improvement proposals
+- `UIUX-IMPROVEMENTS.md` — senior-designer UI/UX improvement proposals (public site + dashboard)
 - `PAYMENT-DEPLOYMENT.md` — deploying payment configuration
 - `PERFORMANCE-BASELINE.md` — load-testing baseline
 - `PRODUCTION-CHECKLIST.md` — go-live checklist

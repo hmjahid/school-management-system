@@ -644,9 +644,12 @@ now cerate a implementation plan to implement the review report and implement th
 
 add optional smtp integration feature if needed
 
-
 arrange the files, folder documentations
 
+
+suppose you are a senior software engineer. check the whole codebase, features, funcstinalities of this prjcet and give asuggestion for fetaure improvements in a file
+
+suppose you are a senior uiux designer. check the whole codebase, features, funcstinalities of this prjcet and give asuggestion for uiux improvements both the front website and the dashboard in a file
 
 
 
