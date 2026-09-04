@@ -4,8 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Notifications\Notifiable as BaseNotifiable;
 use Illuminate\Notifications\DatabaseNotification as BaseDatabaseNotification;
+use Illuminate\Notifications\Notifiable as BaseNotifiable;
 
 class DatabaseNotification extends BaseDatabaseNotification
 {
@@ -152,7 +152,7 @@ trait Notifiable
     public function notify($instance)
     {
         // Check user preferences before sending notification
-        if (method_exists($this, 'shouldReceiveNotification') && 
+        if (method_exists($this, 'shouldReceiveNotification') &&
             ! $this->shouldReceiveNotification($instance)) {
             return;
         }
@@ -166,10 +166,10 @@ trait Notifiable
      * @param  mixed  $instance
      * @return void
      */
-    public function notifyNow($instance, array $channels = null)
+    public function notifyNow($instance, ?array $channels = null)
     {
         // Check user preferences before sending notification
-        if (method_exists($this, 'shouldReceiveNotification') && 
+        if (method_exists($this, 'shouldReceiveNotification') &&
             ! $this->shouldReceiveNotification($instance, $channels)) {
             return;
         }

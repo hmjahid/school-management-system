@@ -6,8 +6,8 @@ use App\Models\AcademicSession;
 use App\Models\Batch;
 use App\Models\Course;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class BatchTest extends TestCase
@@ -49,7 +49,7 @@ class BatchTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_fillable_columns(): void
     {
         $code = 'BAT'.uniqid();
@@ -63,7 +63,7 @@ class BatchTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_dates_and_booleans(): void
     {
         $batch = $this->makeBatch();
@@ -73,7 +73,7 @@ class BatchTest extends TestCase
         $this->assertIsBool($batch->is_active);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_academic_session(): void
     {
         $session = $this->makeSession();
@@ -83,7 +83,7 @@ class BatchTest extends TestCase
         $this->assertSame($session->id, $batch->academicSession->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_course(): void
     {
         $course = $this->makeCourse();
@@ -93,7 +93,7 @@ class BatchTest extends TestCase
         $this->assertSame($course->id, $batch->course->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_computes_duration_weeks_accessor(): void
     {
         $batch = $this->makeBatch([
@@ -104,7 +104,7 @@ class BatchTest extends TestCase
         $this->assertSame(4, $batch->duration_weeks);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_status_badge(): void
     {
         $batch = $this->makeBatch(['status' => 'ongoing']);
@@ -113,7 +113,7 @@ class BatchTest extends TestCase
         $this->assertStringContainsString('Ongoing', $batch->status_badge);
     }
 
-    /** @test */
+    #[Test]
     public function it_scopes_active_batches(): void
     {
         $this->makeBatch(['is_active' => true]);
@@ -122,7 +122,7 @@ class BatchTest extends TestCase
         $this->assertEquals(1, Batch::active()->count());
     }
 
-    /** @test */
+    #[Test]
     public function it_has_status_constants(): void
     {
         $this->assertSame('upcoming', Batch::STATUS_UPCOMING);
@@ -131,7 +131,7 @@ class BatchTest extends TestCase
         $this->assertSame('cancelled', Batch::STATUS_CANCELLED);
     }
 
-    /** @test */
+    #[Test]
     public function it_soft_deletes(): void
     {
         $batch = $this->makeBatch();

@@ -18,9 +18,13 @@ class LeaveRequest extends Model
             ->logOnlyDirty()
             ->useLogName('leaves');
     }
+
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_APPROVED = 'approved';
+
     public const STATUS_REJECTED = 'rejected';
+
     public const STATUS_CANCELLED = 'cancelled';
 
     protected $fillable = [
@@ -60,6 +64,7 @@ class LeaveRequest extends Model
         $this->approver_id = $userId;
         $this->approver_note = $note;
         $this->decided_at = now();
+
         return $this->save();
     }
 
@@ -69,6 +74,7 @@ class LeaveRequest extends Model
         $this->approver_id = $userId;
         $this->approver_note = $note;
         $this->decided_at = now();
+
         return $this->save();
     }
 
@@ -76,6 +82,7 @@ class LeaveRequest extends Model
     {
         $this->status = self::STATUS_CANCELLED;
         $this->decided_at = now();
+
         return $this->save();
     }
 }

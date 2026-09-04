@@ -9,6 +9,7 @@ use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class StudentMassAssignmentTest extends TestCase
@@ -28,7 +29,7 @@ class StudentMassAssignmentTest extends TestCase
         $this->studentRoleId = User::roleIdFor('student');
     }
 
-    /** @test */
+    #[Test]
     public function student_store_ignores_privileged_role_id_and_user_id()
     {
         $class = SchoolClass::factory()->create();
@@ -54,7 +55,7 @@ class StudentMassAssignmentTest extends TestCase
         ]);
         $request->setUserResolver(fn () => $this->admin);
 
-        $controller = new StudentController();
+        $controller = new StudentController;
         $controller->store($request);
 
         $student = Student::query()->orderByDesc('id')->first();

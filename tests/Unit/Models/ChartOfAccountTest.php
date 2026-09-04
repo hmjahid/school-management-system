@@ -5,6 +5,7 @@ namespace Tests\Unit\Models;
 use App\Models\ChartOfAccount;
 use App\Models\LedgerEntry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ChartOfAccountTest extends TestCase
@@ -20,7 +21,7 @@ class ChartOfAccountTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_exposes_type_constants(): void
     {
         $this->assertEquals('asset', ChartOfAccount::TYPE_ASSET);
@@ -31,7 +32,7 @@ class ChartOfAccountTest extends TestCase
         $this->assertEquals('bank', ChartOfAccount::TYPE_BANK);
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns_and_defaults_is_active(): void
     {
         $account = $this->makeAccount();
@@ -44,7 +45,7 @@ class ChartOfAccountTest extends TestCase
         $this->assertTrue($account->fresh()->is_active);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_parent_and_has_children(): void
     {
         $parent = $this->makeAccount(['name_en' => 'Parent', 'type' => ChartOfAccount::TYPE_ASSET]);
@@ -60,7 +61,7 @@ class ChartOfAccountTest extends TestCase
         $this->assertInstanceOf(ChartOfAccount::class, $parent->children->first());
     }
 
-    /** @test */
+    #[Test]
     public function it_has_many_entries(): void
     {
         $account = $this->makeAccount();
@@ -70,7 +71,7 @@ class ChartOfAccountTest extends TestCase
         $this->assertCount(1, $account->entries);
     }
 
-    /** @test */
+    #[Test]
     public function balance_for_asset_is_debit_minus_credit(): void
     {
         $account = $this->makeAccount(['type' => ChartOfAccount::TYPE_ASSET]);
@@ -80,7 +81,7 @@ class ChartOfAccountTest extends TestCase
         $this->assertEquals(350.0, $account->balance());
     }
 
-    /** @test */
+    #[Test]
     public function balance_for_income_is_credit_minus_debit(): void
     {
         $account = $this->makeAccount(['type' => ChartOfAccount::TYPE_INCOME]);
@@ -89,7 +90,7 @@ class ChartOfAccountTest extends TestCase
         $this->assertEquals(300.0, $account->balance());
     }
 
-    /** @test */
+    #[Test]
     public function balance_respects_date_range(): void
     {
         $account = $this->makeAccount(['type' => ChartOfAccount::TYPE_ASSET]);

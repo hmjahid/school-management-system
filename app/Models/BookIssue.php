@@ -12,8 +12,11 @@ class BookIssue extends Model
     use SoftDeletes;
 
     const STATUS_ISSUED = 'issued';
+
     const STATUS_RETURNED = 'returned';
+
     const STATUS_LOST = 'lost';
+
     const STATUS_DAMAGED = 'damaged';
 
     protected $fillable = [
@@ -74,12 +77,15 @@ class BookIssue extends Model
     {
         if ($this->return_date && $this->return_date > $this->due_date) {
             $days = Carbon::parse($this->due_date)->diffInDays($this->return_date);
+
             return round($days * $lateFeePerDay, 2);
         }
         if ($this->isOverdue()) {
             $days = Carbon::parse($this->due_date)->diffInDays(Carbon::today());
+
             return round($days * $lateFeePerDay, 2);
         }
+
         return 0;
     }
 }

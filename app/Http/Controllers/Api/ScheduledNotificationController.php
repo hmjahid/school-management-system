@@ -7,8 +7,6 @@ use App\Http\Resources\ScheduledNotificationResource;
 use App\Models\ScheduledNotification;
 use App\Services\Notification\ScheduledNotificationService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class ScheduledNotificationController extends Controller
 {
@@ -22,7 +20,6 @@ class ScheduledNotificationController extends Controller
     /**
      * Create a new controller instance.
      *
-     * @param  \App\Services\Notification\ScheduledNotificationService  $scheduledNotificationService
      * @return void
      */
     public function __construct(ScheduledNotificationService $scheduledNotificationService)
@@ -34,54 +31,52 @@ class ScheduledNotificationController extends Controller
     /**
      * Display a listing of the scheduled notifications.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
     {
         $query = ScheduledNotification::query();
-        
+
         // Filter by status
         if ($request->has('status')) {
             $query->where('status', $request->status);
         }
-        
+
         // Filter by type
         if ($request->has('type')) {
             $query->where('type', $request->type);
         }
-        
+
         // Filter by date range
         if ($request->has('start_date')) {
             $query->where('scheduled_at', '>=', $request->start_date);
         }
-        
+
         if ($request->has('end_date')) {
             $query->where('scheduled_at', '<=', $request->end_date);
         }
-        
+
         // For non-admin users, only show their own scheduled notifications
-        if (!auth()->user()->hasRole('admin')) {
+        if (! auth()->user()->hasRole('admin')) {
             $query->where('created_by', auth()->id());
         }
-        
+
         // Pagination
         $perPage = $request->per_page ?? 15;
         $notifications = $query->orderBy('scheduled_at', 'desc')->paginate($perPage);
-        
+
         return ScheduledNotificationResource::collection($notifications);
     }
 
     /**
      * Store a newly created scheduled notification in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
         $validated = $this->validateScheduledNotification($request);
-        
+
         $notification = $this->scheduledNotificationService->schedule(
             $validated['name'],
             $validated['type'],
@@ -91,7 +86,7 @@ class ScheduledNotificationController extends Controller
             $validated['schedule'],
             auth()->id()
         );
-        
+
         return new ScheduledNotificationResource($notification);
     }
 
@@ -104,29 +99,29 @@ class ScheduledNotificationController extends Controller
     public function show($id)
     {
         $notification = $this->getUserNotification($id);
+
         return new ScheduledNotificationResource($notification);
     }
 
     /**
      * Update the specified scheduled notification in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $notification = $this->getUserNotification($id);
-        
+
         // Only allow updating pending notifications
         if ($notification->status !== 'pending') {
             return response()->json([
-                'message' => 'Only pending notifications can be updated.'
+                'message' => 'Only pending notifications can be updated.',
             ], 422);
         }
-        
+
         $validated = $this->validateScheduledNotification($request, $notification->id);
-        
+
         $notification->update([
             'name' => $validated['name'],
             'type' => $validated['type'],
@@ -136,7 +131,7 @@ class ScheduledNotificationController extends Controller
             'schedule' => $validated['schedule'],
             'scheduled_at' => $this->scheduledNotificationService->calculateScheduledAt($validated['schedule']),
         ]);
-        
+
         return new ScheduledNotificationResource($notification);
     }
 
@@ -149,15 +144,15 @@ class ScheduledNotificationController extends Controller
     public function cancel($id)
     {
         $notification = $this->getUserNotification($id);
-        
+
         if ($notification->cancel()) {
             return response()->json([
-                'message' => 'Scheduled notification has been cancelled.'
+                'message' => 'Scheduled notification has been cancelled.',
             ]);
         }
-        
+
         return response()->json([
-            'message' => 'Unable to cancel the scheduled notification.'
+            'message' => 'Unable to cancel the scheduled notification.',
         ], 422);
     }
 
@@ -168,12 +163,12 @@ class ScheduledNotificationController extends Controller
      */
     public function stats()
     {
-        if (!auth()->user()->hasRole('admin')) {
+        if (! auth()->user()->hasRole('admin')) {
             return response()->json([
-                'message' => 'Unauthorized.'
+                'message' => 'Unauthorized.',
             ], 403);
         }
-        
+
         return response()->json($this->scheduledNotificationService->getStats());
     }
 
@@ -182,23 +177,23 @@ class ScheduledNotificationController extends Controller
      *
      * @param  int  $id
      * @return \App\Models\ScheduledNotification
+     *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     protected function getUserNotification($id)
     {
         $query = ScheduledNotification::where('id', $id);
-        
-        if (!auth()->user()->hasRole('admin')) {
+
+        if (! auth()->user()->hasRole('admin')) {
             $query->where('created_by', auth()->id());
         }
-        
+
         return $query->firstOrFail();
     }
 
     /**
      * Validate the scheduled notification request.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int|null  $ignoreId
      * @return array
      */
@@ -220,7 +215,7 @@ class ScheduledNotificationController extends Controller
             'schedule.interval' => 'required_if:schedule.type,custom|integer|min:1',
             'schedule.unit' => 'required_if:schedule.type,custom|in:minute,hour,day,week,month',
         ];
-        
+
         return $request->validate($rules);
     }
 }

@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (Schema::hasTable('students') && !Schema::hasColumn('students', 'attendance_percentage')) {
+        if (Schema::hasTable('students') && ! Schema::hasColumn('students', 'attendance_percentage')) {
             Schema::table('students', function (Blueprint $table) {
                 $table->decimal('attendance_percentage', 5, 2)->nullable()->after('roll_number');
             });

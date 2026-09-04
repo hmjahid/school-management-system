@@ -9,7 +9,7 @@ class DashboardLocaleController extends Controller
 {
     public function switch(string $locale): RedirectResponse
     {
-        if (!in_array($locale, (array) config('school.supported_locales', ['en']))) {
+        if (! in_array($locale, (array) config('school.supported_locales', ['en']))) {
             abort(400);
         }
 

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class SchoolClass extends Model
 {
     use HasFactory;
+
     public const SHIFT_MORNING = 'morning';
 
     public const SHIFT_DAY = 'day';

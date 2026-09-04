@@ -6,6 +6,7 @@ use App\Models\Payment;
 use App\Models\Refund;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RefundTest extends TestCase
@@ -37,7 +38,7 @@ class RefundTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_formatted_amount_with_currency(): void
     {
         $payment = $this->makePayment();
@@ -46,7 +47,7 @@ class RefundTest extends TestCase
         $this->assertEquals('500.00 BDT', $refund->formatted_amount);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_correct_status_label(): void
     {
         $payment = $this->makePayment();
@@ -58,7 +59,7 @@ class RefundTest extends TestCase
         $this->assertEquals('Completed', $completed->status_label);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_ucfirst_for_unknown_status(): void
     {
         $payment = $this->makePayment();
@@ -67,7 +68,7 @@ class RefundTest extends TestCase
         $this->assertEquals('Processing', $refund->status_label);
     }
 
-    /** @test */
+    #[Test]
     public function it_marks_refund_as_completed(): void
     {
         $payment = $this->makePayment();
@@ -81,7 +82,7 @@ class RefundTest extends TestCase
         $this->assertNotNull($refund->processed_at);
     }
 
-    /** @test */
+    #[Test]
     public function mark_as_completed_preserves_existing_transaction_id(): void
     {
         $payment = $this->makePayment();
@@ -93,7 +94,7 @@ class RefundTest extends TestCase
         $this->assertEquals('EXISTING-TXN', $refund->transaction_id);
     }
 
-    /** @test */
+    #[Test]
     public function it_marks_refund_as_failed(): void
     {
         $payment = $this->makePayment();
@@ -107,7 +108,7 @@ class RefundTest extends TestCase
         $this->assertNotNull($refund->getMeta('failed_at'));
     }
 
-    /** @test */
+    #[Test]
     public function it_checks_pending_status(): void
     {
         $payment = $this->makePayment();
@@ -118,7 +119,7 @@ class RefundTest extends TestCase
         $this->assertFalse($pending->isFailed());
     }
 
-    /** @test */
+    #[Test]
     public function it_retrieves_meta_values(): void
     {
         $payment = $this->makePayment();
@@ -132,7 +133,7 @@ class RefundTest extends TestCase
         $this->assertEquals('default', $refund->getMeta('nonexistent', 'default'));
     }
 
-    /** @test */
+    #[Test]
     public function scope_completed_filters_correctly(): void
     {
         $payment = $this->makePayment();

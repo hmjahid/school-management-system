@@ -4,13 +4,14 @@ namespace Tests\Unit\Models;
 
 use App\Models\LibrarySetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class LibrarySettingTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $setting = LibrarySetting::create([
@@ -31,7 +32,7 @@ class LibrarySettingTest extends TestCase
         $this->assertSame(21, $setting->issue_duration_days);
     }
 
-    /** @test */
+    #[Test]
     public function it_uses_default_values_when_created_empty(): void
     {
         $setting = LibrarySetting::create()->fresh();
@@ -42,7 +43,7 @@ class LibrarySettingTest extends TestCase
         $this->assertEquals(14, $setting->issue_duration_days);
     }
 
-    /** @test */
+    #[Test]
     public function get_settings_returns_existing_record(): void
     {
         $setting = LibrarySetting::create([
@@ -58,7 +59,7 @@ class LibrarySettingTest extends TestCase
         $this->assertEquals('7.50', $fetched->late_fee_per_day);
     }
 
-    /** @test */
+    #[Test]
     public function get_settings_creates_defaults_when_empty(): void
     {
         $fetched = LibrarySetting::getSettings();

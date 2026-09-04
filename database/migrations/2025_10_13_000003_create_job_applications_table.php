@@ -21,7 +21,7 @@ return new class extends Migration
             $table->text('cover_letter')->nullable();
             $table->enum('status', ['pending', 'reviewed', 'shortlisted', 'rejected', 'hired'])->default('pending');
             $table->timestamps();
-            
+
             // Add indexes
             $table->index('email');
             $table->index('status');

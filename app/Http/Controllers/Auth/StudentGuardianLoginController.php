@@ -29,7 +29,7 @@ class StudentGuardianLoginController extends Controller
             'remember' => ['sometimes', 'boolean'],
         ]);
 
-        $throttleKey = 'student_guardian_login:' . $request->ip() . '|' . strtolower($request->email);
+        $throttleKey = 'student_guardian_login:'.$request->ip().'|'.strtolower($request->email);
 
         if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = \Illuminate\Support\Facades\RateLimiter::availableIn($throttleKey);
@@ -43,7 +43,7 @@ class StudentGuardianLoginController extends Controller
             'password' => $request->password,
         ];
 
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             \Illuminate\Support\Facades\RateLimiter::hit($throttleKey, 60);
 
             return back()
@@ -55,7 +55,7 @@ class StudentGuardianLoginController extends Controller
 
         $user = Auth::user();
 
-        if (!$user->hasRole($role)) {
+        if (! $user->hasRole($role)) {
             Auth::logout();
 
             return back()

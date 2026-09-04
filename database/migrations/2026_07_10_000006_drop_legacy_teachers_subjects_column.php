@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Schema;
  * The legacy column is unused — subject assignments are always read through the
  * pivot. Drop it to resolve the name collision.
  */
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         if (Schema::hasColumn('teachers', 'subjects')) {

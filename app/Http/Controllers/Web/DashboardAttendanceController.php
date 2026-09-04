@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Web;
 
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\Controller;
 use App\Models\AcademicSession;
 use App\Models\Attendance;
 use App\Models\Batch;
@@ -69,8 +69,8 @@ class DashboardAttendanceController extends Controller
         }
 
         $existing = Attendance::where('date', $date->toDateString())
-            ->when($batchId, fn($q) => $q->where('batch_id', $batchId))
-            ->when($sectionId, fn($q) => $q->where('section_id', $sectionId))
+            ->when($batchId, fn ($q) => $q->where('batch_id', $batchId))
+            ->when($sectionId, fn ($q) => $q->where('section_id', $sectionId))
             ->get()
             ->keyBy('student_id');
 

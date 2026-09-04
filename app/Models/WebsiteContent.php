@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class WebsiteContent extends Model
@@ -309,7 +308,7 @@ class WebsiteContent extends Model
 
     public function getImageUrl($path)
     {
-        return $path ? url('storage/' . ltrim($path, '/')) : null;
+        return $path ? url('storage/'.ltrim($path, '/')) : null;
     }
 
     public static function getActivePages()

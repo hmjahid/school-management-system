@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Builder;
 
 class Testimonial extends Model
 {
@@ -52,7 +52,9 @@ class Testimonial extends Model
     ];
 
     const STATUS_DRAFT = 'draft';
+
     const STATUS_ISSUED = 'issued';
+
     const STATUS_REVOKED = 'revoked';
 
     public function student(): BelongsTo
@@ -79,6 +81,7 @@ class Testimonial extends Model
     {
         $year = now()->year;
         $last = static::whereYear('created_at', $year)->count();
+
         return sprintf('TEST-%s-%04d', $year, $last + 1);
     }
 }

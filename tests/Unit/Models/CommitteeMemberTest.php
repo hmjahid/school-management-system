@@ -5,13 +5,14 @@ namespace Tests\Unit\Models;
 use App\Models\CommitteeMember;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class CommitteeMemberTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $member = CommitteeMember::create([
@@ -32,7 +33,7 @@ class CommitteeMemberTest extends TestCase
         $this->assertSame(3, $member->sort_order);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_photo_url_accessor(): void
     {
         $withoutPhoto = CommitteeMember::create([
@@ -49,7 +50,7 @@ class CommitteeMemberTest extends TestCase
         $this->assertStringContainsString('members/abc.jpg', $withPhoto->photo_url);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_localized_fields(): void
     {
         $member = CommitteeMember::create([
@@ -72,7 +73,7 @@ class CommitteeMemberTest extends TestCase
         $this->assertSame('বাংলা বিবরণ', $member->localizedBio());
     }
 
-    /** @test */
+    #[Test]
     public function it_scopes_active_and_ordered_members(): void
     {
         CommitteeMember::create(['name' => 'A', 'designation' => 'D', 'is_active' => false, 'sort_order' => 1]);

@@ -5,13 +5,14 @@ namespace Tests\Unit\Models;
 use App\Models\DashboardFavorite;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class DashboardFavoriteTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_required_columns(): void
     {
         $user = User::factory()->create();
@@ -29,7 +30,7 @@ class DashboardFavoriteTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_user(): void
     {
         $user = User::factory()->create();
@@ -42,11 +43,11 @@ class DashboardFavoriteTest extends TestCase
         $this->assertTrue($favorite->user->is($user));
     }
 
-    /** @test */
+    #[Test]
     public function it_enforces_unique_url_per_user(): void
     {
         $user = User::factory()->create();
-        $url = '/admin/unique-' . uniqid();
+        $url = '/admin/unique-'.uniqid();
 
         DashboardFavorite::create(['user_id' => $user->id, 'url' => $url]);
         $this->expectException(\Illuminate\Database\QueryException::class);

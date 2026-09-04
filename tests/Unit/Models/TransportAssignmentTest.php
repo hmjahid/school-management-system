@@ -7,6 +7,7 @@ use App\Models\TransportAssignment;
 use App\Models\TransportRoute;
 use App\Models\TransportStop;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class TransportAssignmentTest extends TestCase
@@ -15,7 +16,7 @@ class TransportAssignmentTest extends TestCase
 
     private function makeRoute(): TransportRoute
     {
-        return TransportRoute::create(['name' => 'Assign Route', 'code' => 'CODE' . uniqid()]);
+        return TransportRoute::create(['name' => 'Assign Route', 'code' => 'CODE'.uniqid()]);
     }
 
     private function makeStop(TransportRoute $route): TransportStop
@@ -23,7 +24,7 @@ class TransportAssignmentTest extends TestCase
         return TransportStop::create(['route_id' => $route->id, 'name' => 'Stop']);
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $route = $this->makeRoute();
@@ -48,7 +49,7 @@ class TransportAssignmentTest extends TestCase
         $this->assertSame($to, $assignment->effective_to->toDateString());
     }
 
-    /** @test */
+    #[Test]
     public function it_allows_null_stop_and_effective_to(): void
     {
         $route = $this->makeRoute();
@@ -64,7 +65,7 @@ class TransportAssignmentTest extends TestCase
         $this->assertNull($assignment->effective_to);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_student(): void
     {
         $route = $this->makeRoute();
@@ -80,7 +81,7 @@ class TransportAssignmentTest extends TestCase
         $this->assertEquals($student->id, $assignment->student->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_route(): void
     {
         $route = $this->makeRoute();
@@ -96,7 +97,7 @@ class TransportAssignmentTest extends TestCase
         $this->assertEquals($route->id, $assignment->route->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_stop_when_present(): void
     {
         $route = $this->makeRoute();
@@ -114,7 +115,7 @@ class TransportAssignmentTest extends TestCase
         $this->assertEquals($stop->id, $assignment->stop->id);
     }
 
-    /** @test */
+    #[Test]
     public function is_active_returns_true_within_date_range(): void
     {
         $route = $this->makeRoute();
@@ -130,7 +131,7 @@ class TransportAssignmentTest extends TestCase
         $this->assertTrue($assignment->isActive());
     }
 
-    /** @test */
+    #[Test]
     public function is_active_returns_false_before_start(): void
     {
         $route = $this->makeRoute();
@@ -145,7 +146,7 @@ class TransportAssignmentTest extends TestCase
         $this->assertFalse($assignment->isActive());
     }
 
-    /** @test */
+    #[Test]
     public function is_active_returns_false_after_end(): void
     {
         $route = $this->makeRoute();

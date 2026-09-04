@@ -33,7 +33,7 @@ return new class extends Migration
                 'credit_hours',
                 'description',
                 'is_active',
-                'display_order'
+                'display_order',
             ]);
         });
     }

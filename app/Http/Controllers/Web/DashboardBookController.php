@@ -7,8 +7,8 @@ use App\Models\Book;
 use App\Models\BookCategory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class DashboardBookController extends Controller
 {
@@ -19,8 +19,8 @@ class DashboardBookController extends Controller
         if ($search = $request->string('search')->toString()) {
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('author', 'like', "%{$search}%")
-                  ->orWhere('isbn', 'like', "%{$search}%");
+                    ->orWhere('author', 'like', "%{$search}%")
+                    ->orWhere('isbn', 'like', "%{$search}%");
             });
         }
         if ($categoryId = $request->integer('category_id')) {
@@ -31,6 +31,7 @@ class DashboardBookController extends Controller
         }
         $books = $query->latest()->paginate(15)->withQueryString();
         $categories = BookCategory::orderBy('name')->get();
+
         return view('dashboard.library.books.index', compact('books', 'categories'));
     }
 
@@ -38,6 +39,7 @@ class DashboardBookController extends Controller
     {
         $this->authorize('manage_books');
         $categories = BookCategory::orderBy('name')->get();
+
         return view('dashboard.library.books.create', compact('categories'));
     }
 
@@ -64,6 +66,7 @@ class DashboardBookController extends Controller
         $validated['available_quantity'] = $validated['quantity'];
         $validated['created_by'] = $request->user()->id;
         Book::create($validated);
+
         return redirect()->route('dashboard.library.books.index')->with('status', __('dashboard.book_created'));
     }
 
@@ -71,6 +74,7 @@ class DashboardBookController extends Controller
     {
         $this->authorize('manage_books');
         $book->load(['category', 'createdBy', 'currentIssues.student', 'currentIssues.teacher', 'currentIssues.issuedBy']);
+
         return view('dashboard.library.books.show', compact('book'));
     }
 
@@ -78,6 +82,7 @@ class DashboardBookController extends Controller
     {
         $this->authorize('manage_books');
         $categories = BookCategory::orderBy('name')->get();
+
         return view('dashboard.library.books.edit', compact('book', 'categories'));
     }
 
@@ -88,7 +93,7 @@ class DashboardBookController extends Controller
             'title' => 'required|string|max:255',
             'author' => 'nullable|string|max:255',
             'publisher' => 'nullable|string|max:255',
-            'isbn' => 'nullable|string|max:50|unique:books,isbn,' . $book->id,
+            'isbn' => 'nullable|string|max:50|unique:books,isbn,'.$book->id,
             'category_id' => 'nullable|exists:book_categories,id',
             'shelf_location' => 'nullable|string|max:255',
             'quantity' => 'required|integer|min:1',
@@ -99,7 +104,9 @@ class DashboardBookController extends Controller
             'status' => 'boolean',
         ]);
         if ($request->hasFile('cover_image')) {
-            if ($book->cover_image) Storage::disk('public')->delete($book->cover_image);
+            if ($book->cover_image) {
+                Storage::disk('public')->delete($book->cover_image);
+            }
             $validated['cover_image'] = $request->file('cover_image')->store('books/covers', 'public');
         }
         $diff = $validated['quantity'] - $book->quantity;
@@ -108,14 +115,18 @@ class DashboardBookController extends Controller
             $validated['available_quantity'] = 0;
         }
         $book->update($validated);
+
         return redirect()->route('dashboard.library.books.index')->with('status', __('dashboard.book_updated'));
     }
 
     public function destroy(Book $book): RedirectResponse
     {
         $this->authorize('manage_books');
-        if ($book->cover_image) Storage::disk('public')->delete($book->cover_image);
+        if ($book->cover_image) {
+            Storage::disk('public')->delete($book->cover_image);
+        }
         $book->delete();
+
         return redirect()->route('dashboard.library.books.index')->with('status', __('dashboard.book_deleted'));
     }
 }

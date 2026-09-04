@@ -6,13 +6,14 @@ use App\Models\ChartOfAccount;
 use App\Models\LedgerEntry;
 use App\Services\LedgerService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class LedgerServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_posts_a_single_entry(): void
     {
         $account = ChartOfAccount::create([
@@ -30,7 +31,7 @@ class LedgerServiceTest extends TestCase
         $this->assertEquals($account->id, $entry->chart_of_account_id);
     }
 
-    /** @test */
+    #[Test]
     public function it_defaults_date_to_today_when_not_provided(): void
     {
         $account = ChartOfAccount::create([
@@ -45,7 +46,7 @@ class LedgerServiceTest extends TestCase
         $this->assertEquals(now()->toDateString(), $entry->date->toDateString());
     }
 
-    /** @test */
+    #[Test]
     public function it_posts_a_balanced_journal_entry(): void
     {
         $cash = ChartOfAccount::create(['code' => '1002', 'name_en' => 'Cash', 'type' => 'asset']);
@@ -61,7 +62,7 @@ class LedgerServiceTest extends TestCase
         $this->assertDatabaseCount('ledger_entries', 2);
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_for_unbalanced_journal_entry(): void
     {
         $cash = ChartOfAccount::create(['code' => '1003', 'name_en' => 'Cash', 'type' => 'asset']);
@@ -78,7 +79,7 @@ class LedgerServiceTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_allows_tiny_rounding_difference_within_tolerance(): void
     {
         $cash = ChartOfAccount::create(['code' => '1004', 'name_en' => 'Cash', 'type' => 'asset']);
@@ -95,7 +96,7 @@ class LedgerServiceTest extends TestCase
         $this->assertCount(2, $entries);
     }
 
-    /** @test */
+    #[Test]
     public function it_finds_account_by_code(): void
     {
         $account = ChartOfAccount::create([
@@ -111,7 +112,7 @@ class LedgerServiceTest extends TestCase
         $this->assertEquals($account->id, $found->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_null_for_nonexistent_account_code(): void
     {
         $service = app(LedgerService::class);
@@ -120,7 +121,7 @@ class LedgerServiceTest extends TestCase
         $this->assertNull($found);
     }
 
-    /** @test */
+    #[Test]
     public function it_stores_reference_for_polymorphic_link(): void
     {
         $account = ChartOfAccount::create(['code' => '1005', 'name_en' => 'Cash', 'type' => 'asset']);

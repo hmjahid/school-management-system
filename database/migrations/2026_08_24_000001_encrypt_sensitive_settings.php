@@ -49,6 +49,7 @@ return new class extends Migration
                 }
                 if ($value === '') {
                     $update[$f] = null;
+
                     continue;
                 }
                 // Already encrypted (Laravel ciphertext is base64 JSON starting with "eyJ").

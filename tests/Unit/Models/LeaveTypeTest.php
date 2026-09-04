@@ -7,13 +7,14 @@ use App\Models\LeaveType;
 use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class LeaveTypeTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $type = LeaveType::create([
@@ -33,7 +34,7 @@ class LeaveTypeTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_columns_correctly(): void
     {
         $type = LeaveType::create([
@@ -48,7 +49,7 @@ class LeaveTypeTest extends TestCase
         $this->assertFalse($type->is_active);
     }
 
-    /** @test */
+    #[Test]
     public function its_name_accessor_returns_english_by_default(): void
     {
         $type = new LeaveType([
@@ -59,7 +60,7 @@ class LeaveTypeTest extends TestCase
         $this->assertEquals('Casual Leave', $type->name());
     }
 
-    /** @test */
+    #[Test]
     public function its_name_accessor_returns_bengali_when_locale_is_bn(): void
     {
         \Illuminate\Support\Facades\App::setLocale('bn');
@@ -74,7 +75,7 @@ class LeaveTypeTest extends TestCase
         \Illuminate\Support\Facades\App::setLocale('en');
     }
 
-    /** @test */
+    #[Test]
     public function its_name_accessor_falls_back_to_english_when_bengali_empty(): void
     {
         \Illuminate\Support\Facades\App::setLocale('bn');
@@ -89,7 +90,7 @@ class LeaveTypeTest extends TestCase
         \Illuminate\Support\Facades\App::setLocale('en');
     }
 
-    /** @test */
+    #[Test]
     public function it_has_many_requests(): void
     {
         $type = LeaveType::create(['name_en' => 'Annual Leave', 'days_per_year' => 15]);

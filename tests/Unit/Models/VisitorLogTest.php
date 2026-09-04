@@ -5,13 +5,14 @@ namespace Tests\Unit\Models;
 use App\Models\User;
 use App\Models\VisitorLog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class VisitorLogTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_required_columns(): void
     {
         $log = VisitorLog::create([
@@ -27,7 +28,7 @@ class VisitorLogTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_no_timestamps_and_sets_created_at_on_create(): void
     {
         $log = VisitorLog::create([
@@ -41,7 +42,7 @@ class VisitorLogTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $log->created_at);
     }
 
-    /** @test */
+    #[Test]
     public function it_is_optional_belongs_to_a_user(): void
     {
         $user = User::factory()->create();

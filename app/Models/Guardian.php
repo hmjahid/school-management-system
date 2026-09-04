@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Guardian extends Model
 {
@@ -157,7 +157,7 @@ class Guardian extends Model
             $this->city,
             $this->state,
             $this->zip_code,
-            $this->country
+            $this->country,
         ];
 
         return implode(', ', array_filter($address));
@@ -170,7 +170,8 @@ class Guardian extends Model
     {
         $status = $this->is_active ? 'active' : 'inactive';
         $color = $this->is_active ? 'success' : 'secondary';
-        return "<span class='badge bg-{$color}'>" . ucfirst($status) . "</span>";
+
+        return "<span class='badge bg-{$color}'>".ucfirst($status).'</span>';
     }
 
     /**
@@ -229,7 +230,7 @@ class Guardian extends Model
      */
     public function scopeActive($query)
     {
-        return $query->whereHas('user', function($q) {
+        return $query->whereHas('user', function ($q) {
             $q->where('is_active', true);
         });
     }

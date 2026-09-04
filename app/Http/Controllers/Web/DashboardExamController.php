@@ -47,7 +47,7 @@ class DashboardExamController extends Controller
     {
         abort_unless($request->user()?->can('publish_results'), 403);
 
-        $exam->is_published_to_public = !$exam->is_published_to_public;
+        $exam->is_published_to_public = ! $exam->is_published_to_public;
         $exam->save();
 
         return back()->with('status', $exam->is_published_to_public ? __('Published to public site.') : __('Unpublished.'));

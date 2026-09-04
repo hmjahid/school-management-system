@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\AcademicSession;
 use App\Models\AcademicYear;
-use App\Models\SchoolClass;
 use App\Models\Batch;
+use App\Models\SchoolClass;
 use App\Models\Section;
 use App\Models\Subject;
 use Illuminate\Database\Seeder;
@@ -18,14 +18,14 @@ class DemoAcademicSeeder extends Seeder
         foreach ($sessions as $s) {
             AcademicSession::firstOrCreate(
                 ['code' => $s],
-                ['name' => $s, 'start_date' => $s . '-01-01', 'end_date' => $s . '-12-31', 'is_active' => $s === '2026']
+                ['name' => $s, 'start_date' => $s.'-01-01', 'end_date' => $s.'-12-31', 'is_active' => $s === '2026']
             );
         }
 
         foreach ($sessions as $s) {
             AcademicYear::firstOrCreate(
                 ['session' => $s],
-                ['name' => 'Academic Year ' . $s, 'start_date' => $s . '-01-01', 'end_date' => $s . '-12-31', 'is_current' => $s === '2026']
+                ['name' => 'Academic Year '.$s, 'start_date' => $s.'-01-01', 'end_date' => $s.'-12-31', 'is_current' => $s === '2026']
             );
         }
 
@@ -58,13 +58,13 @@ class DemoAcademicSeeder extends Seeder
             $class = SchoolClass::create([
                 'name' => $className,
                 'grade_level' => $index + 1,
-                'description' => "{$className} section - " . ($index < 5 ? 'Primary' : ($index < 10 ? 'Junior' : 'Secondary')) . " level",
+                'description' => "{$className} section - ".($index < 5 ? 'Primary' : ($index < 10 ? 'Junior' : 'Secondary')).' level',
             ]);
 
             $numBatches = $batchesPerClass[$className] ?? 2;
             for ($b = 0; $b < $numBatches; $b++) {
                 $batch = Batch::create([
-                    'name' => $batchNames[$b] ?? 'Batch ' . ($b + 1),
+                    'name' => $batchNames[$b] ?? 'Batch '.($b + 1),
                 ]);
 
                 foreach ($sectionNames as $sn) {
@@ -72,7 +72,7 @@ class DemoAcademicSeeder extends Seeder
                     Section::create([
                         'class_id' => $class->id,
                         'name' => $sn,
-                        'slug' => 'section-' . $sectionIndex,
+                        'slug' => 'section-'.$sectionIndex,
                         'academic_year_id' => 1,
                     ]);
                 }
@@ -82,9 +82,9 @@ class DemoAcademicSeeder extends Seeder
             foreach ($subjects as $subjName) {
                 $subject = Subject::firstOrCreate(
                     ['name' => $subjName],
-                    ['code' => strtoupper(substr(str_replace(' ', '', $subjName), 0, 4)) . $class->id, 'credit_hours' => rand(2, 5)]
+                    ['code' => strtoupper(substr(str_replace(' ', '', $subjName), 0, 4)).$class->id, 'credit_hours' => rand(2, 5)]
                 );
-                if (!$subject->classes()->where('school_class_id', $class->id)->exists()) {
+                if (! $subject->classes()->where('school_class_id', $class->id)->exists()) {
                     $subject->classes()->attach($class->id);
                 }
             }

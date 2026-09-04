@@ -13,6 +13,7 @@ use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -242,7 +243,7 @@ class TeacherControllerTest extends TestCase
         $this->token = $response->json('access_token');
     }
 
-    /** @test */
+    #[Test]
     public function it_can_get_teacher_classes()
     {
         $response = $this->withHeaders([
@@ -271,7 +272,7 @@ class TeacherControllerTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_get_class_students()
     {
         $response = $this->withHeaders([
@@ -302,7 +303,7 @@ class TeacherControllerTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_get_class_grades()
     {
         $response = $this->withHeaders([
@@ -342,7 +343,7 @@ class TeacherControllerTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_teacher_ownership()
     {
         // Create another teacher

@@ -7,6 +7,7 @@ use App\Models\HostelAssignment;
 use App\Models\HostelRoom;
 use App\Models\Student;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class HostelRoomTest extends TestCase
@@ -18,7 +19,7 @@ class HostelRoomTest extends TestCase
         return Hostel::create(['name' => 'Test Hostel']);
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $hostel = $this->makeHostel();
@@ -41,7 +42,7 @@ class HostelRoomTest extends TestCase
         $this->assertSame(1, $room->occupied);
     }
 
-    /** @test */
+    #[Test]
     public function it_defaults_room_type_capacity_and_occupied(): void
     {
         $hostel = $this->makeHostel();
@@ -53,7 +54,7 @@ class HostelRoomTest extends TestCase
         $this->assertEquals('available', $room->status);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_hostel(): void
     {
         $hostel = $this->makeHostel();
@@ -63,7 +64,7 @@ class HostelRoomTest extends TestCase
         $this->assertEquals($hostel->id, $room->hostel->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_many_assignments(): void
     {
         $hostel = $this->makeHostel();
@@ -80,7 +81,7 @@ class HostelRoomTest extends TestCase
         $this->assertInstanceOf(HostelAssignment::class, $room->assignments->first());
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_many_students_through_assignments(): void
     {
         $hostel = $this->makeHostel();

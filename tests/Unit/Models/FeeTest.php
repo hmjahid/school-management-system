@@ -4,6 +4,7 @@ namespace Tests\Unit\Models;
 
 use App\Models\Fee;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class FeeTest extends TestCase
@@ -21,13 +22,13 @@ class FeeTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function formatted_amount_uses_number_format(): void
     {
         $this->assertEquals('1,500.50', $this->makeFee(['amount' => 1500.50])->formatted_amount);
     }
 
-    /** @test */
+    #[Test]
     public function status_badge_returns_proper_color(): void
     {
         $this->assertStringContainsString('badge bg-success', $this->makeFee(['status' => Fee::STATUS_ACTIVE])->status_badge);
@@ -35,7 +36,7 @@ class FeeTest extends TestCase
         $this->assertStringContainsString('badge bg-danger', $this->makeFee(['status' => Fee::STATUS_ARCHIVED])->status_badge);
     }
 
-    /** @test */
+    #[Test]
     public function fee_types_and_frequencies_are_complete(): void
     {
         $types = Fee::getFeeTypes();
@@ -47,7 +48,7 @@ class FeeTest extends TestCase
         $this->assertEquals('One Time', $frequencies[Fee::FREQUENCY_ONE_TIME]);
     }
 
-    /** @test */
+    #[Test]
     public function scope_active_filters_only_active_fees(): void
     {
         $this->makeFee(['status' => Fee::STATUS_ACTIVE, 'name' => 'Active Fee']);
@@ -59,7 +60,7 @@ class FeeTest extends TestCase
         $this->assertEquals('Active Fee', $active->first()->name);
     }
 
-    /** @test */
+    #[Test]
     public function it_soft_deletes(): void
     {
         $fee = $this->makeFee();

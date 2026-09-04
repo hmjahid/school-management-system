@@ -4,13 +4,14 @@ namespace Tests\Unit\Models;
 
 use App\Models\PaymentWebhookEvent;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class PaymentWebhookEventTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_required_columns(): void
     {
         $event = PaymentWebhookEvent::create([
@@ -26,7 +27,7 @@ class PaymentWebhookEventTest extends TestCase
         $this->assertNotNull($event->id);
     }
 
-    /** @test */
+    #[Test]
     public function payload_hash_is_unique(): void
     {
         $hash = 'dup'.uniqid();
@@ -37,7 +38,7 @@ class PaymentWebhookEventTest extends TestCase
         PaymentWebhookEvent::create(['gateway' => 'bkash', 'payload_hash' => $hash]);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_json_and_datetime_columns(): void
     {
         $event = PaymentWebhookEvent::create([

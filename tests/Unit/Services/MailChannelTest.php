@@ -8,13 +8,14 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Mail;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class MailChannelTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_sends_a_mailable_through_the_mailer(): void
     {
         Mail::fake();
@@ -41,7 +42,7 @@ class MailChannelTest extends TestCase
         Mail::assertSent(NotificationEmail::class);
     }
 
-    /** @test */
+    #[Test]
     public function it_does_not_send_when_there_is_no_mail_route_and_no_mailable(): void
     {
         Mail::fake();

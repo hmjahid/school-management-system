@@ -5,6 +5,7 @@ namespace Tests\Unit\Models;
 use App\Models\SmsCampaign;
 use App\Models\SmsCampaignRecipient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class SmsCampaignRecipientTest extends TestCase
@@ -20,7 +21,7 @@ class SmsCampaignRecipientTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_required_columns(): void
     {
         $campaign = $this->makeCampaign();
@@ -42,7 +43,7 @@ class SmsCampaignRecipientTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_defaults_status_to_queued(): void
     {
         $campaign = $this->makeCampaign();
@@ -58,7 +59,7 @@ class SmsCampaignRecipientTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_campaign(): void
     {
         $campaign = $this->makeCampaign();

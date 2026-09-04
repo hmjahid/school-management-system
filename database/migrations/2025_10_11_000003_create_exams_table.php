@@ -11,7 +11,7 @@ return new class extends Migration
         if (Schema::hasTable('exams')) {
             return;
         }
-        
+
         Schema::create('exams', function (Blueprint $table) {
             $table->id();
             $table->string('name');

@@ -21,7 +21,7 @@ class AdmissionWebController extends Controller
     public function apply(): View
     {
         $settings = AdmissionSetting::getSettings();
-        if (!$settings->is_open) {
+        if (! $settings->is_open) {
             return $this->closedView();
         }
 
@@ -51,7 +51,7 @@ class AdmissionWebController extends Controller
     public function applyStore(Request $request, AdmissionSubmitter $submitter): RedirectResponse
     {
         $settings = AdmissionSetting::getSettings();
-        if (!$settings->is_open) {
+        if (! $settings->is_open) {
             return redirect()
                 ->route('admissions.apply')
                 ->withErrors(['closed' => $settings->closed_message]);
@@ -104,6 +104,7 @@ class AdmissionWebController extends Controller
     public function receipt(Admission $admission, Request $request): View
     {
         $site = WebsiteSetting::current();
+
         return view('site.admissions.admission-receipt', [
             'admission' => $admission,
             'site' => $site,
@@ -116,13 +117,14 @@ class AdmissionWebController extends Controller
      */
     public function approvalLetter(Admission $admission, Request $request): View|RedirectResponse
     {
-        if (!($admission->payment_status === Admission::PAYMENT_VERIFIED && $admission->status === Admission::STATUS_APPROVED)) {
+        if (! ($admission->payment_status === Admission::PAYMENT_VERIFIED && $admission->status === Admission::STATUS_APPROVED)) {
             return redirect()
                 ->route('admissions.status', ['application_number' => $admission->application_number])
                 ->withErrors(['letter' => __('Approval letter is not yet available.')]);
         }
 
         $site = WebsiteSetting::current();
+
         return view('site.admissions.admission-approval-letter', [
             'admission' => $admission,
             'site' => $site,
@@ -137,6 +139,7 @@ class AdmissionWebController extends Controller
     protected function closedView(): View
     {
         $content = WebsiteContent::getContent('admissions');
+
         return view('site.admissions', [
             'content' => $content,
             'admissionsClosed' => true,

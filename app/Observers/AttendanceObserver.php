@@ -16,17 +16,17 @@ class AttendanceObserver
         }
 
         $setting = WebsiteSetting::first();
-        if (!$setting || !($setting->send_absence_sms ?? false)) {
+        if (! $setting || ! ($setting->send_absence_sms ?? false)) {
             return;
         }
 
         $student = Student::find($attendance->student_id);
-        if (!$student) {
+        if (! $student) {
             return;
         }
 
         $phone = $student->guardian_phone ?: $student->father_phone ?: $student->mother_phone ?: $student->phone_1;
-        if (!$phone) {
+        if (! $phone) {
             return;
         }
 

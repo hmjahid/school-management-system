@@ -17,6 +17,7 @@ class DashboardPermissionController extends Controller
             ->get()
             ->groupBy(function ($permission) {
                 $parts = explode('_', $permission->name);
+
                 return count($parts) > 1 ? $parts[0] : 'general';
             });
 

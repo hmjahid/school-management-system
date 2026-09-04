@@ -39,6 +39,7 @@ class AdmissionSetting extends Model
         }
 
         $en = trim((string) $this->payment_instructions_en);
+
         return $en !== '' ? $en : ($locale === 'bn'
             ? 'নির্ধারিত পেমেন্ট নম্বরে টাকা পাঠিয়ে ট্রানজেকশন আইডি সংরক্ষণ করুন।'
             : 'Send the fee to the configured payment number and keep your transaction ID.');
@@ -56,7 +57,7 @@ class AdmissionSetting extends Model
     {
         $row = static::first();
 
-        if (!$row) {
+        if (! $row) {
             $row = static::create(['is_open' => true]);
         }
 

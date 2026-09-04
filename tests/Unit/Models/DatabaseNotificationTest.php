@@ -6,6 +6,7 @@ use App\Models\DatabaseNotification;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class DatabaseNotificationTest extends TestCase
@@ -14,7 +15,7 @@ class DatabaseNotificationTest extends TestCase
 
     private function makeNotification(User $user, array $attributes = []): DatabaseNotification
     {
-        $notification = new DatabaseNotification();
+        $notification = new DatabaseNotification;
         $notification->forceFill(array_merge([
             'id' => (string) Str::uuid(),
             'type' => 'App\\Notifications\\TestNotification',
@@ -27,7 +28,7 @@ class DatabaseNotificationTest extends TestCase
         return $notification;
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_columns_and_casts_data_to_array(): void
     {
         $user = User::factory()->create();
@@ -41,7 +42,7 @@ class DatabaseNotificationTest extends TestCase
         $this->assertEquals('hello', $notification->data['message']);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_notifiable(): void
     {
         $user = User::factory()->create();
@@ -50,7 +51,7 @@ class DatabaseNotificationTest extends TestCase
         $this->assertTrue($notification->notifiable->is($user));
     }
 
-    /** @test */
+    #[Test]
     public function mark_as_read_and_unread_toggle_state(): void
     {
         $user = User::factory()->create();
@@ -68,7 +69,7 @@ class DatabaseNotificationTest extends TestCase
         $this->assertNull($notification->fresh()->read_at);
     }
 
-    /** @test */
+    #[Test]
     public function it_exposes_type_data_and_id_accessors(): void
     {
         $user = User::factory()->create();

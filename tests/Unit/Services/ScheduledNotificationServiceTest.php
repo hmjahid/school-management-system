@@ -7,6 +7,7 @@ use App\Services\Notification\ScheduledNotificationService;
 use App\Services\NotificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ScheduledNotificationServiceTest extends TestCase
@@ -27,7 +28,7 @@ class ScheduledNotificationServiceTest extends TestCase
         return new ScheduledNotificationService($notificationService);
     }
 
-    /** @test */
+    #[Test]
     public function it_schedules_a_one_time_notification_in_the_future(): void
     {
         $service = $this->makeServiceWithSendReturn(true);
@@ -46,7 +47,7 @@ class ScheduledNotificationServiceTest extends TestCase
         $this->assertTrue($scheduled->scheduled_at->isFuture());
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_when_scheduling_a_past_one_time_notification(): void
     {
         $service = $this->makeServiceWithSendReturn(true);
@@ -64,7 +65,7 @@ class ScheduledNotificationServiceTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function it_schedules_a_recurring_daily_notification(): void
     {
         $service = $this->makeServiceWithSendReturn(true);
@@ -83,7 +84,7 @@ class ScheduledNotificationServiceTest extends TestCase
         $this->assertEqualsWithDelta(24, now()->diffInHours($scheduled->scheduled_at), 1);
     }
 
-    /** @test */
+    #[Test]
     public function it_processes_due_notifications_and_marks_them_sent(): void
     {
         ScheduledNotification::create([
@@ -106,7 +107,7 @@ class ScheduledNotificationServiceTest extends TestCase
         $this->assertSame('sent', ScheduledNotification::first()->status);
     }
 
-    /** @test */
+    #[Test]
     public function it_marks_due_notifications_failed_when_send_throws(): void
     {
         ScheduledNotification::create([
@@ -129,7 +130,7 @@ class ScheduledNotificationServiceTest extends TestCase
         $this->assertSame('failed', ScheduledNotification::first()->status);
     }
 
-    /** @test */
+    #[Test]
     public function it_reschedules_recurring_notifications_after_sending(): void
     {
         ScheduledNotification::create([
@@ -153,7 +154,7 @@ class ScheduledNotificationServiceTest extends TestCase
         $this->assertSame('pending', ScheduledNotification::where('status', 'pending')->first()->status);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_upcoming_notifications(): void
     {
         ScheduledNotification::create([
@@ -174,7 +175,7 @@ class ScheduledNotificationServiceTest extends TestCase
         $this->assertCount(1, $upcoming);
     }
 
-    /** @test */
+    #[Test]
     public function it_cancels_a_pending_notification(): void
     {
         $notification = ScheduledNotification::create([
@@ -194,7 +195,7 @@ class ScheduledNotificationServiceTest extends TestCase
         $this->assertSame('cancelled', $notification->fresh()->status);
     }
 
-    /** @test */
+    #[Test]
     public function it_cannot_cancel_an_already_sent_notification(): void
     {
         $notification = ScheduledNotification::create([
@@ -213,7 +214,7 @@ class ScheduledNotificationServiceTest extends TestCase
         $this->assertFalse($service->cancel($notification->id));
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_stats_counts(): void
     {
         ScheduledNotification::create([

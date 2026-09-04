@@ -6,13 +6,14 @@ use App\Models\Notice;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class NoticeTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $user = User::factory()->create();
@@ -36,7 +37,7 @@ class NoticeTest extends TestCase
         $this->assertSame(['all'], $notice->audience);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_localized_title_and_content(): void
     {
         $notice = Notice::create([
@@ -56,7 +57,7 @@ class NoticeTest extends TestCase
         $this->assertSame('বাংলা বিষয়বস্তু', $notice->localizedContent());
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_creator(): void
     {
         $user = User::factory()->create();

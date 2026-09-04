@@ -33,8 +33,11 @@ class AssignmentSubmission extends Model
     ];
 
     const STATUS_SUBMITTED = 'submitted';
+
     const STATUS_LATE = 'late';
+
     const STATUS_GRADED = 'graded';
+
     const STATUS_NOT_SUBMITTED = 'not_submitted';
 
     public function assignment(): BelongsTo

@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class AttendanceResource extends JsonResource
@@ -100,13 +99,13 @@ class AttendanceResource extends JsonResource
                     'update' => $request->user() ? $request->user()->can('update', $this->resource) : false,
                     'delete' => $request->user() ? $request->user()->can('delete', $this->resource) : false,
                 ],
-                'statuses' => collect(\App\Models\Attendance::getStatuses())->map(function($label, $value) {
+                'statuses' => collect(\App\Models\Attendance::getStatuses())->map(function ($label, $value) {
                     return [
                         'value' => $value,
                         'label' => $label,
                     ];
                 })->values(),
-                'types' => collect(\App\Models\Attendance::getTypes())->map(function($label, $value) {
+                'types' => collect(\App\Models\Attendance::getTypes())->map(function ($label, $value) {
                     return [
                         'value' => $value,
                         'label' => $label,

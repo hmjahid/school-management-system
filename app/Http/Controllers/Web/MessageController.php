@@ -82,7 +82,7 @@ class MessageController extends Controller
     {
         $message = Message::findOrFail($id);
 
-        if ($message->receiver_id === $request->user()->id && !$message->read_at) {
+        if ($message->receiver_id === $request->user()->id && ! $message->read_at) {
             $message->markAsRead();
         }
 

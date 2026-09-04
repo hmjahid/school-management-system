@@ -22,7 +22,7 @@ class SendBulkSmsJob implements ShouldQueue
     public function handle(SmsService $sms): void
     {
         $campaign = SmsCampaign::with('recipients')->find($this->campaignId);
-        if (!$campaign) {
+        if (! $campaign) {
             return;
         }
 

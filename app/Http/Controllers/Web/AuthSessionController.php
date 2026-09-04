@@ -27,7 +27,7 @@ class AuthSessionController extends Controller
             'remember' => ['sometimes', 'boolean'],
         ]);
 
-        $throttleKey = 'login:' . $request->ip() . '|' . strtolower($credentials['email']);
+        $throttleKey = 'login:'.$request->ip().'|'.strtolower($credentials['email']);
 
         if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = \Illuminate\Support\Facades\RateLimiter::availableIn($throttleKey);
@@ -43,6 +43,7 @@ class AuthSessionController extends Controller
             $remember
         )) {
             \Illuminate\Support\Facades\RateLimiter::hit($throttleKey, 60);
+
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors(['email' => __('These credentials do not match our records.')]);

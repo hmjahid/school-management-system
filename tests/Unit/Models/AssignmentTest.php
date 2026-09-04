@@ -11,6 +11,7 @@ use App\Models\Student;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AssignmentTest extends TestCase
@@ -20,30 +21,30 @@ class AssignmentTest extends TestCase
     private function makeSubject(): Subject
     {
         return Subject::create([
-            'name' => 'Subject ' . uniqid(),
-            'code' => 'SUB' . uniqid(),
+            'name' => 'Subject '.uniqid(),
+            'code' => 'SUB'.uniqid(),
         ]);
     }
 
     private function makeSection(): Section
     {
         $academicYear = \App\Models\AcademicYear::create([
-            'name' => 'AY ' . uniqid(),
-            'session' => 'SES' . uniqid(),
+            'name' => 'AY '.uniqid(),
+            'session' => 'SES'.uniqid(),
             'start_date' => '2026-01-01',
             'end_date' => '2026-12-31',
         ]);
 
         return Section::create([
-            'name' => 'Section ' . uniqid(),
-            'slug' => 'sec-' . uniqid(),
+            'name' => 'Section '.uniqid(),
+            'slug' => 'sec-'.uniqid(),
             'academic_year_id' => $academicYear->id,
         ]);
     }
 
     private function makeAssignment(array $attributes = []): Assignment
     {
-        $batch = Batch::create(['name' => 'Batch ' . uniqid()]);
+        $batch = Batch::create(['name' => 'Batch '.uniqid()]);
         $subject = $this->makeSubject();
         $user = User::factory()->create();
 
@@ -56,7 +57,7 @@ class AssignmentTest extends TestCase
         ], $attributes));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $assignment = $this->makeAssignment([
@@ -74,7 +75,7 @@ class AssignmentTest extends TestCase
         $this->assertInstanceOf(\DateTimeInterface::class, $assignment->due_date);
     }
 
-    /** @test */
+    #[Test]
     public function it_soft_deletes(): void
     {
         $assignment = $this->makeAssignment();
@@ -84,17 +85,17 @@ class AssignmentTest extends TestCase
         $this->assertNotNull($assignment->fresh()->deleted_at);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_batch(): void
     {
-        $batch = Batch::create(['name' => 'Batch ' . uniqid()]);
+        $batch = Batch::create(['name' => 'Batch '.uniqid()]);
         $assignment = $this->makeAssignment(['batch_id' => $batch->id]);
 
         $this->assertInstanceOf(Batch::class, $assignment->batch);
         $this->assertSame($batch->id, $assignment->batch->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_class(): void
     {
         $class = SchoolClass::factory()->create();
@@ -104,7 +105,7 @@ class AssignmentTest extends TestCase
         $this->assertSame($class->id, $assignment->class->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_section(): void
     {
         $section = $this->makeSection();
@@ -114,7 +115,7 @@ class AssignmentTest extends TestCase
         $this->assertSame($section->id, $assignment->section->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_subject(): void
     {
         $subject = $this->makeSubject();
@@ -124,7 +125,7 @@ class AssignmentTest extends TestCase
         $this->assertSame($subject->id, $assignment->subject->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_creator(): void
     {
         $user = User::factory()->create();
@@ -134,7 +135,7 @@ class AssignmentTest extends TestCase
         $this->assertSame($user->id, $assignment->createdBy->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_many_submissions(): void
     {
         $assignment = $this->makeAssignment();

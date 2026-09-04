@@ -8,6 +8,7 @@ use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AttendanceTest extends TestCase
@@ -33,7 +34,7 @@ class AttendanceTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_correct_status_badge(): void
     {
         $present = new Attendance(['status' => Attendance::STATUS_PRESENT]);
@@ -46,7 +47,7 @@ class AttendanceTest extends TestCase
         $this->assertStringContainsString('badge bg-warning', $late->status_badge);
     }
 
-    /** @test */
+    #[Test]
     public function it_appends_correct_boolean_accessors(): void
     {
         $present = new Attendance(['status' => Attendance::STATUS_PRESENT]);
@@ -64,7 +65,7 @@ class AttendanceTest extends TestCase
         $this->assertTrue($halfDay->is_half_day);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_statuses_and_types_arrays(): void
     {
         $statuses = Attendance::getStatuses();
@@ -76,7 +77,7 @@ class AttendanceTest extends TestCase
         $this->assertArrayHasKey(Attendance::TYPE_SUBJECT_WISE, $types);
     }
 
-    /** @test */
+    #[Test]
     public function it_calculates_student_attendance_percentage(): void
     {
         $student = Student::factory()->create();
@@ -92,7 +93,7 @@ class AttendanceTest extends TestCase
         $this->assertEquals(75.0, $percentage);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_zero_percentage_for_no_records(): void
     {
         $student = Student::factory()->create();
@@ -102,7 +103,7 @@ class AttendanceTest extends TestCase
         $this->assertEquals(0.0, $percentage);
     }
 
-    /** @test */
+    #[Test]
     public function it_counts_half_day_as_present_in_percentage(): void
     {
         $student = Student::factory()->create();
@@ -115,7 +116,7 @@ class AttendanceTest extends TestCase
         $this->assertEquals(50.0, $percentage);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_attendance_summary(): void
     {
         $batch = $this->makeBatch();
@@ -138,7 +139,7 @@ class AttendanceTest extends TestCase
         $this->assertEquals(40.0, $summary['attendance_percentage']);
     }
 
-    /** @test */
+    #[Test]
     public function it_filters_by_batch_in_percentage_calculation(): void
     {
         $batch1 = $this->makeBatch();
@@ -156,7 +157,7 @@ class AttendanceTest extends TestCase
         $this->assertEquals(100.0, $batch2Percentage);
     }
 
-    /** @test */
+    #[Test]
     public function scope_status_filters_correctly(): void
     {
         $student = Student::factory()->create();
@@ -171,7 +172,7 @@ class AttendanceTest extends TestCase
         $this->assertCount(1, $absent);
     }
 
-    /** @test */
+    #[Test]
     public function scope_date_range_filters_correctly(): void
     {
         $student = Student::factory()->create();

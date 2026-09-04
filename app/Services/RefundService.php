@@ -5,8 +5,6 @@ namespace App\Services;
 use App\Models\Payment;
 use App\Models\Refund;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class RefundService
 {
@@ -20,7 +18,6 @@ class RefundService
     /**
      * Create a new service instance.
      *
-     * @param  \App\Services\PaymentService  $paymentService
      * @return void
      */
     public function __construct(PaymentService $paymentService)
@@ -30,13 +27,6 @@ class RefundService
 
     /**
      * Initiate a refund for a payment.
-     *
-     * @param  \App\Models\Payment  $payment
-     * @param  float  $amount
-     * @param  string  $reason
-     * @param  \App\Models\User  $processedBy
-     * @param  array  $metadata
-     * @return array
      */
     public function initiateRefund(
         Payment $payment,
@@ -55,7 +45,7 @@ class RefundService
         }
 
         // Check if payment is refundable
-        if (!$this->isRefundable($payment)) {
+        if (! $this->isRefundable($payment)) {
             return [
                 'success' => false,
                 'message' => 'This payment is not eligible for a refund',
@@ -97,7 +87,7 @@ class RefundService
         // Process refund with payment gateway
         $gatewayResponse = $this->processGatewayRefund($payment, $amount, $reason);
 
-        if (!$gatewayResponse['success']) {
+        if (! $gatewayResponse['success']) {
             $refund->update([
                 'status' => 'failed',
                 'transaction_id' => $gatewayResponse['transaction_id'] ?? null,
@@ -109,7 +99,7 @@ class RefundService
 
             return [
                 'success' => false,
-                'message' => 'Failed to process refund: ' . ($gatewayResponse['message'] ?? 'Gateway refund failed'),
+                'message' => 'Failed to process refund: '.($gatewayResponse['message'] ?? 'Gateway refund failed'),
                 'code' => 'refund_failed',
                 'refund' => $refund,
             ];
@@ -137,9 +127,6 @@ class RefundService
 
     /**
      * Check if a payment is eligible for a refund.
-     *
-     * @param  \App\Models\Payment  $payment
-     * @return bool
      */
     public function isRefundable(Payment $payment): bool
     {
@@ -149,7 +136,7 @@ class RefundService
         }
 
         // Check if payment method supports refunds
-        if (!$this->paymentService->supportsRefunds($payment->payment_method)) {
+        if (! $this->paymentService->supportsRefunds($payment->payment_method)) {
             return false;
         }
 
@@ -163,13 +150,10 @@ class RefundService
 
     /**
      * Get the maximum refundable amount for a payment.
-     *
-     * @param  \App\Models\Payment  $payment
-     * @return float
      */
     public function getRefundableAmount(Payment $payment): float
     {
-        if (!$this->isRefundable($payment)) {
+        if (! $this->isRefundable($payment)) {
             return 0;
         }
 
@@ -182,11 +166,6 @@ class RefundService
 
     /**
      * Process refund with the payment gateway.
-     *
-     * @param  \App\Models\Payment  $payment
-     * @param  float  $amount
-     * @param  string  $reason
-     * @return array
      */
     protected function processGatewayRefund(Payment $payment, float $amount, string $reason): array
     {
@@ -224,10 +203,6 @@ class RefundService
 
     /**
      * Update payment refund status based on refund amount.
-     *
-     * @param  \App\Models\Payment  $payment
-     * @param  float  $refundAmount
-     * @return void
      */
     protected function updatePaymentRefundStatus(Payment $payment, float $refundAmount): void
     {
@@ -245,9 +220,6 @@ class RefundService
 
     /**
      * Get refund details by ID.
-     *
-     * @param  string  $refundId
-     * @return \App\Models\Refund|null
      */
     public function getRefund(string $refundId): ?Refund
     {
@@ -257,7 +229,6 @@ class RefundService
     /**
      * List refunds with optional filters.
      *
-     * @param  array  $filters
      * @return \Illuminate\Pagination\LengthAwarePaginator
      */
     public function listRefunds(array $filters = [])
@@ -266,23 +237,23 @@ class RefundService
             ->orderBy('created_at', 'desc');
 
         // Apply filters
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['payment_id'])) {
+        if (! empty($filters['payment_id'])) {
             $query->where('payment_id', $filters['payment_id']);
         }
 
-        if (!empty($filters['user_id'])) {
+        if (! empty($filters['user_id'])) {
             $query->where('user_id', $filters['user_id']);
         }
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->where('created_at', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->where('created_at', '<=', $filters['date_to']);
         }
 
@@ -291,10 +262,6 @@ class RefundService
 
     /**
      * Cancel a pending refund.
-     *
-     * @param  \App\Models\Refund  $refund
-     * @param  string  $reason
-     * @return bool
      */
     public function cancelRefund(Refund $refund, string $reason): bool
     {

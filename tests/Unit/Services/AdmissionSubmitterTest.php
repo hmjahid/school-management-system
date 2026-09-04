@@ -9,6 +9,7 @@ use App\Services\AdmissionSubmitter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AdmissionSubmitterTest extends TestCase
@@ -41,7 +42,7 @@ class AdmissionSubmitterTest extends TestCase
         return Request::create('/admissions', 'POST', $data);
     }
 
-    /** @test */
+    #[Test]
     public function it_creates_a_submitted_admission(): void
     {
         Notification::fake();
@@ -55,7 +56,7 @@ class AdmissionSubmitterTest extends TestCase
         $this->assertDatabaseHas('admissions', ['id' => $admission->id, 'status' => Admission::STATUS_SUBMITTED]);
     }
 
-    /** @test */
+    #[Test]
     public function it_sends_submission_notification(): void
     {
         Notification::fake();
@@ -71,7 +72,7 @@ class AdmissionSubmitterTest extends TestCase
         $this->assertNotNull($admission->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_required_fields(): void
     {
         $this->expectException(\Illuminate\Validation\ValidationException::class);
@@ -81,7 +82,7 @@ class AdmissionSubmitterTest extends TestCase
         app(AdmissionSubmitter::class)->submitPublicApplication($request);
     }
 
-    /** @test */
+    #[Test]
     public function it_rejects_duplicate_email(): void
     {
         Notification::fake();
@@ -96,7 +97,7 @@ class AdmissionSubmitterTest extends TestCase
         app(AdmissionSubmitter::class)->submitPublicApplication($second);
     }
 
-    /** @test */
+    #[Test]
     public function it_stores_no_documents_when_no_files_uploaded(): void
     {
         Notification::fake();

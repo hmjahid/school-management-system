@@ -6,7 +6,7 @@ use App\Models\StaffAttendance;
 use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\App;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class StaffAttendanceTest extends TestCase
@@ -18,7 +18,7 @@ class StaffAttendanceTest extends TestCase
         return Teacher::create(['user_id' => User::factory()->create()->id]);
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_required_columns(): void
     {
         $teacher = $this->makeTeacher();
@@ -37,7 +37,7 @@ class StaffAttendanceTest extends TestCase
         $this->assertEquals('2026-03-01', $attendance->date->toDateString());
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_date_and_timestamps(): void
     {
         $teacher = $this->makeTeacher();
@@ -55,7 +55,7 @@ class StaffAttendanceTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $attendance->check_out_at);
     }
 
-    /** @test */
+    #[Test]
     public function it_exposes_status_constants(): void
     {
         $this->assertEquals('present', StaffAttendance::STATUS_PRESENT);
@@ -65,7 +65,7 @@ class StaffAttendanceTest extends TestCase
         $this->assertArrayHasKey('present', StaffAttendance::STATUSES);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_teacher(): void
     {
         $teacher = $this->makeTeacher();
@@ -79,7 +79,7 @@ class StaffAttendanceTest extends TestCase
         $this->assertTrue($attendance->teacher->is($teacher));
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_recorder_when_set(): void
     {
         $teacher = $this->makeTeacher();
@@ -95,7 +95,7 @@ class StaffAttendanceTest extends TestCase
         $this->assertTrue($attendance->recorder->is($recorder));
     }
 
-    /** @test */
+    #[Test]
     public function it_defaults_status_to_present(): void
     {
         $teacher = $this->makeTeacher();

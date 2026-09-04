@@ -5,13 +5,14 @@ namespace Tests\Unit\Models;
 use App\Models\User;
 use App\Models\UserWidgetPreference;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UserWidgetPreferenceTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_required_columns_and_casts(): void
     {
         $user = User::factory()->create();
@@ -34,7 +35,7 @@ class UserWidgetPreferenceTest extends TestCase
         $this->assertIsArray($pref->settings);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_user(): void
     {
         $user = User::factory()->create();
@@ -47,7 +48,7 @@ class UserWidgetPreferenceTest extends TestCase
         $this->assertTrue($pref->user->is($user));
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_default_widgets(): void
     {
         $defaults = UserWidgetPreference::getDefaultWidgets();
@@ -56,7 +57,7 @@ class UserWidgetPreferenceTest extends TestCase
         $this->assertArrayHasKey('recent_activity', $defaults);
     }
 
-    /** @test */
+    #[Test]
     public function get_for_user_merges_defaults_with_saved_preferences(): void
     {
         $user = User::factory()->create();
@@ -79,7 +80,7 @@ class UserWidgetPreferenceTest extends TestCase
         $this->assertTrue($recent['enabled']);
     }
 
-    /** @test */
+    #[Test]
     public function save_for_user_creates_or_updates_preferences(): void
     {
         $user = User::factory()->create();

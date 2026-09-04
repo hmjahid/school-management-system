@@ -6,6 +6,7 @@ use App\Models\Budget;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ExpenseCategoryTest extends TestCase
@@ -20,7 +21,7 @@ class ExpenseCategoryTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_name_and_is_active_defaults_to_true(): void
     {
         $category = $this->makeCategory();
@@ -29,7 +30,7 @@ class ExpenseCategoryTest extends TestCase
         $this->assertTrue($category->fresh()->is_active);
     }
 
-    /** @test */
+    #[Test]
     public function is_active_can_be_disabled(): void
     {
         $category = $this->makeCategory(['is_active' => false]);
@@ -37,7 +38,7 @@ class ExpenseCategoryTest extends TestCase
         $this->assertFalse($category->is_active);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_many_expenses(): void
     {
         $category = $this->makeCategory();
@@ -50,7 +51,7 @@ class ExpenseCategoryTest extends TestCase
         $this->assertCount(2, $category->fresh()->expenses);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_many_budgets(): void
     {
         $category = $this->makeCategory();
@@ -65,7 +66,7 @@ class ExpenseCategoryTest extends TestCase
         $this->assertCount(1, $category->budgets);
     }
 
-    /** @test */
+    #[Test]
     public function it_soft_deletes(): void
     {
         $category = $this->makeCategory();

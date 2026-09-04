@@ -1,4 +1,4 @@
-read the current codebase carefully and ensure that all features are implemented successfully and functional 
+read the current codebase carefully and ensure that all features are implemented successfully and functional
 
 
 
@@ -8,9 +8,9 @@ cmd --resume 7afd87e1-6cb4-4f7c-848c-7940df3d01c9
 cmd --resume 7afd87e1-6cb4-4f7c-848c-7940df3d01c9
 
 
-ensure that the application is fully developed and ready to depoly 
+ensure that the application is fully developed and ready to depoly
 
-is all feature sare designed and implemented? 
+is all feature sare designed and implemented?
 
 write a commit message for the changes after the last commit
 
@@ -20,13 +20,13 @@ make th elogin page preofessional. add padding in top and bottom in the page bod
 
 every page will have fixed sections. the scetions contents can be chnaged uisng cm. remove json ediotr from the cms. make the cms more user friendly and useful to a non tech person. add option in cms page to slect deafult lanugae bn or en. the front/public site will load in the default language.
 
-some pages have add section feature remove that. no need this feataure now. 
+some pages have add section feature remove that. no need this feataure now.
 
 remove theme chnaging feature from the application
 
 make the dropdown/resposive menu professional. show the resposive header from 1366px to below
 
-why desktop showing hamburger? show from 1366px to below. 1367px to up show dekstop header 
+why desktop showing hamburger? show from 1366px to below. 1367px to up show dekstop header
 
 arrange header menu items in category. like relate items put in one item and show them in dropdown.
 
@@ -41,7 +41,7 @@ footer follow us text not chnaing with the language chnage
 remove newsletter section from footer.
 
 add important links section in footer such as education ministry, primary education ministry, nation info        
-  center, secondary and higher secondary department etc 
+  center, secondary and higher secondary department etc
 
 there will be on/off for admission option from backend unser admission backend. if admission of is selecetd, th eforntend admission paege will show, admission not avavlable now.
 
@@ -157,15 +157,15 @@ add features like https://app.bd/ and [webbazaarbd.com](https://webbazarbd.com/)
 
 we wnat admin, principal and teacher login only in the fisrt vesrion of this application now.studnets/gurdians login will add later. remove register button from header now. keep only login
 
-after successfuly applying for aadmission, a recipt will be given to download with fees amount, payment number, and showing that admission is pending for payment. the status page will show admission status. after succesful payemnt, aapproved letter will be given to downlaod. the stus page willl show whom payent not paid and option for submitting payemnt transation id. paid apllications will show padi and option for again downloading the confirmation letter. 
+after successfuly applying for aadmission, a recipt will be given to download with fees amount, payment number, and showing that admission is pending for payment. the status page will show admission status. after succesful payemnt, aapproved letter will be given to downlaod. the stus page willl show whom payent not paid and option for submitting payemnt transation id. paid apllications will show padi and option for again downloading the confirmation letter.
 
 
 add a result page where all result will be shown based on class, roll, year selection
 
 
-aslo add a optiont to add/chage brand color. the brand color will be main color. add aslo primary color and secondary color and make them useable to specific contents and sections. 
+aslo add a optiont to add/chage brand color. the brand color will be main color. add aslo primary color and secondary color and make them useable to specific contents and sections.
 
-ensure that all backend admin features are fully functional and aligned with frontend. 
+ensure that all backend admin features are fully functional and aligned with frontend.
 
 ensure that this applicaion now a fully functional school management system.
 
@@ -183,7 +183,7 @@ is notification and payemt system integrated and functional now?
 
 
 
-add a claender page in the dashboard for showing school activities, academic and govt holidays, upcoming events and more adn make them avalable to all dashboard users. 
+add a claender page in the dashboard for showing school activities, academic and govt holidays, upcoming events and more adn make them avalable to all dashboard users.
 
 add fetaure for activating or non activationg for controlling show/hide of every front/public site sections
 
@@ -205,7 +205,7 @@ make the homepage hero section more attractive so that visiotrs can get a clear 
 
 though unchecking accepting applicattions, showing the application status in the public website header
 
-bulk attendence not working. fix it 
+bulk attendence not working. fix it
 
 dashboard header serach button not woking. aslo ensure taht search box wokrs by selecting the secah input filed not ctrl+k press.
 
@@ -219,9 +219,9 @@ ensure that all features and functionlaities are working perfectly.
 
 
 
-add gurdians and students login and their own profile system. add demo student and gurdians login credentials in the demo-credentials.md file 
+add gurdians and students login and their own profile system. add demo student and gurdians login credentials in the demo-credentials.md file
 
-ensure that same user type cannot use same mobile number or email 2 times but if 
+ensure that same user type cannot use same mobile number or email 2 times but if
 
 add a internal messeging sytem to message each other. like teachers to principle, students to teachers, gurdians to teacher inside the system. but the admin will have log and can see all messages all usres activities.
 
@@ -279,7 +279,7 @@ create a proper prompt to implement the above tasks and add the prompt in featur
 
 the dashboard user link header somtimes working and sometimes not working. fix the isseu.
 
-in homepage teachers sections lsider, show 3 teachers in desktop, 2 in tab and 1 in mobile. aslo show 6 tecahers in tecahers page intiallly. others will be shown by clicking a see more button, and will agin hide the hidden tecahers by clciking see less button. 
+in homepage teachers sections lsider, show 3 teachers in desktop, 2 in tab and 1 in mobile. aslo show 6 tecahers in tecahers page intiallly. others will be shown by clicking a see more button, and will agin hide the hidden tecahers by clciking see less button.
 
 make help and documentation also bangla version
 
@@ -305,7 +305,7 @@ use checkbox for show/hide instead of remove button for page section hide/show f
 create a proper prompt to implement the above tasks and add the prompt in features-impl-prompt-7.md file. then implement the tasks using the prompt
 
 
-where announcements are showing? 
+where announcements are showing?
 
 what the difference between nitice an dannouncement?
 
@@ -321,7 +321,7 @@ add option for showing in both places
 
 make both bangl and enshlish input fileds for the amnnouncements
 
-add audince option like the notice 
+add audince option like the notice
 
 the audience selection not saving and not showing in the dahboard notification
 
@@ -484,7 +484,7 @@ add demo conetnet in homepage slider section
 i told to create help group and administration group like main, webiste etc not sub items group. then move users & roles to the administration group and help & documentation page to the help group. rename back to users and roles
 
 when admisssion will be off, homepage hero admission button will be hidden and contact us button will be shown insated.
-search for nay instructions from eduaction ministry for school website 
+search for nay instructions from eduaction ministry for school website
 
 add a about page and add details of this software in that page.
 
@@ -501,7 +501,7 @@ cms media input fileds or any others media input filedls will be able to slecet 
 
 move homepage recent events section on top of the upcoming events
 
-add a one more hero section design which only will have school nmae, and schol image with full width. and one more hero section design with school name and a slider in the heo section. 
+add a one more hero section design which only will have school nmae, and schol image with full width. and one more hero section design with school name and a slider in the heo section.
 
 add payment type filter in payment page.
 
@@ -534,7 +534,7 @@ create a proper prompt to implement the above tasks and add the prompt in featur
 
 remove individual about page from the website cms as we aslredy ahve unde rall page > about page. also fix the setting page theme setting as its also not working. add a about page in dashboard for showing this software deatils, developer details and others
 
-setting page theme not working. aslo the homepage recent events and activities section not move dto above of upcoming events ection . fix them. 
+setting page theme not working. aslo the homepage recent events and activities section not move dto above of upcoming events ection . fix them.
 
 no. move the hero below sldier section in that scetion, not new section
 
@@ -625,10 +625,27 @@ can you fix them?
 
 do all yourself. now I have internet
 
-
-
-
 notes these two tasks. I will do thse two later
+
+add all demo cerdentails in users so that I can manage them all from dahboard
+
+read wordpress-theme-conversion.md file and modify according to the current chnages and status of this school management system. we will use only theme not plugin in the wordpress for making this school managemnt system functional in the wordpress
+
+if need custom fields, will use meta fields
+
+
+suppose you are a senior project manager. review this school management system, check every codes and features, check if the codes and features are adequate and properly working as expected, they are enough for the system and add all these in a report file
+
+create a proper prompt file to execute this tasks properly and professionally
+
+now execute the review-prommpt and continue untill finished
+
+now cerate a implementation plan to implement the review report and implement the plan untill finished
+
+add optional smtp integration feature if needed
+
+
+arrange the files, folder documentations
 
 
 
@@ -646,7 +663,7 @@ we will build total 3 application/product. 1. app 2. wordpress theme and 3. webs
 
 we will build app internation version and a php version and the theme also a international version. the php version also will be a another international version. app will be total 2 folder: 1. schooler-app, 2. schooler-app-int. theme will be two folders: 1. schooler-theme, 2. schooler-theme-int. app php version also will be two folders: 1. schooler-php, 2. schooler-php-int
 
-the website for this apllication/theme marketing/branding/selling will be a fully functional website with backend for managing uswers/customers, licensing, subscriptions, payments, expiration, rnewals and more. we wi;; add paddle for payemnt
+the website for this apllication/theme marketing/branding/selling will be a fully functional website with backend for managing uswers/customers, licensing, subscriptions, payments, expiration, rnewals and more. we will add/use paddle for payemnt
 
 
 
@@ -655,7 +672,7 @@ suppose you are a senior laravel developer and software engineer. cretae full un
 
 
 
-add all demo cerdentails in users so that I can manage them all
+
 
 
 
@@ -693,5 +710,3 @@ i want to name this software a nice name for branding. the dahboard sidebar top 
    - php artisan migrate --force
    - php artisan config:cache route:cache view:cache; storage:link
    - verify backup:database; sign off docs/PRODUCTION-CHECKLIST.md
-
-

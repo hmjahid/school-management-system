@@ -20,6 +20,7 @@ class ActivityLogServiceProvider extends ServiceProvider
             if (Auth::check()) {
                 $this->causedBy(Auth::user());
             }
+
             return $this;
         });
     }

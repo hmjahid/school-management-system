@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Teacher;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class TeacherPolicy
@@ -13,7 +13,6 @@ class TeacherPolicy
     /**
      * Determine whether the user can view any models.
      *
-     * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function viewAny(User $user)
@@ -24,8 +23,6 @@ class TeacherPolicy
     /**
      * Determine whether the user can view the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Teacher  $teacher
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function view(User $user, Teacher $teacher)
@@ -41,14 +38,13 @@ class TeacherPolicy
         }
 
         // Allow admins and staff with permission to view any teacher
-        return $user->hasRole(['admin', 'staff']) && 
+        return $user->hasRole(['admin', 'staff']) &&
                $user->hasPermissionTo('view_teachers');
     }
 
     /**
      * Determine whether the user can create models.
      *
-     * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function create(User $user)
@@ -59,8 +55,6 @@ class TeacherPolicy
     /**
      * Determine whether the user can update the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Teacher  $teacher
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function update(User $user, Teacher $teacher)
@@ -81,30 +75,26 @@ class TeacherPolicy
     /**
      * Determine whether the user can delete the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Teacher  $teacher
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, Teacher $teacher = null)
+    public function delete(User $user, ?Teacher $teacher = null)
     {
         // For route model binding, we need to handle null teacher for create/any operations
         if ($teacher === null) {
             return $user->hasAnyPermission(['delete_teachers', 'manage_teachers']);
         }
-        
+
         // Prevent deleting self
         if ($user->id === $teacher->user_id) {
             return false;
         }
-        
+
         return $user->hasAnyPermission(['delete_teachers', 'manage_teachers']);
     }
 
     /**
      * Determine whether the user can restore the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Teacher  $teacher
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function restore(User $user, Teacher $teacher)
@@ -115,8 +105,6 @@ class TeacherPolicy
     /**
      * Determine whether the user can permanently delete the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Teacher  $teacher
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function forceDelete(User $user, Teacher $teacher)
@@ -127,8 +115,6 @@ class TeacherPolicy
     /**
      * Determine whether the user can view the teacher's attendance.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Teacher  $teacher
      * @return bool
      */
     public function viewAttendance(User $user, Teacher $teacher)
@@ -145,8 +131,6 @@ class TeacherPolicy
     /**
      * Determine whether the user can view the teacher's salary information.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Teacher  $teacher
      * @return bool
      */
     public function viewSalary(User $user, Teacher $teacher)
@@ -163,34 +147,30 @@ class TeacherPolicy
     /**
      * Determine whether the user can manage the teacher's subjects.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Teacher  $teacher
      * @return bool
      */
-    public function manageSubjects(User $user, Teacher $teacher = null)
+    public function manageSubjects(User $user, ?Teacher $teacher = null)
     {
         // For route model binding, we need to handle null teacher for create/any operations
         if ($teacher === null) {
             return $user->hasAnyPermission(['manage_teacher_subjects', 'manage_teachers']);
         }
-        
+
         return $user->hasAnyPermission(['manage_teacher_subjects', 'manage_teachers']);
     }
 
     /**
      * Determine whether the user can manage the teacher's class assignments.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Teacher  $teacher
      * @return bool
      */
-    public function manageClassAssignments(User $user, Teacher $teacher = null)
+    public function manageClassAssignments(User $user, ?Teacher $teacher = null)
     {
         // For route model binding, we need to handle null teacher for create/any operations
         if ($teacher === null) {
             return $user->hasAnyPermission(['manage_class_assignments', 'manage_teachers']);
         }
-        
+
         return $user->hasAnyPermission(['manage_class_assignments', 'manage_teachers']);
     }
 }

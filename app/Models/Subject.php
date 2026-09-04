@@ -3,10 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Subject extends Model
 {
@@ -123,7 +122,8 @@ class Subject extends Model
     {
         $status = $this->is_active ? 'active' : 'inactive';
         $color = $this->is_active ? 'success' : 'secondary';
-        return "<span class='badge bg-{$color}'>" . ucfirst($status) . "</span>";
+
+        return "<span class='badge bg-{$color}'>".ucfirst($status).'</span>';
     }
 
     /**
@@ -147,8 +147,8 @@ class Subject extends Model
 
         $type = strtolower($this->type);
         $color = $types[$type] ?? 'secondary';
-        
-        return "<span class='badge bg-{$color}'>" . ucfirst($type) . "</span>";
+
+        return "<span class='badge bg-{$color}'>".ucfirst($type).'</span>';
     }
 
     /**

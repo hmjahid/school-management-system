@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Storage;
 
 class Book extends Model
 {
@@ -30,7 +29,7 @@ class Book extends Model
 
     public function getCoverUrlAttribute(): ?string
     {
-        return $this->cover_image ? url('storage/' . ltrim($this->cover_image, '/')) : null;
+        return $this->cover_image ? url('storage/'.ltrim($this->cover_image, '/')) : null;
     }
 
     public function category(): BelongsTo

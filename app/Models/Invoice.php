@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Invoice extends Model
 {
     public const STATUS_PAID = 'paid';
+
     public const STATUS_UNPAID = 'unpaid';
+
     public const STATUS_OVERDUE = 'overdue';
 
     protected $fillable = [

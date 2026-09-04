@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\RefundService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RefundConcurrencyTest extends TestCase
@@ -47,7 +48,7 @@ class RefundConcurrencyTest extends TestCase
         $this->refundService = app(RefundService::class);
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_concurrent_refund_requests_safely()
     {
         // Simulate multiple concurrent refund requests
@@ -80,7 +81,7 @@ class RefundConcurrencyTest extends TestCase
             'Payment should be marked as fully refunded');
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_concurrent_partial_refunds_correctly()
     {
         // Simulate multiple concurrent partial refund requests
@@ -109,7 +110,7 @@ class RefundConcurrencyTest extends TestCase
             'Total refunded amount should equal the payment amount');
     }
 
-    /** @test */
+    #[Test]
     public function it_prevents_double_processing_of_same_refund()
     {
         // Create a pending refund

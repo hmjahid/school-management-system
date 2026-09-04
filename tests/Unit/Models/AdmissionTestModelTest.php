@@ -8,6 +8,7 @@ use App\Models\AdmissionTest;
 use App\Models\Batch;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AdmissionTestModelTest extends TestCase
@@ -40,7 +41,7 @@ class AdmissionTestModelTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_required_columns(): void
     {
         $admission = $this->makeAdmission();
@@ -62,7 +63,7 @@ class AdmissionTestModelTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_defaults_status_to_scheduled(): void
     {
         $admission = $this->makeAdmission();
@@ -77,7 +78,7 @@ class AdmissionTestModelTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_scheduled_at_to_datetime(): void
     {
         $admission = $this->makeAdmission();
@@ -90,7 +91,7 @@ class AdmissionTestModelTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $test->scheduled_at);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_an_admission(): void
     {
         $admission = $this->makeAdmission();

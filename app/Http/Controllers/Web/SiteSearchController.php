@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\Event;
 use App\Models\News;
 use App\Models\Notice;
-use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
@@ -25,7 +25,7 @@ class SiteSearchController extends Controller
                         News::query()->published()
                             ->where(function ($q) use ($query) {
                                 $q->where('title', 'like', "%{$query}%")
-                                  ->orWhere('content', 'like', "%{$query}%");
+                                    ->orWhere('content', 'like', "%{$query}%");
                             })
                             ->limit(10)
                             ->get()
@@ -45,7 +45,7 @@ class SiteSearchController extends Controller
                         Notice::query()
                             ->where(function ($q) use ($query) {
                                 $q->where('title', 'like', "%{$query}%")
-                                  ->orWhere('content', 'like', "%{$query}%");
+                                    ->orWhere('content', 'like', "%{$query}%");
                             })
                             ->limit(10)
                             ->get()
@@ -66,7 +66,7 @@ class SiteSearchController extends Controller
                             ->where('status', 'published')
                             ->where(function ($q) use ($query) {
                                 $q->where('title', 'like', "%{$query}%")
-                                  ->orWhere('description', 'like', "%{$query}%");
+                                    ->orWhere('description', 'like', "%{$query}%");
                             })
                             ->limit(10)
                             ->get()
@@ -93,7 +93,7 @@ class SiteSearchController extends Controller
                     foreach ($pages as $slug => $meta) {
                         $content = \App\Models\WebsiteContent::where('page', $slug)->first();
                         if ($content) {
-                            $text = $content->title . ' ' . strip_tags(json_encode($content->content));
+                            $text = $content->title.' '.strip_tags(json_encode($content->content));
                             if (stripos($text, $query) !== false) {
                                 $results->push([
                                     'type_key' => 'page',
@@ -108,7 +108,7 @@ class SiteSearchController extends Controller
                     }
                 }
             } catch (\Throwable $e) {
-                \Log::error('Site search error: ' . $e->getMessage());
+                \Log::error('Site search error: '.$e->getMessage());
             }
         }
 

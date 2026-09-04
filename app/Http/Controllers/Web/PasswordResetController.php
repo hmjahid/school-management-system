@@ -25,9 +25,10 @@ class PasswordResetController extends Controller
 
         $email = strtolower(trim((string) $request->input('email')));
 
-        $throttleKey = 'password-reset:' . $request->ip() . '|' . $email;
+        $throttleKey = 'password-reset:'.$request->ip().'|'.$email;
         if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($throttleKey, 3)) {
             $seconds = \Illuminate\Support\Facades\RateLimiter::availableIn($throttleKey);
+
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors(['email' => __('Too many reset requests. Try again in :seconds seconds.', ['seconds' => $seconds])]);

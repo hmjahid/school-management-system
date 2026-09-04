@@ -7,6 +7,7 @@ use App\Models\PaymentGateway;
 use App\Services\PaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class PaymentServiceTest extends TestCase
@@ -50,7 +51,7 @@ class PaymentServiceTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_initialize_offline_payment()
     {
         PaymentGateway::create([
@@ -75,7 +76,7 @@ class PaymentServiceTest extends TestCase
         $this->assertEquals('Pay at the school office', $result['offline_instructions']);
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_exception_for_inactive_gateway()
     {
         PaymentGateway::create([
@@ -97,7 +98,7 @@ class PaymentServiceTest extends TestCase
         $this->paymentService->initializePayment($payment, 'bkash');
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_exception_for_unknown_gateway()
     {
         $payment = Payment::factory()->create();
@@ -107,7 +108,7 @@ class PaymentServiceTest extends TestCase
         $this->paymentService->initializePayment($payment, 'does_not_exist');
     }
 
-    /** @test */
+    #[Test]
     public function it_can_initialize_bkash_payment()
     {
         $this->createBkashGateway();
@@ -139,7 +140,7 @@ class PaymentServiceTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_process_bkash_callback()
     {
         $gateway = $this->createBkashGateway();
@@ -174,7 +175,7 @@ class PaymentServiceTest extends TestCase
         $this->assertEquals($payment->total_amount, $result->paid_amount);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_verify_payment_status()
     {
         $this->createBkashGateway();
@@ -201,7 +202,7 @@ class PaymentServiceTest extends TestCase
         $this->assertArrayHasKey('verification_response', $result->payment_details);
     }
 
-    /** @test */
+    #[Test]
     public function it_processes_refunds()
     {
         $this->createBkashGateway();
@@ -221,7 +222,7 @@ class PaymentServiceTest extends TestCase
         $this->assertArrayHasKey('transaction_id', $result);
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_on_failed_gateway_initialization()
     {
         $this->createBkashGateway();

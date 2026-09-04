@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-use App\Models\Role;
 use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -32,6 +32,7 @@ class DashboardRoleController extends Controller
 
         $permissions = Permission::orderBy('name')->get()->groupBy(function ($permission) {
             $parts = explode('_', $permission->name);
+
             return count($parts) > 1 ? $parts[0] : 'general';
         });
 
@@ -72,6 +73,7 @@ class DashboardRoleController extends Controller
 
         $permissions = Permission::orderBy('name')->get()->groupBy(function ($permission) {
             $parts = explode('_', $permission->name);
+
             return count($parts) > 1 ? $parts[0] : 'general';
         });
 
@@ -83,7 +85,7 @@ class DashboardRoleController extends Controller
         $this->authorize('manage_roles');
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:roles,name,' . $role->id,
+            'name' => 'required|string|max:255|unique:roles,name,'.$role->id,
             'description' => 'nullable|string|max:500',
             'guard_name' => 'required|string|in:web,api',
             'permissions' => 'nullable|array',

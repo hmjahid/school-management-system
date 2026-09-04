@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class NotificationServiceTest extends TestCase
@@ -25,7 +26,7 @@ class NotificationServiceTest extends TestCase
         return $r->getValue($obj);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_self_from_fluent_setters(): void
     {
         $service = new NotificationService;
@@ -42,7 +43,7 @@ class NotificationServiceTest extends TestCase
         $this->assertSame($service, $service->to($this->makeUser()));
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_when_sending_without_recipients(): void
     {
         $service = (new NotificationService)
@@ -55,7 +56,7 @@ class NotificationServiceTest extends TestCase
         $service->send();
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_when_sending_without_type(): void
     {
         $service = (new NotificationService)
@@ -68,7 +69,7 @@ class NotificationServiceTest extends TestCase
         $service->send();
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_when_sending_without_content_or_template(): void
     {
         $service = (new NotificationService)
@@ -81,7 +82,7 @@ class NotificationServiceTest extends TestCase
         $service->send();
     }
 
-    /** @test */
+    #[Test]
     public function it_accepts_user_array_and_collection_as_recipients(): void
     {
         $u1 = $this->makeUser(['email' => 'a@example.com']);
@@ -100,7 +101,7 @@ class NotificationServiceTest extends TestCase
         $this->assertCount(2, $this->getProtected($service, 'recipients'));
     }
 
-    /** @test */
+    #[Test]
     public function it_stores_a_database_notification_when_sent_via_database_channel(): void
     {
         $user = $this->makeUser();
@@ -126,7 +127,7 @@ class NotificationServiceTest extends TestCase
         $this->assertCount(1, $user->notifications);
     }
 
-    /** @test */
+    #[Test]
     public function it_sends_mail_through_the_mailer_and_logs_it(): void
     {
         Mail::fake();
@@ -152,7 +153,7 @@ class NotificationServiceTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_marks_a_notification_as_read(): void
     {
         $user = $this->makeUser();
@@ -170,7 +171,7 @@ class NotificationServiceTest extends TestCase
         $this->assertFalse($service->markAsRead($notification->id, $user->id));
     }
 
-    /** @test */
+    #[Test]
     public function it_marks_all_notifications_as_read_and_counts_unread(): void
     {
         $user = $this->makeUser();
@@ -190,7 +191,7 @@ class NotificationServiceTest extends TestCase
         $this->assertSame(0, $service->getUnreadCount($user->id));
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_paginated_notifications_for_a_user(): void
     {
         $user = $this->makeUser();

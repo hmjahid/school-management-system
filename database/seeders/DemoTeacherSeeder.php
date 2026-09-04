@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\SalaryStructure;
+use App\Models\SchoolClass;
+use App\Models\Subject;
 use App\Models\Teacher;
 use App\Models\User;
-use App\Models\Subject;
-use App\Models\SchoolClass;
-use App\Models\SalaryStructure;
 use Illuminate\Database\Seeder;
 
 class DemoTeacherSeeder extends Seeder
@@ -28,9 +28,9 @@ class DemoTeacherSeeder extends Seeder
         for ($i = 0; $i < 30; $i++) {
             $firstName = $firstNames[$i % count($firstNames)];
             $lastName = $lastNames[$i % count($lastNames)];
-            $fullName = $firstName . ' ' . $lastName;
-            $email = 'teacher' . ($i + 1) . '@school.com';
-            $phone = '019' . str_pad((string)(10000000 + $i), 8, '0', STR_PAD_LEFT);
+            $fullName = $firstName.' '.$lastName;
+            $email = 'teacher'.($i + 1).'@school.com';
+            $phone = '019'.str_pad((string) (10000000 + $i), 8, '0', STR_PAD_LEFT);
 
             $user = User::create([
                 'name' => $fullName,
@@ -38,14 +38,14 @@ class DemoTeacherSeeder extends Seeder
                 'phone' => $phone,
                 'password' => bcrypt('password'),
                 'gender' => $i % 2 === 0 ? 'male' : 'female',
-                'address' => 'House ' . rand(1, 500) . ', Road ' . rand(1, 20) . ', Dhaka ' . rand(1200, 1400),
+                'address' => 'House '.rand(1, 500).', Road '.rand(1, 20).', Dhaka '.rand(1200, 1400),
                 'role_id' => $roleId,
             ]);
             $user->assignRole('teacher');
 
             $teacher = Teacher::create([
                 'user_id' => $user->id,
-                'employee_id' => 'TCH-' . str_pad($i + 1, 4, '0', STR_PAD_LEFT),
+                'employee_id' => 'TCH-'.str_pad($i + 1, 4, '0', STR_PAD_LEFT),
                 'qualification' => $qualifications[$i % count($qualifications)],
                 'joining_date' => now()->subMonths(rand(6, 60))->format('Y-m-d'),
                 'salary' => rand(25000, 80000),
@@ -58,7 +58,7 @@ class DemoTeacherSeeder extends Seeder
             foreach ($teacherSubjects as $subj) {
                 $teacher->subjects()->attach($subj->id, ['class_id' => $subj->classes->first()?->id]);
                 $classIds = $subj->classes->pluck('id')->toArray();
-                if (!empty($classIds)) {
+                if (! empty($classIds)) {
                     foreach ($classIds as $cid) {
                         try {
                             $teacher->classes()->syncWithoutDetaching([$cid => ['academic_session_id' => 2]]);

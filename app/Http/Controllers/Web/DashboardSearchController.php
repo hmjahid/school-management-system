@@ -35,7 +35,8 @@ class DashboardSearchController extends Controller
                     'url' => route('dashboard.students.show', $s),
                 ]);
             $results = array_merge($results, $students->toArray());
-        } catch (\Throwable) {}
+        } catch (\Throwable) {
+        }
 
         try {
             $teachers = Teacher::whereHas('user', fn ($q) => $q->where('name', 'like', "%{$query}%"))
@@ -50,7 +51,8 @@ class DashboardSearchController extends Controller
                     'url' => route('dashboard.teachers.show', $t),
                 ]);
             $results = array_merge($results, $teachers->toArray());
-        } catch (\Throwable) {}
+        } catch (\Throwable) {
+        }
 
         try {
             $classes = SchoolClass::where('name', 'like', "%{$query}%")
@@ -64,7 +66,8 @@ class DashboardSearchController extends Controller
                     'url' => route('dashboard.classes'),
                 ]);
             $results = array_merge($results, $classes->toArray());
-        } catch (\Throwable) {}
+        } catch (\Throwable) {
+        }
 
         try {
             $notices = Notice::where('title', 'like', "%{$query}%")
@@ -79,7 +82,8 @@ class DashboardSearchController extends Controller
                     'url' => route('dashboard.notices.edit', $n),
                 ]);
             $results = array_merge($results, $notices->toArray());
-        } catch (\Throwable) {}
+        } catch (\Throwable) {
+        }
 
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('fees')) {
@@ -95,7 +99,8 @@ class DashboardSearchController extends Controller
                     ]);
                 $results = array_merge($results, $fees->toArray());
             }
-        } catch (\Throwable) {}
+        } catch (\Throwable) {
+        }
 
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('payments')) {
@@ -112,7 +117,8 @@ class DashboardSearchController extends Controller
                     ]);
                 $results = array_merge($results, $payments->toArray());
             }
-        } catch (\Throwable) {}
+        } catch (\Throwable) {
+        }
 
         $quickLinks = [
             ['pattern' => 'report', 'type' => 'link', 'name' => __('Reports'), 'subtitle' => '', 'url' => route('dashboard.reports')],

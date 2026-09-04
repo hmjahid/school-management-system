@@ -9,7 +9,6 @@ use App\Models\FeePayment;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class FeePaymentController extends Controller
@@ -45,20 +44,20 @@ class FeePaymentController extends Controller
         if ($request->has(['start_date', 'end_date'])) {
             $query->whereBetween('payment_date', [
                 $request->start_date,
-                $request->end_date
+                $request->end_date,
             ]);
         }
 
         // Search by invoice number or transaction ID
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('invoice_number', 'like', "%{$search}%")
-                  ->orWhere('transaction_id', 'like', "%{$search}%")
-                  ->orWhereHas('student', function($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('admission_number', 'like', "%{$search}%");
-                  });
+                    ->orWhere('transaction_id', 'like', "%{$search}%")
+                    ->orWhereHas('student', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('admission_number', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -75,19 +74,19 @@ class FeePaymentController extends Controller
     public function store(Request $request)
     {
         $validated = $this->validatePayment($request);
-        
+
         // Start database transaction
         return DB::transaction(function () use ($validated) {
             // Create payment
             $payment = FeePayment::create($validated);
-            
+
             // Update fee balance if needed
             if ($payment->fee) {
                 $this->updateFeeBalance($payment);
             }
-            
+
             // TODO: Trigger payment notification
-            
+
             return new FeePaymentResource($payment->load(['student', 'fee', 'creator']));
         });
     }
@@ -98,7 +97,7 @@ class FeePaymentController extends Controller
     public function show(FeePayment $payment)
     {
         return new FeePaymentResource($payment->load([
-            'student', 'fee', 'creator', 'approver'
+            'student', 'fee', 'creator', 'approver',
         ]));
     }
 
@@ -108,24 +107,24 @@ class FeePaymentController extends Controller
     public function update(Request $request, FeePayment $payment)
     {
         $validated = $this->validatePayment($request, $payment->id);
-        
+
         // Start database transaction
         return DB::transaction(function () use ($payment, $validated) {
             // Store old fee_id for balance adjustment
             $oldFeeId = $payment->fee_id;
-            
+
             // Update payment
             $payment->update($validated);
-            
+
             // Update fee balances
             if ($oldFeeId && $oldFeeId != $payment->fee_id) {
                 $this->updateFeeBalance($payment, true); // Reverse old fee balance
             }
-            
+
             if ($payment->fee_id) {
                 $this->updateFeeBalance($payment); // Update new fee balance
             }
-            
+
             return new FeePaymentResource($payment->load(['student', 'fee', 'creator', 'approver']));
         });
     }
@@ -137,7 +136,7 @@ class FeePaymentController extends Controller
     {
         if ($payment->status !== FeePayment::STATUS_PENDING) {
             return response()->json([
-                'message' => 'Only pending payments can be approved.'
+                'message' => 'Only pending payments can be approved.',
             ], 422);
         }
 
@@ -157,9 +156,9 @@ class FeePaymentController extends Controller
      */
     public function cancel(Request $request, FeePayment $payment)
     {
-        if (!in_array($payment->status, [FeePayment::STATUS_PENDING, FeePayment::STATUS_PAID])) {
+        if (! in_array($payment->status, [FeePayment::STATUS_PENDING, FeePayment::STATUS_PAID])) {
             return response()->json([
-                'message' => 'Only pending or paid payments can be cancelled.'
+                'message' => 'Only pending or paid payments can be cancelled.',
             ], 422);
         }
 
@@ -168,16 +167,16 @@ class FeePaymentController extends Controller
             // Update payment status
             $payment->update([
                 'status' => FeePayment::STATUS_CANCELLED,
-                'notes' => $payment->notes . "\nCancelled by " . auth()->user()->name . " on " . now()->toDateTimeString()
+                'notes' => $payment->notes."\nCancelled by ".auth()->user()->name.' on '.now()->toDateTimeString(),
             ]);
-            
+
             // Update fee balance if needed
             if ($payment->fee) {
                 $this->updateFeeBalance($payment, true); // Reverse the balance
             }
-            
+
             // TODO: Trigger payment cancelled notification
-            
+
             return new FeePaymentResource($payment->load(['student', 'fee', 'creator', 'approver']));
         });
     }
@@ -188,7 +187,7 @@ class FeePaymentController extends Controller
     public function getStatuses()
     {
         return response()->json([
-            'data' => FeePayment::getStatuses()
+            'data' => FeePayment::getStatuses(),
         ]);
     }
 
@@ -198,7 +197,7 @@ class FeePaymentController extends Controller
     public function getPaymentMethods()
     {
         return response()->json([
-            'data' => FeePayment::getPaymentMethods()
+            'data' => FeePayment::getPaymentMethods(),
         ]);
     }
 
@@ -217,20 +216,20 @@ class FeePaymentController extends Controller
         $totalPartial = $payments->where('status', FeePayment::STATUS_PARTIAL)->sum('total');
         $totalRefunded = $payments->where('status', FeePayment::STATUS_REFUNDED)->sum('total');
 
-        $fees = Fee::where(function($query) use ($student) {
-                $query->where('class_id', $student->class_id)
+        $fees = Fee::where(function ($query) use ($student) {
+            $query->where('class_id', $student->class_id)
+                ->whereNull('student_id')
+                ->where('status', 'active');
+
+            if ($student->section_id) {
+                $query->orWhere('section_id', $student->section_id)
                     ->whereNull('student_id')
                     ->where('status', 'active');
-                
-                if ($student->section_id) {
-                    $query->orWhere('section_id', $student->section_id)
-                        ->whereNull('student_id')
-                        ->where('status', 'active');
-                }
-                
-                $query->orWhere('student_id', $student->id)
-                    ->where('status', 'active');
-            })
+            }
+
+            $query->orWhere('student_id', $student->id)
+                ->where('status', 'active');
+        })
             ->get();
 
         $totalFees = $fees->sum('amount');
@@ -277,7 +276,7 @@ class FeePaymentController extends Controller
         ];
 
         // For new payments, generate invoice number if not provided
-        if (is_null($id) && !$request->has('invoice_number')) {
+        if (is_null($id) && ! $request->has('invoice_number')) {
             $rules['invoice_number'] = ['nullable', 'string', 'max:50', 'unique:fee_payments,invoice_number'];
         } else {
             $rules['invoice_number'] = ['nullable', 'string', 'max:50', Rule::unique('fee_payments', 'invoice_number')->ignore($id)];
@@ -286,7 +285,7 @@ class FeePaymentController extends Controller
         $validated = $request->validate($rules);
 
         // Set created_by if not provided
-        if (auth()->check() && !isset($validated['created_by'])) {
+        if (auth()->check() && ! isset($validated['created_by'])) {
             $validated['created_by'] = auth()->id();
         }
 
@@ -304,16 +303,18 @@ class FeePaymentController extends Controller
     protected function updateFeeBalance(FeePayment $payment, $reverse = false)
     {
         $fee = $payment->fee;
-        if (!$fee) return;
+        if (! $fee) {
+            return;
+        }
 
         $amount = $reverse ? -$payment->paid_amount : $payment->paid_amount;
-        
+
         // Update fee's paid amount
         $fee->increment('paid_amount', $amount);
-        
+
         // Recalculate balance
         $fee->update([
-            'balance' => max(0, $fee->amount - $fee->paid_amount - $fee->discount_amount + $fee->fine_amount)
+            'balance' => max(0, $fee->amount - $fee->paid_amount - $fee->discount_amount + $fee->fine_amount),
         ]);
     }
 }

@@ -59,7 +59,7 @@ return [
     */
 
     'expiration' => env('SANCTUM_TOKEN_EXPIRATION', 60), // 1 hour
-    
+
     /*
     |--------------------------------------------------------------------------
     | Refresh Token Expiration
@@ -69,9 +69,9 @@ return [
     | considered expired. This is used when creating new refresh tokens.
     |
     */
-    
+
     'refresh_token_expiration' => env('SANCTUM_REFRESH_TOKEN_EXPIRATION', 30), // 30 days
-    
+
     /*
     |--------------------------------------------------------------------------
     | Remember Me Token Expiration
@@ -82,7 +82,7 @@ return [
     | "remember me" during login.
     |
     */
-    
+
     'remember_token_expiration' => env('SANCTUM_REMEMBER_TOKEN_EXPIRATION', 30), // 30 days
 
     /*

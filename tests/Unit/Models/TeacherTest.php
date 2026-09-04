@@ -6,6 +6,7 @@ use App\Models\SchoolClass;
 use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class TeacherTest extends TestCase
@@ -20,7 +21,7 @@ class TeacherTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function full_address_combines_parts(): void
     {
         $teacher = $this->makeTeacher([
@@ -34,7 +35,7 @@ class TeacherTest extends TestCase
         $this->assertEquals('10 Lake View, Chittagong, Chittagong, 4000, Bangladesh', $teacher->full_address);
     }
 
-    /** @test */
+    #[Test]
     public function status_badge_returns_proper_color(): void
     {
         $this->assertStringContainsString('badge bg-success', $this->makeTeacher(['status' => 'active'])->status_badge);
@@ -43,7 +44,7 @@ class TeacherTest extends TestCase
         $this->assertStringContainsString('badge bg-dark', $this->makeTeacher(['status' => 'retired'])->status_badge);
     }
 
-    /** @test */
+    #[Test]
     public function is_class_teacher_true_when_attached_as_class_teacher(): void
     {
         $teacher = $this->makeTeacher();
@@ -54,7 +55,7 @@ class TeacherTest extends TestCase
         $this->assertTrue($teacher->isClassTeacher($class));
     }
 
-    /** @test */
+    #[Test]
     public function is_class_teacher_false_when_not_class_teacher_of_given_class(): void
     {
         $teacher = $this->makeTeacher();

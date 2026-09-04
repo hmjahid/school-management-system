@@ -34,7 +34,7 @@ return new class extends Migration
             $table->dropForeign(['class_teacher_id']);
             $table->dropForeign(['academic_year_id']);
         });
-        
+
         Schema::dropIfExists('sections');
     }
 };

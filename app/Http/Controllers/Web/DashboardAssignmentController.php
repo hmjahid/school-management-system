@@ -7,13 +7,11 @@ use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\Batch;
 use App\Models\SchoolClass;
-use App\Models\Section;
 use App\Models\Subject;
-use App\Models\Student;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class DashboardAssignmentController extends Controller
 {
@@ -29,12 +27,14 @@ class DashboardAssignmentController extends Controller
         }
         $assignments = $query->latest()->paginate(15)->withQueryString();
         $batches = Batch::orderBy('id')->limit(100)->get();
+
         return view('dashboard.assignments.index', compact('assignments', 'batches'));
     }
 
     public function create(): View
     {
         $this->authorize('create', Assignment::class);
+
         return view('dashboard.assignments.create', [
             'batches' => Batch::orderBy('id')->limit(100)->get(),
             'subjects' => Subject::orderBy('name')->get(),
@@ -63,6 +63,7 @@ class DashboardAssignmentController extends Controller
         $validated['created_by'] = $request->user()->id;
         $validated['allow_guardian_notes'] = $request->boolean('allow_guardian_notes');
         Assignment::create($validated);
+
         return redirect()->route('dashboard.assignments.index')->with('status', __('Assignment created.'));
     }
 
@@ -70,12 +71,14 @@ class DashboardAssignmentController extends Controller
     {
         $this->authorize('view', $assignment);
         $assignment->load(['subject', 'batch', 'class', 'section', 'createdBy', 'submissions.student.user']);
+
         return view('dashboard.assignments.show', compact('assignment'));
     }
 
     public function edit(Assignment $assignment): View
     {
         $this->authorize('update', $assignment);
+
         return view('dashboard.assignments.edit', [
             'assignment' => $assignment,
             'batches' => Batch::orderBy('id')->limit(100)->get(),
@@ -100,19 +103,25 @@ class DashboardAssignmentController extends Controller
             'file' => 'nullable|file|max:10240',
         ]);
         if ($request->hasFile('file')) {
-            if ($assignment->file_path) Storage::disk('public')->delete($assignment->file_path);
+            if ($assignment->file_path) {
+                Storage::disk('public')->delete($assignment->file_path);
+            }
             $validated['file_path'] = $request->file('file')->store('assignments', 'public');
         }
         $validated['allow_guardian_notes'] = $request->boolean('allow_guardian_notes');
         $assignment->update($validated);
+
         return redirect()->route('dashboard.assignments.index')->with('status', __('Assignment updated.'));
     }
 
     public function destroy(Assignment $assignment): RedirectResponse
     {
         $this->authorize('delete', $assignment);
-        if ($assignment->file_path) Storage::disk('public')->delete($assignment->file_path);
+        if ($assignment->file_path) {
+            Storage::disk('public')->delete($assignment->file_path);
+        }
         $assignment->delete();
+
         return redirect()->route('dashboard.assignments.index')->with('status', __('Assignment removed.'));
     }
 
@@ -120,6 +129,7 @@ class DashboardAssignmentController extends Controller
     {
         $this->authorize('view', $assignment);
         $assignment->load(['submissions.student.user', 'submissions.guardian.user', 'subject', 'batch', 'class', 'section']);
+
         return view('dashboard.assignments.submissions', compact('assignment'));
     }
 
@@ -127,13 +137,14 @@ class DashboardAssignmentController extends Controller
     {
         $this->authorize('update', $submission->assignment);
         $validated = $request->validate([
-            'marks' => 'required|integer|min:0|max:' . $submission->assignment->total_marks,
+            'marks' => 'required|integer|min:0|max:'.$submission->assignment->total_marks,
             'feedback' => 'nullable|string|max:1000',
         ]);
         $validated['graded_by'] = $request->user()->id;
         $validated['graded_at'] = now();
         $validated['status'] = AssignmentSubmission::STATUS_GRADED;
         $submission->update($validated);
+
         return back()->with('status', __('Submission graded.'));
     }
 }

@@ -10,10 +10,10 @@ use App\Http\Controllers\Web\PasswordResetController;
 use App\Http\Controllers\Web\PaymentsWebController;
 use App\Http\Controllers\Web\PortalController;
 use App\Http\Controllers\Web\SiteGalleryController;
+use App\Http\Controllers\Web\SitemapController;
 use App\Http\Controllers\Web\SiteNewsController;
 use App\Http\Controllers\Web\SiteNoticeController;
 use App\Http\Controllers\Web\SitePageController;
-use App\Http\Controllers\Web\SitemapController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');

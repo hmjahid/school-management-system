@@ -69,7 +69,7 @@ class DashboardPayrollController extends Controller
         $teachers = Teacher::with(['user', 'activeStructure'])->whereHas('activeStructure')->get();
         $preview = $teachers->map(function ($t) use ($month, $year) {
             $s = $t->activeStructure;
-            if (!$s) {
+            if (! $s) {
                 return null;
             }
             $leaveDays = LeaveRequest::where('teacher_id', $t->id)
@@ -116,7 +116,7 @@ class DashboardPayrollController extends Controller
         foreach ($data['teacher_ids'] as $teacherId) {
             $teacher = Teacher::with('activeStructure')->find($teacherId);
             $s = $teacher?->activeStructure;
-            if (!$s) {
+            if (! $s) {
                 continue;
             }
 
@@ -188,6 +188,7 @@ class DashboardPayrollController extends Controller
     {
         abort_unless($request->user()?->can('view_teacher_salaries') || $request->user()?->can('manage_teacher_salaries'), 403);
         $payslip->load('teacher.user');
+
         return view('dashboard.payroll.payslip-show', compact('payslip'));
     }
 
@@ -205,7 +206,7 @@ class DashboardPayrollController extends Controller
                 $this->ledger->postJournal([
                     ['account_id' => $salaryExpense->id, 'debit' => (float) $payslip->net_salary, 'credit' => 0],
                     ['account_id' => $cashAccount->id, 'debit' => 0, 'credit' => (float) $payslip->net_salary],
-                ], $payslip, 'Salary ' . $payslip->monthName() . ' ' . $payslip->year, $request->user()->id, now()->toDateString());
+                ], $payslip, 'Salary '.$payslip->monthName().' '.$payslip->year, $request->user()->id, now()->toDateString());
             }
         } catch (\Throwable) {
             // Continue even if ledger post fails
@@ -223,12 +224,13 @@ class DashboardPayrollController extends Controller
         $items = [];
         foreach (explode(';', $raw) as $segment) {
             $segment = trim($segment);
-            if ($segment === '' || !str_contains($segment, ':')) {
+            if ($segment === '' || ! str_contains($segment, ':')) {
                 continue;
             }
             [$name, $amount] = explode(':', $segment, 2);
             $items[] = ['name' => trim($name), 'amount' => (float) trim($amount)];
         }
+
         return $items;
     }
 }

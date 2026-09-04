@@ -33,7 +33,6 @@ return new class extends Migration
             $table->timestamp('created_at')->nullable();
         });
 
-
     }
 
     /**

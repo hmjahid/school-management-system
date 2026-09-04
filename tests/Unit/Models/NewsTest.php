@@ -4,13 +4,14 @@ namespace Tests\Unit\Models;
 
 use App\Models\News;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class NewsTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $news = News::create([
@@ -33,7 +34,7 @@ class NewsTest extends TestCase
         $this->assertTrue($news->is_event);
     }
 
-    /** @test */
+    #[Test]
     public function it_scopes_published_news(): void
     {
         News::create(['title' => 'P', 'slug' => 'p', 'content' => 'c', 'is_published' => true]);
@@ -42,7 +43,7 @@ class NewsTest extends TestCase
         $this->assertCount(1, News::published()->get());
     }
 
-    /** @test */
+    #[Test]
     public function it_scopes_events(): void
     {
         News::create(['title' => 'E', 'slug' => 'e', 'content' => 'c', 'is_event' => true]);
@@ -51,7 +52,7 @@ class NewsTest extends TestCase
         $this->assertCount(1, News::events()->get());
     }
 
-    /** @test */
+    #[Test]
     public function it_scopes_upcoming_events(): void
     {
         News::create([
@@ -72,7 +73,7 @@ class NewsTest extends TestCase
         $this->assertCount(1, News::upcoming()->get());
     }
 
-    /** @test */
+    #[Test]
     public function it_soft_deletes(): void
     {
         $news = News::create(['title' => 'Soft', 'slug' => 'soft', 'content' => 'c']);

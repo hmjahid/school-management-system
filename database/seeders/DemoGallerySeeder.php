@@ -25,7 +25,7 @@ class DemoGallerySeeder extends Seeder
                 'title' => $item['title'],
                 'description' => $item['description'],
                 'category' => $item['category'],
-                'image_path' => 'https://picsum.photos/seed/' . str_replace(' ', '-', $item['title']) . '/800/600',
+                'image_path' => 'https://picsum.photos/seed/'.str_replace(' ', '-', $item['title']).'/800/600',
                 'is_published' => true,
             ]);
         }

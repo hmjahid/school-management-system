@@ -2,11 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 use App\Models\User;
+use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
@@ -39,7 +38,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'setting-list', 'setting-edit',
             'profile-view', 'profile-edit',
             'manage_assignments', 'manage_class_assignments',
-            'manage_admit_cards', 'manage_student_id_cards', 'manage_certificates'
+            'manage_admit_cards', 'manage_student_id_cards', 'manage_certificates',
         ];
 
         foreach ($permissions as $permission) {
@@ -71,7 +70,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'setting-list', 'setting-edit',
             'profile-view', 'profile-edit',
             'manage_assignments', 'manage_class_assignments',
-            'manage_admit_cards', 'manage_student_id_cards', 'manage_certificates'
+            'manage_admit_cards', 'manage_student_id_cards', 'manage_certificates',
         ]);
 
         $teacherRole = Role::create(['name' => 'Teacher']);
@@ -79,17 +78,17 @@ class RolesAndPermissionsSeeder extends Seeder
             'student-list', 'attendance-list', 'attendance-create',
             'result-list', 'result-create', 'result-edit',
             'routine-list', 'notice-list', 'profile-view', 'profile-edit',
-            'manage_assignments'
+            'manage_assignments',
         ]);
 
         $studentRole = Role::create(['name' => 'Student']);
         $studentRole->givePermissionTo([
-            'routine-list', 'result-list', 'attendance-list', 'notice-list', 'fee-list', 'invoice-list', 'profile-view', 'profile-edit'
+            'routine-list', 'result-list', 'attendance-list', 'notice-list', 'fee-list', 'invoice-list', 'profile-view', 'profile-edit',
         ]);
 
         $parentRole = Role::create(['name' => 'Parent']);
         $parentRole->givePermissionTo([
-            'student-list', 'routine-list', 'result-list', 'attendance-list', 'notice-list', 'fee-list', 'invoice-list', 'profile-view'
+            'student-list', 'routine-list', 'result-list', 'attendance-list', 'notice-list', 'fee-list', 'invoice-list', 'profile-view',
         ]);
 
         $accountantRole = Role::create(['name' => 'Accountant']);
@@ -97,14 +96,14 @@ class RolesAndPermissionsSeeder extends Seeder
             'fee-list', 'fee-create', 'fee-edit', 'fee-delete',
             'invoice-list', 'invoice-create', 'invoice-edit', 'invoice-delete',
             'payment-list', 'payment-create', 'payment-edit', 'payment-delete',
-            'profile-view', 'profile-edit'
+            'profile-view', 'profile-edit',
         ]);
 
         $registrarRole = Role::create(['name' => 'Registrar']);
         $registrarRole->givePermissionTo([
             'student-list', 'student-create', 'student-edit', 'student-delete',
             'parent-list', 'parent-create', 'parent-edit', 'parent-delete',
-            'profile-view', 'profile-edit'
+            'profile-view', 'profile-edit',
         ]);
 
         // create demo users

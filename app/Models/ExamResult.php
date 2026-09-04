@@ -3,15 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class ExamResult extends Model
 {
-    use SoftDeletes, LogsActivity;
+    use LogsActivity, SoftDeletes;
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -24,9 +23,13 @@ class ExamResult extends Model
 
     // Result statuses
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_PASSED = 'passed';
+
     public const STATUS_FAILED = 'failed';
+
     public const STATUS_ABSENT = 'absent';
+
     public const STATUS_MALPRACTICE = 'malpractice';
 
     protected $fillable = [
@@ -175,18 +178,18 @@ class ExamResult extends Model
         }
 
         $passingMarks = $this->exam->passing_marks;
-        
+
         if ($this->obtained_marks >= $passingMarks) {
             return self::STATUS_PASSED;
         }
-        
+
         return self::STATUS_FAILED;
     }
 
     /**
      * Publish the result.
      */
-    public function publish($staffId, string $remarks = null): bool
+    public function publish($staffId, ?string $remarks = null): bool
     {
         return $this->update([
             'is_published' => true,
@@ -199,7 +202,7 @@ class ExamResult extends Model
     /**
      * Unpublish the result.
      */
-    public function unpublish($staffId, string $remarks = null): bool
+    public function unpublish($staffId, ?string $remarks = null): bool
     {
         return $this->update([
             'is_published' => false,

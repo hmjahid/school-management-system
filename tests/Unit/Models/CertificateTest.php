@@ -6,6 +6,7 @@ use App\Models\Certificate;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class CertificateTest extends TestCase
@@ -24,12 +25,12 @@ class CertificateTest extends TestCase
         ], $attributes));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $cert = $this->makeCertificate([
             'certificate_type' => 'character',
-            'certificate_number' => 'CERT-' . uniqid(),
+            'certificate_number' => 'CERT-'.uniqid(),
             'issue_date' => now()->toDateString(),
             'body' => ['content' => 'Body'],
         ]);
@@ -44,7 +45,7 @@ class CertificateTest extends TestCase
         $this->assertSame(['content' => 'Body'], $cert->body);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_status_constants(): void
     {
         $this->assertSame('draft', Certificate::STATUS_DRAFT);
@@ -52,7 +53,7 @@ class CertificateTest extends TestCase
         $this->assertSame('revoked', Certificate::STATUS_REVOKED);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_type_constants(): void
     {
         $this->assertContains('transfer', Certificate::TYPES);
@@ -60,15 +61,15 @@ class CertificateTest extends TestCase
         $this->assertContains('achievement', Certificate::TYPES);
     }
 
-    /** @test */
+    #[Test]
     public function it_generates_a_number(): void
     {
         $number = Certificate::generateNumber();
 
-        $this->assertStringStartsWith('CERT-' . now()->year . '-', $number);
+        $this->assertStringStartsWith('CERT-'.now()->year.'-', $number);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_student(): void
     {
         $student = Student::factory()->create();
@@ -78,7 +79,7 @@ class CertificateTest extends TestCase
         $this->assertSame($student->id, $cert->student->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_generator(): void
     {
         $user = User::factory()->create();

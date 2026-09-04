@@ -61,11 +61,11 @@ class ScheduledNotificationService
                         $processed++;
                     }
                 } catch (\Exception $e) {
-                    Log::error('Failed to process scheduled notification: ' . $e->getMessage(), [
+                    Log::error('Failed to process scheduled notification: '.$e->getMessage(), [
                         'notification_id' => $notification->id,
-                        'exception' => $e
+                        'exception' => $e,
                     ]);
-                    
+
                     $notification->markAsFailed($e->getMessage());
                 }
             });
@@ -89,7 +89,7 @@ class ScheduledNotificationService
 
             if ($result) {
                 $notification->markAsSent();
-                
+
                 // If it's a recurring notification, schedule the next one
                 if ($notification->schedule['type'] !== 'once') {
                     $notification->rescheduleForNextOccurrence();
@@ -109,18 +109,18 @@ class ScheduledNotificationService
     protected function calculateScheduledAt(array $schedule): Carbon
     {
         $now = now();
-        
+
         if (isset($schedule['datetime'])) {
             $scheduledAt = Carbon::parse($schedule['datetime'], $schedule['timezone'] ?? 'UTC');
-            
+
             // If the scheduled time is in the past and it's a one-time notification, throw an exception
             if ($schedule['type'] === 'once' && $scheduledAt->isPast()) {
                 throw new \InvalidArgumentException('Scheduled time must be in the future for one-time notifications');
             }
-            
+
             return $scheduledAt;
         }
-        
+
         // For recurring notifications without a specific datetime, schedule for the next interval
         switch ($schedule['type']) {
             case 'daily':
@@ -154,16 +154,16 @@ class ScheduledNotificationService
     /**
      * Cancel a scheduled notification.
      */
-    public function cancel(int $id, int $userId = null): bool
+    public function cancel(int $id, ?int $userId = null): bool
     {
         $query = ScheduledNotification::where('id', $id);
-        
+
         if ($userId) {
             $query->where('created_by', $userId);
         }
-        
+
         $notification = $query->firstOrFail();
-        
+
         return $notification->cancel();
     }
 

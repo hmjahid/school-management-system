@@ -27,7 +27,9 @@ class DemoFeeSeeder extends Seeder
 
         foreach ($classes as $class) {
             $classStudents = $students->where('class_id', $class->id);
-            if ($classStudents->isEmpty()) continue;
+            if ($classStudents->isEmpty()) {
+                continue;
+            }
 
             $level = $class->grade_level ? $class->grade_level - 1 : 0;
 
@@ -63,7 +65,7 @@ class DemoFeeSeeder extends Seeder
                             'year' => $paymentDate->format('Y'),
                             'status' => $paid ? 'paid' : 'pending',
                             'payment_method' => $paid ? (['cash', 'bank_transfer', 'online_payment'][rand(0, 2)]) : 'cash',
-                            'transaction_id' => $paid ? 'TXN' . strtoupper(uniqid()) : null,
+                            'transaction_id' => $paid ? 'TXN'.strtoupper(uniqid()) : null,
                             'notes' => $paid ? 'Payment received' : null,
                             'created_by' => 1,
                         ]);

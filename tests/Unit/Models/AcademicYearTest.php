@@ -3,9 +3,9 @@
 namespace Tests\Unit\Models;
 
 use App\Models\AcademicYear;
-use App\Models\Section;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AcademicYearTest extends TestCase
@@ -24,7 +24,7 @@ class AcademicYearTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_fillable_columns(): void
     {
         $session = 'SES'.uniqid();
@@ -38,7 +38,7 @@ class AcademicYearTest extends TestCase
         $this->assertTrue($year->is_current);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_dates_and_boolean(): void
     {
         $year = $this->makeYear();
@@ -48,7 +48,7 @@ class AcademicYearTest extends TestCase
         $this->assertIsBool($year->is_current);
     }
 
-    /** @test */
+    #[Test]
     public function it_defines_sections_relationship(): void
     {
         $year = $this->makeYear();
@@ -56,7 +56,7 @@ class AcademicYearTest extends TestCase
         $this->assertInstanceOf(HasMany::class, $year->sections());
     }
 
-    /** @test */
+    #[Test]
     public function it_soft_deletes(): void
     {
         $year = $this->makeYear();

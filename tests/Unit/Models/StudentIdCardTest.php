@@ -6,6 +6,7 @@ use App\Models\Student;
 use App\Models\StudentIdCard;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class StudentIdCardTest extends TestCase
@@ -19,14 +20,14 @@ class StudentIdCardTest extends TestCase
 
         return StudentIdCard::create(array_merge([
             'student_id' => $student->id,
-            'id_card_number' => 'ID-' . uniqid(),
+            'id_card_number' => 'ID-'.uniqid(),
             'issue_date' => now()->toDateString(),
             'status' => StudentIdCard::STATUS_ACTIVE,
             'generated_by' => $user->id,
         ], $attributes));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $card = $this->makeCard([
@@ -44,7 +45,7 @@ class StudentIdCardTest extends TestCase
         $this->assertSame(['rfid' => '123'], $card->details);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_status_constants(): void
     {
         $this->assertSame('active', StudentIdCard::STATUS_ACTIVE);
@@ -52,17 +53,17 @@ class StudentIdCardTest extends TestCase
         $this->assertSame('revoked', StudentIdCard::STATUS_REVOKED);
     }
 
-    /** @test */
+    #[Test]
     public function it_generates_a_number(): void
     {
         $student = Student::factory()->create();
 
         $number = StudentIdCard::generateNumber($student);
 
-        $this->assertStringStartsWith('ID-' . $student->id . '-', $number);
+        $this->assertStringStartsWith('ID-'.$student->id.'-', $number);
     }
 
-    /** @test */
+    #[Test]
     public function it_detects_expiry(): void
     {
         $expired = $this->makeCard(['expiry_date' => now()->subDay()->toDateString()]);
@@ -72,7 +73,7 @@ class StudentIdCardTest extends TestCase
         $this->assertFalse($valid->isExpired());
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_student(): void
     {
         $student = Student::factory()->create();
@@ -82,7 +83,7 @@ class StudentIdCardTest extends TestCase
         $this->assertSame($student->id, $card->student->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_generator(): void
     {
         $user = User::factory()->create();
@@ -92,7 +93,7 @@ class StudentIdCardTest extends TestCase
         $this->assertSame($user->id, $card->generatedBy->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_soft_deletes(): void
     {
         $card = $this->makeCard();

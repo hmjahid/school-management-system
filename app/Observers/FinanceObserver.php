@@ -19,14 +19,14 @@ class FinanceObserver
             $incomeAccount = ChartOfAccount::where('code', '4000')->first()
                 ?? ChartOfAccount::where('type', ChartOfAccount::TYPE_INCOME)->first();
 
-            if (!$cashAccount || !$incomeAccount) {
+            if (! $cashAccount || ! $incomeAccount) {
                 return;
             }
 
             $this->ledger->postJournal([
                 ['account_id' => $cashAccount->id, 'debit' => (float) $payment->amount, 'credit' => 0],
                 ['account_id' => $incomeAccount->id, 'debit' => 0, 'credit' => (float) $payment->amount],
-            ], $payment, 'Fee payment ' . ($payment->reference ?? $payment->id), $payment->recorded_by ?? null, optional($payment->paid_at)->toDateString() ?? now()->toDateString());
+            ], $payment, 'Fee payment '.($payment->reference ?? $payment->id), $payment->recorded_by ?? null, optional($payment->paid_at)->toDateString() ?? now()->toDateString());
         } catch (\Throwable $e) {
             Log::warning('Ledger post failed for FeePayment', ['error' => $e->getMessage()]);
         }
@@ -40,14 +40,14 @@ class FinanceObserver
                 ? ChartOfAccount::find($expense->chart_of_account_id)
                 : ChartOfAccount::where('code', '5500')->first();
 
-            if (!$cashAccount || !$expenseAccount) {
+            if (! $cashAccount || ! $expenseAccount) {
                 return;
             }
 
             $this->ledger->postJournal([
                 ['account_id' => $expenseAccount->id, 'debit' => (float) $expense->amount, 'credit' => 0],
                 ['account_id' => $cashAccount->id, 'debit' => 0, 'credit' => (float) $expense->amount],
-            ], $expense, 'Expense: ' . $expense->category, $expense->created_by, $expense->date?->toDateString());
+            ], $expense, 'Expense: '.$expense->category, $expense->created_by, $expense->date?->toDateString());
         } catch (\Throwable $e) {
             Log::warning('Ledger post failed for Expense', ['error' => $e->getMessage()]);
         }

@@ -5,14 +5,14 @@ namespace Tests\Unit\Models;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\App;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class MessageTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $sender = User::factory()->create();
@@ -35,7 +35,7 @@ class MessageTest extends TestCase
         $this->assertNull($message->read_at);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_sender_and_receiver(): void
     {
         $sender = User::factory()->create();
@@ -53,7 +53,7 @@ class MessageTest extends TestCase
         $this->assertSame($receiver->id, $message->receiver->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_scopes_unread_messages(): void
     {
         $s = User::factory()->create();
@@ -70,7 +70,7 @@ class MessageTest extends TestCase
         $this->assertCount(1, Message::unread()->get());
     }
 
-    /** @test */
+    #[Test]
     public function it_marks_a_message_as_read(): void
     {
         $s = User::factory()->create();

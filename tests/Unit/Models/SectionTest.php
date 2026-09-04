@@ -8,6 +8,7 @@ use App\Models\Section;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class SectionTest extends TestCase
@@ -35,7 +36,7 @@ class SectionTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_fillable_columns(): void
     {
         $slug = 'SEC'.uniqid();
@@ -48,7 +49,7 @@ class SectionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_boolean_and_integer(): void
     {
         $section = $this->makeSection(['is_active' => 1, 'capacity' => 40]);
@@ -58,7 +59,7 @@ class SectionTest extends TestCase
         $this->assertIsInt($section->capacity);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_academic_year(): void
     {
         $year = $this->makeYear();
@@ -68,7 +69,7 @@ class SectionTest extends TestCase
         $this->assertSame($year->id, $section->academicYear->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_school_class_when_set(): void
     {
         $class = SchoolClass::factory()->create();
@@ -78,7 +79,7 @@ class SectionTest extends TestCase
         $this->assertSame($class->id, $section->schoolClass->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_students_relationship(): void
     {
         $section = $this->makeSection();
@@ -86,7 +87,7 @@ class SectionTest extends TestCase
         $this->assertInstanceOf(HasMany::class, $section->students());
     }
 
-    /** @test */
+    #[Test]
     public function it_computes_status_badge(): void
     {
         $section = $this->makeSection(['is_active' => true]);
@@ -95,7 +96,7 @@ class SectionTest extends TestCase
         $this->assertStringContainsString('Active', $section->status_badge);
     }
 
-    /** @test */
+    #[Test]
     public function it_computes_full_name_without_class(): void
     {
         $section = $this->makeSection(['name' => 'Alpha']);
@@ -103,7 +104,7 @@ class SectionTest extends TestCase
         $this->assertSame('Alpha', $section->full_name);
     }
 
-    /** @test */
+    #[Test]
     public function it_computes_available_seats_and_student_count(): void
     {
         $section = $this->makeSection(['capacity' => 30]);
@@ -113,7 +114,7 @@ class SectionTest extends TestCase
         $this->assertTrue($section->has_available_seats);
     }
 
-    /** @test */
+    #[Test]
     public function it_scopes_active_and_of_class(): void
     {
         $this->makeSection(['is_active' => true]);
@@ -126,7 +127,7 @@ class SectionTest extends TestCase
         $this->assertEquals(1, Section::ofClass($class->id)->count());
     }
 
-    /** @test */
+    #[Test]
     public function it_soft_deletes(): void
     {
         $section = $this->makeSection();

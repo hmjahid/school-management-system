@@ -5,6 +5,7 @@ namespace Tests\Unit\Services;
 use App\Services\Sms\BaseSmsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class BaseSmsServiceTest extends TestCase
@@ -15,6 +16,7 @@ class BaseSmsServiceTest extends TestCase
     {
         $r = new \ReflectionProperty($obj, $prop);
         $r->setAccessible(true);
+
         return $r->getValue($obj);
     }
 
@@ -22,12 +24,14 @@ class BaseSmsServiceTest extends TestCase
     {
         $r = new \ReflectionMethod($obj, $method);
         $r->setAccessible(true);
+
         return $r->invokeArgs($obj, $args);
     }
 
     protected function makeSuccessfulService(): BaseSmsService
     {
-        return new class extends BaseSmsService {
+        return new class extends BaseSmsService
+        {
             protected function getDefaultConfig(): array
             {
                 return ['from' => 'DEF', 'country_code' => '88'];
@@ -36,12 +40,13 @@ class BaseSmsServiceTest extends TestCase
             protected function sendSms(string $to, string $message, array $options = [])
             {
                 $this->setLastResponse(['ok' => true]);
+
                 return (object) ['sid' => 'ABC'];
             }
 
             protected function wasSuccessful($response): bool
             {
-                return is_object($response) && !empty($response->sid);
+                return is_object($response) && ! empty($response->sid);
             }
 
             public function getBalance(): float
@@ -58,7 +63,8 @@ class BaseSmsServiceTest extends TestCase
 
     protected function makeFailingService(): BaseSmsService
     {
-        return new class extends BaseSmsService {
+        return new class extends BaseSmsService
+        {
             protected function getDefaultConfig(): array
             {
                 return ['from' => 'DEF', 'country_code' => '88'];
@@ -86,7 +92,7 @@ class BaseSmsServiceTest extends TestCase
         };
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_true_when_send_succeeds(): void
     {
         $service = $this->makeSuccessfulService();
@@ -94,7 +100,7 @@ class BaseSmsServiceTest extends TestCase
         $this->assertTrue($service->send('01700000000', 'Hello'));
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_false_when_send_throws(): void
     {
         $service = $this->makeFailingService();
@@ -102,7 +108,7 @@ class BaseSmsServiceTest extends TestCase
         $this->assertFalse($service->send('01700000000', 'Hello'));
     }
 
-    /** @test */
+    #[Test]
     public function it_formats_a_phone_number_into_e164(): void
     {
         $service = $this->makeSuccessfulService();
@@ -112,7 +118,7 @@ class BaseSmsServiceTest extends TestCase
         $this->assertSame('+88123456789', $formatted);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_the_configured_sender(): void
     {
         $service = $this->makeSuccessfulService();
@@ -120,7 +126,7 @@ class BaseSmsServiceTest extends TestCase
         $this->assertSame('DEF', $this->callProtected($service, 'getFrom'));
     }
 
-    /** @test */
+    #[Test]
     public function it_exposes_the_last_response(): void
     {
         $service = $this->makeSuccessfulService();
@@ -130,7 +136,7 @@ class BaseSmsServiceTest extends TestCase
         $this->assertSame(['ok' => true], $service->getLastResponse());
     }
 
-    /** @test */
+    #[Test]
     public function it_normalizes_arbitrary_responses(): void
     {
         $service = $this->makeSuccessfulService();
@@ -142,7 +148,7 @@ class BaseSmsServiceTest extends TestCase
         $this->assertSame(['a' => 1], $service->getLastResponse());
     }
 
-    /** @test */
+    #[Test]
     public function it_logs_sms_attempts_without_error(): void
     {
         Log::spy();

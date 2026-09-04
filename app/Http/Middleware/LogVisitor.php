@@ -13,7 +13,7 @@ class LogVisitor
     {
         $response = $next($request);
 
-        if ($request->isMethod('GET') && !$request->is('api/*', 'build/*', 'storage/*', 'favicon.ico')) {
+        if ($request->isMethod('GET') && ! $request->is('api/*', 'build/*', 'storage/*', 'favicon.ico')) {
             try {
                 VisitorLog::create([
                     'ip' => $request->ip(),

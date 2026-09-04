@@ -7,13 +7,14 @@ use App\Models\HostelAssignment;
 use App\Models\HostelRoom;
 use App\Models\Student;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class HostelTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $hostel = Hostel::create([
@@ -36,7 +37,7 @@ class HostelTest extends TestCase
         $this->assertEquals(20, $hostel->total_rooms);
     }
 
-    /** @test */
+    #[Test]
     public function it_defaults_status_to_active(): void
     {
         $hostel = Hostel::create(['name' => 'Green Hostel'])->fresh();
@@ -44,7 +45,7 @@ class HostelTest extends TestCase
         $this->assertEquals('active', $hostel->status);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_many_rooms(): void
     {
         $hostel = Hostel::create(['name' => 'Lake Hostel']);
@@ -55,7 +56,7 @@ class HostelTest extends TestCase
         $this->assertInstanceOf(HostelRoom::class, $hostel->rooms->first());
     }
 
-    /** @test */
+    #[Test]
     public function it_has_many_assignments_through_rooms(): void
     {
         $hostel = Hostel::create(['name' => 'Hill Hostel']);

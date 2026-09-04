@@ -19,6 +19,7 @@ class DashboardLibraryReportController extends Controller
         $overdueBooks = BookIssue::overdue()->count();
         $totalFines = BookIssue::where('fine_paid', true)->sum('late_fee');
         $lostBooks = BookIssue::where('status', BookIssue::STATUS_LOST)->count();
+
         return view('dashboard.library.reports.index', compact(
             'totalBooks', 'totalIssues', 'issuedBooks', 'overdueBooks', 'totalFines', 'lostBooks'
         ));
@@ -32,6 +33,7 @@ class DashboardLibraryReportController extends Controller
             ->latest()
             ->paginate(15)
             ->withQueryString();
+
         return view('dashboard.library.reports.index', compact('issues') + ['view' => 'issued']);
     }
 
@@ -43,6 +45,7 @@ class DashboardLibraryReportController extends Controller
             ->latest()
             ->paginate(15)
             ->withQueryString();
+
         return view('dashboard.library.reports.index', compact('issues') + ['view' => 'overdue']);
     }
 
@@ -54,9 +57,10 @@ class DashboardLibraryReportController extends Controller
             $query->where('status', $status);
         }
         if ($search = $request->string('search')->toString()) {
-            $query->whereHas('book', fn($b) => $b->where('title', 'like', "%{$search}%"));
+            $query->whereHas('book', fn ($b) => $b->where('title', 'like', "%{$search}%"));
         }
         $issues = $query->latest()->paginate(15)->withQueryString();
+
         return view('dashboard.library.reports.index', compact('issues') + ['view' => 'history']);
     }
 }

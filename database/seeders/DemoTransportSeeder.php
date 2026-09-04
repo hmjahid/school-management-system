@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\Vehicle;
+use App\Models\Student;
+use App\Models\TransportAssignment;
 use App\Models\TransportRoute;
 use App\Models\TransportStop;
-use App\Models\TransportAssignment;
-use App\Models\Student;
+use App\Models\Vehicle;
 use Illuminate\Database\Seeder;
 
 class DemoTransportSeeder extends Seeder
@@ -45,7 +45,9 @@ class DemoTransportSeeder extends Seeder
 
         foreach ($stopsData as $code => $stops) {
             $route = TransportRoute::where('code', $code)->first();
-            if (!$route) continue;
+            if (! $route) {
+                continue;
+            }
             foreach ($stops as $order => $stopName) {
                 TransportStop::create([
                     'route_id' => $route->id,

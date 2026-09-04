@@ -5,6 +5,7 @@ namespace Tests\Unit\Models;
 use App\Models\ScheduledNotification;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ScheduledNotificationTest extends TestCase
@@ -25,7 +26,7 @@ class ScheduledNotificationTest extends TestCase
         ], $attributes));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_required_columns_and_casts(): void
     {
         $notification = $this->makeNotification();
@@ -38,7 +39,7 @@ class ScheduledNotificationTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $notification->scheduled_at);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_creator(): void
     {
         $user = User::factory()->create();
@@ -47,7 +48,7 @@ class ScheduledNotificationTest extends TestCase
         $this->assertTrue($notification->creator->is($user));
     }
 
-    /** @test */
+    #[Test]
     public function scope_due_returns_pending_notifications_with_past_schedule(): void
     {
         $this->makeNotification([
@@ -63,7 +64,7 @@ class ScheduledNotificationTest extends TestCase
         $this->assertEquals(1, ScheduledNotification::due()->count());
     }
 
-    /** @test */
+    #[Test]
     public function scope_active_excludes_cancelled_and_trashed(): void
     {
         $active = $this->makeNotification();
@@ -78,7 +79,7 @@ class ScheduledNotificationTest extends TestCase
         $this->assertNotContains($trashed->id, $activeIds);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_be_marked_sent_and_failed(): void
     {
         $notification = $this->makeNotification();
@@ -90,7 +91,7 @@ class ScheduledNotificationTest extends TestCase
         $this->assertEquals('failed', $notification2->fresh()->status);
     }
 
-    /** @test */
+    #[Test]
     public function cancel_prevents_cancelling_sent_notifications(): void
     {
         $pending = $this->makeNotification();
@@ -102,7 +103,7 @@ class ScheduledNotificationTest extends TestCase
         $this->assertEquals('sent', $sent->fresh()->status);
     }
 
-    /** @test */
+    #[Test]
     public function get_next_schedule_computes_recurring_occurrence(): void
     {
         $notification = $this->makeNotification([
@@ -115,7 +116,7 @@ class ScheduledNotificationTest extends TestCase
         $this->assertTrue($next->isFuture());
     }
 
-    /** @test */
+    #[Test]
     public function it_soft_deletes(): void
     {
         $notification = $this->makeNotification();

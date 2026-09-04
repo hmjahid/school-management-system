@@ -2,12 +2,13 @@
 
 namespace Tests\Unit\Models;
 
+use App\Models\AcademicSession;
 use App\Models\Admission;
 use App\Models\AdmissionDocument;
-use App\Models\AcademicSession;
 use App\Models\Batch;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AdmissionDocumentTest extends TestCase
@@ -17,7 +18,7 @@ class AdmissionDocumentTest extends TestCase
     private function makeAdmission(): Admission
     {
         $session = AcademicSession::factory()->create();
-        $batch = Batch::create(['name' => 'Batch ' . uniqid()]);
+        $batch = Batch::create(['name' => 'Batch '.uniqid()]);
         $user = User::factory()->create();
 
         return Admission::create([
@@ -27,8 +28,8 @@ class AdmissionDocumentTest extends TestCase
             'last_name' => 'Doe',
             'gender' => 'male',
             'date_of_birth' => '2010-01-01',
-            'email' => 'john' . uniqid() . '@example.com',
-            'phone' => '0170000000' . rand(10, 99),
+            'email' => 'john'.uniqid().'@example.com',
+            'phone' => '0170000000'.rand(10, 99),
             'address' => '123 Street',
             'city' => 'Dhaka',
             'postal_code' => '1000',
@@ -40,7 +41,7 @@ class AdmissionDocumentTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $admission = $this->makeAdmission();
@@ -64,7 +65,7 @@ class AdmissionDocumentTest extends TestCase
         $this->assertFalse($doc->fresh()->is_approved);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_the_correct_type_label(): void
     {
         $admission = $this->makeAdmission();
@@ -81,7 +82,7 @@ class AdmissionDocumentTest extends TestCase
         $this->assertSame('Transfer Certificate', $doc->type_label);
     }
 
-    /** @test */
+    #[Test]
     public function it_formats_the_file_size(): void
     {
         $admission = $this->makeAdmission();
@@ -98,7 +99,7 @@ class AdmissionDocumentTest extends TestCase
         $this->assertSame('2.00 KB', $doc->file_size_formatted);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_the_file_extension(): void
     {
         $admission = $this->makeAdmission();
@@ -115,7 +116,7 @@ class AdmissionDocumentTest extends TestCase
         $this->assertSame('PDF', $doc->file_extension);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_be_approved(): void
     {
         $admission = $this->makeAdmission();
@@ -137,7 +138,7 @@ class AdmissionDocumentTest extends TestCase
         $this->assertNotNull($doc->fresh()->reviewed_at);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_be_rejected(): void
     {
         $admission = $this->makeAdmission();
@@ -157,7 +158,7 @@ class AdmissionDocumentTest extends TestCase
         $this->assertSame('Incomplete', $doc->fresh()->review_notes);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_an_admission(): void
     {
         $admission = $this->makeAdmission();
@@ -175,7 +176,7 @@ class AdmissionDocumentTest extends TestCase
         $this->assertSame($admission->id, $doc->admission->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_reviewer(): void
     {
         $admission = $this->makeAdmission();

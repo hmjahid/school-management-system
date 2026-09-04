@@ -7,6 +7,7 @@ use App\Models\LeaveType;
 use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class LeaveRequestTest extends TestCase
@@ -30,7 +31,7 @@ class LeaveRequestTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_exposes_status_constants(): void
     {
         $this->assertEquals('pending', LeaveRequest::STATUS_PENDING);
@@ -39,14 +40,14 @@ class LeaveRequestTest extends TestCase
         $this->assertEquals('cancelled', LeaveRequest::STATUS_CANCELLED);
     }
 
-    /** @test */
+    #[Test]
     public function days_counts_inclusive_range(): void
     {
         // from 2 days ago to 1 day ago => 2 days
         $this->assertEquals(2, $this->makeLeave()->days());
     }
 
-    /** @test */
+    #[Test]
     public function approve_sets_status_and_approver(): void
     {
         $leave = $this->makeLeave();
@@ -61,7 +62,7 @@ class LeaveRequestTest extends TestCase
         $this->assertNotNull($leave->decided_at);
     }
 
-    /** @test */
+    #[Test]
     public function reject_sets_status_and_approver(): void
     {
         $leave = $this->makeLeave();
@@ -74,7 +75,7 @@ class LeaveRequestTest extends TestCase
         $this->assertEquals($approver->id, $leave->approver_id);
     }
 
-    /** @test */
+    #[Test]
     public function cancel_sets_cancelled_status(): void
     {
         $leave = $this->makeLeave();

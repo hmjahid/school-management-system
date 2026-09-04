@@ -6,6 +6,7 @@ use App\Models\Book;
 use App\Models\BookCategory;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class BookTest extends TestCase
@@ -17,7 +18,7 @@ class BookTest extends TestCase
         return BookCategory::create(['name' => 'Fiction '.uniqid()]);
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $book = Book::create([
@@ -41,7 +42,7 @@ class BookTest extends TestCase
         $this->assertEquals(250.5, (float) $book->price);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_purchase_date_to_date(): void
     {
         $date = now()->subMonth()->startOfDay();
@@ -51,7 +52,7 @@ class BookTest extends TestCase
         $this->assertEquals($date->toDateString(), $book->purchase_date->toDateString());
     }
 
-    /** @test */
+    #[Test]
     public function it_exposes_cover_url_accessor(): void
     {
         $book = Book::create(['title' => 'Cover Book', 'cover_image' => 'covers/x.jpg']);
@@ -59,7 +60,7 @@ class BookTest extends TestCase
         $this->assertEquals(url('storage/covers/x.jpg'), $book->cover_url);
     }
 
-    /** @test */
+    #[Test]
     public function cover_url_is_null_when_no_image(): void
     {
         $book = Book::create(['title' => 'No Cover']);
@@ -67,7 +68,7 @@ class BookTest extends TestCase
         $this->assertNull($book->cover_url);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_category(): void
     {
         $category = $this->makeCategory();
@@ -77,7 +78,7 @@ class BookTest extends TestCase
         $this->assertEquals($category->id, $book->category->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_creator(): void
     {
         $user = User::factory()->create();
@@ -87,7 +88,7 @@ class BookTest extends TestCase
         $this->assertEquals($user->id, $book->createdBy->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_issues_relationship(): void
     {
         $book = Book::create(['title' => 'Issued Book']);
@@ -95,7 +96,7 @@ class BookTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $book->issues());
     }
 
-    /** @test */
+    #[Test]
     public function current_issues_scope_filters_by_status(): void
     {
         $book = Book::create(['title' => 'Scoped Book']);
@@ -115,7 +116,7 @@ class BookTest extends TestCase
         $this->assertCount(1, $book->currentIssues);
     }
 
-    /** @test */
+    #[Test]
     public function is_available_when_active_and_in_stock(): void
     {
         $book = Book::create(['title' => 'Avail', 'available_quantity' => 3, 'status' => true]);
@@ -128,7 +129,7 @@ class BookTest extends TestCase
         $this->assertFalse($inactive->isAvailable());
     }
 
-    /** @test */
+    #[Test]
     public function it_soft_deletes(): void
     {
         $book = Book::create(['title' => 'Soft']);

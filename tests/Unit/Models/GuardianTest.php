@@ -6,6 +6,7 @@ use App\Models\Guardian;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class GuardianTest extends TestCase
@@ -25,19 +26,19 @@ class GuardianTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function full_address_combines_parts(): void
     {
         $this->assertEquals('5 Park Rd, Dhaka, Dhaka, 1212, Bangladesh', $this->makeGuardian()->full_address);
     }
 
-    /** @test */
+    #[Test]
     public function status_badge_returns_a_badge_string(): void
     {
         $this->assertStringContainsString('badge', $this->makeGuardian()->status_badge);
     }
 
-    /** @test */
+    #[Test]
     public function students_relationship_and_total_students_count(): void
     {
         $guardian = $this->makeGuardian();
@@ -52,7 +53,7 @@ class GuardianTest extends TestCase
         $this->assertEquals(2, $guardian->total_students);
     }
 
-    /** @test */
+    #[Test]
     public function primary_students_scope_filters_primary_only(): void
     {
         $guardian = $this->makeGuardian();

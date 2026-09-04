@@ -3,34 +3,32 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\News;
 use App\Models\Event;
+use App\Models\News;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class NewsController extends Controller
 {
     /**
      * Get all news articles
-     * 
-     * @param Request $request
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
     {
         $query = News::where('is_published', true)
             ->orderBy('published_at', 'desc');
-            
+
         // Filter by category if provided
         if ($request->has('category')) {
             $query->where('category', $request->category);
         }
-        
+
         // Limit results if provided
         $limit = $request->get('limit', 10);
         $news = $query->paginate($limit);
-        
+
         return response()->json([
             'success' => true,
             'data' => $news->items(),
@@ -38,37 +36,37 @@ class NewsController extends Controller
                 'total' => $news->total(),
                 'per_page' => $news->perPage(),
                 'current_page' => $news->currentPage(),
-                'last_page' => $news->lastPage()
-            ]
+                'last_page' => $news->lastPage(),
+            ],
         ]);
     }
 
     /**
      * Get a single news article
-     * 
-     * @param string $id
+     *
+     * @param  string  $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function show($id)
     {
         $news = News::find($id);
-        
-        if (!$news || !$news->is_published) {
+
+        if (! $news || ! $news->is_published) {
             return response()->json([
                 'success' => false,
-                'message' => 'News article not found'
+                'message' => 'News article not found',
             ], 404);
         }
-        
+
         return response()->json([
             'success' => true,
-            'data' => $news
+            'data' => $news,
         ]);
     }
 
     /**
      * Get all available news categories
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function categories()
@@ -79,23 +77,22 @@ class NewsController extends Controller
             ->pluck('category')
             ->filter()
             ->values();
-            
+
         return response()->json([
             'success' => true,
-            'data' => $categories
+            'data' => $categories,
         ]);
     }
 
     /**
      * Get upcoming events
-     * 
-     * @param Request $request
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function upcomingEvents(Request $request)
     {
         $limit = $request->get('limit', 3);
-        
+
         $events = Event::with('createdBy')
             ->where('start_date', '>=', Carbon::now())
             ->where('status', 'published')
@@ -111,7 +108,7 @@ class NewsController extends Controller
                     'endDate' => $event->end_date ? $event->end_date->toIso8601String() : null,
                     'location' => $event->location,
                     'organizer' => $event->createdBy ? $event->createdBy->name : 'School Administration',
-                    'imageUrl' => $event->image ? asset('storage/' . $event->image) : null,
+                    'imageUrl' => $event->image ? asset('storage/'.$event->image) : null,
                     'isVirtual' => (bool) $event->is_virtual,
                     'meetingUrl' => $event->meeting_url,
                     'registrationDeadline' => $event->registration_deadline?->toIso8601String(),
@@ -121,10 +118,10 @@ class NewsController extends Controller
                     'isFull' => $event->isFull(),
                 ];
             });
-            
+
         return response()->json([
             'success' => true,
-            'data' => $events
+            'data' => $events,
         ]);
     }
 }

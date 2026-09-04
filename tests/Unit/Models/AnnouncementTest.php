@@ -5,13 +5,14 @@ namespace Tests\Unit\Models;
 use App\Models\Announcement;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AnnouncementTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $announcement = Announcement::create([
@@ -33,7 +34,7 @@ class AnnouncementTest extends TestCase
         $this->assertFalse($announcement->is_published);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_english_title_by_default(): void
     {
         $announcement = Announcement::create([
@@ -48,7 +49,7 @@ class AnnouncementTest extends TestCase
         $this->assertSame('বাংলা শিরোনাম', $announcement->localizedTitle());
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_english_body_when_bn_missing(): void
     {
         $announcement = Announcement::create([
@@ -60,7 +61,7 @@ class AnnouncementTest extends TestCase
         $this->assertSame('English body', $announcement->localizedBody());
     }
 
-    /** @test */
+    #[Test]
     public function it_scopes_published_announcements(): void
     {
         Announcement::create(['title' => 'Published', 'is_published' => true]);
@@ -69,7 +70,7 @@ class AnnouncementTest extends TestCase
         $this->assertCount(1, Announcement::published()->get());
     }
 
-    /** @test */
+    #[Test]
     public function it_scopes_active_announcements(): void
     {
         Announcement::create([
@@ -86,7 +87,7 @@ class AnnouncementTest extends TestCase
         $this->assertCount(1, Announcement::active()->get());
     }
 
-    /** @test */
+    #[Test]
     public function it_scopes_for_header_and_notification(): void
     {
         Announcement::create(['title' => 'H', 'display_target' => 'header']);

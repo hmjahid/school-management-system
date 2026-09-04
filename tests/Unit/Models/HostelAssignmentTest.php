@@ -7,6 +7,7 @@ use App\Models\HostelAssignment;
 use App\Models\HostelRoom;
 use App\Models\Student;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class HostelAssignmentTest extends TestCase
@@ -20,7 +21,7 @@ class HostelAssignmentTest extends TestCase
         return HostelRoom::create(['hostel_id' => $hostel->id, 'room_number' => 'Z1']);
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $room = $this->makeRoom();
@@ -46,7 +47,7 @@ class HostelAssignmentTest extends TestCase
         $this->assertSame($checkOut, $assignment->check_out_date->toDateString());
     }
 
-    /** @test */
+    #[Test]
     public function it_defaults_status_to_active(): void
     {
         $room = $this->makeRoom();
@@ -62,7 +63,7 @@ class HostelAssignmentTest extends TestCase
         $this->assertNull($assignment->check_out_date);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_student(): void
     {
         $room = $this->makeRoom();
@@ -78,7 +79,7 @@ class HostelAssignmentTest extends TestCase
         $this->assertEquals($student->id, $assignment->student->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_room(): void
     {
         $room = $this->makeRoom();

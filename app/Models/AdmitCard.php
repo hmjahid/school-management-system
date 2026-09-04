@@ -27,6 +27,7 @@ class AdmitCard extends Model
     ];
 
     const STATUS_ISSUED = 'issued';
+
     const STATUS_REVOKED = 'revoked';
 
     public function exam(): BelongsTo

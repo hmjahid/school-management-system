@@ -9,6 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
 use Mockery;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class SmsChannelTest extends TestCase
@@ -21,7 +22,7 @@ class SmsChannelTest extends TestCase
         parent::tearDown();
     }
 
-    /** @test */
+    #[Test]
     public function it_sends_through_the_sms_service_and_logs(): void
     {
         Log::spy();
@@ -54,7 +55,7 @@ class SmsChannelTest extends TestCase
         Log::shouldHaveReceived('info')->once();
     }
 
-    /** @test */
+    #[Test]
     public function it_does_nothing_when_there_is_no_sms_route(): void
     {
         $smsService = Mockery::mock(SmsService::class);

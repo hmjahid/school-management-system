@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Services\Channels\DatabaseChannel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\Notification;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class DatabaseChannelTest extends TestCase
@@ -17,12 +18,13 @@ class DatabaseChannelTest extends TestCase
         return User::factory()->create(['email' => 'dbchan@example.com']);
     }
 
-    /** @test */
+    #[Test]
     public function it_stores_a_database_notification_for_a_user(): void
     {
         $user = $this->makeUser();
 
-        $notification = new class extends Notification {
+        $notification = new class extends Notification
+        {
             public function toArray($notifiable)
             {
                 return ['hello' => 'world', 'count' => 3];
@@ -30,7 +32,7 @@ class DatabaseChannelTest extends TestCase
         };
         $notification->id = (string) \Illuminate\Support\Str::uuid();
 
-        $channel = new DatabaseChannel();
+        $channel = new DatabaseChannel;
         $record = $channel->send($user, $notification);
 
         $this->assertDatabaseHas('notifications', [
@@ -44,12 +46,13 @@ class DatabaseChannelTest extends TestCase
         $this->assertNull($record->read_at);
     }
 
-    /** @test */
+    #[Test]
     public function it_uses_the_to_database_method_when_available(): void
     {
         $user = $this->makeUser();
 
-        $notification = new class extends Notification {
+        $notification = new class extends Notification
+        {
             public function toDatabase($notifiable)
             {
                 return ['via' => 'database-channel'];
@@ -57,7 +60,7 @@ class DatabaseChannelTest extends TestCase
         };
         $notification->id = (string) \Illuminate\Support\Str::uuid();
 
-        $channel = new DatabaseChannel();
+        $channel = new DatabaseChannel;
         $record = $channel->send($user, $notification);
 
         $this->assertSame('database-channel', $record->data['via']);

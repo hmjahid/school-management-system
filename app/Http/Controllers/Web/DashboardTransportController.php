@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\TransportAssignment;
 use App\Models\TransportRoute;
-use App\Models\TransportStop;
 use App\Models\Vehicle;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,12 +18,14 @@ class DashboardTransportController extends Controller
     {
         abort_unless($request->user()?->can('manage_vehicles'), 403);
         $rows = Vehicle::orderBy('number')->paginate(20);
+
         return view('dashboard.transport.vehicles.index', compact('rows'));
     }
 
     public function vehiclesCreate(Request $request): View
     {
         abort_unless($request->user()?->can('manage_vehicles'), 403);
+
         return view('dashboard.transport.vehicles.create');
     }
 
@@ -40,12 +41,14 @@ class DashboardTransportController extends Controller
             'is_active' => ['nullable', 'boolean'],
         ]);
         Vehicle::create($data + ['is_active' => $data['is_active'] ?? true]);
+
         return redirect()->route('dashboard.transport.vehicles.index')->with('status', __('Vehicle added.'));
     }
 
     public function vehiclesEdit(Request $request, Vehicle $vehicle): View
     {
         abort_unless($request->user()?->can('manage_vehicles'), 403);
+
         return view('dashboard.transport.vehicles.edit', compact('vehicle'));
     }
 
@@ -61,6 +64,7 @@ class DashboardTransportController extends Controller
             'is_active' => ['nullable', 'boolean'],
         ]);
         $vehicle->update($data);
+
         return redirect()->route('dashboard.transport.vehicles.index')->with('status', __('Vehicle updated.'));
     }
 
@@ -68,6 +72,7 @@ class DashboardTransportController extends Controller
     {
         abort_unless($request->user()?->can('manage_vehicles'), 403);
         $vehicle->delete();
+
         return back()->with('status', __('Vehicle removed.'));
     }
 
@@ -76,12 +81,14 @@ class DashboardTransportController extends Controller
     {
         abort_unless($request->user()?->can('manage_routes'), 403);
         $rows = TransportRoute::with(['vehicle', 'stops'])->orderBy('code')->paginate(20);
+
         return view('dashboard.transport.routes.index', compact('rows'));
     }
 
     public function routesCreate(Request $request): View
     {
         abort_unless($request->user()?->can('manage_routes'), 403);
+
         return view('dashboard.transport.routes.create', ['vehicles' => Vehicle::where('is_active', true)->orderBy('number')->get()]);
     }
 
@@ -96,6 +103,7 @@ class DashboardTransportController extends Controller
             'is_active' => ['nullable', 'boolean'],
         ]);
         TransportRoute::create($data + ['is_active' => $data['is_active'] ?? true]);
+
         return redirect()->route('dashboard.transport.routes.index')->with('status', __('Route added.'));
     }
 
@@ -103,6 +111,7 @@ class DashboardTransportController extends Controller
     {
         abort_unless($request->user()?->can('manage_routes'), 403);
         $route->load('stops');
+
         return view('dashboard.transport.routes.edit', ['route' => $route, 'vehicles' => Vehicle::where('is_active', true)->orderBy('number')->get()]);
     }
 
@@ -130,8 +139,8 @@ class DashboardTransportController extends Controller
                     ['id' => $row['id'] ?? null],
                     [
                         'name' => $row['name'],
-                        'pickup_time' => !empty($row['pickup_time']) ? $row['pickup_time'] : null,
-                        'drop_time' => !empty($row['drop_time']) ? $row['drop_time'] : null,
+                        'pickup_time' => ! empty($row['pickup_time']) ? $row['pickup_time'] : null,
+                        'drop_time' => ! empty($row['drop_time']) ? $row['drop_time'] : null,
                         'sort' => (int) ($row['sort'] ?? $i),
                     ],
                 );
@@ -148,6 +157,7 @@ class DashboardTransportController extends Controller
     {
         abort_unless($request->user()?->can('manage_routes'), 403);
         $route->delete();
+
         return back()->with('status', __('Route removed.'));
     }
 
@@ -158,6 +168,7 @@ class DashboardTransportController extends Controller
         $rows = TransportAssignment::with(['student.user', 'route', 'stop'])
             ->orderByDesc('effective_from')
             ->paginate(20);
+
         return view('dashboard.transport.assignments.index', [
             'rows' => $rows,
             'students' => Student::with('user')->orderBy('id')->limit(500)->get(),
@@ -194,6 +205,7 @@ class DashboardTransportController extends Controller
     {
         abort_unless($request->user()?->can('assign_vehicles'), 403);
         $assignment->delete();
+
         return back()->with('status', __('Assignment removed.'));
     }
 }

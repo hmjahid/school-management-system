@@ -6,6 +6,7 @@ use App\Models\Payment;
 use App\Models\PaymentGateway;
 use App\Services\PaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class PaymentServiceTest extends TestCase
@@ -22,7 +23,7 @@ class PaymentServiceTest extends TestCase
         ], $attributes));
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_when_gateway_is_inactive(): void
     {
         $code = 'inactive_'.uniqid();
@@ -34,7 +35,7 @@ class PaymentServiceTest extends TestCase
         app(PaymentService::class)->initializePayment(Payment::factory()->create(), $code);
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_when_online_gateway_not_configured(): void
     {
         $code = 'bkash';
@@ -53,7 +54,7 @@ class PaymentServiceTest extends TestCase
         app(PaymentService::class)->initializePayment(Payment::factory()->create(), $code);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_offline_instructions_for_offline_gateway(): void
     {
         config(['payment.offline' => [
@@ -84,7 +85,7 @@ class PaymentServiceTest extends TestCase
         $this->assertEquals('School Account', $result['payment_details']['account_name']);
     }
 
-    /** @test */
+    #[Test]
     public function supports_refunds_lists_known_methods(): void
     {
         $service = app(PaymentService::class);
@@ -97,7 +98,7 @@ class PaymentServiceTest extends TestCase
         $this->assertFalse($service->supportsRefunds('bank_transfer'));
     }
 
-    /** @test */
+    #[Test]
     public function process_refund_succeeds_for_test_gateway(): void
     {
         $result = app(PaymentService::class)->processRefund('test_gateway', 'TXN-1', 500.00, 'Customer request');
@@ -107,7 +108,7 @@ class PaymentServiceTest extends TestCase
         $this->assertEquals(['status' => 'Completed'], $result['gateway_response']);
     }
 
-    /** @test */
+    #[Test]
     public function process_refund_fails_for_unknown_gateway_without_config(): void
     {
         $result = app(PaymentService::class)->processRefund('mystery_gateway', 'TXN-1', 100.00, 'reason');
@@ -116,13 +117,13 @@ class PaymentServiceTest extends TestCase
         $this->assertEquals('Payment gateway not configured: mystery_gateway', $result['message']);
     }
 
-    /** @test */
+    #[Test]
     public function resolve_gateway_config_returns_null_for_unknown(): void
     {
         $this->assertNull(app(PaymentService::class)->resolveGatewayConfig('nonexistent_gateway'));
     }
 
-    /** @test */
+    #[Test]
     public function resolve_gateway_config_reads_from_config_when_present(): void
     {
         config(['payment.gateways.demo_gw' => [
@@ -140,7 +141,7 @@ class PaymentServiceTest extends TestCase
         $this->assertEquals('https://live.example.com', $config['base_url']);
     }
 
-    /** @test */
+    #[Test]
     public function verify_payment_returns_same_payment_for_cash_method(): void
     {
         $payment = Payment::factory()->create(['payment_method' => 'cash']);

@@ -7,6 +7,7 @@ use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class PaymentMassAssignmentTest extends TestCase
@@ -24,7 +25,7 @@ class PaymentMassAssignmentTest extends TestCase
         $this->user->assignRole('user');
     }
 
-    /** @test */
+    #[Test]
     public function unexpected_fields_are_not_persisted_on_payment_initiation()
     {
         Http::fake([
@@ -69,7 +70,7 @@ class PaymentMassAssignmentTest extends TestCase
         $this->assertNotSame('completed', $payment->payment_status);
     }
 
-    /** @test */
+    #[Test]
     public function initiate_rejects_unknown_gateway_without_persisting_anything()
     {
         $this->actingAs($this->user)

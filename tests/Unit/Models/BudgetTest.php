@@ -5,6 +5,7 @@ namespace Tests\Unit\Models;
 use App\Models\Budget;
 use App\Models\ExpenseCategory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class BudgetTest extends TestCase
@@ -27,7 +28,7 @@ class BudgetTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $budget = $this->makeBudget();
@@ -40,7 +41,7 @@ class BudgetTest extends TestCase
         $this->assertEquals(5000.0, (float) $budget->amount);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_period_dates_to_carbon(): void
     {
         $start = now()->startOfMonth()->startOfDay();
@@ -57,7 +58,7 @@ class BudgetTest extends TestCase
         $this->assertEquals($start->toDateString(), $budget->period_start->toDateString());
     }
 
-    /** @test */
+    #[Test]
     public function it_defaults_period_type_to_monthly(): void
     {
         $budget = Budget::create([
@@ -70,7 +71,7 @@ class BudgetTest extends TestCase
         $this->assertEquals('monthly', $budget->fresh()->period_type);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_an_expense_category(): void
     {
         $category = $this->makeCategory();
@@ -85,7 +86,7 @@ class BudgetTest extends TestCase
         $this->assertEquals($category->id, $budget->category->id);
     }
 
-    /** @test */
+    #[Test]
     public function expense_category_is_nullable(): void
     {
         $budget = Budget::create([

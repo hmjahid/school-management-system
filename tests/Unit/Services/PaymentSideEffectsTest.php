@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\Payment\BkashGatewayAdapter;
 use Database\Factories\SchoolClassFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use ReflectionMethod;
 use Tests\TestCase;
 
@@ -71,7 +72,7 @@ class PaymentSideEffectsTest extends TestCase
         $method->invoke($adapter, $payment, $context);
     }
 
-    /** @test */
+    #[Test]
     public function it_marks_linked_fee_payment_as_paid(): void
     {
         $fee = $this->feePayment();
@@ -91,7 +92,7 @@ class PaymentSideEffectsTest extends TestCase
         $this->assertEquals('bkash', $fee->metadata['gateway']);
     }
 
-    /** @test */
+    #[Test]
     public function it_does_nothing_without_fee_payment_id(): void
     {
         $payment = new Payment([
@@ -110,7 +111,7 @@ class PaymentSideEffectsTest extends TestCase
         $this->assertEquals(Payment::STATUS_PENDING, $payment->payment_status);
     }
 
-    /** @test */
+    #[Test]
     public function it_does_not_overwrite_already_paid_fee_payment(): void
     {
         $fee = $this->feePayment([

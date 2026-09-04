@@ -5,13 +5,14 @@ namespace Tests\Unit\Support;
 use App\Models\WebsiteContent;
 use App\Support\SiteFrontend;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class SiteFrontendTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function defaults_for_en_locale_returns_array_from_lang_file(): void
     {
         $defaults = SiteFrontend::defaultsForLocale();
@@ -20,7 +21,7 @@ class SiteFrontendTest extends TestCase
         $this->assertArrayHasKey('nav', $defaults);
     }
 
-    /** @test */
+    #[Test]
     public function defaults_merge_bn_over_en_for_non_en_locale(): void
     {
         app()->setLocale('bn');
@@ -31,7 +32,7 @@ class SiteFrontendTest extends TestCase
         $this->assertArrayHasKey('nav', $defaults);
     }
 
-    /** @test */
+    #[Test]
     public function merged_returns_lang_defaults_when_no_cms_row(): void
     {
         $merged = SiteFrontend::merged();
@@ -40,7 +41,7 @@ class SiteFrontendTest extends TestCase
         $this->assertArrayHasKey('nav', $merged);
     }
 
-    /** @test */
+    #[Test]
     public function merged_overrides_defaults_with_active_cms_site_ui(): void
     {
         WebsiteContent::create([
@@ -57,7 +58,7 @@ class SiteFrontendTest extends TestCase
         $this->assertEquals('Custom Value', $merged['nav']['custom_key'] ?? null);
     }
 
-    /** @test */
+    #[Test]
     public function merged_ignores_inactive_cms_row(): void
     {
         WebsiteContent::create([
@@ -73,7 +74,7 @@ class SiteFrontendTest extends TestCase
         $this->assertArrayNotHasKey('custom_key', $merged['nav'] ?? []);
     }
 
-    /** @test */
+    #[Test]
     public function merged_reads_lang_when_website_contents_table_missing(): void
     {
         // Simulate the guard path without depending on table existence.

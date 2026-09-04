@@ -4,11 +4,12 @@ namespace Tests\Unit\Services;
 
 use App\Services\RecurringPaymentService;
 use Carbon\Carbon;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RecurringPaymentServiceTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function it_calculates_next_billing_date_for_monthly(): void
     {
         $from = Carbon::parse('2026-01-15');
@@ -17,7 +18,7 @@ class RecurringPaymentServiceTest extends TestCase
         $this->assertEquals('2026-02-15', $next->toDateString());
     }
 
-    /** @test */
+    #[Test]
     public function it_calculates_next_billing_date_with_frequency(): void
     {
         $from = Carbon::parse('2026-01-15');
@@ -26,7 +27,7 @@ class RecurringPaymentServiceTest extends TestCase
         $this->assertEquals('2026-04-15', $next->toDateString());
     }
 
-    /** @test */
+    #[Test]
     public function it_calculates_next_billing_date_for_day(): void
     {
         $from = Carbon::parse('2026-01-15');
@@ -35,7 +36,7 @@ class RecurringPaymentServiceTest extends TestCase
         $this->assertEquals('2026-01-22', $next->toDateString());
     }
 
-    /** @test */
+    #[Test]
     public function it_calculates_next_billing_date_for_year(): void
     {
         $from = Carbon::parse('2026-01-15');
@@ -44,7 +45,7 @@ class RecurringPaymentServiceTest extends TestCase
         $this->assertEquals('2027-01-15', $next->toDateString());
     }
 
-    /** @test */
+    #[Test]
     public function it_calculates_next_billing_date_for_week(): void
     {
         $from = Carbon::parse('2026-01-15');
@@ -53,7 +54,7 @@ class RecurringPaymentServiceTest extends TestCase
         $this->assertEquals('2026-01-29', $next->toDateString());
     }
 
-    /** @test */
+    #[Test]
     public function it_defaults_from_date_to_now(): void
     {
         $next = RecurringPaymentService::calculateNextBillingDate('month', 1);
@@ -61,7 +62,7 @@ class RecurringPaymentServiceTest extends TestCase
         $this->assertEquals(now()->addMonth()->toDateString(), $next->toDateString());
     }
 
-    /** @test */
+    #[Test]
     public function it_does_not_mutate_original_date(): void
     {
         $from = Carbon::parse('2026-01-15');
@@ -70,7 +71,7 @@ class RecurringPaymentServiceTest extends TestCase
         $this->assertEquals('2026-01-15', $from->toDateString());
     }
 
-    /** @test */
+    #[Test]
     public function it_calculates_end_date_for_monthly_cycles(): void
     {
         $start = Carbon::parse('2026-01-15');
@@ -79,7 +80,7 @@ class RecurringPaymentServiceTest extends TestCase
         $this->assertEquals('2027-01-15', $end->toDateString());
     }
 
-    /** @test */
+    #[Test]
     public function it_calculates_end_date_with_frequency(): void
     {
         $start = Carbon::parse('2026-01-15');
@@ -89,7 +90,7 @@ class RecurringPaymentServiceTest extends TestCase
         $this->assertEquals('2027-01-15', $end->toDateString());
     }
 
-    /** @test */
+    #[Test]
     public function it_calculates_end_date_for_weekly_cycles(): void
     {
         $start = Carbon::parse('2026-01-15');
@@ -98,7 +99,7 @@ class RecurringPaymentServiceTest extends TestCase
         $this->assertEquals('2026-02-12', $end->toDateString());
     }
 
-    /** @test */
+    #[Test]
     public function it_defaults_start_date_to_now_for_end_date(): void
     {
         $end = RecurringPaymentService::calculateEndDate('month', 1, 1);
@@ -106,7 +107,7 @@ class RecurringPaymentServiceTest extends TestCase
         $this->assertEquals(now()->addMonth()->toDateString(), $end->toDateString());
     }
 
-    /** @test */
+    #[Test]
     public function it_does_not_mutate_original_start_date_for_end_date(): void
     {
         $start = Carbon::parse('2026-01-15');

@@ -5,6 +5,7 @@ namespace Tests\Unit\Models;
 use App\Models\WebsiteContent;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class WebsiteContentTest extends TestCase
@@ -24,7 +25,7 @@ class WebsiteContentTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function english_content_tree_falls_back_to_content(): void
     {
         $c = WebsiteContent::create([
@@ -35,7 +36,7 @@ class WebsiteContentTest extends TestCase
         $this->assertEquals(['title' => 'Legacy'], $c->englishContentTree());
     }
 
-    /** @test */
+    #[Test]
     public function english_content_tree_prefers_content_en(): void
     {
         $c = $this->make();
@@ -43,7 +44,7 @@ class WebsiteContentTest extends TestCase
         $this->assertEquals(['title' => 'Welcome', 'subtitle' => 'School'], $c->englishContentTree());
     }
 
-    /** @test */
+    #[Test]
     public function bengali_content_tree_prunes_identical_to_english(): void
     {
         $c = $this->make([
@@ -56,7 +57,7 @@ class WebsiteContentTest extends TestCase
         $this->assertArrayNotHasKey('subtitle', $bn);
     }
 
-    /** @test */
+    #[Test]
     public function localized_payload_returns_en_tree_for_en_locale(): void
     {
         App::setLocale('en');
@@ -67,7 +68,7 @@ class WebsiteContentTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function localized_payload_for_bn_strips_untranslated_leaves(): void
     {
         App::setLocale('bn');
@@ -82,7 +83,7 @@ class WebsiteContentTest extends TestCase
         $this->assertArrayNotHasKey('subtitle', $payload);
     }
 
-    /** @test */
+    #[Test]
     public function localized_title_uses_bn_in_bn_locale_with_fallback(): void
     {
         App::setLocale('bn');
@@ -92,7 +93,7 @@ class WebsiteContentTest extends TestCase
         $this->assertEquals('Welcome', $this->make()->localizedTitle());
     }
 
-    /** @test */
+    #[Test]
     public function localized_meta_description_falls_back_appropriately(): void
     {
         $c = $this->make([
@@ -107,7 +108,7 @@ class WebsiteContentTest extends TestCase
         $this->assertEquals('BN desc', $c->localizedMetaDescription());
     }
 
-    /** @test */
+    #[Test]
     public function clone_for_public_returns_localized_clone(): void
     {
         App::setLocale('bn');
@@ -124,7 +125,7 @@ class WebsiteContentTest extends TestCase
         $this->assertEquals('স্বাগতম', $clone->title);
     }
 
-    /** @test */
+    #[Test]
     public function get_content_static_returns_instance_for_page(): void
     {
         $this->make(['page' => 'about']);
@@ -135,7 +136,7 @@ class WebsiteContentTest extends TestCase
         $this->assertEquals('about', $content->page);
     }
 
-    /** @test */
+    #[Test]
     public function get_content_static_creates_runtime_row_when_missing(): void
     {
         $content = WebsiteContent::getContent('missing-page');

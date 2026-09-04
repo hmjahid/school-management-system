@@ -10,6 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class NagadGatewayAdapterTest extends TestCase
@@ -62,13 +63,13 @@ class NagadGatewayAdapterTest extends TestCase
         $this->app->instance('request', $request);
     }
 
-    /** @test */
+    #[Test]
     public function it_implements_gateway_adapter_interface(): void
     {
         $this->assertInstanceOf(GatewayAdapterInterface::class, new NagadGatewayAdapter);
     }
 
-    /** @test */
+    #[Test]
     public function it_initializes_payment_and_returns_redirect_url(): void
     {
         Http::fake([
@@ -96,7 +97,7 @@ class NagadGatewayAdapterTest extends TestCase
         $this->assertEquals('NAGREF123', $payment->fresh()->payment_details['nagad_payment_id']);
     }
 
-    /** @test */
+    #[Test]
     public function it_processes_callback_and_completes_payment(): void
     {
         Event::fake();
@@ -126,7 +127,7 @@ class NagadGatewayAdapterTest extends TestCase
         $this->assertEquals('NAGTXN123', $result->fresh()->payment_details['transaction_id']);
     }
 
-    /** @test */
+    #[Test]
     public function verify_payment_returns_payment_unchanged(): void
     {
         $adapter = new NagadGatewayAdapter;
@@ -139,7 +140,7 @@ class NagadGatewayAdapterTest extends TestCase
         $this->assertEquals(Payment::STATUS_PENDING, $result->fresh()->payment_status);
     }
 
-    /** @test */
+    #[Test]
     public function it_refunds_successfully(): void
     {
         Http::fake([
@@ -159,7 +160,7 @@ class NagadGatewayAdapterTest extends TestCase
         $this->assertEquals('NAGREFUND123', $result['transaction_id']);
     }
 
-    /** @test */
+    #[Test]
     public function it_accepts_a_valid_webhook_signature(): void
     {
         $adapter = new NagadGatewayAdapter;
@@ -175,7 +176,7 @@ class NagadGatewayAdapterTest extends TestCase
         $this->assertTrue($adapter->verifyWebhookSignature($request, $gateway));
     }
 
-    /** @test */
+    #[Test]
     public function it_rejects_a_webhook_with_missing_signature(): void
     {
         $adapter = new NagadGatewayAdapter;
@@ -186,7 +187,7 @@ class NagadGatewayAdapterTest extends TestCase
         $this->assertFalse($adapter->verifyWebhookSignature($request, $gateway));
     }
 
-    /** @test */
+    #[Test]
     public function it_rejects_a_webhook_with_invalid_signature(): void
     {
         $adapter = new NagadGatewayAdapter;

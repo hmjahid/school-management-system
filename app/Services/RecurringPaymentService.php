@@ -3,10 +3,9 @@
 namespace App\Services;
 
 use App\Models\RecurringPaymentProfile;
-use App\Services\PaymentService;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class RecurringPaymentService
 {
@@ -20,7 +19,6 @@ class RecurringPaymentService
     /**
      * Create a new service instance.
      *
-     * @param  \App\Services\PaymentService  $paymentService
      * @return void
      */
     public function __construct(PaymentService $paymentService)
@@ -32,7 +30,6 @@ class RecurringPaymentService
      * Process all due recurring payments.
      *
      * @param  bool  $force  Process all due payments regardless of next billing date
-     * @return array
      */
     public function processDuePayments($force = false): array
     {
@@ -49,7 +46,7 @@ class RecurringPaymentService
             ->where('next_billing_date', '<=', now())
             ->with(['user', 'paymentable']);
 
-        if (!$force) {
+        if (! $force) {
             // Only process profiles where next billing date is today or in the past
             $query->whereDate('next_billing_date', '<=', now()->toDateString());
         }
@@ -62,14 +59,14 @@ class RecurringPaymentService
 
                 // Process the payment
                 $result = $this->processPayment($profile);
-                
+
                 if ($result['success']) {
                     $results['succeeded']++;
                     Log::info("Processed recurring payment for profile {$profile->profile_id}: {$result['message']}");
                 } else {
                     $results['failed']++;
                     $results['errors'][$profile->id] = $result['error'] ?? 'Unknown error';
-                    Log::error("Failed to process recurring payment for profile {$profile->profile_id}: " . ($result['error'] ?? 'Unknown error'));
+                    Log::error("Failed to process recurring payment for profile {$profile->profile_id}: ".($result['error'] ?? 'Unknown error'));
                 }
 
                 $results['processed']++;
@@ -78,7 +75,7 @@ class RecurringPaymentService
                 DB::rollBack();
                 $results['failed']++;
                 $results['errors'][$profile->id] = $e->getMessage();
-                Log::error("Error processing recurring payment for profile {$profile->profile_id}: " . $e->getMessage());
+                Log::error("Error processing recurring payment for profile {$profile->profile_id}: ".$e->getMessage());
             }
         }
 
@@ -87,17 +84,14 @@ class RecurringPaymentService
 
     /**
      * Process a single recurring payment.
-     *
-     * @param  \App\Models\RecurringPaymentProfile  $profile
-     * @return array
      */
     public function processPayment(RecurringPaymentProfile $profile): array
     {
         try {
             // Lock the profile for update to prevent race conditions
             $profile = RecurringPaymentProfile::lockForUpdate()->find($profile->id);
-            
-            if (!$profile || !$profile->isActive()) {
+
+            if (! $profile || ! $profile->isActive()) {
                 return [
                     'success' => false,
                     'error' => 'Profile is not active or does not exist',
@@ -124,7 +118,7 @@ class RecurringPaymentService
                 'amount' => $profile->amount,
                 'currency' => $profile->currency,
                 'payment_method' => $profile->gateway,
-                'description' => 'Recurring payment for ' . ($profile->paymentable->name ?? 'service'),
+                'description' => 'Recurring payment for '.($profile->paymentable->name ?? 'service'),
                 'metadata' => array_merge($profile->metadata ?? [], [
                     'recurring_profile_id' => $profile->id,
                     'billing_period' => $profile->billing_period,
@@ -168,10 +162,10 @@ class RecurringPaymentService
         } catch (\Exception $e) {
             // Record the error
             $profile->recordFailedPayment($e->getMessage());
-            
+
             return [
                 'success' => false,
-                'error' => 'Payment processing error: ' . $e->getMessage(),
+                'error' => 'Payment processing error: '.$e->getMessage(),
             ];
         }
     }
@@ -180,7 +174,6 @@ class RecurringPaymentService
      * Retry failed payment attempts.
      *
      * @param  int  $maxAttempts  Maximum number of attempts to retry
-     * @return array
      */
     public function retryFailedPayments(int $maxAttempts = 3): array
     {
@@ -202,17 +195,17 @@ class RecurringPaymentService
         foreach ($profiles as $profile) {
             try {
                 DB::beginTransaction();
-                
+
                 // Process the payment
                 $result = $this->processPayment($profile);
-                
+
                 if ($result['success']) {
                     $results['succeeded']++;
                     Log::info("Retried and processed recurring payment for profile {$profile->profile_id}");
                 } else {
                     $results['failed']++;
                     $results['errors'][$profile->id] = $result['error'] ?? 'Unknown error';
-                    Log::warning("Failed to retry payment for profile {$profile->profile_id}: " . ($result['error'] ?? 'Unknown error'));
+                    Log::warning("Failed to retry payment for profile {$profile->profile_id}: ".($result['error'] ?? 'Unknown error'));
                 }
 
                 $results['processed']++;
@@ -221,7 +214,7 @@ class RecurringPaymentService
                 DB::rollBack();
                 $results['failed']++;
                 $results['errors'][$profile->id] = $e->getMessage();
-                Log::error("Error retrying payment for profile {$profile->profile_id}: " . $e->getMessage());
+                Log::error("Error retrying payment for profile {$profile->profile_id}: ".$e->getMessage());
             }
         }
 
@@ -231,33 +224,26 @@ class RecurringPaymentService
     /**
      * Get the next billing date based on the billing period and frequency.
      *
-     * @param  string  $billingPeriod
-     * @param  int  $frequency
      * @param  \Carbon\Carbon|null  $fromDate
-     * @return \Carbon\Carbon
      */
     public static function calculateNextBillingDate(string $billingPeriod, int $frequency = 1, $fromDate = null): Carbon
     {
         $fromDate = $fromDate ?: now();
-        $method = 'add' . ucfirst($billingPeriod) . 's';
-        
+        $method = 'add'.ucfirst($billingPeriod).'s';
+
         return $fromDate->copy()->$method($frequency);
     }
 
     /**
      * Get the end date for a subscription based on the number of billing cycles.
      *
-     * @param  string  $billingPeriod
-     * @param  int  $frequency
-     * @param  int  $cycles
      * @param  \Carbon\Carbon|null  $startDate
-     * @return \Carbon\Carbon
      */
     public static function calculateEndDate(string $billingPeriod, int $frequency, int $cycles, $startDate = null): Carbon
     {
         $startDate = $startDate ?: now();
-        $method = 'add' . ucfirst($billingPeriod) . 's';
-        
+        $method = 'add'.ucfirst($billingPeriod).'s';
+
         return $startDate->copy()->$method($frequency * $cycles);
     }
 }

@@ -59,6 +59,7 @@ class LedgerService
                     $userId,
                 );
             }
+
             return $entries;
         });
     }

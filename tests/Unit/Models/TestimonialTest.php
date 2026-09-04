@@ -6,6 +6,7 @@ use App\Models\Student;
 use App\Models\Testimonial;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class TestimonialTest extends TestCase
@@ -22,13 +23,13 @@ class TestimonialTest extends TestCase
         ], $attributes));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $t = $this->makeTestimonial([
             'name' => 'Award',
             'testimonial_type' => 'behavior',
-            'testimonial_number' => 'TEST-' . uniqid(),
+            'testimonial_number' => 'TEST-'.uniqid(),
             'issue_date' => now()->toDateString(),
             'rating' => 5,
             'sort_order' => 2,
@@ -45,7 +46,7 @@ class TestimonialTest extends TestCase
         $this->assertSame(['note' => 'ok'], $t->body);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_status_constants(): void
     {
         $this->assertSame('draft', Testimonial::STATUS_DRAFT);
@@ -53,7 +54,7 @@ class TestimonialTest extends TestCase
         $this->assertSame('revoked', Testimonial::STATUS_REVOKED);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_type_constants(): void
     {
         $this->assertContains('behavior', Testimonial::TYPES);
@@ -61,15 +62,15 @@ class TestimonialTest extends TestCase
         $this->assertContains('overall', Testimonial::TYPES);
     }
 
-    /** @test */
+    #[Test]
     public function it_generates_a_number(): void
     {
         $number = Testimonial::generateNumber();
 
-        $this->assertStringStartsWith('TEST-' . now()->year . '-', $number);
+        $this->assertStringStartsWith('TEST-'.now()->year.'-', $number);
     }
 
-    /** @test */
+    #[Test]
     public function scope_visible_returns_only_visible(): void
     {
         $this->makeTestimonial(['is_visible' => true]);
@@ -81,7 +82,7 @@ class TestimonialTest extends TestCase
         $this->assertTrue($visible->first()->is_visible);
     }
 
-    /** @test */
+    #[Test]
     public function scope_ordered_sorts_by_sort_order(): void
     {
         $this->makeTestimonial(['sort_order' => 5]);
@@ -93,7 +94,7 @@ class TestimonialTest extends TestCase
         $this->assertSame(5, $ordered->last()->sort_order);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_student(): void
     {
         $student = Student::factory()->create();
@@ -103,7 +104,7 @@ class TestimonialTest extends TestCase
         $this->assertSame($student->id, $t->student->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_generator(): void
     {
         $user = User::factory()->create();

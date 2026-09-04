@@ -4,6 +4,7 @@ namespace Tests\Unit\Support;
 
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
+use PHPUnit\Framework\Attributes\Test;
 use ReflectionMethod;
 use Tests\TestCase;
 
@@ -31,7 +32,7 @@ class ApiResponseTest extends TestCase
         return json_decode($response->getContent(), true);
     }
 
-    /** @test */
+    #[Test]
     public function success_returns_envelope_with_true(): void
     {
         $response = $this->invokeTrait($this->harness(), 'success', ['foo' => 'bar'], 'All good', 200);
@@ -45,7 +46,7 @@ class ApiResponseTest extends TestCase
         $this->assertEquals(['foo' => 'bar'], $data['data']);
     }
 
-    /** @test */
+    #[Test]
     public function success_omits_meta_when_empty(): void
     {
         $data = $this->decode($this->invokeTrait($this->harness(), 'success', null, 'Okay'));
@@ -53,7 +54,7 @@ class ApiResponseTest extends TestCase
         $this->assertArrayNotHasKey('meta', $data);
     }
 
-    /** @test */
+    #[Test]
     public function success_includes_meta_when_provided(): void
     {
         $data = $this->decode($this->invokeTrait($this->harness(), 'success', [], 'Okay', 200, ['page' => 2]));
@@ -61,7 +62,7 @@ class ApiResponseTest extends TestCase
         $this->assertEquals(['page' => 2], $data['meta']);
     }
 
-    /** @test */
+    #[Test]
     public function created_uses_201_status(): void
     {
         $response = $this->invokeTrait($this->harness(), 'created', ['id' => 1]);
@@ -72,7 +73,7 @@ class ApiResponseTest extends TestCase
         $this->assertEquals('Created successfully', $data['message']);
     }
 
-    /** @test */
+    #[Test]
     public function paginated_unwraps_items_and_adds_pagination_meta(): void
     {
         $items = collect([['id' => 1], ['id' => 2]]);
@@ -87,7 +88,7 @@ class ApiResponseTest extends TestCase
         $this->assertEquals(1, $data['meta']['pagination']['current_page']);
     }
 
-    /** @test */
+    #[Test]
     public function error_returns_false_envelope(): void
     {
         $response = $this->invokeTrait($this->harness(), 'error', 'Bad request', 422, ['field' => ['required']], 'VALIDATION');
@@ -100,7 +101,7 @@ class ApiResponseTest extends TestCase
         $this->assertEquals(['field' => ['required']], $data['errors']);
     }
 
-    /** @test */
+    #[Test]
     public function error_omits_optional_keys_when_null(): void
     {
         $data = $this->decode($this->invokeTrait($this->harness(), 'error', 'Nope'));
@@ -109,7 +110,7 @@ class ApiResponseTest extends TestCase
         $this->assertArrayNotHasKey('errors', $data);
     }
 
-    /** @test */
+    #[Test]
     public function responses_include_request_id_when_present(): void
     {
         $this->app['request']->headers->set('X-Request-ID', 'req-123');
@@ -119,7 +120,7 @@ class ApiResponseTest extends TestCase
         $this->assertEquals('req-123', $data['request_id']);
     }
 
-    /** @test */
+    #[Test]
     public function responses_omit_request_id_when_absent(): void
     {
         $data = $this->decode($this->invokeTrait($this->harness(), 'success', []));

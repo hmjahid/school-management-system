@@ -5,6 +5,7 @@ namespace Tests\Unit\Models;
 use App\Models\Career;
 use App\Models\JobApplication;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class JobApplicationTest extends TestCase
@@ -23,7 +24,7 @@ class JobApplicationTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $career = $this->makeCareer();
@@ -47,7 +48,7 @@ class JobApplicationTest extends TestCase
         $this->assertSame('reviewed', $application->status);
     }
 
-    /** @test */
+    #[Test]
     public function it_defaults_status_to_pending(): void
     {
         $career = $this->makeCareer();
@@ -63,7 +64,7 @@ class JobApplicationTest extends TestCase
         $this->assertSame('pending', $application->fresh()->status);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_career(): void
     {
         $career = $this->makeCareer();

@@ -2,10 +2,11 @@
 
 namespace Tests\Unit\Models;
 
-use App\Models\Admission;
 use App\Models\AcademicSession;
+use App\Models\Admission;
 use App\Models\Batch;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AdmissionTest extends TestCase
@@ -38,7 +39,7 @@ class AdmissionTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_auto_generates_application_number_on_create(): void
     {
         $admission = $this->makeAdmission(['first_name' => 'John', 'last_name' => 'Doe']);
@@ -47,7 +48,7 @@ class AdmissionTest extends TestCase
         $this->assertStringStartsWith('APP'.date('Y'), $admission->application_number);
     }
 
-    /** @test */
+    #[Test]
     public function it_generates_sequential_application_numbers(): void
     {
         $first = Admission::generateApplicationNumber();
@@ -59,7 +60,7 @@ class AdmissionTest extends TestCase
         $this->assertEquals('APP'.date('Y').'00002', $second);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_full_name_attribute(): void
     {
         $admission = $this->makeAdmission(['first_name' => 'Jane', 'last_name' => 'Smith']);
@@ -67,7 +68,7 @@ class AdmissionTest extends TestCase
         $this->assertEquals('Jane Smith', $admission->full_name);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_correct_status_label(): void
     {
         $admission = $this->makeAdmission(['status' => Admission::STATUS_UNDER_REVIEW]);
@@ -75,7 +76,7 @@ class AdmissionTest extends TestCase
         $this->assertEquals('Under review', $admission->status_label);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_correct_status_badge(): void
     {
         $approved = $this->makeAdmission(['status' => Admission::STATUS_APPROVED]);
@@ -85,7 +86,7 @@ class AdmissionTest extends TestCase
         $this->assertEquals('bg-red-100 text-red-800', $rejected->status_badge);
     }
 
-    /** @test */
+    #[Test]
     public function it_checks_state_methods(): void
     {
         $draft = $this->makeAdmission(['status' => Admission::STATUS_DRAFT]);
@@ -97,7 +98,7 @@ class AdmissionTest extends TestCase
         $this->assertFalse($submitted->isDraft());
     }
 
-    /** @test */
+    #[Test]
     public function it_submits_draft_admission(): void
     {
         $admission = $this->makeAdmission(['status' => Admission::STATUS_DRAFT]);
@@ -109,7 +110,7 @@ class AdmissionTest extends TestCase
         $this->assertNotNull($admission->submitted_at);
     }
 
-    /** @test */
+    #[Test]
     public function it_prevents_submitting_non_draft_admission(): void
     {
         $admission = $this->makeAdmission(['status' => Admission::STATUS_SUBMITTED]);
@@ -117,7 +118,7 @@ class AdmissionTest extends TestCase
         $this->assertFalse($admission->submit());
     }
 
-    /** @test */
+    #[Test]
     public function it_approves_submitted_admission(): void
     {
         $admission = $this->makeAdmission(['status' => Admission::STATUS_SUBMITTED]);
@@ -130,7 +131,7 @@ class AdmissionTest extends TestCase
         $this->assertNotNull($admission->admission_date);
     }
 
-    /** @test */
+    #[Test]
     public function it_prevents_approving_non_submittable_admission(): void
     {
         $admission = $this->makeAdmission(['status' => Admission::STATUS_DRAFT]);
@@ -138,7 +139,7 @@ class AdmissionTest extends TestCase
         $this->assertFalse($admission->approve());
     }
 
-    /** @test */
+    #[Test]
     public function it_rejects_submitted_admission(): void
     {
         $admission = $this->makeAdmission(['status' => Admission::STATUS_SUBMITTED]);
@@ -150,7 +151,7 @@ class AdmissionTest extends TestCase
         $this->assertEquals('Failed requirements', $admission->rejection_reason);
     }
 
-    /** @test */
+    #[Test]
     public function it_prevents_rejecting_non_submittable_admission(): void
     {
         $admission = $this->makeAdmission(['status' => Admission::STATUS_DRAFT]);
@@ -158,7 +159,7 @@ class AdmissionTest extends TestCase
         $this->assertFalse($admission->reject('No reason'));
     }
 
-    /** @test */
+    #[Test]
     public function enroll_returns_null_for_non_approved_admission(): void
     {
         $admission = $this->makeAdmission(['status' => Admission::STATUS_SUBMITTED]);
@@ -166,7 +167,7 @@ class AdmissionTest extends TestCase
         $this->assertNull($admission->enroll());
     }
 
-    /** @test */
+    #[Test]
     public function enroll_returns_null_for_already_enrolled_admission(): void
     {
         $admission = $this->makeAdmission(['status' => Admission::STATUS_ENROLLED]);
@@ -174,7 +175,7 @@ class AdmissionTest extends TestCase
         $this->assertNull($admission->enroll());
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_payment_methods_constant(): void
     {
         $this->assertIsArray(Admission::PAYMENT_METHODS);

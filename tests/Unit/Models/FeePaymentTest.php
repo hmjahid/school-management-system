@@ -2,19 +2,20 @@
 
 namespace Tests\Unit\Models;
 
-use App\Models\FeePayment;
 use App\Models\Fee;
+use App\Models\FeePayment;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class FeePaymentTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_generates_sequential_invoice_numbers(): void
     {
         $first = FeePayment::generateInvoiceNumber();
@@ -22,7 +23,7 @@ class FeePaymentTest extends TestCase
         $this->assertEquals('INV-'.date('Ymd').'-0001', $first);
     }
 
-    /** @test */
+    #[Test]
     public function it_auto_generates_invoice_number_on_create(): void
     {
         $student = Student::factory()->create();
@@ -51,7 +52,7 @@ class FeePaymentTest extends TestCase
         $this->assertStringStartsWith('INV-', $feePayment->invoice_number);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_formatted_amount(): void
     {
         $student = Student::factory()->create();
@@ -81,7 +82,7 @@ class FeePaymentTest extends TestCase
         $this->assertEquals('234.56', $feePayment->formatted_balance);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_correct_status_badge(): void
     {
         $student = Student::factory()->create();
@@ -122,7 +123,7 @@ class FeePaymentTest extends TestCase
         $this->assertStringContainsString('badge bg-warning', $pending->status_badge);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_correct_payment_method_label(): void
     {
         $student = Student::factory()->create();
@@ -162,7 +163,7 @@ class FeePaymentTest extends TestCase
         $this->assertEquals('Online Payment', $online->payment_method_label);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_fallback_label_for_unknown_method(): void
     {
         $student = Student::factory()->create();
@@ -190,7 +191,7 @@ class FeePaymentTest extends TestCase
         $this->assertEquals('Crypto currency', $feePayment->payment_method_label);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_statuses_and_methods_arrays(): void
     {
         $statuses = FeePayment::getStatuses();

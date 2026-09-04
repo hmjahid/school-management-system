@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Services\PaymentService;
 use App\Services\RefundService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RefundServiceTest extends TestCase
@@ -47,7 +48,7 @@ class RefundServiceTest extends TestCase
         $this->refundService = new RefundService($this->paymentService);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_initiate_a_refund()
     {
         // Mock the payment service to simulate a successful refund
@@ -71,7 +72,7 @@ class RefundServiceTest extends TestCase
         $this->assertEquals('completed', $result['refund']->status);
     }
 
-    /** @test */
+    #[Test]
     public function it_prevents_refund_for_non_refundable_payment()
     {
         // Create a failed payment
@@ -92,7 +93,7 @@ class RefundServiceTest extends TestCase
         $this->assertEquals('This payment is not eligible for a refund', $result['message']);
     }
 
-    /** @test */
+    #[Test]
     public function it_prevents_refund_amount_exceeding_available_balance()
     {
         $result = $this->refundService->initiateRefund(
@@ -106,7 +107,7 @@ class RefundServiceTest extends TestCase
         $this->assertStringContainsString('Maximum refundable amount is', $result['message']);
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_refund_failures_gracefully()
     {
         // Mock the payment service to simulate a failed refund
@@ -133,7 +134,7 @@ class RefundServiceTest extends TestCase
         $this->assertEquals('failed', $refund->status);
     }
 
-    /** @test */
+    #[Test]
     public function it_calculates_refundable_amount_correctly()
     {
         $this->paymentService->method('processRefund')
@@ -179,7 +180,7 @@ class RefundServiceTest extends TestCase
         $this->assertEquals(0.00, $refundableAmount);
     }
 
-    /** @test */
+    #[Test]
     public function it_cancels_a_pending_refund()
     {
         // Create a pending refund
@@ -201,7 +202,7 @@ class RefundServiceTest extends TestCase
         $this->assertEquals('Customer changed mind', $refund->getMeta('cancellation_reason'));
     }
 
-    /** @test */
+    #[Test]
     public function it_lists_refunds_with_filters()
     {
         // Create test refunds
@@ -243,7 +244,7 @@ class RefundServiceTest extends TestCase
         $this->assertEquals(200.00, $recentRefunds->first()->amount);
     }
 
-    /** @test */
+    #[Test]
     public function it_prevents_double_refunding()
     {
         $this->paymentService->method('processRefund')
@@ -272,7 +273,7 @@ class RefundServiceTest extends TestCase
         $this->assertEquals('This payment is not eligible for a refund', $result['message']);
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_database_rollback_on_failure()
     {
         // Mock the payment service to throw an exception

@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\PaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RocketRefundTest extends TestCase
@@ -96,7 +97,7 @@ class RocketRefundTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_processes_rocket_refund_successfully()
     {
         Http::fake([
@@ -135,7 +136,7 @@ class RocketRefundTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_rocket_refund_failure()
     {
         // Mock Rocket refund failure
@@ -165,7 +166,7 @@ class RocketRefundTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_rocket_webhook_notifications()
     {
         $refund = $this->payment->refunds()->create([
@@ -201,7 +202,7 @@ class RocketRefundTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_concurrent_refund_requests()
     {
         Http::fake([
@@ -242,7 +243,7 @@ class RocketRefundTest extends TestCase
         $this->assertEquals(1, $this->payment->refunds()->count());
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_partial_refunds_correctly()
     {
         Http::fake([

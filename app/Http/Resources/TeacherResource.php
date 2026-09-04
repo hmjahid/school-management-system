@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class TeacherResource extends JsonResource
@@ -78,10 +77,10 @@ class TeacherResource extends JsonResource
             'links' => [
                 'profile' => route('dashboard.teachers.show', $this->id),
                 'edit' => route('dashboard.teachers.edit', $this->id),
-                'attendance' => route('dashboard.teachers.show', $this->id) . '#attendance',
-                'salary' => route('dashboard.teachers.show', $this->id) . '#salary',
-                'subjects' => route('dashboard.teachers.show', $this->id) . '#subjects',
-                'classes' => route('dashboard.teachers.show', $this->id) . '#classes',
+                'attendance' => route('dashboard.teachers.show', $this->id).'#attendance',
+                'salary' => route('dashboard.teachers.show', $this->id).'#salary',
+                'subjects' => route('dashboard.teachers.show', $this->id).'#subjects',
+                'classes' => route('dashboard.teachers.show', $this->id).'#classes',
             ],
         ];
     }

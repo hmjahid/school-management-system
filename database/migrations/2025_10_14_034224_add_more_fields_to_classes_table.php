@@ -35,7 +35,7 @@ return new class extends Migration
                 'max_students',
                 'schedule_days',
                 'start_time',
-                'end_time'
+                'end_time',
             ]);
         });
     }

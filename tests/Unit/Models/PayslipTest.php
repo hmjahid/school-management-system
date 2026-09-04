@@ -6,6 +6,7 @@ use App\Models\Payslip;
 use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class PayslipTest extends TestCase
@@ -35,14 +36,14 @@ class PayslipTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_exposes_status_constants(): void
     {
         $this->assertEquals('draft', Payslip::STATUS_DRAFT);
         $this->assertEquals('paid', Payslip::STATUS_PAID);
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns_and_defaults_status_to_draft(): void
     {
         $payslip = $this->makePayslip();
@@ -57,7 +58,7 @@ class PayslipTest extends TestCase
         $this->assertEquals(20500.0, (float) $payslip->net_salary);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_teacher(): void
     {
         $teacher = $this->makeTeacher();
@@ -67,7 +68,7 @@ class PayslipTest extends TestCase
         $this->assertEquals($teacher->id, $payslip->teacher->id);
     }
 
-    /** @test */
+    #[Test]
     public function month_name_returns_month_label(): void
     {
         $payslip = $this->makePayslip(['month' => 1]);
@@ -75,7 +76,7 @@ class PayslipTest extends TestCase
         $this->assertEquals('January', $payslip->monthName());
     }
 
-    /** @test */
+    #[Test]
     public function mark_paid_sets_status_and_paid_at(): void
     {
         $payslip = $this->makePayslip();

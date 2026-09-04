@@ -191,7 +191,7 @@ class DashboardEventController extends Controller
 
     public function create(): View
     {
-        return view('dashboard.events.create', ['event' => new Event()]);
+        return view('dashboard.events.create', ['event' => new Event]);
     }
 
     public function store(Request $request): RedirectResponse

@@ -5,13 +5,14 @@ namespace Tests\Unit\Models;
 use App\Models\AdmissionSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AdmissionSettingTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function get_settings_returns_singleton_row(): void
     {
         $row = AdmissionSetting::getSettings();
@@ -23,7 +24,7 @@ class AdmissionSettingTest extends TestCase
         $this->assertEquals($row->id, $again->id);
     }
 
-    /** @test */
+    #[Test]
     public function closed_message_default_when_empty(): void
     {
         App::setLocale('en');
@@ -33,7 +34,7 @@ class AdmissionSettingTest extends TestCase
         $this->assertEquals('বর্তমানে ভর্তি কার্যক্রম বন্ধ আছে। অনুগ্রহ করে পরে আবার দেখুন।', AdmissionSetting::getSettings()->closed_message);
     }
 
-    /** @test */
+    #[Test]
     public function closed_message_uses_configured_values(): void
     {
         AdmissionSetting::getSettings();
@@ -49,7 +50,7 @@ class AdmissionSettingTest extends TestCase
         $this->assertEquals('গ্রীষ্মকালীন বন্ধ', AdmissionSetting::getSettings()->closed_message);
     }
 
-    /** @test */
+    #[Test]
     public function notice_returns_configured_notice(): void
     {
         AdmissionSetting::getSettings();
@@ -65,7 +66,7 @@ class AdmissionSettingTest extends TestCase
         $this->assertEquals('তাড়াতাড়ি আবেদন করুন', AdmissionSetting::getSettings()->notice);
     }
 
-    /** @test */
+    #[Test]
     public function payment_instructions_returns_configured_text(): void
     {
         AdmissionSetting::getSettings();

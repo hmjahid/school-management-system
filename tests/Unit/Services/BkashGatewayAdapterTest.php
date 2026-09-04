@@ -10,6 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class BkashGatewayAdapterTest extends TestCase
@@ -54,13 +55,13 @@ class BkashGatewayAdapterTest extends TestCase
         ], $details));
     }
 
-    /** @test */
+    #[Test]
     public function it_implements_gateway_adapter_interface(): void
     {
         $this->assertInstanceOf(GatewayAdapterInterface::class, new BkashGatewayAdapter);
     }
 
-    /** @test */
+    #[Test]
     public function it_initializes_payment_and_stores_payment_id(): void
     {
         Http::fake([
@@ -93,7 +94,7 @@ class BkashGatewayAdapterTest extends TestCase
         $this->assertEquals('mock_id_token', $payment->fresh()->payment_details['bkash_token']);
     }
 
-    /** @test */
+    #[Test]
     public function it_processes_callback_and_completes_payment(): void
     {
         Event::fake();
@@ -124,7 +125,7 @@ class BkashGatewayAdapterTest extends TestCase
         $this->assertEquals('TRX987', $result->fresh()->payment_details['transaction_id']);
     }
 
-    /** @test */
+    #[Test]
     public function it_verifies_payment_status(): void
     {
         Http::fake([
@@ -150,7 +151,7 @@ class BkashGatewayAdapterTest extends TestCase
         $this->assertEquals(Payment::STATUS_COMPLETED, $result->fresh()->payment_status);
     }
 
-    /** @test */
+    #[Test]
     public function it_refunds_successfully(): void
     {
         Http::fake([
@@ -175,7 +176,7 @@ class BkashGatewayAdapterTest extends TestCase
         $this->assertEquals('RREF123', $result['transaction_id']);
     }
 
-    /** @test */
+    #[Test]
     public function it_accepts_a_valid_webhook_signature(): void
     {
         $adapter = new BkashGatewayAdapter;
@@ -191,7 +192,7 @@ class BkashGatewayAdapterTest extends TestCase
         $this->assertTrue($adapter->verifyWebhookSignature($request, $gateway));
     }
 
-    /** @test */
+    #[Test]
     public function it_rejects_a_webhook_with_missing_signature(): void
     {
         $adapter = new BkashGatewayAdapter;
@@ -202,7 +203,7 @@ class BkashGatewayAdapterTest extends TestCase
         $this->assertFalse($adapter->verifyWebhookSignature($request, $gateway));
     }
 
-    /** @test */
+    #[Test]
     public function it_rejects_a_webhook_with_invalid_signature(): void
     {
         $adapter = new BkashGatewayAdapter;

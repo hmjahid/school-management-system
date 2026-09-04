@@ -3,6 +3,7 @@
 namespace Tests\Unit\Support;
 
 use App\Support\CmsPageRegistry;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class CmsPageRegistryTest extends TestCase
@@ -18,7 +19,7 @@ class CmsPageRegistryTest extends TestCase
         ]]);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_all_registered_pages(): void
     {
         $all = CmsPageRegistry::all();
@@ -28,7 +29,7 @@ class CmsPageRegistryTest extends TestCase
         $this->assertArrayHasKey('home', $all);
     }
 
-    /** @test */
+    #[Test]
     public function it_filters_content_pages_only(): void
     {
         $content = CmsPageRegistry::contentPages();
@@ -38,7 +39,7 @@ class CmsPageRegistryTest extends TestCase
         $this->assertArrayNotHasKey('home', $content);
     }
 
-    /** @test */
+    #[Test]
     public function it_builds_label_map(): void
     {
         $labels = CmsPageRegistry::labels();
@@ -47,7 +48,7 @@ class CmsPageRegistryTest extends TestCase
         $this->assertEquals('Contact', $labels['contact']);
     }
 
-    /** @test */
+    #[Test]
     public function it_uses_slugified_title_when_label_missing(): void
     {
         config(['cms_pages' => ['our-history' => ['group' => 'content']]]);
@@ -57,19 +58,19 @@ class CmsPageRegistryTest extends TestCase
         $this->assertEquals('Our history', $labels['our-history']);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_page_definition_by_slug(): void
     {
         $this->assertEquals(['group' => 'content', 'label' => 'About Us'], CmsPageRegistry::get('about'));
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_null_for_unknown_slug(): void
     {
         $this->assertNull(CmsPageRegistry::get('does-not-exist'));
     }
 
-    /** @test */
+    #[Test]
     public function it_reports_existence(): void
     {
         $this->assertTrue(CmsPageRegistry::exists('about'));

@@ -120,7 +120,7 @@ class DashboardCommitteeController extends Controller
 
         activity('committee')
             ->causedBy(Auth::user())
-            ->log('Deleted committee member: ' . $name);
+            ->log('Deleted committee member: '.$name);
 
         return redirect()->route('dashboard.committee.index')->with('status', __('Committee member deleted.'));
     }

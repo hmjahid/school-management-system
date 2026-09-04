@@ -8,6 +8,7 @@ use App\Models\Student;
 use App\Models\User;
 use App\Services\DashboardService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class DashboardServiceTest extends TestCase
@@ -25,7 +26,7 @@ class DashboardServiceTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function get_dashboard_data_returns_expected_structure(): void
     {
         $data = app(DashboardService::class)->getDashboardData();
@@ -41,7 +42,7 @@ class DashboardServiceTest extends TestCase
         $this->assertArrayHasKey('widget_config', $data);
     }
 
-    /** @test */
+    #[Test]
     public function get_dashboard_data_is_cached(): void
     {
         $service = app(DashboardService::class);
@@ -53,7 +54,7 @@ class DashboardServiceTest extends TestCase
         $this->assertEquals($first['totals'], $second['totals']);
     }
 
-    /** @test */
+    #[Test]
     public function attendance_stats_counts_today_breakdown(): void
     {
         $this->makeAttendance(Attendance::STATUS_PRESENT);
@@ -69,7 +70,7 @@ class DashboardServiceTest extends TestCase
         $this->assertEquals(round((2 / 3) * 100, 1), $stats['today_rate']);
     }
 
-    /** @test */
+    #[Test]
     public function attendance_stats_empty_day_returns_zero_rate(): void
     {
         $stats = app(DashboardService::class)->attendanceStats();
@@ -79,7 +80,7 @@ class DashboardServiceTest extends TestCase
         $this->assertEquals([], $stats['trend']);
     }
 
-    /** @test */
+    #[Test]
     public function totals_count_models_in_database(): void
     {
         Student::factory()->times(3)->create();

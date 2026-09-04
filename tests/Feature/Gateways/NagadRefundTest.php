@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\PaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class NagadRefundTest extends TestCase
@@ -81,7 +82,7 @@ class NagadRefundTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_processes_nagad_refund_successfully()
     {
         Http::fake([
@@ -121,7 +122,7 @@ class NagadRefundTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_nagad_refund_failure()
     {
         // Mock Nagad refund failure
@@ -151,7 +152,7 @@ class NagadRefundTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_nagad_webhook_notifications()
     {
         $refund = $this->payment->refunds()->create([
@@ -193,7 +194,7 @@ class NagadRefundTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_race_conditions()
     {
         Http::fake([

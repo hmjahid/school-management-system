@@ -5,17 +5,18 @@ namespace Tests\Unit\Models;
 use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class PermissionTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_required_columns(): void
     {
         $permission = Permission::create([
-            'name' => 'edit-reports-' . uniqid(),
+            'name' => 'edit-reports-'.uniqid(),
             'guard_name' => 'web',
         ]);
 
@@ -26,15 +27,15 @@ class PermissionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function is_assigned_to_role_detects_membership(): void
     {
         $permission = Permission::create([
-            'name' => 'view-dashboard-' . uniqid(),
+            'name' => 'view-dashboard-'.uniqid(),
             'guard_name' => 'web',
         ]);
         $role = Role::create([
-            'name' => 'manager-' . uniqid(),
+            'name' => 'manager-'.uniqid(),
             'guard_name' => 'web',
         ]);
 
@@ -46,15 +47,15 @@ class PermissionTest extends TestCase
         $this->assertTrue($role->hasPermissionTo($permission->name));
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_many_roles(): void
     {
         $permission = Permission::create([
-            'name' => 'delete-posts-' . uniqid(),
+            'name' => 'delete-posts-'.uniqid(),
             'guard_name' => 'web',
         ]);
         $role = Role::create([
-            'name' => 'admin-' . uniqid(),
+            'name' => 'admin-'.uniqid(),
             'guard_name' => 'web',
         ]);
 

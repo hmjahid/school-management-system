@@ -4,13 +4,14 @@ namespace Tests\Unit\Models;
 
 use App\Models\WebsiteDocument;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class WebsiteDocumentTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_required_columns(): void
     {
         $doc = WebsiteDocument::create([
@@ -32,7 +33,7 @@ class WebsiteDocumentTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_is_published_and_file_size(): void
     {
         $doc = WebsiteDocument::create([
@@ -46,7 +47,7 @@ class WebsiteDocumentTest extends TestCase
         $this->assertSame(4096, $doc->file_size);
     }
 
-    /** @test */
+    #[Test]
     public function it_defaults_is_published_to_true(): void
     {
         $doc = WebsiteDocument::create([

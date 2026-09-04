@@ -10,6 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RocketGatewayAdapterTest extends TestCase
@@ -54,13 +55,13 @@ class RocketGatewayAdapterTest extends TestCase
         ], $details));
     }
 
-    /** @test */
+    #[Test]
     public function it_implements_gateway_adapter_interface(): void
     {
         $this->assertInstanceOf(GatewayAdapterInterface::class, new RocketGatewayAdapter);
     }
 
-    /** @test */
+    #[Test]
     public function it_initializes_payment_without_http(): void
     {
         $adapter = new RocketGatewayAdapter;
@@ -75,7 +76,7 @@ class RocketGatewayAdapterTest extends TestCase
         $this->assertNotEmpty($payment->fresh()->payment_details['rocket_transaction_id']);
     }
 
-    /** @test */
+    #[Test]
     public function process_callback_throws_exception(): void
     {
         $this->expectException(\Exception::class);
@@ -87,7 +88,7 @@ class RocketGatewayAdapterTest extends TestCase
         $adapter->processCallback(['foo' => 'bar'], $gateway);
     }
 
-    /** @test */
+    #[Test]
     public function it_verifies_payment_and_marks_completed(): void
     {
         Event::fake();
@@ -102,7 +103,7 @@ class RocketGatewayAdapterTest extends TestCase
         $this->assertEquals(0, $result->fresh()->due_amount);
     }
 
-    /** @test */
+    #[Test]
     public function it_refunds_successfully(): void
     {
         Http::fake([
@@ -126,7 +127,7 @@ class RocketGatewayAdapterTest extends TestCase
         $this->assertEquals('RKTREF123', $result['transaction_id']);
     }
 
-    /** @test */
+    #[Test]
     public function it_accepts_a_valid_webhook_signature(): void
     {
         $adapter = new RocketGatewayAdapter;
@@ -142,7 +143,7 @@ class RocketGatewayAdapterTest extends TestCase
         $this->assertTrue($adapter->verifyWebhookSignature($request, $gateway));
     }
 
-    /** @test */
+    #[Test]
     public function it_rejects_a_webhook_with_missing_signature(): void
     {
         $adapter = new RocketGatewayAdapter;
@@ -153,7 +154,7 @@ class RocketGatewayAdapterTest extends TestCase
         $this->assertFalse($adapter->verifyWebhookSignature($request, $gateway));
     }
 
-    /** @test */
+    #[Test]
     public function it_rejects_a_webhook_with_invalid_signature(): void
     {
         $adapter = new RocketGatewayAdapter;

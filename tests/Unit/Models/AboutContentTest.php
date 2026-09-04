@@ -4,13 +4,14 @@ namespace Tests\Unit\Models;
 
 use App\Models\AboutContent;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AboutContentTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_required_columns(): void
     {
         $about = AboutContent::create([
@@ -31,7 +32,7 @@ class AboutContentTest extends TestCase
         $this->assertEquals(2000, $about->established_year);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_json_columns_to_arrays(): void
     {
         $about = AboutContent::create([
@@ -52,7 +53,7 @@ class AboutContentTest extends TestCase
         $this->assertSame(['twitter' => 'tw.com'], $about->social_links);
     }
 
-    /** @test */
+    #[Test]
     public function it_exposes_logo_url_accessor(): void
     {
         $about = AboutContent::create([
@@ -68,7 +69,7 @@ class AboutContentTest extends TestCase
         $this->assertStringContainsString('storage/logos/logo.png', $about->logo_url);
     }
 
-    /** @test */
+    #[Test]
     public function logo_url_is_null_without_path(): void
     {
         $about = AboutContent::create([
@@ -84,7 +85,7 @@ class AboutContentTest extends TestCase
         $this->assertNull($about->favicon_url);
     }
 
-    /** @test */
+    #[Test]
     public function get_content_returns_existing_record(): void
     {
         $about = AboutContent::create([
@@ -103,7 +104,7 @@ class AboutContentTest extends TestCase
         $this->assertEquals('Stored School', $fetched->school_name);
     }
 
-    /** @test */
+    #[Test]
     public function get_content_returns_new_instance_when_empty(): void
     {
         $fetched = AboutContent::getContent();

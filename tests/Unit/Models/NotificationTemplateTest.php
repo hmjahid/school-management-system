@@ -4,6 +4,7 @@ namespace Tests\Unit\Models;
 
 use App\Models\NotificationTemplate;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class NotificationTemplateTest extends TestCase
@@ -14,7 +15,7 @@ class NotificationTemplateTest extends TestCase
     {
         return NotificationTemplate::create(array_merge([
             'name' => 'Test Template',
-            'key' => 'test_' . uniqid(),
+            'key' => 'test_'.uniqid(),
             'subject' => 'Hello {{ $name }}',
             'content' => 'Dear {{ $name }}, welcome.',
             'sms_content' => 'Hi {{ $name }}',
@@ -24,7 +25,7 @@ class NotificationTemplateTest extends TestCase
         ], $attributes));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_required_columns_and_casts(): void
     {
         $template = $this->makeTemplate();
@@ -37,7 +38,7 @@ class NotificationTemplateTest extends TestCase
         $this->assertIsBool($template->is_active);
     }
 
-    /** @test */
+    #[Test]
     public function it_renders_content_for_a_channel_with_data(): void
     {
         $template = $this->makeTemplate();
@@ -47,7 +48,7 @@ class NotificationTemplateTest extends TestCase
         $this->assertEquals('Dear Asha, welcome.', $rendered);
     }
 
-    /** @test */
+    #[Test]
     public function it_renders_subject_with_data(): void
     {
         $template = $this->makeTemplate(['subject' => 'Hi {{ $name }}']);
@@ -55,17 +56,17 @@ class NotificationTemplateTest extends TestCase
         $this->assertEquals('Hi Asha', $template->getRenderedSubject(['name' => 'Asha']));
     }
 
-    /** @test */
+    #[Test]
     public function get_by_key_returns_active_template(): void
     {
-        $template = $this->makeTemplate(['key' => 'lookup_' . uniqid()]);
+        $template = $this->makeTemplate(['key' => 'lookup_'.uniqid()]);
 
         $found = NotificationTemplate::getByKey($template->key);
         $this->assertNotNull($found);
         $this->assertEquals($template->id, $found->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_reports_validity_per_channel(): void
     {
         $template = $this->makeTemplate();
@@ -75,7 +76,7 @@ class NotificationTemplateTest extends TestCase
         $this->assertFalse($template->isValidForChannel('unknown'));
     }
 
-    /** @test */
+    #[Test]
     public function it_lists_available_variables_including_custom(): void
     {
         $template = $this->makeTemplate();

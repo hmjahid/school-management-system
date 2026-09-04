@@ -6,6 +6,7 @@ use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class StudentTest extends TestCase
@@ -32,7 +33,7 @@ class StudentTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_builds_full_address_from_parts(): void
     {
         $student = $this->makeStudent();
@@ -40,7 +41,7 @@ class StudentTest extends TestCase
         $this->assertEquals('12 Main St, Dhaka, Dhaka, 1207, Bangladesh', $student->full_address);
     }
 
-    /** @test */
+    #[Test]
     public function full_address_omits_empty_parts(): void
     {
         $student = $this->makeStudent([
@@ -54,7 +55,7 @@ class StudentTest extends TestCase
         $this->assertEquals('Only Street, Bangladesh', $student->full_address);
     }
 
-    /** @test */
+    #[Test]
     public function status_badge_returns_proper_color(): void
     {
         $this->assertStringContainsString('badge bg-success', $this->makeStudent(['status' => 'active'])->status_badge);
@@ -63,7 +64,7 @@ class StudentTest extends TestCase
         $this->assertStringContainsString('badge bg-warning', $this->makeStudent(['status' => 'transferred'])->status_badge);
     }
 
-    /** @test */
+    #[Test]
     public function factory_creates_a_valid_student(): void
     {
         $student = Student::factory()->create();

@@ -18,16 +18,19 @@ class FeePaymentResource extends JsonResource
             'id' => $this->id,
             'invoice_number' => $this->invoice_number,
             'student_id' => $this->student_id,
-            'student_name' => $this->whenLoaded('student', fn() => $this->student->name),
-            'student_admission_number' => $this->whenLoaded('student', fn() => $this->student->admission_number ?? null),
-            'class_name' => $this->whenLoaded('student.schoolClass', fn() => $this->student->schoolClass->name ?? null),
-            'section_name' => $this->whenLoaded('student.section', fn() => $this->student->section->name ?? null),
+            'student_name' => $this->whenLoaded('student', fn () => $this->student->name),
+            'student_admission_number' => $this->whenLoaded('student', fn () => $this->student->admission_number ?? null),
+            'class_name' => $this->whenLoaded('student.schoolClass', fn () => $this->student->schoolClass->name ?? null),
+            'section_name' => $this->whenLoaded('student.section', fn () => $this->student->section->name ?? null),
             'fee_id' => $this->fee_id,
-            'fee_name' => $this->whenLoaded('fee', fn() => $this->fee->name ?? null),
-            'fee_type' => $this->whenLoaded('fee', fn() => $this->fee->fee_type ?? null),
-            'fee_type_label' => $this->whenLoaded('fee', function() {
-                if (!$this->fee) return null;
+            'fee_name' => $this->whenLoaded('fee', fn () => $this->fee->name ?? null),
+            'fee_type' => $this->whenLoaded('fee', fn () => $this->fee->fee_type ?? null),
+            'fee_type_label' => $this->whenLoaded('fee', function () {
+                if (! $this->fee) {
+                    return null;
+                }
                 $types = \App\Models\Fee::getFeeTypes();
+
                 return $types[$this->fee->fee_type] ?? $this->fee->fee_type;
             }),
             'amount' => (float) $this->amount,
@@ -54,9 +57,9 @@ class FeePaymentResource extends JsonResource
             'notes' => $this->notes,
             'metadata' => $this->metadata,
             'created_by' => $this->created_by,
-            'created_by_name' => $this->whenLoaded('creator', fn() => $this->creator->name ?? null),
+            'created_by_name' => $this->whenLoaded('creator', fn () => $this->creator->name ?? null),
             'approved_by' => $this->approved_by,
-            'approved_by_name' => $this->whenLoaded('approver', fn() => $this->approver->name ?? null),
+            'approved_by_name' => $this->whenLoaded('approver', fn () => $this->approver->name ?? null),
             'approved_at' => $this->approved_at?->format('Y-m-d H:i:s'),
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),

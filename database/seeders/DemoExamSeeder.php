@@ -2,13 +2,12 @@
 
 namespace Database\Seeders;
 
-use App\Models\Exam;
-use App\Models\ExamResult;
 use App\Models\AcademicSession;
 use App\Models\Batch;
-use App\Models\Section;
-use App\Models\Subject;
+use App\Models\Exam;
+use App\Models\ExamResult;
 use App\Models\Student;
+use App\Models\Subject;
 use Illuminate\Database\Seeder;
 
 class DemoExamSeeder extends Seeder
@@ -29,13 +28,13 @@ class DemoExamSeeder extends Seeder
                         $exam = Exam::create([
                             'batch_id' => $batch->id,
                             'academic_session_id' => $session->id,
-                            'name' => $type . ' - ' . $subject->name,
+                            'name' => $type.' - '.$subject->name,
                             'type' => strtolower(str_replace(' ', '_', $type)),
                             'start_date' => now()->subMonths(rand(0, 6))->format('Y-m-d'),
                             'end_date' => now()->subMonths(rand(0, 6))->addDays(rand(1, 3))->format('Y-m-d'),
                             'total_marks' => $totalMarks[$idx],
-                            'passing_marks' => (int)($totalMarks[$idx] * 0.4),
-                            'description' => $type . ' examination for ' . $subject->name,
+                            'passing_marks' => (int) ($totalMarks[$idx] * 0.4),
+                            'description' => $type.' examination for '.$subject->name,
                             'status' => 'completed',
                         ]);
 
@@ -61,12 +60,25 @@ class DemoExamSeeder extends Seeder
     private function calculateGrade($marks, $total): string
     {
         $pct = ($marks / $total) * 100;
-        if ($pct >= 80) return 'A+';
-        if ($pct >= 70) return 'A';
-        if ($pct >= 60) return 'A-';
-        if ($pct >= 50) return 'B';
-        if ($pct >= 40) return 'C';
-        if ($pct >= 33) return 'D';
+        if ($pct >= 80) {
+            return 'A+';
+        }
+        if ($pct >= 70) {
+            return 'A';
+        }
+        if ($pct >= 60) {
+            return 'A-';
+        }
+        if ($pct >= 50) {
+            return 'B';
+        }
+        if ($pct >= 40) {
+            return 'C';
+        }
+        if ($pct >= 33) {
+            return 'D';
+        }
+
         return 'F';
     }
 }

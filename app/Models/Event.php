@@ -79,7 +79,7 @@ class Event extends Model
      */
     public function isRegistrationOpen(): bool
     {
-        if (!$this->registration_deadline) {
+        if (! $this->registration_deadline) {
             return true;
         }
 
@@ -91,7 +91,7 @@ class Event extends Model
      */
     public function isFull(): bool
     {
-        if (!$this->max_attendees) {
+        if (! $this->max_attendees) {
             return false;
         }
 

@@ -5,6 +5,7 @@ namespace Tests\Unit\Models;
 use App\Models\TransportRoute;
 use App\Models\TransportStop;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class TransportStopTest extends TestCase
@@ -13,10 +14,10 @@ class TransportStopTest extends TestCase
 
     private function makeRoute(): TransportRoute
     {
-        return TransportRoute::create(['name' => 'Stop Route', 'code' => 'CODE' . uniqid()]);
+        return TransportRoute::create(['name' => 'Stop Route', 'code' => 'CODE'.uniqid()]);
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $route = $this->makeRoute();
@@ -36,7 +37,7 @@ class TransportStopTest extends TestCase
         $this->assertEquals(3, $stop->sort);
     }
 
-    /** @test */
+    #[Test]
     public function it_defaults_sort_to_zero_and_times_are_nullable(): void
     {
         $route = $this->makeRoute();
@@ -47,7 +48,7 @@ class TransportStopTest extends TestCase
         $this->assertNull($stop->drop_time);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_route(): void
     {
         $route = $this->makeRoute();
@@ -57,7 +58,7 @@ class TransportStopTest extends TestCase
         $this->assertEquals($route->id, $stop->route->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_formats_time_casts(): void
     {
         $route = $this->makeRoute();

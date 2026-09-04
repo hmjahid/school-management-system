@@ -6,6 +6,7 @@ use App\Models\SalaryStructure;
 use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class SalaryStructureTest extends TestCase
@@ -38,7 +39,7 @@ class SalaryStructureTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns_and_defaults(): void
     {
         $structure = $this->makeStructure();
@@ -51,7 +52,7 @@ class SalaryStructureTest extends TestCase
         $this->assertTrue($structure->is_active);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_effective_from_to_date_and_arrays(): void
     {
         $date = now()->startOfYear()->startOfDay();
@@ -69,7 +70,7 @@ class SalaryStructureTest extends TestCase
         $this->assertIsArray($structure->deductions);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_teacher(): void
     {
         $teacher = $this->makeTeacher();
@@ -79,7 +80,7 @@ class SalaryStructureTest extends TestCase
         $this->assertEquals($teacher->id, $structure->teacher->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_sums_total_allowances(): void
     {
         $structure = $this->makeStructure();
@@ -87,7 +88,7 @@ class SalaryStructureTest extends TestCase
         $this->assertEquals(4000.0, $structure->totalAllowances());
     }
 
-    /** @test */
+    #[Test]
     public function it_sums_total_deductions(): void
     {
         $structure = $this->makeStructure();
@@ -95,7 +96,7 @@ class SalaryStructureTest extends TestCase
         $this->assertEquals(2000.0, $structure->totalDeductions());
     }
 
-    /** @test */
+    #[Test]
     public function gross_is_basic_plus_allowances(): void
     {
         $structure = $this->makeStructure();
@@ -103,7 +104,7 @@ class SalaryStructureTest extends TestCase
         $this->assertEquals(29000.0, $structure->gross());
     }
 
-    /** @test */
+    #[Test]
     public function net_is_gross_minus_deductions(): void
     {
         $structure = $this->makeStructure();
@@ -111,7 +112,7 @@ class SalaryStructureTest extends TestCase
         $this->assertEquals(27000.0, $structure->net());
     }
 
-    /** @test */
+    #[Test]
     public function totals_are_zero_when_allowances_and_deductions_null(): void
     {
         $structure = SalaryStructure::create([

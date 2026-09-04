@@ -6,13 +6,14 @@ use App\Models\Exam;
 use App\Models\ExamResult;
 use App\Models\Student;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ExamTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_returns_correct_status_badge_html(): void
     {
         $exam = Exam::create([
@@ -26,7 +27,7 @@ class ExamTest extends TestCase
         $this->assertStringContainsString('Draft', $exam->status_badge);
     }
 
-    /** @test */
+    #[Test]
     public function it_detects_upcoming_status(): void
     {
         $exam = Exam::create([
@@ -39,7 +40,7 @@ class ExamTest extends TestCase
         $this->assertTrue($exam->is_upcoming);
     }
 
-    /** @test */
+    #[Test]
     public function it_detects_ongoing_status(): void
     {
         $exam = Exam::create([
@@ -52,7 +53,7 @@ class ExamTest extends TestCase
         $this->assertTrue($exam->is_ongoing);
     }
 
-    /** @test */
+    #[Test]
     public function it_detects_ongoing_by_dates_even_without_status(): void
     {
         $exam = Exam::create([
@@ -65,7 +66,7 @@ class ExamTest extends TestCase
         $this->assertTrue($exam->is_ongoing);
     }
 
-    /** @test */
+    #[Test]
     public function it_detects_completed_status(): void
     {
         $exam = Exam::create([
@@ -78,7 +79,7 @@ class ExamTest extends TestCase
         $this->assertTrue($exam->is_completed);
     }
 
-    /** @test */
+    #[Test]
     public function it_detects_completed_by_past_end_date(): void
     {
         $exam = Exam::create([
@@ -91,7 +92,7 @@ class ExamTest extends TestCase
         $this->assertTrue($exam->is_completed);
     }
 
-    /** @test */
+    #[Test]
     public function is_fully_published_requires_both_status_and_flag(): void
     {
         $notPublished = Exam::create([
@@ -123,7 +124,7 @@ class ExamTest extends TestCase
         $this->assertTrue($both->isFullyPublished());
     }
 
-    /** @test */
+    #[Test]
     public function it_formats_duration_correctly(): void
     {
         $noDuration = Exam::create(['name' => 'No Duration', 'duration' => null]);
@@ -139,7 +140,7 @@ class ExamTest extends TestCase
         $this->assertEquals('1 hour 30 minutes', $both->duration_formatted);
     }
 
-    /** @test */
+    #[Test]
     public function it_calculates_grade_using_default_scale(): void
     {
         $exam = Exam::create([
@@ -160,7 +161,7 @@ class ExamTest extends TestCase
         $this->assertEquals(0.0, $fail['points']);
     }
 
-    /** @test */
+    #[Test]
     public function it_calculates_grade_using_custom_scale(): void
     {
         $customScale = [
@@ -181,7 +182,7 @@ class ExamTest extends TestCase
         $this->assertEquals('U', $unsatisfactory['grade']);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_default_fail_when_no_grade_matches(): void
     {
         $exam = Exam::create([
@@ -196,7 +197,7 @@ class ExamTest extends TestCase
         $this->assertEquals(0.0, $result['points']);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_zeroed_statistics_when_no_results(): void
     {
         $exam = Exam::create([
@@ -214,7 +215,7 @@ class ExamTest extends TestCase
         $this->assertEquals([], $stats['grade_distribution']);
     }
 
-    /** @test */
+    #[Test]
     public function it_calculates_statistics_with_results(): void
     {
         $exam = Exam::create([
@@ -259,7 +260,7 @@ class ExamTest extends TestCase
         $this->assertEquals(50.0, $stats['pass_rate']);
     }
 
-    /** @test */
+    #[Test]
     public function it_checks_if_student_has_taken_exam(): void
     {
         $exam = Exam::create([
@@ -282,7 +283,7 @@ class ExamTest extends TestCase
         $this->assertTrue($exam->hasStudentTakenExam($student->id));
     }
 
-    /** @test */
+    #[Test]
     public function scope_published_filters_correctly(): void
     {
         Exam::create(['name' => 'Not Published', 'status' => Exam::STATUS_PUBLISHED, 'is_published' => false]);
@@ -295,7 +296,7 @@ class ExamTest extends TestCase
         $this->assertEquals('Published', $published->first()->name);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_type_and_status_arrays(): void
     {
         $types = Exam::getTypes();

@@ -14,6 +14,7 @@ class DashboardBookCategoryController extends Controller
     {
         $this->authorize('manage_books');
         $categories = BookCategory::withCount('books')->orderBy('name')->get();
+
         return view('dashboard.library.categories.index', compact('categories'));
     }
 
@@ -25,6 +26,7 @@ class DashboardBookCategoryController extends Controller
             'description' => 'nullable|string|max:1000',
         ]);
         BookCategory::create($validated);
+
         return redirect()->route('dashboard.library.categories.index')->with('status', __('dashboard.category_created'));
     }
 
@@ -32,10 +34,11 @@ class DashboardBookCategoryController extends Controller
     {
         $this->authorize('manage_books');
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:book_categories,name,' . $category->id,
+            'name' => 'required|string|max:255|unique:book_categories,name,'.$category->id,
             'description' => 'nullable|string|max:1000',
         ]);
         $category->update($validated);
+
         return redirect()->route('dashboard.library.categories.index')->with('status', __('dashboard.category_updated'));
     }
 
@@ -46,6 +49,7 @@ class DashboardBookCategoryController extends Controller
             return back()->with('error', __('Cannot delete category with assigned books.'));
         }
         $category->delete();
+
         return redirect()->route('dashboard.library.categories.index')->with('status', __('dashboard.category_deleted'));
     }
 }

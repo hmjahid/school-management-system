@@ -7,13 +7,14 @@ use App\Models\ExamResult;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ExamResultTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_returns_correct_status_badge_class(): void
     {
         $exam = Exam::create(['name' => 'Test', 'total_marks' => 100, 'passing_marks' => 40]);
@@ -41,7 +42,7 @@ class ExamResultTest extends TestCase
         $this->assertEquals('bg-red-100 text-red-800', $failed->status_badge);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_correct_status_label(): void
     {
         $exam = Exam::create(['name' => 'Test', 'total_marks' => 100, 'passing_marks' => 40]);
@@ -56,7 +57,7 @@ class ExamResultTest extends TestCase
         $this->assertEquals('Passed', $result->status_label);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_unknown_label_for_invalid_status(): void
     {
         $exam = Exam::create(['name' => 'Test', 'total_marks' => 100, 'passing_marks' => 40]);
@@ -71,7 +72,7 @@ class ExamResultTest extends TestCase
         $this->assertEquals('Unknown', $result->status_label);
     }
 
-    /** @test */
+    #[Test]
     public function it_calculates_passed_status_from_marks(): void
     {
         $exam = Exam::create(['name' => 'Test', 'total_marks' => 100, 'passing_marks' => 40]);
@@ -87,7 +88,7 @@ class ExamResultTest extends TestCase
         $this->assertEquals(ExamResult::STATUS_PASSED, $result->calculateStatus());
     }
 
-    /** @test */
+    #[Test]
     public function it_calculates_failed_status_from_marks(): void
     {
         $exam = Exam::create(['name' => 'Test', 'total_marks' => 100, 'passing_marks' => 40]);
@@ -103,7 +104,7 @@ class ExamResultTest extends TestCase
         $this->assertEquals(ExamResult::STATUS_FAILED, $result->calculateStatus());
     }
 
-    /** @test */
+    #[Test]
     public function it_preserves_absent_status_during_calculation(): void
     {
         $exam = Exam::create(['name' => 'Test', 'total_marks' => 100, 'passing_marks' => 40]);
@@ -119,7 +120,7 @@ class ExamResultTest extends TestCase
         $this->assertEquals(ExamResult::STATUS_ABSENT, $result->calculateStatus());
     }
 
-    /** @test */
+    #[Test]
     public function it_preserves_malpractice_status_during_calculation(): void
     {
         $exam = Exam::create(['name' => 'Test', 'total_marks' => 100, 'passing_marks' => 40]);
@@ -135,7 +136,7 @@ class ExamResultTest extends TestCase
         $this->assertEquals(ExamResult::STATUS_MALPRACTICE, $result->calculateStatus());
     }
 
-    /** @test */
+    #[Test]
     public function it_publishes_result(): void
     {
         $exam = Exam::create(['name' => 'Test', 'total_marks' => 100, 'passing_marks' => 40]);
@@ -158,7 +159,7 @@ class ExamResultTest extends TestCase
         $this->assertEquals('Published after review', $result->publish_remarks);
     }
 
-    /** @test */
+    #[Test]
     public function it_unpublishes_result(): void
     {
         $exam = Exam::create(['name' => 'Test', 'total_marks' => 100, 'passing_marks' => 40]);
@@ -186,7 +187,7 @@ class ExamResultTest extends TestCase
         $this->assertNotNull($result->unpublished_at);
     }
 
-    /** @test */
+    #[Test]
     public function scope_published_filters_published_results(): void
     {
         $exam = Exam::create(['name' => 'Test', 'total_marks' => 100, 'passing_marks' => 40]);
@@ -212,7 +213,7 @@ class ExamResultTest extends TestCase
         $this->assertCount(1, $published);
     }
 
-    /** @test */
+    #[Test]
     public function scope_passed_filters_correctly(): void
     {
         $exam = Exam::create(['name' => 'Test', 'total_marks' => 100, 'passing_marks' => 40]);

@@ -16,7 +16,7 @@ class CreateAdmissionDocumentsTable extends Migration
         Schema::create('admission_documents', function (Blueprint $table) {
             $table->id();
             $table->foreignId('admission_id')->constrained()->onDelete('cascade');
-            
+
             // Document Information
             $table->enum('type', [
                 'transfer_certificate',
@@ -25,24 +25,24 @@ class CreateAdmissionDocumentsTable extends Migration
                 'mark_sheet',
                 'character_certificate',
                 'migration_certificate',
-                'other'
+                'other',
             ]);
-            
+
             $table->string('name');
             $table->string('file_path');
             $table->string('file_type');
             $table->integer('file_size'); // in bytes
             $table->text('description')->nullable();
-            
+
             // Review Information
             $table->boolean('is_approved')->default(false);
             $table->text('review_notes')->nullable();
             $table->foreignId('reviewed_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamp('reviewed_at')->nullable();
-            
+
             // Timestamps
             $table->timestamps();
-            
+
             // Indexes
             $table->index(['admission_id', 'type', 'is_approved']);
         });

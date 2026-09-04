@@ -7,6 +7,7 @@ use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class PaymentControllerTest extends TestCase
@@ -44,7 +45,7 @@ class PaymentControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function unauthenticated_user_cannot_access_protected_endpoints()
     {
         $response = $this->getJson('/api/v1/payments');
@@ -54,7 +55,7 @@ class PaymentControllerTest extends TestCase
         $response->assertStatus(401);
     }
 
-    /** @test */
+    #[Test]
     public function user_can_list_own_payments()
     {
         $response = $this->actingAs($this->regularUser)
@@ -77,7 +78,7 @@ class PaymentControllerTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_view_any_payment()
     {
         $response = $this->actingAs($this->adminUser)
@@ -92,7 +93,7 @@ class PaymentControllerTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function user_can_initiate_payment()
     {
         Http::fake([
@@ -122,7 +123,7 @@ class PaymentControllerTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_payment_initiation()
     {
         $response = $this->actingAs($this->regularUser)
@@ -136,7 +137,7 @@ class PaymentControllerTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function user_can_check_payment_status()
     {
         Http::fake([
@@ -161,7 +162,7 @@ class PaymentControllerTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_update_payment_status()
     {
         $this->payment->update(['payment_status' => Payment::STATUS_PENDING]);
@@ -185,7 +186,7 @@ class PaymentControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_record_offline_payment()
     {
         $response = $this->actingAs($this->adminUser)
@@ -212,7 +213,7 @@ class PaymentControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_export_payments()
     {
         $response = $this->actingAs($this->adminUser)

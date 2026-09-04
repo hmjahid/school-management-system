@@ -6,6 +6,7 @@ use App\Models\Payment;
 use App\Models\RecurringPaymentProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RecurringPaymentProfileTest extends TestCase
@@ -40,13 +41,13 @@ class RecurringPaymentProfileTest extends TestCase
         return $profile;
     }
 
-    /** @test */
+    #[Test]
     public function generate_profile_id_has_rpp_prefix(): void
     {
         $this->assertStringStartsWith('RPP', RecurringPaymentProfile::generateProfileId());
     }
 
-    /** @test */
+    #[Test]
     public function profile_id_is_auto_generated_on_create(): void
     {
         $profile = $this->makeProfile();
@@ -54,7 +55,7 @@ class RecurringPaymentProfileTest extends TestCase
         $this->assertStringStartsWith('RPP', $profile->profile_id);
     }
 
-    /** @test */
+    #[Test]
     public function is_active_considers_status_date_and_end_date(): void
     {
         $this->assertTrue($this->makeProfile([
@@ -80,7 +81,7 @@ class RecurringPaymentProfileTest extends TestCase
         $this->assertFalse($this->makeProfile(['status' => 'suspended'])->isActive());
     }
 
-    /** @test */
+    #[Test]
     public function calculate_next_billing_date_advances_period(): void
     {
         $profile = $this->makeProfile([
@@ -99,7 +100,7 @@ class RecurringPaymentProfileTest extends TestCase
         $this->assertEquals(now()->startOfWeek()->addWeeks(2), $weekly->calculateNextBillingDate());
     }
 
-    /** @test */
+    #[Test]
     public function record_successful_payment_creates_payment_and_resets_failures(): void
     {
         $profile = $this->makeProfile(['failure_count' => 2, 'next_billing_date' => now()->subDay()]);
@@ -115,7 +116,7 @@ class RecurringPaymentProfileTest extends TestCase
         $this->assertEquals(now()->subDay()->addMonth()->toDateString(), $profile->next_billing_date->toDateString());
     }
 
-    /** @test */
+    #[Test]
     public function record_failed_payment_increments_and_suspends_at_limit(): void
     {
         $profile = $this->makeProfile(['max_failures' => 3, 'failure_count' => 0]);
@@ -133,20 +134,20 @@ class RecurringPaymentProfileTest extends TestCase
         $this->assertNotNull($profile->metadata['suspension_reason'] ?? null);
     }
 
-    /** @test */
+    #[Test]
     public function billing_period_name_reflects_frequency(): void
     {
         $this->assertEquals('Monthly', $this->makeProfile(['billing_period' => 'month', 'billing_frequency' => 1])->billing_period_name);
         $this->assertEquals('Every 3 months', $this->makeProfile(['billing_period' => 'month', 'billing_frequency' => 3])->billing_period_name);
     }
 
-    /** @test */
+    #[Test]
     public function formatted_amount_includes_currency(): void
     {
         $this->assertEquals('500.00 BDT', $this->makeProfile(['amount' => 500.00, 'currency' => 'BDT'])->formatted_amount);
     }
 
-    /** @test */
+    #[Test]
     public function scope_active_filters_due_active_profiles(): void
     {
         $this->makeProfile(['status' => 'active', 'next_billing_date' => now()->subDay()]);

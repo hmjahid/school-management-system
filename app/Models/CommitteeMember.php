@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 class CommitteeMember extends Model
 {
@@ -31,7 +30,7 @@ class CommitteeMember extends Model
 
     public function getPhotoUrlAttribute(): ?string
     {
-        return $this->photo ? url('storage/' . ltrim($this->photo, '/')) : null;
+        return $this->photo ? url('storage/'.ltrim($this->photo, '/')) : null;
     }
 
     public function localizedName(?string $locale = null): string

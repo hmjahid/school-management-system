@@ -5,6 +5,7 @@ namespace Tests\Unit\Models;
 use App\Models\WebsiteSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class WebsiteSettingTest extends TestCase
@@ -26,7 +27,7 @@ class WebsiteSettingTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_required_columns(): void
     {
         $setting = $this->makeSetting();
@@ -39,7 +40,7 @@ class WebsiteSettingTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function its_localized_school_name_returns_english_by_default(): void
     {
         $setting = $this->makeSetting([
@@ -50,7 +51,7 @@ class WebsiteSettingTest extends TestCase
         $this->assertEquals('Greenfield School', $setting->localized_school_name);
     }
 
-    /** @test */
+    #[Test]
     public function its_localized_school_name_returns_bengali_when_locale_is_bn(): void
     {
         $setting = $this->makeSetting([
@@ -63,7 +64,7 @@ class WebsiteSettingTest extends TestCase
         App::setLocale('en');
     }
 
-    /** @test */
+    #[Test]
     public function its_localized_tagline_falls_back_to_english_when_bengali_empty(): void
     {
         $setting = $this->makeSetting([
@@ -76,7 +77,7 @@ class WebsiteSettingTest extends TestCase
         App::setLocale('en');
     }
 
-    /** @test */
+    #[Test]
     public function its_full_address_attribute_combines_parts(): void
     {
         $setting = $this->makeSetting([
@@ -90,7 +91,7 @@ class WebsiteSettingTest extends TestCase
         $this->assertEquals('1 Main St, Dhaka, Dhaka, 1207, Bangladesh', $setting->full_address);
     }
 
-    /** @test */
+    #[Test]
     public function its_logo_url_accessor_returns_null_without_path(): void
     {
         $setting = $this->makeSetting(['logo_path' => null]);
@@ -98,7 +99,7 @@ class WebsiteSettingTest extends TestCase
         $this->assertNull($setting->logo_url);
     }
 
-    /** @test */
+    #[Test]
     public function its_logo_url_accessor_returns_storage_url(): void
     {
         $setting = $this->makeSetting(['logo_path' => '/logos/logo.png']);
@@ -106,7 +107,7 @@ class WebsiteSettingTest extends TestCase
         $this->assertEquals(url('storage/logos/logo.png'), $setting->logo_url);
     }
 
-    /** @test */
+    #[Test]
     public function its_resolved_default_locale_returns_configured_locale(): void
     {
         $setting = $this->makeSetting(['default_locale' => 'bn']);
@@ -114,7 +115,7 @@ class WebsiteSettingTest extends TestCase
         $this->assertEquals('bn', $setting->resolvedDefaultLocale());
     }
 
-    /** @test */
+    #[Test]
     public function get_settings_returns_existing_record(): void
     {
         $setting = $this->makeSetting();
@@ -122,7 +123,7 @@ class WebsiteSettingTest extends TestCase
         $this->assertTrue(WebsiteSetting::getSettings()->is($setting));
     }
 
-    /** @test */
+    #[Test]
     public function get_settings_returns_new_instance_when_empty(): void
     {
         $this->assertInstanceOf(WebsiteSetting::class, WebsiteSetting::getSettings());

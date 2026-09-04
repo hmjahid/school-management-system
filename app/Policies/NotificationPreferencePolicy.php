@@ -13,7 +13,6 @@ class NotificationPreferencePolicy
     /**
      * Determine whether the user can view any models.
      *
-     * @param  \App\Models\User  $user
      * @return mixed
      */
     public function viewAny(User $user)
@@ -25,8 +24,6 @@ class NotificationPreferencePolicy
     /**
      * Determine whether the user can view the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\NotificationPreference  $preference
      * @return mixed
      */
     public function view(User $user, NotificationPreference $preference)
@@ -38,7 +35,6 @@ class NotificationPreferencePolicy
     /**
      * Determine whether the user can create models.
      *
-     * @param  \App\Models\User  $user
      * @return mixed
      */
     public function create(User $user)
@@ -50,8 +46,6 @@ class NotificationPreferencePolicy
     /**
      * Determine whether the user can update the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\NotificationPreference  $preference
      * @return mixed
      */
     public function update(User $user, NotificationPreference $preference)
@@ -63,8 +57,6 @@ class NotificationPreferencePolicy
     /**
      * Determine whether the user can delete the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\NotificationPreference  $preference
      * @return mixed
      */
     public function delete(User $user, NotificationPreference $preference)
@@ -76,8 +68,6 @@ class NotificationPreferencePolicy
     /**
      * Determine whether the user can restore the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\NotificationPreference  $preference
      * @return mixed
      */
     public function restore(User $user, NotificationPreference $preference)
@@ -89,8 +79,6 @@ class NotificationPreferencePolicy
     /**
      * Determine whether the user can permanently delete the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\NotificationPreference  $preference
      * @return mixed
      */
     public function forceDelete(User $user, NotificationPreference $preference)
@@ -98,36 +86,28 @@ class NotificationPreferencePolicy
         // Only administrators can force delete preferences
         return $user->hasRole('admin');
     }
-    
+
     /**
      * Determine whether the user can update notification preferences.
-     *
-     * @param  \App\Models\User  $user
-     * @param  string  $type
-     * @return bool
      */
     public function updatePreference(User $user, string $type): bool
     {
         // Check if the notification type exists in the config
         $defaultChannels = config("notifications.types.{$type}");
-        
+
         // Only allow updating preferences for valid notification types
-        return !is_null($defaultChannels);
+        return ! is_null($defaultChannels);
     }
-    
+
     /**
      * Determine whether the user can reset notification preferences to defaults.
-     *
-     * @param  \App\Models\User  $user
-     * @param  string  $type
-     * @return bool
      */
     public function resetPreference(User $user, string $type): bool
     {
         // Check if the notification type exists in the config
         $defaultChannels = config("notifications.types.{$type}");
-        
+
         // Only allow resetting preferences for valid notification types
-        return !is_null($defaultChannels);
+        return ! is_null($defaultChannels);
     }
 }

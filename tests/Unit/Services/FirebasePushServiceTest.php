@@ -5,6 +5,7 @@ namespace Tests\Unit\Services;
 use App\Services\Push\FirebasePushService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class FirebasePushServiceTest extends TestCase
@@ -33,6 +34,7 @@ class FirebasePushServiceTest extends TestCase
     {
         $r = new \ReflectionMethod($obj, $method);
         $r->setAccessible(true);
+
         return $r->invokeArgs($obj, $args);
     }
 
@@ -58,7 +60,7 @@ class FirebasePushServiceTest extends TestCase
         return new FirebasePushService($this->makeConfig());
     }
 
-    /** @test */
+    #[Test]
     public function it_sends_a_push_notification_to_a_single_device(): void
     {
         $service = $this->makeService();
@@ -70,7 +72,7 @@ class FirebasePushServiceTest extends TestCase
         $this->assertSame('token123', $result['device_token']);
     }
 
-    /** @test */
+    #[Test]
     public function it_sends_a_push_notification_to_multiple_devices_and_counts(): void
     {
         $service = $this->makeService();
@@ -81,7 +83,7 @@ class FirebasePushServiceTest extends TestCase
         $this->assertSame(0, $result['failure']);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_failure_for_empty_device_tokens(): void
     {
         $service = $this->makeService();
@@ -92,7 +94,7 @@ class FirebasePushServiceTest extends TestCase
         $this->assertSame('No device tokens provided', $result['error']);
     }
 
-    /** @test */
+    #[Test]
     public function it_sends_a_push_notification_to_a_topic(): void
     {
         $service = $this->makeService();
@@ -103,7 +105,7 @@ class FirebasePushServiceTest extends TestCase
         $this->assertSame('app_news', $result['topic']);
     }
 
-    /** @test */
+    #[Test]
     public function it_subscribes_and_unsubscribes_from_a_topic(): void
     {
         $service = $this->makeService();
@@ -112,7 +114,7 @@ class FirebasePushServiceTest extends TestCase
         $this->assertTrue($service->unsubscribeFromTopic('token123', 'news'));
     }
 
-    /** @test */
+    #[Test]
     public function it_gets_device_info(): void
     {
         $service = $this->makeService();
@@ -123,7 +125,7 @@ class FirebasePushServiceTest extends TestCase
         $this->assertSame('test', $result['app_instance']['platform']);
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_a_device_token(): void
     {
         $service = $this->makeService();
@@ -131,7 +133,7 @@ class FirebasePushServiceTest extends TestCase
         $this->assertTrue($service->validateDeviceToken('token123'));
     }
 
-    /** @test */
+    #[Test]
     public function it_normalizes_topic_names_with_a_prefix(): void
     {
         $service = $this->makeService();
@@ -162,7 +164,7 @@ class Factory
 
     public function createMessaging()
     {
-        return new \Tests\Unit\Services\FcmMessagingStub();
+        return new \Tests\Unit\Services\FcmMessagingStub;
     }
 }
 
@@ -187,7 +189,7 @@ class CloudMessage
 
     public static function new()
     {
-        return new self();
+        return new self;
     }
 }
 
@@ -195,7 +197,7 @@ class Notification
 {
     public static function fromArray($a)
     {
-        return new self();
+        return new self;
     }
 }
 
@@ -203,7 +205,7 @@ class AndroidConfig
 {
     public static function new()
     {
-        return new self();
+        return new self;
     }
 
     public function withTtl($t)
@@ -226,7 +228,7 @@ class ApnsConfig
 {
     public static function new()
     {
-        return new self();
+        return new self;
     }
 
     public function withHeaders($h)
@@ -244,7 +246,7 @@ class WebPushConfig
 {
     public static function new()
     {
-        return new self();
+        return new self;
     }
 
     public function withHeaders($h)
@@ -274,32 +276,27 @@ class FcmMessagingStub
 
     public function sendMulticast($message, $tokens, $validate = false)
     {
-        return new FcmMulticastResponseStub();
+        return new FcmMulticastResponseStub;
     }
 
-    public function subscribeToTopic($topic, $tokens)
-    {
-    }
+    public function subscribeToTopic($topic, $tokens) {}
 
-    public function unsubscribeFromTopic($topic, $tokens)
-    {
-    }
+    public function unsubscribeFromTopic($topic, $tokens) {}
 
     public function getAppInstance($token)
     {
-        return new FcmAppInstanceStub();
+        return new FcmAppInstanceStub;
     }
 
-    public function validateRegistrationTokens($token)
-    {
-    }
+    public function validateRegistrationTokens($token) {}
 }
 
 class FcmMulticastResponseStub
 {
     public function successes()
     {
-        return new class {
+        return new class
+        {
             public function count()
             {
                 return 2;
@@ -309,7 +306,8 @@ class FcmMulticastResponseStub
 
     public function failures()
     {
-        return new class {
+        return new class
+        {
             public function count()
             {
                 return 0;

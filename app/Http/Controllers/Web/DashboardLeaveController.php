@@ -19,9 +19,9 @@ class DashboardLeaveController extends Controller
         $query = LeaveRequest::query()->with(['teacher.user', 'type', 'approver']);
 
         // Non-admin users see only their own requests
-        if (!$user->hasAnyRole(['admin', 'staff'])) {
+        if (! $user->hasAnyRole(['admin', 'staff'])) {
             $teacher = Teacher::where('user_id', $user->id)->first();
-            if (!$teacher) {
+            if (! $teacher) {
                 abort(403);
             }
             $query->where('teacher_id', $teacher->id);
@@ -39,7 +39,7 @@ class DashboardLeaveController extends Controller
     public function create(Request $request): View
     {
         $teacher = Teacher::where('user_id', $request->user()->id)->first();
-        if (!$teacher && !$request->user()->hasAnyRole(['admin', 'staff'])) {
+        if (! $teacher && ! $request->user()->hasAnyRole(['admin', 'staff'])) {
             abort(403);
         }
 
@@ -61,9 +61,9 @@ class DashboardLeaveController extends Controller
         ]);
 
         // Non-admins can only create leave for themselves
-        if (!$request->user()->hasAnyRole(['admin', 'staff'])) {
+        if (! $request->user()->hasAnyRole(['admin', 'staff'])) {
             $teacher = Teacher::where('user_id', $request->user()->id)->first();
-            if (!$teacher || (int) $data['teacher_id'] !== $teacher->id) {
+            if (! $teacher || (int) $data['teacher_id'] !== $teacher->id) {
                 abort(403);
             }
         }
@@ -76,6 +76,7 @@ class DashboardLeaveController extends Controller
     public function show(Request $request, LeaveRequest $leave): View
     {
         $leave->load(['teacher.user', 'type', 'approver']);
+
         return view('dashboard.leaves.show', compact('leave'));
     }
 

@@ -21,158 +21,159 @@ use Illuminate\Support\Facades\Schema;
  * migrations were corrected) and on databases still in the half-built
  * state (most local/dev installs).
  */
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::table('teachers', function (Blueprint $table) {
-            if (!Schema::hasColumn('teachers', 'employee_id')) {
+            if (! Schema::hasColumn('teachers', 'employee_id')) {
                 $table->string('employee_id')->nullable()->unique()->after('user_id');
             }
-            if (!Schema::hasColumn('teachers', 'gender')) {
+            if (! Schema::hasColumn('teachers', 'gender')) {
                 $table->string('gender', 10)->nullable();
             }
-            if (!Schema::hasColumn('teachers', 'blood_group')) {
+            if (! Schema::hasColumn('teachers', 'blood_group')) {
                 $table->string('blood_group', 5)->nullable();
             }
-            if (!Schema::hasColumn('teachers', 'date_of_birth')) {
+            if (! Schema::hasColumn('teachers', 'date_of_birth')) {
                 $table->date('date_of_birth')->nullable();
             }
-            if (!Schema::hasColumn('teachers', 'religion')) {
+            if (! Schema::hasColumn('teachers', 'religion')) {
                 $table->string('religion', 50)->nullable();
             }
-            if (!Schema::hasColumn('teachers', 'nationality')) {
+            if (! Schema::hasColumn('teachers', 'nationality')) {
                 $table->string('nationality', 100)->default('Bangladeshi');
             }
-            if (!Schema::hasColumn('teachers', 'phone')) {
+            if (! Schema::hasColumn('teachers', 'phone')) {
                 $table->string('phone', 20)->nullable();
             }
-            if (!Schema::hasColumn('teachers', 'emergency_contact')) {
+            if (! Schema::hasColumn('teachers', 'emergency_contact')) {
                 $table->string('emergency_contact', 20)->nullable();
             }
-            if (!Schema::hasColumn('teachers', 'present_address')) {
+            if (! Schema::hasColumn('teachers', 'present_address')) {
                 $table->text('present_address')->nullable();
             }
-            if (!Schema::hasColumn('teachers', 'permanent_address')) {
+            if (! Schema::hasColumn('teachers', 'permanent_address')) {
                 $table->text('permanent_address')->nullable();
             }
-            if (!Schema::hasColumn('teachers', 'city')) {
+            if (! Schema::hasColumn('teachers', 'city')) {
                 $table->string('city', 100)->nullable();
             }
-            if (!Schema::hasColumn('teachers', 'state')) {
+            if (! Schema::hasColumn('teachers', 'state')) {
                 $table->string('state', 100)->nullable();
             }
-            if (!Schema::hasColumn('teachers', 'zip_code')) {
+            if (! Schema::hasColumn('teachers', 'zip_code')) {
                 $table->string('zip_code', 20)->nullable();
             }
-            if (!Schema::hasColumn('teachers', 'country')) {
+            if (! Schema::hasColumn('teachers', 'country')) {
                 $table->string('country', 100)->default('Bangladesh');
             }
-            if (!Schema::hasColumn('teachers', 'joining_date')) {
+            if (! Schema::hasColumn('teachers', 'joining_date')) {
                 $table->date('joining_date')->nullable();
             }
-            if (!Schema::hasColumn('teachers', 'leaving_date')) {
+            if (! Schema::hasColumn('teachers', 'leaving_date')) {
                 $table->date('leaving_date')->nullable();
             }
-            if (!Schema::hasColumn('teachers', 'status')) {
+            if (! Schema::hasColumn('teachers', 'status')) {
                 $table->string('status', 20)->default('active');
             }
-            if (!Schema::hasColumn('teachers', 'bank_name')) {
+            if (! Schema::hasColumn('teachers', 'bank_name')) {
                 $table->string('bank_name', 100)->nullable();
             }
-            if (!Schema::hasColumn('teachers', 'bank_account_number')) {
+            if (! Schema::hasColumn('teachers', 'bank_account_number')) {
                 $table->string('bank_account_number', 50)->nullable();
             }
-            if (!Schema::hasColumn('teachers', 'bank_branch')) {
+            if (! Schema::hasColumn('teachers', 'bank_branch')) {
                 $table->string('bank_branch', 100)->nullable();
             }
-            if (!Schema::hasColumn('teachers', 'salary')) {
+            if (! Schema::hasColumn('teachers', 'salary')) {
                 $table->decimal('salary', 10, 2)->default(0);
             }
-            if (!Schema::hasColumn('teachers', 'salary_type')) {
+            if (! Schema::hasColumn('teachers', 'salary_type')) {
                 $table->string('salary_type', 20)->default('monthly');
             }
-            if (!Schema::hasColumn('teachers', 'nid_number')) {
+            if (! Schema::hasColumn('teachers', 'nid_number')) {
                 $table->string('nid_number', 50)->nullable();
             }
-            if (!Schema::hasColumn('teachers', 'passport_number')) {
+            if (! Schema::hasColumn('teachers', 'passport_number')) {
                 $table->string('passport_number', 50)->nullable();
             }
-            if (!Schema::hasColumn('teachers', 'driving_license')) {
+            if (! Schema::hasColumn('teachers', 'driving_license')) {
                 $table->string('driving_license', 50)->nullable();
             }
-            if (!Schema::hasColumn('teachers', 'notes')) {
+            if (! Schema::hasColumn('teachers', 'notes')) {
                 $table->text('notes')->nullable();
             }
-            if (!Schema::hasColumn('teachers', 'deleted_at')) {
+            if (! Schema::hasColumn('teachers', 'deleted_at')) {
                 $table->softDeletes();
             }
         });
 
         Schema::table('guardians', function (Blueprint $table) {
-            if (!Schema::hasColumn('guardians', 'phone')) {
+            if (! Schema::hasColumn('guardians', 'phone')) {
                 $table->string('phone', 20)->nullable();
             }
-            if (!Schema::hasColumn('guardians', 'occupation')) {
+            if (! Schema::hasColumn('guardians', 'occupation')) {
                 $table->string('occupation', 100)->nullable();
             }
-            if (!Schema::hasColumn('guardians', 'company')) {
+            if (! Schema::hasColumn('guardians', 'company')) {
                 $table->string('company', 100)->nullable();
             }
-            if (!Schema::hasColumn('guardians', 'nid_number')) {
+            if (! Schema::hasColumn('guardians', 'nid_number')) {
                 $table->string('nid_number', 50)->nullable();
             }
-            if (!Schema::hasColumn('guardians', 'passport_number')) {
+            if (! Schema::hasColumn('guardians', 'passport_number')) {
                 $table->string('passport_number', 50)->nullable();
             }
-            if (!Schema::hasColumn('guardians', 'driving_license')) {
+            if (! Schema::hasColumn('guardians', 'driving_license')) {
                 $table->string('driving_license', 50)->nullable();
             }
-            if (!Schema::hasColumn('guardians', 'nationality')) {
+            if (! Schema::hasColumn('guardians', 'nationality')) {
                 $table->string('nationality', 100)->default('Bangladeshi');
             }
-            if (!Schema::hasColumn('guardians', 'religion')) {
+            if (! Schema::hasColumn('guardians', 'religion')) {
                 $table->string('religion', 50)->nullable();
             }
-            if (!Schema::hasColumn('guardians', 'blood_group')) {
+            if (! Schema::hasColumn('guardians', 'blood_group')) {
                 $table->string('blood_group', 5)->nullable();
             }
-            if (!Schema::hasColumn('guardians', 'present_address')) {
+            if (! Schema::hasColumn('guardians', 'present_address')) {
                 $table->text('present_address')->nullable();
             }
-            if (!Schema::hasColumn('guardians', 'permanent_address')) {
+            if (! Schema::hasColumn('guardians', 'permanent_address')) {
                 $table->text('permanent_address')->nullable();
             }
-            if (!Schema::hasColumn('guardians', 'city')) {
+            if (! Schema::hasColumn('guardians', 'city')) {
                 $table->string('city', 100)->nullable();
             }
-            if (!Schema::hasColumn('guardians', 'state')) {
+            if (! Schema::hasColumn('guardians', 'state')) {
                 $table->string('state', 100)->nullable();
             }
-            if (!Schema::hasColumn('guardians', 'zip_code')) {
+            if (! Schema::hasColumn('guardians', 'zip_code')) {
                 $table->string('zip_code', 20)->nullable();
             }
-            if (!Schema::hasColumn('guardians', 'country')) {
+            if (! Schema::hasColumn('guardians', 'country')) {
                 $table->string('country', 100)->default('Bangladesh');
             }
-            if (!Schema::hasColumn('guardians', 'office_phone')) {
+            if (! Schema::hasColumn('guardians', 'office_phone')) {
                 $table->string('office_phone', 20)->nullable();
             }
-            if (!Schema::hasColumn('guardians', 'emergency_contact')) {
+            if (! Schema::hasColumn('guardians', 'emergency_contact')) {
                 $table->string('emergency_contact', 20)->nullable();
             }
-            if (!Schema::hasColumn('guardians', 'relationship')) {
+            if (! Schema::hasColumn('guardians', 'relationship')) {
                 $table->string('relationship', 50)->nullable();
             }
-            if (!Schema::hasColumn('guardians', 'is_primary')) {
+            if (! Schema::hasColumn('guardians', 'is_primary')) {
                 $table->boolean('is_primary')->default(false);
             }
-            if (!Schema::hasColumn('guardians', 'monthly_income')) {
+            if (! Schema::hasColumn('guardians', 'monthly_income')) {
                 $table->decimal('monthly_income', 12, 2)->nullable();
             }
-            if (!Schema::hasColumn('guardians', 'education_level')) {
+            if (! Schema::hasColumn('guardians', 'education_level')) {
                 $table->string('education_level', 100)->nullable();
             }
-            if (!Schema::hasColumn('guardians', 'notes')) {
+            if (! Schema::hasColumn('guardians', 'notes')) {
                 $table->text('notes')->nullable();
             }
         });

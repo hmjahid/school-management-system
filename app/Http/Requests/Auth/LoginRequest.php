@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Auth;
 
 use App\Http\Requests\ApiFormRequest;
-use Illuminate\Validation\Rules;
 
 class LoginRequest extends ApiFormRequest
 {

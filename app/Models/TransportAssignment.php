@@ -38,6 +38,7 @@ class TransportAssignment extends Model
         if ($this->effective_to && $this->effective_to->lt($today)) {
             return false;
         }
+
         return true;
     }
 }

@@ -5,6 +5,7 @@ namespace Tests\Unit\Models;
 use App\Models\SchoolClass;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class SchoolClassTest extends TestCase
@@ -18,7 +19,7 @@ class SchoolClassTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_fillable_columns(): void
     {
         $code = 'CODE'.uniqid();
@@ -38,7 +39,7 @@ class SchoolClassTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_fees_and_booleans(): void
     {
         $class = $this->makeClass([
@@ -51,7 +52,7 @@ class SchoolClassTest extends TestCase
         $this->assertIsNumeric($class->monthly_fee);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_sections_and_students_relationships(): void
     {
         $class = $this->makeClass();
@@ -60,7 +61,7 @@ class SchoolClassTest extends TestCase
         $this->assertInstanceOf(HasMany::class, $class->students());
     }
 
-    /** @test */
+    #[Test]
     public function it_exposes_shift_constants_and_getter(): void
     {
         $this->assertSame('morning', SchoolClass::SHIFT_MORNING);
@@ -73,7 +74,7 @@ class SchoolClassTest extends TestCase
         $this->assertArrayHasKey('evening', $shifts);
     }
 
-    /** @test */
+    #[Test]
     public function it_computes_name_accessors(): void
     {
         $class = $this->makeClass([
@@ -86,7 +87,7 @@ class SchoolClassTest extends TestCase
         $this->assertSame('Grade 9 - One', $class->name_with_grade);
     }
 
-    /** @test */
+    #[Test]
     public function it_scopes_active_and_inactive(): void
     {
         $this->makeClass(['is_active' => true]);

@@ -5,19 +5,20 @@ namespace Tests\Unit\Services;
 use App\Contracts\PushNotificationService;
 use App\Services\LogPushNotificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class LogPushNotificationServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_implements_push_notification_service_contract(): void
     {
         $this->assertInstanceOf(PushNotificationService::class, new LogPushNotificationService);
     }
 
-    /** @test */
+    #[Test]
     public function send_to_device_returns_success(): void
     {
         $service = new LogPushNotificationService;
@@ -28,7 +29,7 @@ class LogPushNotificationServiceTest extends TestCase
         $this->assertArrayHasKey('message_id', $result);
     }
 
-    /** @test */
+    #[Test]
     public function send_to_devices_returns_success(): void
     {
         $service = new LogPushNotificationService;
@@ -38,7 +39,7 @@ class LogPushNotificationServiceTest extends TestCase
         $this->assertEquals(['t1', 't2'], $result['device_tokens']);
     }
 
-    /** @test */
+    #[Test]
     public function send_to_topic_returns_success(): void
     {
         $service = new LogPushNotificationService;
@@ -48,7 +49,7 @@ class LogPushNotificationServiceTest extends TestCase
         $this->assertEquals('news', $result['topic']);
     }
 
-    /** @test */
+    #[Test]
     public function subscribe_and_unsubscribe_return_true(): void
     {
         $service = new LogPushNotificationService;
@@ -58,7 +59,7 @@ class LogPushNotificationServiceTest extends TestCase
         $this->assertTrue($service->unsubscribeFromAllTopics('token-1'));
     }
 
-    /** @test */
+    #[Test]
     public function validate_device_token_checks_length(): void
     {
         $service = new LogPushNotificationService;
@@ -67,7 +68,7 @@ class LogPushNotificationServiceTest extends TestCase
         $this->assertFalse($service->validateDeviceToken('short'));
     }
 
-    /** @test */
+    #[Test]
     public function get_device_info_returns_mock_data(): void
     {
         $service = new LogPushNotificationService;

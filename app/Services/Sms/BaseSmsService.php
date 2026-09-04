@@ -3,9 +3,9 @@
 namespace App\Services\Sms;
 
 use App\Contracts\SmsService as SmsServiceContract;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Config;
 
 abstract class BaseSmsService implements SmsServiceContract
 {
@@ -33,7 +33,6 @@ abstract class BaseSmsService implements SmsServiceContract
     /**
      * Create a new SMS service instance.
      *
-     * @param  array  $config
      * @return void
      */
     public function __construct(array $config = [])
@@ -51,27 +50,22 @@ abstract class BaseSmsService implements SmsServiceContract
 
     /**
      * Get the default configuration for the service.
-     *
-     * @return array
      */
     abstract protected function getDefaultConfig(): array;
 
     /**
      * Send an SMS message.
-     *
-     * @param  string  $to
-     * @param  string  $message
-     * @param  array  $options
-     * @return bool
      */
     public function send(string $to, string $message, array $options = []): bool
     {
         try {
             $response = $this->sendSms($to, $message, $options);
             $this->logSms($to, $message, $response);
+
             return $this->wasSuccessful($response);
         } catch (\Exception $e) {
             $this->logError($e);
+
             return false;
         }
     }
@@ -79,9 +73,6 @@ abstract class BaseSmsService implements SmsServiceContract
     /**
      * Send the SMS message to the given number.
      *
-     * @param  string  $to
-     * @param  string  $message
-     * @param  array  $options
      * @return mixed
      */
     abstract protected function sendSms(string $to, string $message, array $options = []);
@@ -90,32 +81,23 @@ abstract class BaseSmsService implements SmsServiceContract
      * Determine if the SMS was sent successfully.
      *
      * @param  mixed  $response
-     * @return bool
      */
     abstract protected function wasSuccessful($response): bool;
 
     /**
      * Get the remaining SMS balance.
-     *
-     * @return float
      */
     abstract public function getBalance(): float;
 
     /**
      * Get the delivery status of a sent message.
-     *
-     * @param  string  $messageId
-     * @return array
      */
     abstract public function getStatus(string $messageId): array;
 
     /**
      * Log the SMS message.
      *
-     * @param  string  $to
-     * @param  string  $message
      * @param  mixed  $response
-     * @return void
      */
     protected function logSms(string $to, string $message, $response): void
     {
@@ -129,13 +111,10 @@ abstract class BaseSmsService implements SmsServiceContract
 
     /**
      * Log an error that occurred while sending an SMS.
-     *
-     * @param  \Exception  $e
-     * @return void
      */
     protected function logError(\Exception $e): void
     {
-        Log::error('SMS sending failed: ' . $e->getMessage(), [
+        Log::error('SMS sending failed: '.$e->getMessage(), [
             'exception' => $e,
             'provider' => get_class($this),
         ]);
@@ -143,8 +122,6 @@ abstract class BaseSmsService implements SmsServiceContract
 
     /**
      * Get the sender ID or phone number.
-     *
-     * @return string
      */
     protected function getFrom(): string
     {
@@ -153,9 +130,6 @@ abstract class BaseSmsService implements SmsServiceContract
 
     /**
      * Format the phone number.
-     *
-     * @param  string  $phoneNumber
-     * @return string
      */
     protected function formatPhoneNumber(string $phoneNumber): string
     {
@@ -165,12 +139,12 @@ abstract class BaseSmsService implements SmsServiceContract
         // If the number starts with 0, replace with country code
         if (strlen($phoneNumber) === 10 && $phoneNumber[0] === '0') {
             $countryCode = $this->config['country_code'] ?? '1';
-            $phoneNumber = $countryCode . substr($phoneNumber, 1);
+            $phoneNumber = $countryCode.substr($phoneNumber, 1);
         }
 
         // Ensure the number starts with a plus
         if (strpos($phoneNumber, '+') !== 0) {
-            $phoneNumber = '+' . $phoneNumber;
+            $phoneNumber = '+'.$phoneNumber;
         }
 
         return $phoneNumber;
@@ -178,8 +152,6 @@ abstract class BaseSmsService implements SmsServiceContract
 
     /**
      * Get the last response from the API.
-     *
-     * @return array|null
      */
     public function getLastResponse(): ?array
     {
@@ -190,7 +162,6 @@ abstract class BaseSmsService implements SmsServiceContract
      * Set the last response from the API.
      *
      * @param  mixed  $response
-     * @return void
      */
     protected function setLastResponse($response): void
     {
@@ -201,7 +172,6 @@ abstract class BaseSmsService implements SmsServiceContract
      * Normalize the response from the API.
      *
      * @param  mixed  $response
-     * @return array
      */
     protected function normalizeResponse($response): array
     {

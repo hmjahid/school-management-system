@@ -18,7 +18,7 @@ class DemoLedgerSeeder extends Seeder
         $cashAccount = ChartOfAccount::where('code', '1000')->first();
         $bankAccount = ChartOfAccount::where('code', '1010')->first();
 
-        if ($incomeAccounts->isEmpty() || $expenseAccounts->isEmpty() || !$cashAccount) {
+        if ($incomeAccounts->isEmpty() || $expenseAccounts->isEmpty() || ! $cashAccount) {
             return;
         }
 
@@ -31,7 +31,7 @@ class DemoLedgerSeeder extends Seeder
                     LedgerEntry::create([
                         'chart_of_account_id' => $account->id,
                         'date' => $date->copy()->addDays(rand(1, 25))->format('Y-m-d'),
-                        'note' => 'Monthly collection - ' . $account->name_en,
+                        'note' => 'Monthly collection - '.$account->name_en,
                         'debit' => 0,
                         'credit' => rand(2, 5) * 10000,
                         'reference_type' => FeePayment::class,
@@ -46,7 +46,7 @@ class DemoLedgerSeeder extends Seeder
                     LedgerEntry::create([
                         'chart_of_account_id' => $account->id,
                         'date' => $date->copy()->addDays(rand(1, 28))->format('Y-m-d'),
-                        'note' => $account->name_en . ' - ' . $date->format('F Y'),
+                        'note' => $account->name_en.' - '.$date->format('F Y'),
                         'debit' => rand(1, 10) * 5000,
                         'credit' => 0,
                         'reference_type' => Expense::class,

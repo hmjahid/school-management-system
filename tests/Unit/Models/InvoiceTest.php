@@ -6,6 +6,7 @@ use App\Models\Fee;
 use App\Models\Invoice;
 use App\Models\Student;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class InvoiceTest extends TestCase
@@ -29,7 +30,7 @@ class InvoiceTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_exposes_status_constants(): void
     {
         $this->assertEquals('paid', Invoice::STATUS_PAID);
@@ -37,20 +38,20 @@ class InvoiceTest extends TestCase
         $this->assertEquals('overdue', Invoice::STATUS_OVERDUE);
     }
 
-    /** @test */
+    #[Test]
     public function is_paid_true_only_when_status_paid(): void
     {
         $this->assertTrue($this->makeInvoice(['status' => Invoice::STATUS_PAID])->is_paid);
         $this->assertFalse($this->makeInvoice(['status' => Invoice::STATUS_UNPAID])->is_paid);
     }
 
-    /** @test */
+    #[Test]
     public function is_overdue_when_status_overdue(): void
     {
         $this->assertTrue($this->makeInvoice(['status' => Invoice::STATUS_OVERDUE])->is_overdue);
     }
 
-    /** @test */
+    #[Test]
     public function is_overdue_when_unpaid_and_due_date_past(): void
     {
         $invoice = $this->makeInvoice([
@@ -61,7 +62,7 @@ class InvoiceTest extends TestCase
         $this->assertTrue($invoice->is_overdue);
     }
 
-    /** @test */
+    #[Test]
     public function not_overdue_when_paid_even_if_due_date_past(): void
     {
         $invoice = $this->makeInvoice([
@@ -72,7 +73,7 @@ class InvoiceTest extends TestCase
         $this->assertFalse($invoice->is_overdue);
     }
 
-    /** @test */
+    #[Test]
     public function not_overdue_when_unpaid_and_due_date_future(): void
     {
         $invoice = $this->makeInvoice([

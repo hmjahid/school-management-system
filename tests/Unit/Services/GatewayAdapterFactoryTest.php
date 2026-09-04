@@ -8,13 +8,14 @@ use App\Services\Payment\GatewayAdapterInterface;
 use App\Services\Payment\NagadGatewayAdapter;
 use App\Services\Payment\RocketGatewayAdapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class GatewayAdapterFactoryTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_resolves_bkash_adapter(): void
     {
         $adapter = GatewayAdapterFactory::make('bkash');
@@ -23,7 +24,7 @@ class GatewayAdapterFactoryTest extends TestCase
         $this->assertInstanceOf(GatewayAdapterInterface::class, $adapter);
     }
 
-    /** @test */
+    #[Test]
     public function it_resolves_nagad_adapter(): void
     {
         $adapter = GatewayAdapterFactory::make('nagad');
@@ -32,7 +33,7 @@ class GatewayAdapterFactoryTest extends TestCase
         $this->assertInstanceOf(GatewayAdapterInterface::class, $adapter);
     }
 
-    /** @test */
+    #[Test]
     public function it_resolves_rocket_adapter(): void
     {
         $adapter = GatewayAdapterFactory::make('rocket');
@@ -41,7 +42,7 @@ class GatewayAdapterFactoryTest extends TestCase
         $this->assertInstanceOf(GatewayAdapterInterface::class, $adapter);
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_for_unsupported_gateway(): void
     {
         $this->expectException(\Exception::class);

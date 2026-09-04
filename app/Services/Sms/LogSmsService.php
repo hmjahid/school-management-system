@@ -8,8 +8,6 @@ class LogSmsService extends BaseSmsService
 {
     /**
      * Get the default configuration for the service.
-     *
-     * @return array
      */
     protected function getDefaultConfig(): array
     {
@@ -21,24 +19,21 @@ class LogSmsService extends BaseSmsService
     /**
      * Send the SMS message to the given number.
      *
-     * @param  string  $to
-     * @param  string  $message
-     * @param  array  $options
      * @return array
      */
     protected function sendSms(string $to, string $message, array $options = [])
     {
         $from = $options['from'] ?? $this->getFrom();
-        
+
         $logMessage = sprintf(
-            "[SMS] From: %s, To: %s, Message: %s",
+            '[SMS] From: %s, To: %s, Message: %s',
             $from,
             $to,
             $message
         );
-        
+
         Log::channel($this->config['log_channel'])->info($logMessage, $options);
-        
+
         $response = [
             'success' => true,
             'message_id' => uniqid('sms_', true),
@@ -47,9 +42,9 @@ class LogSmsService extends BaseSmsService
             'message' => $message,
             'timestamp' => now()->toDateTimeString(),
         ];
-        
+
         $this->setLastResponse($response);
-        
+
         return $response;
     }
 
@@ -57,7 +52,6 @@ class LogSmsService extends BaseSmsService
      * Determine if the SMS was sent successfully.
      *
      * @param  mixed  $response
-     * @return bool
      */
     protected function wasSuccessful($response): bool
     {
@@ -66,8 +60,6 @@ class LogSmsService extends BaseSmsService
 
     /**
      * Get the remaining SMS balance.
-     *
-     * @return float
      */
     public function getBalance(): float
     {
@@ -77,9 +69,6 @@ class LogSmsService extends BaseSmsService
 
     /**
      * Get the delivery status of a sent message.
-     *
-     * @param  string  $messageId
-     * @return array
      */
     public function getStatus(string $messageId): array
     {

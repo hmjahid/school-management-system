@@ -9,11 +9,17 @@ class AdmissionDocument extends Model
 {
     // Document types
     public const TYPE_TRANSFER_CERTIFICATE = 'transfer_certificate';
+
     public const TYPE_BIRTH_CERTIFICATE = 'birth_certificate';
+
     public const TYPE_PHOTO = 'photo';
+
     public const TYPE_MARK_SHEET = 'mark_sheet';
+
     public const TYPE_CHARACTER_CERTIFICATE = 'character_certificate';
+
     public const TYPE_MIGRATION_CERTIFICATE = 'migration_certificate';
+
     public const TYPE_OTHER = 'other';
 
     protected $fillable = [
@@ -76,10 +82,10 @@ class AdmissionDocument extends Model
     public function getFileSizeFormattedAttribute(): string
     {
         if ($this->file_size >= 1048576) {
-            return number_format($this->file_size / 1048576, 2) . ' MB';
+            return number_format($this->file_size / 1048576, 2).' MB';
         }
 
-        return number_format($this->file_size / 1024, 2) . ' KB';
+        return number_format($this->file_size / 1024, 2).' KB';
     }
 
     /**
@@ -93,26 +99,26 @@ class AdmissionDocument extends Model
     /**
      * Approve the document.
      */
-    public function approve(string $notes = null, int $reviewerId = null): bool
+    public function approve(?string $notes = null, ?int $reviewerId = null): bool
     {
         $this->is_approved = true;
         $this->review_notes = $notes;
         $this->reviewed_by = $reviewerId ?? auth()->id();
         $this->reviewed_at = now();
-        
+
         return $this->save();
     }
 
     /**
      * Reject the document.
      */
-    public function reject(string $notes, int $reviewerId = null): bool
+    public function reject(string $notes, ?int $reviewerId = null): bool
     {
         $this->is_approved = false;
         $this->review_notes = $notes;
         $this->reviewed_by = $reviewerId ?? auth()->id();
         $this->reviewed_at = now();
-        
+
         return $this->save();
     }
 }

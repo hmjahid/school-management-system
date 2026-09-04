@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-use App\Models\Testimonial;
 use App\Models\Student;
+use App\Models\Testimonial;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -18,8 +18,8 @@ class DashboardTestimonialController extends Controller
         if ($search = $request->string('search')->toString()) {
             $query->where(function ($q) use ($search) {
                 $q->where('testimonial_number', 'like', "%{$search}%")
-                  ->orWhere('name', 'like', "%{$search}%")
-                  ->orWhereHas('student.user', fn($u) => $u->where('name', 'like', "%{$search}%"));
+                    ->orWhere('name', 'like', "%{$search}%")
+                    ->orWhereHas('student.user', fn ($u) => $u->where('name', 'like', "%{$search}%"));
             });
         }
         if ($type = $request->string('type')->toString()) {
@@ -47,7 +47,7 @@ class DashboardTestimonialController extends Controller
         $this->authorize('create', Testimonial::class);
         $validated = $request->validate([
             'student_id' => 'required|exists:students,id',
-            'testimonial_type' => 'required|string|in:' . implode(',', Testimonial::TYPES),
+            'testimonial_type' => 'required|string|in:'.implode(',', Testimonial::TYPES),
             'name' => 'required|string|max:255',
             'issue_date' => 'required|date',
             'status' => 'required|string|in:draft,issued',
@@ -67,7 +67,7 @@ class DashboardTestimonialController extends Controller
         $validated['testimonial_number'] = Testimonial::generateNumber();
         $validated['generated_by'] = $request->user()->id;
 
-        if (!empty($validated['body'])) {
+        if (! empty($validated['body'])) {
             $validated['body'] = [$validated['body']];
         }
 
@@ -104,7 +104,7 @@ class DashboardTestimonialController extends Controller
         $this->authorize('update', $testimonial);
         $validated = $request->validate([
             'student_id' => 'required|exists:students,id',
-            'testimonial_type' => 'required|string|in:' . implode(',', Testimonial::TYPES),
+            'testimonial_type' => 'required|string|in:'.implode(',', Testimonial::TYPES),
             'name' => 'required|string|max:255',
             'issue_date' => 'required|date',
             'status' => 'required|string|in:draft,issued,revoked',
@@ -121,7 +121,7 @@ class DashboardTestimonialController extends Controller
             'is_visible' => 'nullable|boolean',
         ]);
 
-        if (!empty($validated['body'])) {
+        if (! empty($validated['body'])) {
             $validated['body'] = [$validated['body']];
         }
 

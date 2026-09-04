@@ -7,6 +7,7 @@ use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ExpenseTest extends TestCase
@@ -33,7 +34,7 @@ class ExpenseTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $expense = $this->makeExpense();
@@ -46,7 +47,7 @@ class ExpenseTest extends TestCase
         $this->assertEquals(1500.75, (float) $expense->amount);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_date_to_carbon(): void
     {
         $date = now()->subWeek()->startOfDay();
@@ -60,7 +61,7 @@ class ExpenseTest extends TestCase
         $this->assertEquals($date->toDateString(), $expense->date->toDateString());
     }
 
-    /** @test */
+    #[Test]
     public function it_can_be_queried_by_date_with_where_date(): void
     {
         $target = now()->subDays(3)->startOfDay();
@@ -72,7 +73,7 @@ class ExpenseTest extends TestCase
         $this->assertCount(1, $found);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_an_expense_category(): void
     {
         $category = ExpenseCategory::create(['name' => 'Cat '.uniqid()]);
@@ -83,7 +84,7 @@ class ExpenseTest extends TestCase
         $this->assertEquals($category->id, $expense->category()->first()->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_chart_of_account(): void
     {
         $account = $this->makeAccount();
@@ -98,7 +99,7 @@ class ExpenseTest extends TestCase
         $this->assertEquals($account->id, $expense->account->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_creator(): void
     {
         $user = User::factory()->create();
@@ -113,7 +114,7 @@ class ExpenseTest extends TestCase
         $this->assertEquals($user->id, $expense->creator->id);
     }
 
-    /** @test */
+    #[Test]
     public function category_is_nullable_when_expense_category_absent(): void
     {
         $expense = $this->makeExpense();

@@ -5,13 +5,14 @@ namespace Tests\Unit\Models;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UserTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_auto_assigns_student_role_on_create(): void
     {
         $user = User::create([
@@ -25,7 +26,7 @@ class UserTest extends TestCase
         $this->assertEquals($studentRole->id, $user->role_id);
     }
 
-    /** @test */
+    #[Test]
     public function create_with_credential_strips_role_id_from_mass_assignment(): void
     {
         $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
@@ -40,7 +41,7 @@ class UserTest extends TestCase
         $this->assertEquals($adminRole->id, $user->fresh()->role_id);
     }
 
-    /** @test */
+    #[Test]
     public function create_with_credential_works_without_role_id(): void
     {
         $user = User::createWithCredential([
@@ -52,7 +53,7 @@ class UserTest extends TestCase
         $this->assertNotNull($user->role_id);
     }
 
-    /** @test */
+    #[Test]
     public function it_hashes_password_on_assignment(): void
     {
         $user = User::create([
@@ -65,7 +66,7 @@ class UserTest extends TestCase
         $this->assertTrue(password_verify('plaintext-password', $user->getRawOriginal('password')));
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_role_id_for_existing_role(): void
     {
         Role::firstOrCreate(['name' => 'teacher', 'guard_name' => 'web']);
@@ -75,7 +76,7 @@ class UserTest extends TestCase
         $this->assertNotNull($roleId);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_null_for_nonexistent_role(): void
     {
         $roleId = User::roleIdFor('nonexistent_role');
@@ -83,7 +84,7 @@ class UserTest extends TestCase
         $this->assertNull($roleId);
     }
 
-    /** @test */
+    #[Test]
     public function it_generates_profile_photo_url_from_initials(): void
     {
         $user = User::create([
@@ -98,7 +99,7 @@ class UserTest extends TestCase
         $this->assertStringContainsString('J+D', $url);
     }
 
-    /** @test */
+    #[Test]
     public function it_uses_uploaded_photo_for_profile_url(): void
     {
         $user = User::create([
@@ -111,7 +112,7 @@ class UserTest extends TestCase
         $this->assertStringContainsString('storage/photos/user.jpg', $user->profile_photo_url);
     }
 
-    /** @test */
+    #[Test]
     public function has_permission_to_returns_false_for_undefined_permission(): void
     {
         $user = User::factory()->create();
@@ -119,7 +120,7 @@ class UserTest extends TestCase
         $this->assertFalse($user->hasPermissionTo('nonexistent_permission'));
     }
 
-    /** @test */
+    #[Test]
     public function it_creates_token_pair_with_access_and_refresh_tokens(): void
     {
         $user = User::factory()->create();
@@ -137,7 +138,7 @@ class UserTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_revokes_all_tokens(): void
     {
         $user = User::factory()->create();
@@ -151,7 +152,7 @@ class UserTest extends TestCase
         $this->assertDatabaseCount('personal_access_tokens', 0);
     }
 
-    /** @test */
+    #[Test]
     public function it_revokes_other_tokens_keeping_current(): void
     {
         $user = User::factory()->create();
@@ -167,7 +168,7 @@ class UserTest extends TestCase
         $this->assertEquals($currentToken->id, $user->tokens()->first()->id);
     }
 
-    /** @test */
+    #[Test]
     public function has_any_permission_accepts_array(): void
     {
         $user = User::factory()->create();
@@ -175,7 +176,7 @@ class UserTest extends TestCase
         $this->assertFalse($user->hasAnyPermission(['perm1', 'perm2', 'perm3']));
     }
 
-    /** @test */
+    #[Test]
     public function has_any_permission_accepts_single_string(): void
     {
         $user = User::factory()->create();

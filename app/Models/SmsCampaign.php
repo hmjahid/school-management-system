@@ -9,13 +9,19 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class SmsCampaign extends Model
 {
     public const AUDIENCE_ALL = 'all';
+
     public const AUDIENCE_CLASS = 'class';
+
     public const AUDIENCE_SECTION = 'section';
+
     public const AUDIENCE_STAFF = 'staff';
 
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_SENDING = 'sending';
+
     public const STATUS_SENT = 'sent';
+
     public const STATUS_FAILED = 'failed';
 
     protected $fillable = [

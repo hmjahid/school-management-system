@@ -4,6 +4,7 @@ namespace Tests\Unit\Models;
 
 use App\Models\Career;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class CareerTest extends TestCase
@@ -22,7 +23,7 @@ class CareerTest extends TestCase
         ], $attributes));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $career = $this->makeCareer(['is_published' => true]);
@@ -38,7 +39,7 @@ class CareerTest extends TestCase
         $this->assertTrue($career->is_published);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_salary_as_decimal(): void
     {
         $career = $this->makeCareer([
@@ -50,7 +51,7 @@ class CareerTest extends TestCase
         $this->assertSame('20000.00', $career->salary_max);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_deadline_as_date(): void
     {
         $date = now()->addDays(5)->toDateString();

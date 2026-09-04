@@ -29,15 +29,13 @@ class NotificationReadAll implements ShouldBroadcast
     /**
      * Create a new event instance.
      *
-     * @param  int  $userId
-     * @param  string  $readAt
      * @return void
      */
     public function __construct(int $userId, ?string $readAt = null)
     {
         $this->userId = $userId;
         $this->readAt = $readAt;
-        
+
         $this->dontBroadcastToCurrentUser();
     }
 
@@ -48,9 +46,9 @@ class NotificationReadAll implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('App.User.' . $this->userId);
+        return new PrivateChannel('App.User.'.$this->userId);
     }
-    
+
     /**
      * The event's broadcast name.
      *
@@ -60,7 +58,7 @@ class NotificationReadAll implements ShouldBroadcast
     {
         return 'notification.read.all';
     }
-    
+
     /**
      * Get the data to broadcast.
      *

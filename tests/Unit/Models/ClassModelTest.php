@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ClassModelTest extends TestCase
@@ -55,7 +56,7 @@ class ClassModelTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_fillable_columns(): void
     {
         $name = 'Class '.uniqid();
@@ -68,7 +69,7 @@ class ClassModelTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_is_active_boolean(): void
     {
         $class = $this->makeClass(['is_active' => 0]);
@@ -77,7 +78,7 @@ class ClassModelTest extends TestCase
         $this->assertIsBool($class->is_active);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_teacher(): void
     {
         $teacher = User::factory()->create();
@@ -87,7 +88,7 @@ class ClassModelTest extends TestCase
         $this->assertSame($teacher->id, $class->teacher->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_subject(): void
     {
         $subject = Subject::create([
@@ -100,7 +101,7 @@ class ClassModelTest extends TestCase
         $this->assertSame($subject->id, $class->subject->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_section(): void
     {
         $section = $this->makeSection();
@@ -110,7 +111,7 @@ class ClassModelTest extends TestCase
         $this->assertSame($section->id, $class->section->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_grades_relationship(): void
     {
         $class = $this->makeClass();

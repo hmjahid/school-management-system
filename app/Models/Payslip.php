@@ -18,7 +18,9 @@ class Payslip extends Model
             ->logOnlyDirty()
             ->useLogName('payroll');
     }
+
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_PAID = 'paid';
 
     protected $fillable = [
@@ -51,6 +53,7 @@ class Payslip extends Model
     {
         $this->status = self::STATUS_PAID;
         $this->paid_at = now();
+
         return $this->save();
     }
 }

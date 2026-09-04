@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\WebsiteSetting;
 use App\Services\SetupChecklistService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -30,7 +31,7 @@ class SetupChecklistServiceTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_six_checklist_items(): void
     {
         $service = app(SetupChecklistService::class);
@@ -47,7 +48,7 @@ class SetupChecklistServiceTest extends TestCase
         $this->assertContains('payment', $keys);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_zero_percent_when_nothing_is_configured(): void
     {
         $service = app(SetupChecklistService::class);
@@ -56,7 +57,7 @@ class SetupChecklistServiceTest extends TestCase
         $this->assertFalse($service->isComplete());
     }
 
-    /** @test */
+    #[Test]
     public function it_detects_completed_school_info(): void
     {
         $this->makeWebsiteSetting(['school_name' => 'Test School', 'established_year' => 2020]);
@@ -68,7 +69,7 @@ class SetupChecklistServiceTest extends TestCase
         $this->assertTrue($schoolInfo['done']);
     }
 
-    /** @test */
+    #[Test]
     public function it_detects_completed_academic_session(): void
     {
         AcademicSession::factory()->create();
@@ -80,7 +81,7 @@ class SetupChecklistServiceTest extends TestCase
         $this->assertTrue($sessionItem['done']);
     }
 
-    /** @test */
+    #[Test]
     public function it_detects_completed_classes(): void
     {
         SchoolClass::factory()->create();
@@ -92,7 +93,7 @@ class SetupChecklistServiceTest extends TestCase
         $this->assertTrue($classesItem['done']);
     }
 
-    /** @test */
+    #[Test]
     public function it_detects_completed_teachers(): void
     {
         Role::firstOrCreate(['name' => 'teacher', 'guard_name' => 'web']);
@@ -106,7 +107,7 @@ class SetupChecklistServiceTest extends TestCase
         $this->assertTrue($teachersItem['done']);
     }
 
-    /** @test */
+    #[Test]
     public function it_detects_completed_payment(): void
     {
         PaymentGateway::create([
@@ -124,7 +125,7 @@ class SetupChecklistServiceTest extends TestCase
         $this->assertTrue($paymentItem['done']);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_one_hundred_percent_when_all_complete(): void
     {
         $this->makeWebsiteSetting(['school_name' => 'Test School', 'established_year' => 2020, 'timezone' => 'Asia/Dhaka']);
@@ -149,7 +150,7 @@ class SetupChecklistServiceTest extends TestCase
         $this->assertEquals(100, $service->completionPercent());
     }
 
-    /** @test */
+    #[Test]
     public function it_detects_valid_timezone(): void
     {
         $this->makeWebsiteSetting(['school_name' => 'TZ Test', 'established_year' => 2020, 'timezone' => 'Asia/Dhaka']);
@@ -161,7 +162,7 @@ class SetupChecklistServiceTest extends TestCase
         $this->assertTrue($timezoneItem['done']);
     }
 
-    /** @test */
+    #[Test]
     public function it_rejects_invalid_timezone(): void
     {
         $this->makeWebsiteSetting(['school_name' => 'TZ Test', 'established_year' => 2020, 'timezone' => 'Invalid/Zone']);

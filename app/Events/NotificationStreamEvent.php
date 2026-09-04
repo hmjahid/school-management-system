@@ -3,7 +3,6 @@
 namespace App\Events;
 
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -22,7 +21,6 @@ class NotificationStreamEvent implements ShouldBroadcast
     /**
      * Create a new event instance.
      *
-     * @param  int  $userId
      * @return void
      */
     public function __construct(int $userId)
@@ -37,7 +35,7 @@ class NotificationStreamEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('App.User.' . $this->userId);
+        return new PrivateChannel('App.User.'.$this->userId);
     }
 
     /**

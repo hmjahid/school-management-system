@@ -9,6 +9,7 @@ use App\Services\NotificationDeliveryService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Mockery;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class NotificationDeliveryServiceTest extends TestCase
@@ -42,7 +43,7 @@ class NotificationDeliveryServiceTest extends TestCase
         return new TestNotificationDeliveryService($sms, $push);
     }
 
-    /** @test */
+    #[Test]
     public function it_routes_to_the_database_channel_and_creates_a_notification(): void
     {
         $user = $this->makeUser();
@@ -58,7 +59,7 @@ class NotificationDeliveryServiceTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_logs_each_delivery_attempt(): void
     {
         $user = $this->makeUser();
@@ -72,7 +73,7 @@ class NotificationDeliveryServiceTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_sends_to_multiple_users_keyed_by_id(): void
     {
         $u1 = $this->makeUser(['email' => 'm1@example.com']);
@@ -87,7 +88,7 @@ class NotificationDeliveryServiceTest extends TestCase
         $this->assertTrue($results[$u2->id]['database']['success']);
     }
 
-    /** @test */
+    #[Test]
     public function it_uses_default_channels_when_none_specified(): void
     {
         $user = $this->makeUser();
@@ -100,7 +101,7 @@ class NotificationDeliveryServiceTest extends TestCase
         $this->assertTrue($results['database']['success']);
     }
 
-    /** @test */
+    #[Test]
     public function it_reports_failure_when_a_channel_handler_throws(): void
     {
         $user = $this->makeUser();

@@ -19,11 +19,12 @@ use Illuminate\Support\Facades\Schema;
  * All pivots include `academic_session_id` so assignments can be scoped to
  * a school year. Cascades are configured for safety on teacher/class deletion.
  */
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         // class_teacher: <teacher, class, is_class_teacher, academic_session>
-        if (!Schema::hasTable('class_teacher')) {
+        if (! Schema::hasTable('class_teacher')) {
             Schema::create('class_teacher', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('teacher_id')->constrained('teachers')->cascadeOnDelete();
@@ -36,7 +37,7 @@ return new class extends Migration {
         }
 
         // class_subject_teacher: <teacher, subject, class, academic_session, is_primary>
-        if (!Schema::hasTable('class_subject_teacher')) {
+        if (! Schema::hasTable('class_subject_teacher')) {
             Schema::create('class_subject_teacher', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('teacher_id')->constrained('teachers')->cascadeOnDelete();
@@ -50,7 +51,7 @@ return new class extends Migration {
         }
 
         // section_teacher: <teacher, section, subject, academic_session, is_class_teacher>
-        if (!Schema::hasTable('section_teacher')) {
+        if (! Schema::hasTable('section_teacher')) {
             Schema::create('section_teacher', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('teacher_id')->constrained('teachers')->cascadeOnDelete();

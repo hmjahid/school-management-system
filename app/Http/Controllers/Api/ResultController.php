@@ -26,11 +26,11 @@ class ResultController extends Controller
             ->where(function ($q) use ($request) {
                 $roll = $request->string('roll')->toString();
                 $q->where('roll_no', $roll)
-                  ->orWhere('roll_number', $roll);
+                    ->orWhere('roll_number', $roll);
             })
             ->first();
 
-        if (!$student) {
+        if (! $student) {
             return response()->json(['message' => 'Student not found'], 404);
         }
 
@@ -45,23 +45,24 @@ class ResultController extends Controller
             ->where('is_published', true)
             ->get(['id', 'exam_id', 'subject_id', 'obtained_marks', 'grade', 'remarks', 'status']);
 
-        $grouped = $results->groupBy(fn($r) => $r->exam_id);
+        $grouped = $results->groupBy(fn ($r) => $r->exam_id);
 
         $data = [
             'student' => [
                 'id' => $student->id,
-                'name' => $student->user?->name ?? ($student->first_name . ' ' . $student->last_name),
+                'name' => $student->user?->name ?? ($student->first_name.' '.$student->last_name),
                 'roll_no' => $student->roll_no,
                 'class' => $student->class?->name,
             ],
             'exams' => $exams->map(function ($exam) use ($grouped) {
                 $examResults = $grouped->get($exam->id, collect());
+
                 return [
                     'id' => $exam->id,
                     'name' => $exam->name,
                     'type' => $exam->type,
                     'total_marks' => $exam->total_marks,
-                    'results' => $examResults->map(fn($r) => [
+                    'results' => $examResults->map(fn ($r) => [
                         'id' => $r->id,
                         'subject' => $r->subject?->name,
                         'obtained_marks' => $r->obtained_marks,

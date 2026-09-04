@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\PaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class BkashRefundTest extends TestCase
@@ -85,7 +86,7 @@ class BkashRefundTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_processes_bkash_refund_successfully()
     {
         Http::fake([
@@ -130,7 +131,7 @@ class BkashRefundTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_bkash_refund_failure()
     {
         // Mock bKash refund failure
@@ -161,7 +162,7 @@ class BkashRefundTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_concurrent_refund_attempts()
     {
         Http::fake([
@@ -202,7 +203,7 @@ class BkashRefundTest extends TestCase
         $this->assertEquals(1, $this->payment->refunds()->count());
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_webhook_notifications()
     {
         $refund = $this->payment->refunds()->create([

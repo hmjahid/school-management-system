@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Teacher extends Model
 {
-
     protected $fillable = [
         'user_id',
         'employee_id',
@@ -153,7 +152,7 @@ class Teacher extends Model
             $this->city,
             $this->state,
             $this->zip_code,
-            $this->country
+            $this->country,
         ];
 
         return implode(', ', array_filter($address));
@@ -168,11 +167,12 @@ class Teacher extends Model
             'active' => 'success',
             'inactive' => 'secondary',
             'on_leave' => 'warning',
-            'retired' => 'dark'
+            'retired' => 'dark',
         ];
 
         $color = $statuses[$this->status] ?? 'secondary';
-        return "<span class='badge bg-{$color}'>" . ucfirst($this->status) . "</span>";
+
+        return "<span class='badge bg-{$color}'>".ucfirst($this->status).'</span>';
     }
 
     /**

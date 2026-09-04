@@ -9,6 +9,7 @@ use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AdmissionMassAssignmentTest extends TestCase
@@ -45,7 +46,7 @@ class AdmissionMassAssignmentTest extends TestCase
         return [$session, $batch];
     }
 
-    /** @test */
+    #[Test]
     public function api_applicant_cannot_set_admission_status_on_create()
     {
         [$session, $batch] = $this->makeSessionAndBatch();
@@ -85,7 +86,7 @@ class AdmissionMassAssignmentTest extends TestCase
         $this->assertSame(Admission::STATUS_DRAFT, $admission->status);
     }
 
-    /** @test */
+    #[Test]
     public function public_applicant_cannot_set_status_on_apply()
     {
         Notification::fake();

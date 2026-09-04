@@ -18,7 +18,9 @@ class DemoAttendanceSeeder extends Seeder
 
         for ($day = 30; $day >= 1; $day--) {
             $date = Carbon::now()->subDays($day);
-            if ($date->isFriday()) continue;
+            if ($date->isFriday()) {
+                continue;
+            }
 
             static $consecutiveAbsent = [];
 
@@ -35,7 +37,10 @@ class DemoAttendanceSeeder extends Seeder
                     $status = 'present';
                     foreach (array_combine($statuses, $weights) as $s => $w) {
                         $cumulative += $w;
-                        if ($rand <= $cumulative) { $status = $s; break; }
+                        if ($rand <= $cumulative) {
+                            $status = $s;
+                            break;
+                        }
                     }
                     if ($status === 'absent') {
                         $consecutiveAbsent[$key] = ($consecutiveAbsent[$key] ?? 0) + 1;

@@ -10,6 +10,7 @@ use App\Models\Student;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AssignmentSubmissionTest extends TestCase
@@ -19,14 +20,14 @@ class AssignmentSubmissionTest extends TestCase
     private function makeSubject(): Subject
     {
         return Subject::create([
-            'name' => 'Subject ' . uniqid(),
-            'code' => 'SUB' . uniqid(),
+            'name' => 'Subject '.uniqid(),
+            'code' => 'SUB'.uniqid(),
         ]);
     }
 
     private function makeAssignment(): Assignment
     {
-        $batch = Batch::create(['name' => 'Batch ' . uniqid()]);
+        $batch = Batch::create(['name' => 'Batch '.uniqid()]);
         $subject = $this->makeSubject();
         $user = User::factory()->create();
 
@@ -51,7 +52,7 @@ class AssignmentSubmissionTest extends TestCase
         ], $attributes));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $submission = $this->makeSubmission([
@@ -69,7 +70,7 @@ class AssignmentSubmissionTest extends TestCase
         $this->assertSame('Done', $submission->notes);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_status_constants(): void
     {
         $this->assertSame('submitted', AssignmentSubmission::STATUS_SUBMITTED);
@@ -78,7 +79,7 @@ class AssignmentSubmissionTest extends TestCase
         $this->assertSame('not_submitted', AssignmentSubmission::STATUS_NOT_SUBMITTED);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_an_assignment(): void
     {
         $assignment = $this->makeAssignment();
@@ -92,7 +93,7 @@ class AssignmentSubmissionTest extends TestCase
         $this->assertSame($assignment->id, $submission->assignment->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_student(): void
     {
         $student = Student::factory()->create();
@@ -102,7 +103,7 @@ class AssignmentSubmissionTest extends TestCase
         $this->assertSame($student->id, $submission->student->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_guardian(): void
     {
         $user = User::factory()->create();
@@ -116,7 +117,7 @@ class AssignmentSubmissionTest extends TestCase
         $this->assertSame($guardian->id, $submission->guardian->id);
     }
 
-    /** @test */
+    #[Test]
     public function guardian_relationship_is_nullable(): void
     {
         $submission = $this->makeSubmission();
@@ -124,7 +125,7 @@ class AssignmentSubmissionTest extends TestCase
         $this->assertNull($submission->guardian);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_grader(): void
     {
         $grader = User::factory()->create();

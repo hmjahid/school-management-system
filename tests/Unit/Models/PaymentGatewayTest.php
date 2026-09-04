@@ -4,13 +4,14 @@ namespace Tests\Unit\Models;
 
 use App\Models\PaymentGateway;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class PaymentGatewayTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_returns_true_for_offline_gateway_configuration(): void
     {
         $gateway = PaymentGateway::create([
@@ -24,7 +25,7 @@ class PaymentGatewayTest extends TestCase
         $this->assertTrue($gateway->is_configured);
     }
 
-    /** @test */
+    #[Test]
     public function it_requires_api_key_and_secret_for_bkash(): void
     {
         $unconfigured = PaymentGateway::create([
@@ -50,7 +51,7 @@ class PaymentGatewayTest extends TestCase
         $this->assertTrue($configured->is_configured);
     }
 
-    /** @test */
+    #[Test]
     public function it_requires_callback_url_for_stripe(): void
     {
         $withoutCallback = PaymentGateway::create([
@@ -78,7 +79,7 @@ class PaymentGatewayTest extends TestCase
         $this->assertTrue($withCallback->is_configured);
     }
 
-    /** @test */
+    #[Test]
     public function it_slugifies_code_on_save(): void
     {
         $gateway = PaymentGateway::create([
@@ -92,7 +93,7 @@ class PaymentGatewayTest extends TestCase
         $this->assertEquals('test_gateway_code_', $gateway->fresh()->code);
     }
 
-    /** @test */
+    #[Test]
     public function it_defaults_currency_to_bdt(): void
     {
         $gateway = PaymentGateway::create([
@@ -106,7 +107,7 @@ class PaymentGatewayTest extends TestCase
         $this->assertEquals('BDT', $gateway->fresh()->currency);
     }
 
-    /** @test */
+    #[Test]
     public function it_defaults_supported_currencies_to_currency_array(): void
     {
         $gateway = PaymentGateway::create([
@@ -121,7 +122,7 @@ class PaymentGatewayTest extends TestCase
         $this->assertEquals(['USD'], $gateway->fresh()->supported_currencies);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_correct_type_label(): void
     {
         $bank = PaymentGateway::create([
@@ -143,7 +144,7 @@ class PaymentGatewayTest extends TestCase
         $this->assertEquals('Mobile Financial Service', $mfs->type_label);
     }
 
-    /** @test */
+    #[Test]
     public function it_hides_api_credentials_in_array_form(): void
     {
         $gateway = PaymentGateway::create([
@@ -166,7 +167,7 @@ class PaymentGatewayTest extends TestCase
         $this->assertArrayNotHasKey('api_password', $array);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_empty_api_config_for_offline_gateway(): void
     {
         $gateway = PaymentGateway::create([
@@ -180,7 +181,7 @@ class PaymentGatewayTest extends TestCase
         $this->assertEquals([], $gateway->getApiConfig());
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_api_config_for_online_gateway(): void
     {
         $gateway = PaymentGateway::create([
@@ -204,7 +205,7 @@ class PaymentGatewayTest extends TestCase
         $this->assertEquals('BDT', $config['currency']);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_full_config_array(): void
     {
         $gateway = PaymentGateway::create([
@@ -223,7 +224,7 @@ class PaymentGatewayTest extends TestCase
         $this->assertArrayHasKey('is_configured', $config);
     }
 
-    /** @test */
+    #[Test]
     public function scope_active_filters_correctly(): void
     {
         PaymentGateway::create([

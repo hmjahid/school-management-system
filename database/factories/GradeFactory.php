@@ -2,11 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\ClassModel;
+use App\Models\Exam;
 use App\Models\Grade;
 use App\Models\Student;
-use App\Models\ClassModel;
 use App\Models\Subject;
-use App\Models\Exam;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class GradeFactory extends Factory

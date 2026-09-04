@@ -5,6 +5,7 @@ namespace Tests\Unit\Models;
 use App\Models\Event;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class EventTest extends TestCase
@@ -21,7 +22,7 @@ class EventTest extends TestCase
         ], $attributes));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $user = User::factory()->create();
@@ -44,7 +45,7 @@ class EventTest extends TestCase
         $this->assertInstanceOf(User::class, $event->createdBy);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_many_attendees(): void
     {
         $event = $this->makeEvent();
@@ -56,7 +57,7 @@ class EventTest extends TestCase
         $this->assertSame('registered', $event->attendees->first()->pivot->status);
     }
 
-    /** @test */
+    #[Test]
     public function it_scopes_upcoming_published_events(): void
     {
         $this->makeEvent(['title' => 'Upcoming', 'start_date' => now()->addDay(), 'status' => 'published']);
@@ -66,7 +67,7 @@ class EventTest extends TestCase
         $this->assertCount(1, Event::upcoming()->get());
     }
 
-    /** @test */
+    #[Test]
     public function it_detects_registration_open(): void
     {
         $open = $this->makeEvent(['registration_deadline' => now()->addDay()]);
@@ -78,7 +79,7 @@ class EventTest extends TestCase
         $this->assertTrue($noDeadline->isRegistrationOpen());
     }
 
-    /** @test */
+    #[Test]
     public function it_detects_full_events(): void
     {
         $event = $this->makeEvent(['max_attendees' => 1]);
@@ -89,7 +90,7 @@ class EventTest extends TestCase
         $this->assertTrue($event->isFull());
     }
 
-    /** @test */
+    #[Test]
     public function it_soft_deletes(): void
     {
         $event = $this->makeEvent();

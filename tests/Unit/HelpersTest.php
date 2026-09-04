@@ -2,11 +2,12 @@
 
 namespace Tests\Unit;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class HelpersTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function dashboard_help_section_maps_attendance_routes(): void
     {
         $this->assertEquals('attendance', dashboard_help_section_for_route('dashboard.attendance'));
@@ -15,7 +16,7 @@ class HelpersTest extends TestCase
         $this->assertEquals('attendance', dashboard_help_section_for_route('dashboard.staff-attendance.index'));
     }
 
-    /** @test */
+    #[Test]
     public function dashboard_help_section_maps_student_routes(): void
     {
         $this->assertEquals('managing_students', dashboard_help_section_for_route('dashboard.students'));
@@ -24,7 +25,7 @@ class HelpersTest extends TestCase
         $this->assertEquals('managing_students', dashboard_help_section_for_route('dashboard.bulk'));
     }
 
-    /** @test */
+    #[Test]
     public function dashboard_help_section_maps_exam_routes(): void
     {
         $this->assertEquals('exams_results', dashboard_help_section_for_route('dashboard.exams'));
@@ -35,7 +36,7 @@ class HelpersTest extends TestCase
         $this->assertEquals('exams_results', dashboard_help_section_for_route('dashboard.assignments.index'));
     }
 
-    /** @test */
+    #[Test]
     public function dashboard_help_section_maps_finance_routes(): void
     {
         $this->assertEquals('fees_payments', dashboard_help_section_for_route('dashboard.fees'));
@@ -44,7 +45,7 @@ class HelpersTest extends TestCase
         $this->assertEquals('fees_payments', dashboard_help_section_for_route('dashboard.budget'));
     }
 
-    /** @test */
+    #[Test]
     public function dashboard_help_section_maps_cms_routes(): void
     {
         $this->assertEquals('cms_management', dashboard_help_section_for_route('dashboard.cms'));
@@ -54,7 +55,7 @@ class HelpersTest extends TestCase
         $this->assertEquals('cms_management', dashboard_help_section_for_route('dashboard.messages'));
     }
 
-    /** @test */
+    #[Test]
     public function dashboard_help_section_maps_system_routes(): void
     {
         $this->assertEquals('public_website', dashboard_help_section_for_route('dashboard.help'));
@@ -63,7 +64,7 @@ class HelpersTest extends TestCase
         $this->assertEquals('public_website', dashboard_help_section_for_route('dashboard.settings.index'));
     }
 
-    /** @test */
+    #[Test]
     public function dashboard_help_section_defaults_to_getting_started(): void
     {
         $this->assertEquals('getting_started', dashboard_help_section_for_route('dashboard'));
@@ -73,7 +74,7 @@ class HelpersTest extends TestCase
         $this->assertEquals('getting_started', dashboard_help_section_for_route('nonexistent.route'));
     }
 
-    /** @test */
+    #[Test]
     public function site_ui_returns_default_when_key_not_found(): void
     {
         $this->assertEquals('default-value', site_ui('nonexistent.key', 'default-value'));

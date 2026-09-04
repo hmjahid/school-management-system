@@ -4,6 +4,7 @@ namespace Tests\Unit\Services;
 
 use App\Services\Sms\TwilioSmsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class TwilioSmsServiceTest extends TestCase
@@ -34,7 +35,7 @@ class TwilioSmsServiceTest extends TestCase
         ], $config));
     }
 
-    /** @test */
+    #[Test]
     public function it_sends_successfully_and_returns_true(): void
     {
         $service = $this->makeService();
@@ -42,7 +43,7 @@ class TwilioSmsServiceTest extends TestCase
         $this->assertTrue($service->send('01700000000', 'Hello'));
     }
 
-    /** @test */
+    #[Test]
     public function it_formats_phone_number_into_e164(): void
     {
         $service = $this->makeService();
@@ -52,7 +53,7 @@ class TwilioSmsServiceTest extends TestCase
         $this->assertSame('+1123456789', $formatted);
     }
 
-    /** @test */
+    #[Test]
     public function it_detects_success_from_a_message_with_sid(): void
     {
         $service = $this->makeService();
@@ -62,7 +63,7 @@ class TwilioSmsServiceTest extends TestCase
         $this->assertFalse($this->callProtected($service, 'wasSuccessful', null));
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_the_balance(): void
     {
         $service = $this->makeService();
@@ -70,7 +71,7 @@ class TwilioSmsServiceTest extends TestCase
         $this->assertSame(12.5, $service->getBalance());
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_the_status_of_a_message(): void
     {
         $service = $this->makeService();

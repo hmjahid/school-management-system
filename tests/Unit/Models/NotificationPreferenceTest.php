@@ -5,13 +5,14 @@ namespace Tests\Unit\Models;
 use App\Models\NotificationPreference;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class NotificationPreferenceTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_required_columns_and_casts(): void
     {
         $user = User::factory()->create();
@@ -31,7 +32,7 @@ class NotificationPreferenceTest extends TestCase
         $this->assertIsBool($pref->sms);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_user(): void
     {
         $user = User::factory()->create();
@@ -44,7 +45,7 @@ class NotificationPreferenceTest extends TestCase
         $this->assertTrue($pref->user->is($user));
     }
 
-    /** @test */
+    #[Test]
     public function it_exposes_valid_types_and_channels(): void
     {
         $this->assertContains('refund_created', NotificationPreference::getAvailableTypes());
@@ -54,7 +55,7 @@ class NotificationPreferenceTest extends TestCase
         $this->assertTrue(NotificationPreference::isValidChannel('sms'));
     }
 
-    /** @test */
+    #[Test]
     public function it_sets_and_gets_user_preference(): void
     {
         $user = User::factory()->create();
@@ -74,8 +75,8 @@ class NotificationPreferenceTest extends TestCase
         );
     }
 
-    /** @test */
-    public function getUserPreferences_falls_back_to_defaults(): void
+    #[Test]
+    public function get_user_preferences_falls_back_to_defaults(): void
     {
         $user = User::factory()->create();
 

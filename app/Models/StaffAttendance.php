@@ -10,8 +10,11 @@ class StaffAttendance extends Model
     protected $table = 'staff_attendances';
 
     public const STATUS_PRESENT = 'present';
+
     public const STATUS_ABSENT = 'absent';
+
     public const STATUS_LATE = 'late';
+
     public const STATUS_LEAVE = 'leave';
 
     public const STATUSES = [

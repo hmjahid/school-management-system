@@ -5,13 +5,14 @@ namespace Tests\Unit\Models;
 use App\Models\Book;
 use App\Models\BookCategory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class BookCategoryTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_name_and_description(): void
     {
         $category = BookCategory::create([
@@ -26,7 +27,7 @@ class BookCategoryTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function description_is_optional(): void
     {
         $category = BookCategory::create(['name' => 'Math '.uniqid()]);
@@ -34,7 +35,7 @@ class BookCategoryTest extends TestCase
         $this->assertNull($category->description);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_many_books(): void
     {
         $category = BookCategory::create(['name' => 'Fiction '.uniqid()]);

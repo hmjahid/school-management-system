@@ -9,7 +9,6 @@ use App\Models\Section;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Teacher;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -19,7 +18,6 @@ class AttendanceController extends Controller
     /**
      * Display a listing of the attendance records.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -80,52 +78,52 @@ class AttendanceController extends Controller
         // Apply search
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->whereHas('student.user', function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('student.user', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%");
                 })
-                ->orWhereHas('batch', function($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('code', 'like', "%{$search}%");
-                })
-                ->orWhereHas('section', function($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%");
-                })
-                ->orWhereHas('subject', function($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('code', 'like', "%{$search}%");
-                });
+                    ->orWhereHas('batch', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('code', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('section', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('subject', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('code', 'like', "%{$search}%");
+                    });
             });
         }
 
         // Apply sorting
         $sortField = $request->input('sort_field', 'date');
         $sortOrder = $request->input('sort_order', 'desc');
-        
+
         if (in_array($sortField, ['date', 'status', 'type', 'created_at'])) {
             $query->orderBy($sortField, $sortOrder);
         } elseif ($sortField === 'student') {
             $query->join('students', 'attendances.student_id', '=', 'students.id')
-                  ->join('users', 'students.user_id', '=', 'users.id')
-                  ->orderBy('users.name', $sortOrder)
-                  ->select('attendances.*');
+                ->join('users', 'students.user_id', '=', 'users.id')
+                ->orderBy('users.name', $sortOrder)
+                ->select('attendances.*');
         } elseif ($sortField === 'batch') {
             $query->join('batches', 'attendances.batch_id', '=', 'batches.id')
-                  ->orderBy('batches.name', $sortOrder)
-                  ->select('attendances.*');
+                ->orderBy('batches.name', $sortOrder)
+                ->select('attendances.*');
         } elseif ($sortField === 'section') {
             $query->join('sections', 'attendances.section_id', '=', 'sections.id')
-                  ->orderBy('sections.name', $sortOrder)
-                  ->select('attendances.*');
+                ->orderBy('sections.name', $sortOrder)
+                ->select('attendances.*');
         } elseif ($sortField === 'subject') {
             $query->join('subjects', 'attendances.subject_id', '=', 'subjects.id')
-                  ->orderBy('subjects.name', $sortOrder)
-                  ->select('attendances.*');
+                ->orderBy('subjects.name', $sortOrder)
+                ->select('attendances.*');
         } elseif ($sortField === 'teacher') {
             $query->join('teachers', 'attendances.teacher_id', '=', 'teachers.id')
-                  ->join('users', 'teachers.user_id', '=', 'users.id')
-                  ->orderBy('users.name', $sortOrder)
-                  ->select('attendances.*');
+                ->join('users', 'teachers.user_id', '=', 'users.id')
+                ->orderBy('users.name', $sortOrder)
+                ->select('attendances.*');
         }
 
         $perPage = $request->per_page ?? 20;
@@ -138,14 +136,13 @@ class AttendanceController extends Controller
                 'per_page' => $attendances->perPage(),
                 'current_page' => $attendances->currentPage(),
                 'last_page' => $attendances->lastPage(),
-            ]
+            ],
         ]);
     }
 
     /**
      * Store a newly created attendance record in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
@@ -170,13 +167,13 @@ class AttendanceController extends Controller
         // Check for duplicate attendance
         $existingAttendance = Attendance::where('date', $validated['date'])
             ->where('student_id', $validated['student_id'])
-            ->when(isset($validated['batch_id']), function($q) use ($validated) {
+            ->when(isset($validated['batch_id']), function ($q) use ($validated) {
                 return $q->where('batch_id', $validated['batch_id']);
             })
-            ->when(isset($validated['section_id']), function($q) use ($validated) {
+            ->when(isset($validated['section_id']), function ($q) use ($validated) {
                 return $q->where('section_id', $validated['section_id']);
             })
-            ->when(isset($validated['subject_id']), function($q) use ($validated) {
+            ->when(isset($validated['subject_id']), function ($q) use ($validated) {
                 return $q->where('subject_id', $validated['subject_id']);
             })
             ->first();
@@ -184,7 +181,7 @@ class AttendanceController extends Controller
         if ($existingAttendance) {
             return response()->json([
                 'message' => 'Attendance already recorded for this student on the selected date.',
-                'data' => new AttendanceResource($existingAttendance)
+                'data' => new AttendanceResource($existingAttendance),
             ], 422);
         }
 
@@ -207,20 +204,19 @@ class AttendanceController extends Controller
                 'teacher.user',
                 'recordedBy',
                 'updatedBy',
-            ]))
+            ])),
         ], 201);
     }
 
     /**
      * Display the specified attendance record.
      *
-     * @param  \App\Models\Attendance  $attendance
      * @return \Illuminate\Http\JsonResponse
      */
     public function show(Attendance $attendance)
     {
         $this->authorize('view', $attendance);
-        
+
         return response()->json([
             'data' => new AttendanceResource($attendance->load([
                 'student.user',
@@ -231,15 +227,13 @@ class AttendanceController extends Controller
                 'recordedBy',
                 'updatedBy',
                 'academicSession',
-            ]))
+            ])),
         ]);
     }
 
     /**
      * Update the specified attendance record in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Attendance  $attendance
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, Attendance $attendance)
@@ -266,13 +260,13 @@ class AttendanceController extends Controller
             $existingAttendance = Attendance::where('id', '!=', $attendance->id)
                 ->where('date', $validated['date'] ?? $attendance->date)
                 ->where('student_id', $validated['student_id'] ?? $attendance->student_id)
-                ->when(isset($validated['batch_id']) || $attendance->batch_id, function($q) use ($validated, $attendance) {
+                ->when(isset($validated['batch_id']) || $attendance->batch_id, function ($q) use ($validated, $attendance) {
                     return $q->where('batch_id', $validated['batch_id'] ?? $attendance->batch_id);
                 })
-                ->when(isset($validated['section_id']) || $attendance->section_id, function($q) use ($validated, $attendance) {
+                ->when(isset($validated['section_id']) || $attendance->section_id, function ($q) use ($validated, $attendance) {
                     return $q->where('section_id', $validated['section_id'] ?? $attendance->section_id);
                 })
-                ->when(isset($validated['subject_id']) || $attendance->subject_id, function($q) use ($validated, $attendance) {
+                ->when(isset($validated['subject_id']) || $attendance->subject_id, function ($q) use ($validated, $attendance) {
                     return $q->where('subject_id', $validated['subject_id'] ?? $attendance->subject_id);
                 })
                 ->first();
@@ -280,7 +274,7 @@ class AttendanceController extends Controller
             if ($existingAttendance) {
                 return response()->json([
                     'message' => 'Attendance already recorded for this student on the selected date.',
-                    'data' => new AttendanceResource($existingAttendance)
+                    'data' => new AttendanceResource($existingAttendance),
                 ], 422);
             }
         }
@@ -319,14 +313,13 @@ class AttendanceController extends Controller
                 'teacher.user',
                 'recordedBy',
                 'updatedBy',
-            ]))
+            ])),
         ]);
     }
 
     /**
      * Remove the specified attendance record from storage.
      *
-     * @param  \App\Models\Attendance  $attendance
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(Attendance $attendance)
@@ -346,14 +339,13 @@ class AttendanceController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Attendance record deleted successfully'
+            'message' => 'Attendance record deleted successfully',
         ]);
     }
 
     /**
      * Record attendance for multiple students at once.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function bulkStore(Request $request)
@@ -386,24 +378,24 @@ class AttendanceController extends Controller
         // Check for existing attendance records for the same date and students
         $existingAttendances = Attendance::where('date', $date)
             ->whereIn('student_id', collect($validated['attendances'])->pluck('student_id'))
-            ->when($batchId, function($q) use ($batchId) {
+            ->when($batchId, function ($q) use ($batchId) {
                 return $q->where('batch_id', $batchId);
             })
-            ->when($sectionId, function($q) use ($sectionId) {
+            ->when($sectionId, function ($q) use ($sectionId) {
                 return $q->where('section_id', $sectionId);
             })
-            ->when(isset($validated['subject_id']), function($q) use ($validated) {
+            ->when(isset($validated['subject_id']), function ($q) use ($validated) {
                 return $q->where('subject_id', $validated['subject_id']);
             })
             ->pluck('student_id')
             ->toArray();
 
-        if (!empty($existingAttendances)) {
+        if (! empty($existingAttendances)) {
             return response()->json([
                 'message' => 'Attendance already recorded for some students on the selected date.',
                 'data' => [
                     'existing_student_ids' => $existingAttendances,
-                ]
+                ],
             ], 422);
         }
 
@@ -442,14 +434,13 @@ class AttendanceController extends Controller
         }
 
         return response()->json([
-            'message' => count($attendanceData) . ' attendance records created successfully',
+            'message' => count($attendanceData).' attendance records created successfully',
         ], 201);
     }
 
     /**
      * Get attendance summary for a batch or section.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function getSummary(Request $request)
@@ -489,7 +480,7 @@ class AttendanceController extends Controller
         $present = $query->clone()->whereIn('status', [
             Attendance::STATUS_PRESENT,
             Attendance::STATUS_LATE,
-            Attendance::STATUS_HALF_DAY
+            Attendance::STATUS_HALF_DAY,
         ])->count();
         $absent = $query->clone()->where('status', Attendance::STATUS_ABSENT)->count();
         $late = $query->clone()->where('status', Attendance::STATUS_LATE)->count();
@@ -522,7 +513,7 @@ class AttendanceController extends Controller
                 ->with(['batch', 'section', 'subject', 'teacher.user'])
                 ->orderBy('date', 'desc')
                 ->get()
-                ->map(function($record) {
+                ->map(function ($record) {
                     return [
                         'id' => $record->id,
                         'date' => $record->date->format('Y-m-d'),
@@ -554,14 +545,13 @@ class AttendanceController extends Controller
         }
 
         return response()->json([
-            'data' => $summary
+            'data' => $summary,
         ]);
     }
 
     /**
      * Get attendance statistics for a batch or section.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function getStatistics(Request $request)
@@ -616,7 +606,7 @@ class AttendanceController extends Controller
             $present = $query->clone()->whereIn('status', [
                 Attendance::STATUS_PRESENT,
                 Attendance::STATUS_LATE,
-                Attendance::STATUS_HALF_DAY
+                Attendance::STATUS_HALF_DAY,
             ])->count();
 
             $statistics = [
@@ -640,7 +630,7 @@ class AttendanceController extends Controller
                 'batch_id' => $validated['batch_id'] ?? null,
                 'section_id' => $validated['section_id'] ?? null,
                 'subject_id' => $validated['subject_id'] ?? null,
-            ]
+            ],
         ]);
     }
 
@@ -650,19 +640,19 @@ class AttendanceController extends Controller
     protected function getStatisticsByDay($query)
     {
         return $query->select(
-                DB::raw('DATE(date) as date'),
-                DB::raw('COUNT(*) as total'),
-                DB::raw('SUM(CASE WHEN status IN ("present", "late", "half_day") THEN 1 ELSE 0 END) as present'),
-                DB::raw('SUM(CASE WHEN status = "absent" THEN 1 ELSE 0 END) as absent'),
-                DB::raw('SUM(CASE WHEN status = "late" THEN 1 ELSE 0 END) as late'),
-                DB::raw('SUM(CASE WHEN status = "half_day" THEN 1 ELSE 0 END) as half_day'),
-                DB::raw('SUM(CASE WHEN status = "on_leave" THEN 1 ELSE 0 END) as on_leave'),
-                DB::raw('SUM(CASE WHEN status = "holiday" THEN 1 ELSE 0 END) as holiday')
-            )
+            DB::raw('DATE(date) as date'),
+            DB::raw('COUNT(*) as total'),
+            DB::raw('SUM(CASE WHEN status IN ("present", "late", "half_day") THEN 1 ELSE 0 END) as present'),
+            DB::raw('SUM(CASE WHEN status = "absent" THEN 1 ELSE 0 END) as absent'),
+            DB::raw('SUM(CASE WHEN status = "late" THEN 1 ELSE 0 END) as late'),
+            DB::raw('SUM(CASE WHEN status = "half_day" THEN 1 ELSE 0 END) as half_day'),
+            DB::raw('SUM(CASE WHEN status = "on_leave" THEN 1 ELSE 0 END) as on_leave'),
+            DB::raw('SUM(CASE WHEN status = "holiday" THEN 1 ELSE 0 END) as holiday')
+        )
             ->groupBy(DB::raw('DATE(date)'))
             ->orderBy('date', 'desc')
             ->get()
-            ->map(function($item) {
+            ->map(function ($item) {
                 return [
                     'date' => $item->date,
                     'total' => (int) $item->total,
@@ -683,23 +673,23 @@ class AttendanceController extends Controller
     protected function getStatisticsByWeek($query)
     {
         return $query->select(
-                DB::raw('YEAR(date) as year'),
-                DB::raw('WEEK(date, 1) as week'),
-                DB::raw('MIN(date) as week_start'),
-                DB::raw('MAX(date) as week_end'),
-                DB::raw('COUNT(*) as total'),
-                DB::raw('SUM(CASE WHEN status IN ("present", "late", "half_day") THEN 1 ELSE 0 END) as present'),
-                DB::raw('SUM(CASE WHEN status = "absent" THEN 1 ELSE 0 END) as absent'),
-                DB::raw('SUM(CASE WHEN status = "late" THEN 1 ELSE 0 END) as late'),
-                DB::raw('SUM(CASE WHEN status = "half_day" THEN 1 ELSE 0 END) as half_day'),
-                DB::raw('SUM(CASE WHEN status = "on_leave" THEN 1 ELSE 0 END) as on_leave'),
-                DB::raw('SUM(CASE WHEN status = "holiday" THEN 1 ELSE 0 END) as holiday')
-            )
+            DB::raw('YEAR(date) as year'),
+            DB::raw('WEEK(date, 1) as week'),
+            DB::raw('MIN(date) as week_start'),
+            DB::raw('MAX(date) as week_end'),
+            DB::raw('COUNT(*) as total'),
+            DB::raw('SUM(CASE WHEN status IN ("present", "late", "half_day") THEN 1 ELSE 0 END) as present'),
+            DB::raw('SUM(CASE WHEN status = "absent" THEN 1 ELSE 0 END) as absent'),
+            DB::raw('SUM(CASE WHEN status = "late" THEN 1 ELSE 0 END) as late'),
+            DB::raw('SUM(CASE WHEN status = "half_day" THEN 1 ELSE 0 END) as half_day'),
+            DB::raw('SUM(CASE WHEN status = "on_leave" THEN 1 ELSE 0 END) as on_leave'),
+            DB::raw('SUM(CASE WHEN status = "holiday" THEN 1 ELSE 0 END) as holiday')
+        )
             ->groupBy(DB::raw('YEAR(date)'), DB::raw('WEEK(date, 1)'))
             ->orderBy('year', 'desc')
             ->orderBy('week', 'desc')
             ->get()
-            ->map(function($item) {
+            ->map(function ($item) {
                 return [
                     'year' => (int) $item->year,
                     'week' => (int) $item->week,
@@ -723,23 +713,23 @@ class AttendanceController extends Controller
     protected function getStatisticsByMonth($query)
     {
         return $query->select(
-                DB::raw('YEAR(date) as year'),
-                DB::raw('MONTH(date) as month'),
-                DB::raw('DATE_FORMAT(date, "%Y-%m-01") as month_start'),
-                DB::raw('LAST_DAY(date) as month_end'),
-                DB::raw('COUNT(*) as total'),
-                DB::raw('SUM(CASE WHEN status IN ("present", "late", "half_day") THEN 1 ELSE 0 END) as present'),
-                DB::raw('SUM(CASE WHEN status = "absent" THEN 1 ELSE 0 END) as absent'),
-                DB::raw('SUM(CASE WHEN status = "late" THEN 1 ELSE 0 END) as late'),
-                DB::raw('SUM(CASE WHEN status = "half_day" THEN 1 ELSE 0 END) as half_day'),
-                DB::raw('SUM(CASE WHEN status = "on_leave" THEN 1 ELSE 0 END) as on_leave'),
-                DB::raw('SUM(CASE WHEN status = "holiday" THEN 1 ELSE 0 END) as holiday')
-            )
+            DB::raw('YEAR(date) as year'),
+            DB::raw('MONTH(date) as month'),
+            DB::raw('DATE_FORMAT(date, "%Y-%m-01") as month_start'),
+            DB::raw('LAST_DAY(date) as month_end'),
+            DB::raw('COUNT(*) as total'),
+            DB::raw('SUM(CASE WHEN status IN ("present", "late", "half_day") THEN 1 ELSE 0 END) as present'),
+            DB::raw('SUM(CASE WHEN status = "absent" THEN 1 ELSE 0 END) as absent'),
+            DB::raw('SUM(CASE WHEN status = "late" THEN 1 ELSE 0 END) as late'),
+            DB::raw('SUM(CASE WHEN status = "half_day" THEN 1 ELSE 0 END) as half_day'),
+            DB::raw('SUM(CASE WHEN status = "on_leave" THEN 1 ELSE 0 END) as on_leave'),
+            DB::raw('SUM(CASE WHEN status = "holiday" THEN 1 ELSE 0 END) as holiday')
+        )
             ->groupBy(DB::raw('YEAR(date)'), DB::raw('MONTH(date)'))
             ->orderBy('year', 'desc')
             ->orderBy('month', 'desc')
             ->get()
-            ->map(function($item) {
+            ->map(function ($item) {
                 return [
                     'year' => (int) $item->year,
                     'month' => (int) $item->month,
@@ -764,19 +754,19 @@ class AttendanceController extends Controller
     protected function getStatisticsByYear($query)
     {
         return $query->select(
-                DB::raw('YEAR(date) as year'),
-                DB::raw('COUNT(*) as total'),
-                DB::raw('SUM(CASE WHEN status IN ("present", "late", "half_day") THEN 1 ELSE 0 END) as present'),
-                DB::raw('SUM(CASE WHEN status = "absent" THEN 1 ELSE 0 END) as absent'),
-                DB::raw('SUM(CASE WHEN status = "late" THEN 1 ELSE 0 END) as late'),
-                DB::raw('SUM(CASE WHEN status = "half_day" THEN 1 ELSE 0 END) as half_day'),
-                DB::raw('SUM(CASE WHEN status = "on_leave" THEN 1 ELSE 0 END) as on_leave'),
-                DB::raw('SUM(CASE WHEN status = "holiday" THEN 1 ELSE 0 END) as holiday')
-            )
+            DB::raw('YEAR(date) as year'),
+            DB::raw('COUNT(*) as total'),
+            DB::raw('SUM(CASE WHEN status IN ("present", "late", "half_day") THEN 1 ELSE 0 END) as present'),
+            DB::raw('SUM(CASE WHEN status = "absent" THEN 1 ELSE 0 END) as absent'),
+            DB::raw('SUM(CASE WHEN status = "late" THEN 1 ELSE 0 END) as late'),
+            DB::raw('SUM(CASE WHEN status = "half_day" THEN 1 ELSE 0 END) as half_day'),
+            DB::raw('SUM(CASE WHEN status = "on_leave" THEN 1 ELSE 0 END) as on_leave'),
+            DB::raw('SUM(CASE WHEN status = "holiday" THEN 1 ELSE 0 END) as holiday')
+        )
             ->groupBy(DB::raw('YEAR(date)'))
             ->orderBy('year', 'desc')
             ->get()
-            ->map(function($item) {
+            ->map(function ($item) {
                 return [
                     'year' => (int) $item->year,
                     'total' => (int) $item->total,
@@ -797,13 +787,13 @@ class AttendanceController extends Controller
     protected function getStatisticsByStatus($query)
     {
         return $query->select(
-                'status',
-                DB::raw('COUNT(*) as count')
-            )
+            'status',
+            DB::raw('COUNT(*) as count')
+        )
             ->groupBy('status')
             ->orderBy('count', 'desc')
             ->get()
-            ->map(function($item) {
+            ->map(function ($item) {
                 return [
                     'status' => $item->status,
                     'status_label' => str_replace('_', ' ', ucfirst($item->status)),
@@ -818,20 +808,20 @@ class AttendanceController extends Controller
     protected function getStatisticsByStudent($query)
     {
         return $query->select(
-                'student_id',
-                DB::raw('COUNT(*) as total'),
-                DB::raw('SUM(CASE WHEN status IN ("present", "late", "half_day") THEN 1 ELSE 0 END) as present'),
-                DB::raw('SUM(CASE WHEN status = "absent" THEN 1 ELSE 0 END) as absent'),
-                DB::raw('SUM(CASE WHEN status = "late" THEN 1 ELSE 0 END) as late'),
-                DB::raw('SUM(CASE WHEN status = "half_day" THEN 1 ELSE 0 END) as half_day'),
-                DB::raw('SUM(CASE WHEN status = "on_leave" THEN 1 ELSE 0 END) as on_leave'),
-                DB::raw('SUM(CASE WHEN status = "holiday" THEN 1 ELSE 0 END) as holiday')
-            )
+            'student_id',
+            DB::raw('COUNT(*) as total'),
+            DB::raw('SUM(CASE WHEN status IN ("present", "late", "half_day") THEN 1 ELSE 0 END) as present'),
+            DB::raw('SUM(CASE WHEN status = "absent" THEN 1 ELSE 0 END) as absent'),
+            DB::raw('SUM(CASE WHEN status = "late" THEN 1 ELSE 0 END) as late'),
+            DB::raw('SUM(CASE WHEN status = "half_day" THEN 1 ELSE 0 END) as half_day'),
+            DB::raw('SUM(CASE WHEN status = "on_leave" THEN 1 ELSE 0 END) as on_leave'),
+            DB::raw('SUM(CASE WHEN status = "holiday" THEN 1 ELSE 0 END) as holiday')
+        )
             ->with(['student.user'])
             ->groupBy('student_id')
             ->orderBy('present', 'desc')
             ->get()
-            ->map(function($item) {
+            ->map(function ($item) {
                 return [
                     'student_id' => $item->student_id,
                     'student_name' => $item->student->user->name ?? 'Unknown',
@@ -854,21 +844,21 @@ class AttendanceController extends Controller
     protected function getStatisticsByTeacher($query)
     {
         return $query->select(
-                'teacher_id',
-                DB::raw('COUNT(DISTINCT student_id) as total_students'),
-                DB::raw('COUNT(*) as total_attendance'),
-                DB::raw('SUM(CASE WHEN status IN ("present", "late", "half_day") THEN 1 ELSE 0 END) as present'),
-                DB::raw('SUM(CASE WHEN status = "absent" THEN 1 ELSE 0 END) as absent'),
-                DB::raw('SUM(CASE WHEN status = "late" THEN 1 ELSE 0 END) as late'),
-                DB::raw('SUM(CASE WHEN status = "half_day" THEN 1 ELSE 0 END) as half_day'),
-                DB::raw('SUM(CASE WHEN status = "on_leave" THEN 1 ELSE 0 END) as on_leave'),
-                DB::raw('SUM(CASE WHEN status = "holiday" THEN 1 ELSE 0 END) as holiday')
-            )
+            'teacher_id',
+            DB::raw('COUNT(DISTINCT student_id) as total_students'),
+            DB::raw('COUNT(*) as total_attendance'),
+            DB::raw('SUM(CASE WHEN status IN ("present", "late", "half_day") THEN 1 ELSE 0 END) as present'),
+            DB::raw('SUM(CASE WHEN status = "absent" THEN 1 ELSE 0 END) as absent'),
+            DB::raw('SUM(CASE WHEN status = "late" THEN 1 ELSE 0 END) as late'),
+            DB::raw('SUM(CASE WHEN status = "half_day" THEN 1 ELSE 0 END) as half_day'),
+            DB::raw('SUM(CASE WHEN status = "on_leave" THEN 1 ELSE 0 END) as on_leave'),
+            DB::raw('SUM(CASE WHEN status = "holiday" THEN 1 ELSE 0 END) as holiday')
+        )
             ->with(['teacher.user'])
             ->groupBy('teacher_id')
             ->orderBy('total_attendance', 'desc')
             ->get()
-            ->map(function($item) {
+            ->map(function ($item) {
                 return [
                     'teacher_id' => $item->teacher_id,
                     'teacher_name' => $item->teacher->user->name ?? 'Unknown',
@@ -899,10 +889,10 @@ class AttendanceController extends Controller
             ->select('id', 'name', 'code')
             ->orderBy('name')
             ->get()
-            ->map(function($batch) {
+            ->map(function ($batch) {
                 return [
                     'value' => $batch->id,
-                    'label' => $batch->name . ' (' . $batch->code . ')'
+                    'label' => $batch->name.' ('.$batch->code.')',
                 ];
             });
 
@@ -910,10 +900,10 @@ class AttendanceController extends Controller
             ->select('id', 'name', 'code')
             ->orderBy('name')
             ->get()
-            ->map(function($section) {
+            ->map(function ($section) {
                 return [
                     'value' => $section->id,
-                    'label' => $section->name . ' (' . $section->code . ')'
+                    'label' => $section->name.' ('.$section->code.')',
                 ];
             });
 
@@ -921,20 +911,20 @@ class AttendanceController extends Controller
             ->select('id', 'name', 'code')
             ->orderBy('name')
             ->get()
-            ->map(function($subject) {
+            ->map(function ($subject) {
                 return [
                     'value' => $subject->id,
-                    'label' => $subject->name . ' (' . $subject->code . ')'
+                    'label' => $subject->name.' ('.$subject->code.')',
                 ];
             });
 
         $teachers = Teacher::with('user')
             ->select('id', 'user_id', 'employee_id')
             ->get()
-            ->map(function($teacher) {
+            ->map(function ($teacher) {
                 return [
                     'value' => $teacher->id,
-                    'label' => $teacher->user->name . ' (' . $teacher->employee_id . ')'
+                    'label' => $teacher->user->name.' ('.$teacher->employee_id.')',
                 ];
             });
 
@@ -944,13 +934,13 @@ class AttendanceController extends Controller
         ];
 
         return response()->json([
-            'statuses' => collect(Attendance::getStatuses())->map(function($label, $value) {
+            'statuses' => collect(Attendance::getStatuses())->map(function ($label, $value) {
                 return [
                     'value' => $value,
                     'label' => $label,
                 ];
             })->values(),
-            'types' => collect(Attendance::getTypes())->map(function($label, $value) {
+            'types' => collect(Attendance::getTypes())->map(function ($label, $value) {
                 return [
                     'value' => $value,
                     'label' => $label,
@@ -986,8 +976,8 @@ class AttendanceController extends Controller
     /**
      * Update student's attendance percentage in the batch/section.
      *
-     * @param int $studentId
-     * @param array $params
+     * @param  int  $studentId
+     * @param  array  $params
      * @return void
      */
     protected function updateStudentAttendancePercentage($studentId, $params = [])
@@ -1007,7 +997,7 @@ class AttendanceController extends Controller
             ->whereIn('status', [
                 Attendance::STATUS_PRESENT,
                 Attendance::STATUS_LATE,
-                Attendance::STATUS_HALF_DAY
+                Attendance::STATUS_HALF_DAY,
             ])
             ->count();
 

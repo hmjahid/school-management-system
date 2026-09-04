@@ -5,13 +5,14 @@ namespace Tests\Unit\Models;
 use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class PaymentTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_generates_sequential_invoice_numbers(): void
     {
         $first = Payment::generateInvoiceNumber();
@@ -19,7 +20,7 @@ class PaymentTest extends TestCase
         $this->assertEquals('INV'.date('Ymd').'0001', $first);
     }
 
-    /** @test */
+    #[Test]
     public function it_increments_invoice_number_on_subsequent_calls(): void
     {
         Payment::create([
@@ -37,7 +38,7 @@ class PaymentTest extends TestCase
         $this->assertEquals('INV'.date('Ymd').'0002', $next);
     }
 
-    /** @test */
+    #[Test]
     public function it_auto_generates_invoice_number_on_create(): void
     {
         $payment = Payment::create([
@@ -55,7 +56,7 @@ class PaymentTest extends TestCase
         $this->assertStringStartsWith('INV', $payment->invoice_number);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_correct_status_label(): void
     {
         $payment = Payment::create([
@@ -70,7 +71,7 @@ class PaymentTest extends TestCase
         $this->assertEquals('Completed', $payment->status_label);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_unknown_label_for_invalid_status(): void
     {
         $payment = Payment::create([
@@ -85,7 +86,7 @@ class PaymentTest extends TestCase
         $this->assertEquals('Unknown', $payment->status_label);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_correct_method_label(): void
     {
         $payment = Payment::create([
@@ -100,7 +101,7 @@ class PaymentTest extends TestCase
         $this->assertEquals('bKash', $payment->method_label);
     }
 
-    /** @test */
+    #[Test]
     public function is_fully_paid_requires_completed_status_and_full_amount(): void
     {
         $completed = Payment::create([
@@ -140,7 +141,7 @@ class PaymentTest extends TestCase
         $this->assertFalse($partial->is_fully_paid);
     }
 
-    /** @test */
+    #[Test]
     public function is_overdue_checks_past_due_date_and_unpaid(): void
     {
         $overdue = Payment::create([
@@ -170,7 +171,7 @@ class PaymentTest extends TestCase
         $this->assertFalse($notOverdue->is_overdue);
     }
 
-    /** @test */
+    #[Test]
     public function it_marks_payment_as_completed(): void
     {
         $payment = Payment::create([
@@ -193,7 +194,7 @@ class PaymentTest extends TestCase
         $this->assertNotNull($payment->payment_date);
     }
 
-    /** @test */
+    #[Test]
     public function it_marks_payment_as_failed(): void
     {
         $payment = Payment::create([
@@ -212,7 +213,7 @@ class PaymentTest extends TestCase
         $this->assertEquals('Insufficient funds', $payment->payment_details['failure_reason']);
     }
 
-    /** @test */
+    #[Test]
     public function it_records_partial_payment(): void
     {
         $payment = Payment::create([
@@ -234,7 +235,7 @@ class PaymentTest extends TestCase
         $this->assertEquals(Payment::STATUS_PROCESSING, $payment->payment_status);
     }
 
-    /** @test */
+    #[Test]
     public function it_completes_payment_when_full_amount_recorded(): void
     {
         $payment = Payment::create([
@@ -258,7 +259,7 @@ class PaymentTest extends TestCase
         $this->assertEquals(0, $payment->due_amount);
     }
 
-    /** @test */
+    #[Test]
     public function scope_completed_filters_correctly(): void
     {
         Payment::create([
@@ -283,7 +284,7 @@ class PaymentTest extends TestCase
         $this->assertCount(1, $completed);
     }
 
-    /** @test */
+    #[Test]
     public function it_merges_gateway_config_with_defaults(): void
     {
         $payment = new Payment;

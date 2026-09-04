@@ -6,19 +6,20 @@ use App\Contracts\SmsService;
 use App\Services\LogSmsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class LogSmsServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_implements_sms_service_contract(): void
     {
         $this->assertInstanceOf(SmsService::class, new LogSmsService);
     }
 
-    /** @test */
+    #[Test]
     public function send_returns_true_and_logs(): void
     {
         Log::shouldReceive('info')->once();
@@ -29,7 +30,7 @@ class LogSmsServiceTest extends TestCase
         $this->assertTrue($result);
     }
 
-    /** @test */
+    #[Test]
     public function get_balance_returns_dummy_value(): void
     {
         $service = new LogSmsService;
@@ -37,7 +38,7 @@ class LogSmsServiceTest extends TestCase
         $this->assertEquals(100.0, $service->getBalance());
     }
 
-    /** @test */
+    #[Test]
     public function get_status_returns_delivered(): void
     {
         $service = new LogSmsService;

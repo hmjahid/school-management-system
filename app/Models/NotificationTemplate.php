@@ -35,15 +35,11 @@ class NotificationTemplate extends Model
 
     /**
      * Get the rendered content for the given channel.
-     *
-     * @param  string  $channel
-     * @param  array  $data
-     * @return string|null
      */
     public function getRenderedContent(string $channel, array $data = []): ?string
     {
         $content = $this->getContentForChannel($channel);
-        
+
         if (empty($content)) {
             return null;
         }
@@ -56,16 +52,13 @@ class NotificationTemplate extends Model
                 'channel' => $channel,
                 'error' => $e->getMessage(),
             ]);
-            
+
             return null;
         }
     }
 
     /**
      * Get the rendered subject with the given data.
-     *
-     * @param  array  $data
-     * @return string
      */
     public function getRenderedSubject(array $data = []): string
     {
@@ -74,9 +67,6 @@ class NotificationTemplate extends Model
 
     /**
      * Get the content for the given channel.
-     *
-     * @param  string  $channel
-     * @return string|null
      */
     protected function getContentForChannel(string $channel): ?string
     {
@@ -100,25 +90,18 @@ class NotificationTemplate extends Model
 
     /**
      * Render the given content with the provided data.
-     *
-     * @param  string  $content
-     * @param  array  $data
-     * @return string
      */
     protected function renderContent(string $content, array $data = []): string
     {
         // Add template variables to the data array
         $data = array_merge($this->variables ?? [], $data);
-        
+
         // Render the content using Laravel's Blade engine
         return Blade::render($content, $data);
     }
 
     /**
      * Get a template by its key.
-     *
-     * @param  string  $key
-     * @return self|null
      */
     public static function getByKey(string $key): ?self
     {
@@ -127,8 +110,6 @@ class NotificationTemplate extends Model
 
     /**
      * Get the available template variables as an array of strings.
-     *
-     * @return array
      */
     public function getAvailableVariables(): array
     {
@@ -138,13 +119,13 @@ class NotificationTemplate extends Model
             'user.name',
             'user.email',
             'user.phone',
-            
+
             // System variables
             'app.name',
             'app.url',
             'current_date',
             'current_time',
-            
+
             // Notification variables
             'notification.id',
             'notification.type',
@@ -152,36 +133,31 @@ class NotificationTemplate extends Model
         ];
 
         $customVariables = $this->variables ? array_keys($this->variables) : [];
-        
+
         return array_merge($defaultVariables, $customVariables);
     }
 
     /**
      * Get the available template variables as a formatted string for display.
-     *
-     * @return string
      */
     public function getAvailableVariablesAsString(): string
     {
-        return '{{ ' . implode(' }}, {{ ', $this->getAvailableVariables()) . ' }}';
+        return '{{ '.implode(' }}, {{ ', $this->getAvailableVariables()).' }}';
     }
 
     /**
      * Check if the template is valid for the given channel.
-     *
-     * @param  string  $channel
-     * @return bool
      */
     public function isValidForChannel(string $channel): bool
     {
         $content = $this->getContentForChannel($channel);
-        return !empty($content);
+
+        return ! empty($content);
     }
 
     /**
      * Get all active templates for the given channel.
      *
-     * @param  string  $channel
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public static function getTemplatesForChannel(string $channel)
@@ -195,9 +171,6 @@ class NotificationTemplate extends Model
 
     /**
      * Get the content column name for the given channel.
-     *
-     * @param  string  $channel
-     * @return string
      */
     protected static function getContentColumnForChannel(string $channel): string
     {
@@ -211,8 +184,6 @@ class NotificationTemplate extends Model
 
     /**
      * Get the available notification channels.
-     *
-     * @return array
      */
     public static function getAvailableChannels(): array
     {
@@ -221,8 +192,6 @@ class NotificationTemplate extends Model
 
     /**
      * Get the default templates.
-     *
-     * @return array
      */
     public static function getDefaultTemplates(): array
     {
@@ -320,8 +289,6 @@ class NotificationTemplate extends Model
 
     /**
      * Seed the notification templates.
-     *
-     * @return void
      */
     public static function seedTemplates(): void
     {

@@ -18,7 +18,7 @@ class EventController extends Controller
             ->orderBy('start_date', 'asc');
 
         $limit = $request->input('limit', 20);
-        $events = $query->limit($limit)->get()->map(fn($event) => [
+        $events = $query->limit($limit)->get()->map(fn ($event) => [
             'id' => $event->id,
             'title' => $event->title,
             'description' => $event->description,
@@ -26,9 +26,9 @@ class EventController extends Controller
             'endDate' => $event->end_date?->toIso8601String(),
             'location' => $event->location,
             'category' => $event->metadata['category'] ?? 'general',
-            'imageUrl' => $event->image ? asset('storage/' . $event->image) : null,
+            'imageUrl' => $event->image ? asset('storage/'.$event->image) : null,
             'isVirtual' => (bool) $event->is_virtual,
-            'registrationRequired' => !is_null($event->registration_deadline) || !is_null($event->max_attendees),
+            'registrationRequired' => ! is_null($event->registration_deadline) || ! is_null($event->max_attendees),
             'registrationDeadline' => $event->registration_deadline?->toIso8601String(),
         ]);
 
@@ -49,10 +49,10 @@ class EventController extends Controller
                 'endDate' => $event->end_date?->toIso8601String(),
                 'location' => $event->location,
                 'category' => $event->metadata['category'] ?? 'general',
-                'imageUrl' => $event->image ? asset('storage/' . $event->image) : null,
+                'imageUrl' => $event->image ? asset('storage/'.$event->image) : null,
                 'isVirtual' => (bool) $event->is_virtual,
                 'meetingUrl' => $event->meeting_url,
-                'registrationRequired' => !is_null($event->registration_deadline) || !is_null($event->max_attendees),
+                'registrationRequired' => ! is_null($event->registration_deadline) || ! is_null($event->max_attendees),
                 'registrationDeadline' => $event->registration_deadline?->toIso8601String(),
                 'maxAttendees' => $event->max_attendees,
                 'attendeeCount' => $event->attendees()->count(),

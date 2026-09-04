@@ -5,6 +5,7 @@ namespace Tests\Unit\Models;
 use App\Models\ChartOfAccount;
 use App\Models\LedgerEntry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class LedgerEntryTest extends TestCase
@@ -30,7 +31,7 @@ class LedgerEntryTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $entry = $this->makeEntry();
@@ -44,7 +45,7 @@ class LedgerEntryTest extends TestCase
         $this->assertEquals(0.0, (float) $entry->credit);
     }
 
-    /** @test */
+    #[Test]
     public function debit_and_credit_default_to_zero(): void
     {
         $entry = LedgerEntry::create([
@@ -56,7 +57,7 @@ class LedgerEntryTest extends TestCase
         $this->assertEquals(0.0, (float) $entry->credit);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_date_to_carbon(): void
     {
         $date = now()->subDays(4)->startOfDay();
@@ -69,7 +70,7 @@ class LedgerEntryTest extends TestCase
         $this->assertEquals($date->toDateString(), $entry->date->toDateString());
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_chart_of_account(): void
     {
         $account = $this->makeAccount();
@@ -82,7 +83,7 @@ class LedgerEntryTest extends TestCase
         $this->assertEquals($account->id, $entry->account->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_a_polymorphic_reference(): void
     {
         $entry = $this->makeEntry(['reference_type' => 'expense', 'reference_id' => 42]);

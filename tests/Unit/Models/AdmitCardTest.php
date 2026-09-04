@@ -7,6 +7,7 @@ use App\Models\Exam;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AdmitCardTest extends TestCase
@@ -15,7 +16,7 @@ class AdmitCardTest extends TestCase
 
     private function makeExam(): Exam
     {
-        return Exam::create(['name' => 'Exam ' . uniqid()]);
+        return Exam::create(['name' => 'Exam '.uniqid()]);
     }
 
     private function makeAdmitCard(array $attributes = []): AdmitCard
@@ -27,14 +28,14 @@ class AdmitCardTest extends TestCase
         return AdmitCard::create(array_merge([
             'exam_id' => $exam->id,
             'student_id' => $student->id,
-            'admit_card_number' => 'ADMIT-' . uniqid(),
+            'admit_card_number' => 'ADMIT-'.uniqid(),
             'issue_date' => now()->toDateString(),
             'status' => AdmitCard::STATUS_ISSUED,
             'generated_by' => $user->id,
         ], $attributes));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $card = $this->makeAdmitCard(['details' => ['hall' => 'A']]);
@@ -48,14 +49,14 @@ class AdmitCardTest extends TestCase
         $this->assertEquals(now()->toDateString(), $card->issue_date->toDateString());
     }
 
-    /** @test */
+    #[Test]
     public function it_has_status_constants(): void
     {
         $this->assertSame('issued', AdmitCard::STATUS_ISSUED);
         $this->assertSame('revoked', AdmitCard::STATUS_REVOKED);
     }
 
-    /** @test */
+    #[Test]
     public function it_generates_a_number(): void
     {
         $exam = $this->makeExam();
@@ -67,7 +68,7 @@ class AdmitCardTest extends TestCase
         $this->assertStringContainsString((string) $exam->id, $number);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_an_exam(): void
     {
         $exam = $this->makeExam();
@@ -78,7 +79,7 @@ class AdmitCardTest extends TestCase
         $this->assertSame($exam->id, $card->exam->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_student(): void
     {
         $student = Student::factory()->create();
@@ -88,7 +89,7 @@ class AdmitCardTest extends TestCase
         $this->assertSame($student->id, $card->student->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_generator(): void
     {
         $user = User::factory()->create();
@@ -98,7 +99,7 @@ class AdmitCardTest extends TestCase
         $this->assertSame($user->id, $card->generatedBy->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_soft_deletes(): void
     {
         $card = $this->makeAdmitCard();

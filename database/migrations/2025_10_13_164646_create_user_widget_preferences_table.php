@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('position')->default(0);
             $table->json('settings')->nullable();
             $table->timestamps();
-            
+
             // Ensure each user can only have one preference per widget
             $table->unique(['user_id', 'widget_id']);
         });

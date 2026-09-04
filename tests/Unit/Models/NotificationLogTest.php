@@ -5,6 +5,7 @@ namespace Tests\Unit\Models;
 use App\Models\NotificationLog;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class NotificationLogTest extends TestCase
@@ -15,7 +16,7 @@ class NotificationLogTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $log = new NotificationLog();
+        $log = new NotificationLog;
         $log->forceFill(array_merge([
             'type' => 'refund_created',
             'notifiable_type' => User::class,
@@ -28,7 +29,7 @@ class NotificationLogTest extends TestCase
         return $log;
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_columns_and_casts(): void
     {
         $log = $this->makeLog([
@@ -44,7 +45,7 @@ class NotificationLogTest extends TestCase
         $this->assertEquals('ses', $log->metadata['provider']);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_notifiable(): void
     {
         $user = User::factory()->create();
@@ -53,7 +54,7 @@ class NotificationLogTest extends TestCase
         $this->assertTrue($log->notifiable->is($user));
     }
 
-    /** @test */
+    #[Test]
     public function status_scopes_filter_correctly(): void
     {
         $this->makeLog(['status' => NotificationLog::STATUS_PENDING]);
@@ -70,7 +71,7 @@ class NotificationLogTest extends TestCase
         $this->assertEquals(5, NotificationLog::forChannel('email')->count());
     }
 
-    /** @test */
+    #[Test]
     public function mark_as_sent_sets_status_and_timestamp(): void
     {
         $log = $this->makeLog();
@@ -80,7 +81,7 @@ class NotificationLogTest extends TestCase
         $this->assertNotNull($log->fresh()->sent_at);
     }
 
-    /** @test */
+    #[Test]
     public function mark_as_failed_records_error_message(): void
     {
         $log = $this->makeLog();
@@ -91,7 +92,7 @@ class NotificationLogTest extends TestCase
         $this->assertEquals('boom', $fresh->error_message);
     }
 
-    /** @test */
+    #[Test]
     public function get_delivery_time_returns_seconds_between_sent_and_delivered(): void
     {
         $sent = now()->subMinutes(2);
@@ -105,7 +106,7 @@ class NotificationLogTest extends TestCase
         $this->assertEquals(30.0, $log->getDeliveryTime());
     }
 
-    /** @test */
+    #[Test]
     public function get_statuses_returns_all_available_statuses(): void
     {
         $statuses = NotificationLog::getStatuses();

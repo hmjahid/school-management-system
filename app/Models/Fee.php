@@ -3,16 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class Fee extends Model
 {
-    use SoftDeletes, LogsActivity;
+    use LogsActivity, SoftDeletes;
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -25,25 +24,39 @@ class Fee extends Model
 
     // Fee types
     public const TYPE_TUITION = 'tuition';
+
     public const TYPE_ADMISSION = 'admission';
+
     public const TYPE_EXAM = 'exam';
+
     public const TYPE_TRANSPORT = 'transport';
+
     public const TYPE_LIBRARY = 'library';
+
     public const TYPE_UNIFORM = 'uniform';
+
     public const TYPE_OTHER = 'other';
 
     // Fee frequencies
     public const FREQUENCY_ONE_TIME = 'one_time';
+
     public const FREQUENCY_DAILY = 'daily';
+
     public const FREQUENCY_WEEKLY = 'weekly';
+
     public const FREQUENCY_MONTHLY = 'monthly';
+
     public const FREQUENCY_QUARTERLY = 'quarterly';
+
     public const FREQUENCY_HALF_YEARLY = 'half_yearly';
+
     public const FREQUENCY_YEARLY = 'yearly';
 
     // Statuses
     public const STATUS_ACTIVE = 'active';
+
     public const STATUS_INACTIVE = 'inactive';
+
     public const STATUS_ARCHIVED = 'archived';
 
     protected $fillable = [
@@ -174,6 +187,7 @@ class Fee extends Model
         ];
 
         $color = $statuses[$this->status] ?? 'secondary';
+
         return "<span class='badge bg-{$color}'>{$this->status}</span>";
     }
 

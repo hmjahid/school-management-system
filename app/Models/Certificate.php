@@ -32,7 +32,9 @@ class Certificate extends Model
     const TYPES = ['transfer', 'character', 'achievement', 'participation', 'completion'];
 
     const STATUS_DRAFT = 'draft';
+
     const STATUS_ISSUED = 'issued';
+
     const STATUS_REVOKED = 'revoked';
 
     public function student(): BelongsTo
@@ -49,6 +51,7 @@ class Certificate extends Model
     {
         $year = now()->year;
         $last = static::whereYear('created_at', $year)->count();
+
         return sprintf('CERT-%s-%04d', $year, $last + 1);
     }
 }

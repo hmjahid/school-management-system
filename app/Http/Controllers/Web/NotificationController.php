@@ -32,6 +32,7 @@ class NotificationController extends Controller
         $items = $notifications->map(function ($n) {
             $data = (array) $n->data;
             $type = $n->type ? class_basename($n->type) : 'Notification';
+
             return [
                 'id' => $n->id,
                 'type' => $type,
@@ -60,6 +61,7 @@ class NotificationController extends Controller
         }
 
         $url = (string) ($notification->data['url'] ?? route('notifications.index'));
+
         return redirect()->to($url);
     }
 

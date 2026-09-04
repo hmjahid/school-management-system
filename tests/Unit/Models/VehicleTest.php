@@ -3,20 +3,20 @@
 namespace Tests\Unit\Models;
 
 use App\Models\TransportRoute;
-use App\Models\TransportStop;
 use App\Models\Vehicle;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class VehicleTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $vehicle = Vehicle::create([
-            'number' => 'CODE' . uniqid(),
+            'number' => 'CODE'.uniqid(),
             'type' => 'Bus',
             'capacity' => 40,
             'driver_name' => 'Mr. Rahman',
@@ -33,21 +33,21 @@ class VehicleTest extends TestCase
         $this->assertTrue($vehicle->is_active);
     }
 
-    /** @test */
+    #[Test]
     public function it_defaults_is_active_to_true_and_capacity_to_zero(): void
     {
-        $vehicle = Vehicle::create(['number' => 'CODE' . uniqid()])->fresh();
+        $vehicle = Vehicle::create(['number' => 'CODE'.uniqid()])->fresh();
 
         $this->assertTrue($vehicle->is_active);
         $this->assertEquals(0, $vehicle->capacity);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_many_routes(): void
     {
-        $vehicle = Vehicle::create(['number' => 'CODE' . uniqid()]);
-        TransportRoute::create(['name' => 'Route A', 'code' => 'CODE' . uniqid(), 'vehicle_id' => $vehicle->id]);
-        TransportRoute::create(['name' => 'Route B', 'code' => 'CODE' . uniqid(), 'vehicle_id' => $vehicle->id]);
+        $vehicle = Vehicle::create(['number' => 'CODE'.uniqid()]);
+        TransportRoute::create(['name' => 'Route A', 'code' => 'CODE'.uniqid(), 'vehicle_id' => $vehicle->id]);
+        TransportRoute::create(['name' => 'Route B', 'code' => 'CODE'.uniqid(), 'vehicle_id' => $vehicle->id]);
 
         $this->assertCount(2, $vehicle->routes);
         $this->assertInstanceOf(TransportRoute::class, $vehicle->routes->first());

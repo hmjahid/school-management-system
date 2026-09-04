@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('logo_path')->nullable();
             $table->string('favicon_path')->nullable();
             $table->year('established_year');
-            
+
             // Contact Information
             $table->string('address');
             $table->string('city');
@@ -29,31 +29,31 @@ return new class extends Migration
             $table->string('phone');
             $table->string('email');
             $table->string('website')->nullable();
-            
+
             // School Hours
             $table->json('opening_hours')->nullable();
-            
+
             // Social Media Links
             $table->string('facebook_url')->nullable();
             $table->string('twitter_url')->nullable();
             $table->string('instagram_url')->nullable();
             $table->string('linkedin_url')->nullable();
             $table->string('youtube_url')->nullable();
-            
+
             // SEO
             $table->text('meta_title')->nullable();
             $table->text('meta_description')->nullable();
             $table->text('meta_keywords')->nullable();
-            
+
             // Additional Settings
             $table->string('timezone')->default('UTC');
             $table->string('date_format')->default('Y-m-d');
             $table->string('time_format')->default('H:i');
-            
+
             // System Settings
             $table->boolean('maintenance_mode')->default(false);
             $table->text('maintenance_message')->nullable();
-            
+
             $table->timestamps();
         });
     }

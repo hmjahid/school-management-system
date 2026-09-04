@@ -4,13 +4,14 @@ namespace Tests\Unit\Models;
 
 use App\Models\Gallery;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class GalleryTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $item = Gallery::create([
@@ -30,7 +31,7 @@ class GalleryTest extends TestCase
         $this->assertFalse($item->is_published);
     }
 
-    /** @test */
+    #[Test]
     public function it_scopes_published_gallery_items(): void
     {
         Gallery::create([

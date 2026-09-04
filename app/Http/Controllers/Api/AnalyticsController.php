@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Attendance;
+use App\Models\Fee;
+use App\Models\SchoolClass;
 use App\Models\Student;
 use App\Models\Teacher;
-use App\Models\SchoolClass;
-use App\Models\Fee;
-use App\Models\Attendance;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -45,7 +45,7 @@ class AnalyticsController extends Controller
 
             $classDistribution = SchoolClass::withCount('students')
                 ->get()
-                ->map(fn($class) => ['name' => $class->name, 'count' => $class->students_count]);
+                ->map(fn ($class) => ['name' => $class->name, 'count' => $class->students_count]);
 
             return [
                 'success' => true,

@@ -5,13 +5,14 @@ namespace Tests\Unit\Models;
 use App\Models\Activity;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ActivityTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_required_columns(): void
     {
         $user = User::factory()->create();
@@ -31,7 +32,7 @@ class ActivityTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_properties_to_array_and_read_at_to_datetime(): void
     {
         $user = User::factory()->create();
@@ -50,7 +51,7 @@ class ActivityTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Support\Carbon::class, $activity->read_at);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_user(): void
     {
         $user = User::factory()->create();

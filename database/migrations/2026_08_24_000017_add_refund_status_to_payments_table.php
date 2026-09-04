@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (Schema::hasTable('payments') && !Schema::hasColumn('payments', 'refund_status')) {
+        if (Schema::hasTable('payments') && ! Schema::hasColumn('payments', 'refund_status')) {
             Schema::table('payments', function (Blueprint $table) {
                 $table->string('refund_status')->default('not_refunded')->after('payment_status');
             });

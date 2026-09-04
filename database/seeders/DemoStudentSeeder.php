@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\Student;
-use App\Models\Guardian;
-use App\Models\User;
 use App\Models\Batch;
+use App\Models\Guardian;
 use App\Models\SchoolClass;
+use App\Models\Student;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DemoStudentSeeder extends Seeder
@@ -29,7 +29,9 @@ class DemoStudentSeeder extends Seeder
         $studentIndex = 0;
         foreach ($schoolClasses as $class) {
             $classBatches = $batches->shuffle();
-            if ($classBatches->isEmpty()) continue;
+            if ($classBatches->isEmpty()) {
+                continue;
+            }
 
             $studentsPerClass = max(1, intdiv($totalStudents, $schoolClasses->count()));
 
@@ -40,11 +42,11 @@ class DemoStudentSeeder extends Seeder
 
                 $firstName = $firstNamesEn[$studentIndex % count($firstNamesEn)];
                 $lastName = $lastNamesEn[$studentIndex % count($lastNamesEn)];
-                $fullName = $firstName . ' ' . $lastName;
-                $email = 'student' . ($studentIndex + 1) . '@school.com';
-                $address = rand(1, 500) . ', ' . ['Mirpur', 'Uttara', 'Banani', 'Gulshan', 'Mohammadpur', 'Dhanmondi', 'Shyamoli', 'Bashundhara', 'Motijheel', 'Malibagh'][array_rand(['Mirpur', 'Uttara', 'Banani', 'Gulshan', 'Mohammadpur', 'Dhanmondi', 'Shyamoli', 'Bashundhara', 'Motijheel', 'Malibagh'])] . ', Dhaka';
+                $fullName = $firstName.' '.$lastName;
+                $email = 'student'.($studentIndex + 1).'@school.com';
+                $address = rand(1, 500).', '.['Mirpur', 'Uttara', 'Banani', 'Gulshan', 'Mohammadpur', 'Dhanmondi', 'Shyamoli', 'Bashundhara', 'Motijheel', 'Malibagh'][array_rand(['Mirpur', 'Uttara', 'Banani', 'Gulshan', 'Mohammadpur', 'Dhanmondi', 'Shyamoli', 'Bashundhara', 'Motijheel', 'Malibagh'])].', Dhaka';
                 $dob = now()->subYears(rand(4, 17))->subMonths(rand(1, 11))->format('Y-m-d');
-                $phone = '017' . str_pad((string)(10000000 + $studentIndex), 8, '0', STR_PAD_LEFT);
+                $phone = '017'.str_pad((string) (10000000 + $studentIndex), 8, '0', STR_PAD_LEFT);
 
                 $user = User::create([
                     'name' => $fullName,
@@ -58,7 +60,7 @@ class DemoStudentSeeder extends Seeder
                 ]);
                 $user->assignRole('student');
 
-                $admissionNumber = 'STU-' . str_pad($studentIndex + 1, 5, '0', STR_PAD_LEFT);
+                $admissionNumber = 'STU-'.str_pad($studentIndex + 1, 5, '0', STR_PAD_LEFT);
 
                 $student = Student::create([
                     'user_id' => $user->id,
@@ -75,7 +77,7 @@ class DemoStudentSeeder extends Seeder
                     'gender' => $studentIndex % 2 === 0 ? 'male' : 'female',
                     'date_of_birth' => $dob,
                     'is_notable' => in_array($studentIndex, [0, 2]),
-                    'achievement' => match($studentIndex) {
+                    'achievement' => match ($studentIndex) {
                         0 => 'National Science Fair Gold Medalist 2025',
                         2 => 'District Math Olympiad First Place',
                         default => null,
@@ -84,9 +86,9 @@ class DemoStudentSeeder extends Seeder
 
                 $numGuardians = rand(1, 2);
                 for ($g = 0; $g < $numGuardians; $g++) {
-                    $gName = $guardianFirstNames[array_rand($guardianFirstNames)] . ' ' . $lastName;
-                    $gEmail = 'parent' . (($studentIndex * 2) + $g + 1) . '@school.com';
-                    $gPhone = '018' . str_pad((string)(10000000 + ($studentIndex * 2) + $g), 8, '0', STR_PAD_LEFT);
+                    $gName = $guardianFirstNames[array_rand($guardianFirstNames)].' '.$lastName;
+                    $gEmail = 'parent'.(($studentIndex * 2) + $g + 1).'@school.com';
+                    $gPhone = '018'.str_pad((string) (10000000 + ($studentIndex * 2) + $g), 8, '0', STR_PAD_LEFT);
 
                     $guardianUser = User::firstOrCreate(
                         ['email' => $gEmail],
@@ -99,7 +101,7 @@ class DemoStudentSeeder extends Seeder
                             'role_id' => $parentRoleId,
                         ]
                     );
-                    if (!$guardianUser->hasRole('parent')) {
+                    if (! $guardianUser->hasRole('parent')) {
                         $guardianUser->assignRole('parent');
                     }
 

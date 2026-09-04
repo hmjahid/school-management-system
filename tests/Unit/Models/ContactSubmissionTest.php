@@ -4,13 +4,14 @@ namespace Tests\Unit\Models;
 
 use App\Models\ContactSubmission;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ContactSubmissionTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_key_columns(): void
     {
         $submission = ContactSubmission::create([
@@ -28,7 +29,7 @@ class ContactSubmissionTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_defaults_type_to_contact(): void
     {
         $submission = ContactSubmission::create([
@@ -40,7 +41,7 @@ class ContactSubmissionTest extends TestCase
         $this->assertSame('contact', $submission->fresh()->type);
     }
 
-    /** @test */
+    #[Test]
     public function it_exposes_type_constants(): void
     {
         $this->assertSame('contact', ContactSubmission::TYPE_CONTACT);
@@ -50,7 +51,7 @@ class ContactSubmissionTest extends TestCase
         $this->assertSame('newsletter', ContactSubmission::TYPE_NEWSLETTER);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_meta_to_array(): void
     {
         $submission = ContactSubmission::create([

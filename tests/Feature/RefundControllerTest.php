@@ -7,6 +7,7 @@ use App\Models\Refund;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RefundControllerTest extends TestCase
@@ -63,7 +64,7 @@ class RefundControllerTest extends TestCase
         $this->admin->assignRole('admin');
     }
 
-    /** @test */
+    #[Test]
     public function it_lists_refunds()
     {
         $response = $this->actingAs($this->admin, 'sanctum')
@@ -87,7 +88,7 @@ class RefundControllerTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_creates_a_refund()
     {
         $response = $this->actingAs($this->admin, 'sanctum')
@@ -115,7 +116,7 @@ class RefundControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_shows_refund_details()
     {
         $response = $this->actingAs($this->admin, 'sanctum')
@@ -131,7 +132,7 @@ class RefundControllerTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_processes_a_pending_refund()
     {
         $pendingRefund = Refund::create([
@@ -158,7 +159,7 @@ class RefundControllerTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_cancels_a_pending_refund()
     {
         $pendingRefund = Refund::create([
@@ -190,7 +191,7 @@ class RefundControllerTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_gets_refund_statistics()
     {
         $response = $this->actingAs($this->admin, 'sanctum')
@@ -212,7 +213,7 @@ class RefundControllerTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_refund_creation()
     {
         // Test required fields
@@ -243,7 +244,7 @@ class RefundControllerTest extends TestCase
             ->assertJsonValidationErrors(['amount']);
     }
 
-    /** @test */
+    #[Test]
     public function it_prevents_unauthorized_access()
     {
         // Regular user can't view all refunds
@@ -265,7 +266,7 @@ class RefundControllerTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_refund_processing_errors()
     {
         $pendingRefund = Refund::create([

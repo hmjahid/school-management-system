@@ -157,21 +157,21 @@ class PaymentGatewaySeeder extends Seeder
                 'api_key', 'api_secret', 'api_username', 'api_password', 'sandbox_url', 'live_url',
                 'callback_url', 'webhook_url', 'success_url', 'cancel_url', 'ipn_url', 'logo',
                 'description', 'instructions', 'currency', 'fee_percentage', 'fee_fixed',
-                'min_amount', 'max_amount', 'supported_currencies', 'sort_order'
+                'min_amount', 'max_amount', 'supported_currencies', 'sort_order',
             ];
-            
+
             foreach ($gateway as $key => $value) {
-                if (!in_array($key, $columns)) {
+                if (! in_array($key, $columns)) {
                     $extraAttributes[$key] = $value;
                     unset($gateway[$key]);
                 }
             }
-            
+
             // Add extra attributes to the gateway
-            if (!empty($extraAttributes)) {
+            if (! empty($extraAttributes)) {
                 $gateway['extra_attributes'] = $extraAttributes;
             }
-            
+
             // Create or update the gateway
             PaymentGateway::updateOrCreate(
                 ['code' => $gateway['code']],

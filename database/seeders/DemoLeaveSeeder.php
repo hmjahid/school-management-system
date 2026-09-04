@@ -41,7 +41,10 @@ class DemoLeaveSeeder extends Seeder
                 $status = 'approved';
                 foreach (array_combine($statuses, $weights) as $s => $w) {
                     $cumulative += $w;
-                    if ($rand <= $cumulative) { $status = $s; break; }
+                    if ($rand <= $cumulative) {
+                        $status = $s;
+                        break;
+                    }
                 }
 
                 LeaveRequest::create([

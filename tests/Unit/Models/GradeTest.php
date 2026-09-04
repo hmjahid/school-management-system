@@ -11,6 +11,7 @@ use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class GradeTest extends TestCase
@@ -59,7 +60,7 @@ class GradeTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_fillable_columns(): void
     {
         $grade = $this->makeGrade(['marks_obtained' => 78, 'grade' => 'B', 'remarks' => 'Ok']);
@@ -73,7 +74,7 @@ class GradeTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_marks_as_decimal(): void
     {
         $grade = $this->makeGrade(['marks_obtained' => 92.5, 'total_marks' => 100.0]);
@@ -82,7 +83,7 @@ class GradeTest extends TestCase
         $this->assertIsNumeric($grade->total_marks);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_student(): void
     {
         $student = Student::factory()->create();
@@ -92,7 +93,7 @@ class GradeTest extends TestCase
         $this->assertSame($student->id, $grade->student->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_class(): void
     {
         $class = $this->makeClass();
@@ -102,7 +103,7 @@ class GradeTest extends TestCase
         $this->assertSame($class->id, $grade->class->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_subject(): void
     {
         $subject = Subject::create([
@@ -115,7 +116,7 @@ class GradeTest extends TestCase
         $this->assertSame($subject->id, $grade->subject->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_exam_when_set(): void
     {
         $grade = $this->makeGrade(['exam_id' => null]);

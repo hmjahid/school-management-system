@@ -7,6 +7,7 @@ use App\Models\PaymentGateway;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class PaymentWebhookSecurityTest extends TestCase
@@ -68,7 +69,7 @@ class PaymentWebhookSecurityTest extends TestCase
         return $this->call('POST', "/api/v1/payments/webhook/{$gateway}", [], [], [], $server, $body);
     }
 
-    /** @test */
+    #[Test]
     public function valid_signed_bkash_webhook_processes_and_completes_payment(): void
     {
         Event::fake();
@@ -94,7 +95,7 @@ class PaymentWebhookSecurityTest extends TestCase
         $this->assertEquals(Payment::STATUS_COMPLETED, $payment->fresh()->payment_status);
     }
 
-    /** @test */
+    #[Test]
     public function missing_signature_is_rejected_and_payment_unchanged(): void
     {
         Http::fake();
@@ -111,7 +112,7 @@ class PaymentWebhookSecurityTest extends TestCase
         Http::assertNothingSent();
     }
 
-    /** @test */
+    #[Test]
     public function invalid_signature_is_rejected_and_payment_unchanged(): void
     {
         Http::fake();
@@ -128,7 +129,7 @@ class PaymentWebhookSecurityTest extends TestCase
         Http::assertNothingSent();
     }
 
-    /** @test */
+    #[Test]
     public function valid_signed_nagad_webhook_processes_and_completes_payment(): void
     {
         Event::fake();
@@ -151,7 +152,7 @@ class PaymentWebhookSecurityTest extends TestCase
         $this->assertEquals(Payment::STATUS_COMPLETED, $payment->fresh()->payment_status);
     }
 
-    /** @test */
+    #[Test]
     public function invalid_nagad_signature_is_rejected_and_payment_unchanged(): void
     {
         Http::fake();
@@ -168,7 +169,7 @@ class PaymentWebhookSecurityTest extends TestCase
         Http::assertNothingSent();
     }
 
-    /** @test */
+    #[Test]
     public function rocket_webhook_requires_valid_signature(): void
     {
         Http::fake();

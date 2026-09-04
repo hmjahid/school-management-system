@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class AdmissionDocumentResource extends JsonResource
@@ -21,7 +20,7 @@ class AdmissionDocumentResource extends JsonResource
             'type_label' => $this->type_label,
             'name' => $this->name,
             'file_path' => $this->file_path,
-            'file_url' => asset('storage/' . $this->file_path),
+            'file_url' => asset('storage/'.$this->file_path),
             'file_type' => $this->file_type,
             'file_size' => $this->file_size,
             'file_size_formatted' => $this->file_size_formatted,

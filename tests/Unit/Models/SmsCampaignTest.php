@@ -3,18 +3,18 @@
 namespace Tests\Unit\Models;
 
 use App\Models\SchoolClass;
-use App\Models\Section;
 use App\Models\SmsCampaign;
 use App\Models\SmsCampaignRecipient;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class SmsCampaignTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_required_columns(): void
     {
         $campaign = SmsCampaign::create([
@@ -32,7 +32,7 @@ class SmsCampaignTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_defaults_status_to_draft(): void
     {
         $campaign = SmsCampaign::create([
@@ -47,7 +47,7 @@ class SmsCampaignTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_exposes_audience_and_status_constants(): void
     {
         $this->assertEquals('all', SmsCampaign::AUDIENCE_ALL);
@@ -60,7 +60,7 @@ class SmsCampaignTest extends TestCase
         $this->assertEquals('failed', SmsCampaign::STATUS_FAILED);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_class_when_set(): void
     {
         $class = SchoolClass::factory()->create();
@@ -75,7 +75,7 @@ class SmsCampaignTest extends TestCase
         $this->assertTrue($campaign->class->is($class));
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_section_when_set(): void
     {
         $class = SchoolClass::factory()->create();
@@ -102,7 +102,7 @@ class SmsCampaignTest extends TestCase
         $this->assertTrue($campaign->section->is($section));
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_creator_when_set(): void
     {
         $creator = User::factory()->create();
@@ -117,7 +117,7 @@ class SmsCampaignTest extends TestCase
         $this->assertTrue($campaign->creator->is($creator));
     }
 
-    /** @test */
+    #[Test]
     public function it_has_many_recipients(): void
     {
         $campaign = SmsCampaign::create([

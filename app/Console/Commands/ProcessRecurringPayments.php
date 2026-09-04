@@ -36,7 +36,6 @@ class ProcessRecurringPayments extends Command
     /**
      * Create a new command instance.
      *
-     * @param  \App\Services\RecurringPaymentService  $recurringPaymentService
      * @return void
      */
     public function __construct(RecurringPaymentService $recurringPaymentService)
@@ -53,7 +52,7 @@ class ProcessRecurringPayments extends Command
     public function handle()
     {
         $this->info('Starting recurring payment processing...');
-        
+
         if ($this->option('test')) {
             $this->warn('TEST MODE: No actual payments will be processed');
         }
@@ -67,6 +66,7 @@ class ProcessRecurringPayments extends Command
         }
 
         $this->info('Recurring payment processing completed.');
+
         return 0;
     }
 
@@ -78,7 +78,7 @@ class ProcessRecurringPayments extends Command
     protected function processDuePayments()
     {
         $this->info('Processing due recurring payments...');
-        
+
         try {
             $results = $this->recurringPaymentService->processDuePayments(
                 $this->option('force')
@@ -92,7 +92,7 @@ class ProcessRecurringPayments extends Command
                 $results['skipped'] ?? 0
             ));
 
-            if (!empty($results['errors'])) {
+            if (! empty($results['errors'])) {
                 $this->error('Errors encountered:');
                 foreach ($results['errors'] as $profileId => $error) {
                     $this->line("  - Profile {$profileId}: {$error}");
@@ -105,8 +105,8 @@ class ProcessRecurringPayments extends Command
                 'results' => $results,
             ]);
         } catch (\Exception $e) {
-            $this->error('Error processing recurring payments: ' . $e->getMessage());
-            Log::error('Error processing recurring payments: ' . $e->getMessage(), [
+            $this->error('Error processing recurring payments: '.$e->getMessage());
+            Log::error('Error processing recurring payments: '.$e->getMessage(), [
                 'exception' => $e,
             ]);
         }
@@ -120,9 +120,9 @@ class ProcessRecurringPayments extends Command
     protected function retryFailedPayments()
     {
         $maxRetries = (int) $this->option('max-retries');
-        
+
         $this->info("Retrying failed payments (max {$maxRetries} attempts)...");
-        
+
         try {
             $results = $this->recurringPaymentService->retryFailedPayments($maxRetries);
 
@@ -133,7 +133,7 @@ class ProcessRecurringPayments extends Command
                 $results['failed']
             ));
 
-            if (!empty($results['errors'])) {
+            if (! empty($results['errors'])) {
                 $this->error('Errors encountered during retry:');
                 foreach ($results['errors'] as $profileId => $error) {
                     $this->line("  - Profile {$profileId}: {$error}");
@@ -147,8 +147,8 @@ class ProcessRecurringPayments extends Command
                 'results' => $results,
             ]);
         } catch (\Exception $e) {
-            $this->error('Error retrying failed payments: ' . $e->getMessage());
-            Log::error('Error retrying failed payments: ' . $e->getMessage(), [
+            $this->error('Error retrying failed payments: '.$e->getMessage());
+            Log::error('Error retrying failed payments: '.$e->getMessage(), [
                 'exception' => $e,
             ]);
         }

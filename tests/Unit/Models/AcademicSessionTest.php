@@ -4,14 +4,14 @@ namespace Tests\Unit\Models;
 
 use App\Models\AcademicSession;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AcademicSessionTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_fillable_columns(): void
     {
         $code = 'CODE'.uniqid();
@@ -44,7 +44,7 @@ class AcademicSessionTest extends TestCase
         $this->assertSame($code, $session->code);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_dates_boolean_and_metadata(): void
     {
         $session = AcademicSession::create([
@@ -65,7 +65,7 @@ class AcademicSessionTest extends TestCase
         $this->assertSame('bar', $session->metadata['foo']);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_only_have_one_current_session(): void
     {
         $first = AcademicSession::create([
@@ -88,7 +88,7 @@ class AcademicSessionTest extends TestCase
         $this->assertEquals(1, AcademicSession::where('is_current', true)->count());
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_the_current_session(): void
     {
         AcademicSession::create([
@@ -111,7 +111,7 @@ class AcademicSessionTest extends TestCase
         $this->assertSame($current->id, AcademicSession::current()->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_scopes_active_sessions(): void
     {
         AcademicSession::create([
@@ -132,7 +132,7 @@ class AcademicSessionTest extends TestCase
         $this->assertEquals(1, AcademicSession::active()->count());
     }
 
-    /** @test */
+    #[Test]
     public function it_soft_deletes(): void
     {
         $session = AcademicSession::create([

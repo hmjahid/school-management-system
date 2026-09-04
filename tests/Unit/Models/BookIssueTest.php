@@ -6,6 +6,7 @@ use App\Models\Book;
 use App\Models\BookIssue;
 use App\Models\Student;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class BookIssueTest extends TestCase
@@ -28,7 +29,7 @@ class BookIssueTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_exposes_status_constants(): void
     {
         $this->assertEquals('issued', BookIssue::STATUS_ISSUED);
@@ -37,13 +38,13 @@ class BookIssueTest extends TestCase
         $this->assertEquals('damaged', BookIssue::STATUS_DAMAGED);
     }
 
-    /** @test */
+    #[Test]
     public function is_overdue_when_issued_and_due_date_past(): void
     {
         $this->assertTrue($this->makeIssue(['due_date' => now()->subDays(2)])->isOverdue());
     }
 
-    /** @test */
+    #[Test]
     public function not_overdue_when_returned(): void
     {
         $this->assertFalse($this->makeIssue([
@@ -52,13 +53,13 @@ class BookIssueTest extends TestCase
         ])->isOverdue());
     }
 
-    /** @test */
+    #[Test]
     public function not_overdue_when_due_date_in_future(): void
     {
         $this->assertFalse($this->makeIssue(['due_date' => now()->addDays(5)])->isOverdue());
     }
 
-    /** @test */
+    #[Test]
     public function calculate_late_fee_for_returned_late(): void
     {
         $issue = $this->makeIssue([
@@ -71,7 +72,7 @@ class BookIssueTest extends TestCase
         $this->assertEquals(30.0, $issue->calculateLateFee(10.0));
     }
 
-    /** @test */
+    #[Test]
     public function calculate_late_fee_for_still_overdue(): void
     {
         $issue = $this->makeIssue(['due_date' => now()->subDays(4)]);
@@ -80,7 +81,7 @@ class BookIssueTest extends TestCase
         $this->assertEquals(20.0, $issue->calculateLateFee(5.0));
     }
 
-    /** @test */
+    #[Test]
     public function calculate_late_fee_zero_when_not_overdue(): void
     {
         $issue = $this->makeIssue(['due_date' => now()->addDays(5)]);
@@ -88,7 +89,7 @@ class BookIssueTest extends TestCase
         $this->assertEquals(0.0, $issue->calculateLateFee(5.0));
     }
 
-    /** @test */
+    #[Test]
     public function scope_overdue_filters_issued_past_due(): void
     {
         $this->makeIssue(['due_date' => now()->subDays(1)]);

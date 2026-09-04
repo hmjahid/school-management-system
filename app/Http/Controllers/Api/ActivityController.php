@@ -23,7 +23,7 @@ class ActivityController extends Controller
             ->latest()
             ->limit($limit)
             ->get()
-            ->map(fn($log) => [
+            ->map(fn ($log) => [
                 'id' => $log->id,
                 'type' => $log->log_name ?? 'activity',
                 'message' => $log->description ?? $log->log_name,

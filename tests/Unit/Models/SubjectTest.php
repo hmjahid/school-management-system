@@ -6,6 +6,7 @@ use App\Models\Subject;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class SubjectTest extends TestCase
@@ -22,7 +23,7 @@ class SubjectTest extends TestCase
         ], $overrides));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_fillable_columns(): void
     {
         $code = 'SUB'.uniqid();
@@ -41,7 +42,7 @@ class SubjectTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_boolean_and_credit_hours(): void
     {
         $subject = $this->makeSubject(['is_active' => 1, 'credit_hours' => 4.00]);
@@ -51,7 +52,7 @@ class SubjectTest extends TestCase
         $this->assertIsFloat($subject->credit_hours);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_classes_and_exams_relationships(): void
     {
         $subject = $this->makeSubject();
@@ -60,7 +61,7 @@ class SubjectTest extends TestCase
         $this->assertInstanceOf(HasMany::class, $subject->exams());
     }
 
-    /** @test */
+    #[Test]
     public function it_computes_status_badge(): void
     {
         $subject = $this->makeSubject(['is_active' => true]);
@@ -69,7 +70,7 @@ class SubjectTest extends TestCase
         $this->assertStringContainsString('Active', $subject->status_badge);
     }
 
-    /** @test */
+    #[Test]
     public function it_computes_class_count(): void
     {
         $subject = $this->makeSubject();
@@ -77,7 +78,7 @@ class SubjectTest extends TestCase
         $this->assertSame(0, $subject->class_count);
     }
 
-    /** @test */
+    #[Test]
     public function it_scopes_active_and_of_type(): void
     {
         $this->makeSubject(['is_active' => true, 'type' => 'theory']);

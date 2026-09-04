@@ -6,17 +6,18 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RoleTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_required_columns_and_description(): void
     {
         $role = Role::create([
-            'name' => 'editor-' . uniqid(),
+            'name' => 'editor-'.uniqid(),
             'guard_name' => 'web',
             'description' => 'Content editor',
         ]);
@@ -29,15 +30,15 @@ class RoleTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_has_many_permissions(): void
     {
         $role = Role::create([
-            'name' => 'moderator-' . uniqid(),
+            'name' => 'moderator-'.uniqid(),
             'guard_name' => 'web',
         ]);
         $permission = Permission::create([
-            'name' => 'moderate-' . uniqid(),
+            'name' => 'moderate-'.uniqid(),
             'guard_name' => 'web',
         ]);
 
@@ -46,12 +47,12 @@ class RoleTest extends TestCase
         $this->assertTrue($role->permissions->contains($permission));
     }
 
-    /** @test */
+    #[Test]
     public function it_can_be_assigned_to_and_removed_from_users(): void
     {
         $user = User::factory()->create();
         $role = Role::create([
-            'name' => 'staff-' . uniqid(),
+            'name' => 'staff-'.uniqid(),
             'guard_name' => 'web',
         ]);
 
@@ -64,11 +65,11 @@ class RoleTest extends TestCase
         $this->assertFalse($user->fresh()->hasRole($role));
     }
 
-    /** @test */
+    #[Test]
     public function it_links_user_through_school_role_relationship(): void
     {
         $role = Role::create([
-            'name' => 'principal-' . uniqid(),
+            'name' => 'principal-'.uniqid(),
             'guard_name' => 'web',
         ]);
         $user = User::factory()->create();

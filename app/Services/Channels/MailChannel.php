@@ -4,8 +4,8 @@ namespace App\Services\Channels;
 
 use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class MailChannel
 {
@@ -20,7 +20,6 @@ class MailChannel
      * Send the given notification.
      *
      * @param  mixed  $notifiable
-     * @param  \Illuminate\Notifications\Notification  $notification
      * @return void
      */
     public function send($notifiable, Notification $notification)
@@ -51,9 +50,9 @@ class MailChannel
                 }
 
                 $m->to($recipients)
-                  ->subject($message->subject ?: 
-                      Str::title(Str::snake(class_basename($notification), ' '))
-                  );
+                    ->subject($message->subject ?:
+                        Str::title(Str::snake(class_basename($notification), ' '))
+                    );
 
                 if (! empty($message->attachments)) {
                     foreach ($message->attachments as $attachment) {
@@ -107,8 +106,8 @@ class MailChannel
      */
     protected function buildMailable($mailer, $notifiable, $notification, $message)
     {
-        $mailable = new Mailable();
-        
+        $mailable = new Mailable;
+
         if ($message instanceof Mailable) {
             return $message;
         }

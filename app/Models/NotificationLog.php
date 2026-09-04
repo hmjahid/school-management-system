@@ -44,17 +44,21 @@ class NotificationLog extends Model
      * @var array
      */
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_SENT = 'sent';
+
     public const STATUS_DELIVERED = 'delivered';
+
     public const STATUS_FAILED = 'failed';
+
     public const STATUS_OPENED = 'opened';
+
     public const STATUS_BOUNCED = 'bounced';
+
     public const STATUS_COMPLAINED = 'complained';
 
     /**
      * Get all the available statuses.
-     *
-     * @return array
      */
     public static function getStatuses(): array
     {
@@ -136,7 +140,6 @@ class NotificationLog extends Model
      * Scope a query to only include notifications for a specific channel.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  string  $channel
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeForChannel($query, string $channel)
@@ -148,7 +151,6 @@ class NotificationLog extends Model
      * Scope a query to only include notifications of a specific type.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  string  $type
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeOfType($query, string $type)
@@ -158,9 +160,6 @@ class NotificationLog extends Model
 
     /**
      * Mark the notification as sent.
-     *
-     * @param  array  $metadata
-     * @return bool
      */
     public function markAsSent(array $metadata = []): bool
     {
@@ -173,9 +172,6 @@ class NotificationLog extends Model
 
     /**
      * Mark the notification as delivered.
-     *
-     * @param  array  $metadata
-     * @return bool
      */
     public function markAsDelivered(array $metadata = []): bool
     {
@@ -188,10 +184,6 @@ class NotificationLog extends Model
 
     /**
      * Mark the notification as failed.
-     *
-     * @param  string  $errorMessage
-     * @param  array  $metadata
-     * @return bool
      */
     public function markAsFailed(string $errorMessage, array $metadata = []): bool
     {
@@ -204,9 +196,6 @@ class NotificationLog extends Model
 
     /**
      * Mark the notification as opened.
-     *
-     * @param  array  $metadata
-     * @return bool
      */
     public function markAsOpened(array $metadata = []): bool
     {
@@ -219,12 +208,10 @@ class NotificationLog extends Model
 
     /**
      * Get the delivery time in seconds.
-     *
-     * @return float|null
      */
     public function getDeliveryTime(): ?float
     {
-        if (!$this->sent_at || !$this->delivered_at) {
+        if (! $this->sent_at || ! $this->delivered_at) {
             return null;
         }
 
@@ -235,25 +222,22 @@ class NotificationLog extends Model
      * Get the open rate in percentage.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  string|null  $type
-     * @param  string|null  $channel
-     * @return float
      */
     public static function getOpenRate($query = null, ?string $type = null, ?string $channel = null): float
     {
         $query = $query ?: self::query();
-        
+
         if ($type) {
             $query->ofType($type);
         }
-        
+
         if ($channel) {
             $query->forChannel($channel);
         }
-        
+
         $total = $query->count();
         $opened = (clone $query)->opened()->count();
-        
+
         return $total > 0 ? round(($opened / $total) * 100, 2) : 0;
     }
 
@@ -261,25 +245,22 @@ class NotificationLog extends Model
      * Get the delivery rate in percentage.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  string|null  $type
-     * @param  string|null  $channel
-     * @return float
      */
     public static function getDeliveryRate($query = null, ?string $type = null, ?string $channel = null): float
     {
         $query = $query ?: self::query();
-        
+
         if ($type) {
             $query->ofType($type);
         }
-        
+
         if ($channel) {
             $query->forChannel($channel);
         }
-        
+
         $total = $query->count();
         $delivered = (clone $query)->whereIn('status', [self::STATUS_DELIVERED, self::STATUS_OPENED])->count();
-        
+
         return $total > 0 ? round(($delivered / $total) * 100, 2) : 0;
     }
 
@@ -287,25 +268,22 @@ class NotificationLog extends Model
      * Get the failure rate in percentage.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  string|null  $type
-     * @param  string|null  $channel
-     * @return float
      */
     public static function getFailureRate($query = null, ?string $type = null, ?string $channel = null): float
     {
         $query = $query ?: self::query();
-        
+
         if ($type) {
             $query->ofType($type);
         }
-        
+
         if ($channel) {
             $query->forChannel($channel);
         }
-        
+
         $total = $query->count();
         $failed = (clone $query)->where('status', self::STATUS_FAILED)->count();
-        
+
         return $total > 0 ? round(($failed / $total) * 100, 2) : 0;
     }
 
@@ -313,34 +291,31 @@ class NotificationLog extends Model
      * Get the average delivery time in seconds.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  string|null  $type
-     * @param  string|null  $channel
-     * @return float
      */
     public static function getAverageDeliveryTime($query = null, ?string $type = null, ?string $channel = null): float
     {
         $query = $query ?: self::query()
             ->whereNotNull('sent_at')
             ->whereNotNull('delivered_at');
-        
+
         if ($type) {
             $query->ofType($type);
         }
-        
+
         if ($channel) {
             $query->forChannel($channel);
         }
-        
+
         $logs = $query->get();
-        
+
         if ($logs->isEmpty()) {
             return 0;
         }
-        
+
         $totalTime = $logs->sum(function ($log) {
             return $log->getDeliveryTime() ?? 0;
         });
-        
+
         return round($totalTime / $logs->count(), 2);
     }
 
@@ -348,29 +323,26 @@ class NotificationLog extends Model
      * Get the notification statistics.
      *
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
-     * @param  string|null  $type
-     * @param  string|null  $channel
-     * @return array
      */
     public static function getStats($query = null, ?string $type = null, ?string $channel = null): array
     {
         $query = $query ?: self::query();
-        
+
         if ($type) {
             $query->ofType($type);
         }
-        
+
         if ($channel) {
             $query->forChannel($channel);
         }
-        
+
         $total = $query->count();
         $pending = (clone $query)->pending()->count();
         $sent = (clone $query)->sent()->count();
         $delivered = (clone $query)->delivered()->count();
         $opened = (clone $query)->opened()->count();
         $failed = (clone $query)->failed()->count();
-        
+
         return [
             'total' => $total,
             'pending' => $pending,
@@ -389,19 +361,18 @@ class NotificationLog extends Model
      * Get the notification statistics grouped by type.
      *
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
-     * @param  string|null  $channel
      * @return \Illuminate\Support\Collection
      */
     public static function getStatsByType($query = null, ?string $channel = null)
     {
         $query = $query ?: self::query();
-        
+
         if ($channel) {
             $query->forChannel($channel);
         }
-        
+
         $types = $query->select('type')->distinct()->pluck('type');
-        
+
         return $types->mapWithKeys(function ($type) use ($query) {
             return [$type => self::getStats((clone $query)->ofType($type))];
         });
@@ -411,19 +382,18 @@ class NotificationLog extends Model
      * Get the notification statistics grouped by channel.
      *
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
-     * @param  string|null  $type
      * @return \Illuminate\Support\Collection
      */
     public static function getStatsByChannel($query = null, ?string $type = null)
     {
         $query = $query ?: self::query();
-        
+
         if ($type) {
             $query->ofType($type);
         }
-        
+
         $channels = $query->select('channel')->distinct()->pluck('channel');
-        
+
         return $channels->mapWithKeys(function ($channel) use ($query) {
             return [$channel => self::getStats((clone $query)->forChannel($channel))];
         });

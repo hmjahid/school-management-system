@@ -3,9 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\News;
-use Carbon\Carbon;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 class NewsSeeder extends Seeder
 {
@@ -17,7 +15,7 @@ class NewsSeeder extends Seeder
     public function run()
     {
         $now = now();
-        
+
         // Sample news articles
         $news = [
             [
@@ -30,7 +28,7 @@ class NewsSeeder extends Seeder
                 'is_event' => false,
                 'published_at' => $now->subDays(5),
                 'author_name' => 'School Admin',
-                'author_avatar' => 'https://via.placeholder.com/100?text=SA'
+                'author_avatar' => 'https://via.placeholder.com/100?text=SA',
             ],
             [
                 'title' => 'Annual Sports Day',
@@ -44,7 +42,7 @@ class NewsSeeder extends Seeder
                 'event_date' => $now->copy()->addDays(30),
                 'event_location' => 'School Ground',
                 'author_name' => 'Sports Department',
-                'author_avatar' => 'https://via.placeholder.com/100?text=SD'
+                'author_avatar' => 'https://via.placeholder.com/100?text=SD',
             ],
             [
                 'title' => 'Science Fair 2025',
@@ -58,7 +56,7 @@ class NewsSeeder extends Seeder
                 'event_date' => $now->copy()->addDays(45),
                 'event_location' => 'School Auditorium',
                 'author_name' => 'Science Department',
-                'author_avatar' => 'https://via.placeholder.com/100?text=SC'
+                'author_avatar' => 'https://via.placeholder.com/100?text=SC',
             ],
             [
                 'title' => 'School Library Renovation',
@@ -70,7 +68,7 @@ class NewsSeeder extends Seeder
                 'is_event' => false,
                 'published_at' => $now->subDay(),
                 'author_name' => 'School Admin',
-                'author_avatar' => 'https://via.placeholder.com/100?text=SA'
+                'author_avatar' => 'https://via.placeholder.com/100?text=SA',
             ],
             [
                 'title' => 'Parent-Teacher Meeting',
@@ -84,8 +82,8 @@ class NewsSeeder extends Seeder
                 'event_date' => $now->copy()->addDays(25),
                 'event_location' => 'School Campus',
                 'author_name' => 'Administration',
-                'author_avatar' => 'https://via.placeholder.com/100?text=ADMIN'
-            ]
+                'author_avatar' => 'https://via.placeholder.com/100?text=ADMIN',
+            ],
         ];
 
         foreach ($news as $item) {

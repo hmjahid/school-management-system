@@ -4,13 +4,14 @@ namespace Tests\Unit\Models;
 
 use App\Models\WebsiteMedia;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class WebsiteMediaTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_persists_required_columns(): void
     {
         $media = WebsiteMedia::create([
@@ -30,7 +31,7 @@ class WebsiteMediaTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function its_url_accessor_returns_storage_url(): void
     {
         $media = new WebsiteMedia(['file_path' => '/media/campus.jpg']);
@@ -38,7 +39,7 @@ class WebsiteMediaTest extends TestCase
         $this->assertEquals(url('storage/media/campus.jpg'), $media->url());
     }
 
-    /** @test */
+    #[Test]
     public function its_url_accessor_returns_null_without_path(): void
     {
         $media = new WebsiteMedia(['file_path' => null]);
@@ -46,7 +47,7 @@ class WebsiteMediaTest extends TestCase
         $this->assertNull($media->url());
     }
 
-    /** @test */
+    #[Test]
     public function its_is_image_method_detects_image_mime_type(): void
     {
         $media = new WebsiteMedia([
@@ -57,7 +58,7 @@ class WebsiteMediaTest extends TestCase
         $this->assertTrue($media->isImage());
     }
 
-    /** @test */
+    #[Test]
     public function its_is_image_method_detects_image_extension(): void
     {
         $media = new WebsiteMedia([
@@ -68,7 +69,7 @@ class WebsiteMediaTest extends TestCase
         $this->assertTrue($media->isImage());
     }
 
-    /** @test */
+    #[Test]
     public function its_is_image_method_returns_false_for_non_image(): void
     {
         $media = new WebsiteMedia([
@@ -79,7 +80,7 @@ class WebsiteMediaTest extends TestCase
         $this->assertFalse($media->isImage());
     }
 
-    /** @test */
+    #[Test]
     public function it_casts_file_size_to_integer(): void
     {
         $media = WebsiteMedia::create([

@@ -15,15 +15,15 @@ class EventsTableSeeder extends Seeder
     public function run(): void
     {
         // Get the first admin user to be the event creator
-        $admin = User::whereHas('roles', function($query) {
+        $admin = User::whereHas('roles', function ($query) {
             $query->whereIn('name', ['admin', 'super-admin']);
         })->first();
-        
-        if (!$admin) {
+
+        if (! $admin) {
             $admin = User::factory()->create([
                 'name' => 'Admin User',
                 'email' => 'admin@school.test',
-                'password' => bcrypt('password')
+                'password' => bcrypt('password'),
             ]);
             $admin->assignRole('admin');
         }
@@ -92,6 +92,6 @@ class EventsTableSeeder extends Seeder
             $event->save();
         }
 
-        $this->command->info('Created ' . count($events) . ' test events');
+        $this->command->info('Created '.count($events).' test events');
     }
 }

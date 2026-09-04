@@ -5,6 +5,7 @@ namespace Tests\Unit\Models;
 use App\Models\RefreshToken;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class RefreshTokenTest extends TestCase
@@ -18,7 +19,7 @@ class RefreshTokenTest extends TestCase
         ], $attributes));
     }
 
-    /** @test */
+    #[Test]
     public function it_persists_required_columns_and_auto_generates_token(): void
     {
         $user = User::factory()->create();
@@ -32,7 +33,7 @@ class RefreshTokenTest extends TestCase
         $this->assertNotEquals('', $token->token);
     }
 
-    /** @test */
+    #[Test]
     public function it_belongs_to_a_user(): void
     {
         $user = User::factory()->create();
@@ -41,7 +42,7 @@ class RefreshTokenTest extends TestCase
         $this->assertTrue($token->user->is($user));
     }
 
-    /** @test */
+    #[Test]
     public function is_expired_reflects_expiry(): void
     {
         $user = User::factory()->create();
@@ -53,7 +54,7 @@ class RefreshTokenTest extends TestCase
         $this->assertTrue($expired->isExpired());
     }
 
-    /** @test */
+    #[Test]
     public function mark_as_used_sets_last_used_at(): void
     {
         $user = User::factory()->create();
