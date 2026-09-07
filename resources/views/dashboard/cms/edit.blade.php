@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="mb-6">
-        <a href="{{ route('dashboard.cms.pages') }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">← {{ __('Back to pages') }}</a>
+        <a href="{{ route('dashboard.cms.pages') }}" class="text-sm font-medium text-brand-600 hover:text-brand-800">← {{ __('Back to pages') }}</a>
         <h1 class="mt-2 flex items-center gap-2 text-2xl font-bold text-gray-900">
             <span>{{ __('Edit') }}: {{ $def['label'] ?? $page }}</span>
             <span class="rounded-md bg-gray-100 px-2 py-0.5 font-mono text-xs font-medium text-gray-600">{{ $page }}</span>
@@ -13,10 +13,6 @@
             <p class="mt-1 text-sm text-gray-500">{{ $def['description'] }}</p>
         @endif
     </div>
-
-    @if (session('status'))
-        <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ session('status') }}</div>
-    @endif
 
     @if ($errors->any())
         <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
@@ -112,17 +108,17 @@
 
         <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
             <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-gray-700">
-                <input type="checkbox" name="is_active" value="1" class="size-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" @checked(old('is_active', $content->is_active ?? true))>
+                <input type="checkbox" name="is_active" value="1" class="size-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500" @checked(old('is_active', $content->is_active ?? true))>
                 {{ __('Page is active') }}
             </label>
             <div class="flex items-center gap-2">
-                <button type="button" data-cms-preview-open class="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
+                <button type="button" data-cms-preview-open class="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500/50">
                     {{ __('Preview') }}
                 </button>
                 <a href="{{ route('home') }}{{ $page === 'home' ? '' : '/' . $page }}" target="_blank" rel="noopener" class="text-sm font-medium text-gray-600 hover:text-gray-900">
                     {{ __('Preview public page') }} ↗
                 </a>
-                <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
+                <button type="submit" class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500/50">
                     {{ __('Save page') }}
                 </button>
             </div>
@@ -134,12 +130,12 @@
         <div class="mx-auto flex w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl" style="height:90vh;">
             <div class="flex items-center justify-between gap-3 border-b border-gray-200 px-5 py-3">
                 <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900">
-                    <svg class="h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    <svg class="h-4 w-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                     {{ __('Live preview') }} — {{ $def['label'] ?? $page }}
                 </h3>
                 <div class="flex items-center gap-2">
                     <div class="flex overflow-hidden rounded-lg border border-gray-300" data-cms-preview-lang>
-                        <button type="button" data-lang="en" class="px-3 py-1 text-xs font-semibold text-white bg-indigo-600">EN</button>
+                        <button type="button" data-lang="en" class="px-3 py-1 text-xs font-semibold text-white bg-brand-600">EN</button>
                         <button type="button" data-lang="bn" class="px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50">বাংলা</button>
                     </div>
                     <button type="button" data-cms-preview-close class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600" aria-label="{{ __('Close preview') }}">
@@ -180,8 +176,8 @@
                 var previewUrl = baseUrl + pagePath;
 
                 function currentLang() {
-                    return previewLang && previewLang.querySelector('button[data-lang].bg-indigo-600')
-                        ? previewLang.querySelector('button[data-lang].bg-indigo-600').getAttribute('data-lang')
+                    return previewLang && previewLang.querySelector('button[data-lang].bg-brand-600')
+                        ? previewLang.querySelector('button[data-lang].bg-brand-600').getAttribute('data-lang')
                         : 'en';
                 }
 
@@ -189,7 +185,7 @@
                     if (! previewLang) return;
                     previewLang.querySelectorAll('button[data-lang]').forEach(function (btn) {
                         var active = btn.getAttribute('data-lang') === lang;
-                        btn.classList.toggle('bg-indigo-600', active);
+                        btn.classList.toggle('bg-brand-600', active);
                         btn.classList.toggle('text-white', active);
                         btn.classList.toggle('text-gray-600', !active);
                         btn.classList.toggle('hover:bg-gray-50', !active);

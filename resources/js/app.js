@@ -39,6 +39,17 @@ window.confirmAction = function (options = {}) {
         const cancelBtn = root.querySelector('[data-confirm-cancel]');
         const backdrop = root.querySelector('[data-confirm-backdrop]');
 
+        // Remember what had focus so we can restore it when the modal closes.
+        const previouslyFocused = document.activeElement;
+
+        const danger = !!options.danger;
+        okBtn.classList.toggle('bg-red-600', danger);
+        okBtn.classList.toggle('hover:bg-red-700', danger);
+        okBtn.classList.toggle('focus:ring-red-500', danger);
+        okBtn.classList.toggle('bg-brand-600', !danger);
+        okBtn.classList.toggle('hover:bg-brand-700', !danger);
+        okBtn.classList.toggle('focus:ring-brand-500', !danger);
+
         title.textContent = options.title || 'Are you sure?';
         message.textContent = options.message || 'This action cannot be undone.';
         okBtn.textContent = options.confirmLabel || 'Confirm';
@@ -47,23 +58,39 @@ window.confirmAction = function (options = {}) {
             root.classList.add('hidden');
             root.setAttribute('aria-hidden', 'true');
             document.body.style.overflow = '';
+            document.removeEventListener('keydown', onKey);
+            if (previouslyFocused && typeof previouslyFocused.focus === 'function') previouslyFocused.focus();
             resolve(result);
         };
 
         const onOk = () => close(true);
         const onCancel = () => close(false);
         const onBackdrop = (e) => { if (e.target === backdrop) close(false); };
-        const onKey = (e) => { if (e.key === 'Escape') close(false); };
+
+        // Focus trap: Tab cycles between the two buttons, Shift+Tab reverses.
+        const onKey = (e) => {
+            if (e.key === 'Escape') { e.preventDefault(); close(false); return; }
+            if (e.key !== 'Tab') return;
+            const focusables = root.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
+            const list = Array.from(focusables).filter(el => el.offsetParent !== null);
+            if (list.length === 0) return;
+            const first = list[0];
+            const last = list[list.length - 1];
+            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        };
 
         okBtn.addEventListener('click', onOk, { once: true });
         cancelBtn.addEventListener('click', onCancel, { once: true });
         backdrop.addEventListener('click', onBackdrop, { once: true });
-        document.addEventListener('keydown', onKey, { once: true });
+        document.addEventListener('keydown', onKey);
 
         root.classList.remove('hidden');
         root.setAttribute('aria-hidden', 'false');
         document.body.style.overflow = 'hidden';
-        okBtn.focus();
+        // Focus Cancel first: confirmAction() backs destructive actions, so the
+        // safe default is one Enter/Space press to walk away.
+        cancelBtn.focus();
     });
 };
 
@@ -75,6 +102,7 @@ document.addEventListener('submit', async (e) => {
         title: form.dataset.confirmTitle || 'Confirm action',
         message: form.dataset.confirm || 'Are you sure?',
         confirmLabel: form.dataset.confirmLabel || 'Confirm',
+        danger: form.hasAttribute('data-confirm-danger'),
     });
     if (ok) form.submit();
 });
@@ -87,6 +115,7 @@ document.addEventListener('click', async (e) => {
         title: link.dataset.confirmTitle || 'Confirm action',
         message: link.dataset.confirm || 'Are you sure?',
         confirmLabel: link.dataset.confirmLabel || 'Confirm',
+        danger: link.hasAttribute('data-confirm-danger'),
     });
     if (ok) window.location.href = link.href;
 });
@@ -344,10 +373,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         tabs.querySelectorAll('button[data-filter]').forEach(b => {
             b.dataset.active = b.dataset.filter === filter ? 'true' : 'false';
-            b.classList.toggle('bg-blue-600', b.dataset.filter === filter);
+            b.classList.toggle('bg-brand-600', b.dataset.filter === filter);
             b.classList.toggle('text-white', b.dataset.filter === filter);
             b.classList.toggle('bg-slate-100', b.dataset.filter !== filter);
             b.classList.toggle('text-slate-700', b.dataset.filter !== filter);
+            b.setAttribute('aria-pressed', b.dataset.filter === filter ? 'true' : 'false');
         });
 
         grid.querySelectorAll('[data-category]').forEach(el => {
@@ -374,7 +404,14 @@ document.addEventListener('DOMContentLoaded', () => {
         img.alt = 'Gallery image';
         img.src = images[index];
 
-        const close = () => { overlay.remove(); document.body.style.overflow = ''; };
+        const previouslyFocused = document.activeElement;
+
+        const close = () => {
+            overlay.remove();
+            document.body.style.overflow = '';
+            document.removeEventListener('keydown', onKey);
+            if (previouslyFocused && typeof previouslyFocused.focus === 'function') previouslyFocused.focus();
+        };
 
         const prev = () => { index = (index - 1 + images.length) % images.length; img.src = images[index]; };
         const next = () => { index = (index + 1) % images.length; img.src = images[index]; };
@@ -399,11 +436,23 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.querySelector('button[aria-label="Next image"]').addEventListener('click', next);
         overlay.querySelector('button[aria-label="Close lightbox"]').addEventListener('click', close);
         overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') close();
-            if (e.key === 'ArrowLeft') prev();
-            if (e.key === 'ArrowRight') next();
-        }, { once: false });
+
+        const onKey = (e) => {
+            if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+            if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); return; }
+            if (e.key === 'ArrowRight') { e.preventDefault(); next(); return; }
+            if (e.key !== 'Tab') return;
+            // Trap Tab within the lightbox controls so keyboard users can't tab off-screen.
+            const buttons = Array.from(overlay.querySelectorAll('button')).filter(b => b.offsetParent !== null);
+            if (buttons.length === 0) return;
+            const first = buttons[0];
+            const last = buttons[buttons.length - 1];
+            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        };
+        document.addEventListener('keydown', onKey);
+
+        overlay.querySelector('button[aria-label="Close lightbox"]').focus();
     };
 
     document.addEventListener('click', (e) => {

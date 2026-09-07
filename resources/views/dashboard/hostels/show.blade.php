@@ -8,7 +8,7 @@
             <h1 class="text-2xl font-bold text-gray-900">{{ $hostel->name }}</h1>
             <p class="mt-1 text-sm text-gray-600">
                 @if($hostel->warden_name){{ __('Warden:') }} {{ $hostel->warden_name }} &middot; @endif
-                <span class="inline-block rounded-full px-2 py-0.5 text-xs font-semibold {{ $hostel->status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600' }}">{{ ucfirst($hostel->status) }}</span>
+                <x-badge :variant="$hostel->status === 'active' ? 'success' : 'default'">{{ ucfirst($hostel->status) }}</x-badge>
             </p>
         </div>
         <a href="{{ route('dashboard.hostels.index') }}" class="text-sm font-semibold text-gray-700 hover:text-gray-900">{{ __('Back') }}</a>
@@ -28,16 +28,16 @@
                             <h3 class="font-semibold text-gray-900">{{ __('Room') }} {{ $room->room_number }}</h3>
                             <p class="text-xs text-gray-500">{{ $room->room_type ?? __('Standard') }}</p>
                         </div>
-                        <span class="inline-block rounded-full px-2 py-0.5 text-xs font-semibold {{ $room->status === 'available' ? 'bg-green-100 text-green-800' : ($room->status === 'maintenance' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800') }}">
+                        <x-badge :variant="$room->status === 'available' ? 'success' : ($room->status === 'maintenance' ? 'warning' : 'brand')">
                             {{ ucfirst($room->status) }}
-                        </span>
+                        </x-badge>
                     </div>
                     <div class="mb-3 flex items-center gap-4 text-sm text-gray-600">
                         <span>{{ __('Capacity:') }} {{ $room->capacity }}</span>
                         <span>{{ __('Occupied:') }} {{ $room->occupied }}</span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <form method="post" action="{{ route('dashboard.hostels.rooms.destroy', $room) }}" onsubmit="return confirm('{{ __('Delete room?') }}')">
+                        <form method="post" action="{{ route('dashboard.hostels.rooms.destroy', $room) }}" data-confirm="{{ __('Delete room?') }}">
                             @csrf
                             @method('delete')
                             <button class="text-xs font-semibold text-red-600 hover:underline">{{ __('Delete') }}</button>
@@ -45,8 +45,8 @@
                     </div>
                 </div>
             @empty
-                <div class="col-span-full rounded-lg border border-dashed border-gray-300 p-8 text-center">
-                    <p class="text-sm text-gray-500">{{ __('No rooms yet. Add one below.') }}</p>
+                <div class="col-span-full rounded-2xl border-2 border-dashed border-slate-200 p-12">
+                    <x-empty-state :title="__('No rooms yet')" :message="__('Add your first room using the form below.')" icon="inbox" />
                 </div>
             @endforelse
         </div>
@@ -80,7 +80,7 @@
                         </select>
                     </div>
                 </div>
-                <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Add Room') }}</button>
+                <button type="submit" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('Add Room') }}</button>
             </form>
         </div>
 

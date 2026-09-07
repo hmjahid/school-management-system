@@ -97,7 +97,7 @@
                 <div class="mt-6">
                     <h4 class="text-sm font-semibold uppercase tracking-wider text-white">{{ site_ui('footer.follow_us') }}</h4>
                     <div class="mt-3 flex gap-3">
-                        @include('partials.site.social-links', ['settings' => $siteSettings, 'linkClass' => 'flex h-9 w-9 items-center justify-center rounded-full bg-slate-800 text-slate-300 ring-1 ring-slate-700 transition hover:bg-brand-600 hover:text-white', 'placeholderClass' => 'opacity-50'])
+                        @include('partials.site.social-links', ['settings' => $siteSettings, 'linkClass' => 'flex h-9 w-9 items-center justify-center rounded-full bg-slate-800 text-slate-300 ring-1 ring-slate-700 transition hover:bg-brand-600 hover:text-white'])
                     </div>
                 </div>
 

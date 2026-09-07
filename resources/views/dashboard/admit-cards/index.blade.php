@@ -5,8 +5,8 @@
     <h1 class="text-2xl font-bold text-gray-900">{{ __('Admit cards') }}</h1>
     @can('create', App\Models\AdmitCard::class)
         <div class="flex flex-wrap gap-2">
-            <a href="{{ route('dashboard.admit-cards.batch.create') }}" class="rounded-lg border border-blue-600 bg-white px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50">{{ __('Batch generate') }}</a>
-            <a href="{{ route('dashboard.admit-cards.create') }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Generate admit card') }}</a>
+            <a href="{{ route('dashboard.admit-cards.batch.create') }}" class="rounded-lg border border-brand-600 bg-white px-4 py-2 text-sm font-semibold text-brand-600 hover:bg-brand-50">{{ __('Batch generate') }}</a>
+            <a href="{{ route('dashboard.admit-cards.create') }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('Generate admit card') }}</a>
         </div>
     @endcan
 </div>
@@ -27,14 +27,14 @@
                     <td class="px-4 py-3 font-mono text-xs">{{ $ac->admit_card_number }}</td>
                     <td class="px-4 py-3">{{ $ac->issue_date?->format('d M Y') }}</td>
                     <td class="px-4 py-3">
-                        <a href="{{ route('dashboard.admit-cards.show', $ac) }}" class="text-blue-600 hover:text-blue-800">{{ __('View') }}</a>
+                        <a href="{{ route('dashboard.admit-cards.show', $ac) }}" class="text-brand-600 hover:text-brand-800">{{ __('View') }}</a>
                         <button type="button" data-preview-url="{{ route('dashboard.admit-cards.preview', $ac) }}" class="ml-2 text-purple-600 hover:text-purple-800">{{ __('Preview') }}</button>
                         <a href="{{ route('dashboard.admit-cards.print', $ac) }}" target="_blank" class="ml-2 text-green-600 hover:text-green-800">{{ __('Print') }}</a>
                         @can('update', $ac)
-                            <a href="{{ route('dashboard.admit-cards.edit', $ac) }}" class="ml-2 text-indigo-600 hover:text-indigo-800">{{ __('Edit') }}</a>
+                            <a href="{{ route('dashboard.admit-cards.edit', $ac) }}" class="ml-2 text-brand-600 hover:text-brand-800">{{ __('Edit') }}</a>
                         @endcan
                         @can('delete', $ac)
-                            <form method="post" action="{{ route('dashboard.admit-cards.destroy', $ac) }}" class="inline" onsubmit="return confirm('{{ __('Are you sure?') }}')">
+                            <form method="post" action="{{ route('dashboard.admit-cards.destroy', $ac) }}" class="inline" data-confirm="{{ __('Are you sure?') }}">
                                 @csrf @method('delete')
                                 <button type="submit" class="ml-2 text-red-600 hover:text-red-800">{{ __('Delete') }}</button>
                             </form>
@@ -42,7 +42,7 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">{{ __('No admit cards found.') }}</td></tr>
+                <tr><td colspan="6" class="px-4 py-16"><x-empty-state :title="__('No admit cards found')" :message="__('Admit cards will appear here once generated.')" icon="document" /></td></tr>
             @endforelse
         </tbody>
     </table>

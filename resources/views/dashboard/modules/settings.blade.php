@@ -23,7 +23,7 @@
         <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm" data-settings-section>
             <button type="button" data-settings-toggle class="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition hover:bg-gray-50">
                 <div class="flex items-center gap-3">
-                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-100 text-brand-600">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </span>
                     <div>
@@ -144,53 +144,53 @@
                     <div class="sm:col-span-2">
                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('School name') }} <span class="text-gray-400">(EN)</span></label>
                         <input type="text" name="school_name" value="{{ old('school_name', $settings->school_name) }}"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                     </div>
                     <div class="sm:col-span-2">
                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('School name') }} <span class="text-gray-400">(বাংলা)</span></label>
                         <input type="text" name="school_name_bn" value="{{ old('school_name_bn', $settings->school_name_bn) }}"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                         @error('school_name_bn')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                     </div>
                     <div class="sm:col-span-2">
                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Tagline') }} <span class="text-gray-400">(EN)</span></label>
                         <input type="text" name="tagline" value="{{ old('tagline', $settings->tagline) }}"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                     </div>
                     <div class="sm:col-span-2">
                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Tagline') }} <span class="text-gray-400">(বাংলা)</span></label>
                         <input type="text" name="tagline_bn" value="{{ old('tagline_bn', $settings->tagline_bn) }}"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                         @error('tagline_bn')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                     </div>
                     <div>
                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Email') }}</label>
                         <input type="email" name="email" value="{{ old('email', $settings->email) }}"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                     </div>
                     <div>
                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Phone') }}</label>
                         <input type="text" name="phone" value="{{ old('phone', $settings->phone) }}"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                     </div>
                     <div class="sm:col-span-2">
                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Address') }}</label>
-                        <textarea name="address" rows="2" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">{{ old('address', $settings->address) }}</textarea>
+                        <textarea name="address" rows="2" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">{{ old('address', $settings->address) }}</textarea>
                     </div>
                     <div>
                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('City') }}</label>
                         <input type="text" name="city" value="{{ old('city', $settings->city) }}"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                     </div>
                     <div>
                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Country') }}</label>
                         <input type="text" name="country" value="{{ old('country', $settings->country) }}"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                     </div>
                     <div class="sm:col-span-2">
                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Website URL') }}</label>
                         <input type="url" name="website" value="{{ old('website', $settings->website) }}"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                     </div>
                     <div class="sm:col-span-2 rounded-lg border border-gray-100 bg-gray-50 p-4">
                         <h3 class="mb-3 text-sm font-semibold text-gray-900">{{ __('Social links') }}</h3>
@@ -213,13 +213,13 @@
                                     <div>
                                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ $soc['label'] }}</label>
                                         <input type="url" name="{{ $soc['urlField'] }}" value="{{ old($soc['urlField'], $settings->{$soc['urlField']}) }}" placeholder="https://"
-                                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                                     </div>
                                     <div class="flex items-center gap-2 sm:justify-end">
                                         <input type="hidden" name="{{ $soc['showField'] }}" value="0">
                                         <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-gray-700">
                                             <input type="checkbox" name="{{ $soc['showField'] }}" value="1" @checked(old($soc['showField'], $settings->{$soc['showField']}))
-                                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                                class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500">
                                             <span class="select-none">{{ __('Show icon') }}</span>
                                         </label>
                                     </div>
@@ -230,21 +230,21 @@
                     <div class="sm:col-span-2">
                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Meta title') }}</label>
                         <input type="text" name="meta_title" value="{{ old('meta_title', $settings->meta_title) }}"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                     </div>
                     <div class="sm:col-span-2">
                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Meta description') }}</label>
-                        <textarea name="meta_description" rows="2" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">{{ old('meta_description', $settings->meta_description) }}</textarea>
+                        <textarea name="meta_description" rows="2" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">{{ old('meta_description', $settings->meta_description) }}</textarea>
                     </div>
                     <div>
                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Timezone') }}</label>
                         <input type="text" name="timezone" value="{{ old('timezone', $settings->timezone) }}" placeholder="UTC"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                     </div>
                     <div>
                         <label for="default_locale" class="mb-1 block text-sm font-medium text-gray-700">{{ __('Default site language') }}</label>
                         <select id="default_locale" name="default_locale"
-                            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                             <option value="en" @selected(old('default_locale', $settings->default_locale) === 'en')>English</option>
                             <option value="bn" @selected(old('default_locale', $settings->default_locale) === 'bn')>বাংলা (Bengali)</option>
                         </select>
@@ -286,7 +286,7 @@
                 <div class="grid gap-4 md:grid-cols-2">
                     <div>
                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('SMS driver') }}</label>
-                        <select name="sms_driver" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        <select name="sms_driver" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                             @php $currentDriver = env('SMS_DRIVER', 'log'); @endphp
                             <option value="log" @selected($currentDriver === 'log')>Log (development)</option>
                             <option value="twilio" @selected($currentDriver === 'twilio')>Twilio</option>
@@ -299,7 +299,7 @@
                     <div>
                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Sender ID / From number') }}</label>
                         <input type="text" name="sms_sender_id" value="{{ old('sms_sender_id', $settings->sms_sender_id ?? env('SMS_FROM', '')) }}" maxlength="32" placeholder="SchoolMS"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                         <p class="mt-1 text-xs text-gray-500">{{ __('Alphanumeric sender name or phone number required by your provider.') }}</p>
                     </div>
                     <div class="md:col-span-2 rounded-lg border border-gray-100 bg-gray-50 p-4" id="twilio-fields">
@@ -308,17 +308,17 @@
                             <div>
                                 <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Account SID') }}</label>
                                 <input type="text" name="twilio_account_sid" value="{{ env('TWILIO_ACCOUNT_SID', '') }}" placeholder="ACxxxxxxxx"
-                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                             </div>
                             <div>
                                 <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Auth Token') }}</label>
                                 <input type="password" name="twilio_auth_token" value="{{ env('TWILIO_AUTH_TOKEN', '') }}" placeholder="{{ __('Leave unchanged to keep current') }}"
-                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" autocomplete="new-password">
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20" autocomplete="new-password">
                             </div>
                             <div>
                                 <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('From number') }}</label>
                                 <input type="text" name="twilio_from_number" value="{{ env('TWILIO_FROM_NUMBER', '') }}" placeholder="+1234567890"
-                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                             </div>
                         </div>
                     </div>
@@ -327,7 +327,7 @@
                         <div class="grid gap-4 md:grid-cols-2">
                             <label class="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2">
                                 <input type="hidden" name="send_absence_sms" value="0">
-                                <input type="checkbox" name="send_absence_sms" value="1" @checked(old('send_absence_sms', $settings->send_absence_sms ?? false)) class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                <input type="checkbox" name="send_absence_sms" value="1" @checked(old('send_absence_sms', $settings->send_absence_sms ?? false)) class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500">
                                 <span class="text-sm font-medium text-gray-800">{{ __('Send absence SMS to guardians') }}</span>
                             </label>
                             <div class="md:col-span-2">
@@ -361,19 +361,19 @@
                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Primary color') }}</label>
                         <div class="flex items-center gap-2">
                             <input type="color" data-color-preview value="{{ old('theme_primary_color', $settings->theme_primary_color ?? '#2563eb') }}" class="h-10 w-14 cursor-pointer rounded border border-gray-300">
-                            <input type="text" name="theme_primary_color" value="{{ old('theme_primary_color', $settings->theme_primary_color ?? '') }}" placeholder="#2563eb" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <input type="text" name="theme_primary_color" value="{{ old('theme_primary_color', $settings->theme_primary_color ?? '') }}" placeholder="#2563eb" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                         </div>
                     </div>
                     <div>
                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Secondary color') }}</label>
                         <div class="flex items-center gap-2">
                             <input type="color" data-color-preview value="{{ old('theme_secondary_color', $settings->theme_secondary_color ?? '#f97316') }}" class="h-10 w-14 cursor-pointer rounded border border-gray-300">
-                            <input type="text" name="theme_secondary_color" value="{{ old('theme_secondary_color', $settings->theme_secondary_color ?? '') }}" placeholder="#f97316" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <input type="text" name="theme_secondary_color" value="{{ old('theme_secondary_color', $settings->theme_secondary_color ?? '') }}" placeholder="#f97316" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                         </div>
                     </div>
                     <div>
                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Font family') }}</label>
-                        <select name="theme_font_family" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        <select name="theme_font_family" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                             <option value="" @selected(old('theme_font_family', $settings->theme_font_family ?? '') === '')>{{ __('Default (Inter)') }}</option>
                             <option value="Inter, sans-serif" @selected(old('theme_font_family', $settings->theme_font_family ?? '') === 'Inter, sans-serif')">Inter</option>
                             <option value="Roboto, sans-serif" @selected(old('theme_font_family', $settings->theme_font_family ?? '') === 'Roboto, sans-serif')">Roboto</option>
@@ -386,7 +386,7 @@
                     </div>
                     <div>
                         <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Border radius') }}</label>
-                        <select name="theme_border_radius" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        <select name="theme_border_radius" class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                             <option value="" @selected(old('theme_border_radius', $settings->theme_border_radius ?? '') === '')>{{ __('Default (rounded)') }}</option>
                             <option value="0" @selected(old('theme_border_radius', $settings->theme_border_radius ?? '') === '0')>{{ __('None (square)') }}</option>
                             <option value="0.25rem" @selected(old('theme_border_radius', $settings->theme_border_radius ?? '') === '0.25rem')>{{ __('Small') }}</option>
@@ -400,7 +400,7 @@
         </div>
 
         <div class="flex justify-end pt-2">
-            <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">
+            <button type="submit" class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-700 focus:ring-brand-500">
                 {{ __('Save settings') }}
             </button>
         </div>

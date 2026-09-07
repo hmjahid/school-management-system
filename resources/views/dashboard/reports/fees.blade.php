@@ -5,7 +5,7 @@
 @section('content')
     <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <a href="{{ route('dashboard.reports') }}" class="text-sm font-medium text-blue-600 hover:text-blue-800">← {{ __('Reports') }}</a>
+            <a href="{{ route('dashboard.reports') }}" class="text-sm font-medium text-brand-600 hover:text-brand-800">← {{ __('Reports') }}</a>
             <h1 class="mt-1 text-2xl font-bold text-gray-900">{{ __('Financial report') }}</h1>
             <p class="mt-1 text-sm text-gray-600">{{ $from->format('Y-m-d') }} → {{ $to->format('Y-m-d') }}</p>
         </div>
@@ -18,7 +18,7 @@
                 <label class="mb-1 block text-xs font-medium text-gray-500">{{ __('To') }}</label>
                 <input type="date" name="to" value="{{ $to->format('Y-m-d') }}" class="rounded-lg border border-gray-300 px-3 py-2 text-sm">
             </div>
-            <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">{{ __('Apply') }}</button>
+            <button type="submit" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('Apply') }}</button>
             <a href="{{ route('dashboard.reports.export', 'fees') }}" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{{ __('Export CSV') }}</a>
         </form>
     </div>

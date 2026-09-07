@@ -43,13 +43,11 @@
                         <td class="px-4 py-3 text-gray-600 whitespace-nowrap">{{ $row->created_at->format('Y-m-d H:i') }}</td>
                         <td class="px-4 py-3 text-gray-800">{{ $row->type }}</td>
                         <td class="px-4 py-3 text-gray-900">{{ $row->name }}</td>
-                        <td class="px-4 py-3"><a href="mailto:{{ $row->email }}" class="text-blue-600 hover:underline">{{ $row->email }}</a></td>
+                        <td class="px-4 py-3"><a href="mailto:{{ $row->email }}" class="text-brand-600 hover:underline">{{ $row->email }}</a></td>
                         <td class="px-4 py-3 max-w-md text-gray-600">{{ \Illuminate\Support\Str::limit($row->message, 200) }}</td>
                     </tr>
                 @empty
-                    <tr>
-                        <td colspan="5" class="px-4 py-8 text-center text-gray-500">{{ __('No submissions yet.') }}</td>
-                    </tr>
+                    <tr><td colspan="5" class="px-4 py-16"><x-empty-state :title="__('No submissions yet')" :message="__('Submissions will appear here once received.')" icon="inbox" /></td></tr>
                 @endforelse
             </tbody>
         </table>

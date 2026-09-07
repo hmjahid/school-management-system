@@ -11,10 +11,10 @@
         <div class="flex flex-wrap gap-2">
             <a href="{{ route('dashboard.classes') }}" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{{ __('List') }}</a>
             @can('update', $schoolClass)
-                <a href="{{ route('dashboard.classes.edit', $schoolClass) }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Edit') }}</a>
+                <a href="{{ route('dashboard.classes.edit', $schoolClass) }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('Edit') }}</a>
             @endcan
             @can('delete', $schoolClass)
-                <form method="post" action="{{ route('dashboard.classes.destroy', $schoolClass) }}" onsubmit="return confirm(@json(__('Remove this class?')));">
+                <form method="post" action="{{ route('dashboard.classes.destroy', $schoolClass) }}" data-confirm="{{ __('Remove this class?') }}" data-confirm-title="{{ __('Remove class') }}">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">{{ __('Remove') }}</button>

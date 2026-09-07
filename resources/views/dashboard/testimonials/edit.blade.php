@@ -3,7 +3,7 @@
 @section('content')
 <div class="mb-6 flex items-center justify-between">
     <h1 class="text-2xl font-bold text-gray-900">{{ __('Edit testimonial') }}</h1>
-    <a href="{{ route('dashboard.testimonials.index') }}" class="text-sm font-medium text-blue-600 hover:text-blue-800">{{ __('Back') }}</a>
+    <a href="{{ route('dashboard.testimonials.index') }}" class="text-sm font-medium text-brand-600 hover:text-brand-800">{{ __('Back') }}</a>
 </div>
 @include('dashboard.documents._school-info-bar')
 @include('dashboard.partials.form-errors')
@@ -66,7 +66,7 @@
         <div class="flex items-end">
             <label class="inline-flex items-center gap-2 text-sm text-gray-700">
                 <input type="hidden" name="is_visible" value="0">
-                <input type="checkbox" name="is_visible" value="1" @checked(old('is_visible', $testimonial->is_visible)) class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                <input type="checkbox" name="is_visible" value="1" @checked(old('is_visible', $testimonial->is_visible)) class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500">
                 {{ __('Show on website') }}
             </label>
         </div>
@@ -88,7 +88,7 @@
             <div>
                 <label class="inline-flex items-center gap-2 text-sm text-gray-700">
                     <input type="hidden" name="details[show_logo]" value="0">
-                    <input type="checkbox" name="details[show_logo]" value="1" @checked(old('details.show_logo', $details['show_logo'] ?? true)) class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                    <input type="checkbox" name="details[show_logo]" value="1" @checked(old('details.show_logo', $details['show_logo'] ?? true)) class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500">
                     {{ __('Show school logo') }}
                 </label>
             </div>
@@ -99,6 +99,6 @@
         </div>
     </fieldset>
 
-    <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Update') }}</button>
+    <button type="submit" class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('Update') }}</button>
 </form>
 @endsection

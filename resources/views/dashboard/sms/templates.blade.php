@@ -30,7 +30,7 @@
                         <td class="px-4 py-3 text-slate-700">{{ \Illuminate\Support\Str::limit($t->body, 80) }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="3" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No SMS templates configured yet.') }}</td></tr>
+                    <tr><td colspan="3" class="px-4 py-16"><x-empty-state :title="__('No SMS templates configured yet')" :message="__('Create a template to speed up message composition.')" icon="document" /></td></tr>
                 @endforelse
             </tbody>
         </table>

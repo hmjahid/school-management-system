@@ -9,10 +9,6 @@
         <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ __('dashboard.profile_description') }}</p>
     </div>
 
-    @if(session('status'))
-        <div class="mb-4 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400">{{ session('status') }}</div>
-    @endif
-
     <form method="post" action="{{ route('dashboard.profile.update') }}" enctype="multipart/form-data" class="space-y-6">
         @csrf
         @method('put')

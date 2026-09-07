@@ -53,7 +53,7 @@
                             <td class="px-4 py-3 text-right font-mono font-semibold">{{ number_format($p['net'], 2) }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="7" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No active structures for this month.') }}</td></tr>
+                        <tr><td colspan="7" class="px-4 py-16"><x-empty-state :title="__('No active structures for this month')" :message="__('Define salary structures to generate payslips.')" icon="chart" /></td></tr>
                     @endforelse
                 </tbody>
             </table>

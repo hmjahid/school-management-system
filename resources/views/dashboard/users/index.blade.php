@@ -4,7 +4,7 @@
 <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ __('dashboard.users') }}</h1>
     @can('manage_users')
-        <a href="{{ route('dashboard.users.create') }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('dashboard.add_user') }}</a>
+        <a href="{{ route('dashboard.users.create') }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('dashboard.add_user') }}</a>
     @endcan
 </div>
 <form method="get" class="mb-6 flex flex-wrap gap-3">
@@ -40,14 +40,14 @@
                     <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ $u->phone ?? '—' }}</td>
                     <td class="px-4 py-3">
                         @foreach($u->roles as $role)
-                            <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">{{ $role->name }}</span>
+                            <x-badge variant="brand">{{ $role->name }}</x-badge>
                         @endforeach
                     </td>
                     <td class="px-4 py-3">
-                        <a href="{{ route('dashboard.users.show', $u) }}" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">{{ __('View') }}</a>
+                        <a href="{{ route('dashboard.users.show', $u) }}" class="text-brand-600 hover:text-brand-800 dark:text-brand-400 dark:hover:text-brand-300">{{ __('View') }}</a>
                         @can('manage_users')
-                            <a href="{{ route('dashboard.users.edit', $u) }}" class="ml-2 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">{{ __('Edit') }}</a>
-                            <form method="post" action="{{ route('dashboard.users.destroy', $u) }}" class="inline" onsubmit="return confirm('{{ __('Are you sure?') }}')">
+                            <a href="{{ route('dashboard.users.edit', $u) }}" class="ml-2 text-brand-600 hover:text-brand-800 dark:text-brand-400 dark:hover:text-brand-300">{{ __('Edit') }}</a>
+                            <form method="post" action="{{ route('dashboard.users.destroy', $u) }}" class="inline" data-confirm="{{ __('Are you sure?') }}">
                                 @csrf @method('delete')
                                 <button type="submit" class="ml-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">{{ __('Delete') }}</button>
                             </form>
@@ -55,7 +55,7 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="6" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">{{ __('dashboard.no_users_found') }}</td></tr>
+                <tr><td colspan="6" class="px-4 py-16"><x-empty-state :title="__('dashboard.no_users_found')" :message="__('Users will appear here once added.')" icon="users" /></td></tr>
             @endforelse
         </tbody>
     </table>

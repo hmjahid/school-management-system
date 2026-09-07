@@ -5,7 +5,7 @@
 @section('content')
     <div class="mb-6 flex justify-between">
         <h1 class="text-2xl font-bold text-gray-900">{{ __('Add fee') }}</h1>
-        <a href="{{ route('dashboard.fees') }}" class="text-sm font-medium text-blue-600 hover:text-blue-800">{{ __('Back to list') }}</a>
+        <a href="{{ route('dashboard.fees') }}" class="text-sm font-medium text-brand-600 hover:text-brand-800">{{ __('Back to list') }}</a>
     </div>
     @include('dashboard.partials.form-errors')
     <form method="post" action="{{ route('dashboard.fees.store') }}" class="space-y-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
@@ -68,6 +68,6 @@
             <div><label class="block text-sm font-medium text-gray-700">{{ __('End date') }}</label><input type="date" name="end_date" value="{{ old('end_date') }}" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"></div>
         </div>
         <div><label class="block text-sm font-medium text-gray-700">{{ __('Description') }}</label><textarea name="description" rows="2" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">{{ old('description') }}</textarea></div>
-        <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Save fee') }}</button>
+        <button type="submit" class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">{{ __('Save fee') }}</button>
     </form>
 @endsection

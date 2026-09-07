@@ -3,7 +3,7 @@
 @section('content')
 <div class="mb-6 flex items-center justify-between">
     <div><h1 class="text-2xl font-bold text-gray-900">{{ __('Submissions') }}</h1><p class="text-sm text-gray-500">{{ $assignment->title }} ({{ $assignment->subject?->name }})</p></div>
-    <a href="{{ route('dashboard.assignments.show', $assignment) }}" class="text-sm font-medium text-blue-600 hover:text-blue-800">{{ __('Back') }}</a>
+    <a href="{{ route('dashboard.assignments.show', $assignment) }}" class="text-sm font-medium text-brand-600 hover:text-brand-800">{{ __('Back') }}</a>
 </div>
 <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
     <table class="min-w-full divide-y divide-gray-200 text-sm">
@@ -13,7 +13,7 @@
                 <tr class="hover:bg-gray-50">
                     <td class="px-4 py-3">{{ $sub->student?->user?->name ?? 'N/A' }}</td>
                     <td class="px-4 py-3">{{ $sub->submitted_at?->format('d M Y H:i') ?? __('Not submitted') }}</td>
-                    <td class="px-4 py-3"><span class="rounded-full px-2.5 py-0.5 text-xs font-medium {{ $sub->status === 'graded' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">{{ __(ucfirst(str_replace('_', ' ', $sub->status))) }}</span></td>
+                    <td class="px-4 py-3"><x-badge :variant="$sub->status === 'graded' ? 'success' : 'warning'">{{ __(ucfirst(str_replace('_', ' ', $sub->status))) }}</x-badge></td>
                     <td class="px-4 py-3">{{ $sub->marks ?? '-' }} / {{ $assignment->total_marks ?? '-' }}</td>
                     <td class="px-4 py-3 max-w-xs">
                         @if($sub->guardian_notes)
@@ -41,7 +41,7 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">{{ __('No submissions yet.') }}</td></tr>
+                <tr><td colspan="6" class="px-4 py-16"><x-empty-state :title="__('No submissions yet')" :message="__('Submissions will appear here once students submit their work.')" icon="document" /></td></tr>
             @endforelse
         </tbody>
     </table>

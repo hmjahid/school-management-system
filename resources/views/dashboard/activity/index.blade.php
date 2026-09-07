@@ -47,7 +47,7 @@
                         <td class="px-4 py-3 text-slate-700">{{ $a->description ?: '—' }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="5" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No activity recorded yet.') }}</td></tr>
+                    <tr><td colspan="5" class="px-4 py-16"><x-empty-state :title="__('No activity recorded yet')" :message="__('Activity will appear here once actions are performed.')" icon="shield" /></td></tr>
                 @endforelse
             </tbody>
         </table>

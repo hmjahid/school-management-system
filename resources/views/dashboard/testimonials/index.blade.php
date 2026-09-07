@@ -4,7 +4,7 @@
 <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <h1 class="text-2xl font-bold text-gray-900">{{ __('Testimonials') }}</h1>
     @can('create', App\Models\Testimonial::class)
-        <a href="{{ route('dashboard.testimonials.create') }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('New testimonial') }}</a>
+        <a href="{{ route('dashboard.testimonials.create') }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('New testimonial') }}</a>
     @endcan
 </div>
 @include('dashboard.partials.form-errors')
@@ -38,22 +38,22 @@
                     <td class="px-4 py-3">{{ $t->id }}</td>
                     <td class="px-4 py-3">{{ $t->student?->user?->name ?? 'N/A' }}</td>
                     <td class="px-4 py-3 font-medium">{{ $t->name }}</td>
-                    <td class="px-4 py-3"><span class="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700">{{ __(ucfirst(str_replace('_', ' ', $t->testimonial_type))) }}</span></td>
+                    <td class="px-4 py-3"><x-badge variant="brand">{{ __(ucfirst(str_replace('_', ' ', $t->testimonial_type))) }}</x-badge></td>
                     <td class="px-4 py-3 font-mono text-xs">{{ $t->testimonial_number }}</td>
                     <td class="px-4 py-3">{{ $t->issue_date?->format('d M Y') }}</td>
                     <td class="px-4 py-3">
-                        <span class="rounded-full px-2.5 py-0.5 text-xs font-medium {{ $t->status === 'issued' ? 'bg-green-100 text-green-700' : ($t->status === 'revoked' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700') }}">
+                        <x-badge :variant="$t->status === 'issued' ? 'success' : ($t->status === 'revoked' ? 'danger' : 'warning')">
                             {{ __(ucfirst($t->status)) }}
-                        </span>
+                        </x-badge>
                     </td>
                     <td class="px-4 py-3">
-                        <a href="{{ route('dashboard.testimonials.show', $t) }}" class="text-blue-600 hover:text-blue-800">{{ __('View') }}</a>
+                        <a href="{{ route('dashboard.testimonials.show', $t) }}" class="text-brand-600 hover:text-brand-800">{{ __('View') }}</a>
                         <a href="{{ route('dashboard.testimonials.print', $t) }}" target="_blank" class="ml-2 text-green-600 hover:text-green-800">{{ __('Print') }}</a>
                         @can('update', $t)
-                            <a href="{{ route('dashboard.testimonials.edit', $t) }}" class="ml-2 text-indigo-600 hover:text-indigo-800">{{ __('Edit') }}</a>
+                            <a href="{{ route('dashboard.testimonials.edit', $t) }}" class="ml-2 text-brand-600 hover:text-brand-800">{{ __('Edit') }}</a>
                         @endcan
                         @can('delete', $t)
-                            <form method="post" action="{{ route('dashboard.testimonials.destroy', $t) }}" class="inline" onsubmit="return confirm('{{ __('Are you sure?') }}')">
+                            <form method="post" action="{{ route('dashboard.testimonials.destroy', $t) }}" class="inline" data-confirm="{{ __('Are you sure?') }}">
                                 @csrf @method('delete')
                                 <button type="submit" class="ml-2 text-red-600 hover:text-red-800">{{ __('Delete') }}</button>
                             </form>
@@ -61,7 +61,7 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="8" class="px-4 py-8 text-center text-gray-500">{{ __('No testimonials found.') }}</td></tr>
+                <tr><td colspan="8" class="px-4 py-16"><x-empty-state :title="__('No testimonials found')" :message="__('Add a testimonial to see it here.')" icon="document" /></td></tr>
             @endforelse
         </tbody>
     </table>

@@ -29,7 +29,7 @@
                 <div class="mt-1 text-3xl font-semibold text-slate-900" id="sms-count-display">—</div>
             </div>
             @if($total === 0)
-                <span class="rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-800 sm:col-span-3">{{ __('No dues') }}</span>
+                <x-badge variant="success" class="sm:col-span-3">{{ __('No dues') }}</x-badge>
             @endif
         </div>
 

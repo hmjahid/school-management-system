@@ -41,14 +41,14 @@
                                 <td class="px-4 py-3 text-slate-700">{{ $r->effective_from->format('Y-m-d') }}</td>
                                 <td class="px-4 py-3">
                                     @if($r->is_active)
-                                        <span class="rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-800">{{ __('Active') }}</span>
+                                        <x-badge variant="success">{{ __('Active') }}</x-badge>
                                     @else
-                                        <span class="rounded-full bg-slate-200 px-2 py-1 text-xs font-semibold text-slate-700">{{ __('Archived') }}</span>
+                                        <x-badge>{{ __('Archived') }}</x-badge>
                                     @endif
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="6" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No salary structures yet.') }}</td></tr>
+                            <tr><td colspan="6" class="px-4 py-16"><x-empty-state :title="__('No salary structures yet')" :message="__('Add a salary structure to get started.')" icon="chart" /></td></tr>
                         @endforelse
                     </tbody>
                 </table>

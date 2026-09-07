@@ -154,11 +154,21 @@
     >
         @foreach ($rows as $row)
             @php
-                $pClass = match($row->payment_status) {
-                    'verified' => 'bg-emerald-100 text-emerald-800',
-                    'submitted' => 'bg-blue-100 text-blue-800',
-                    'rejected' => 'bg-red-100 text-red-800',
-                    default => 'bg-amber-100 text-amber-800',
+                $statusVariants = [
+                    'draft' => 'default',
+                    'submitted' => 'brand',
+                    'under_review' => 'warning',
+                    'approved' => 'success',
+                    'rejected' => 'danger',
+                    'waitlisted' => 'info',
+                    'enrolled' => 'brand',
+                    'cancelled' => 'default',
+                ];
+                $pVariant = match($row->payment_status) {
+                    'verified' => 'success',
+                    'submitted' => 'brand',
+                    'rejected' => 'danger',
+                    default => 'warning',
                 };
                 $pLabel = match($row->payment_status) {
                     'verified' => __('Verified'),
@@ -177,10 +187,10 @@
                     <div class="text-xs text-slate-500">{{ $row->email }} · {{ $row->phone }}</div>
                 </td>
                 <td class="px-4 py-3.5">
-                    <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $row->status_badge }}">{{ $row->status_label }}</span>
+                    <x-badge :variant="$statusVariants[$row->status] ?? 'default'">{{ $row->status_label }}</x-badge>
                 </td>
                 <td class="px-4 py-3.5">
-                    <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $pClass }}">{{ $pLabel }}</span>
+                    <x-badge :variant="$pVariant">{{ $pLabel }}</x-badge>
                     @if($row->payment_status === 'verified' && $row->payment_method)
                         <div class="mt-0.5 text-xs text-slate-500">{{ strtoupper($row->payment_method) }}</div>
                     @endif

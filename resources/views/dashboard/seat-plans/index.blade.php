@@ -25,11 +25,11 @@
                     <td class="px-4 py-3">{{ $exam->start_date?->format('d M Y') ?? 'N/A' }}</td>
                     <td class="px-4 py-3">
                         <a href="{{ route('dashboard.seat-plans.generate', [$exam, 'view' => 1]) }}" target="_blank" class="text-green-600 hover:text-green-800">{{ __('Preview') }}</a>
-                        <a href="{{ route('dashboard.seat-plans.generate', $exam) }}" class="ml-2 text-blue-600 hover:text-blue-800">{{ __('Generate Seat Plan') }}</a>
+                        <a href="{{ route('dashboard.seat-plans.generate', $exam) }}" class="ml-2 text-brand-600 hover:text-brand-800">{{ __('Generate Seat Plan') }}</a>
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">{{ __('No exams found.') }}</td></tr>
+                <tr><td colspan="6" class="px-4 py-16"><x-empty-state :title="__('No exams found')" :message="__('Seat plans will appear here once exams are created.')" icon="document" /></td></tr>
             @endforelse
         </tbody>
     </table>

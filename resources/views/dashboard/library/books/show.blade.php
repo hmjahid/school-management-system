@@ -5,7 +5,7 @@
     <h1 class="text-2xl font-bold text-gray-900">{{ __('dashboard.book_details') }}</h1>
     <div class="flex gap-2">
         <a href="{{ route('dashboard.library.books.index') }}" class="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">{{ __('Back') }}</a>
-        <a href="{{ route('dashboard.library.books.edit', $book) }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">{{ __('Edit') }}</a>
+        <a href="{{ route('dashboard.library.books.edit', $book) }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('Edit') }}</a>
     </div>
 </div>
 <div class="grid gap-6 lg:grid-cols-3">
@@ -43,7 +43,7 @@
                                 <span class="font-medium">{{ $issue->student?->first_name ? trim($issue->student->first_name . ' ' . $issue->student->last_name) : ($issue->teacher?->name ?? '—') }}</span>
                                 <span class="ml-2 text-gray-500">{{ $issue->issue_date->format('d M Y') }} → {{ $issue->due_date->format('d M Y') }}</span>
                             </div>
-                            <a href="{{ route('dashboard.library.issues.show', $issue) }}" class="text-blue-600 hover:text-blue-800">{{ __('View') }}</a>
+                            <a href="{{ route('dashboard.library.issues.show', $issue) }}" class="text-brand-600 hover:text-brand-800">{{ __('View') }}</a>
                         </div>
                     @endforeach
                 </div>

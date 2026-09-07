@@ -8,7 +8,7 @@
             <h1 class="text-2xl font-bold text-gray-900">{{ __('dashboard.my_results') }}</h1>
             <p class="mt-1 text-sm text-gray-600">{{ __('Manage your exams: enter marks, then publish when every student has a result.') }}</p>
         </div>
-        <a href="{{ route('dashboard.exams') }}" class="text-sm font-medium text-blue-600 hover:text-blue-800">{{ __('All exams') }} →</a>
+        <a href="{{ route('dashboard.exams') }}" class="text-sm font-medium text-brand-600 hover:text-brand-800">{{ __('All exams') }} →</a>
     </div>
 
     @php
@@ -58,7 +58,7 @@
                             </p>
 
                             <div class="mt-3 flex flex-wrap items-center gap-2">
-                                <a href="{{ route('dashboard.exams.results', $exam) }}" class="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold {{ $key === 'pending' ? 'bg-amber-600 text-white hover:bg-amber-700' : ($key === 'ready' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200') }}">
+                                <a href="{{ route('dashboard.exams.results', $exam) }}" class="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold {{ $key === 'pending' ? 'bg-amber-600 text-white hover:bg-amber-700' : ($key === 'ready' ? 'bg-brand-600 text-white hover:bg-brand-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200') }}">
                                     {{ $key === 'pending' ? __('Enter marks') : ($key === 'ready' ? __('Review & publish') : __('View')) }}
                                 </a>
                                 @if ($key === 'ready')

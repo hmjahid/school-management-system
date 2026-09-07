@@ -49,9 +49,9 @@
                         <td class="px-4 py-3 text-right font-mono font-semibold">{{ number_format((float) $p->net_salary, 2) }}</td>
                         <td class="px-4 py-3">
                             @if($p->status === 'paid')
-                                <span class="rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-800">{{ __('Paid') }}</span>
+                                <x-badge variant="success">{{ __('Paid') }}</x-badge>
                             @else
-                                <span class="rounded-full bg-slate-200 px-2 py-1 text-xs font-semibold text-slate-700">{{ __('Draft') }}</span>
+                                <x-badge>{{ __('Draft') }}</x-badge>
                             @endif
                         </td>
                         <td class="px-4 py-3 text-right">
@@ -59,7 +59,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="7" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No payslips for this period.') }}</td></tr>
+                    <tr><td colspan="7" class="px-4 py-16"><x-empty-state :title="__('No payslips for this period')" :message="__('Generate payslips to see them here.')" icon="document" /></td></tr>
                 @endforelse
             </tbody>
         </table>

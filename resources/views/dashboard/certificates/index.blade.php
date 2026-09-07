@@ -4,7 +4,7 @@
 <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <h1 class="text-2xl font-bold text-gray-900">{{ __('Certificates') }}</h1>
     @can('create', App\Models\Certificate::class)
-        <a href="{{ route('dashboard.certificates.create') }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('New certificate') }}</a>
+        <a href="{{ route('dashboard.certificates.create') }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('New certificate') }}</a>
     @endcan
 </div>
 @include('dashboard.partials.form-errors')
@@ -36,22 +36,22 @@
                 <tr class="hover:bg-gray-50">
                     <td class="px-4 py-3">{{ $c->id }}</td>
                     <td class="px-4 py-3">{{ $c->student?->user?->name ?? 'N/A' }}</td>
-                    <td class="px-4 py-3"><span class="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700">{{ __(ucfirst($c->certificate_type)) }}</span></td>
+                    <td class="px-4 py-3"><x-badge variant="brand">{{ __(ucfirst($c->certificate_type)) }}</x-badge></td>
                     <td class="px-4 py-3 font-mono text-xs">{{ $c->certificate_number }}</td>
                     <td class="px-4 py-3">{{ $c->issue_date?->format('d M Y') }}</td>
                     <td class="px-4 py-3">
-                        <span class="rounded-full px-2.5 py-0.5 text-xs font-medium {{ $c->status === 'issued' ? 'bg-green-100 text-green-700' : ($c->status === 'revoked' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700') }}">
+                        <x-badge :variant="$c->status === 'issued' ? 'success' : ($c->status === 'revoked' ? 'danger' : 'warning')">
                             {{ __(ucfirst($c->status)) }}
-                        </span>
+                        </x-badge>
                     </td>
                     <td class="px-4 py-3">
-                        <a href="{{ route('dashboard.certificates.show', $c) }}" class="text-blue-600 hover:text-blue-800">{{ __('View') }}</a>
+                        <a href="{{ route('dashboard.certificates.show', $c) }}" class="text-brand-600 hover:text-brand-800">{{ __('View') }}</a>
                         <a href="{{ route('dashboard.certificates.print', $c) }}" target="_blank" class="ml-2 text-green-600 hover:text-green-800">{{ __('Print') }}</a>
                         @can('update', $c)
-                            <a href="{{ route('dashboard.certificates.edit', $c) }}" class="ml-2 text-indigo-600 hover:text-indigo-800">{{ __('Edit') }}</a>
+                            <a href="{{ route('dashboard.certificates.edit', $c) }}" class="ml-2 text-brand-600 hover:text-brand-800">{{ __('Edit') }}</a>
                         @endcan
                         @can('delete', $c)
-                            <form method="post" action="{{ route('dashboard.certificates.destroy', $c) }}" class="inline" onsubmit="return confirm('{{ __('Are you sure?') }}')">
+                            <form method="post" action="{{ route('dashboard.certificates.destroy', $c) }}" class="inline" data-confirm="{{ __('Are you sure?') }}">
                                 @csrf @method('delete')
                                 <button type="submit" class="ml-2 text-red-600 hover:text-red-800">{{ __('Delete') }}</button>
                             </form>
@@ -59,7 +59,7 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="7" class="px-4 py-8 text-center text-gray-500">{{ __('No certificates found.') }}</td></tr>
+                <tr><td colspan="7" class="px-4 py-16"><x-empty-state :title="__('No certificates found')" :message="__('Certificates will appear here once issued.')" icon="document" /></td></tr>
             @endforelse
         </tbody>
     </table>

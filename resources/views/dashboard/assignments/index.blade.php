@@ -4,7 +4,7 @@
 <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <h1 class="text-2xl font-bold text-gray-900">{{ __('Assignments') }}</h1>
     @can('create', App\Models\Assignment::class)
-        <a href="{{ route('dashboard.assignments.create') }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('New assignment') }}</a>
+        <a href="{{ route('dashboard.assignments.create') }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('New assignment') }}</a>
     @endcan
 </div>
 <form method="get" class="mb-6 flex flex-wrap gap-3">
@@ -23,11 +23,11 @@
                     <td class="px-4 py-3">{{ $a->batch?->name }}</td>
                     <td class="px-4 py-3">{{ $a->due_date?->format('d M Y H:i') }}</td>
                     <td class="px-4 py-3">
-                        <a href="{{ route('dashboard.assignments.show', $a) }}" class="text-blue-600 hover:text-blue-800">{{ __('View') }}</a>
+                        <a href="{{ route('dashboard.assignments.show', $a) }}" class="text-brand-600 hover:text-brand-800">{{ __('View') }}</a>
                         <a href="{{ route('dashboard.assignments.submissions', $a) }}" class="ml-2 text-green-600 hover:text-green-800">{{ __('Submissions') }}</a>
-                        @can('update', $a)<a href="{{ route('dashboard.assignments.edit', $a) }}" class="ml-2 text-indigo-600 hover:text-indigo-800">{{ __('Edit') }}</a>@endcan
+                        @can('update', $a)<a href="{{ route('dashboard.assignments.edit', $a) }}" class="ml-2 text-brand-600 hover:text-brand-800">{{ __('Edit') }}</a>@endcan
                         @can('delete', $a)
-                            <form method="post" action="{{ route('dashboard.assignments.destroy', $a) }}" class="inline" onsubmit="return confirm('{{ __('Are you sure?') }}')">
+                            <form method="post" action="{{ route('dashboard.assignments.destroy', $a) }}" class="inline" data-confirm="{{ __('Are you sure?') }}">
                                 @csrf @method('delete')
                                 <button type="submit" class="ml-2 text-red-600 hover:text-red-800">{{ __('Delete') }}</button>
                             </form>

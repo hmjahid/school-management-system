@@ -9,7 +9,7 @@
         <button
             type="button"
             data-tab-btn="{{ $id }}"
-            class="mb-[-1px] rounded-t-lg border-b-2 px-4 py-2.5 text-sm font-medium transition-colors {{ $activeTab === $id ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }}"
+            class="mb-[-1px] rounded-t-lg border-b-2 px-4 py-2.5 text-sm font-medium transition-colors {{ $activeTab === $id ? 'border-brand-600 text-brand-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }}"
         >
             {{ $label }}
         </button>
@@ -22,8 +22,8 @@
             var id = btn.getAttribute('data-tab-btn');
             document.querySelectorAll('[data-tab-btn]').forEach(function (b) {
                 var on = b.getAttribute('data-tab-btn') === id;
-                b.classList.toggle('border-blue-600', on);
-                b.classList.toggle('text-blue-600', on);
+                b.classList.toggle('border-brand-600', on);
+                b.classList.toggle('text-brand-600', on);
                 b.classList.toggle('border-transparent', !on);
                 b.classList.toggle('text-gray-500', !on);
             });

@@ -122,9 +122,9 @@
             <p class="mt-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{{ number_format($stats['totalRevenue'] ?? 0, 2) }}</p>
             <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">{{ __('Total collected') }}</p>
             @if(($stats['pendingDues'] ?? 0) > 0)
-                <span class="mt-3 inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                <x-badge variant="danger" class="mt-3">
                     {{ __(':n pending dues', ['n' => number_format((float) ($stats['pendingDues'] ?? 0), 2)]) }}
-                </span>
+                </x-badge>
             @endif
         </a>
     </div>

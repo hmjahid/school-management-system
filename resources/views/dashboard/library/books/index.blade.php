@@ -4,7 +4,7 @@
 <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <h1 class="text-2xl font-bold text-gray-900">{{ __('dashboard.books') }}</h1>
     @can('manage_books')
-        <a href="{{ route('dashboard.library.books.create') }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('dashboard.add_book') }}</a>
+        <a href="{{ route('dashboard.library.books.create') }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('dashboard.add_book') }}</a>
     @endcan
 </div>
 <form method="get" class="mb-6 flex flex-wrap gap-3">
@@ -60,16 +60,16 @@
                     </td>
                     <td class="px-4 py-3 text-center">
                         @if($book->status)
-                            <span class="inline-block rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700">{{ __('Active') }}</span>
+                            <x-badge variant="success">{{ __('Active') }}</x-badge>
                         @else
-                            <span class="inline-block rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-700">{{ __('Inactive') }}</span>
+                            <x-badge variant="default">{{ __('Inactive') }}</x-badge>
                         @endif
                     </td>
                     <td class="px-4 py-3">
                         <div class="inline-flex items-center gap-1">
-                            <a href="{{ route('dashboard.library.books.show', $book) }}" class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100">{{ __('View') }}</a>
-                            <a href="{{ route('dashboard.library.books.edit', $book) }}" class="inline-flex items-center rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100">{{ __('Edit') }}</a>
-                            <form method="post" action="{{ route('dashboard.library.books.destroy', $book) }}" onsubmit="return confirm('{{ __('Are you sure?') }}')">
+                            <a href="{{ route('dashboard.library.books.show', $book) }}" class="inline-flex items-center rounded-md bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100">{{ __('View') }}</a>
+                            <a href="{{ route('dashboard.library.books.edit', $book) }}" class="inline-flex items-center rounded-md bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100">{{ __('Edit') }}</a>
+                            <form method="post" action="{{ route('dashboard.library.books.destroy', $book) }}" data-confirm="{{ __('Are you sure?') }}">
                                 @csrf @method('delete')
                                 <button type="submit" class="inline-flex items-center rounded-md bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-100">{{ __('Delete') }}</button>
                             </form>

@@ -5,7 +5,7 @@
 @section('content')
     <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <a href="{{ route('dashboard.reports') }}" class="text-sm font-medium text-blue-600 hover:text-blue-800">← {{ __('Reports') }}</a>
+            <a href="{{ route('dashboard.reports') }}" class="text-sm font-medium text-brand-600 hover:text-brand-800">← {{ __('Reports') }}</a>
             <h1 class="mt-1 text-2xl font-bold text-gray-900">{{ __('Students report') }}</h1>
             <p class="mt-1 text-sm text-gray-600">{{ __('Live breakdown of all enrolled students.') }}</p>
         </div>

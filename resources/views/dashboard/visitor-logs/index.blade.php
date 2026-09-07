@@ -89,9 +89,7 @@
                             <td class="max-w-xs truncate px-4 py-3 text-xs text-slate-400" title="{{ $log->referer }}">{{ $log->referer ?: '—' }}</td>
                         </tr>
                     @empty
-                        <tr>
-                            <td colspan="5" class="px-4 py-12 text-center text-sm text-slate-400">{{ __('dashboard.no_visitor_logs') }}</td>
-                        </tr>
+                        <tr><td colspan="5" class="px-4 py-16"><x-empty-state :title="__('dashboard.no_visitor_logs')" :message="__('Visitor logs will appear here once tracked.')" icon="clock" /></td></tr>
                     @endforelse
                 </tbody>
             </table>

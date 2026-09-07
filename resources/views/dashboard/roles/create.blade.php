@@ -3,7 +3,7 @@
 @section('content')
 <div class="mb-6 flex items-center justify-between">
     <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ __('dashboard.create_role') }}</h1>
-    <a href="{{ route('dashboard.roles.index') }}" class="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">{{ __('Back') }}</a>
+    <a href="{{ route('dashboard.roles.index') }}" class="text-sm font-medium text-brand-600 hover:text-brand-800 dark:text-brand-400 dark:hover:text-brand-300">{{ __('Back') }}</a>
 </div>
 @include('dashboard.partials.form-errors')
 <form method="post" action="{{ route('dashboard.roles.store') }}" class="space-y-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
@@ -30,7 +30,7 @@
         <div class="mb-4 flex items-center justify-between">
             <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ __('dashboard.permissions') }}</h3>
             <div class="flex gap-2">
-                <button type="button" onclick="toggleAllRolePerms(true)" class="rounded-md bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50">{{ __('Select all') }}</button>
+                <button type="button" onclick="toggleAllRolePerms(true)" class="rounded-md bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100 dark:bg-brand-900/30 dark:text-brand-400 dark:hover:bg-brand-900/50">{{ __('Select all') }}</button>
                 <button type="button" onclick="toggleAllRolePerms(false)" class="rounded-md bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">{{ __('Deselect all') }}</button>
             </div>
         </div>
@@ -40,13 +40,13 @@
                     <svg class="h-4 w-4 text-gray-400 transition group-open:rotate-90 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     <span class="flex-1 capitalize">{{ $group }}</span>
                     <span class="text-xs text-gray-400 dark:text-gray-500">({{ $groupPermissions->count() }})</span>
-                    <button type="button" onclick="toggleGroupPerms(this, true)" class="rounded bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400">All</button>
+                    <button type="button" onclick="toggleGroupPerms(this, true)" class="rounded bg-brand-50 px-2 py-0.5 text-[10px] font-medium text-brand-700 hover:bg-brand-100 dark:bg-brand-900/30 dark:text-brand-400">All</button>
                     <button type="button" onclick="toggleGroupPerms(this, false)" class="rounded bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600 hover:bg-gray-200 dark:bg-gray-600 dark:text-gray-400">None</button>
                 </summary>
                 <div class="mt-2 grid gap-2 pl-4 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach($groupPermissions as $permission)
                         <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                            <input type="checkbox" name="permissions[]" value="{{ $permission->name }}" @checked(in_array($permission->name, old('permissions', []))) class="role-perm-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600">
+                            <input type="checkbox" name="permissions[]" value="{{ $permission->name }}" @checked(in_array($permission->name, old('permissions', []))) class="role-perm-checkbox rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-600">
                             {{ $permission->name }}
                         </label>
                     @endforeach
@@ -55,7 +55,7 @@
         @endforeach
     </div>
 
-    <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">{{ __('dashboard.save_changes') }}</button>
+    <button type="submit" class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('dashboard.save_changes') }}</button>
 </form>
 
 <script>

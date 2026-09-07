@@ -11,11 +11,11 @@
         <div class="flex flex-wrap gap-2">
             <a href="{{ route('dashboard.students') }}" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{{ __('List') }}</a>
             @can('update', $student)
-                <a href="{{ route('dashboard.students.edit', $student) }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Edit') }}</a>
+                <a href="{{ route('dashboard.students.edit', $student) }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('Edit') }}</a>
             @endcan
             <a href="{{ route('dashboard.students.results', $student) }}" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{{ __('Results') }}</a>
             @can('delete', $student)
-                <form method="post" action="{{ route('dashboard.students.destroy', $student) }}" onsubmit="return confirm(@json(__('Remove this student?')));">
+                <form method="post" action="{{ route('dashboard.students.destroy', $student) }}" data-confirm="{{ __('Remove this student?') }}" data-confirm-title="{{ __('Remove student') }}">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">{{ __('Remove') }}</button>

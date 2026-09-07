@@ -33,10 +33,10 @@
                 <div><dt class="text-gray-500">{{ __('Status') }}</dt>
                     <dd>
                         @php
-                            $statusColors = ['issued' => 'bg-yellow-100 text-yellow-800', 'returned' => 'bg-green-100 text-green-800', 'lost' => 'bg-red-100 text-red-800', 'damaged' => 'bg-orange-100 text-orange-800'];
-                            $color = $statusColors[$issue->status] ?? 'bg-gray-100 text-gray-800';
+                            $statusVariants = ['issued' => 'warning', 'returned' => 'success', 'lost' => 'danger', 'damaged' => 'danger'];
+                            $color = $statusVariants[$issue->status] ?? 'default';
                         @endphp
-                        <span class="inline-block rounded-full px-2.5 py-0.5 text-xs font-medium {{ $color }}">{{ __($issue->status) }}</span>
+                        <x-badge :variant="$color">{{ __($issue->status) }}</x-badge>
                     </dd>
                 </div>
             </dl>
@@ -63,9 +63,9 @@
                 <div><dt class="text-gray-500">{{ __('Fine status') }}</dt>
                     <dd>
                         @if($issue->fine_paid)
-                            <span class="inline-block rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700">{{ __('dashboard.fine_paid') }}</span>
+                            <x-badge variant="success">{{ __('dashboard.fine_paid') }}</x-badge>
                         @elseif($issue->late_fee > 0)
-                            <span class="inline-block rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-700">{{ __('Unpaid') }}</span>
+                            <x-badge variant="danger">{{ __('Unpaid') }}</x-badge>
                         @else
                             <span class="text-gray-400">—</span>
                         @endif
@@ -82,7 +82,7 @@
                     @csrf
                     <button type="submit" class="w-full rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700">{{ __('dashboard.return_book') }}</button>
                 </form>
-                <form method="post" action="{{ route('dashboard.library.issues.lost', $issue) }}" onsubmit="return confirm('{{ __('Are you sure?') }}')">
+                <form method="post" action="{{ route('dashboard.library.issues.lost', $issue) }}" data-confirm="{{ __('Are you sure?') }}">
                     @csrf
                     <button type="submit" class="w-full rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">{{ __('dashboard.mark_lost') }}</button>
                 </form>
@@ -95,7 +95,7 @@
                     </form>
                 @endif
             @endcan
-            <form method="post" action="{{ route('dashboard.library.issues.destroy', $issue) }}" onsubmit="return confirm('{{ __('Are you sure?') }}')">
+            <form method="post" action="{{ route('dashboard.library.issues.destroy', $issue) }}" data-confirm="{{ __('Are you sure?') }}">
                 @csrf @method('delete')
                 <button type="submit" class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{{ __('Delete') }}</button>
             </form>

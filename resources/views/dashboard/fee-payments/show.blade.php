@@ -6,11 +6,11 @@
     <div class="flex gap-2">
         <a href="{{ route('dashboard.fee-payments.index') }}" class="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">{{ __('Back') }}</a>
         @if($payment->status === 'pending')
-            <form method="post" action="{{ route('dashboard.fee-payments.approve', $payment) }}" onsubmit="return confirm('{{ __('Approve this payment?') }}')">
+            <form method="post" action="{{ route('dashboard.fee-payments.approve', $payment) }}" data-confirm="{{ __('Approve this payment?') }}">
                 @csrf
                 <button type="submit" class="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">{{ __('Approve') }}</button>
             </form>
-            <form method="post" action="{{ route('dashboard.fee-payments.cancel', $payment) }}" onsubmit="return confirm('{{ __('Cancel this payment?') }}')">
+            <form method="post" action="{{ route('dashboard.fee-payments.cancel', $payment) }}" data-confirm="{{ __('Cancel this payment?') }}">
                 @csrf
                 <button type="submit" class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">{{ __('Cancel') }}</button>
             </form>
@@ -34,7 +34,7 @@
     <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <h2 class="mb-4 text-sm font-semibold uppercase text-gray-500">{{ __('Details') }}</h2>
         <dl class="space-y-4 text-sm">
-            <div><dt class="text-gray-500">{{ __('Status') }}</dt><dd><span class="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700">{{ __(ucfirst($payment->status)) }}</span></dd></div>
+            <div><dt class="text-gray-500">{{ __('Status') }}</dt><dd><x-badge variant="success">{{ __(ucfirst($payment->status)) }}</x-badge></dd></div>
             <div><dt class="text-gray-500">{{ __('Payment method') }}</dt><dd>{{ __(ucfirst(str_replace('_',' ', $payment->payment_method))) }}</dd></div>
             <div><dt class="text-gray-500">{{ __('Payment date') }}</dt><dd>{{ $payment->payment_date?->format('d M Y') ?? '-' }}</dd></div>
             <div><dt class="text-gray-500">{{ __('Month/Year') }}</dt><dd>{{ $payment->month ? $payment->month . '/' . $payment->year : '-' }}</dd></div>

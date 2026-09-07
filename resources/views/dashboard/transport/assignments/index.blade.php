@@ -58,21 +58,17 @@
                         <td class="px-4 py-3 text-slate-700">{{ $a->effective_from->format('Y-m-d') }}</td>
                         <td class="px-4 py-3 text-slate-700">{{ $a->effective_to?->format('Y-m-d') ?: '—' }}</td>
                         <td class="px-4 py-3">
-                            @if($a->isActive())
-                                <span class="rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-800">{{ __('Active') }}</span>
-                            @else
-                                <span class="rounded-full bg-slate-200 px-2 py-1 text-xs font-semibold text-slate-700">{{ __('Expired') }}</span>
-                            @endif
+                            <x-badge :variant="$a->isActive() ? 'success' : 'default'">{{ $a->isActive() ? __('Active') : __('Expired') }}</x-badge>
                         </td>
                         <td class="px-4 py-3 text-right">
-                            <form method="post" action="{{ route('dashboard.transport.assignments.destroy', $a) }}" class="inline" onsubmit="return confirm('{{ __('Remove this assignment?') }}')">
+                            <form method="post" action="{{ route('dashboard.transport.assignments.destroy', $a) }}" class="inline" data-confirm="{{ __('Remove this assignment?') }}" data-confirm-title="{{ __('Remove assignment') }}">
                                 @csrf @method('delete')
-                                <button class="text-xs font-semibold text-red-700 hover:underline" type="submit">{{ __('Delete') }}</button>
+                                <x-button type="submit" variant="ghost" size="sm" class="text-red-600 hover:text-red-800 dark:text-red-400">{{ __('Delete') }}</x-button>
                             </form>
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="7" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No assignments yet.') }}</td></tr>
+                    <tr><td colspan="7" class="px-4 py-16"><x-empty-state :title="__('No assignments yet')" :message="__('Assign students to a transport route to see them here.')" icon="users" /></td></tr>
                 @endforelse
             </tbody>
         </table>

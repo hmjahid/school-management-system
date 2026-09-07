@@ -17,7 +17,7 @@
                     @endforeach
                 </select>
             </form>
-            <a href="{{ route('dashboard.documents.create') }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('New') }}</a>
+            <a href="{{ route('dashboard.documents.create') }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">{{ __('New') }}</a>
         </div>
     </div>
 
@@ -39,17 +39,17 @@
                         <td class="px-4 py-3 text-gray-700">{{ $d->category ?: '—' }}</td>
                         <td class="px-4 py-3">
                             @if($d->is_published)
-                                <span class="rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-800">{{ __('Yes') }}</span>
+                                <x-badge variant="success">{{ __('Yes') }}</x-badge>
                             @else
-                                <span class="rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-800">{{ __('No') }}</span>
+                                <x-badge variant="warning">{{ __('No') }}</x-badge>
                             @endif
                         </td>
                         <td class="px-4 py-3 text-gray-700">
-                            <a class="text-blue-600 hover:underline" href="{{ asset('storage/' . $d->file_path) }}" target="_blank" rel="noreferrer">{{ __('Open') }}</a>
+                            <a class="text-brand-600 hover:underline" href="{{ asset('storage/' . $d->file_path) }}" target="_blank" rel="noreferrer">{{ __('Open') }}</a>
                         </td>
                         <td class="px-4 py-3 text-right">
-                            <a href="{{ route('dashboard.documents.edit', $d) }}" class="text-blue-600 hover:underline">{{ __('Edit') }}</a>
-                            <form method="post" action="{{ route('dashboard.documents.destroy', $d) }}" class="inline" onsubmit="return confirm('{{ __('Delete this item?') }}')">
+                            <a href="{{ route('dashboard.documents.edit', $d) }}" class="text-brand-600 hover:underline">{{ __('Edit') }}</a>
+                            <form method="post" action="{{ route('dashboard.documents.destroy', $d) }}" class="inline" data-confirm="{{ __('Delete this item?') }}">
                                 @csrf
                                 @method('delete')
                                 <button class="ml-3 text-red-600 hover:underline" type="submit">{{ __('Delete') }}</button>
@@ -57,7 +57,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="5" class="px-4 py-8 text-center text-gray-500">{{ __('No documents yet.') }}</td></tr>
+                    <tr><td colspan="5" class="px-4 py-16"><x-empty-state :title="__('No documents yet')" :message="__('Upload your first document to get started.')" icon="document" /></td></tr>
                 @endforelse
             </tbody>
         </table>

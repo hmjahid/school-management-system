@@ -3,81 +3,93 @@
 @section('title', __('Attendance') . ' — ' . config('app.name', 'SchoolEase'))
 
 @section('content')
-    <div class="mb-6 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <h1 class="text-2xl font-bold text-gray-900">{{ __('Attendance') }}</h1>
-        <div class="flex flex-wrap items-end gap-2">
-        @can('create', App\Models\Attendance::class)
-            <a href="{{ route('dashboard.attendance.create') }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Record attendance') }}</a>
-        @endcan
-        <form method="get" class="flex flex-wrap items-end gap-2">
-            <div>
-                <label class="mb-1 block text-xs font-medium text-gray-500">{{ __('Date') }}</label>
-                <input type="date" name="date" value="{{ request('date') }}"
-                    class="rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-            </div>
-            <div>
-                <label class="mb-1 block text-xs font-medium text-gray-500">{{ __('Status') }}</label>
-                <select name="status" class="rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                    <option value="">{{ __('Any') }}</option>
-                    <option value="present" @selected(request('status') === 'present')>{{ __('Present') }}</option>
-                    <option value="absent" @selected(request('status') === 'absent')>{{ __('Absent') }}</option>
-                    <option value="late" @selected(request('status') === 'late')>{{ __('Late') }}</option>
-                </select>
-            </div>
-            <div>
-                <label class="mb-1 block text-xs font-medium text-gray-500">{{ __('Class') }}</label>
-                <select name="class_id" class="rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                    <option value="">{{ __('Any class') }}</option>
-                    @foreach ($classes as $class)
-                        <option value="{{ $class->id }}" @selected(request('class_id') == $class->id)>{{ $class->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <label class="mb-1 block text-xs font-medium text-gray-500">{{ __('Section') }}</label>
-                <select name="section_id" class="rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                    <option value="">{{ __('Any section') }}</option>
-                    @foreach ($sections as $section)
-                        <option value="{{ $section->id }}" @selected(request('section_id') == $section->id)>{{ $section->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">{{ __('Filter') }}</button>
-        </form>
-        </div>
-    </div>
+    @php
+        $statusVariants = [
+            'present' => 'success',
+            'absent' => 'danger',
+            'late' => 'warning',
+            'half_day' => 'warning',
+            'leave' => 'default',
+            'holiday' => 'info',
+        ];
+    @endphp
 
-    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 text-sm">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Date') }}</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Student') }}</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Subject') }}</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Status') }}</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @forelse ($records as $row)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-3 text-gray-700">{{ optional($row->date)->format('Y-m-d') ?? '—' }}</td>
-                            <td class="px-4 py-3 font-medium text-gray-900">{{ $row->student?->user?->name ?? '—' }}</td>
-                            <td class="px-4 py-3 text-gray-700">{{ $row->subject?->name ?? '—' }}</td>
-                            <td class="px-4 py-3">
-                                <span class="inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium capitalize text-gray-800">{{ str_replace('_', ' ', $row->status ?? '—') }}</span>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="px-4 py-8 text-center text-gray-500">{{ __('No attendance records.') }}</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+    <x-page-header :title="__('Attendance')" :description="__('Daily attendance records across classes.')">
+        <x-slot:breadcrumbs>
+            <x-admin-breadcrumbs :items="[
+                ['label' => __('Dashboard'), 'url' => route('dashboard')],
+                ['label' => __('Attendance')],
+            ]" />
+        </x-slot:breadcrumbs>
+        <x-slot:actions>
+            @can('create', App\Models\Attendance::class)
+                <x-button :href="route('dashboard.attendance.create')">{{ __('Record attendance') }}</x-button>
+            @endcan
+        </x-slot:actions>
+    </x-page-header>
+
+    <form method="get" class="mb-6 grid gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 md:grid-cols-2 xl:grid-cols-5">
+        <div>
+            <label for="filter-date" class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">{{ __('Date') }}</label>
+            <input id="filter-date" type="date" name="date" value="{{ request('date') }}" class="admin-input">
         </div>
-        @if ($records->hasPages())
-            <div class="border-t border-gray-200 px-4 py-3">{{ $records->links() }}</div>
-        @endif
-    </div>
+        <div>
+            <label for="filter-status" class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">{{ __('Status') }}</label>
+            <select id="filter-status" name="status" class="admin-select">
+                <option value="">{{ __('Any') }}</option>
+                <option value="present" @selected(request('status') === 'present')>{{ __('Present') }}</option>
+                <option value="absent" @selected(request('status') === 'absent')>{{ __('Absent') }}</option>
+                <option value="late" @selected(request('status') === 'late')>{{ __('Late') }}</option>
+            </select>
+        </div>
+        <div>
+            <label for="filter-class" class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">{{ __('Class') }}</label>
+            <select id="filter-class" name="class_id" class="admin-select">
+                <option value="">{{ __('Any class') }}</option>
+                @foreach ($classes as $class)
+                    <option value="{{ $class->id }}" @selected(request('class_id') == $class->id)>{{ $class->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div>
+            <label for="filter-section" class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">{{ __('Section') }}</label>
+            <select id="filter-section" name="section_id" class="admin-select">
+                <option value="">{{ __('Any section') }}</option>
+                @foreach ($sections as $section)
+                    <option value="{{ $section->id }}" @selected(request('section_id') == $section->id)>{{ $section->name }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="flex items-end gap-2">
+            <x-button type="submit" size="sm">{{ __('Filter') }}</x-button>
+            @if (request()->hasAny(['date', 'status', 'class_id', 'section_id']))
+                <x-button :href="route('dashboard.attendance')" variant="secondary" size="sm">{{ __('Reset') }}</x-button>
+            @endif
+        </div>
+    </form>
+
+    <x-admin-data-table
+        :headers="[
+            ['label' => __('Date')],
+            ['label' => __('Student')],
+            ['label' => __('Subject')],
+            ['label' => __('Status')],
+        ]"
+        :paginator="$records"
+        empty-icon="clock"
+        :empty-title="__('No attendance records.')"
+        :empty-message="__('Try adjusting your filters or record attendance for a date.')"
+    >
+        @forelse ($records as $row)
+            <tr class="admin-table-row">
+                <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ optional($row->date)->format('Y-m-d') ?? '—' }}</td>
+                <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">{{ $row->student?->user?->name ?? '—' }}</td>
+                <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ $row->subject?->name ?? '—' }}</td>
+                <td class="px-4 py-3">
+                    <x-badge :variant="$statusVariants[$row->status ?? ''] ?? 'default'">{{ str_replace('_', ' ', $row->status ?? '—') }}</x-badge>
+                </td>
+            </tr>
+        @empty
+        @endforelse
+    </x-admin-data-table>
 @endsection

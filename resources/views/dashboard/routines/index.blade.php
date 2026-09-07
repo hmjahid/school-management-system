@@ -4,11 +4,11 @@
 <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <h1 class="text-2xl font-bold text-gray-900">{{ $type === 'exam' ? __('Exam routines') : __('Class routines') }}</h1>
     <div class="flex gap-2">
-        <a href="{{ route('dashboard.routines.index', ['type' => 'class']) }}" class="rounded-lg px-4 py-2 text-sm font-semibold {{ $type === 'class' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">{{ __('Class Routine') }}</a>
-        <a href="{{ route('dashboard.routines.index', ['type' => 'exam']) }}" class="rounded-lg px-4 py-2 text-sm font-semibold {{ $type === 'exam' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">{{ __('Exam Routine') }}</a>
+        <a href="{{ route('dashboard.routines.index', ['type' => 'class']) }}" class="rounded-lg px-4 py-2 text-sm font-semibold {{ $type === 'class' ? 'bg-brand-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">{{ __('Class Routine') }}</a>
+        <a href="{{ route('dashboard.routines.index', ['type' => 'exam']) }}" class="rounded-lg px-4 py-2 text-sm font-semibold {{ $type === 'exam' ? 'bg-brand-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">{{ __('Exam Routine') }}</a>
     </div>
     @can('create', App\Models\Routine::class)
-        <a href="{{ route('dashboard.routines.create', ['type' => $type]) }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Add entry') }}</a>
+        <a href="{{ route('dashboard.routines.create', ['type' => $type]) }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('Add entry') }}</a>
     @endcan
 </div>
 <form method="get" class="mb-6 flex flex-wrap gap-3">
@@ -57,13 +57,13 @@
                     <td class="px-4 py-3">{{ $r->teacher?->user?->name }}</td>
                     <td class="px-4 py-3">{{ $r->room_number ?? '-' }}</td>
                     <td class="px-4 py-3">
-                        <a href="{{ route('dashboard.routines.show', $r) }}" class="text-blue-600 hover:text-blue-800">{{ __('View') }}</a>
-                        <a href="{{ route('dashboard.routines.edit', $r) }}" class="ml-2 text-indigo-600 hover:text-indigo-800">{{ __('Edit') }}</a>
-                        <form method="post" action="{{ route('dashboard.routines.destroy', $r) }}" class="inline" onsubmit="return confirm('{{ __('Delete this entry?') }}')">@csrf @method('delete')<button type="submit" class="ml-2 text-red-600 hover:text-red-800">{{ __('Delete') }}</button></form>
+                        <a href="{{ route('dashboard.routines.show', $r) }}" class="text-brand-600 hover:text-brand-800">{{ __('View') }}</a>
+                        <a href="{{ route('dashboard.routines.edit', $r) }}" class="ml-2 text-brand-600 hover:text-brand-800">{{ __('Edit') }}</a>
+                        <form method="post" action="{{ route('dashboard.routines.destroy', $r) }}" class="inline" data-confirm="{{ __('Delete this entry?') }}">@csrf @method('delete')<button type="submit" class="ml-2 text-red-600 hover:text-red-800">{{ __('Delete') }}</button></form>
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="8" class="px-4 py-8 text-center text-gray-500">{{ __('No routines found.') }}</td></tr>
+                <tr><td colspan="8" class="px-4 py-16"><x-empty-state :title="__('No routines found')" :message="__('Add entries to build your class or exam routine.')" icon="clock" /></td></tr>
             @endforelse
         </tbody>
     </table>

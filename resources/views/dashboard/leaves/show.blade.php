@@ -50,9 +50,9 @@
         @endcan
 
         @if($leave->status === 'pending' && $leave->teacher?->user_id === auth()->id())
-            <form method="post" action="{{ route('dashboard.leaves.cancel', $leave) }}" class="mt-6 border-t border-slate-200 pt-6">
+            <form method="post" action="{{ route('dashboard.leaves.cancel', $leave) }}" class="mt-6 border-t border-slate-200 pt-6" data-confirm="{{ __('Cancel this request?') }}" data-confirm-title="{{ __('Cancel request') }}">
                 @csrf
-                <button class="rounded-lg bg-slate-600 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700" onclick="return confirm('{{ __('Cancel this request?') }}')">{{ __('Cancel request') }}</button>
+                <x-button type="submit" variant="ghost" size="sm">{{ __('Cancel request') }}</x-button>
             </form>
         @endif
     </x-card>

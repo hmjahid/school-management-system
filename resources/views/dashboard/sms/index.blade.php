@@ -30,12 +30,12 @@
             <tbody class="divide-y divide-slate-100">
                 @forelse($rows as $c)
                     @php
-                        $cls = match($c->status) {
-                            'sent' => 'bg-emerald-100 text-emerald-800',
-                            'sending' => 'bg-blue-100 text-blue-800',
-                            'failed' => 'bg-red-100 text-red-800',
-                            default => 'bg-slate-200 text-slate-700',
-                        };
+$cls = match($c->status) {
+    'sent' => 'success',
+    'sending' => 'brand',
+    'failed' => 'danger',
+    default => 'default',
+};
                     @endphp
                     <tr>
                         <td class="px-4 py-3">
@@ -44,11 +44,11 @@
                         </td>
                         <td class="px-4 py-3 capitalize text-slate-700">{{ str_replace('_',' ',$c->audience_type) }}</td>
                         <td class="px-4 py-3 text-slate-700">{{ $c->recipients_count }}</td>
-                        <td class="px-4 py-3"><span class="rounded-full px-2 py-1 text-xs font-semibold {{ $cls }}">{{ ucfirst($c->status) }}</span></td>
+                        <td class="px-4 py-3"><x-badge :variant="$cls">{{ ucfirst($c->status) }}</x-badge></td>
                         <td class="px-4 py-3 text-xs text-slate-500">{{ $c->sent_at?->format('Y-m-d H:i') ?: '—' }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="5" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No campaigns yet.') }}</td></tr>
+                    <tr><td colspan="5" class="px-4 py-16"><x-empty-state :title="__('No campaigns yet')" :message="__('Send your first SMS campaign to get started.')" icon="inbox" /></td></tr>
                 @endforelse
             </tbody>
         </table>

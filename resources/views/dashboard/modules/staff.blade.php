@@ -46,7 +46,7 @@
                         <td class="px-4 py-3 text-xs text-slate-500">{{ $u->teacher?->employee_id ?: '—' }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="4" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No staff members found.') }}</td></tr>
+                    <tr><td colspan="4" class="px-4 py-16"><x-empty-state :title="__('No staff members found')" :message="__('Staff will appear here once added.')" icon="users" /></td></tr>
                 @endforelse
             </tbody>
         </table>

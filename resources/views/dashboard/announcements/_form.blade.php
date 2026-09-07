@@ -43,7 +43,7 @@
                 @endphp
                 @foreach(['all' => __('All'), 'admin' => __('Admin'), 'teacher' => __('Teacher'), 'student' => __('Student'), 'parent' => __('Parent')] as $value => $label)
                     <label class="flex items-center gap-2 text-sm text-gray-700">
-                        <input type="checkbox" name="audience[]" value="{{ $value }}" @checked(in_array($value, $selectedAudience)) class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <input type="checkbox" name="audience[]" value="{{ $value }}" @checked(in_array($value, $selectedAudience)) class="rounded border-gray-300 text-brand-600 focus:ring-brand-500">
                         {{ $label }}
                     </label>
                 @endforeach

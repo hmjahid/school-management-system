@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
     @php $supportedLocales = config('school.supported_locales', ['en']); @endphp
     @if(count($supportedLocales) > 2)
         <form method="get" action="{{ route('dashboard.locale.switch', ['locale' => app()->getLocale()]) }}" class="relative" onsubmit="event.preventDefault(); window.location.href = this.action.replace(this.locale.value ? '' : '', '');" data-lang-select-root>
-            <select name="locale" onchange="window.location.href='{{ route('dashboard.locale.switch', ['locale' => 'LOCALE']) }}'.replace('LOCALE', this.value)" class="appearance-none rounded-lg border border-slate-200 bg-white py-2 pl-8 pr-7 text-sm font-medium text-slate-700 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+            <select name="locale" onchange="window.location.href='{{ route('dashboard.locale.switch', ['locale' => 'LOCALE']) }}'.replace('LOCALE', this.value)" class="appearance-none rounded-lg border border-slate-200 bg-white py-2 pl-8 pr-7 text-sm font-medium text-slate-700 transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
                 @foreach ($supportedLocales as $loc)
                     @php $locLabel = ['en' => 'English', 'bn' => 'বাংলা'][$loc] ?? strtoupper($loc); @endphp
                     <option value="{{ $loc }}" {{ app()->getLocale() === $loc ? 'selected' : '' }}>{{ $locLabel }}</option>

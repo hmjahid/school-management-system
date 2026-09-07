@@ -17,7 +17,7 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Description') }}</label>
             <input name="description" placeholder="{{ __('Description (optional)') }}" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
         </div>
-        <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Add') }}</button>
+        <button type="submit" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('Add') }}</button>
     </form>
 </div>
 
@@ -38,15 +38,15 @@
                     <td class="px-4 py-3 text-gray-600">{{ $cat->description ?? '—' }}</td>
                     <td class="px-4 py-3 text-center">{{ $cat->books_count }}</td>
                     <td class="px-4 py-3">
-                        <button type="button" onclick="editCategory({{ $cat->id }}, '{{ $cat->name }}', '{{ $cat->description }}')" class="text-indigo-600 hover:text-indigo-800">{{ __('Edit') }}</button>
-                        <form method="post" action="{{ route('dashboard.library.categories.destroy', $cat) }}" class="inline" onsubmit="return confirm('{{ __('Are you sure?') }}')">
+                        <button type="button" onclick="editCategory({{ $cat->id }}, '{{ $cat->name }}', '{{ $cat->description }}')" class="text-brand-600 hover:text-brand-800">{{ __('Edit') }}</button>
+                        <form method="post" action="{{ route('dashboard.library.categories.destroy', $cat) }}" class="inline" data-confirm="{{ __('Are you sure?') }}">
                             @csrf @method('delete')
                             <button type="submit" class="ml-2 text-red-600 hover:text-red-800">{{ __('Delete') }}</button>
                         </form>
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="4" class="px-4 py-8 text-center text-gray-500">{{ __('No categories found.') }}</td></tr>
+                <tr><td colspan="4" class="px-4 py-16"><x-empty-state :title="__('No categories found')" :message="__('Book categories will appear here once added.')" icon="tag" /></td></tr>
             @endforelse
         </tbody>
     </table>
@@ -67,7 +67,7 @@
             </div>
             <div class="flex justify-end gap-2">
                 <button type="button" onclick="closeEditModal()" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{{ __('Cancel') }}</button>
-                <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Update') }}</button>
+                <button type="submit" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('Update') }}</button>
             </div>
         </form>
     </div>

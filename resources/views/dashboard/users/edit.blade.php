@@ -3,7 +3,7 @@
 @section('content')
 <div class="mb-6 flex items-center justify-between">
     <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ __('dashboard.edit_user') }}</h1>
-    <a href="{{ route('dashboard.users.index') }}" class="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">{{ __('Back') }}</a>
+    <a href="{{ route('dashboard.users.index') }}" class="text-sm font-medium text-brand-600 hover:text-brand-800 dark:text-brand-400 dark:hover:text-brand-300">{{ __('Back') }}</a>
 </div>
 @include('dashboard.partials.form-errors')
 <form method="post" action="{{ route('dashboard.users.update', $user) }}" enctype="multipart/form-data" class="space-y-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
@@ -59,13 +59,13 @@
         <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             @foreach($permissions as $permission)
                 <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                    <input type="checkbox" name="direct_permissions[]" value="{{ $permission->name }}" @checked(in_array($permission->name, old('direct_permissions', $userPermissionNames))) class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600">
+                    <input type="checkbox" name="direct_permissions[]" value="{{ $permission->name }}" @checked(in_array($permission->name, old('direct_permissions', $userPermissionNames))) class="rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-600">
                     {{ $permission->name }}
                 </label>
             @endforeach
         </div>
     </div>
 
-    <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">{{ __('dashboard.save_changes') }}</button>
+    <button type="submit" class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('dashboard.save_changes') }}</button>
 </form>
 @endsection

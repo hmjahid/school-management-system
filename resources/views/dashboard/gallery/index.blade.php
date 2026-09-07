@@ -21,7 +21,7 @@
                 <button class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50">{{ __('Filter') }}</button>
             </form>
             <a href="{{ route('dashboard.gallery.create') }}"
-                class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
                 {{ __('New') }}
             </a>
         </div>
@@ -37,17 +37,17 @@
                     <div class="flex items-center justify-between gap-2">
                         <h3 class="font-semibold text-gray-900 truncate">{{ $row->title }}</h3>
                         @if($row->is_published)
-                            <span class="rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-800">{{ __('On') }}</span>
+                            <x-badge variant="success">{{ __('On') }}</x-badge>
                         @else
-                            <span class="rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-800">{{ __('Off') }}</span>
+                            <x-badge variant="warning">{{ __('Off') }}</x-badge>
                         @endif
                     </div>
                     <p class="mt-1 text-xs text-gray-500">{{ $row->category }}</p>
                 </div>
             </a>
         @empty
-            <div class="col-span-full rounded-xl border border-dashed border-gray-300 bg-white p-10 text-center text-sm text-gray-600">
-                {{ __('No gallery items yet.') }}
+            <div class="col-span-full rounded-2xl border-2 border-dashed border-slate-200 p-12">
+                <x-empty-state :title="__('No gallery items yet')" :message="__('Upload your first photo to get started.')" icon="sparkles" />
             </div>
         @endforelse
     </div>

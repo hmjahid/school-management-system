@@ -5,7 +5,7 @@
 @section('content')
     <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <a href="{{ route('dashboard.students.show', $student) }}" class="text-sm font-medium text-blue-600 hover:text-blue-800">← {{ $student->user?->name }}</a>
+            <a href="{{ route('dashboard.students.show', $student) }}" class="text-sm font-medium text-brand-600 hover:text-brand-800">← {{ $student->user?->name }}</a>
             <h1 class="mt-1 text-2xl font-bold text-gray-900">{{ __('Exam results') }}</h1>
             <p class="mt-1 text-sm text-gray-600">
                 {{ $student->user?->name }} ·
@@ -56,15 +56,13 @@
                             </td>
                             <td class="px-4 py-3 text-gray-700">{{ optional($r->published_at)->format('Y-m-d') ?? '—' }}</td>
                             <td class="px-4 py-3">
-                                <a href="{{ route('dashboard.exams.results.marksheet', [$r->exam, $r]) }}" target="_blank" class="inline-flex items-center gap-1 rounded bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100">
+                                <a href="{{ route('dashboard.exams.results.marksheet', [$r->exam, $r]) }}" target="_blank" class="inline-flex items-center gap-1 rounded bg-brand-50 px-2 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100">
                                     {{ __('Download') }}
                                 </a>
                             </td>
                         </tr>
                     @empty
-                        <tr>
-                            <td colspan="7" class="px-4 py-8 text-center text-gray-500">{{ __('No published results yet.') }}</td>
-                        </tr>
+                        <tr><td colspan="7" class="px-4 py-16"><x-empty-state :title="__('No published results yet')" :message="__('Published exam results will appear here.')" icon="chart" /></td></tr>
                     @endforelse
                 </tbody>
             </table>

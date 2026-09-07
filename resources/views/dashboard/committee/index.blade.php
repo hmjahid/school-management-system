@@ -3,7 +3,7 @@
 @section('content')
 <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <h1 class="text-2xl font-bold text-gray-900">{{ __('Committee Members') }}</h1>
-    <a href="{{ route('dashboard.committee.create') }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('New member') }}</a>
+    <a href="{{ route('dashboard.committee.create') }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">{{ __('New member') }}</a>
 </div>
 @include('dashboard.partials.form-errors')
 <form method="get" class="mb-6 flex flex-wrap gap-3">
@@ -32,7 +32,7 @@
                         @if($m->photo_url)
                             <img src="{{ $m->photo_url }}" alt="{{ $m->name }}" class="h-10 w-10 rounded-full object-cover">
                         @else
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-600">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-brand-100 text-sm font-bold text-brand-600">
                                 {{ strtoupper(substr($m->name, 0, 1)) }}
                             </div>
                         @endif
@@ -42,20 +42,20 @@
                     <td class="px-4 py-3">{{ $m->phone ?? '—' }}</td>
                     <td class="px-4 py-3">{{ $m->sort_order }}</td>
                     <td class="px-4 py-3">
-                        <span class="rounded-full px-2.5 py-0.5 text-xs font-medium {{ $m->is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                        <x-badge :variant="$m->is_active ? 'success' : 'danger'">
                             {{ $m->is_active ? __('Active') : __('Inactive') }}
-                        </span>
+                        </x-badge>
                     </td>
                     <td class="px-4 py-3">
-                        <a href="{{ route('dashboard.committee.edit', $m) }}" class="text-indigo-600 hover:text-indigo-800">{{ __('Edit') }}</a>
-                        <form method="post" action="{{ route('dashboard.committee.destroy', $m) }}" class="inline ml-2" onsubmit="return confirm('{{ __('Are you sure?') }}')">
+                        <a href="{{ route('dashboard.committee.edit', $m) }}" class="text-brand-600 hover:text-brand-800">{{ __('Edit') }}</a>
+                        <form method="post" action="{{ route('dashboard.committee.destroy', $m) }}" class="inline ml-2" data-confirm="{{ __('Are you sure?') }}">
                             @csrf @method('delete')
                             <button type="submit" class="text-red-600 hover:text-red-800">{{ __('Delete') }}</button>
                         </form>
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="8" class="px-4 py-8 text-center text-gray-500">{{ __('No committee members found.') }}</td></tr>
+                <tr><td colspan="8" class="px-4 py-16"><x-empty-state :title="__('No committee members found')" :message="__('Committee members will appear here once added.')" icon="users" /></td></tr>
             @endforelse
         </tbody>
     </table>

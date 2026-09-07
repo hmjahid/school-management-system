@@ -13,7 +13,7 @@
         <span class="ml-1 text-gray-400">(EN)</span>
     </label>
     <textarea id="cms-{{ $name }}-en" name="{{ $name }}_en" rows="{{ $rows }}" @if($req) required @endif
-        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">{{ $valueEn ?? '' }}</textarea>
+        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">{{ $valueEn ?? '' }}</textarea>
 </div>
 <div>
     <label for="cms-{{ $name }}-bn" class="mb-1 block text-xs font-medium text-gray-600">
@@ -22,5 +22,5 @@
         <span class="ml-1 text-gray-400">(বাংলা)</span>
     </label>
     <textarea id="cms-{{ $name }}-bn" name="{{ $name }}_bn" rows="{{ $rows }}"
-        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">{{ $valueBn ?? '' }}</textarea>
+        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">{{ $valueBn ?? '' }}</textarea>
 </div>

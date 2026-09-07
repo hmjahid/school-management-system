@@ -15,7 +15,7 @@
         @csrf
         @include('dashboard.partials.form-errors')
         @include('dashboard.documents._form', ['document' => $document])
-        <button class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Save') }}</button>
+        <button class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">{{ __('Save') }}</button>
     </form>
 @endsection
 

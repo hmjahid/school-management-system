@@ -5,7 +5,7 @@
 @section('content')
     <div class="mb-6 flex items-center justify-between gap-4">
         <h1 class="text-2xl font-bold text-gray-900">{{ __('Edit student') }}</h1>
-        <a href="{{ route('dashboard.students.show', $student) }}" class="text-sm font-medium text-blue-600 hover:text-blue-800">{{ __('View profile') }}</a>
+        <a href="{{ route('dashboard.students.show', $student) }}" class="text-sm font-medium text-brand-600 hover:text-brand-800">{{ __('View profile') }}</a>
     </div>
 
     @include('dashboard.partials.form-errors')
@@ -94,6 +94,6 @@
             <label class="block text-sm font-medium text-gray-700">{{ __('Permanent address') }}</label>
             <textarea name="permanent_address" rows="2" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">{{ old('permanent_address', $student->permanent_address) }}</textarea>
         </div>
-        <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Save changes') }}</button>
+        <button type="submit" class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('Save changes') }}</button>
     </form>
 @endsection

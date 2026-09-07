@@ -5,14 +5,8 @@
 @section('content')
     <div class="mb-6 flex items-center justify-between gap-4">
         <h1 class="text-2xl font-bold text-gray-900">{{ __('Promote students') }}</h1>
-        <a href="{{ route('dashboard.students') }}" class="text-sm font-medium text-blue-600 hover:text-blue-800">{{ __('Back to list') }}</a>
+        <a href="{{ route('dashboard.students') }}" class="text-sm font-medium text-brand-600 hover:text-brand-800">{{ __('Back to list') }}</a>
     </div>
-
-    @if (session('status'))
-        <div class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
-            {{ session('status') }}
-        </div>
-    @endif
 
     @include('dashboard.partials.form-errors')
 
@@ -110,7 +104,7 @@
                     <p class="text-sm text-gray-500">{{ __('Select a source class and load students first.') }}</p>
                 @endif
 
-                <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                <button type="submit" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 focus:ring-brand-500">
                     {{ __('Promote') }}
                 </button>
             </form>

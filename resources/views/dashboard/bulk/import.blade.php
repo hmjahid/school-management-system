@@ -4,14 +4,10 @@
 
 @section('content')
     <div class="mb-6">
-        <a href="{{ route('dashboard.bulk') }}" class="text-sm font-medium text-blue-600 hover:text-blue-800">← {{ __('Bulk import / export') }}</a>
+        <a href="{{ route('dashboard.bulk') }}" class="text-sm font-medium text-brand-600 hover:text-brand-800">← {{ __('Bulk import / export') }}</a>
         <h1 class="mt-1 text-2xl font-bold text-gray-900">{{ __('Import :res', ['res' => __($label)]) }}</h1>
         <p class="mt-1 text-sm text-gray-600">{{ __('Upload a UTF-8 CSV with the headers shown below. Existing rows are updated by their natural key.') }}</p>
     </div>
-
-    @if (session('status'))
-        <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ session('status') }}</div>
-    @endif
 
     @if (session('import_errors'))
         <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
@@ -35,11 +31,11 @@
                 <p class="mt-1 text-xs text-gray-500">{{ __('Max 5 MB. UTF-8 encoded.') }}</p>
             </div>
             <div class="mt-4 flex items-center gap-2">
-                <input id="dry_run" name="dry_run" type="checkbox" value="1" class="size-4 rounded border-gray-300 text-blue-600">
+                <input id="dry_run" name="dry_run" type="checkbox" value="1" class="size-4 rounded border-gray-300 text-brand-600">
                 <label for="dry_run" class="text-sm text-gray-700">{{ __('Dry run (parse only, do not save)') }}</label>
             </div>
             <div class="mt-6">
-                <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Upload and import') }}</button>
+                <button type="submit" class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('Upload and import') }}</button>
             </div>
         </form>
 
@@ -65,7 +61,7 @@
                 @endforeach
             </div>
 
-            <a href="{{ route('dashboard.bulk.export', $resource) }}" class="mt-6 inline-block text-sm font-medium text-blue-600 hover:text-blue-800">{{ __('Download existing data as a starting template') }} →</a>
+            <a href="{{ route('dashboard.bulk.export', $resource) }}" class="mt-6 inline-block text-sm font-medium text-brand-600 hover:text-brand-800">{{ __('Download existing data as a starting template') }} →</a>
         </div>
     </div>
 @endsection

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="ltr" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -20,7 +20,7 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
     {{-- PWA --}}
     <link rel="manifest" href="{{ route('site.manifest') }}">
     <meta name="theme-color" content="{{ $dashSettings->theme_primary_color ?? '#2563eb' }}">
@@ -94,11 +94,12 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @else
         <script src="https://cdn.tailwindcss.com"></script>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
     @endif
     @stack('head')
 </head>
-<body class="bg-slate-50 font-sans text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-100 theme-{{ $dashSettings->theme_style ?? 'default' }}">
+<body class="bg-slate-50 {{ app()->getLocale() === 'bn' ? 'font-bengali' : 'font-sans' }} text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-100 theme-{{ $dashSettings->theme_style ?? 'default' }}">
+    <a href="#main-content" class="skip-link">{{ __('Skip to content') }}</a>
     <div id="loading-bar" class="fixed left-0 top-0 z-[200] h-1 bg-brand-600 transition-all duration-300 ease-out" style="width:0; opacity:0;"></div>
 
     <div class="admin-shell flex h-screen overflow-hidden">
@@ -112,7 +113,7 @@
                 @include('partials.dashboard.topbar')
             </header>
 
-            <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+            <main id="main-content" tabindex="-1" class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
                 @if (isset($breadcrumbs) && count($breadcrumbs))
                     <nav class="mb-4 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400" aria-label="Breadcrumb">
                         @foreach ($breadcrumbs as $crumb)

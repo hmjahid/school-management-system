@@ -13,7 +13,7 @@
             <thead>
                 <tr class="bg-slate-50/80">
                     @foreach ($headers as $h)
-                        <th scope="col" class="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-600 {{ $h['class'] ?? '' }}">
+                        <th scope="col" class="px-4 py-3.5 text-xs font-semibold uppercase tracking-wide text-slate-600 {{ $h['class'] ?? 'text-left' }}" @if(!empty($h['sort'])) aria-sort="{{ $h['sort'] }}" @endif>
                             {{ $h['label'] }}
                         </th>
                     @endforeach

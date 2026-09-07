@@ -5,7 +5,7 @@
 @section('content')
     <div class="mb-6 flex justify-between">
         <h1 class="text-2xl font-bold text-gray-900">{{ __('Schedule exam') }}</h1>
-        <a href="{{ route('dashboard.exams') }}" class="text-sm font-medium text-blue-600 hover:text-blue-800">{{ __('Back to list') }}</a>
+        <a href="{{ route('dashboard.exams') }}" class="text-sm font-medium text-brand-600 hover:text-brand-800">{{ __('Back to list') }}</a>
     </div>
     @include('dashboard.partials.form-errors')
     <form method="post" action="{{ route('dashboard.exams.store') }}" class="space-y-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
@@ -80,12 +80,12 @@
             <div><label class="block text-sm font-medium text-gray-700">{{ __('Weight %') }} *</label><input type="number" step="0.01" name="weightage" value="{{ old('weightage', 100) }}" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"></div>
             <div class="flex items-center gap-2 sm:col-span-2">
                 <input type="hidden" name="is_published" value="0">
-                <input type="checkbox" name="is_published" value="1" id="pub" class="rounded border-gray-300 text-blue-600" @checked(old('is_published'))>
+                <input type="checkbox" name="is_published" value="1" id="pub" class="rounded border-gray-300 text-brand-600" @checked(old('is_published'))>
                 <label for="pub" class="text-sm font-medium text-gray-700">{{ __('Published') }}</label>
             </div>
         </div>
         <div><label class="block text-sm font-medium text-gray-700">{{ __('Description') }}</label><textarea name="description" rows="2" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">{{ old('description') }}</textarea></div>
         <p class="text-sm text-gray-600">{{ __('Provide either a batch or a section.') }}</p>
-        <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Create exam') }}</button>
+        <button type="submit" class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">{{ __('Create exam') }}</button>
     </form>
 @endsection

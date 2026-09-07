@@ -5,7 +5,7 @@
 @section('content')
     <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <a href="{{ route('dashboard.events') }}" class="text-sm font-medium text-blue-600 hover:text-blue-800">← {{ __('Events') }}</a>
+            <a href="{{ route('dashboard.events') }}" class="text-sm font-medium text-brand-600 hover:text-brand-800">← {{ __('Events') }}</a>
             <h1 class="mt-1 text-2xl font-bold text-gray-900 dark:text-white">{{ __('School Calendar') }} — {{ $anchor->format('F Y') }}</h1>
         </div>
         <div class="flex gap-2">
@@ -19,7 +19,7 @@
     <div class="mb-4 flex flex-wrap gap-4 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <span class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('Legend') }}:</span>
         <div class="flex items-center gap-1.5">
-            <span class="inline-block h-3 w-3 rounded-sm bg-blue-500"></span>
+            <span class="inline-block h-3 w-3 rounded-sm bg-brand-500"></span>
             <span class="text-xs text-gray-700 dark:text-gray-300">{{ __('Events') }}</span>
         </div>
         <div class="flex items-center gap-1.5">
@@ -55,11 +55,11 @@
                 @endphp
                 <div class="min-h-28 border-b border-r border-gray-100 p-2 text-xs dark:border-gray-700 {{ $inMonth ? '' : 'bg-gray-50 text-gray-400 dark:bg-gray-900/50 dark:text-gray-600' }}">
                     <div class="mb-1 flex items-center justify-between">
-                        <span class="{{ $isToday ? 'rounded-full bg-blue-600 px-2 py-0.5 text-white font-bold' : 'font-medium text-gray-700 dark:text-gray-300' }}">{{ $cursor->day }}</span>
+                        <span class="{{ $isToday ? 'rounded-full bg-brand-600 px-2 py-0.5 text-white font-bold' : 'font-medium text-gray-700 dark:text-gray-300' }}">{{ $cursor->day }}</span>
                     </div>
                     @foreach ($dayItems as $item)
                         @if ($item['type'] === 'event')
-                            <a href="{{ route('dashboard.events.edit', $item['model']) }}" class="mb-1 block truncate rounded bg-blue-50 px-1.5 py-0.5 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/40 dark:text-blue-300 dark:hover:bg-blue-900/60" title="{{ $item['title'] }}">
+                            <a href="{{ route('dashboard.events.edit', $item['model']) }}" class="mb-1 block truncate rounded bg-brand-50 px-1.5 py-0.5 text-brand-700 hover:bg-brand-100 dark:bg-brand-900/40 dark:text-brand-300 dark:hover:bg-brand-900/60" title="{{ $item['title'] }}">
                                 {{ $item['title'] }}
                             </a>
                         @elseif ($item['type'] === 'holiday')
@@ -108,14 +108,14 @@
             @if ($upcomingEvents->isNotEmpty())
                 <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                     <h3 class="mb-3 flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
-                        <span class="inline-block h-3 w-3 rounded-sm bg-blue-500"></span>
+                        <span class="inline-block h-3 w-3 rounded-sm bg-brand-500"></span>
                         {{ __('Upcoming Events') }}
                     </h3>
                     <ul class="space-y-2">
                         @foreach ($upcomingEvents as $ev)
                             <li class="flex items-center justify-between text-xs">
-                                <a href="{{ route('dashboard.events.edit', $ev) }}" class="truncate text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">{{ $ev->title }}</a>
-                                <span class="whitespace-nowrap rounded bg-blue-50 px-1.5 py-0.5 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400">{{ $ev->start_date->format('M d') }}</span>
+                                <a href="{{ route('dashboard.events.edit', $ev) }}" class="truncate text-gray-700 hover:text-brand-600 dark:text-gray-300 dark:hover:text-brand-400">{{ $ev->title }}</a>
+                                <span class="whitespace-nowrap rounded bg-brand-50 px-1.5 py-0.5 text-brand-600 dark:bg-brand-900/40 dark:text-brand-400">{{ $ev->start_date->format('M d') }}</span>
                             </li>
                         @endforeach
                     </ul>

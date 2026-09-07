@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="mb-6">
-        <a href="{{ route('dashboard.events') }}" class="text-sm font-medium text-blue-600 hover:text-blue-800">← {{ __('Events') }}</a>
+        <a href="{{ route('dashboard.events') }}" class="text-sm font-medium text-brand-600 hover:text-brand-800">← {{ __('Events') }}</a>
         <h1 class="mt-1 text-2xl font-bold text-gray-900">{{ __('Edit event') }}</h1>
     </div>
 
@@ -51,7 +51,7 @@
                 <input name="meeting_url" type="url" value="{{ old('meeting_url', $event->meeting_url) }}" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
             </div>
             <div class="sm:col-span-2 flex items-center gap-2">
-                <input id="is_virtual" name="is_virtual" type="checkbox" value="1" {{ old('is_virtual', $event->is_virtual) ? 'checked' : '' }} class="size-4 rounded border-gray-300 text-blue-600">
+                <input id="is_virtual" name="is_virtual" type="checkbox" value="1" {{ old('is_virtual', $event->is_virtual) ? 'checked' : '' }} class="size-4 rounded border-gray-300 text-brand-600">
                 <label for="is_virtual" class="text-sm text-gray-700">{{ __('This is a virtual event') }}</label>
             </div>
             <div class="sm:col-span-2">
@@ -60,8 +60,8 @@
             </div>
         </div>
         <div class="flex justify-between">
-            <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Save changes') }}</button>
-            <form method="post" action="{{ route('dashboard.events.destroy', $event) }}" onsubmit="return confirm({{ json_encode(__('Delete this event?')) }});">
+            <button type="submit" class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">{{ __('Save changes') }}</button>
+            <form method="post" action="{{ route('dashboard.events.destroy', $event) }}" data-confirm="{{ __('Delete this event?') }}" data-confirm-title="{{ __('Delete event') }}">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700">{{ __('Delete') }}</button>

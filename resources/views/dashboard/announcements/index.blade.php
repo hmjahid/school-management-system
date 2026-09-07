@@ -17,7 +17,7 @@
                     <option value="parent" @selected(request('audience') === 'parent')>{{ __('Parents') }}</option>
                 </select>
             </form>
-            <a href="{{ route('dashboard.announcements.create') }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('New') }}</a>
+            <a href="{{ route('dashboard.announcements.create') }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('New') }}</a>
         </div>
     </div>
 
@@ -45,10 +45,10 @@
                         <td class="px-4 py-3 text-gray-700">
                             @if(is_array($row->audience))
                                 @foreach($row->audience as $a)
-                                    <span class="mr-1 inline-block rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-800">{{ ucfirst($a) }}</span>
+                                    <x-badge variant="brand" class="mr-1">{{ ucfirst($a) }}</x-badge>
                                 @endforeach
                             @else
-                                <span class="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700">{{ $row->audience ?? __('All') }}</span>
+                                <x-badge>{{ $row->audience ?? __('All') }}</x-badge>
                             @endif
                         </td>
                         <td class="px-4 py-3 text-gray-700">
@@ -56,15 +56,15 @@
                         </td>
                         <td class="px-4 py-3">
                             @if($row->is_published)
-                                <span class="rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-800">{{ __('Yes') }}</span>
+                                <x-badge variant="success">{{ __('Yes') }}</x-badge>
                             @else
-                                <span class="rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-800">{{ __('No') }}</span>
+                                <x-badge variant="warning">{{ __('No') }}</x-badge>
                             @endif
                         </td>
                         <td class="px-4 py-3 text-right">
                             <div class="inline-flex items-center gap-1">
-                                <a href="{{ route('dashboard.announcements.edit', $row) }}" class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100">{{ __('Edit') }}</a>
-                                <form method="post" action="{{ route('dashboard.announcements.destroy', $row) }}" onsubmit="return confirm('{{ __('Delete this item?') }}')">
+                                <a href="{{ route('dashboard.announcements.edit', $row) }}" class="inline-flex items-center rounded-md bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100">{{ __('Edit') }}</a>
+                                <form method="post" action="{{ route('dashboard.announcements.destroy', $row) }}" data-confirm="{{ __('Delete this item?') }}">
                                     @csrf
                                     @method('delete')
                                     <button class="inline-flex items-center rounded-md bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-100" type="submit">{{ __('Delete') }}</button>

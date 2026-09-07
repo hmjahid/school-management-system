@@ -15,7 +15,7 @@
                 <p class="mt-1 text-sm text-gray-600">{{ __('Export current data, or upload a CSV to import.') }}</p>
                 <div class="mt-4 flex flex-wrap gap-2">
                     <a href="{{ route('dashboard.bulk.export', $key) }}" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{{ __('Export CSV') }}</a>
-                    <a href="{{ route('dashboard.bulk.import', $key) }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Import CSV') }}</a>
+                    <a href="{{ route('dashboard.bulk.import', $key) }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('Import CSV') }}</a>
                 </div>
             </div>
         @endforeach

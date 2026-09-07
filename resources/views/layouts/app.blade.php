@@ -2,7 +2,7 @@
     $siteSettings = $siteSettings ?? new \App\Models\WebsiteSetting();
 @endphp
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="ltr" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -72,7 +72,7 @@
         <script src="https://cdn.tailwindcss.com"></script>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
     @endif
 
     @stack('head')
@@ -81,7 +81,7 @@
         :root {
             --theme-primary: {{ $siteSettings->theme_primary_color ?? '#2563eb' }};
             --theme-secondary: {{ $siteSettings->theme_secondary_color ?? '#f97316' }};
-            --theme-font: {{ $siteSettings->theme_font_family ?: "'Inter', sans-serif" }};
+            --theme-font: {{ $siteSettings->theme_font_family ?: (app()->getLocale() === 'bn' ? "'Noto Sans Bengali', 'Inter', sans-serif" : "'Inter', sans-serif") }};
             --theme-radius: {{ $siteSettings->theme_border_radius ?: '0.75rem' }};
             --theme-header-style: {{ $siteSettings->theme_header_style ?? 'transparent' }};
             --theme-footer-style: {{ $siteSettings->theme_footer_style ?? 'dark' }};
@@ -192,7 +192,8 @@
         @endif
     </style>
 </head>
-<body class="flex min-h-screen flex-col bg-surface font-sans text-on-surface antialiased theme-style-{{ $themeStyle }}" style="font-family: var(--theme-font);">
+<body class="flex min-h-screen flex-col bg-surface {{ app()->getLocale() === 'bn' ? 'font-bengali' : 'font-sans' }} text-on-surface antialiased theme-style-{{ $themeStyle }}" style="font-family: var(--theme-font);">
+    <a href="#main-content" class="skip-link">{{ __('Skip to content') }}</a>
     {{-- Loading bar --}}
     <div id="loading-bar" class="fixed left-0 top-0 z-[200] h-1 bg-brand-600 transition-all duration-300 ease-out" style="width:0; opacity:0;"></div>
 
@@ -225,7 +226,7 @@
     @include('partials.site.nav')
 
     {{-- Main content --}}
-    <main class="flex-1">
+    <main id="main-content" tabindex="-1" class="flex-1">
         {{-- Flash messages --}}
         @if (session('status'))
             <div class="mx-auto mt-4 max-w-7xl px-4 sm:px-6 lg:px-8" data-flash-toast data-type="success" data-message="{{ session('status') }}"></div>

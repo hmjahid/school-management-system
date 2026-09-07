@@ -26,16 +26,16 @@
 </div>
 
 <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    <a href="{{ route('dashboard.library.reports.issued') }}" class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:border-blue-300 hover:shadow-md transition">
-        <p class="text-sm font-medium text-blue-600">{{ __('dashboard.currently_issued') }}</p>
+    <a href="{{ route('dashboard.library.reports.issued') }}" class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:border-brand-300 hover:shadow-md transition">
+        <p class="text-sm font-medium text-brand-600">{{ __('dashboard.currently_issued') }}</p>
         <p class="mt-1 text-2xl font-bold text-gray-900">{{ $issuedBooks }}</p>
     </a>
     <a href="{{ route('dashboard.library.reports.overdue') }}" class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:border-red-300 hover:shadow-md transition">
         <p class="text-sm font-medium text-red-600">{{ __('dashboard.overdue_books') }}</p>
         <p class="mt-1 text-2xl font-bold text-gray-900">{{ $overdueBooks }}</p>
     </a>
-    <a href="{{ route('dashboard.library.reports.history') }}" class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:border-indigo-300 hover:shadow-md transition">
-        <p class="text-sm font-medium text-indigo-600">{{ __('Full history') }}</p>
+    <a href="{{ route('dashboard.library.reports.history') }}" class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:border-brand-300 hover:shadow-md transition">
+        <p class="text-sm font-medium text-brand-600">{{ __('Full history') }}</p>
         <p class="mt-1 text-2xl font-bold text-gray-900">{{ $totalIssues }}</p>
     </a>
     <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
@@ -52,7 +52,7 @@
             @case('history'){{ __('Full history') }}@break
         @endswitch
     </h2>
-    <a href="{{ route('dashboard.library.reports.index') }}" class="text-sm font-medium text-blue-600 hover:text-blue-800">{{ __('Back to reports') }}</a>
+    <a href="{{ route('dashboard.library.reports.index') }}" class="text-sm font-medium text-brand-600 hover:text-brand-800">{{ __('Back to reports') }}</a>
 </div>
 
 @if($view === 'history')
@@ -103,10 +103,9 @@
                     <td class="px-4 py-3">{{ $issue->return_date?->format('d M Y') ?? '—' }}</td>
                     <td class="px-4 py-3 text-center">
                         @php
-                            $statusColors = ['issued' => 'bg-yellow-100 text-yellow-800', 'returned' => 'bg-green-100 text-green-800', 'lost' => 'bg-red-100 text-red-800', 'damaged' => 'bg-orange-100 text-orange-800'];
-                            $color = $statusColors[$issue->status] ?? 'bg-gray-100 text-gray-800';
+                            $statusVariants = ['issued' => 'warning', 'returned' => 'success', 'lost' => 'danger', 'damaged' => 'default'];
                         @endphp
-                        <span class="inline-block rounded-full px-2.5 py-0.5 text-xs font-medium {{ $color }}">{{ __($issue->status) }}</span>
+                        <x-badge :variant="$statusVariants[$issue->status] ?? 'default'">{{ __($issue->status) }}</x-badge>
                     </td>
                     <td class="px-4 py-3 text-right">
                         @if($issue->late_fee > 0)
@@ -118,7 +117,7 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="7" class="px-4 py-8 text-center text-gray-500">{{ __('No issues found.') }}</td></tr>
+                <tr><td colspan="7" class="px-4 py-16"><x-empty-state :title="__('No issues found')" :message="__('Book issues will appear here once recorded.')" icon="document" /></td></tr>
             @endforelse
         </tbody>
     </table>

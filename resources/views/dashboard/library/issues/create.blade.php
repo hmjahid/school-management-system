@@ -3,7 +3,7 @@
 @section('content')
 <div class="mb-6 flex items-center justify-between">
     <h1 class="text-2xl font-bold text-gray-900">{{ __('dashboard.issue_book') }}</h1>
-    <a href="{{ route('dashboard.library.issues.index') }}" class="text-sm font-medium text-blue-600 hover:text-blue-800">{{ __('Back') }}</a>
+    <a href="{{ route('dashboard.library.issues.index') }}" class="text-sm font-medium text-brand-600 hover:text-brand-800">{{ __('Back') }}</a>
 </div>
 @include('dashboard.partials.form-errors')
 <form method="post" action="{{ route('dashboard.library.issues.store') }}" class="space-y-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
@@ -22,11 +22,11 @@
             <label class="block text-sm font-medium text-gray-700">{{ __('Borrower type') }}</label>
             <div class="mt-2 flex gap-4">
                 <label class="inline-flex items-center gap-2 text-sm">
-                    <input type="radio" name="borrower_type" value="student" @checked(old('borrower_type', 'student') === 'student') onchange="toggleBorrower()" class="text-blue-600">
+                    <input type="radio" name="borrower_type" value="student" @checked(old('borrower_type', 'student') === 'student') onchange="toggleBorrower()" class="text-brand-600">
                     {{ __('Student') }}
                 </label>
                 <label class="inline-flex items-center gap-2 text-sm">
-                    <input type="radio" name="borrower_type" value="teacher" @checked(old('borrower_type') === 'teacher') onchange="toggleBorrower()" class="text-blue-600">
+                    <input type="radio" name="borrower_type" value="teacher" @checked(old('borrower_type') === 'teacher') onchange="toggleBorrower()" class="text-brand-600">
                     {{ __('Teacher') }}
                 </label>
             </div>
@@ -62,7 +62,7 @@
         <label class="block text-sm font-medium text-gray-700">{{ __('Notes') }}</label>
         <textarea name="notes" rows="3" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">{{ old('notes') }}</textarea>
     </div>
-    <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Save') }}</button>
+    <button type="submit" class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('Save') }}</button>
 </form>
 
 <script>

@@ -5,7 +5,7 @@
 @section('content')
     <div class="mb-6 flex justify-between">
         <h1 class="text-2xl font-bold text-gray-900">{{ __('Add parent / guardian') }}</h1>
-        <a href="{{ route('dashboard.parents') }}" class="text-sm font-medium text-blue-600 hover:text-blue-800">{{ __('Back to list') }}</a>
+        <a href="{{ route('dashboard.parents') }}" class="text-sm font-medium text-brand-600 hover:text-brand-800">{{ __('Back to list') }}</a>
     </div>
     @include('dashboard.partials.form-errors')
 
@@ -63,7 +63,7 @@
             </section>
 
             <div class="flex items-center gap-3 border-t border-gray-100 pt-5">
-                <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Save') }}</button>
+                <button type="submit" class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">{{ __('Save') }}</button>
             </div>
         </form>
     </div>

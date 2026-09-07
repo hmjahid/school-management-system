@@ -32,8 +32,8 @@
                 $url = (string) ($data['url'] ?? '#');
             @endphp
             <a href="{{ $url === '#' ? '#' : route('notifications.read', $n->id) }}"
-               class="flex items-start gap-3 border-b border-gray-100 px-5 py-4 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/30 {{ $unread ? 'bg-blue-50/40 dark:bg-blue-900/10' : '' }}">
-                <div class="mt-1 size-2 shrink-0 rounded-full {{ $unread ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600' }}"></div>
+               class="flex items-start gap-3 border-b border-gray-100 px-5 py-4 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/30 {{ $unread ? 'bg-brand-50/40 dark:bg-brand-900/10' : '' }}">
+                <div class="mt-1 size-2 shrink-0 rounded-full {{ $unread ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-600' }}"></div>
                 <div class="min-w-0 flex-1">
                     <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">
                         {{ $data['title'] ?? class_basename($n->type ?? 'Notification') }}
@@ -45,8 +45,8 @@
                 </div>
             </a>
         @empty
-            <div class="px-5 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
-                {{ __('No notifications yet.') }}
+            <div class="px-5 py-12">
+                <x-empty-state :title="__('No notifications yet')" :message="__('Notifications will appear here once triggered.')" icon="inbox" />
             </div>
         @endforelse
     </div>

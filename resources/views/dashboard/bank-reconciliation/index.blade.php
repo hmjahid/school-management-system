@@ -103,7 +103,7 @@
                         <td class="px-4 py-3 text-right tabular-nums text-slate-700">{{ $e->credit ? number_format($e->credit, 2) : '' }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No bank entries found.') }}</td></tr>
+                    <tr><td colspan="6" class="px-4 py-16"><x-empty-state :title="__('No bank entries found')" :message="__('Bank entries will appear here once reconciled.')" icon="chart" /></td></tr>
                 @endforelse
             </tbody>
         </table>

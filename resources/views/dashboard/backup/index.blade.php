@@ -43,19 +43,19 @@
                         <td class="px-4 py-3 text-right">
                             <x-button :href="route('dashboard.backup.download', ['file' => $f['name']])" variant="ghost" size="sm">{{ __('Download') }}</x-button>
                             @can('restore_database')
-                                <form method="post" action="{{ route('dashboard.backup.restore', ['file' => $f['name']]) }}" class="inline" onsubmit="return confirm('{{ __('Restore this backup? Existing files will be overwritten.') }}')">
+                                <form method="post" action="{{ route('dashboard.backup.restore', ['file' => $f['name']]) }}" class="inline" data-confirm="{{ __('Restore this backup? Existing files will be overwritten.') }}">
                                     @csrf
                                     <button class="text-xs font-semibold text-amber-700 hover:underline" type="submit">{{ __('Restore') }}</button>
                                 </form>
                             @endcan
-                            <form method="post" action="{{ route('dashboard.backup.destroy', ['file' => $f['name']]) }}" class="inline" onsubmit="return confirm('{{ __('Delete this backup file?') }}')">
+                            <form method="post" action="{{ route('dashboard.backup.destroy', ['file' => $f['name']]) }}" class="inline" data-confirm="{{ __('Delete this backup file?') }}">
                                 @csrf @method('delete')
                                 <button class="text-xs font-semibold text-red-700 hover:underline" type="submit">{{ __('Delete') }}</button>
                             </form>
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="4" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No backups yet.') }}</td></tr>
+                    <tr><td colspan="4" class="px-4 py-16"><x-empty-state :title="__('No backups yet')" :message="__('Create your first backup to get started.')" icon="document" /></td></tr>
                 @endforelse
             </tbody>
         </table>

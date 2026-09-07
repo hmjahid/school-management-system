@@ -26,7 +26,7 @@
             <ol class="space-y-3">
                 @foreach($section['steps'] as $i => $step)
                     <li class="flex items-start gap-3">
-                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700 dark:bg-blue-900/40 dark:text-blue-400">{{ $i + 1 }}</span>
+                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-700 dark:bg-brand-900/40 dark:text-brand-400">{{ $i + 1 }}</span>
                         <span class="pt-0.5 text-sm text-slate-700 dark:text-slate-300">{{ $step }}</span>
                     </li>
                 @endforeach
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function () {
             var section = topicsData[btn.dataset.topic] || { title: '', description: '', steps: [] };
             titleEl.textContent = section.title || btn.textContent.trim();
             body.innerHTML = (section.steps || []).map(function (step, i) {
-                return '<li class="flex items-start gap-3"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700 dark:bg-blue-900/40 dark:text-blue-400">' + (i + 1) + '</span><span class="pt-0.5 text-sm text-slate-700 dark:text-slate-300">' + ESC(step) + '</span></li>';
+                return '<li class="flex items-start gap-3"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-700 dark:bg-brand-900/40 dark:text-brand-400">' + (i + 1) + '</span><span class="pt-0.5 text-sm text-slate-700 dark:text-slate-300">' + ESC(step) + '</span></li>';
             }).join('');
             topicBtns.forEach(function (b) {
                 b.classList.remove('bg-brand-50', 'font-semibold', 'text-brand-700', 'dark:bg-brand-900/20', 'dark:text-brand-400');

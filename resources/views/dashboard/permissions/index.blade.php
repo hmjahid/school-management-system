@@ -22,7 +22,7 @@
                         </div>
                         <div class="flex flex-wrap gap-1">
                             @forelse($permission->roles as $role)
-                                <span class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">{{ $role->name }}</span>
+                                <span class="inline-flex items-center rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-800 dark:bg-brand-900/30 dark:text-brand-400">{{ $role->name }}</span>
                             @empty
                                 <span class="text-xs text-gray-400 dark:text-gray-500">—</span>
                             @endforelse

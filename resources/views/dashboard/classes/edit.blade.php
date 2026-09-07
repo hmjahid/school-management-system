@@ -5,7 +5,7 @@
 @section('content')
     <div class="mb-6 flex justify-between">
         <h1 class="text-2xl font-bold text-gray-900">{{ __('Edit class') }}: {{ $schoolClass->name }}</h1>
-        <a href="{{ route('dashboard.classes.show', $schoolClass) }}" class="text-sm font-medium text-blue-600 hover:text-blue-800">{{ __('View') }}</a>
+        <a href="{{ route('dashboard.classes.show', $schoolClass) }}" class="text-sm font-medium text-brand-600 hover:text-brand-800">{{ __('View') }}</a>
     </div>
     @include('dashboard.partials.form-errors')
     <form method="post" action="{{ route('dashboard.classes.update', $schoolClass) }}" class="space-y-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
@@ -48,12 +48,12 @@
             <div><label class="block text-sm font-medium text-gray-700">{{ __('Other fees') }}</label><input type="number" step="0.01" name="other_fees" value="{{ old('other_fees', $schoolClass->other_fees) }}" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"></div>
             <div class="flex items-center gap-2 pt-6">
                 <input type="hidden" name="is_active" value="0">
-                <input type="checkbox" name="is_active" value="1" id="is_active" class="rounded border-gray-300 text-blue-600" @checked(old('is_active', $schoolClass->is_active))>
+                <input type="checkbox" name="is_active" value="1" id="is_active" class="rounded border-gray-300 text-brand-600" @checked(old('is_active', $schoolClass->is_active))>
                 <label for="is_active" class="text-sm font-medium text-gray-700">{{ __('Active') }}</label>
             </div>
         </div>
         <div><label class="block text-sm font-medium text-gray-700">{{ __('Description') }}</label><textarea name="description" rows="2" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">{{ old('description', $schoolClass->description) }}</textarea></div>
         <div><label class="block text-sm font-medium text-gray-700">{{ __('Notes') }}</label><textarea name="notes" rows="2" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">{{ old('notes', $schoolClass->notes) }}</textarea></div>
-        <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Save') }}</button>
+        <button type="submit" class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('Save') }}</button>
     </form>
 @endsection

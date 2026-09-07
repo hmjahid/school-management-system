@@ -1,80 +1,101 @@
 @extends('layouts.dashboard')
 @section('title', __('dashboard.book_issues') . ' — ' . config('app.name'))
+
 @section('content')
-<div class="mb-6 flex flex-wrap items-center justify-between gap-4">
-    <h1 class="text-2xl font-bold text-gray-900">{{ __('dashboard.book_issues') }}</h1>
-    @can('issue_books')
-        <a href="{{ route('dashboard.library.issues.create') }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('dashboard.issue_book') }}</a>
-    @endcan
-</div>
-<form method="get" class="mb-6 flex flex-wrap gap-3">
-    <input name="search" value="{{ request('search') }}" placeholder="{{ __('dashboard.search_books') }}" class="rounded-lg border border-gray-300 px-3 py-2 text-sm flex-1 min-w-[200px]">
-    <select name="status" class="rounded-lg border border-gray-300 px-3 py-2 text-sm">
-        <option value="">{{ __('All status') }}</option>
-        <option value="issued" @selected(request('status') === 'issued')>{{ __('dashboard.issued') }}</option>
-        <option value="returned" @selected(request('status') === 'returned')>{{ __('dashboard.returned') }}</option>
-        <option value="lost" @selected(request('status') === 'lost')>{{ __('dashboard.lost') }}</option>
-        <option value="damaged" @selected(request('status') === 'damaged')>{{ __('dashboard.damaged') }}</option>
-    </select>
-    <button type="submit" class="rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700">{{ __('dashboard.filter') }}</button>
-    <a href="{{ route('dashboard.library.issues.index') }}" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50">{{ __('dashboard.clear') }}</a>
-</form>
-<div class="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
-    <table class="min-w-full divide-y divide-gray-200 text-sm">
-        <thead class="bg-gray-50">
-            <tr>
-                <th class="px-4 py-3 text-left font-semibold text-gray-600">{{ __('dashboard.title') }}</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-600">{{ __('dashboard.borrower') }}</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-600">{{ __('dashboard.issue_date') }}</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-600">{{ __('dashboard.due_date') }}</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-600">{{ __('dashboard.return_date') }}</th>
-                <th class="px-4 py-3 text-center font-semibold text-gray-600">{{ __('Status') }}</th>
-                <th class="px-4 py-3 text-right font-semibold text-gray-600">{{ __('dashboard.late_fee') }}</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-600">{{ __('Actions') }}</th>
+    @php
+        $statusVariants = [
+            'issued' => 'warning',
+            'returned' => 'success',
+            'lost' => 'danger',
+            'damaged' => 'default',
+        ];
+    @endphp
+
+    <x-page-header :title="__('dashboard.book_issues')" :description="__('Track borrowed books, due dates, and fines.')">
+        <x-slot:breadcrumbs>
+            <x-admin-breadcrumbs :items="[
+                ['label' => __('Dashboard'), 'url' => route('dashboard')],
+                ['label' => __('Library')],
+                ['label' => __('dashboard.book_issues')],
+            ]" />
+        </x-slot:breadcrumbs>
+        <x-slot:actions>
+            @can('issue_books')
+                <x-button :href="route('dashboard.library.issues.create')">{{ __('dashboard.issue_book') }}</x-button>
+            @endcan
+        </x-slot:actions>
+    </x-page-header>
+
+    <form method="get" class="mb-6 flex flex-wrap items-end gap-2">
+        <div class="min-w-[220px] flex-1">
+            <label for="filter-search" class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">{{ __('dashboard.search_books') }}</label>
+            <input id="filter-search" name="search" value="{{ request('search') }}" placeholder="{{ __('dashboard.search_books') }}" class="admin-input">
+        </div>
+        <div>
+            <label for="filter-status" class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">{{ __('Status') }}</label>
+            <select id="filter-status" name="status" class="admin-select">
+                <option value="">{{ __('All status') }}</option>
+                <option value="issued" @selected(request('status') === 'issued')>{{ __('dashboard.issued') }}</option>
+                <option value="returned" @selected(request('status') === 'returned')>{{ __('dashboard.returned') }}</option>
+                <option value="lost" @selected(request('status') === 'lost')>{{ __('dashboard.lost') }}</option>
+                <option value="damaged" @selected(request('status') === 'damaged')>{{ __('dashboard.damaged') }}</option>
+            </select>
+        </div>
+        <div class="flex items-end gap-2">
+            <x-button type="submit" size="sm">{{ __('dashboard.filter') }}</x-button>
+            <x-button :href="route('dashboard.library.issues.index')" variant="secondary" size="sm">{{ __('dashboard.clear') }}</x-button>
+        </div>
+    </form>
+
+    <x-admin-data-table
+        :headers="[
+            ['label' => __('dashboard.title')],
+            ['label' => __('dashboard.borrower')],
+            ['label' => __('dashboard.issue_date')],
+            ['label' => __('dashboard.due_date')],
+            ['label' => __('dashboard.return_date')],
+            ['label' => __('Status'), 'class' => 'text-center'],
+            ['label' => __('dashboard.late_fee'), 'class' => 'text-right'],
+            ['label' => __('Actions')],
+        ]"
+        :paginator="$issues"
+        empty-icon="inbox"
+        :empty-title="__('No issues found.')"
+        :empty-message="__('Issued books will appear here with their due dates.')"
+    >
+        @forelse($issues as $issue)
+            <tr class="admin-table-row">
+                <td class="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">{{ $issue->book?->title }}</td>
+                <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+                    @if($issue->student)
+                        {{ trim($issue->student->first_name . ' ' . $issue->student->last_name) }}
+                        <span class="text-xs text-slate-400 dark:text-slate-500">({{ __('Student') }})</span>
+                    @elseif($issue->teacher)
+                        {{ $issue->teacher->user?->name ?? $issue->teacher->employee_id }}
+                        <span class="text-xs text-slate-400 dark:text-slate-500">({{ __('Teacher') }})</span>
+                    @else
+                        —
+                    @endif
+                </td>
+                <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ $issue->issue_date->format('d M Y') }}</td>
+                <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ $issue->due_date->format('d M Y') }}</td>
+                <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ $issue->return_date?->format('d M Y') ?? '—' }}</td>
+                <td class="px-4 py-3 text-center">
+                    <x-badge :variant="$statusVariants[$issue->status] ?? 'default'">{{ __($issue->status) }}</x-badge>
+                </td>
+                <td class="px-4 py-3 text-right">
+                    @if($issue->late_fee > 0)
+                        <span class="font-medium text-red-600 dark:text-red-400">{{ number_format($issue->late_fee, 2) }}</span>
+                        @if($issue->fine_paid)<span class="ml-1 text-xs text-green-600 dark:text-green-400">({{ __('dashboard.fine_paid') }})</span>@endif
+                    @else
+                        <span class="text-slate-400 dark:text-slate-500">—</span>
+                    @endif
+                </td>
+                <td class="px-4 py-3">
+                    <x-button :href="route('dashboard.library.issues.show', $issue)" variant="ghost" size="sm">{{ __('View') }}</x-button>
+                </td>
             </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200">
-            @forelse($issues as $issue)
-                <tr class="hover:bg-gray-50">
-                    <td class="px-4 py-3 font-medium">{{ $issue->book?->title }}</td>
-                    <td class="px-4 py-3">
-                        @if($issue->student)
-                            {{ trim($issue->student->first_name . ' ' . $issue->student->last_name) }}
-                            <span class="text-xs text-gray-400">({{ __('Student') }})</span>
-                        @elseif($issue->teacher)
-                            {{ $issue->teacher->user?->name ?? $issue->teacher->employee_id }}
-                            <span class="text-xs text-gray-400">({{ __('Teacher') }})</span>
-                        @else
-                            —
-                        @endif
-                    </td>
-                    <td class="px-4 py-3">{{ $issue->issue_date->format('d M Y') }}</td>
-                    <td class="px-4 py-3">{{ $issue->due_date->format('d M Y') }}</td>
-                    <td class="px-4 py-3">{{ $issue->return_date?->format('d M Y') ?? '—' }}</td>
-                    <td class="px-4 py-3 text-center">
-                        @php
-                            $statusColors = ['issued' => 'bg-yellow-100 text-yellow-800', 'returned' => 'bg-green-100 text-green-800', 'lost' => 'bg-red-100 text-red-800', 'damaged' => 'bg-orange-100 text-orange-800'];
-                            $color = $statusColors[$issue->status] ?? 'bg-gray-100 text-gray-800';
-                        @endphp
-                        <span class="inline-block rounded-full px-2.5 py-0.5 text-xs font-medium {{ $color }}">{{ __($issue->status) }}</span>
-                    </td>
-                    <td class="px-4 py-3 text-right">
-                        @if($issue->late_fee > 0)
-                            <span class="font-medium text-red-600">{{ number_format($issue->late_fee, 2) }}</span>
-                            @if($issue->fine_paid)<span class="ml-1 text-xs text-green-600">({{ __('dashboard.fine_paid') }})</span>@endif
-                        @else
-                            <span class="text-gray-400">—</span>
-                        @endif
-                    </td>
-                    <td class="px-4 py-3">
-                        <a href="{{ route('dashboard.library.issues.show', $issue) }}" class="text-blue-600 hover:text-blue-800">{{ __('View') }}</a>
-                    </td>
-                </tr>
-            @empty
-                <tr><td colspan="8" class="px-4 py-8 text-center text-gray-500">{{ __('No issues found.') }}</td></tr>
-            @endforelse
-        </tbody>
-    </table>
-</div>
-<div class="mt-4">{{ $issues->links() }}</div>
+        @empty
+        @endforelse
+    </x-admin-data-table>
 @endsection

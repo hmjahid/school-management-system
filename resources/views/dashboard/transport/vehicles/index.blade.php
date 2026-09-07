@@ -16,47 +16,43 @@
         </x-slot:actions>
     </x-page-header>
 
-    <x-card :padding="false">
-        <table class="min-w-full divide-y divide-slate-200 text-sm">
-            <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-600">
-                <tr>
-                    <th class="px-4 py-3">{{ __('Number') }}</th>
-                    <th class="px-4 py-3">{{ __('Type') }}</th>
-                    <th class="px-4 py-3">{{ __('Capacity') }}</th>
-                    <th class="px-4 py-3">{{ __('Driver') }}</th>
-                    <th class="px-4 py-3">{{ __('Status') }}</th>
-                    <th class="px-4 py-3 text-right">{{ __('Actions') }}</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-                @forelse($rows as $v)
-                    <tr>
-                        <td class="px-4 py-3 font-mono font-semibold">{{ $v->number }}</td>
-                        <td class="px-4 py-3">{{ $v->type ?: '—' }}</td>
-                        <td class="px-4 py-3">{{ $v->capacity ?: '—' }}</td>
-                        <td class="px-4 py-3">{{ $v->driver_name ?: '—' }}<br><span class="text-xs text-slate-500">{{ $v->driver_phone }}</span></td>
-                        <td class="px-4 py-3">
-                            @if($v->is_active)
-                                <span class="rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-800">{{ __('Active') }}</span>
-                            @else
-                                <span class="rounded-full bg-slate-200 px-2 py-1 text-xs font-semibold text-slate-700">{{ __('Inactive') }}</span>
-                            @endif
-                        </td>
-                        <td class="px-4 py-3 text-right">
-                            <x-button :href="route('dashboard.transport.vehicles.edit', $v)" variant="ghost" size="sm">{{ __('Edit') }}</x-button>
-                            <form method="post" action="{{ route('dashboard.transport.vehicles.destroy', $v) }}" class="inline" onsubmit="return confirm('{{ __('Delete this vehicle?') }}')">
-                                @csrf @method('delete')
-                                <button class="text-xs font-semibold text-red-700 hover:underline" type="submit">{{ __('Delete') }}</button>
-                            </form>
-                        </td>
-                    </tr>
-                @empty
-                    <tr><td colspan="6" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No vehicles yet.') }}</td></tr>
-                @endforelse
-            </tbody>
-        </table>
-        @if($rows->hasPages())
-            <div class="border-t border-slate-200 px-4 py-3">{{ $rows->links() }}</div>
-        @endif
-    </x-card>
+    <x-admin-data-table
+        :headers="[
+            ['label' => __('Number')],
+            ['label' => __('Type')],
+            ['label' => __('Capacity')],
+            ['label' => __('Driver')],
+            ['label' => __('Status')],
+            ['label' => __('Actions'), 'class' => 'text-right'],
+        ]"
+        :paginator="$rows"
+        empty-icon="inbox"
+        :empty-title="__('No vehicles yet.')"
+        :empty-message="__('Add a vehicle before assigning routes.')"
+    >
+        @forelse($rows as $v)
+            <tr class="admin-table-row">
+                <td class="px-4 py-3 font-mono font-semibold text-slate-700 dark:text-slate-300">{{ $v->number }}</td>
+                <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ $v->type ?: '—' }}</td>
+                <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ $v->capacity ?: '—' }}</td>
+                <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
+                    {{ $v->driver_name ?: '—' }}
+                    @if($v->driver_phone)<br><span class="text-xs text-slate-500 dark:text-slate-400">{{ $v->driver_phone }}</span>@endif
+                </td>
+                <td class="px-4 py-3">
+                    <x-badge :variant="$v->is_active ? 'success' : 'default'">{{ $v->is_active ? __('Active') : __('Inactive') }}</x-badge>
+                </td>
+                <td class="px-4 py-3 text-right">
+                    <div class="flex items-center justify-end gap-2">
+                        <x-button :href="route('dashboard.transport.vehicles.edit', $v)" variant="ghost" size="sm">{{ __('Edit') }}</x-button>
+                        <form method="post" action="{{ route('dashboard.transport.vehicles.destroy', $v) }}" class="inline" data-confirm="{{ __('Delete this vehicle?') }}" data-confirm-title="{{ __('Delete vehicle') }}">
+                            @csrf @method('delete')
+                            <x-button type="submit" variant="ghost" size="sm" class="text-red-600 hover:text-red-800 dark:text-red-400">{{ __('Delete') }}</x-button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        @empty
+        @endforelse
+    </x-admin-data-table>
 @endsection

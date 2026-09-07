@@ -15,7 +15,7 @@
                 <button class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50">{{ __('Filter') }}</button>
             </form>
             <a href="{{ route('dashboard.notices.create') }}"
-                class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">
                 {{ __('New Notice') }}
             </a>
         </div>
@@ -48,7 +48,7 @@
                         <td class="px-4 py-3 text-gray-700">
                             @if(is_array($row->audience))
                                 @foreach($row->audience as $a)
-                                    <span class="mr-1 inline-block rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-800">{{ ucfirst($a) }}</span>
+                                    <span class="mr-1 inline-block rounded-full bg-brand-100 px-2 py-0.5 text-xs font-semibold text-brand-800">{{ ucfirst($a) }}</span>
                                 @endforeach
                             @else
                                 <span class="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700">{{ $row->audience ?? __('All') }}</span>
@@ -56,14 +56,14 @@
                         </td>
                         <td class="px-4 py-3">
                             @if($row->pinned)
-                                <span class="inline-block rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">{{ __('Pinned') }}</span>
+                                <x-badge variant="warning">{{ __('Pinned') }}</x-badge>
                             @endif
                         </td>
                         <td class="px-4 py-3 text-gray-700">{{ $row->created_at?->format('Y-m-d') ?: '—' }}</td>
                         <td class="px-4 py-3 text-right">
                             <div class="inline-flex items-center gap-1">
-                                <a class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100" href="{{ route('dashboard.notices.edit', $row) }}">{{ __('Edit') }}</a>
-                                <form method="post" action="{{ route('dashboard.notices.destroy', $row) }}" onsubmit="return confirm('{{ __('Delete this notice?') }}')">
+                                <a class="inline-flex items-center rounded-md bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100" href="{{ route('dashboard.notices.edit', $row) }}">{{ __('Edit') }}</a>
+                                <form method="post" action="{{ route('dashboard.notices.destroy', $row) }}" data-confirm="{{ __('Delete this notice?') }}">
                                     @csrf
                                     @method('delete')
                                     <button class="inline-flex items-center rounded-md bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-100" type="submit">{{ __('Delete') }}</button>

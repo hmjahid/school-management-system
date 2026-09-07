@@ -42,22 +42,22 @@
                             </td>
                             <td class="px-4 py-3">
                                 @if($row->is_active)
-                                    <span class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">{{ __('Active') }}</span>
+                                    <x-badge variant="success">{{ __('Active') }}</x-badge>
                                 @else
-                                    <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">{{ __('Inactive') }}</span>
+                                    <x-badge variant="default">{{ __('Inactive') }}</x-badge>
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-right text-slate-700">{{ $row->expenses_count }}</td>
                             <td class="px-4 py-3 text-right">
                                 <x-button :href="route('dashboard.expense-categories.edit', $row)" variant="ghost" size="sm">{{ __('Edit') }}</x-button>
-                                <form method="post" action="{{ route('dashboard.expense-categories.destroy', $row) }}" class="inline" onsubmit="return confirm('{{ __('Delete this category?') }}')">
+                                <form method="post" action="{{ route('dashboard.expense-categories.destroy', $row) }}" class="inline" data-confirm="{{ __('Delete this category?') }}">
                                     @csrf @method('delete')
                                     <button class="text-xs font-semibold text-red-700 hover:underline" type="submit">{{ __('Delete') }}</button>
                                 </form>
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No categories yet.') }}</td></tr>
+                        <tr><td colspan="6" class="px-4 py-16"><x-empty-state :title="__('No categories yet')" :message="__('Create your first expense category to get started.')" icon="tag" /></td></tr>
                     @endforelse
                 </tbody>
             </table>

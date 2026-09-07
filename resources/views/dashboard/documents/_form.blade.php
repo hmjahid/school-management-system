@@ -29,7 +29,7 @@
             ])
             @if($document->exists)
                 <p class="mt-2 text-xs text-gray-500">{{ __('Current:') }} {{ $document->file_path }}</p>
-                <a href="{{ asset('storage/' . $document->file_path) }}" target="_blank" rel="noreferrer" class="mt-1 inline-block text-xs font-medium text-blue-600 hover:underline">{{ __('Open current file') }}</a>
+                <a href="{{ asset('storage/' . $document->file_path) }}" target="_blank" rel="noreferrer" class="mt-1 inline-block text-xs font-medium text-brand-600 hover:underline">{{ __('Open current file') }}</a>
             @endif
         </div>
     </div>

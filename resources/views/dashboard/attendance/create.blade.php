@@ -5,7 +5,7 @@
 @section('content')
     <div class="mb-6 flex justify-between">
         <h1 class="text-2xl font-bold text-gray-900">{{ __('Record attendance') }}</h1>
-        <a href="{{ route('dashboard.attendance') }}" class="text-sm font-medium text-blue-600 hover:text-blue-800">{{ __('Back to list') }}</a>
+        <a href="{{ route('dashboard.attendance') }}" class="text-sm font-medium text-brand-600 hover:text-brand-800">{{ __('Back to list') }}</a>
     </div>
     @include('dashboard.partials.form-errors')
     @if ($errors->has('attendance'))
@@ -92,6 +92,6 @@
             </div>
         </div>
         <p class="text-sm text-gray-600">{{ __('Provide either a batch or a section (not both required by the server).') }}</p>
-        <button type="submit" class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Save attendance') }}</button>
+        <button type="submit" class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('Save attendance') }}</button>
     </form>
 @endsection

@@ -40,25 +40,25 @@
                 <tbody class="divide-y divide-slate-100">
                     @forelse($rows as $r)
                         @php
-                            $cls = match($r->status) {
-                                'approved' => 'bg-emerald-100 text-emerald-800',
-                                'rejected' => 'bg-red-100 text-red-800',
-                                'cancelled' => 'bg-slate-200 text-slate-800',
-                                default => 'bg-amber-100 text-amber-800',
-                            };
+$cls = match($r->status) {
+    'approved' => 'success',
+    'rejected' => 'danger',
+    'cancelled' => 'default',
+    default => 'warning',
+};
                         @endphp
                         <tr>
                             <td class="px-4 py-3 font-medium text-slate-900">{{ $r->teacher?->user?->name ?? '—' }}</td>
                             <td class="px-4 py-3 text-slate-700">{{ $r->type?->name() ?? '—' }}</td>
                             <td class="px-4 py-3 text-slate-700">{{ $r->from_date->format('M j, Y') }} → {{ $r->to_date->format('M j, Y') }}</td>
                             <td class="px-4 py-3 text-slate-700">{{ $r->days() }}</td>
-                            <td class="px-4 py-3"><span class="rounded-full px-2 py-1 text-xs font-semibold {{ $cls }}">{{ ucfirst($r->status) }}</span></td>
+                            <td class="px-4 py-3"><x-badge :variant="$cls">{{ ucfirst($r->status) }}</x-badge></td>
                             <td class="px-4 py-3 text-right">
                                 <x-button :href="route('dashboard.leaves.show', $r)" variant="ghost" size="sm">{{ __('View') }}</x-button>
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No leave requests.') }}</td></tr>
+                        <tr><td colspan="6" class="px-4 py-16"><x-empty-state :title="__('No leave requests')" :message="__('Leave requests will appear here once submitted.')" icon="clock" /></td></tr>
                     @endforelse
                 </tbody>
             </table>

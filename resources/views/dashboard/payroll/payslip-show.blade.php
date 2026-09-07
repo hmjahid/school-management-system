@@ -13,7 +13,7 @@
         </x-slot:breadcrumbs>
         <x-slot:actions>
             @if($payslip->status === 'draft' && auth()->user()->can('manage_teacher_salaries'))
-                <form method="post" action="{{ route('dashboard.payroll.payslips.markPaid', $payslip) }}" onsubmit="return confirm('{{ __('Mark as paid and post to ledger?') }}')">
+                <form method="post" action="{{ route('dashboard.payroll.payslips.markPaid', $payslip) }}" data-confirm="{{ __('Mark as paid and post to ledger?') }}">
                     @csrf
                     <x-button type="submit">{{ __('Mark paid') }}</x-button>
                 </form>
@@ -50,9 +50,9 @@
                 <p class="mt-1 text-4xl font-bold text-emerald-700">{{ number_format((float) $payslip->net_salary, 2) }}</p>
                 <p class="mt-3">
                     @if($payslip->status === 'paid')
-                        <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">{{ __('Paid on') }} {{ $payslip->paid_at?->format('M j, Y') }}</span>
+                        <x-badge variant="success">{{ __('Paid on') }} {{ $payslip->paid_at?->format('M j, Y') }}</x-badge>
                     @else
-                        <span class="rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700">{{ __('Draft') }}</span>
+                        <x-badge>{{ __('Draft') }}</x-badge>
                     @endif
                 </p>
             </div>

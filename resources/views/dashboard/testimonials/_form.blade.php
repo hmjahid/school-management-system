@@ -50,7 +50,7 @@
             </div>
 
             <label class="flex items-center gap-2 text-sm font-medium text-gray-800">
-                <input type="checkbox" name="is_visible" value="1" @checked(old('is_visible', $testimonial->is_visible ?? true)) class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                <input type="checkbox" name="is_visible" value="1" @checked(old('is_visible', $testimonial->is_visible ?? true)) class="rounded border-gray-300 text-brand-600 focus:ring-brand-500">
                 {{ __('Visible on website') }}
             </label>
         </div>

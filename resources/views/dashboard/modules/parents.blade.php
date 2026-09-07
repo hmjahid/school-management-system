@@ -3,71 +3,71 @@
 @section('title', __('Parents & guardians') . ' — ' . config('app.name', 'SchoolEase'))
 
 @section('content')
-    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 class="text-2xl font-bold text-gray-900">{{ __('Parents & guardians') }}</h1>
-        <div class="flex flex-wrap items-center gap-2">
-        @can('create', App\Models\Guardian::class)
-            <a href="{{ route('dashboard.parents.create') }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Add guardian') }}</a>
-        @endcan
-        <form method="get" class="flex flex-wrap gap-2">
-            <input type="search" name="search" value="{{ request('search') }}" placeholder="{{ __('Search…') }}"
-                class="min-w-[200px] rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-            <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">{{ __('Search') }}</button>
-        </form>
-        </div>
-    </div>
+    <x-page-header :title="__('Parents & guardians')" :description="__('Link parents to students so families can follow progress and fees.')">
+        <x-slot:breadcrumbs>
+            <x-admin-breadcrumbs :items="[
+                ['label' => __('Dashboard'), 'url' => route('dashboard')],
+                ['label' => __('Parents & guardians')],
+            ]" />
+        </x-slot:breadcrumbs>
+        <x-slot:actions>
+            @can('create', App\Models\Guardian::class)
+                <x-button :href="route('dashboard.parents.create')">{{ __('Add guardian') }}</x-button>
+            @endcan
+        </x-slot:actions>
+    </x-page-header>
 
-    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 text-sm">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Guardian') }}</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Phone') }}</th>
-                        <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Students') }}</th>
-                        <th class="px-4 py-3 text-right font-semibold text-gray-700">{{ __('Actions') }}</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @forelse ($guardians as $guardian)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-3">
-                                <div class="font-medium text-gray-900">{{ $guardian->user?->name ?? __('N/A') }}</div>
-                                <div class="text-gray-500">{{ $guardian->user?->email }}</div>
-                            </td>
-                            <td class="px-4 py-3 text-gray-700">{{ $guardian->phone ?? '—' }}</td>
-                            <td class="px-4 py-3 text-gray-700">{{ $guardian->students->map(fn ($s) => $s->user?->name)->filter()->implode(', ') ?: '—' }}</td>
-                            <td class="px-4 py-3 text-right text-sm">
-                                @can('view', $guardian)
-                                    <a href="{{ route('dashboard.parents.show', $guardian) }}" class="text-blue-600 hover:text-blue-800">{{ __('View') }}</a>
-                                @endcan
-                                @can('update', $guardian)
-                                    <a href="{{ route('dashboard.parents.edit', $guardian) }}" class="ml-2 text-indigo-600 hover:text-indigo-800">{{ __('Edit') }}</a>
-                                @endcan
-                                @can('delete', $guardian)
-                                    <form method="post" action="{{ route('dashboard.parents.destroy', $guardian) }}" class="inline ml-2" onsubmit="return confirm('{{ __('Are you sure?') }}')">
-                                        @csrf @method('delete')
-                                        <button type="submit" class="text-red-600 hover:text-red-800">{{ __('Delete') }}</button>
-                                    </form>
-                                @endcan
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="px-4 py-10">
-                                <x-empty-state
-                                    icon="users"
-                                    :title="__('No guardians found')"
-                                    :message="__('Link parents to students so families can follow progress and fees.')"
-                                />
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+    <form method="get" class="mb-6 flex flex-wrap items-end gap-2">
+        <div class="min-w-[220px]">
+            <label for="filter-search" class="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">{{ __('Search') }}</label>
+            <input id="filter-search" type="search" name="search" value="{{ request('search') }}" placeholder="{{ __('Search…') }}" class="admin-input">
         </div>
-        @if ($guardians->hasPages())
-            <div class="border-t border-gray-200 px-4 py-3">{{ $guardians->links() }}</div>
-        @endif
-    </div>
+        <div class="flex items-end gap-2">
+            <x-button type="submit" size="sm">{{ __('Search') }}</x-button>
+            @if (request()->filled('search'))
+                <x-button :href="route('dashboard.parents')" variant="secondary" size="sm">{{ __('Reset') }}</x-button>
+            @endif
+        </div>
+    </form>
+
+    <x-admin-data-table
+        :headers="[
+            ['label' => __('Guardian')],
+            ['label' => __('Phone')],
+            ['label' => __('Students')],
+            ['label' => __('Actions'), 'class' => 'text-right'],
+        ]"
+        :paginator="$guardians"
+        empty-icon="users"
+        :empty-title="__('No guardians found')"
+        :empty-message="__('Link parents to students so families can follow progress and fees.')"
+    >
+        @forelse ($guardians as $guardian)
+            <tr class="admin-table-row">
+                <td class="px-4 py-3">
+                    <div class="font-medium text-slate-900 dark:text-slate-100">{{ $guardian->user?->name ?? __('N/A') }}</div>
+                    <div class="text-slate-500 dark:text-slate-400">{{ $guardian->user?->email }}</div>
+                </td>
+                <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ $guardian->phone ?? '—' }}</td>
+                <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ $guardian->students->map(fn ($s) => $s->user?->name)->filter()->implode(', ') ?: '—' }}</td>
+                <td class="px-4 py-3 text-right">
+                    <div class="flex items-center justify-end gap-2">
+                        @can('view', $guardian)
+                            <x-button :href="route('dashboard.parents.show', $guardian)" variant="ghost" size="sm">{{ __('View') }}</x-button>
+                        @endcan
+                        @can('update', $guardian)
+                            <x-button :href="route('dashboard.parents.edit', $guardian)" variant="ghost" size="sm">{{ __('Edit') }}</x-button>
+                        @endcan
+                        @can('delete', $guardian)
+                            <form method="post" action="{{ route('dashboard.parents.destroy', $guardian) }}" class="inline" data-confirm="{{ __('Delete this guardian?') }}" data-confirm-title="{{ __('Delete guardian') }}">
+                                @csrf @method('delete')
+                                <x-button type="submit" variant="ghost" size="sm" class="text-red-600 hover:text-red-800 dark:text-red-400">{{ __('Delete') }}</x-button>
+                            </form>
+                        @endcan
+                    </div>
+                </td>
+            </tr>
+        @empty
+        @endforelse
+    </x-admin-data-table>
 @endsection

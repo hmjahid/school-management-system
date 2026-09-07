@@ -9,7 +9,7 @@
             <p class="mt-1 text-sm text-gray-600">{{ __('Manage hostels, rooms, and student assignments.') }}</p>
         </div>
         <a href="{{ route('dashboard.hostels.create') }}"
-            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+            class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
             {{ __('Add Hostel') }}
         </a>
     </div>
@@ -24,9 +24,9 @@
                             <p class="mt-1 text-sm text-gray-500">{{ $hostel->address }}</p>
                         @endif
                     </div>
-                    <span class="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $hostel->status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600' }}">
+                    <x-badge :variant="$hostel->status === 'active' ? 'success' : 'default'">
                         {{ ucfirst($hostel->status) }}
-                    </span>
+                    </x-badge>
                 </div>
 
                 <div class="mb-4 grid grid-cols-2 gap-3">
@@ -55,7 +55,7 @@
                         class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-center text-sm font-semibold text-gray-700 hover:bg-gray-50">
                         {{ __('Edit') }}
                     </a>
-                    <form method="post" action="{{ route('dashboard.hostels.destroy', $hostel) }}" onsubmit="return confirm('{{ __('Delete this hostel?') }}')">
+                    <form method="post" action="{{ route('dashboard.hostels.destroy', $hostel) }}" data-confirm="{{ __('Delete this hostel?') }}">
                         @csrf
                         @method('delete')
                         <button class="rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50">{{ __('Delete') }}</button>
@@ -63,8 +63,8 @@
                 </div>
             </div>
         @empty
-            <div class="col-span-full rounded-xl border border-dashed border-gray-300 p-12 text-center">
-                <p class="text-gray-500">{{ __('No hostels found.') }}</p>
+            <div class="col-span-full rounded-2xl border-2 border-dashed border-slate-200 p-12">
+                <x-empty-state :title="__('No hostels found')" :message="__('Add your first hostel to get started.')" icon="inbox" />
             </div>
         @endforelse
     </div>

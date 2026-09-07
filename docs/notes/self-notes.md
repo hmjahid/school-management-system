@@ -651,6 +651,18 @@ suppose you are a senior software engineer. check the whole codebase, features, 
 
 suppose you are a senior uiux designer. check the whole codebase, features, funcstinalities of this prjcet and give asuggestion for uiux improvements both the front website and the dashboard in a file
 
+read UIUX-IMPLEMENTATION-PLAN.md and UIUX-IMPROVEMENTS.md file and implement them untill finished. continue until finished
+
+why during bnagla, direction chnaging?
+
+bnagla is left to right script. fix it
+
+
+
+
+now implement the FEATURE-IMPROVEMENTS.md . before that cerate a proper implementation plan. continue until finished
+
+now write a commit message for the chnages after the last commit
 
 
 

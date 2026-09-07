@@ -20,7 +20,7 @@
                 <button class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50">{{ __('Filter') }}</button>
             </form>
             <a href="{{ route('dashboard.news.create') }}"
-                class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+                class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">
                 {{ __('New') }}
             </a>
         </div>
@@ -53,19 +53,19 @@
                         <td class="px-4 py-3 text-gray-700">{{ $row->category ?: '—' }}</td>
                         <td class="px-4 py-3">
                             @if($row->is_published)
-                                <span class="rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-800">{{ __('Published') }}</span>
+                                <x-badge variant="success">{{ __('Published') }}</x-badge>
                             @else
-                                <span class="rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-800">{{ __('Draft') }}</span>
+                                <x-badge variant="warning">{{ __('Draft') }}</x-badge>
                             @endif
                             @if($row->is_event)
-                                <span class="ml-2 rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800">{{ __('Event') }}</span>
+                                <x-badge variant="brand" class="ml-2">{{ __('Event') }}</x-badge>
                             @endif
                         </td>
                         <td class="px-4 py-3 text-gray-700">{{ $row->published_at?->format('Y-m-d') ?: '—' }}</td>
                         <td class="px-4 py-3 text-right">
                             <div class="inline-flex items-center gap-1">
-                                <a class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100" href="{{ route('dashboard.news.edit', $row) }}">{{ __('Edit') }}</a>
-                                <form method="post" action="{{ route('dashboard.news.destroy', $row) }}" onsubmit="return confirm('{{ __('Delete this item?') }}')">
+                                <a class="inline-flex items-center rounded-md bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100" href="{{ route('dashboard.news.edit', $row) }}">{{ __('Edit') }}</a>
+                                <form method="post" action="{{ route('dashboard.news.destroy', $row) }}" data-confirm="{{ __('Delete this item?') }}">
                                     @csrf
                                     @method('delete')
                                     <button class="inline-flex items-center rounded-md bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-100" type="submit">{{ __('Delete') }}</button>

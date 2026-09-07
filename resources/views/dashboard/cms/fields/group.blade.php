@@ -35,10 +35,10 @@
                 </label>
                 @if ($subType === 'textarea')
                     <textarea id="cms-{{ $subName }}-en" name="{{ $subName }}_en" rows="{{ $subRows ?? 2 }}"
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">{{ $valEn }}</textarea>
+                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">{{ $valEn }}</textarea>
                 @else
                     <input type="text" id="cms-{{ $subName }}-en" name="{{ $subName }}_en" value="{{ $valEn }}"
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                 @endif
             </div>
             <div>
@@ -47,10 +47,10 @@
                 </label>
                 @if ($subType === 'textarea')
                     <textarea id="cms-{{ $subName }}-bn" name="{{ $subName }}_bn" rows="{{ $subRows ?? 2 }}"
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">{{ $valBn }}</textarea>
+                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">{{ $valBn }}</textarea>
                 @else
                     <input type="text" id="cms-{{ $subName }}-bn" name="{{ $subName }}_bn" value="{{ $valBn }}"
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                 @endif
             </div>
         </div>

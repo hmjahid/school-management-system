@@ -10,13 +10,9 @@
         </div>
         <div class="flex flex-wrap items-center gap-2">
             <a href="{{ route('dashboard.events.calendar') }}" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{{ __('Calendar view') }}</a>
-            <a href="{{ route('dashboard.events.create') }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('New event') }}</a>
+            <a href="{{ route('dashboard.events.create') }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">{{ __('New event') }}</a>
         </div>
     </div>
-
-    @if (session('status'))
-        <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ session('status') }}</div>
-    @endif
 
     <form method="get" class="mb-4 flex flex-wrap items-end gap-2">
         <div>
@@ -32,7 +28,7 @@
                 @endforeach
             </select>
         </div>
-        <button type="submit" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">{{ __('Filter') }}</button>
+        <button type="submit" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">{{ __('Filter') }}</button>
     </form>
 
     <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
@@ -54,11 +50,11 @@
                             <td class="px-4 py-3 text-gray-700">{{ optional($event->start_date)->format('Y-m-d H:i') ?? '—' }}</td>
                             <td class="px-4 py-3 text-gray-700">{{ $event->location ?: '—' }}</td>
                             <td class="px-4 py-3">
-                                <span class="inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800">{{ ucfirst($event->status ?? '—') }}</span>
+                                <x-badge>{{ ucfirst($event->status ?? '—') }}</x-badge>
                             </td>
                             <td class="px-4 py-3 text-right text-sm">
-                                <a href="{{ route('dashboard.events.edit', $event) }}" class="font-medium text-blue-600 hover:text-blue-800">{{ __('Edit') }}</a>
-                                <form method="post" action="{{ route('dashboard.events.destroy', $event) }}" class="inline" onsubmit="return confirm({{ json_encode(__('Delete this event?')) }});">
+                                <a href="{{ route('dashboard.events.edit', $event) }}" class="font-medium text-brand-600 hover:text-brand-800">{{ __('Edit') }}</a>
+                                <form method="post" action="{{ route('dashboard.events.destroy', $event) }}" class="inline" data-confirm="{{ __('Delete this event?') }}" data-confirm-title="{{ __('Delete event') }}">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="ml-2 font-medium text-red-600 hover:text-red-800">{{ __('Delete') }}</button>

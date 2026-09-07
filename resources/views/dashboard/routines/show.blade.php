@@ -6,10 +6,10 @@
     <div class="flex gap-2">
         <a href="{{ route('dashboard.routines.index') }}" class="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">{{ __('Back') }}</a>
         @can('update', $routine)
-            <a href="{{ route('dashboard.routines.edit', $routine) }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">{{ __('Edit') }}</a>
+            <a href="{{ route('dashboard.routines.edit', $routine) }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('Edit') }}</a>
         @endcan
         @can('delete', $routine)
-            <form method="post" action="{{ route('dashboard.routines.destroy', $routine) }}" onsubmit="return confirm('{{ __('Are you sure?') }}')">
+            <form method="post" action="{{ route('dashboard.routines.destroy', $routine) }}" data-confirm="{{ __('Are you sure?') }}">
                 @csrf @method('delete')
                 <button type="submit" class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">{{ __('Delete') }}</button>
             </form>
@@ -28,7 +28,7 @@
             <div><dt class="text-gray-500">{{ __('Room') }}</dt><dd>{{ $routine->room_number ?? '-' }}</dd></div>
             <div><dt class="text-gray-500">{{ __('Batch') }}</dt><dd>{{ $routine->batch?->name ?? '-' }}</dd></div>
             <div><dt class="text-gray-500">{{ __('Academic session') }}</dt><dd>{{ $routine->academicSession?->name ?? '-' }}</dd></div>
-            <div><dt class="text-gray-500">{{ __('Status') }}</dt><dd><span class="rounded-full px-2.5 py-0.5 text-xs font-medium {{ $routine->is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600' }}">{{ $routine->is_active ? __('Active') : __('Inactive') }}</span></dd></div>
+            <div><dt class="text-gray-500">{{ __('Status') }}</dt><dd><x-badge :variant="$routine->is_active ? 'success' : 'default'">{{ $routine->is_active ? __('Active') : __('Inactive') }}</x-badge></dd></div>
             <div><dt class="text-gray-500">{{ __('Created') }}</dt><dd>{{ $routine->created_at?->format('d M Y H:i') }}</dd></div>
         </dl>
     </div>

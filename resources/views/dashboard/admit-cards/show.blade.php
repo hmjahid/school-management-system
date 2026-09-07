@@ -7,10 +7,10 @@
         <a href="{{ route('dashboard.admit-cards.index') }}" class="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">{{ __('Back') }}</a>
         <a href="{{ route('dashboard.admit-cards.print', $admitCard) }}" target="_blank" class="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">{{ __('Print') }}</a>
         @can('update', $admitCard)
-            <a href="{{ route('dashboard.admit-cards.edit', $admitCard) }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">{{ __('Edit') }}</a>
+            <a href="{{ route('dashboard.admit-cards.edit', $admitCard) }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('Edit') }}</a>
         @endcan
         @can('delete', $admitCard)
-            <form method="post" action="{{ route('dashboard.admit-cards.destroy', $admitCard) }}" onsubmit="return confirm('{{ __('Are you sure?') }}')">
+            <form method="post" action="{{ route('dashboard.admit-cards.destroy', $admitCard) }}" data-confirm="{{ __('Are you sure?') }}">
                 @csrf @method('delete')
                 <button type="submit" class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">{{ __('Delete') }}</button>
             </form>

@@ -36,14 +36,14 @@
                             <td class="px-4 py-3 text-right font-semibold text-slate-900">{{ number_format((float) $row->amount, 2) }}</td>
                             <td class="px-4 py-3 text-right">
                                 <x-button :href="route('dashboard.budgets.edit', $row)" variant="ghost" size="sm">{{ __('Edit') }}</x-button>
-                                <form method="post" action="{{ route('dashboard.budgets.destroy', $row) }}" class="inline" onsubmit="return confirm('{{ __('Delete this budget?') }}')">
+                                <form method="post" action="{{ route('dashboard.budgets.destroy', $row) }}" class="inline" data-confirm="{{ __('Delete this budget?') }}">
                                     @csrf @method('delete')
                                     <button class="text-xs font-semibold text-red-700 hover:underline" type="submit">{{ __('Delete') }}</button>
                                 </form>
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="5" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No budgets yet.') }}</td></tr>
+                        <tr><td colspan="5" class="px-4 py-16"><x-empty-state :title="__('No budgets yet')" :message="__('Set your first budget to start tracking spending.')" icon="chart" /></td></tr>
                     @endforelse
                 </tbody>
             </table>

@@ -56,7 +56,7 @@
                             <td class="px-4 py-2 text-xs text-slate-500">{{ $r->note ?: '—' }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No ledger entries yet.') }}</td></tr>
+                        <tr><td colspan="6" class="px-4 py-16"><x-empty-state :title="__('No ledger entries yet')" :message="__('Ledger entries will appear here once posted.')" icon="chart" /></td></tr>
                     @endforelse
                 </tbody>
             </table>

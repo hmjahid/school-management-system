@@ -47,7 +47,7 @@
                     <td class="px-4 py-3">{{ $student->section?->name ?? 'N/A' }}</td>
                     <td class="px-4 py-3">{{ $student->roll_number ?? 'N/A' }}</td>
                     <td class="px-4 py-3">
-                        <a href="{{ route('dashboard.progress-reports.generate', $student) }}" class="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700">{{ __('Generate Progress Report') }}</a>
+                        <a href="{{ route('dashboard.progress-reports.generate', $student) }}" class="rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('Generate Progress Report') }}</a>
                         <a href="{{ route('dashboard.progress-reports.generate', ['student' => $student, 'view' => 1]) }}" target="_blank" class="ml-2 rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-200">{{ __('Preview') }}</a>
                     </td>
                 </tr>

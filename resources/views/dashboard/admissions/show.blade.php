@@ -19,9 +19,21 @@
     <div class="grid gap-6 lg:grid-cols-3">
         <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm lg:col-span-2">
             <h2 class="text-lg font-semibold text-gray-900">{{ __('Applicant details') }}</h2>
+            @php
+                $statusVariants = [
+                    'draft' => 'default',
+                    'submitted' => 'brand',
+                    'under_review' => 'warning',
+                    'approved' => 'success',
+                    'rejected' => 'danger',
+                    'waitlisted' => 'info',
+                    'enrolled' => 'brand',
+                    'cancelled' => 'default',
+                ];
+            @endphp
             <dl class="mt-4 grid gap-3 text-sm sm:grid-cols-2">
                 <dt class="text-gray-500">{{ __('Status') }}</dt>
-                <dd><span class="rounded-full px-2 py-1 text-xs font-semibold {{ $admission->status_badge }}">{{ $admission->status_label }}</span></dd>
+                <dd><x-badge :variant="$statusVariants[$admission->status] ?? 'default'">{{ $admission->status_label }}</x-badge></dd>
                 <dt class="text-gray-500">{{ __('Email') }}</dt>
                 <dd class="text-gray-900">{{ $admission->email }}</dd>
                 <dt class="text-gray-500">{{ __('Phone') }}</dt>
@@ -47,14 +59,14 @@
                 <dt class="text-gray-500">{{ __('Payment status') }}</dt>
                 <dd>
                     @php
-                        $pClass = match($admission->payment_status) {
-                            'verified' => 'bg-emerald-100 text-emerald-800',
-                            'submitted' => 'bg-blue-100 text-blue-800',
-                            'rejected' => 'bg-red-100 text-red-800',
-                            default => 'bg-amber-100 text-amber-800',
+                        $pVariant = match($admission->payment_status) {
+                            'verified' => 'success',
+                            'submitted' => 'brand',
+                            'rejected' => 'danger',
+                            default => 'warning',
                         };
                     @endphp
-                    <span class="rounded-full px-2 py-1 text-xs font-semibold {{ $pClass }}">{{ ucfirst($admission->payment_status) }}</span>
+                    <x-badge :variant="$pVariant">{{ ucfirst($admission->payment_status) }}</x-badge>
                 </dd>
                 @if($admission->verified_at)
                     <dt class="text-gray-500">{{ __('Verified at') }}</dt>
@@ -68,12 +80,9 @@
 
             @can('edit_admissions')
                 @if($admission->payment_status !== \App\Models\Admission::PAYMENT_VERIFIED)
-                    <form method="post" action="{{ route('dashboard.admissions.verify-payment', $admission) }}" class="mt-3">
+                    <form method="post" action="{{ route('dashboard.admissions.verify-payment', $admission) }}" class="mt-3" data-confirm="{{ __('Mark this payment as verified?') }}" data-confirm-title="{{ __('Verify payment') }}">
                         @csrf
-                        <button type="submit" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
-                            onclick="return confirm('{{ __('Mark this payment as verified?') }}')">
-                            {{ __('Verify Payment') }}
-                        </button>
+                        <x-button type="submit" variant="primary" size="sm">{{ __('Verify Payment') }}</x-button>
                     </form>
                 @else
                     <p class="mt-3 text-sm font-medium text-emerald-700">{{ __('Payment verified. The applicant can download the confirmation letter.') }}</p>
@@ -91,7 +100,7 @@
                                 <div class="font-medium text-gray-900">{{ $doc->name }}</div>
                                 <div class="text-xs text-gray-500">{{ $doc->type }} · {{ $doc->file_type }} · {{ number_format(($doc->file_size ?? 0) / 1024, 1) }} KB</div>
                             </div>
-                            <a class="text-blue-600 hover:underline" href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" rel="noreferrer">{{ __('View') }}</a>
+                            <a class="text-brand-600 hover:underline" href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" rel="noreferrer">{{ __('View') }}</a>
                         </li>
                     @endforeach
                 </ul>
@@ -143,7 +152,7 @@
                         <label class="block text-sm font-medium text-gray-700">{{ __('Notes') }}</label>
                         <textarea name="notes" rows="3" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"></textarea>
                     </div>
-                    <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Schedule') }}</button>
+                    <button class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('Schedule') }}</button>
                 </form>
             </section>
 
@@ -160,7 +169,7 @@
                                         <div class="text-sm font-semibold text-gray-900">{{ $t->scheduled_at?->format('Y-m-d H:i') ?? '—' }}</div>
                                         <div class="text-xs text-gray-500">{{ $t->venue ?: '—' }} · {{ $t->status }}</div>
                                     </div>
-                                    <form method="post" action="{{ route('dashboard.admissions.tests.destroy', [$admission, $t]) }}" onsubmit="return confirm('{{ __('Remove this test?') }}')">
+                                    <form method="post" action="{{ route('dashboard.admissions.tests.destroy', [$admission, $t]) }}" data-confirm="{{ __('Remove this test?') }}">
                                         @csrf
                                         @method('delete')
                                         <button class="text-xs font-semibold text-red-700 hover:underline" type="submit">{{ __('Remove') }}</button>

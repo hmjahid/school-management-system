@@ -12,7 +12,7 @@
     </div>
 
     <div class="flex justify-end mb-4">
-        <form method="post" action="{{ route('dashboard.documents.destroy', $document) }}" onsubmit="return confirm('{{ __('Delete this item?') }}')">
+        <form method="post" action="{{ route('dashboard.documents.destroy', $document) }}" data-confirm="{{ __('Delete this item?') }}">
             @csrf
             @method('delete')
             <button class="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-900 hover:bg-red-100">{{ __('Delete') }}</button>
@@ -24,7 +24,7 @@
         @method('put')
         @include('dashboard.partials.form-errors')
         @include('dashboard.documents._form', ['document' => $document])
-        <button class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Save changes') }}</button>
+        <button class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">{{ __('Save changes') }}</button>
     </form>
 @endsection
 

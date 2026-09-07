@@ -34,9 +34,9 @@
                         {{ $sub['label'] ?? ucfirst($subKey) }} <span class="ml-1 text-gray-400">(shared)</span>
                     </label>
                     <input type="file" name="{{ $fieldName }}" accept="image/*"
-                        class="mb-2 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-indigo-600 hover:file:bg-indigo-100 focus:border-indigo-500 focus:outline-none">
+                        class="mb-2 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 shadow-sm file:mr-3 file:rounded-md file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-brand-700 hover:file:bg-brand-100 focus:border-brand-500 focus:outline-none">
                     <input type="url" name="{{ $fieldName }}" value="{{ $valEn }}" placeholder="https://…"
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                     @if(! empty($valEn))
                         <img src="{{ $valEn }}" alt="" class="mt-2 h-24 rounded border border-gray-200 object-cover">
                     @endif
@@ -48,14 +48,14 @@
                         {{ $sub['label'] ?? ucfirst($subKey) }} <span class="ml-1 text-gray-400">(EN)</span>
                     </label>
                     <input type="text" name="{{ $fieldNameEn }}" value="{{ old($fieldNameEn, $valEn) }}"
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                 </div>
                 <div>
                     <label class="mb-1 block text-xs font-medium text-gray-600">
                         {{ $sub['label'] ?? ucfirst($subKey) }} <span class="ml-1 text-gray-400">(বাংলা)</span>
                     </label>
                     <input type="text" name="{{ $fieldNameBn }}" value="{{ old($fieldNameBn, $valBn) }}"
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20">
                 </div>
             @endif
         @endforeach

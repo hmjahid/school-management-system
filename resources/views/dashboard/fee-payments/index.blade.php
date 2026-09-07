@@ -3,7 +3,7 @@
 @section('content')
 <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <h1 class="text-2xl font-bold text-gray-900">{{ __('Fee payments') }}</h1>
-    <a href="{{ route('dashboard.settings.general', ['tab' => 'payment']) }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">{{ __('Payment Configuration') }}</a>
+    <a href="{{ route('dashboard.settings.general', ['tab' => 'payment']) }}" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">{{ __('Payment Configuration') }}</a>
 </div>
 <form method="get" class="mb-6 flex flex-wrap gap-3">
     <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ __('Search invoice or student...') }}" class="rounded-lg border border-gray-300 px-3 py-2 text-sm">
@@ -13,7 +13,7 @@
             <option value="{{ $s }}" @selected(request('status') === $s)>{{ __(ucfirst($s)) }}</option>
         @endforeach
     </select>
-    <select name="method" class="rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+    <select name="method" class="rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
         <option value="">{{ __('All methods') }}</option>
         @foreach($methods ?? [] as $methodValue => $methodLabel)
             <option value="{{ $methodValue }}" @selected(request('method', request('payment_method')) === $methodValue)>{{ __($methodLabel) }}</option>
@@ -52,7 +52,7 @@
                     </td>
                     <td class="px-4 py-3">{{ $p->payment_date?->format('d M Y') ?? '-' }}</td>
                     <td class="px-4 py-3">
-                        <a href="{{ route('dashboard.fee-payments.show', $p) }}" class="text-blue-600 hover:text-blue-800">{{ __('View') }}</a>
+                        <a href="{{ route('dashboard.fee-payments.show', $p) }}" class="text-brand-600 hover:text-brand-800">{{ __('View') }}</a>
                     </td>
                 </tr>
 @empty

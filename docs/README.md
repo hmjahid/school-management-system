@@ -21,6 +21,8 @@ records, organized into the folders below so the root stays clean.
 - `DEMO-CREDENTIALS.md` — seeded demo account credentials
 - `FEATURE-IMPROVEMENTS.md` — senior-engineer feature & engineering improvement proposals
 - `UIUX-IMPROVEMENTS.md` — senior-designer UI/UX improvement proposals (public site + dashboard)
+- `UIUX-GUIDELINES.md` — design tokens, component cheat sheet, new-era checklist, do-not-use list
+- `UIUX-IMPLEMENTATION-PLAN.md` — tracks the migration of `UIUX-IMPROVEMENTS.md` to the component system
 - `PAYMENT-DEPLOYMENT.md` — deploying payment configuration
 - `PERFORMANCE-BASELINE.md` — load-testing baseline
 - `PRODUCTION-CHECKLIST.md` — go-live checklist

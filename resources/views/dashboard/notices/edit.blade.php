@@ -14,7 +14,7 @@
     </div>
 
     <div class="flex flex-wrap items-center justify-end gap-3 mb-4">
-        <form method="post" action="{{ route('dashboard.notices.destroy', $notice) }}" onsubmit="return confirm('{{ __('Delete this notice?') }}')">
+        <form method="post" action="{{ route('dashboard.notices.destroy', $notice) }}" data-confirm="{{ __('Delete this notice?') }}">
             @csrf
             @method('delete')
             <button type="submit" class="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-900 hover:bg-red-100">{{ __('Delete') }}</button>
@@ -28,7 +28,7 @@
         @include('dashboard.notices._form', ['notice' => $notice])
 
         <div class="flex items-center gap-3">
-            <button class="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">{{ __('Save changes') }}</button>
+            <button class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('Save changes') }}</button>
         </div>
     </form>
 @endsection
