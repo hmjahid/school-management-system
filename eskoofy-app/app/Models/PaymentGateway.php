@@ -167,6 +167,7 @@ class PaymentGateway extends Model
             case self::GATEWAY_PAYSTACK:
             case self::GATEWAY_RAZORPAY:
             case self::GATEWAY_SQUARE:
+            case 'paddle':
                 return ! empty($this->api_key) && ! empty($this->api_secret) && ! empty($this->callback_url);
 
             default:

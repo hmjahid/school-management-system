@@ -15,6 +15,9 @@ class GatewayAdapterFactory
             'bkash' => new BkashGatewayAdapter,
             'nagad' => new NagadGatewayAdapter,
             'rocket' => new RocketGatewayAdapter,
+            'stripe' => new StripeGatewayAdapter,
+            'paypal' => new PaypalGatewayAdapter,
+            'paddle' => new PaddleGatewayAdapter,
             default => throw new \Exception("Payment method not implemented: {$gatewayCode}"),
         };
     }

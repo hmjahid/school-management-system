@@ -125,10 +125,13 @@ class PaymentService
 
     /**
      * Determine whether a given payment method supports refunds.
+     *
+     * Paddle is intentionally excluded: its refunds are issued via the vendor
+     * dashboard and reported through the `refund_issued` webhook alert.
      */
     public function supportsRefunds(string $method): bool
     {
-        return in_array($method, ['bkash', 'nagad', 'rocket', 'test_gateway'], true);
+        return in_array($method, ['bkash', 'nagad', 'rocket', 'test_gateway', 'stripe', 'paypal'], true);
     }
 
     /**

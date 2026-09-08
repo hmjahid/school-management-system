@@ -45,36 +45,38 @@
             </div>
 
             {{-- Column 3: Important / ministry links --}}
-            <div>
-                <h3 class="text-sm font-semibold uppercase tracking-wider text-white">{{ site_ui('footer.important_title') }}</h3>
-                <ul class="mt-4 space-y-2.5">
-                    @php
-                        $ministryLinks = collect(site_ui('footer.ministry_links', []));
-                    @endphp
-                    @forelse($ministryLinks as $entry)
+            @if(config('eskoolfy.features.homepage.ministry_links', true))
+                <div>
+                    <h3 class="text-sm font-semibold uppercase tracking-wider text-white">{{ site_ui('footer.important_title') }}</h3>
+                    <ul class="mt-4 space-y-2.5">
                         @php
-                            if (is_array($entry)) {
-                                $label = $entry['label'] ?? $entry['title'] ?? '';
-                                $url = $entry['url'] ?? $entry['href'] ?? '#';
-                            } else {
-                                [$label, $url] = array_pad(explode('|', (string) $entry, 2), 2, '#');
-                            }
+                            $ministryLinks = collect(site_ui('footer.ministry_links', []));
                         @endphp
-                        @if($label)
-                            <li>
-                                <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-start gap-2 text-sm text-slate-400 transition-colors hover:text-white">
-                                    <svg class="mt-0.5 h-4 w-4 shrink-0 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 010 5.656l-4 4a4 4 0 01-5.656-5.656l1.5-1.5"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.172 13.828a4 4 0 010-5.656l4-4a4 4 0 015.656 5.656l-1.5 1.5"/></svg>
-                                    {{ $label }}
-                                </a>
-                            </li>
-                        @endif
-                    @empty
-                        <li><a href="https://www.moedu.gov.bd" target="_blank" rel="noopener noreferrer" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('footer.link_ministry_education_ministry') }}</a></li>
-                        <li><a href="#" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('footer.link_ministry_primary_education') }}</a></li>
-                    @endforelse
-                    <li class="pt-2"><a href="{{ route('site.transport') }}" class="inline-flex items-center gap-2 text-sm font-medium text-slate-300 transition-colors hover:text-white">{{ site_ui('nav.transport') }}</a></li>
-                </ul>
-            </div>
+                        @forelse($ministryLinks as $entry)
+                            @php
+                                if (is_array($entry)) {
+                                    $label = $entry['label'] ?? $entry['title'] ?? '';
+                                    $url = $entry['url'] ?? $entry['href'] ?? '#';
+                                } else {
+                                    [$label, $url] = array_pad(explode('|', (string) $entry, 2), 2, '#');
+                                }
+                            @endphp
+                            @if($label)
+                                <li>
+                                    <a href="{{ $url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-start gap-2 text-sm text-slate-400 transition-colors hover:text-white">
+                                        <svg class="mt-0.5 h-4 w-4 shrink-0 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 010 5.656l-4 4a4 4 0 01-5.656-5.656l1.5-1.5"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.172 13.828a4 4 0 010-5.656l4-4a4 4 0 015.656 5.656l-1.5 1.5"/></svg>
+                                        {{ $label }}
+                                    </a>
+                                </li>
+                            @endif
+                        @empty
+                            <li><a href="https://www.moedu.gov.bd" target="_blank" rel="noopener noreferrer" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('footer.link_ministry_education_ministry') }}</a></li>
+                            <li><a href="#" class="text-sm text-slate-400 transition-colors hover:text-white">{{ site_ui('footer.link_ministry_primary_education') }}</a></li>
+                        @endforelse
+                        <li class="pt-2"><a href="{{ route('site.transport') }}" class="inline-flex items-center gap-2 text-sm font-medium text-slate-300 transition-colors hover:text-white">{{ site_ui('nav.transport') }}</a></li>
+                    </ul>
+                </div>
+            @endif
 
             {{-- Column 4: Contact, Follow Us & Newsletter --}}
             <div>

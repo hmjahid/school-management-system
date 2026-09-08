@@ -42,6 +42,34 @@ return [
             'live_url' => env('ROCKET_LIVE_URL', 'https://api.rocket.com.bd/api/v1'),
             'webhook_secret' => env('ROCKET_WEBHOOK_SECRET'),
         ],
+
+        'stripe' => [
+            'api_key' => env('STRIPE_API_KEY'),
+            'api_secret' => env('STRIPE_WEBHOOK_SECRET'),
+            'api_username' => env('STRIPE_PUBLISHABLE_KEY'),
+            'sandbox_url' => env('STRIPE_SANDBOX_URL', 'https://api.stripe.com/v1'),
+            'live_url' => env('STRIPE_LIVE_URL', 'https://api.stripe.com/v1'),
+            'currency' => env('STRIPE_CURRENCY', 'USD'),
+        ],
+
+        'paypal' => [
+            'api_key' => env('PAYPAL_CLIENT_ID'),
+            'api_secret' => env('PAYPAL_CLIENT_SECRET'),
+            'sandbox_url' => env('PAYPAL_SANDBOX_URL', 'https://api-m.sandbox.paypal.com'),
+            'live_url' => env('PAYPAL_LIVE_URL', 'https://api-m.paypal.com'),
+            'currency' => env('PAYPAL_CURRENCY', 'USD'),
+            'webhook_secret' => env('PAYPAL_WEBHOOK_SECRET'),
+        ],
+
+        'paddle' => [
+            'api_key' => env('PADDLE_VENDOR_ID'),
+            'api_secret' => env('PADDLE_VENDOR_AUTH_CODE'),
+            'api_username' => env('PADDLE_PRODUCT_ID'),
+            'sandbox_url' => env('PADDLE_SANDBOX_URL', 'https://sandbox-checkout.paddle.com/api/1.0/orders?product='),
+            'live_url' => env('PADDLE_LIVE_URL', 'https://checkout.paddle.com/api/1.0/orders?product='),
+            'currency' => env('PADDLE_CURRENCY', 'USD'),
+            'paddle_public_key' => env('PADDLE_PUBLIC_KEY'),
+        ],
     ],
 
     /*
