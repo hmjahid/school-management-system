@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Contracts\SmsService;
 use App\Events\NotificationRead;
 use App\Events\NotificationReadAll;
 use App\Events\NotificationSent;
@@ -485,10 +486,14 @@ class NotificationService
      */
     protected function sendSmsNotification($user)
     {
-        // Implement SMS sending logic here
-        // This is a placeholder implementation
+        if (empty($user->phone)) {
+            throw new \RuntimeException('User does not have a phone number.');
+        }
+
         $smsService = app(SmsService::class);
-        $smsService->send($user->phone, $this->content);
+        $smsService->send($user->phone, $this->content, [
+            'from' => config('sms.from'),
+        ]);
 
         // Log the SMS notification
         $this->logNotification($user, 'sms');

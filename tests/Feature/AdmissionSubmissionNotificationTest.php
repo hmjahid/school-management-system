@@ -5,7 +5,10 @@ namespace Tests\Feature;
 use App\Models\AcademicSession;
 use App\Models\Admission;
 use App\Models\Batch;
+use App\Models\User;
 use App\Notifications\AdmissionSubmittedNotification;
+use App\Notifications\AdmissionSubmittedToAdminNotification;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
@@ -17,6 +20,11 @@ class AdmissionSubmissionNotificationTest extends TestCase
     public function test_public_admission_submission_sends_email_notification(): void
     {
         Notification::fake();
+
+        $this->seed(RolePermissionSeeder::class);
+
+        $admin = User::factory()->create(['email' => 'admin@example.com']);
+        $admin->assignRole('admin');
 
         $session = AcademicSession::create([
             'name' => '2026',
@@ -59,5 +67,6 @@ class AdmissionSubmissionNotificationTest extends TestCase
         $this->assertDatabaseCount('admissions', 1);
 
         Notification::assertSentOnDemand(AdmissionSubmittedNotification::class);
+        Notification::assertSentTo($admin, AdmissionSubmittedToAdminNotification::class);
     }
 }

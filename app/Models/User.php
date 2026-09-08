@@ -148,6 +148,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Device push-notification tokens registered for this user.
+     */
+    public function deviceTokens(): HasMany
+    {
+        return $this->hasMany(DeviceToken::class);
+    }
+
+    /**
      * Spatie throws if the permission name is not defined for the guard; treat as denied.
      */
     public function hasPermissionTo($permission, $guardName = null): bool

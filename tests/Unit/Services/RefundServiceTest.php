@@ -290,4 +290,97 @@ class RefundServiceTest extends TestCase
         $this->assertFalse($result['success']);
         $this->assertStringContainsString('Failed to process refund', $result['message']);
     }
+
+    #[Test]
+    public function it_is_idempotent_for_the_same_idempotency_key()
+    {
+        $this->paymentService->method('processRefund')
+            ->willReturn([
+                'success' => true,
+                'transaction_id' => 'R-'.uniqid(),
+            ]);
+
+        $first = $this->refundService->initiateRefund(
+            $this->payment,
+            500.00,
+            'Refund',
+            $this->admin,
+            [],
+            'idem-123'
+        );
+
+        $this->assertTrue($first['success']);
+
+        // A second request with the same payment + key must not create a second refund.
+        $second = $this->refundService->initiateRefund(
+            $this->payment,
+            500.00,
+            'Refund retry',
+            $this->admin,
+            [],
+            'idem-123'
+        );
+
+        $this->assertTrue($second['success']);
+        $this->assertEquals($first['refund']->id, $second['refund']->id);
+        $this->assertEquals('completed', $second['refund']->status);
+
+        $this->assertCount(1, Refund::where('payment_id', $this->payment->id)->get());
+    }
+
+    #[Test]
+    public function it_processes_a_pending_refund_through_the_gateway()
+    {
+        $this->paymentService->method('processRefund')
+            ->willReturn([
+                'success' => true,
+                'transaction_id' => 'R-GATEWAY-123',
+            ]);
+
+        $refund = Refund::create([
+            'payment_id' => $this->payment->id,
+            'user_id' => $this->user->id,
+            'processed_by' => $this->admin->id,
+            'amount' => 500.00,
+            'currency' => 'BDT',
+            'status' => 'pending',
+            'reason' => 'Test refund',
+        ]);
+
+        $result = $this->refundService->processPendingRefund($refund);
+
+        $this->assertTrue($result['success']);
+        $refund->refresh();
+        $this->assertEquals('completed', $refund->status);
+        $this->assertEquals('R-GATEWAY-123', $refund->transaction_id);
+        $this->assertNotNull($refund->processed_at);
+        $this->assertNotNull($refund->payment->refund_status);
+    }
+
+    #[Test]
+    public function it_marks_a_pending_refund_failed_when_gateway_rejects()
+    {
+        $this->paymentService->method('processRefund')
+            ->willReturn([
+                'success' => false,
+                'message' => 'Gateway declined',
+            ]);
+
+        $refund = Refund::create([
+            'payment_id' => $this->payment->id,
+            'user_id' => $this->user->id,
+            'processed_by' => $this->admin->id,
+            'amount' => 500.00,
+            'currency' => 'BDT',
+            'status' => 'pending',
+            'reason' => 'Test refund',
+        ]);
+
+        $result = $this->refundService->processPendingRefund($refund);
+
+        $this->assertFalse($result['success']);
+        $refund->refresh();
+        $this->assertEquals('failed', $refund->status);
+        $this->assertStringContainsString('Gateway declined', $refund->getMeta('error'));
+    }
 }

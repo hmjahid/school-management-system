@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Career;
+use App\Models\JobApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -97,14 +98,27 @@ class CareerController extends Controller
                 $validated['resume_path'] = $path;
             }
 
-            // In a real app, you would save this to the database
-            // For now, we'll just return a success response
+            $application = JobApplication::create([
+                'career_id' => $validated['career_id'],
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'],
+                'resume_path' => $validated['resume_path'] ?? null,
+                'cover_letter' => $validated['cover_letter'] ?? null,
+                'status' => 'pending',
+            ]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Application submitted successfully!',
-                'data' => $validated,
-            ]);
+                'data' => [
+                    'id' => $application->id,
+                    'career_id' => $application->career_id,
+                    'name' => $application->name,
+                    'email' => $application->email,
+                    'status' => $application->status,
+                ],
+            ], 201);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([

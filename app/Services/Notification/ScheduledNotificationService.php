@@ -3,7 +3,8 @@
 namespace App\Services\Notification;
 
 use App\Models\ScheduledNotification;
-use App\Services\NotificationService;
+use App\Models\User;
+use App\Services\NotificationDeliveryService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -11,7 +12,7 @@ class ScheduledNotificationService
 {
     protected $notificationService;
 
-    public function __construct(NotificationService $notificationService)
+    public function __construct(NotificationDeliveryService $notificationService)
     {
         $this->notificationService = $notificationService;
     }
@@ -79,28 +80,59 @@ class ScheduledNotificationService
     protected function processNotification(ScheduledNotification $notification): void
     {
         try {
-            // Send the notification
-            $result = $this->notificationService->send(
-                $notification->type,
-                $notification->recipients,
-                $notification->data,
-                $notification->channels
-            );
+            $recipients = $this->resolveRecipients($notification->recipients);
+            $results = [];
 
-            if ($result) {
+            foreach ($recipients as $user) {
+                $result = $this->notificationService->send(
+                    $user,
+                    $notification->type,
+                    $notification->data,
+                    $notification->channels
+                );
+                $results[$user->id] = $result;
+            }
+
+            if (! empty($results)) {
                 $notification->markAsSent();
 
                 // If it's a recurring notification, schedule the next one
-                if ($notification->schedule['type'] !== 'once') {
+                if (isset($notification->schedule['type']) && $notification->schedule['type'] !== 'once') {
                     $notification->rescheduleForNextOccurrence();
                 }
             } else {
-                $notification->markAsFailed('Failed to send notification');
+                $notification->markAsFailed('No valid recipients');
             }
         } catch (\Exception $e) {
             $notification->markAsFailed($e->getMessage());
             throw $e;
         }
+    }
+
+    /**
+     * Resolve recipients from the stored recipients payload.
+     */
+    protected function resolveRecipients($recipients)
+    {
+        $recipients = is_array($recipients) ? $recipients : [$recipients];
+
+        $users = collect();
+
+        foreach ($recipients as $key => $value) {
+            if (is_numeric($key) && is_numeric($value)) {
+                $users->push((int) $value);
+            } elseif (is_numeric($value)) {
+                $users->push((int) $value);
+            } elseif (is_string($value)) {
+                $users->push((int) $value);
+            } elseif (isset($value['id'])) {
+                $users->push((int) $value['id']);
+            } elseif (isset($value['user_id'])) {
+                $users->push((int) $value['user_id']);
+            }
+        }
+
+        return User::whereIn('id', $users->unique()->all())->get();
     }
 
     /**

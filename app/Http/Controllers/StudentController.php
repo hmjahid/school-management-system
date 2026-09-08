@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AttendanceResource;
+use App\Http\Resources\ExamResultResource;
+use App\Http\Resources\FeePaymentResource;
 use App\Http\Resources\StudentResource;
+use App\Models\Attendance;
 use App\Models\Batch;
+use App\Models\Exam;
 use App\Models\Guardian;
 use App\Models\SchoolClass;
 use App\Models\Section;
@@ -267,6 +272,113 @@ class StudentController extends Controller
         return response()->json([
             'message' => 'Student deleted successfully',
         ]);
+    }
+
+    /**
+     * Display the authenticated student's (or authorized viewer's) attendance.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function attendance(Request $request, Student $student)
+    {
+        $this->authorize('viewAttendance', $student);
+
+        $query = $student->attendances()
+            ->with(['subject', 'section', 'batch'])
+            ->latest('date');
+
+        if ($request->filled('month') && $request->filled('year')) {
+            $query->whereYear('date', $request->integer('year'))
+                ->whereMonth('date', $request->integer('month'));
+        }
+
+        if ($request->filled('from')) {
+            $query->where('date', '>=', $request->date('from')->startOfDay());
+        }
+
+        if ($request->filled('to')) {
+            $query->where('date', '<=', $request->date('to')->endOfDay());
+        }
+
+        $attendances = $query->paginate($request->integer('per_page', 31));
+        $attendances->getCollection()->transform(fn (Attendance $attendance) => new AttendanceResource($attendance));
+
+        return $this->paginated($attendances, 'Student attendance retrieved successfully');
+    }
+
+    /**
+     * Display the student's published exam results.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function results(Request $request, Student $student)
+    {
+        $this->authorize('viewResults', $student);
+
+        $query = $student->examResults()
+            ->where('is_published', true)
+            ->whereHas('exam', fn ($q) => $q
+                ->where('is_published', true)
+                ->where('status', Exam::STATUS_PUBLISHED))
+            ->with(['exam.batch', 'submittedBy', 'reviewedBy', 'publishedBy'])
+            ->latest('published_at');
+
+        if ($request->filled('exam_id')) {
+            $query->where('exam_id', $request->integer('exam_id'));
+        }
+
+        $results = $query->paginate($request->integer('per_page', 20));
+        $results->getCollection()->transform(fn ($result) => new ExamResultResource($result));
+
+        return $this->paginated($results, 'Student exam results retrieved successfully');
+    }
+
+    /**
+     * Display the student's fee payments and invoices.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function fees(Request $request, Student $student)
+    {
+        $this->authorize('viewFees', $student);
+
+        $query = $student->feePayments()
+            ->with(['fee', 'student.class', 'student.section'])
+            ->latest('payment_date');
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->string('status'));
+        }
+
+        if ($request->filled('month') && $request->filled('year')) {
+            $query->where('month', $request->integer('month'))
+                ->where('year', $request->integer('year'));
+        }
+
+        $payments = $query->paginate($request->integer('per_page', 20));
+        $payments->getCollection()->transform(fn ($payment) => new FeePaymentResource($payment));
+
+        $summary = [
+            'total_paid' => (float) $student->feePayments()->sum('paid_amount'),
+            'total_balance' => (float) $student->feePayments()->sum('balance'),
+        ];
+
+        return $this->paginated($payments, 'Student fees retrieved successfully', $summary);
+    }
+
+    /**
+     * Display the specified student with its editable fields.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function edit(Student $student)
+    {
+        $this->authorize('update', $student);
+
+        return $this->success(
+            new StudentResource($student->load(['user', 'class', 'section', 'batch', 'guardian'])),
+            'Student retrieved successfully'
+        );
     }
 
     /**

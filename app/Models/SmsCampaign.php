@@ -18,6 +18,8 @@ class SmsCampaign extends Model
 
     public const STATUS_DRAFT = 'draft';
 
+    public const STATUS_SCHEDULED = 'scheduled';
+
     public const STATUS_SENDING = 'sending';
 
     public const STATUS_SENT = 'sent';

@@ -54,7 +54,16 @@ class PushNotificationServiceProvider extends ServiceProvider
     {
         switch (strtolower($driver)) {
             case 'firebase':
+                if (! class_exists(\Kreait\Firebase\Factory::class)) {
+                    throw new \RuntimeException(
+                        'The kreait/firebase package is not installed. Run `composer require kreait/firebase` to use the firebase push driver.'
+                    );
+                }
+
                 return new FirebasePushService($config);
+
+            case 'log':
+                return new \App\Services\Push\LogPushService($config);
 
                 // Add more drivers here as needed
 

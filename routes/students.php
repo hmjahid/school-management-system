@@ -11,14 +11,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::apiResource('students', StudentController::class)->names('api.students');
 
-Route::get('students/{student}/attendance', static fn () => response()->json(['data' => []]))
+Route::get('students/{student}/attendance', [StudentController::class, 'attendance'])
     ->name('api.students.attendance.index');
 
-Route::get('students/{student}/results', static fn () => response()->json(['data' => []]))
+Route::get('students/{student}/results', [StudentController::class, 'results'])
     ->name('api.students.results.index');
 
-Route::get('students/{student}/fees', static fn () => response()->json(['data' => []]))
+Route::get('students/{student}/fees', [StudentController::class, 'fees'])
     ->name('api.students.fees.index');
 
-Route::get('students/{student}/edit', static fn () => response()->json(['data' => null]))
+Route::get('students/{student}/edit', [StudentController::class, 'edit'])
     ->name('admin.students.edit');

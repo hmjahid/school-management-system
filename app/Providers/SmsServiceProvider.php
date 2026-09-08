@@ -50,6 +50,12 @@ class SmsServiceProvider extends ServiceProvider
     {
         switch ($driver) {
             case 'twilio':
+                if (! class_exists(\Twilio\Rest\Client::class)) {
+                    throw new \RuntimeException(
+                        'The twilio/sdk package is not installed. Run `composer require twilio/sdk` to use the twilio SMS driver.'
+                    );
+                }
+
                 return new TwilioSmsService($config);
 
             case 'log':

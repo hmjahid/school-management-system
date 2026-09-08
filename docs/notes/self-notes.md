@@ -1,4 +1,4 @@
-read the current codebase carefully and ensure that all features are implemented successfully and functional
+/read the current codebase carefully and ensure that all features are implemented successfully and functional
 
 
 
@@ -657,10 +657,13 @@ why during bnagla, direction chnaging?
 
 bnagla is left to right script. fix it
 
+now implement the FEATURE-IMPROVEMENTS.md . before that cerate a proper implementation plan. continue until finished. record which are finished an dwhich not finished yet.
+
+read FEATURE-IMPROVEMENTS-IMPLEMENTATION.md and FEATURE-IMPROVEMENTS.md file and implement them untill finished. continue until finished
 
 
 
-now implement the FEATURE-IMPROVEMENTS.md . before that cerate a proper implementation plan. continue until finished
+
 
 now write a commit message for the chnages after the last commit
 

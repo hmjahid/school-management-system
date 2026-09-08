@@ -2,16 +2,12 @@
 
 namespace App\Providers;
 
-use App\Contracts\PushNotificationService;
-use App\Contracts\SmsService;
 use App\Models\Attendance;
 use App\Models\Expense;
 use App\Models\FeePayment;
 use App\Models\WebsiteSetting;
 use App\Observers\AttendanceObserver;
 use App\Observers\FinanceObserver;
-use App\Services\LogPushNotificationService;
-use App\Services\LogSmsService;
 use App\Support\SiteFrontend;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -28,8 +24,8 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->bind(SmsService::class, LogSmsService::class);
-        $this->app->bind(PushNotificationService::class, LogPushNotificationService::class);
+        // SMS/push are resolved through config('sms.default') / config('fcm.driver')
+        // in SmsServiceProvider and PushNotificationServiceProvider respectively.
     }
 
     public function boot(): void

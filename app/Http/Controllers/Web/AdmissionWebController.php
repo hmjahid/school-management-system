@@ -7,8 +7,11 @@ use App\Models\AcademicSession;
 use App\Models\Admission;
 use App\Models\AdmissionSetting;
 use App\Models\Batch;
+use App\Models\User;
 use App\Models\WebsiteContent;
 use App\Models\WebsiteSetting;
+use App\Notifications\AdmissionSubmittedNotification;
+use App\Notifications\AdmissionSubmittedToAdminNotification;
 use App\Notifications\AdmissionTransactionSubmittedNotification;
 use App\Services\AdmissionSubmitter;
 use Illuminate\Http\RedirectResponse;
@@ -63,6 +66,18 @@ class AdmissionWebController extends Controller
         $admission->admission_fee = $settings->admission_fee ?? 0;
         $admission->payment_number = $settings->payment_number;
         $admission->save();
+
+        // Notify admins of a new application
+        $admins = User::whereHas('roles', function ($q) {
+            $q->whereIn('name', ['admin', 'manage_admissions']);
+        })->get();
+        Notification::send($admins, new AdmissionSubmittedToAdminNotification($admission));
+
+        // Notify the applicant
+        if ($admission->email) {
+            Notification::route('mail', $admission->email)
+                ->notify(new AdmissionSubmittedNotification($admission));
+        }
 
         return redirect()
             ->route('admissions.status', ['application_number' => $admission->application_number])

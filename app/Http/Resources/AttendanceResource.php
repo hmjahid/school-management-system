@@ -77,9 +77,9 @@ class AttendanceResource extends JsonResource
                 return $this->deleted_at->format('Y-m-d H:i:s');
             }),
             'links' => [
-                'show' => route('api.attendances.show', $this->id),
-                'edit' => route('admin.attendances.edit', $this->id),
-                'delete' => route('api.attendances.destroy', $this->id),
+                'show' => \Illuminate\Support\Facades\Route::has('api.attendances.show') ? route('api.attendances.show', $this->id) : null,
+                'edit' => \Illuminate\Support\Facades\Route::has('admin.attendances.edit') ? route('admin.attendances.edit', $this->id) : null,
+                'delete' => \Illuminate\Support\Facades\Route::has('api.attendances.destroy') ? route('api.attendances.destroy', $this->id) : null,
             ],
         ];
     }

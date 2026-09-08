@@ -17,3 +17,13 @@ Schedule::command('backup:database')
 Schedule::command('queue:monitor-failed')
     ->everyFiveMinutes()
     ->withoutOverlapping();
+
+// Process due recurring payments daily
+Schedule::command('payments:process-recurring')
+    ->dailyAt('01:00')
+    ->withoutOverlapping();
+
+// Process scheduled notifications every 5 minutes (with --force so it runs in all envs)
+Schedule::command('notifications:process-scheduled --force')
+    ->everyFiveMinutes()
+    ->withoutOverlapping();

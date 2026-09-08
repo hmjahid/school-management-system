@@ -22,7 +22,7 @@ Not all findings from the report are safe to implement in a single pass. Each re
 These require **database schema migrations** or are **feature-level expansions** beyond a bug-fix pass. They are tracked for a future sprint:
 
 - **H6: Consolidate `ClassModel` into `SchoolClass`** — `Grade` model reads from `classes` table via `class_id` FK (tested in `TeacherControllerTest`, `GradeTest`). Changing this requires a data migration of `grades.class_id` from `classes.id` → `school_classes.id` plus rewriting the `TeacherController::getClassGrades`, factories, and tests. **Too risky for this pass** — needs its own data-migration ticket.
-- **H7/H8/M4: Refund / Push / Email admin UIs + Invoice UI** — New feature work, not bug fixes.
+- **H7/H8/M4: Refund / Push / Email admin UIs + Invoice UI** — Refund execution is implemented (see `docs/FEATURE-IMPROVEMENTS-IMPLEMENTATION.md` §2.2); admin UI for refund/push/email + Invoice UI remains feature work.
 - **H3/H4: Form Requests + `$request->all()` cleanup** — Large refactor touching 31 call sites; medium risk. Tracked separately.
 - **L1/L2: Token scoping + 2FA** — Feature-level security enhancements.
 

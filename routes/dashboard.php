@@ -15,6 +15,7 @@ use App\Http\Controllers\Web\DashboardBookController;
 use App\Http\Controllers\Web\DashboardBookIssueController;
 use App\Http\Controllers\Web\DashboardBudgetController;
 use App\Http\Controllers\Web\DashboardBulkController;
+use App\Http\Controllers\Web\DashboardCareerController;
 use App\Http\Controllers\Web\DashboardCertificateController;
 use App\Http\Controllers\Web\DashboardCommunicationsController;
 use App\Http\Controllers\Web\DashboardController;
@@ -432,6 +433,11 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/dashboard/contact-submissions', [DashboardModulesController::class, 'contactSubmissions'])->name('dashboard.contact-submissions');
         Route::get('/dashboard/contact-submissions/export', [DashboardModulesController::class, 'contactSubmissionsExport'])->name('dashboard.contact-submissions.export');
+
+        Route::get('/dashboard/careers', [DashboardCareerController::class, 'index'])->name('dashboard.careers.index');
+        Route::get('/dashboard/careers/{application}', [DashboardCareerController::class, 'show'])->name('dashboard.careers.show');
+        Route::patch('/dashboard/careers/{application}/status', [DashboardCareerController::class, 'updateStatus'])->name('dashboard.careers.status');
+        Route::delete('/dashboard/careers/{application}', [DashboardCareerController::class, 'destroy'])->name('dashboard.careers.destroy');
 
         Route::get('/dashboard/documents', [DashboardDocumentController::class, 'index'])->name('dashboard.documents.index');
         Route::get('/dashboard/documents/create', [DashboardDocumentController::class, 'create'])->name('dashboard.documents.create');

@@ -3,7 +3,20 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | Firebase Config
+    | Default Push Driver
+    |--------------------------------------------------------------------------
+    |
+    | This option controls the default push notification driver. The `log`
+    | driver writes to the log channel (safe for local/testing); the
+    | `firebase` driver sends real FCM pushes and requires kreait/firebase.
+    |
+    */
+
+    'driver' => env('PUSH_DRIVER', 'log'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Firebase Credentials
     |--------------------------------------------------------------------------
     |
     | This file contains the configuration for Firebase Cloud Messaging (FCM).

@@ -131,19 +131,14 @@ class StudentPolicy
      */
     public function viewAttendance(User $user, Student $student)
     {
-        // Admin and staff with permission can view any student's attendance
-        if ($user->hasAnyPermission(['view_attendance', 'manage_attendance', 'manage_students'])) {
-            return true;
+        // Students can only view their own attendance
+        if ($user->hasRole('student')) {
+            return $user->id === $student->user_id;
         }
 
-        // Students can view their own attendance
-        if ($user->hasRole('student') && $user->id === $student->user_id) {
-            return true;
-        }
-
-        // Parents can view their children's attendance
-        if ($user->hasRole('parent') && $student->guardian_id === $user->guardian?->id) {
-            return true;
+        // Parents can only view their children's attendance
+        if ($user->hasRole('parent')) {
+            return $student->guardian_id === $user->guardian?->id;
         }
 
         // Teachers can view attendance for students in their classes
@@ -155,7 +150,8 @@ class StudentPolicy
                    })->exists();
         }
 
-        return false;
+        // Admin and staff with permission can view any student's attendance
+        return $user->hasAnyPermission(['view_attendance', 'manage_attendance', 'manage_students']);
     }
 
     /**
@@ -165,19 +161,14 @@ class StudentPolicy
      */
     public function viewResults(User $user, Student $student)
     {
-        // Admin and staff with permission can view any student's results
-        if ($user->hasAnyPermission(['view_results', 'manage_results', 'manage_students'])) {
-            return true;
+        // Students can only view their own results
+        if ($user->hasRole('student')) {
+            return $user->id === $student->user_id;
         }
 
-        // Students can view their own results
-        if ($user->hasRole('student') && $user->id === $student->user_id) {
-            return true;
-        }
-
-        // Parents can view their children's results
-        if ($user->hasRole('parent') && $student->guardian_id === $user->guardian?->id) {
-            return true;
+        // Parents can only view their children's results
+        if ($user->hasRole('parent')) {
+            return $student->guardian_id === $user->guardian?->id;
         }
 
         // Teachers can view results for students in their classes
@@ -189,7 +180,8 @@ class StudentPolicy
                    })->exists();
         }
 
-        return false;
+        // Admin and staff with permission can view any student's results
+        return $user->hasAnyPermission(['view_results', 'manage_results', 'manage_students']);
     }
 
     /**
@@ -199,21 +191,17 @@ class StudentPolicy
      */
     public function viewFees(User $user, Student $student)
     {
-        // Admin and account staff can view any student's fee information
-        if ($user->hasAnyPermission(['view_fees', 'manage_fees', 'manage_students'])) {
-            return true;
+        // Students can only view their own fee information
+        if ($user->hasRole('student')) {
+            return $user->id === $student->user_id;
         }
 
-        // Students can view their own fee information
-        if ($user->hasRole('student') && $user->id === $student->user_id) {
-            return true;
+        // Parents can only view their children's fee information
+        if ($user->hasRole('parent')) {
+            return $student->guardian_id === $user->guardian?->id;
         }
 
-        // Parents can view their children's fee information
-        if ($user->hasRole('parent') && $student->guardian_id === $user->guardian?->id) {
-            return true;
-        }
-
-        return false;
+        // Admin and account staff with permission can view any student's fee information
+        return $user->hasAnyPermission(['view_fees', 'manage_fees', 'manage_students']);
     }
 }

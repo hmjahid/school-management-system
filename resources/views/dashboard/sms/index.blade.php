@@ -32,6 +32,7 @@
                     @php
 $cls = match($c->status) {
     'sent' => 'success',
+    'scheduled' => 'info',
     'sending' => 'brand',
     'failed' => 'danger',
     default => 'default',

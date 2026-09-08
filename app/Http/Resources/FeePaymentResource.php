@@ -20,7 +20,7 @@ class FeePaymentResource extends JsonResource
             'student_id' => $this->student_id,
             'student_name' => $this->whenLoaded('student', fn () => $this->student->name),
             'student_admission_number' => $this->whenLoaded('student', fn () => $this->student->admission_number ?? null),
-            'class_name' => $this->whenLoaded('student.schoolClass', fn () => $this->student->schoolClass->name ?? null),
+            'class_name' => $this->whenLoaded('student.class', fn () => $this->student->class->name ?? null),
             'section_name' => $this->whenLoaded('student.section', fn () => $this->student->section->name ?? null),
             'fee_id' => $this->fee_id,
             'fee_name' => $this->whenLoaded('fee', fn () => $this->fee->name ?? null),
@@ -64,7 +64,9 @@ class FeePaymentResource extends JsonResource
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
             'deleted_at' => $this->whenNotNull($this->deleted_at?->format('Y-m-d H:i:s')),
-            'receipt_url' => route('api.fee-payments.receipt', $this->id),
+            'receipt_url' => \Illuminate\Support\Facades\Route::has('api.fee-payments.receipt')
+                ? route('api.fee-payments.receipt', $this->id)
+                : null,
         ];
     }
 }

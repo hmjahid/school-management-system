@@ -1,17 +1,23 @@
 # Plan: Build Incomplete README Features (Results + Reports + Events + Bulk)
 
-## Scope (locked with user)
+> **Status: ARCHIVED / SUPERSEDED (2026-09-08).** This plan was written when library,
+> transport, hostel, SMS, and timetable were not yet implemented. **All of these have
+> since been implemented** in the codebase. Refer to `docs/FEATURE-IMPROVEMENTS.md` for the
+> current review and `docs/FEATURE-IMPROVEMENTS-IMPLEMENTATION.md` for the implementation
+> tracker. This document is retained for historical reference only.
+
+## Original scope (locked with user)
 
 Per user choice: **Results Processing, Financial Reports, Events & Calendar, Bulk Import/Export**. New models/migrations allowed where needed.
 
-README features explicitly **out of scope** (not building now):
-- Timetable & Scheduling
-- Dark/Light Mode
-- Library Management
-- Transport Management
-- Hostel Management
-- SMS & Email Notifications
-- Online payment gateway flow (already a stub)
+> **Note:** The "out of scope" list below is now stale — every item listed has been implemented:
+- Timetable & Scheduling — **implemented** (`DashboardRoutineController`, `routes/dashboard.php`)
+- Dark/Light Mode — **implemented** (dashboard layout theme toggle)
+- Library Management — **implemented** (`DashboardBookController`, `DashboardBookIssueController`)
+- Transport Management — **implemented** (`DashboardTransportController`)
+- Hostel Management — **implemented** (`DashboardHostelController`)
+- SMS & Email Notifications — **implemented** (`DashboardSmsController`, `NotificationService`)
+- Online payment gateway flow — **implemented** (`PaymentService`, gateway adapters)
 
 ## Backend already in place (audit findings)
 

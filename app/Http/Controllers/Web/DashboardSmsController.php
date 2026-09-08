@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\SendBulkSmsJob;
+use App\Models\FeePayment;
 use App\Models\SchoolClass;
 use App\Models\Section;
 use App\Models\SmsCampaign;
@@ -133,8 +134,20 @@ class DashboardSmsController extends Controller
             ]);
         }
 
-        // Dispatch immediately (ignore scheduled_at for v1 simplicity)
-        SendBulkSmsJob::dispatch($campaign->id);
+        $scheduledAt = $campaign->scheduled_at ? $campaign->scheduled_at->toDateTime() : null;
+
+        if ($scheduledAt && $scheduledAt > now()) {
+            SendBulkSmsJob::dispatch($campaign->id)->delay($scheduledAt);
+            $campaign->update(['status' => SmsCampaign::STATUS_SCHEDULED]);
+            $flash = __('Campaign scheduled for :count recipients at :time.', [
+                'count' => $recipients->count(),
+                'time' => $campaign->scheduled_at->format('Y-m-d H:i'),
+            ]);
+        } else {
+            // Dispatch immediately (scheduled_at is in the past, if provided)
+            SendBulkSmsJob::dispatch($campaign->id);
+            $flash = __('Campaign queued for :count recipients.', ['count' => $recipients->count()]);
+        }
 
         activity('sms')
             ->causedBy($request->user())
@@ -142,7 +155,7 @@ class DashboardSmsController extends Controller
             ->withProperties(['recipients_count' => $recipients->count(), 'audience' => $data['audience_type']])
             ->log('Sent SMS campaign');
 
-        return redirect()->route('dashboard.sms.index')->with('status', __('Campaign queued for :count recipients.', ['count' => $recipients->count()]));
+        return redirect()->route('dashboard.sms.index')->with('status', $flash);
     }
 
     public function templates(Request $request): View

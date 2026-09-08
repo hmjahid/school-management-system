@@ -33,8 +33,26 @@ class RefundService
         float $amount,
         string $reason,
         User $processedBy,
-        array $metadata = []
+        array $metadata = [],
+        ?string $idempotencyKey = null
     ): array {
+        // Idempotency: if the caller supplied a key and a refund already exists
+        // for this payment+key, return that refund instead of double-charging.
+        if ($idempotencyKey !== null) {
+            $existing = $payment->refunds()
+                ->whereIn('status', ['pending', 'processing', 'completed'])
+                ->where('metadata->idempotency_key', $idempotencyKey)
+                ->first();
+
+            if ($existing) {
+                return [
+                    'success' => true,
+                    'message' => 'Refund request already processed',
+                    'refund' => $existing,
+                ];
+            }
+        }
+
         // Validate refund amount
         if ($amount <= 0) {
             return [
@@ -75,6 +93,7 @@ class RefundService
             'reason' => $reason,
             'status' => 'pending',
             'metadata' => array_merge($metadata, [
+                'idempotency_key' => $idempotencyKey,
                 'original_payment' => [
                     'amount' => $payment->amount,
                     'currency' => $payment->currency,
@@ -123,6 +142,84 @@ class RefundService
             'message' => 'Refund processed successfully',
             'refund' => $refund,
         ];
+    }
+
+    /**
+     * Process an already-created pending refund against the payment gateway.
+     *
+     * Used by the queued processor (ProcessRefundJob) and any explicit
+     * "process now" flow. Accepts an optional transaction id captured at
+     * refund time; otherwise the gateway-generated id is used.
+     *
+     * @return array{success: bool, message: string, refund: \App\Models\Refund}
+     */
+    public function processPendingRefund(Refund $refund, ?string $transactionId = null): array
+    {
+        if (! $refund->isPending()) {
+            return [
+                'success' => false,
+                'message' => 'Only pending refunds can be processed',
+                'refund' => $refund,
+            ];
+        }
+
+        $refund->update(['status' => 'processing']);
+
+        try {
+            $payment = $refund->payment;
+
+            if (! $payment) {
+                $refund->markAsFailed('The refund\'s payment no longer exists.');
+
+                return [
+                    'success' => false,
+                    'message' => 'The refund\'s payment no longer exists.',
+                    'refund' => $refund,
+                ];
+            }
+
+            $gatewayResponse = $this->processGatewayRefund(
+                $payment,
+                (float) $refund->amount,
+                $refund->reason
+            );
+
+            if (! $gatewayResponse['success']) {
+                $refund->markAsFailed($gatewayResponse['message'] ?? 'Gateway refund failed');
+
+                return [
+                    'success' => false,
+                    'message' => $gatewayResponse['message'] ?? 'Gateway refund failed',
+                    'refund' => $refund,
+                ];
+            }
+
+            $refund->update([
+                'status' => 'completed',
+                'transaction_id' => $transactionId
+                    ?: ($gatewayResponse['transaction_id'] ?? null),
+                'processed_at' => now(),
+                'metadata' => array_merge($refund->metadata ?? [], [
+                    'gateway_response' => $gatewayResponse,
+                ]),
+            ]);
+
+            $this->updatePaymentRefundStatus($payment, (float) $refund->amount);
+
+            return [
+                'success' => true,
+                'message' => 'Refund processed successfully',
+                'refund' => $refund,
+            ];
+        } catch (\Exception $e) {
+            $refund->markAsFailed($e->getMessage());
+
+            return [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'refund' => $refund,
+            ];
+        }
     }
 
     /**

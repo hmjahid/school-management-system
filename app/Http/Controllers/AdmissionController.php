@@ -8,8 +8,13 @@ use App\Models\AcademicSession;
 use App\Models\Admission;
 use App\Models\AdmissionDocument;
 use App\Models\Batch;
+use App\Models\User;
+use App\Notifications\AdmissionStatusChangedNotification;
+use App\Notifications\AdmissionSubmittedNotification;
+use App\Notifications\AdmissionSubmittedToAdminNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -171,7 +176,15 @@ class AdmissionController extends Controller
         $this->authorize('submit', $admission);
 
         if ($admission->submit()) {
-            // TODO: Send notification to admin
+            $admins = User::whereHas('roles', function ($q) {
+                $q->whereIn('name', ['admin', 'manage_admissions']);
+            })->get();
+            Notification::send($admins, new AdmissionSubmittedToAdminNotification($admission));
+
+            if ($admission->email) {
+                Notification::route('mail', $admission->email)
+                    ->notify(new AdmissionSubmittedNotification($admission));
+            }
 
             return response()->json([
                 'message' => 'Admission submitted successfully',
@@ -197,8 +210,18 @@ class AdmissionController extends Controller
             'notes' => 'nullable|string|max:1000',
         ]);
 
+        $oldStatus = $admission->status;
+
         if ($admission->approve($validated['notes'] ?? null)) {
-            // TODO: Send notification to applicant
+            if ($admission->email) {
+                Notification::route('mail', $admission->email)
+                    ->notify(new AdmissionStatusChangedNotification(
+                        $admission,
+                        $oldStatus,
+                        $admission->status,
+                        $validated['notes'] ?? null,
+                    ));
+            }
 
             return response()->json([
                 'message' => 'Admission approved successfully',
@@ -224,8 +247,18 @@ class AdmissionController extends Controller
             'reason' => 'required|string|max:1000',
         ]);
 
+        $oldStatus = $admission->status;
+
         if ($admission->reject($validated['reason'])) {
-            // TODO: Send notification to applicant
+            if ($admission->email) {
+                Notification::route('mail', $admission->email)
+                    ->notify(new AdmissionStatusChangedNotification(
+                        $admission,
+                        $oldStatus,
+                        $admission->status,
+                        $validated['reason'],
+                    ));
+            }
 
             return response()->json([
                 'message' => 'Admission rejected',
@@ -267,10 +300,19 @@ class AdmissionController extends Controller
             'remarks' => 'nullable|string|max:1000',
         ]);
 
+        $oldStatus = $admission->status;
         $student = $admission->enroll($validated);
 
         if ($student) {
-            // TODO: Send enrollment confirmation to student/parent
+            if ($admission->email) {
+                Notification::route('mail', $admission->email)
+                    ->notify(new AdmissionStatusChangedNotification(
+                        $admission,
+                        $oldStatus,
+                        $admission->status,
+                        __('Congratulations! You have been enrolled successfully.'),
+                    ));
+            }
 
             return response()->json([
                 'message' => 'Student enrolled successfully',

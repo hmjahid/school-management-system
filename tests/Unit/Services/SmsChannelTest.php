@@ -53,6 +53,8 @@ class SmsChannelTest extends TestCase
         $channel->send($notifiable, $notification);
 
         Log::shouldHaveReceived('info')->once();
+
+        $this->addToAssertionCount(1);
     }
 
     #[Test]

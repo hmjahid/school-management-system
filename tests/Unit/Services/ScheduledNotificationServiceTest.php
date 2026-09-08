@@ -3,8 +3,9 @@
 namespace Tests\Unit\Services;
 
 use App\Models\ScheduledNotification;
+use App\Models\User;
 use App\Services\Notification\ScheduledNotificationService;
-use App\Services\NotificationService;
+use App\Services\NotificationDeliveryService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
 use PHPUnit\Framework\Attributes\Test;
@@ -22,8 +23,8 @@ class ScheduledNotificationServiceTest extends TestCase
 
     protected function makeServiceWithSendReturn($value): ScheduledNotificationService
     {
-        $notificationService = Mockery::mock(NotificationService::class);
-        $notificationService->shouldReceive('send')->andReturn($value);
+        $notificationService = Mockery::mock(NotificationDeliveryService::class);
+        $notificationService->shouldReceive('send')->andReturn(['status' => 'sent']);
 
         return new ScheduledNotificationService($notificationService);
     }
@@ -87,6 +88,8 @@ class ScheduledNotificationServiceTest extends TestCase
     #[Test]
     public function it_processes_due_notifications_and_marks_them_sent(): void
     {
+        User::factory()->create(['id' => 1]);
+
         ScheduledNotification::create([
             'name' => 'Due',
             'type' => 'info',
@@ -98,8 +101,8 @@ class ScheduledNotificationServiceTest extends TestCase
             'status' => 'pending',
         ]);
 
-        $service = new ScheduledNotificationService(Mockery::mock(NotificationService::class)
-            ->shouldReceive('send')->andReturn(true)->getMock());
+        $service = new ScheduledNotificationService(Mockery::mock(NotificationDeliveryService::class)
+            ->shouldReceive('send')->andReturn(['status' => 'sent'])->getMock());
 
         $processed = $service->processDueNotifications();
 
@@ -110,6 +113,8 @@ class ScheduledNotificationServiceTest extends TestCase
     #[Test]
     public function it_marks_due_notifications_failed_when_send_throws(): void
     {
+        User::factory()->create(['id' => 1]);
+
         ScheduledNotification::create([
             'name' => 'Due',
             'type' => 'info',
@@ -121,7 +126,7 @@ class ScheduledNotificationServiceTest extends TestCase
             'status' => 'pending',
         ]);
 
-        $service = new ScheduledNotificationService(Mockery::mock(NotificationService::class)
+        $service = new ScheduledNotificationService(Mockery::mock(NotificationDeliveryService::class)
             ->shouldReceive('send')->andThrow(new \Exception('boom'))->getMock());
 
         $processed = $service->processDueNotifications();
@@ -133,6 +138,8 @@ class ScheduledNotificationServiceTest extends TestCase
     #[Test]
     public function it_reschedules_recurring_notifications_after_sending(): void
     {
+        User::factory()->create(['id' => 1]);
+
         ScheduledNotification::create([
             'name' => 'Daily',
             'type' => 'info',
@@ -144,8 +151,8 @@ class ScheduledNotificationServiceTest extends TestCase
             'status' => 'pending',
         ]);
 
-        $service = new ScheduledNotificationService(Mockery::mock(NotificationService::class)
-            ->shouldReceive('send')->andReturn(true)->getMock());
+        $service = new ScheduledNotificationService(Mockery::mock(NotificationDeliveryService::class)
+            ->shouldReceive('send')->andReturn(['status' => 'sent'])->getMock());
 
         $service->processDueNotifications();
 

@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Refund;
+use App\Services\RefundService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -22,7 +23,7 @@ class ProcessRefundJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(RefundService $refundService): void
     {
         if (! $this->refund->isPending()) {
             Log::info('Refund no longer pending, skipping processing', ['refund_id' => $this->refund->id]);
@@ -30,16 +31,21 @@ class ProcessRefundJob implements ShouldQueue
             return;
         }
 
-        $this->refund->update(['status' => 'processing']);
-
         try {
-            // In a real application this would call the payment gateway.
-            $transactionId = $this->transactionId ?? ('R-'.strtoupper(uniqid()));
+            $result = $refundService->processPendingRefund($this->refund, $this->transactionId);
 
-            $this->refund->update([
-                'status' => 'completed',
-                'transaction_id' => $transactionId,
-                'processed_at' => now(),
+            if (! $result['success']) {
+                Log::warning('Refund processing failed', [
+                    'refund_id' => $this->refund->id,
+                    'error' => $result['message'],
+                ]);
+
+                return;
+            }
+
+            Log::info('Refund processed', [
+                'refund_id' => $this->refund->id,
+                'transaction_id' => $this->refund->transaction_id,
             ]);
         } catch (\Throwable $e) {
             Log::error('Refund processing failed', [
@@ -48,6 +54,7 @@ class ProcessRefundJob implements ShouldQueue
             ]);
 
             $this->refund->markAsFailed($e->getMessage());
+
             throw $e;
         }
     }
