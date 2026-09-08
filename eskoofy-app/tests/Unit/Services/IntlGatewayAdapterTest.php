@@ -75,13 +75,14 @@ class IntlGatewayAdapterTest extends TestCase
     }
 
     #[Test]
-    public function stripe_initializes_a_payment_intent(): void
+    public function stripe_initializes_a_hosted_checkout_session(): void
     {
         Http::fake([
-            '*/payment_intents' => Http::response([
-                'id' => 'pi_mock123',
-                'client_secret' => 'pi_mock123_secret_abc',
-                'status' => 'requires_confirmation',
+            '*/checkout/sessions' => Http::response([
+                'id' => 'cs_mock123',
+                'url' => 'https://checkout.stripe.test/c/pay/cs_mock123',
+                'payment_intent' => 'pi_mock123',
+                'status' => 'open',
             ], 200),
             '*' => Http::response(['error' => ['message' => 'unexpected']], 400),
         ]);
@@ -92,27 +93,35 @@ class IntlGatewayAdapterTest extends TestCase
         $result = $adapter->initialize($payment, $this->makeGateway('stripe'));
 
         $this->assertTrue($result['success']);
-        $this->assertSame('pi_mock123_secret_abc', $result['payment_details']['client_secret']);
-        $this->assertSame('pi_mock123', $payment->fresh()->payment_details['stripe_payment_intent']);
+        $this->assertStringContainsString('checkout.stripe.test', $result['redirect_url']);
+        $this->assertSame('cs_mock123', $result['payment_details']['checkout_session']);
+        $this->assertSame('cs_mock123', $payment->fresh()->payment_details['stripe_checkout_session']);
     }
 
     #[Test]
-    public function stripe_completes_payment_from_webhook_callback(): void
+    public function stripe_completes_payment_from_checkout_session_webhook(): void
     {
         Event::fake();
         $adapter = new StripeGatewayAdapter;
         $gateway = $this->makeGateway('stripe');
         $payment = $this->payment('stripe', [
-            'payment_details' => ['stripe_payment_intent' => 'pi_mock123'],
+            'payment_details' => ['stripe_checkout_session' => 'cs_mock123'],
         ]);
 
         $result = $adapter->processCallback([
-            'type' => 'payment_intent.succeeded',
-            'data' => ['object' => ['id' => 'pi_mock123', 'status' => 'succeeded']],
+            'type' => 'checkout.session.completed',
+            'data' => ['object' => [
+                'id' => 'cs_mock123',
+                'payment_intent' => 'pi_mock123',
+                'payment_status' => 'paid',
+                'metadata' => ['payment_id' => $payment->id, 'invoice_number' => $payment->invoice_number],
+            ]],
         ], $gateway);
 
         $this->assertSame(Payment::STATUS_COMPLETED, $result->fresh()->payment_status);
         $this->assertSame(0, (int) $result->fresh()->due_amount);
+        $this->assertSame('pi_mock123', $result->fresh()->payment_details['transaction_id']);
+        $this->assertSame('pi_mock123', $result->fresh()->payment_details['stripe_payment_intent']);
     }
 
     #[Test]

@@ -48,7 +48,7 @@ Verification baseline (2026-09-08): `cd eskoofy-app && composer test` → **912 
 | 3.3 | PayPal adapter | ✅ done | `PaypalGatewayAdapter`: OAuth token, Checkout order + approval URL, capture on verify, capture-completed webhook, API refund. |
 | 3.4 | Paddle adapter | ✅ done | `PaddleGatewayAdapter`: Classic checkout URL, `payment_succeeded`/`refund_issued` alerts, PHP-signature webhook, refund explicitly dashboard-offline. |
 | 3.5 | Wire adapters into registry/config | ✅ done | Registered in `GatewayAdapterFactory`; `config/payment.php` + `.env.example` entries; `PaymentGateway::is_configured` supports `paddle`; `PaymentService::supportsRefunds` includes stripe/paypal. |
-| 3.6 | Web payment page + INT currency copy | 🟡 partial | Checkout still routes through existing payment flow (adapters provide redirect URL / client_secret). No dedicated INT-only checkout view yet — INT uses same flow as BD. |
+| 3.6 | Web payment page + INT currency copy | ✅ done | Decision: reuse existing checkout flow. Stripe switched to hosted Checkout (returns `redirect_url`); PayPal approval URL + Paddle checkout URL already fit. No bespoke INT view needed. |
 | 3.7 | Tests | ✅ done | `IntlGatewayAdapterTest`: 19 tests / 31 assertions — interface, init, webhook-complete, refund, signature valid/invalid/missing per gateway. Factory + full suite green. |
 
 ## Phase 4 — INT content & branding export
@@ -93,15 +93,15 @@ Verification baseline (2026-09-08): `cd eskoofy-app && composer test` → **912 
 
 ## Summary
 
-- ✅ Complete: Phase 0 (except gate), Phase 1, Phase 2, Phase 3 (except INT checkout view), Phase 4, Phase 5 (except CI + docs relink), Phase 7 build-box.
-- 🟡 Partial: 3.6 (INT checkout view), 5.2 (CI), 5.3 (docs/tags), 7.1/7.2/7.4 (theme design + tests).
+- ✅ Complete: Phase 0 (except gate), Phase 1, Phase 2, Phase 3 (admin extra_attributes + hosted Stripe Checkout now done), Phase 4, Phase 5 (except CI + docs relink), Phase 7 build-box.
+- 🟡 Partial: 5.2 (CI), 5.3 (docs/tags), 7.1/7.2/7.4 (theme design + tests).
 - ⛔ Blocked: Phase 6 (raw PHP) — waiting on the host/market gate.
 - ⬜ Not started: Phase 8 (website), Phase 6.2+.
 
 ## Next actions (shortest path to full completion)
 
 1. PM: name the raw-PHP target host or permanently defer Phase 6.
-2. Decide whether INT needs a bespoke checkout template or reuses the BD one (kills 3.6).
-3. Stand up CI (GitHub Actions): tag → export both variants → boot-smoke each artifact (kills 5.2).
+2. Stand up CI (GitHub Actions): tag → export both variants → boot-smoke each artifact (kills 5.2).
+3. Sandbox E2E for INT gateways (Stripe/PayPal/Paddle with real test creds); move PayPal webhook verification to the verify-webhook-signature API for production.
 4. Update `eskoofy-app/docs/RUNBOOKS.md` + `PRODUCTION-CHECKLIST.md` paths and tagging convention (kills 5.3).
 5. Design the WP theme templates + generate `.po` files (7.1/7.2) when design work starts.

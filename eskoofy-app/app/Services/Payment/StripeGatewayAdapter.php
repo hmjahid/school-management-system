@@ -14,37 +14,42 @@ class StripeGatewayAdapter implements GatewayAdapterInterface
     use VerifiesWebhookSignature;
 
     /**
-     * Initialize a Stripe PaymentIntent.
+     * Initialize a hosted Stripe Checkout session.
      *
      * @param  array<string, mixed>  $options
      * @return array<string, mixed>
      */
     public function initialize(Payment $payment, PaymentGateway $gateway, array $options = []): array
     {
-        $base = $gateway->test_mode ? $gateway->sandbox_url ?: 'https://api.stripe.com/v1' : 'https://api.stripe.com/v1';
+        $base = $gateway->sandbox_url ?: 'https://api.stripe.com/v1';
+
+        $callbackUrl = $options['callback_url'] ?? $gateway->callback_url;
 
         $response = Http::withBasicAuth($gateway->api_key, '')
             ->asForm()
-            ->post("{$base}/payment_intents", [
-                'amount' => (int) round($payment->total_amount * 100),
-                'currency' => $gateway->currency ?: 'usd',
-                'metadata' => [
-                    'payment_id' => $payment->id,
-                    'invoice_number' => $payment->invoice_number,
-                ],
+            ->post("{$base}/checkout/sessions", [
+                'mode' => 'payment',
+                'line_items[0][quantity]' => 1,
+                'line_items[0][price_data][currency]' => $gateway->currency ?: 'usd',
+                'line_items[0][price_data][unit_amount]' => (int) round($payment->total_amount * 100),
+                'line_items[0][price_data][product_data][name]' => Str::limit($payment->description ?: 'Eskoofy payment', 200),
+                'success_url' => ($callbackUrl ?: url('/payment/status')).'?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url' => $callbackUrl ?: url('/payment/status'),
+                'metadata[payment_id]' => $payment->id,
+                'metadata[invoice_number]' => $payment->invoice_number,
             ]);
 
         if (! $response->successful()) {
-            throw new \Exception('Failed to create Stripe PaymentIntent: '.$response->body());
+            throw new \Exception('Failed to create Stripe Checkout session: '.$response->body());
         }
 
-        $intent = $response->json();
-        $intentId = $intent['id'] ?? null;
+        $session = $response->json();
+        $sessionId = $session['id'] ?? null;
 
         $payment->update([
             'payment_details' => array_merge($payment->payment_details ?? [], [
-                'stripe_payment_intent' => $intentId,
-                'stripe_client_secret' => $intent['client_secret'] ?? null,
+                'stripe_checkout_session' => $sessionId,
+                'stripe_payment_intent' => $session['payment_intent'] ?? $payment->payment_details['stripe_payment_intent'] ?? null,
             ]),
         ]);
 
@@ -55,11 +60,10 @@ class StripeGatewayAdapter implements GatewayAdapterInterface
             'invoice_number' => $payment->invoice_number,
             'amount' => $payment->total_amount,
             'currency' => $payment->currency ?? $gateway->currency,
-            'redirect_url' => null,
+            'redirect_url' => $session['url'] ?? null,
             'payment_details' => [
-                'client_secret' => $intent['client_secret'] ?? null,
-                'publishable_key' => $options['publishable_key'] ?? $gateway->api_username,
-                'payment_intent' => $intentId,
+                'checkout_session' => $sessionId,
+                'checkout_url' => $session['url'] ?? null,
             ],
         ];
     }
@@ -71,25 +75,47 @@ class StripeGatewayAdapter implements GatewayAdapterInterface
      */
     public function processCallback(array $data, PaymentGateway $gateway): Payment
     {
-        $intentId = $data['data']['object']['id'] ?? $data['payment_intent'] ?? null;
+        $object = $data['data']['object'] ?? [];
+        $type = $data['type'] ?? '';
 
-        if (! $intentId) {
-            throw new \Exception('Stripe callback missing payment_intent');
-        }
+        $paymentId = $object['metadata']['payment_id'] ?? null;
 
-        $payment = Payment::where('payment_details->stripe_payment_intent', $intentId)
-            ->latest()
-            ->first();
+        $payment = $paymentId ? Payment::find($paymentId) : null;
 
         if (! $payment) {
-            throw new \Exception("Payment not found for Stripe intent: {$intentId}");
+            $sessionId = $object['id'] ?? null;
+            $intentId = $object['payment_intent'] ?? $object['id'] ?? null;
+
+            $payment = $sessionId
+                ? Payment::where('payment_details->stripe_checkout_session', $sessionId)->latest()->first()
+                : Payment::where('payment_details->stripe_payment_intent', $intentId)->latest()->first();
         }
 
-        $status = $data['data']['object']['status'] ?? $data['type'] ?? '';
+        if (! $payment) {
+            throw new \Exception('Stripe callback missing payment reference');
+        }
 
-        if ($status === 'succeeded' || (str_contains((string) $status, '.succeeded'))) {
+        $completedTypes = [
+            'checkout.session.completed',
+            'payment_intent.succeeded',
+            'checkout.session.async_payment_succeeded',
+        ];
+
+        $paid = in_array($type, $completedTypes, true)
+            || ($object['payment_status'] ?? null) === 'paid'
+            || ($object['status'] ?? null) === 'succeeded';
+
+        if ($paid) {
+            if (! empty($object['payment_intent'])) {
+                $payment->update([
+                    'payment_details' => array_merge($payment->payment_details ?? [], [
+                        'stripe_payment_intent' => $object['payment_intent'],
+                    ]),
+                ]);
+            }
+
             return $this->complete($payment, $gateway, [
-                'transaction_id' => $intentId,
+                'transaction_id' => $object['payment_intent'] ?? $object['id'],
                 'gateway_response' => $data,
             ]);
         }
@@ -97,7 +123,7 @@ class StripeGatewayAdapter implements GatewayAdapterInterface
         $payment->update([
             'payment_status' => Payment::STATUS_FAILED,
             'payment_details' => array_merge($payment->payment_details ?? [], [
-                'failure_reason' => $data['data']['object']['cancellation_reason'] ?? null,
+                'failure_reason' => $object['cancellation_reason'] ?? $object['status'] ?? 'payment failed',
             ]),
         ]);
 
@@ -105,17 +131,42 @@ class StripeGatewayAdapter implements GatewayAdapterInterface
     }
 
     /**
-     * Verify a Stripe PaymentIntent status.
+     * Verify a Stripe Checkout session / PaymentIntent status.
      */
     public function verifyPayment(Payment $payment, PaymentGateway $gateway): Payment
     {
+        $sessionId = $payment->payment_details['stripe_checkout_session'] ?? null;
         $intentId = $payment->payment_details['stripe_payment_intent'] ?? null;
+
+        $base = $gateway->sandbox_url ?: 'https://api.stripe.com/v1';
+
+        if ($sessionId) {
+            $response = Http::withBasicAuth($gateway->api_key, '')
+                ->get("{$base}/checkout/sessions/{$sessionId}");
+
+            if (! $response->successful() || $response->json('payment_status') !== 'paid') {
+                return $payment;
+            }
+
+            $session = $response->json();
+
+            if (! empty($session['payment_intent']) && empty($intentId)) {
+                $payment->update([
+                    'payment_details' => array_merge($payment->payment_details ?? [], [
+                        'stripe_payment_intent' => $session['payment_intent'],
+                    ]),
+                ]);
+            }
+
+            return $this->complete($payment, $gateway, [
+                'transaction_id' => $session['payment_intent'] ?? $session['id'],
+                'gateway_response' => $session,
+            ]);
+        }
 
         if (! $intentId) {
             return $payment;
         }
-
-        $base = $gateway->test_mode ? $gateway->sandbox_url ?: 'https://api.stripe.com/v1' : 'https://api.stripe.com/v1';
 
         $response = Http::withBasicAuth($gateway->api_key, '')
             ->get("{$base}/payment_intents/{$intentId}");
