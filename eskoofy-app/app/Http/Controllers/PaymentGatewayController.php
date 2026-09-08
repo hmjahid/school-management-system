@@ -44,6 +44,7 @@ class PaymentGatewayController extends Controller
             'max_amount' => ['sometimes', 'numeric', 'min:0'],
             'description' => ['nullable', 'string'],
             'instructions' => ['nullable', 'string'],
+            'extra_attributes' => ['sometimes', 'array'],
             'sort_order' => ['sometimes', 'integer'],
         ]);
 
@@ -82,6 +83,7 @@ class PaymentGatewayController extends Controller
             'max_amount' => ['sometimes', 'numeric', 'min:0'],
             'description' => ['nullable', 'string'],
             'instructions' => ['nullable', 'string'],
+            'extra_attributes' => ['sometimes', 'array'],
             'sort_order' => ['sometimes', 'integer'],
         ]);
 
