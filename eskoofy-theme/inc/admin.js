@@ -45,7 +45,7 @@
     if (!classId) return;
     $.get(eskAdmin.ajaxUrl, {
       action: 'esk_get_students_by_class',
-      nonce: eskAdmin.nce,
+      nonce: eskAdmin.nonce,
       class_id: classId
     }, function (res) {
       if (res.success) {

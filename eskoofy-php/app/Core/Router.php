@@ -7,14 +7,18 @@ class Router
 {
     private array $routes = [];
     private array $middleware = [];
+    private array $groupMiddleware = [];
     private string $prefix = '';
 
     public function group(string $prefix, callable $callback, array $middleware = []): void
     {
         $oldPrefix = $this->prefix;
+        $oldGroupMiddleware = $this->groupMiddleware;
         $this->prefix = $oldPrefix . $prefix;
+        $this->groupMiddleware = array_merge($oldGroupMiddleware, $middleware);
         $callback($this);
         $this->prefix = $oldPrefix;
+        $this->groupMiddleware = $oldGroupMiddleware;
     }
 
     public function get(string $path, string $controller, string $method, array $middleware = []): void
@@ -45,7 +49,7 @@ class Router
             'path'       => $fullPath,
             'controller' => $controller,
             'action'     => $method,
-            'middleware'  => $middleware,
+            'middleware'  => array_merge($this->groupMiddleware, $middleware),
         ];
     }
 

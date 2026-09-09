@@ -73,9 +73,9 @@ Verification baseline (2026-09-09): `cd eskoofy-app && composer test` → **912 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
 | 6.1 | Gate: named host unable to run Composer/Laravel | ✅ done | Shared hosting target — Laravel needs VPS which is costly. Raw PHP needed. |
-| 6.2 | Architecture: router, DI-lite, auth, schema, gateway drivers | ✅ done | Full MVC stack: Router, Database (PDO), QueryBuilder, Model, Controller, View, Session, Auth, Validator, Request, 5 Middleware classes, Helpers. Entry point + .htaccess + bootstrap. |
-| 6.3 | Parity checklist vs Laravel BD | ✅ done | 93-table MySQL schema, 78 models, 46 controllers, 97 views, 9 gateway adapters, 6 language files (en+bn), 3 config files. |
-| 6.4 | Full module port + vertical slice | ✅ done | Complete port of ALL Laravel modules: students, teachers, classes, sections, subjects, batches, guardians, attendance, exams, results, fees, fee_payments, payments, payment_gateways, admissions, routines, assignments, notices, news, events, announcements, galleries, expenses, transport, hostel, library, SMS, reports, certificates, admit_cards, id_cards, users, roles, settings, profile, academic_sessions, payroll, testimonials, committee, backup. |
+| 6.2 | Architecture: router, DI-lite, auth, schema, gateway drivers | ✅ done | Full MVC stack with fix: routes now loaded in index.php, View resolves hyphens→underscores + plural/singular fallback, Router applies group middleware, CSRF verified on all state-changing requests, BackupController uses MySQL information_schema instead of SQLite PRAGMA. |
+| 6.3 | Parity checklist vs Laravel BD | ✅ done | 93-table schema, 78 models, 66 controllers (11 API), 128 views, 9 gateway adapters, 6 language files (en+bn), 3 config files. Full module parity: academics, finance, admissions, CMS, transport, hostel, library, SMS, payroll, reports, certificates, backups, API surface. |
+| 6.4 | Full module port + vertical slice | ✅ done | All modules ported: students (CRUD+sub-pages), teachers, classes, sections, subjects, batches, guardians, attendance (mark+list), exams (CRUD+publish+results), fees, fee_payments+receipts, payments+gateway wiring+refund, admissions (CRUD+workflow+documents), routines, assignments, notices, news, events, announcements, galleries, expenses+categories, budgets, ledger (journal/cashbook/bankbook/income-statement/balance-sheet), transport (vehicles/routes/assignments), hostel (rooms+assignments), library (books+categories+issues), SMS, reports, certificates+admit_cards+id_cards+generate, settings, users+roles, profile, academic_sessions, payroll (salary_structures/payslips/leave_requests+types/staff_attendance), testimonials, committee, backups, visitor_logs, activity, messages, courses, notifications, device_tokens, password_reset, dashboard_favorites. API: 11 controllers (results/lookup, news, notices, events, students, teachers, classes, exams, fees, admissions, dashboard). |
 | 6.5 | BD/INT profile + build-box integration | ✅ done | `.env`-driven variant (bd/int), config/payment.php with all 7 gateways (bKash/Rocket/Nagad/Stripe/PayPal/Paddle/Offline), config/app.php with feature flags. |
 | 6.6 | Tests + CI | ⬜ not started | CI integration pending. |
 
@@ -87,7 +87,10 @@ Verification baseline (2026-09-09): `cd eskoofy-app && composer test` → **912 
 | 7.2 | INT variant via `.po` | ✅ done | `.pot` template + `en_GB.po`/`.mo` (INT) + `bn_BD.po`/`.mo` (BD) in `languages/`. All theme strings translatable. |
 | 7.3 | Theme build-box integration | ✅ done | `build/export.sh theme {bd,int}`; attempts `wp i18n make-pot` when `wp-cli` present. |
 | 7.4 | Theme tests/lint | ✅ done | `composer.json` + `phpcs.xml` (WordPress-Extra ruleset, `eskoofy` prefix). CI job `theme-lint` runs PHPCS on every push/PR. |
-| 7.5 | Full WP plugin-theme hybrid | ✅ done | 13 inc/ files (database, CPTs, admin pages, AJAX, REST API, shortcodes, widgets, customizer, payment gateways, helpers, admin CSS/JS). 19 admin view templates. 5 page templates. 48 custom DB tables. 7 REST routes. 10 shortcodes. 7 payment gateways. Full admin dashboard with all modules. |
+| 7.5 | Full WP plugin-theme hybrid | ✅ done | 54 custom DB tables, 7 CPTs, 13 inc/ files, 39 admin views (full CRUD for all modules), 5 page templates, REST API (11 routes), 10 shortcodes, 7 payment gateway stubs, helpers, admin CSS/JS. |
+| 7.6 | Critical bug fixes | ✅ done | JS nonce typo fixed (eskAdmin.nce→eskAdmin.nonce). Attendance/results save handlers wired with nonce check + $wpdb upsert. Action routing added (student-detail, admission-detail, exam-form, class-form pages now reachable). esk_generate_number() counts from correct table. REST lookup uses display_name. Dual-storage (CPT + table) for notices. index.php updated to proper fallback template. README table count corrected. |
+| 7.7 | Public shortcodes wired | ✅ done | Results lookup: GET form, POST queries student+exam_results with pass/fail display. Fee payment: GET form, POST queries fee_payments showing paid/unpaid/partial status. |
+| 7.8 | All missing module admin pages added | ✅ done | 20 new admin pages: sections, subjects, batches, guardians, expenses, transport (vehicles+routes+assignments), hostels (hostels+rooms), library (books+issue/return), SMS, payroll (structures+payslips+leave+attendance), reports, certificates, admit-cards, id-cards, announcements, testimonials, committee, careers, academic-sessions, users. All with full CRUD via $wpdb, nonce fields, escaping. |
 
 ## Phase 8 — eskoofy-website (marketing/branding) — DEFERRED
 
@@ -106,9 +109,9 @@ Verification baseline (2026-09-09): `cd eskoofy-app && composer test` → **912 
 
 | Product | Files | Key components |
 |---------|-------|----------------|
-| eskoofy-app (Laravel) | existing | 912 tests, 84+ models, 100+ controllers |
-| eskoofy-php (Raw PHP) | 262 | Core (16), Models (78), Controllers (46), Views (97), Gateways (9), Config (3), Lang (6), Schema (93 tables) |
-| eskoofy-theme (WordPress) | 47+13+19+5 | Templates (17), Inc (13), Admin views (19), Page templates (5), Languages (5) |
+| eskoofy-app (Laravel) | existing | 900+ tests, 95 models, 130+ controllers, 32 services |
+| eskoofy-php (Raw PHP) | 310 | Core (16), Models (78), Controllers (55+11 API), Gateways (9), Views (128), Config (3), Lang (6), Schema (93 tables) |
+| eskoofy-theme (WordPress) | 67+ | Root templates (17), Inc (13), Admin views (39), Languages (5), 54 DB tables, 7 CPTs, REST (11 routes), Shortcodes (10) |
 
 ## Next actions
 

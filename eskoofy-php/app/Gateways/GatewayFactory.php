@@ -62,6 +62,44 @@ class GatewayFactory
         return $instance;
     }
 
+    public static function makeFromPaymentRecord(array $payment, array $gatewayConfig): GatewayInterface
+    {
+        $code = $payment['payment_method'] ?? 'offline';
+
+        if ($code === 'offline') {
+            return self::make('offline');
+        }
+
+        if (!isset(self::GATEWAY_MAP[$code])) {
+            throw new \InvalidArgumentException("Unknown payment gateway: {$code}");
+        }
+
+        if (isset(self::$instances[$code])) {
+            return self::$instances[$code];
+        }
+
+        $config = self::loadConfig();
+
+        if (isset($gatewayConfig['is_active']) && (bool) $gatewayConfig['is_active']) {
+            $class      = self::GATEWAY_MAP[$code];
+            $gatewayCfg = $config['gateways'][$code] ?? [];
+            $instance   = new $class($gatewayCfg);
+            self::$instances[$code] = $instance;
+            return $instance;
+        }
+
+        if (!isset($config['gateways'][$code])) {
+            throw new \InvalidArgumentException("No configuration for gateway: {$code}");
+        }
+
+        $class      = self::GATEWAY_MAP[$code];
+        $gatewayCfg = $config['gateways'][$code];
+        $instance   = new $class($gatewayCfg);
+        self::$instances[$code] = $instance;
+
+        return $instance;
+    }
+
     public static function all(): array
     {
         $config  = self::loadConfig();

@@ -7,6 +7,7 @@ use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Database;
 use App\Core\Session;
+use App\Gateways\GatewayFactory;
 
 class PaymentController extends Controller
 {
@@ -112,11 +113,51 @@ class PaymentController extends Controller
             return;
         }
 
+        $gatewayCode = $payment['payment_method'] ?? 'offline';
+        $gateway = $this->db->fetch(
+            "SELECT * FROM payment_gateways WHERE code = ? LIMIT 1",
+            [$gatewayCode]
+        );
+
+        $refunded = false;
+
+        if ($gateway && ($payment['transaction_id'] ?? '') !== '') {
+            try {
+                $adapter = GatewayFactory::makeFromPaymentRecord($payment, $gateway);
+                $result = $adapter->refund(
+                    $payment['transaction_id'],
+                    (float) ($payment['paid_amount'] ?: $payment['amount']),
+                    'Refunded by ' . (Auth::user()['name'] ?? 'admin')
+                );
+                $refunded = $result['success'] ?? false;
+                if (!$refunded) {
+                    Session::getInstance()->flash('error', 'Gateway refund failed: ' . ($result['message'] ?? 'Unknown error'));
+                    $this->redirect("/dashboard/payments/{$id}");
+                    return;
+                }
+            } catch (\Throwable $e) {
+                error_log('Gateway refund error: ' . $e->getMessage());
+                Session::getInstance()->flash('error', 'Gateway refund error: ' . $e->getMessage());
+                $this->redirect("/dashboard/payments/{$id}");
+                return;
+            }
+        }
+
         $this->db->update('payments', [
             'payment_status' => 'refunded',
-            'notes'          => 'Refunded by ' . (Auth::user()['name'] ?? 'admin'),
+            'notes'          => ($payment['notes'] ? $payment['notes'] . "\n" : '') . 'Refunded by ' . (Auth::user()['name'] ?? 'admin') . ($refunded ? ' (gateway)' : ' (manual)'),
             'updated_at'     => date('Y-m-d H:i:s'),
         ], 'id = ?', [$id]);
+
+        $this->db->insert('refunds', [
+            'payment_id'  => $id,
+            'student_id'  => $payment['paymentable_id'],
+            'amount'      => $payment['paid_amount'] ?: $payment['amount'],
+            'reason'      => 'Refund requested for invoice ' . ($payment['invoice_number'] ?? ''),
+            'status'      => 'pending',
+            'created_at'  => date('Y-m-d H:i:s'),
+            'updated_at'  => date('Y-m-d H:i:s'),
+        ]);
 
         Session::getInstance()->flash('success', 'Payment refunded successfully.');
         $this->redirect("/dashboard/payments/{$id}");

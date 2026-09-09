@@ -76,6 +76,42 @@ function esk_register_admin_menus(): void {
 
 	add_submenu_page(
 		'esk-dashboard',
+		esc_html__( 'Sections', 'eskoofy' ),
+		esc_html__( 'Sections', 'eskoofy' ),
+		'manage_options',
+		'esk-sections',
+		'esk_sections_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Subjects', 'eskoofy' ),
+		esc_html__( 'Subjects', 'eskoofy' ),
+		'manage_options',
+		'esk-subjects',
+		'esk_subjects_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Batches', 'eskoofy' ),
+		esc_html__( 'Batches', 'eskoofy' ),
+		'manage_options',
+		'esk-batches',
+		'esk_batches_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Academic Sessions', 'eskoofy' ),
+		esc_html__( 'Academic Sessions', 'eskoofy' ),
+		'manage_options',
+		'esk-academic-sessions',
+		'esk_academic_sessions_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
 		esc_html__( 'Attendance', 'eskoofy' ),
 		esc_html__( 'Attendance', 'eskoofy' ),
 		'manage_options',
@@ -130,6 +166,33 @@ function esk_register_admin_menus(): void {
 
 	add_submenu_page(
 		'esk-dashboard',
+		esc_html__( 'Expenses', 'eskoofy' ),
+		esc_html__( 'Expenses', 'eskoofy' ),
+		'manage_options',
+		'esk-expenses',
+		'esk_expenses_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Payroll', 'eskoofy' ),
+		esc_html__( 'Payroll', 'eskoofy' ),
+		'manage_options',
+		'esk-payroll',
+		'esk_payroll_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Guardians', 'eskoofy' ),
+		esc_html__( 'Guardians', 'eskoofy' ),
+		'manage_options',
+		'esk-guardians',
+		'esk_guardians_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
 		esc_html__( 'Admissions', 'eskoofy' ),
 		esc_html__( 'Admissions', 'eskoofy' ),
 		'manage_options',
@@ -139,11 +202,128 @@ function esk_register_admin_menus(): void {
 
 	add_submenu_page(
 		'esk-dashboard',
+		esc_html__( 'Transport', 'eskoofy' ),
+		esc_html__( 'Transport', 'eskoofy' ),
+		'manage_options',
+		'esk-transport',
+		'esk_transport_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Hostels', 'eskoofy' ),
+		esc_html__( 'Hostels', 'eskoofy' ),
+		'manage_options',
+		'esk-hostels',
+		'esk_hostels_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Library', 'eskoofy' ),
+		esc_html__( 'Library', 'eskoofy' ),
+		'manage_options',
+		'esk-library',
+		'esk_library_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'SMS', 'eskoofy' ),
+		esc_html__( 'SMS', 'eskoofy' ),
+		'manage_options',
+		'esk-sms',
+		'esk_sms_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
 		esc_html__( 'Notices', 'eskoofy' ),
 		esc_html__( 'Notices', 'eskoofy' ),
 		'manage_options',
 		'esk-notices',
 		'esk_notices_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Announcements', 'eskoofy' ),
+		esc_html__( 'Announcements', 'eskoofy' ),
+		'manage_options',
+		'esk-announcements',
+		'esk_announcements_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Certificates', 'eskoofy' ),
+		esc_html__( 'Certificates', 'eskoofy' ),
+		'manage_options',
+		'esk-certificates',
+		'esk_certificates_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Admit Cards', 'eskoofy' ),
+		esc_html__( 'Admit Cards', 'eskoofy' ),
+		'manage_options',
+		'esk-admit-cards',
+		'esk_admit_cards_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'ID Cards', 'eskoofy' ),
+		esc_html__( 'ID Cards', 'eskoofy' ),
+		'manage_options',
+		'esk-id-cards',
+		'esk_id_cards_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Testimonials', 'eskoofy' ),
+		esc_html__( 'Testimonials', 'eskoofy' ),
+		'manage_options',
+		'esk-testimonials',
+		'esk_testimonials_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Committee', 'eskoofy' ),
+		esc_html__( 'Committee', 'eskoofy' ),
+		'manage_options',
+		'esk-committee',
+		'esk_committee_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Careers', 'eskoofy' ),
+		esc_html__( 'Careers', 'eskoofy' ),
+		'manage_options',
+		'esk-careers',
+		'esk_careers_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Reports', 'eskoofy' ),
+		esc_html__( 'Reports', 'eskoofy' ),
+		'manage_options',
+		'esk-reports',
+		'esk_reports_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Users', 'eskoofy' ),
+		esc_html__( 'Users', 'eskoofy' ),
+		'manage_options',
+		'esk-users',
+		'esk_users_page'
 	);
 
 	add_submenu_page(
@@ -164,6 +344,10 @@ function esk_dashboard_page(): void {
 }
 
 function esk_students_page(): void {
+	if ( ( $_GET['action'] ?? '' ) === 'view' && ! empty( $_GET['id'] ) ) {
+		esk_render_admin_view( 'student-detail' );
+		return;
+	}
 	esk_render_admin_view( 'students' );
 }
 
@@ -180,7 +364,27 @@ function esk_teacher_add_page(): void {
 }
 
 function esk_classes_page(): void {
+	if ( ( $_GET['action'] ?? '' ) === 'edit' && ! empty( $_GET['id'] ) ) {
+		esk_render_admin_view( 'class-form' );
+		return;
+	}
 	esk_render_admin_view( 'classes' );
+}
+
+function esk_sections_page(): void {
+	esk_render_admin_view( 'sections' );
+}
+
+function esk_subjects_page(): void {
+	esk_render_admin_view( 'subjects' );
+}
+
+function esk_batches_page(): void {
+	esk_render_admin_view( 'batches' );
+}
+
+function esk_academic_sessions_page(): void {
+	esk_render_admin_view( 'academic-sessions' );
 }
 
 function esk_attendance_page(): void {
@@ -192,6 +396,10 @@ function esk_attendance_mark_page(): void {
 }
 
 function esk_exams_page(): void {
+	if ( ( $_GET['action'] ?? '' ) === 'add' ) {
+		esk_render_admin_view( 'exam-form' );
+		return;
+	}
 	esk_render_admin_view( 'exams' );
 }
 
@@ -207,12 +415,80 @@ function esk_fee_payments_page(): void {
 	esk_render_admin_view( 'fee-payments' );
 }
 
+function esk_expenses_page(): void {
+	esk_render_admin_view( 'expenses' );
+}
+
+function esk_payroll_page(): void {
+	esk_render_admin_view( 'payroll' );
+}
+
+function esk_guardians_page(): void {
+	esk_render_admin_view( 'guardians' );
+}
+
 function esk_admissions_page(): void {
+	if ( ( $_GET['action'] ?? '' ) === 'view' && ! empty( $_GET['id'] ) ) {
+		esk_render_admin_view( 'admission-detail' );
+		return;
+	}
 	esk_render_admin_view( 'admissions' );
+}
+
+function esk_transport_page(): void {
+	esk_render_admin_view( 'transport' );
+}
+
+function esk_hostels_page(): void {
+	esk_render_admin_view( 'hostels' );
+}
+
+function esk_library_page(): void {
+	esk_render_admin_view( 'library' );
+}
+
+function esk_sms_page(): void {
+	esk_render_admin_view( 'sms' );
 }
 
 function esk_notices_page(): void {
 	esk_render_admin_view( 'notices' );
+}
+
+function esk_announcements_page(): void {
+	esk_render_admin_view( 'announcements' );
+}
+
+function esk_certificates_page(): void {
+	esk_render_admin_view( 'certificates' );
+}
+
+function esk_admit_cards_page(): void {
+	esk_render_admin_view( 'admit-cards' );
+}
+
+function esk_id_cards_page(): void {
+	esk_render_admin_view( 'id-cards' );
+}
+
+function esk_testimonials_page(): void {
+	esk_render_admin_view( 'testimonials-admin' );
+}
+
+function esk_committee_page(): void {
+	esk_render_admin_view( 'committee' );
+}
+
+function esk_careers_page(): void {
+	esk_render_admin_view( 'careers' );
+}
+
+function esk_reports_page(): void {
+	esk_render_admin_view( 'reports' );
+}
+
+function esk_users_page(): void {
+	esk_render_admin_view( 'users' );
 }
 
 function esk_settings_page(): void {

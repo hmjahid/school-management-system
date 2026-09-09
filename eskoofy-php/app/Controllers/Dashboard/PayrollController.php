@@ -254,4 +254,70 @@ class PayrollController extends Controller
         Session::getInstance()->flash('success', 'Staff attendance saved.');
         $this->redirect('/dashboard/payroll/staff-attendance');
     }
+
+    public function leaveTypes(): void
+    {
+        Auth::requireAuth();
+        $rows = $this->db->fetchAll(
+            "SELECT * FROM leave_types ORDER BY name ASC"
+        );
+
+        $this->view('dashboard.payroll.leave-types', ['leaveTypes' => $rows]);
+    }
+
+    public function storeLeaveType(): void
+    {
+        Auth::requireAuth();
+        $data = $this->validate([
+            'name'         => 'required|max:100',
+            'days_allowed' => 'required|numeric',
+            'is_paid'      => 'numeric',
+        ]);
+
+        $this->db->insert('leave_types', [
+            'name'         => $data['name'],
+            'days_allowed' => $data['days_allowed'],
+            'is_paid'      => isset($data['is_paid']) ? (int) $data['is_paid'] : 0,
+            'created_at'   => date('Y-m-d H:i:s'),
+            'updated_at'   => date('Y-m-d H:i:s'),
+        ]);
+
+        Session::getInstance()->flash('success', 'Leave type created.');
+        $this->redirect('/dashboard/leave-types');
+    }
+
+    public function updateLeaveType(int $id): void
+    {
+        Auth::requireAuth();
+        $lt = $this->db->fetch("SELECT * FROM leave_types WHERE id = ? LIMIT 1", [$id]);
+        if (!$lt) {
+            Session::getInstance()->flash('error', 'Leave type not found.');
+            $this->redirect('/dashboard/leave-types');
+            return;
+        }
+
+        $data = $this->validate([
+            'name'         => 'required|max:100',
+            'days_allowed' => 'required|numeric',
+            'is_paid'      => 'numeric',
+        ]);
+
+        $this->db->update('leave_types', [
+            'name'         => $data['name'],
+            'days_allowed' => $data['days_allowed'],
+            'is_paid'      => isset($data['is_paid']) ? (int) $data['is_paid'] : 0,
+            'updated_at'   => date('Y-m-d H:i:s'),
+        ], 'id = ?', [$id]);
+
+        Session::getInstance()->flash('success', 'Leave type updated.');
+        $this->redirect('/dashboard/leave-types');
+    }
+
+    public function destroyLeaveType(int $id): void
+    {
+        Auth::requireAuth();
+        $this->db->delete('leave_types', 'id = ?', [$id]);
+        Session::getInstance()->flash('success', 'Leave type deleted.');
+        $this->redirect('/dashboard/leave-types');
+    }
 }

@@ -16,7 +16,7 @@ a per-variant stylesheet/profile, never forks.
 - `template-admission.php` / `template-results.php` / `template-fees.php` /
   `template-gallery.php` / `template-contact.php` — page templates (public)
 - `inc/` — plugin layer (loaded by `functions.php`)
-  - `database.php` — creates 48 custom `esk_*` tables on activation
+  - `database.php` — creates 54 custom `esk_*` tables on activation
   - `custom-post-types.php` — news, events, notices, galleries, testimonials,
     committee members, careers
   - `admin-pages.php` — 15 admin menu pages (dashboard, students, teachers, classes,
@@ -28,8 +28,12 @@ a per-variant stylesheet/profile, never forks.
     class schedule, news/events lists, gallery, contact form, payment gateway
   - `payment-gateways.php` — bKash, Rocket, Nagad, Stripe, PayPal, Paddle, Offline
   - `widgets.php` / `customizer.php` / `helpers.php` / `admin.js` / `admin-style.css`
-- `views/admin/` — admin page templates (students, teachers, classes, attendance,
-  exams, results, fees, admissions, notices, settings, …)
+- `views/admin/` — admin page templates (dashboard, students, student-form, student-detail,
+  teachers, teacher-form, classes, class-form, sections, subjects, batches, guardians,
+  attendance, attendance-mark, exams, exam-form, results, fees, fee-payments, admissions,
+  admission-detail, notices, settings, expenses, transport, hostels, library, SMS, payroll,
+  reports, certificates, admit-cards, id-cards, announcements, testimonials, committee,
+  careers, academic-sessions, users — 39 views total with full CRUD)
 - `languages/` — `eskoofy.pot` + `bn_BD` / `en_GB` `.po`/`.mo` files
 
 ## Development

@@ -8,9 +8,9 @@ class Controller
     protected function view(string $template, array $data = []): void
     {
         extract($data);
-        $content = __DIR__ . '/../../views/' . str_replace('.', '/', $template) . '.php';
+        $content = View::resolve($template);
         $layout = $data['layout'] ?? 'layouts.main';
-        $layoutPath = __DIR__ . '/../../views/' . str_replace('.', '/', $layout) . '.php';
+        $layoutPath = __DIR__ . '/../../views/' . str_replace(['.', '-'], ['/', '_'], $layout) . '.php';
 
         ob_start();
         if (file_exists($content)) {

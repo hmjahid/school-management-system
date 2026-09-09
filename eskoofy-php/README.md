@@ -18,15 +18,16 @@ available. See `WORKPLAN.md` Phase 6.
 │   │                     Session, Auth, Validator, Request + 5 middleware classes
 │   ├── Gateways/         Gateway interface + factory + BdKash/Rocket/Nagad/
 │   │                     Stripe/PayPal/Paddle/Offline adapters
-│   ├── Helpers/          Global helper functions
-│   ├── Controllers/      Site + Auth + 43 Dashboard controllers
+│   ├── Helpers/          Global helper functions (e, csrf_field, old, site_ui, dashboard_ui, etc.)
+│   ├── Controllers/      55+ controllers (site + auth + 42 dashboard modules + 11 API)
 │   └── Models/           78 models
 ├── config/               app.php, school.php, payment.php (all BD/INT gateway config)
 ├── database/schema.sql   93-table MySQL schema + admin seed
 ├── lang/                 en/ + bn/ (site_frontend, dashboard, messages)
 ├── routes/web.php        Full public + dashboard route table
-├── views/                97 templates (layouts, public site, dashboard, auth, emails)
-└── public/index.php      Front controller
+├── routes/api.php        JSON API (results/lookup, news, notices, events + protected CRUD)
+├── views/                128 templates (layouts, public site, dashboard, auth, emails, errors)
+└── public/index.php      Front controller (loads routes, CSRF, CORS)
 ```
 
 ## Quick start

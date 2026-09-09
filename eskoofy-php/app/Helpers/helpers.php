@@ -214,3 +214,23 @@ function time_ago(string $datetime): string
     if ($diff < 604800) return floor($diff / 86400) . 'd ago';
     return date('M j, Y', $time);
 }
+
+function dashboard_ui(string $key, ?string $locale = null): string
+{
+    static $strings = null;
+    if ($strings === null) {
+        $locale = $locale ?? ($_SESSION['locale'] ?? config('app.locale', 'en'));
+        $file = __DIR__ . '/../lang/' . $locale . '/dashboard.php';
+        if (!file_exists($file)) {
+            $file = __DIR__ . '/../lang/en/dashboard.php';
+        }
+        $strings = require $file;
+    }
+    $keys = explode('.', $key);
+    $value = $strings;
+    foreach ($keys as $k) {
+        if (!isset($value[$k])) return $key;
+        $value = $value[$k];
+    }
+    return (string) $value;
+}

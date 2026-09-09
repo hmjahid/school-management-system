@@ -43,18 +43,11 @@ if ( ! function_exists( 'esk_generate_number' ) ) {
 	/**
 	 * Generate a unique prefixed number (admission, invoice, etc.).
 	 */
-	function esk_generate_number( string $prefix = 'ADM' ): string {
+	function esk_generate_number( string $prefix = 'ADM', string $table = 'students' ): string {
 		global $wpdb;
-		$today   = gmdate( 'Ymd' );
-		$pattern = '%' . $wpdb->esc_like( $prefix . '-' . $today ) . '%';
-		$count   = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->prefix}esk_students WHERE admission_number LIKE %s",
-				$pattern
-			)
-		);
-		$seq     = str_pad( (string) ( (int) $count + 1 ), 4, '0', STR_PAD_LEFT );
-		return $prefix . '-' . $today . '-' . $seq;
+		$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}esk_{$table}" );
+		$next  = $count + 1;
+		return $prefix . '-' . str_pad( (string) $next, 6, '0', STR_PAD_LEFT );
 	}
 }
 

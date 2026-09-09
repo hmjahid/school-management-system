@@ -8,6 +8,55 @@
 defined('ABSPATH') || exit;
 global $wpdb;
 
+if ( isset( $_POST['esk_results_save'] ) ) {
+	check_admin_referer( 'esk_results_form' );
+	$exam_id   = absint( $_POST['exam_id'] ?? 0 );
+	$marks_arr = isset( $_POST['marks'] ) && is_array( $_POST['marks'] ) ? $_POST['marks'] : array();
+	$remarks   = isset( $_POST['remarks'] ) && is_array( $_POST['remarks'] ) ? $_POST['remarks'] : array();
+
+	$exam = $exam_id ? $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}esk_exams WHERE id = %d", $exam_id ) ) : null;
+	if ( ! $exam ) {
+		esk_flash( 'error', __( 'Invalid exam.', 'eskoofy' ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=esk-results' ) );
+		exit;
+	}
+
+	foreach ( $marks_arr as $student_id => $marks ) {
+		$student_id     = absint( $student_id );
+		$obtained_marks = (float) $marks;
+		$passing_marks  = (float) $exam->passing_marks;
+		$grade_remarks  = isset( $remarks[ $student_id ] ) ? sanitize_textarea_field( $remarks[ $student_id ] ) : '';
+		$status         = $obtained_marks >= $passing_marks ? 'pass' : 'fail';
+
+		$existing = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT id FROM {$wpdb->prefix}esk_exam_results WHERE exam_id = %d AND student_id = %d AND deleted_at IS NULL",
+				$exam_id,
+				$student_id
+			)
+		);
+
+		$data = array(
+			'exam_id'        => $exam_id,
+			'student_id'     => $student_id,
+			'obtained_marks' => $obtained_marks,
+			'remarks'        => $grade_remarks,
+			'status'         => $status,
+			'submitted_by'   => get_current_user_id(),
+			'submitted_at'   => current_time( 'mysql' ),
+		);
+
+		if ( $existing ) {
+			$wpdb->update( $wpdb->prefix . 'esk_exam_results', $data, array( 'id' => $existing ) );
+		} else {
+			$wpdb->insert( $wpdb->prefix . 'esk_exam_results', $data );
+		}
+	}
+	esk_flash( 'success', __( 'Results saved.', 'eskoofy' ) );
+	wp_safe_redirect( admin_url( 'admin.php?page=esk-results&exam_id=' . $exam_id ) );
+	exit;
+}
+
 $all_exams = $wpdb->get_results(
 	"SELECT e.*, c.name AS class_name, s.name AS subject_name
 	FROM {$wpdb->prefix}esk_exams e

@@ -22,24 +22,97 @@ add_shortcode( 'eskoofy_payment_gateway', 'esk_shortcode_payment_gateway' );
 
 function esk_shortcode_results_lookup( $atts ): string {
 	$atts   = shortcode_atts( array(), $atts );
+	global $wpdb;
+
+	if ( isset( $_POST['esk_results_lookup'] ) ) {
+		check_admin_referer( 'esk_results_lookup' );
+		$admission_number = sanitize_text_field( $_POST['admission_number'] ?? '' );
+		$exam_id          = absint( $_POST['exam_id'] ?? 0 );
+
+		$student = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT s.*, u.display_name FROM {$wpdb->prefix}esk_students s
+				JOIN {$wpdb->prefix}users u ON s.user_id = u.ID
+				WHERE s.admission_number = %s AND s.deleted_at IS NULL",
+				$admission_number
+			)
+		);
+
+		ob_start();
+
+		if ( ! $student ) {
+			echo '<div class="esk-results-lookup"><div class="esk-notice esk-notice-error"><p>' . esc_html__( 'Student not found.', 'eskoofy' ) . '</p></div></div>';
+			return ob_get_clean();
+		}
+
+		$where  = "WHERE er.student_id = %d AND er.deleted_at IS NULL";
+		$params = array( $student->id );
+		if ( $exam_id ) {
+			$where  .= ' AND er.exam_id = %d';
+			$params[] = $exam_id;
+		}
+
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT er.*, e.name AS exam_name, e.total_marks, e.passing_marks
+				FROM {$wpdb->prefix}esk_exam_results er
+				JOIN {$wpdb->prefix}esk_exams e ON er.exam_id = e.id
+				{$where}
+				ORDER BY e.start_date DESC",
+				...$params
+			)
+		);
+
+		?>
+		<div class="esk-results-lookup">
+			<h3><?php esc_html_e( 'Results for', 'eskoofy' ); ?> <?php echo esc_html( $student->display_name ); ?></h3>
+			<p><strong><?php esc_html_e( 'Admission No:', 'eskoofy' ); ?></strong> <?php echo esc_html( $student->admission_number ); ?></p>
+			<?php if ( empty( $results ) ) : ?>
+				<p><?php esc_html_e( 'No results found.', 'eskoofy' ); ?></p>
+			<?php else : ?>
+				<table class="esk-table esk-table-striped">
+					<thead>
+						<tr>
+							<th><?php esc_html_e( 'Exam', 'eskoofy' ); ?></th>
+							<th><?php esc_html_e( 'Marks', 'eskoofy' ); ?></th>
+							<th><?php esc_html_e( 'Passing', 'eskoofy' ); ?></th>
+							<th><?php esc_html_e( 'Status', 'eskoofy' ); ?></th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php foreach ( $results as $r ) : ?>
+							<tr>
+								<td><?php echo esc_html( $r->exam_name ); ?></td>
+								<td><?php echo esc_html( $r->obtained_marks ); ?></td>
+								<td><?php echo esc_html( $r->passing_marks ); ?></td>
+								<td>
+									<span class="esk-badge esk-badge-<?php echo 'pass' === $r->status ? 'pass' : 'fail'; ?>">
+										<?php echo 'pass' === $r->status ? esc_html__( 'Pass', 'eskoofy' ) : esc_html__( 'Fail', 'eskoofy' ); ?>
+									</span>
+								</td>
+							</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
+			<?php endif; ?>
+			<p><a href="<?php echo esc_url( remove_query_arg() ); ?>" class="esk-button"><?php esc_html_e( 'Look Up Another', 'eskoofy' ); ?></a></p>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
 	ob_start();
 	?>
 	<div class="esk-results-lookup">
 		<h3><?php esc_html_e( 'Check Your Results', 'eskoofy' ); ?></h3>
 		<form method="post" class="esk-form">
-			<?php esk_csrf_field( 'esk_results_lookup' ); ?>
+			<?php wp_nonce_field( 'esk_results_lookup' ); ?>
 			<div class="esk-form-group">
 				<label for="esk-admission-number"><?php esc_html_e( 'Admission Number', 'eskoofy' ); ?></label>
 				<input type="text" id="esk-admission-number" name="admission_number" class="esk-input" required>
 			</div>
 			<div class="esk-form-group">
 				<label for="esk-result-exam"><?php esc_html_e( 'Exam', 'eskoofy' ); ?></label>
-				<?php
-				global $wpdb;
-				$exams = $wpdb->get_col(
-					"SELECT CONCAT(name, ' (', code, ')') FROM {$wpdb->prefix}esk_exams WHERE deleted_at IS NULL ORDER BY start_date DESC"
-				);
-				?>
 				<select id="esk-result-exam" name="exam_id" class="esk-select">
 					<option value=""><?php esc_html_e( 'All Exams', 'eskoofy' ); ?></option>
 					<?php
@@ -164,12 +237,93 @@ function esk_shortcode_admission_form( $atts ): string {
 
 function esk_shortcode_fees_payment( $atts ): string {
 	$atts   = shortcode_atts( array(), $atts );
+	global $wpdb;
+
+	if ( isset( $_POST['esk_fees_lookup'] ) ) {
+		check_admin_referer( 'esk_fees_lookup' );
+		$admission_number = sanitize_text_field( $_POST['admission_number'] ?? '' );
+		$fee_id           = absint( $_POST['fee_id'] ?? 0 );
+
+		$student = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT s.*, u.display_name FROM {$wpdb->prefix}esk_students s
+				JOIN {$wpdb->prefix}users u ON s.user_id = u.ID
+				WHERE s.admission_number = %s AND s.deleted_at IS NULL",
+				$admission_number
+			)
+		);
+
+		ob_start();
+
+		if ( ! $student ) {
+			echo '<div class="esk-fees-payment"><div class="esk-notice esk-notice-error"><p>' . esc_html__( 'Student not found.', 'eskoofy' ) . '</p></div></div>';
+			return ob_get_clean();
+		}
+
+		$where  = 'WHERE fp.student_id = %d AND fp.deleted_at IS NULL';
+		$params = array( $student->id );
+		if ( $fee_id ) {
+			$where  .= ' AND fp.fee_id = %d';
+			$params[] = $fee_id;
+		}
+
+		$payments = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT fp.*, f.name AS fee_name, f.amount AS fee_amount
+				FROM {$wpdb->prefix}esk_fee_payments fp
+				JOIN {$wpdb->prefix}esk_fees f ON fp.fee_id = f.id
+				{$where}
+				ORDER BY fp.payment_date DESC",
+				...$params
+			)
+		);
+
+		?>
+		<div class="esk-fees-payment">
+			<h3><?php esc_html_e( 'Fee Status for', 'eskoofy' ); ?> <?php echo esc_html( $student->display_name ); ?></h3>
+			<p><strong><?php esc_html_e( 'Admission No:', 'eskoofy' ); ?></strong> <?php echo esc_html( $student->admission_number ); ?></p>
+			<?php if ( empty( $payments ) ) : ?>
+				<p><?php esc_html_e( 'No fee records found.', 'eskoofy' ); ?></p>
+			<?php else : ?>
+				<table class="esk-table esk-table-striped">
+					<thead>
+						<tr>
+							<th><?php esc_html_e( 'Fee', 'eskoofy' ); ?></th>
+							<th><?php esc_html_e( 'Amount', 'eskoofy' ); ?></th>
+							<th><?php esc_html_e( 'Paid', 'eskoofy' ); ?></th>
+							<th><?php esc_html_e( 'Date', 'eskoofy' ); ?></th>
+							<th><?php esc_html_e( 'Status', 'eskoofy' ); ?></th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php foreach ( $payments as $p ) : ?>
+							<tr>
+								<td><?php echo esc_html( $p->fee_name ); ?></td>
+								<td><?php echo esc_html( esk_format_currency( $p->amount ) ); ?></td>
+								<td><?php echo esc_html( esk_format_currency( $p->paid_amount ) ); ?></td>
+								<td><?php echo esc_html( esk_date_format( $p->payment_date ) ); ?></td>
+								<td>
+									<span class="esk-badge esk-badge-<?php echo esc_attr( $p->status ); ?>">
+										<?php echo esc_html( ucfirst( $p->status ) ); ?>
+									</span>
+								</td>
+							</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
+			<?php endif; ?>
+			<p><a href="<?php echo esc_url( remove_query_arg() ); ?>" class="esk-button"><?php esc_html_e( 'Check Another', 'eskoofy' ); ?></a></p>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
 	ob_start();
 	?>
 	<div class="esk-fees-payment">
-		<h3><?php esc_html_e( 'Fee Payment', 'eskoofy' ); ?></h3>
+		<h3><?php esc_html_e( 'Fee Payment Status', 'eskoofy' ); ?></h3>
 		<form method="post" class="esk-form">
-			<?php esk_csrf_field( 'esk_fees_payment' ); ?>
+			<?php wp_nonce_field( 'esk_fees_lookup' ); ?>
 			<div class="esk-form-group">
 				<label><?php esc_html_e( 'Admission Number', 'eskoofy' ); ?></label>
 				<input type="text" name="admission_number" class="esk-input" required>
@@ -178,7 +332,6 @@ function esk_shortcode_fees_payment( $atts ): string {
 				<label><?php esc_html_e( 'Fee Type', 'eskoofy' ); ?></label>
 				<select name="fee_id" class="esk-select" required>
 					<?php
-					global $wpdb;
 					$fees = $wpdb->get_results( "SELECT id, name, amount FROM {$wpdb->prefix}esk_fees WHERE status = 'active' AND deleted_at IS NULL" );
 					foreach ( $fees as $fee ) :
 						?>
@@ -188,7 +341,7 @@ function esk_shortcode_fees_payment( $atts ): string {
 					<?php endforeach; ?>
 				</select>
 			</div>
-			<button type="submit" class="esk-button esk-button-primary"><?php esc_html_e( 'Pay Now', 'eskoofy' ); ?></button>
+			<button type="submit" name="esk_fees_lookup" class="esk-button esk-button-primary"><?php esc_html_e( 'Check Status', 'eskoofy' ); ?></button>
 		</form>
 	</div>
 	<?php

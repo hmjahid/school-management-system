@@ -10,12 +10,31 @@ global $wpdb;
 
 if ( isset( $_POST['esk_notice_save'] ) ) {
 	check_admin_referer( 'esk_notice_form' );
+	$title   = sanitize_text_field( $_POST['title'] ?? '' );
+	$content = wp_kses_post( wp_unslash( $_POST['content'] ?? '' ) );
+	$pinned  = isset( $_POST['pinned'] ) ? 1 : 0;
+
 	$wpdb->insert( $wpdb->prefix . 'esk_notices', array(
-		'title'      => sanitize_text_field( $_POST['title'] ?? '' ),
-		'content'    => wp_kses_post( wp_unslash( $_POST['content'] ?? '' ) ),
-		'pinned'     => isset( $_POST['pinned'] ) ? 1 : 0,
+		'title'      => $title,
+		'content'    => $content,
+		'pinned'     => $pinned,
 		'created_by' => get_current_user_id(),
 	) );
+
+	$notice_id = $wpdb->insert_id;
+
+	if ( $notice_id && post_type_exists( 'esk_notices' ) ) {
+		$post_id = wp_insert_post( array(
+			'post_title'   => $title,
+			'post_content' => $content,
+			'post_type'    => 'esk_notices',
+			'post_status'  => 'publish',
+		) );
+		if ( $post_id && is_wp_error( $post_id ) ) {
+			$post_id = 0;
+		}
+	}
+
 	esk_flash( 'success', __( 'Notice created.', 'eskoofy' ) );
 	wp_safe_redirect( admin_url( 'admin.php?page=esk-notices' ) );
 	exit;

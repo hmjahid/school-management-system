@@ -8,6 +8,52 @@
 defined('ABSPATH') || exit;
 global $wpdb;
 
+if ( isset( $_POST['esk_attendance_save'] ) ) {
+	check_admin_referer( 'esk_attendance_form' );
+	$attendance_date = sanitize_text_field( $_POST['date'] ?? '' );
+	$class_id        = absint( $_POST['class_id'] ?? 0 );
+	$statuses        = isset( $_POST['status'] ) && is_array( $_POST['status'] ) ? $_POST['status'] : array();
+
+	foreach ( $statuses as $student_id => $status ) {
+		$student_id = absint( $student_id );
+		$status     = sanitize_text_field( $status );
+		if ( ! in_array( $status, array( 'present', 'absent', 'late' ), true ) ) {
+			continue;
+		}
+		$existing = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT id FROM {$wpdb->prefix}esk_attendances WHERE student_id = %d AND date = %s",
+				$student_id,
+				$attendance_date
+			)
+		);
+		if ( $existing ) {
+			$wpdb->update(
+				$wpdb->prefix . 'esk_attendances',
+				array( 'status' => $status ),
+				array(
+					'student_id'       => $student_id,
+					'date'             => $attendance_date,
+					'school_class_id'  => $class_id,
+				),
+				array( '%s' ),
+				array( '%d', '%s', '%d' )
+			);
+		} else {
+			$wpdb->insert( $wpdb->prefix . 'esk_attendances', array(
+				'student_id'       => $student_id,
+				'school_class_id'  => $class_id,
+				'date'             => $attendance_date,
+				'status'           => $status,
+				'marked_by'        => get_current_user_id(),
+			) );
+		}
+	}
+	esk_flash( 'success', __( 'Attendance saved.', 'eskoofy' ) );
+	wp_safe_redirect( wp_get_referer() ? wp_get_referer() : admin_url( 'admin.php?page=esk-attendance-mark' ) );
+	exit;
+}
+
 $all_classes = $wpdb->get_results( "SELECT id, name FROM {$wpdb->prefix}esk_classes ORDER BY name" );
 $selected_class = absint( $_GET['class_id'] ?? 0 );
 $selected_date  = sanitize_text_field( $_GET['date'] ?? gmdate( 'Y-m-d' ) );
@@ -30,6 +76,11 @@ if ( $selected_class ) {
 	<h1><?php esc_html_e( 'Mark Attendance', 'eskoofy' ); ?></h1>
 
 	<div class="esk-card esk-form-card">
+		<?php $flash = esk_get_flash( 'success' ); ?>
+		<?php if ( $flash ) : ?>
+			<div class="notice notice-success is-dismissible"><p><?php echo esc_html( $flash ); ?></p></div>
+		<?php endif; ?>
+
 		<form method="get" class="esk-form esk-inline-form" style="margin-bottom:1.5rem;">
 			<input type="hidden" name="page" value="esk-attendance-mark">
 			<label><?php esc_html_e( 'Date', 'eskoofy' ); ?>:</label>

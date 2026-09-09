@@ -571,10 +571,21 @@ function esk_rest_lookup_results( WP_REST_Request $request ): WP_REST_Response {
 		)
 	);
 
+	$user_display = '';
+	$user_row     = $wpdb->get_row(
+		$wpdb->prepare(
+			"SELECT display_name FROM {$wpdb->prefix}users WHERE ID = %d",
+			$student->user_id
+		)
+	);
+	if ( $user_row ) {
+		$user_display = $user_row->display_name;
+	}
+
 	return new WP_REST_Response( array(
 		'success'  => true,
 		'student'  => array(
-			'name'              => $student->parent_name ? $student->parent_name : 'Student',
+			'name'              => $user_display ? $user_display : ( $student->parent_name ? $student->parent_name : 'Student' ),
 			'admission_number'  => $student->admission_number,
 			'roll_number'       => $student->roll_number,
 		),

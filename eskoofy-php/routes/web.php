@@ -30,6 +30,12 @@ $router->get('/about', 'App\\Controllers\\SiteController', 'about');
 $router->get('/careers', 'App\\Controllers\\SiteController', 'careers');
 $router->post('/careers/apply', 'App\\Controllers\\SiteController', 'applyCareer');
 
+// Password reset
+$router->get('/forgot-password', 'App\\Controllers\\PasswordResetController', 'showForm');
+$router->post('/forgot-password', 'App\\Controllers\\PasswordResetController', 'sendToken');
+$router->get('/reset-password', 'App\\Controllers\\PasswordResetController', 'showReset');
+$router->post('/reset-password', 'App\\Controllers\\PasswordResetController', 'reset');
+
 // Admission payment
 $router->post('/admission/pay', 'App\\Controllers\\PaymentController', 'admissionPay');
 $router->post('/admission/callback/{gateway}', 'App\\Controllers\\PaymentController', 'admissionCallback');
@@ -259,4 +265,59 @@ $router->group('/dashboard', function (Router $r) {
     // Backup
     $r->post('/backup', 'App\\Controllers\\Dashboard\\BackupController', 'create');
     $r->get('/backups', 'App\\Controllers\\Dashboard\\BackupController', 'index');
+
+    // Courses
+    $r->get('/courses', 'App\\Controllers\\Dashboard\\CourseController', 'index');
+    $r->post('/courses', 'App\\Controllers\\Dashboard\\CourseController', 'store');
+    $r->put('/courses/{id}', 'App\\Controllers\\Dashboard\\CourseController', 'update');
+    $r->delete('/courses/{id}', 'App\\Controllers\\Dashboard\\CourseController', 'destroy');
+
+    // Messages
+    $r->get('/messages', 'App\\Controllers\\Dashboard\\MessageController', 'index');
+    $r->get('/messages/sent', 'App\\Controllers\\Dashboard\\MessageController', 'sent');
+    $r->post('/messages', 'App\\Controllers\\Dashboard\\MessageController', 'store');
+    $r->get('/messages/{id}', 'App\\Controllers\\Dashboard\\MessageController', 'show');
+    $r->delete('/messages/{id}', 'App\\Controllers\\Dashboard\\MessageController', 'destroy');
+
+    // Budgets
+    $r->get('/budgets', 'App\\Controllers\\Dashboard\\BudgetController', 'index');
+    $r->get('/budgets/create', 'App\\Controllers\\Dashboard\\BudgetController', 'create');
+    $r->post('/budgets', 'App\\Controllers\\Dashboard\\BudgetController', 'store');
+    $r->put('/budgets/{id}', 'App\\Controllers\\Dashboard\\BudgetController', 'update');
+    $r->delete('/budgets/{id}', 'App\\Controllers\\Dashboard\\BudgetController', 'destroy');
+
+    // Ledger
+    $r->get('/ledger', 'App\\Controllers\\Dashboard\\LedgerController', 'index');
+    $r->post('/ledger', 'App\\Controllers\\Dashboard\\LedgerController', 'store');
+    $r->get('/ledger/journal', 'App\\Controllers\\Dashboard\\LedgerController', 'journal');
+    $r->get('/ledger/cashbook', 'App\\Controllers\\Dashboard\\LedgerController', 'cashbook');
+    $r->get('/ledger/bankbook', 'App\\Controllers\\Dashboard\\LedgerController', 'bankbook');
+    $r->get('/ledger/income-statement', 'App\\Controllers\\Dashboard\\LedgerController', 'incomeStatement');
+    $r->get('/ledger/balance-sheet', 'App\\Controllers\\Dashboard\\LedgerController', 'balanceSheet');
+
+    // Leave types
+    $r->get('/leave-types', 'App\\Controllers\\Dashboard\\PayrollController', 'leaveTypes');
+    $r->post('/leave-types', 'App\\Controllers\\Dashboard\\PayrollController', 'storeLeaveType');
+    $r->put('/leave-types/{id}', 'App\\Controllers\\Dashboard\\PayrollController', 'updateLeaveType');
+    $r->delete('/leave-types/{id}', 'App\\Controllers\\Dashboard\\PayrollController', 'destroyLeaveType');
+
+    // Visitor logs
+    $r->get('/visitor-logs', 'App\\Controllers\\Dashboard\\VisitorLogController', 'index');
+    $r->post('/visitor-logs', 'App\\Controllers\\Dashboard\\VisitorLogController', 'store');
+    $r->delete('/visitor-logs/{id}', 'App\\Controllers\\Dashboard\\VisitorLogController', 'destroy');
+
+    // Activity log
+    $r->get('/activity', 'App\\Controllers\\Dashboard\\ActivityController', 'index');
+
+    // Refunds
+    $r->get('/refunds', 'App\\Controllers\\Dashboard\\RefundController', 'index');
+    $r->get('/refunds/{id}', 'App\\Controllers\\Dashboard\\RefundController', 'show');
+    $r->post('/refunds/{id}/process', 'App\\Controllers\\Dashboard\\RefundController', 'process');
+    $r->post('/refunds/{id}/cancel', 'App\\Controllers\\Dashboard\\RefundController', 'cancel');
+
+    // Notifications
+    $r->get('/notifications', 'App\\Controllers\\Dashboard\\NotificationController', 'index');
+    $r->get('/notifications/preferences', 'App\\Controllers\\Dashboard\\NotificationController', 'preferences');
+    $r->post('/notifications/{id}/read', 'App\\Controllers\\Dashboard\\NotificationController', 'markRead');
+    $r->post('/notifications/mark-all-read', 'App\\Controllers\\Dashboard\\NotificationController', 'markAllRead');
 }, ['AuthMiddleware']);

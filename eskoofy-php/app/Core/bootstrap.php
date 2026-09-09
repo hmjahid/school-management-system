@@ -5,7 +5,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/../vendor/autoload.php' ?: __DIR__ . '/../app/Helpers/helpers.php';
+if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    require_once __DIR__ . '/../vendor/autoload.php';
+}
+require_once __DIR__ . '/../app/Helpers/helpers.php';
 
 // Load .env if vlucas/dotenv is not available (shared hosting)
 $envFile = __DIR__ . '/../.env';
@@ -43,6 +46,17 @@ spl_autoload_register(function (string $class) {
         require_once $file;
     }
 });
+
+// CSRF verification for state-changing requests
+if (in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['POST', 'PUT', 'PATCH', 'DELETE'])) {
+    $token = $_POST['_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+    if ($token !== ($_SESSION['csrf_token'] ?? '')) {
+        http_response_code(403);
+        header('Content-Type: text/html; charset=utf-8');
+        echo '<h1>403 — CSRF token mismatch</h1>';
+        exit;
+    }
+}
 
 // Set shared view data
 \App\Core\View::share('appName', $config['name'] ?? 'Eskoofy');

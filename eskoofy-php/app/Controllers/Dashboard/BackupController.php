@@ -24,10 +24,8 @@ class BackupController extends Controller
             "SELECT * FROM backups ORDER BY id DESC"
         );
 
-        $dbFile = $this->db->fetch("PRAGMA database_list");
         $this->view('dashboard.backups.index', [
-            'rows'   => $rows,
-            'dbFile' => $dbFile,
+            'rows' => $rows,
         ]);
     }
 
@@ -42,28 +40,34 @@ class BackupController extends Controller
             mkdir($backupDir, 0755, true);
         }
 
-        $tables = $this->db->fetchAll("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name ASC");
+        $tables = $this->db->fetchAll(
+            "SELECT TABLE_NAME AS `name` FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_TYPE = 'BASE TABLE' ORDER BY TABLE_NAME ASC"
+        );
+
         $output = "-- Eskoofy Backup {$timestamp}\n\n";
 
         foreach ($tables as $table) {
             $tableName = $table['name'];
             $output .= "-- Table: {$tableName}\n";
 
-            $createSql = $this->db->fetch("SELECT sql FROM sqlite_master WHERE type='table' AND name = ?", [$tableName]);
-            if ($createSql && $createSql['sql']) {
-                $output .= $createSql['sql'] . ";\n\n";
+            $createSql = $this->db->fetch(
+                "SHOW CREATE TABLE `{$tableName}`"
+            );
+            if ($createSql) {
+                $create = array_values($createSql)[1] ?? '';
+                if ($create) {
+                    $output .= $create . ";\n\n";
+                }
             }
 
-            $rows = $this->db->fetchAll("SELECT * FROM [{$tableName}]");
-            if (!empty($rows)) {
-                $columns = array_keys($rows[0]);
-                foreach ($rows as $row) {
-                    $values = array_map(function ($v) {
-                        if ($v === null) return 'NULL';
-                        return "'" . str_replace("'", "''", (string) $v) . "'";
-                    }, array_values($row));
-                    $output .= "INSERT INTO [{$tableName}] (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $values) . ");\n";
-                }
+            $rows = $this->db->fetchAll("SELECT * FROM `{$tableName}`");
+            foreach ($rows as $row) {
+                $columns = array_keys($row);
+                $values = array_map(function ($v) {
+                    if ($v === null) return 'NULL';
+                    return "'" . str_replace("'", "''", (string) $v) . "'";
+                }, array_values($row));
+                $output .= "INSERT INTO `{$tableName}` (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $values) . ");\n";
             }
             $output .= "\n";
         }
