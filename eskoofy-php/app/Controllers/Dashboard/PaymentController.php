@@ -1,0 +1,124 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Controllers\Dashboard;
+
+use App\Core\Auth;
+use App\Core\Controller;
+use App\Core\Database;
+use App\Core\Session;
+
+class PaymentController extends Controller
+{
+    private Database $db;
+
+    public function __construct()
+    {
+        $this->db = Database::getInstance();
+    }
+
+    public function index(): void
+    {
+        Auth::requireAuth();
+        $search = $_GET['search'] ?? '';
+        $status = $_GET['status'] ?? '';
+        $gateway = $_GET['gateway'] ?? '';
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+        $perPage = 20;
+        $offset = ($page - 1) * $perPage;
+
+        $where = '1=1';
+        $params = [];
+        if ($search !== '') {
+            $where .= " AND (p.invoice_number LIKE ? OR p.reference_number LIKE ? OR p.transaction_id LIKE ?)";
+            $like = "%{$search}%";
+            $params[] = $like;
+            $params[] = $like;
+            $params[] = $like;
+        }
+        if ($status !== '') {
+            $where .= ' AND p.payment_status = ?';
+            $params[] = $status;
+        }
+        if ($gateway !== '') {
+            $where .= ' AND p.payment_method = ?';
+            $params[] = $gateway;
+        }
+
+        $total = (int) ($this->db->fetch(
+            "SELECT COUNT(*) as cnt FROM payments p WHERE {$where}", $params
+        )['cnt'] ?? 0);
+
+        $rows = $this->db->fetchAll(
+            "SELECT p.*, u.name as creator_name
+             FROM payments p
+             LEFT JOIN users u ON p.created_by = u.id
+             WHERE {$where}
+             ORDER BY p.id DESC
+             LIMIT {$perPage} OFFSET {$offset}",
+            $params
+        );
+
+        $gateways = $this->db->fetchAll(
+            "SELECT code, name FROM payment_gateways WHERE is_active = 1 ORDER BY name ASC"
+        );
+
+        $this->view('dashboard.payments.index', [
+            'rows'      => $rows,
+            'total'     => $total,
+            'page'      => $page,
+            'perPage'   => $perPage,
+            'lastPage'  => max(1, (int) ceil($total / $perPage)),
+            'search'    => $search,
+            'status'    => $status,
+            'gateway'   => $gateway,
+            'gateways'  => $gateways,
+        ]);
+    }
+
+    public function show(int $id): void
+    {
+        Auth::requireAuth();
+        $payment = $this->db->fetch(
+            "SELECT p.*, u.name as creator_name
+             FROM payments p
+             LEFT JOIN users u ON p.created_by = u.id
+             WHERE p.id = ? LIMIT 1",
+            [$id]
+        );
+
+        if (!$payment) {
+            Session::getInstance()->flash('error', 'Payment not found.');
+            $this->redirect('/dashboard/payments');
+            return;
+        }
+
+        $this->view('dashboard.payments.show', ['payment' => $payment]);
+    }
+
+    public function refund(int $id): void
+    {
+        Auth::requireAuth();
+        $payment = $this->db->fetch("SELECT * FROM payments WHERE id = ? LIMIT 1", [$id]);
+        if (!$payment) {
+            Session::getInstance()->flash('error', 'Payment not found.');
+            $this->redirect('/dashboard/payments');
+            return;
+        }
+
+        if ($payment['payment_status'] !== 'completed') {
+            Session::getInstance()->flash('error', 'Only completed payments can be refunded.');
+            $this->redirect("/dashboard/payments/{$id}");
+            return;
+        }
+
+        $this->db->update('payments', [
+            'payment_status' => 'refunded',
+            'notes'          => 'Refunded by ' . (Auth::user()['name'] ?? 'admin'),
+            'updated_at'     => date('Y-m-d H:i:s'),
+        ], 'id = ?', [$id]);
+
+        Session::getInstance()->flash('success', 'Payment refunded successfully.');
+        $this->redirect("/dashboard/payments/{$id}");
+    }
+}

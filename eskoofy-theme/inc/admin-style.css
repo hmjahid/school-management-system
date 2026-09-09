@@ -1,0 +1,352 @@
+/* =========================================================================
+   Eskoofy Admin Styles
+   ========================================================================= */
+
+/* ─── Layout ─────────────────────────────────────────────────────────────── */
+
+.esk-admin-wrap {
+	max-width: 1400px;
+}
+
+.esk-admin-wrap h1 {
+	margin-bottom: 1rem;
+}
+
+/* ─── Stats Grid ─────────────────────────────────────────────────────────── */
+
+.esk-stats-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	gap: 1rem;
+	margin: 1.5rem 0 2rem;
+}
+
+.esk-stat-card {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 1.25rem;
+	background: #fff;
+	border-radius: 8px;
+	box-shadow: 0 1px 3px rgba(0,0,0,.08);
+	border-left: 4px solid #2563eb;
+}
+
+.esk-stat-success { border-left-color: #10b981; }
+.esk-stat-warning { border-left-color: #f59e0b; }
+.esk-stat-info    { border-left-color: #6366f1; }
+
+.esk-stat-icon {
+	font-size: 2rem;
+	opacity: .7;
+}
+
+.esk-stat-content h3 {
+	margin: 0;
+	font-size: 1.75rem;
+	line-height: 1;
+}
+
+.esk-stat-content p {
+	margin: .25rem 0 0;
+	color: #6b7280;
+	font-size: .875rem;
+}
+
+/* ─── Dashboard Columns ──────────────────────────────────────────────────── */
+
+.esk-dashboard-columns {
+	display: grid;
+	grid-template-columns: 2fr 1fr;
+	gap: 1.5rem;
+}
+
+@media (max-width: 960px) {
+	.esk-dashboard-columns {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* ─── Cards ──────────────────────────────────────────────────────────────── */
+
+.esk-card {
+	background: #fff;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	padding: 1.25rem 1.5rem;
+	margin-bottom: 1rem;
+	box-shadow: 0 1px 2px rgba(0,0,0,.04);
+}
+
+.esk-card h2 {
+	margin: 0 0 1rem;
+	font-size: 1.15rem;
+	padding-bottom: .5rem;
+	border-bottom: 1px solid #e5e7eb;
+}
+
+.esk-form-card {
+	max-width: 900px;
+}
+
+.esk-form-card .form-table th {
+	width: 180px;
+	padding: 10px 10px 10px 0;
+}
+
+/* ─── Tables ─────────────────────────────────────────────────────────────── */
+
+.esk-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.esk-table th,
+.esk-table td {
+	padding: 10px 12px;
+	text-align: left;
+	border-bottom: 1px solid #f3f4f6;
+}
+
+.esk-table thead th {
+	background: #f9fafb;
+	font-weight: 600;
+	font-size: .85rem;
+	text-transform: uppercase;
+	letter-spacing: .03em;
+	color: #6b7280;
+}
+
+.esk-table tbody tr:hover {
+	background: #f0f7ff;
+}
+
+/* ─── Badges ─────────────────────────────────────────────────────────────── */
+
+.esk-badge {
+	display: inline-block;
+	padding: 2px 10px;
+	border-radius: 12px;
+	font-size: .78rem;
+	font-weight: 600;
+	line-height: 1.6;
+}
+
+.esk-badge-active,
+.esk-badge-present,
+.esk-badge-passed,
+.esk-badge-completed,
+.esk-badge-approved,
+.esk-badge-enrolled,
+.esk-badge-paid,
+.esk-badge-issued {
+	background: #d1fae5;
+	color: #065f46;
+}
+
+.esk-badge-inactive,
+.esk-badge-absent,
+.esk-badge-failed,
+.esk-badge-cancelled,
+.esk-badge-rejected {
+	background: #fee2e2;
+	color: #991b1b;
+}
+
+.esk-badge-pending,
+.esk-badge-draft,
+.esk-badge-submitted,
+.esk-badge-under_review,
+.esk-badge-upcoming,
+.esk-badge-queued {
+	background: #fef3c7;
+	color: #92400e;
+}
+
+.esk-badge-partial {
+	background: #e0e7ff;
+	color: #3730a3;
+}
+
+.esk-badge-late,
+.esk-badge-half_day,
+.esk-badge-transferred,
+.esk-badge-waitlisted {
+	background: #f3e8ff;
+	color: #6b21a8;
+}
+
+.esk-badge-graduated {
+	background: #dbeafe;
+	color: #1e40af;
+}
+
+/* ─── Forms ──────────────────────────────────────────────────────────────── */
+
+.esk-form .esk-form-group {
+	margin-bottom: 1rem;
+}
+
+.esk-form label {
+	display: block;
+	margin-bottom: 4px;
+	font-weight: 500;
+}
+
+.esk-form input[type="text"],
+.esk-form input[type="email"],
+.esk-form input[type="tel"],
+.esk-form input[type="number"],
+.esk-form input[type="date"],
+.esk-form input[type="time"],
+.esk-form input[type="url"],
+.esk-form input[type="search"],
+.esk-form select,
+.esk-form textarea {
+	padding: 6px 10px;
+	border: 1px solid #d1d5db;
+	border-radius: 4px;
+	width: 100%;
+	max-width: 500px;
+}
+
+.esk-form-row {
+	display: flex;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+.esk-form-row .esk-form-group {
+	flex: 1;
+	min-width: 200px;
+}
+
+.esk-inline-form {
+	display: flex;
+	align-items: flex-end;
+	gap: .75rem;
+	flex-wrap: wrap;
+}
+
+.esk-inline-form label {
+	margin-bottom: 0;
+}
+
+/* ─── Toolbar ────────────────────────────────────────────────────────────── */
+
+.esk-toolbar {
+	margin: 1rem 0;
+}
+
+.esk-filter-form {
+	display: flex;
+	gap: .5rem;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.esk-filter-form input[type="search"],
+.esk-filter-form input[type="date"],
+.esk-filter-form select {
+	padding: 5px 8px;
+	border: 1px solid #d1d5db;
+	border-radius: 4px;
+}
+
+.esk-table-info {
+	color: #6b7280;
+	font-size: .9rem;
+	margin: .5rem 0;
+}
+
+/* ─── Pagination ─────────────────────────────────────────────────────────── */
+
+.esk-pagination {
+	margin: 1rem 0;
+}
+
+.esk-pagination .nav-links {
+	display: flex;
+	gap: .5rem;
+	justify-content: center;
+}
+
+/* ─── Activity List ──────────────────────────────────────────────────────── */
+
+.esk-activity-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.esk-activity-list li {
+	padding: .5rem 0;
+	border-bottom: 1px solid #f3f4f6;
+	font-size: .9rem;
+}
+
+.esk-activity-list li:last-child {
+	border-bottom: none;
+}
+
+.esk-activity-list small {
+	display: block;
+	color: #9ca3af;
+	font-size: .8rem;
+}
+
+/* ─── Tabs ───────────────────────────────────────────────────────────────── */
+
+.esk-tabs {
+	margin-bottom: 1rem;
+}
+
+.esk-tab-content {
+	margin-top: 1rem;
+}
+
+/* ─── Notices ────────────────────────────────────────────────────────────── */
+
+.esk-notice {
+	padding: 1rem 1.25rem;
+	margin-bottom: 1rem;
+	border-radius: 6px;
+}
+
+.esk-notice-success {
+	background: #d1fae5;
+	border: 1px solid #6ee7b7;
+	color: #065f46;
+}
+
+.esk-notice-warning {
+	background: #fef3c7;
+	border: 1px solid #fcd34d;
+	color: #92400e;
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────────────── */
+
+.esk-button {
+	display: inline-block;
+	padding: 8px 16px;
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: .9rem;
+	text-decoration: none;
+}
+
+.esk-button-primary {
+	background: #2563eb;
+	color: #fff;
+}
+
+.esk-button-primary:hover {
+	background: #1d4ed8;
+}
+
+/* ─── Text helpers ───────────────────────────────────────────────────────── */
+
+.esk-text-success { color: #065f46; }
+.esk-text-danger  { color: #991b1b; }

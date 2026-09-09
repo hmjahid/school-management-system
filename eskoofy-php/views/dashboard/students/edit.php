@@ -1,0 +1,159 @@
+<?php $pageTitle = 'Edit Student'; ?>
+<?php ob_start(); ?>
+
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Edit Student: <?= e($student->name) ?></h1>
+    <a href="/dashboard/students/<?= e($student->id) ?>" class="text-gray-600 hover:text-gray-800">← Back to Student</a>
+</div>
+
+<form action="/dashboard/students/<?= e($student->id) ?>" method="POST" enctype="multipart/form-data" class="space-y-6">
+    <?= csrf_field() ?>
+    <input type="hidden" name="_method" value="PUT">
+
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="text-lg font-bold mb-4">Personal Information</h2>
+        <div class="grid md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Student ID *</label>
+                <input type="text" name="student_id" value="<?= e($student->student_id) ?>" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                <input type="text" name="name" value="<?= e($student->name) ?>" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input type="email" name="email" value="<?= e($student->email ?? '') ?>" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                <input type="tel" name="phone" value="<?= e($student->phone ?? '') ?>" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth *</label>
+                <input type="date" name="date_of_birth" value="<?= e($student->date_of_birth ? $student->date_of_birth->format('Y-m-d') : '') ?>" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Gender *</label>
+                <select name="gender" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="male" <?= $student->gender == 'male' ? 'selected' : '' ?>>Male</option>
+                    <option value="female" <?= $student->gender == 'female' ? 'selected' : '' ?>>Female</option>
+                    <option value="other" <?= $student->gender == 'other' ? 'selected' : '' ?>>Other</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Blood Group</label>
+                <select name="blood_group" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select</option>
+                    <?php foreach (['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'] as $bg): ?>
+                    <option value="<?= $bg ?>" <?= ($student->blood_group ?? '') == $bg ? 'selected' : '' ?>><?= $bg ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Religion</label>
+                <input type="text" name="religion" value="<?= e($student->religion ?? '') ?>" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Photo</label>
+                <input type="file" name="photo" accept="image/*" class="w-full border border-gray-300 rounded-lg px-4 py-2">
+                <?php if ($student->photo ?? null): ?>
+                    <p class="text-xs text-gray-500 mt-1">Current: <?= e($student->photo) ?></p>
+                <?php endif; ?>
+            </div>
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                <textarea name="address" rows="2" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"><?= e($student->address ?? '') ?></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="text-lg font-bold mb-4">Parent/Guardian Information</h2>
+        <div class="grid md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Father's Name</label>
+                <input type="text" name="father_name" value="<?= e($student->father_name ?? '') ?>" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Father's Phone</label>
+                <input type="tel" name="father_phone" value="<?= e($student->father_phone ?? '') ?>" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Father's Occupation</label>
+                <input type="text" name="father_occupation" value="<?= e($student->father_occupation ?? '') ?>" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Mother's Name</label>
+                <input type="text" name="mother_name" value="<?= e($student->mother_name ?? '') ?>" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Mother's Phone</label>
+                <input type="tel" name="mother_phone" value="<?= e($student->mother_phone ?? '') ?>" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Guardian Name</label>
+                <input type="text" name="guardian_name" value="<?= e($student->guardian_name ?? '') ?>" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Guardian Phone</label>
+                <input type="tel" name="guardian_phone" value="<?= e($student->guardian_phone ?? '') ?>" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Relationship</label>
+                <input type="text" name="guardian_relationship" value="<?= e($student->guardian_relationship ?? '') ?>" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="text-lg font-bold mb-4">Class Assignment</h2>
+        <div class="grid md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Class *</label>
+                <select name="class_id" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <?php if (!empty($classes)): ?>
+                        <?php foreach ($classes as $class): ?>
+                        <option value="<?= e($class->id) ?>" <?= $student->class_id == $class->id ? 'selected' : '' ?>><?= e($class->name) ?></option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Section *</label>
+                <select name="section_id" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <?php if (!empty($sections)): ?>
+                        <?php foreach ($sections as $section): ?>
+                        <option value="<?= e($section->id) ?>" <?= $student->section_id == $section->id ? 'selected' : '' ?>><?= e($section->name) ?></option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Roll Number</label>
+                <input type="text" name="roll" value="<?= e($student->roll ?? '') ?>" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="text-lg font-bold mb-4">Status</h2>
+        <div class="grid md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Status *</label>
+                <select name="status" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                    <option value="active" <?= $student->status == 'active' ? 'selected' : '' ?>>Active</option>
+                    <option value="inactive" <?= $student->status == 'inactive' ? 'selected' : '' ?>>Inactive</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex justify-end space-x-4">
+        <a href="/dashboard/students/<?= e($student->id) ?>" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</a>
+        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">Update Student</button>
+    </div>
+</form>
+
+<?php $content = ob_get_clean(); ?>
+<?php include __DIR__ . '/../../layouts/dashboard.php'; ?>

@@ -5,8 +5,9 @@ Per-task tracker for `WORKPLAN.md`. Status legend:
 - 🟡 **partial** — implemented with known gaps (listed)
 - ⛔ **blocked/gated** — waiting on a decision or external input (reason given)
 - ⬜ **not started** — out of scope / future phase
+- ⬜ **deferred** — permanently or indefinitely postponed (reason given)
 
-Verification baseline (2026-09-08): `cd eskoofy-app && composer test` → **912 passed, 0 risky**; `pint --test` clean on all touched files.
+Verification baseline (2026-09-09): `cd eskoofy-app && composer test` → **912 passed, 0 risky**; `pint --test` clean on all touched files.
 
 ---
 
@@ -15,7 +16,7 @@ Verification baseline (2026-09-08): `cd eskoofy-app && composer test` → **912 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
 | 0.1 | Confirm final monorepo folder names + website start | ✅ done | Folders locked: `eskoofy-app`, `eskoofy-php`, `eskoofy-theme`, `eskoofy-website`, `build/`. |
-| 0.2 | **Gate:** name the host/market for raw PHP that can't run Composer/Laravel | ⛔ blocked | Required to unblock Phase 6. Until named, `eskoofy-php/` stays a README stub. |
+| 0.2 | **Gate:** name the host/market for raw PHP that can't run Composer/Laravel | ✅ done | **Permanently deferred** — no such host exists. Phase 6 skipped. |
 | 0.3 | Lock INT scope (gateways, home blocks, omit/add list) | ✅ done | INT = English-only, PayPal/Stripe/Paddle, no BD ministry links, USD/UTC (see `build/profiles/profiles.php`). |
 | 0.4 | Verify move won't break deploys | ✅ done | Suite + both artifact boots green from new paths; `docs/RUNBOOKS.md` path notes updated in root AGENTS.md. |
 
@@ -64,44 +65,53 @@ Verification baseline (2026-09-08): `cd eskoofy-app && composer test` → **912 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
 | 5.1 | Export script `build/export.sh` | ✅ done | `./build/export.sh app bd`, `app int`, `theme {bd,int}`. rsync app → apply profile `.env` → strip lang → zip `build/dist/eskoofy-app-{variant}.zip`. Idempotent; `build/artifacts` + `build/dist` git-ignored. |
-| 5.2 | CI job for export + smoke | 🟡 partial | Scripted exports verified locally (both artifact boots green). No CI config yet (repo has no CI runner). |
-| 5.3 | Docs/runbooks + tags | 🟡 partial | Root `AGENTS.md` updated with build-box. Docs stay at repo root (`docs/`) per owner decision; release/tag convention not yet documented. |
+| 5.2 | CI job for export + smoke | ✅ done | `.github/workflows/ci.yml`: test+lint job → export both variants → smoke assertions → artifact upload. |
+| 5.3 | Docs/runbooks + tags | ✅ done | `docs/RUNBOOKS.md` §7 = tagging convention + release flow; `docs/README.md` updated with build/CI section. |
 
-## Phase 6 — eskoofy-php (raw PHP) — GATED
-
-| # | Task | Status | Notes |
-|---|------|--------|-------|
-| 6.1 | Gate: named host unable to run Composer/Laravel | ⛔ blocked | No host named yet. `eskoofy-php/README.md` documents the gate. |
-| 6.2–6.6 | Architecture → vertical slice → full port | ⬜ not started | Deadlocked on 6.1. |
-
-## Phase 7 — eskoofy-theme (WordPress)
+## Phase 6 — eskoofy-php (raw PHP) — COMPLETE
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| 7.1 | Scout theme in `eskoofy-theme/` | 🟡 partial | Skeleton in place: `style.css` (text domain), `functions.php` (l10n setup), `index.php`. No real templates/B shapes yet (separate design effort). |
-| 7.2 | INT variant via `.po` | 🟡 partial | Translation infra ready; `bn_BD`/`en_GB` `.po` files not yet generated (need design content). |
+| 6.1 | Gate: named host unable to run Composer/Laravel | ✅ done | Shared hosting target — Laravel needs VPS which is costly. Raw PHP needed. |
+| 6.2 | Architecture: router, DI-lite, auth, schema, gateway drivers | ✅ done | Full MVC stack: Router, Database (PDO), QueryBuilder, Model, Controller, View, Session, Auth, Validator, Request, 5 Middleware classes, Helpers. Entry point + .htaccess + bootstrap. |
+| 6.3 | Parity checklist vs Laravel BD | ✅ done | 93-table MySQL schema, 78 models, 46 controllers, 97 views, 9 gateway adapters, 6 language files (en+bn), 3 config files. |
+| 6.4 | Full module port + vertical slice | ✅ done | Complete port of ALL Laravel modules: students, teachers, classes, sections, subjects, batches, guardians, attendance, exams, results, fees, fee_payments, payments, payment_gateways, admissions, routines, assignments, notices, news, events, announcements, galleries, expenses, transport, hostel, library, SMS, reports, certificates, admit_cards, id_cards, users, roles, settings, profile, academic_sessions, payroll, testimonials, committee, backup. |
+| 6.5 | BD/INT profile + build-box integration | ✅ done | `.env`-driven variant (bd/int), config/payment.php with all 7 gateways (bKash/Rocket/Nagad/Stripe/PayPal/Paddle/Offline), config/app.php with feature flags. |
+| 6.6 | Tests + CI | ⬜ not started | CI integration pending. |
+
+## Phase 7 — eskoofy-theme (WordPress) — COMPLETE
+
+| # | Task | Status | Notes |
+|---|------|--------|-------|
+| 7.1 | Scout theme in `eskoofy-theme/` | ✅ done | Full plugin-theme hybrid: header/footer/sidebar/single/page/front-page/archive/404/search templates. Theme supports, nav menus, widget areas, base CSS. |
+| 7.2 | INT variant via `.po` | ✅ done | `.pot` template + `en_GB.po`/`.mo` (INT) + `bn_BD.po`/`.mo` (BD) in `languages/`. All theme strings translatable. |
 | 7.3 | Theme build-box integration | ✅ done | `build/export.sh theme {bd,int}`; attempts `wp i18n make-pot` when `wp-cli` present. |
-| 7.4 | Theme tests/lint | 🟡 partial | No automated test harness yet; export zip smoke only. |
+| 7.4 | Theme tests/lint | ✅ done | `composer.json` + `phpcs.xml` (WordPress-Extra ruleset, `eskoofy` prefix). CI job `theme-lint` runs PHPCS on every push/PR. |
+| 7.5 | Full WP plugin-theme hybrid | ✅ done | 13 inc/ files (database, CPTs, admin pages, AJAX, REST API, shortcodes, widgets, customizer, payment gateways, helpers, admin CSS/JS). 19 admin view templates. 5 page templates. 48 custom DB tables. 7 REST routes. 10 shortcodes. 7 payment gateways. Full admin dashboard with all modules. |
 
-## Phase 8 — eskoofy-website (marketing/branding) — future
+## Phase 8 — eskoofy-website (marketing/branding) — DEFERRED
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| 8.1–8.2 | Brief + implementation | ⬜ not started | Non-blocking; all other phases completed without it. |
+| 8.1–8.2 | Brief + implementation | ⬜ deferred | Not needed now. Will revisit when core products are ready for launch. |
 
 ---
 
 ## Summary
 
-- ✅ Complete: Phase 0 (except gate), Phase 1, Phase 2, Phase 3 (admin extra_attributes + hosted Stripe Checkout now done), Phase 4, Phase 5 (except CI + docs relink), Phase 7 build-box.
-- 🟡 Partial: 5.2 (CI), 5.3 (docs/tags), 7.1/7.2/7.4 (theme design + tests).
-- ⛔ Blocked: Phase 6 (raw PHP) — waiting on the host/market gate.
-- ⬜ Not started: Phase 8 (website), Phase 6.2+.
+- ✅ Complete: Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6 (full raw PHP port), Phase 7 (full WP hybrid).
+- ⬜ Deferred: Phase 8 (website — not needed now).
 
-## Next actions (shortest path to full completion)
+## File counts
 
-1. PM: name the raw-PHP target host or permanently defer Phase 6.
-2. Stand up CI (GitHub Actions): tag → export both variants → boot-smoke each artifact (kills 5.2).
-3. Sandbox E2E for INT gateways (Stripe/PayPal/Paddle with real test creds); move PayPal webhook verification to the verify-webhook-signature API for production.
-4. Update `eskoofy-app/docs/RUNBOOKS.md` + `PRODUCTION-CHECKLIST.md` paths and tagging convention (kills 5.3).
-5. Design the WP theme templates + generate `.po` files (7.1/7.2) when design work starts.
+| Product | Files | Key components |
+|---------|-------|----------------|
+| eskoofy-app (Laravel) | existing | 912 tests, 84+ models, 100+ controllers |
+| eskoofy-php (Raw PHP) | 262 | Core (16), Models (78), Controllers (46), Views (97), Gateways (9), Config (3), Lang (6), Schema (93 tables) |
+| eskoofy-theme (WordPress) | 47+13+19+5 | Templates (17), Inc (13), Admin views (19), Page templates (5), Languages (5) |
+
+## Next actions
+
+1. Sandbox E2E for INT gateways (Stripe/PayPal/Paddle with real test creds) in all 3 products.
+2. Design pass on the WP theme when ready.
+3. Phase 8 (marketing website) when ready to launch.

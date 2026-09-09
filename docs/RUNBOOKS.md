@@ -105,7 +105,37 @@ If a live test fails after rotation:
 - All traffic should 301 to HTTPS; HSTS header applies via `SecurityHeaders`.
 - Certificate rotation: apply new cert on the LB, `curl -sI https://host/` shows new expiry.
 
-## 7. Version & contacts
+## 7. Versioning & tagging
+
+Use **semver** tags prefixed with the product:
+
+| Tag | Meaning |
+|-----|---------|
+| `app/v1.2.3` | Laravel app release |
+| `theme/v0.4.0` | WordPress theme release |
+| `v1.2.3` | Monorepo-wide (all products) |
+
+### Release flow
+
+```bash
+# 1. Ensure main is green (CI passes)
+# 2. Tag
+git tag -a app/v1.2.3 -m "Release 1.2.3"
+git push origin app/v1.2.3
+
+# 3. CI builds + smoke-tests both variant artifacts automatically.
+# 4. Download artifacts from the GitHub Actions run or build locally:
+./build/export.sh app bd
+./build/export.sh app int
+```
+
+Artifacts land in `build/dist/`:
+- `eskoofy-app-bd.zip` — full Laravel app, BD profile
+- `eskoofy-app-int.zip` — full Laravel app, INT profile (no `lang/bn`)
+- `eskoofy-theme-bd.zip` — WordPress theme, BD profile
+- `eskoofy-theme-int.zip` — WordPress theme, INT profile
+
+## 8. Contacts
 
 | Area | Owner | Escalation |
 |------|-------|-----------|

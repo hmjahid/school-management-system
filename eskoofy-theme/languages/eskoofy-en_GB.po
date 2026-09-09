@@ -1,0 +1,98 @@
+# English (Great Britain) translation for Eskoofy WordPress theme.
+# Copyright (C) 2026 Eskoofy
+# This file is distributed under the MIT license.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Eskoofy 0.2.0\n"
+"Report-Msgid-Bugs-To: https://github.com/anomalyco/school-management-system/issues\n"
+"POT-Creation-Date: 2026-09-09 00:00+0000\n"
+"PO-Revision-Date: 2026-09-09 00:00+0000\n"
+"Last-Translator: Eskoofy Team\n"
+"Language-Team: English (Great Britain)\n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.5\n"
+"X-Domain: eskoofy\n"
+
+#: header.php:17
+msgid "Primary menu"
+msgstr "Primary menu"
+
+#: header.php:17
+#: functions.php:86
+msgid "Footer menu"
+msgstr "Footer menu"
+
+#: footer.php:13
+msgid "All rights reserved."
+msgstr "All rights reserved."
+
+#: sidebar.php:13
+msgid "Sidebar"
+msgstr "Sidebar"
+
+#: single.php:25
+#: search.php:30
+msgid "Previous"
+msgstr "Previous"
+
+#: single.php:26
+#: search.php:31
+msgid "Next"
+msgstr "Next"
+
+#: 404.php:13
+msgid "Page not found"
+msgstr "Page not found"
+
+#: 404.php:16
+msgid "The page you are looking for might have been moved or does not exist."
+msgstr "The page you are looking for might have been moved or does not exist."
+
+#: 404.php:20
+msgid "Back to home"
+msgstr "Back to home"
+
+#: archive.php:29
+#: search.php:36
+msgid "&laquo; Previous"
+msgstr "&laquo; Previous"
+
+#: archive.php:30
+#: search.php:37
+msgid "Next &raquo;"
+msgstr "Next &raquo;"
+
+#: archive.php:33
+#: search.php:40
+msgid "No posts found."
+msgstr "No posts found."
+
+#: search.php:22
+#, php-format
+msgid "Search results for: %s"
+msgstr "Search results for: %s"
+
+#: search.php:40
+msgid "No results found. Try a different search term."
+msgstr "No results found. Try a different search term."
+
+#: searchform.php:13
+msgid "Search"
+msgstr "Search"
+
+#: searchform.php:17
+msgid "Search&hellip;"
+msgstr "Search&hellip;"
+
+#: functions.php:75
+msgid "Footer widgets"
+msgstr "Footer widgets"
+
+#: functions.php:76
+msgid "Footer widget area."
+msgstr "Footer widget area."

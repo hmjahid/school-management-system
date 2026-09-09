@@ -1,11 +1,342 @@
-<?php
-/**
- * Theme Name:    Eskoofy
- * Description:   Eskoofy WordPress theme. BD and INT variants are profiles
- *                of this single theme (`.pot`/`.po` translations + branding
- *                stylesheet), matching the monorepo golden rule.
- * Author:        Eskoofy
- * Version:       0.1.0
- * Text Domain:   eskoofy
- * Domain Path:   /languages
- */
+/*
+Theme Name:    Eskoofy
+Description:   Eskoofy WordPress theme. BD and INT variants are profiles
+               of this single theme (`.pot`/`.po` translations + branding
+               stylesheet), matching the monorepo golden rule.
+Author:        Eskoofy
+Version:       0.2.0
+Text Domain:   eskoofy
+Domain Path:   /languages
+*/
+
+/* =========================================================================
+   Base reset & layout
+   ========================================================================= */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+    color: #1a1a1a;
+    background-color: #fff;
+}
+
+.eskoofy-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.eskoofy-content-area {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 2rem;
+    padding: 2rem 0;
+}
+
+@media (max-width: 768px) {
+    .eskoofy-content-area {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================================
+   Header
+   ========================================================================= */
+
+.eskoofy-site-header {
+    background-color: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 1rem 0;
+}
+
+.eskoofy-site-header .eskoofy-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.eskoofy-site-logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    text-decoration: none;
+}
+
+.eskoofy-site-logo:hover {
+    color: #2563eb;
+}
+
+.eskoofy-menu {
+    display: flex;
+    list-style: none;
+    gap: 1.5rem;
+}
+
+.eskoofy-menu a {
+    color: #374151;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.eskoofy-menu a:hover {
+    color: #2563eb;
+}
+
+/* =========================================================================
+   Hero
+   ========================================================================= */
+
+.eskoofy-hero {
+    background-color: #f0f4ff;
+    padding: 4rem 0;
+    text-align: center;
+}
+
+.eskoofy-hero-title {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.eskoofy-hero-tagline {
+    font-size: 1.2rem;
+    color: #4b5563;
+}
+
+/* =========================================================================
+   Posts & pages
+   ========================================================================= */
+
+.eskoofy-entry-header {
+    margin-bottom: 1.5rem;
+}
+
+.eskoofy-entry-title {
+    font-size: 2rem;
+    line-height: 1.2;
+}
+
+.eskoofy-entry-meta {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.5rem;
+}
+
+.eskoofy-meta-sep {
+    margin: 0 0.25rem;
+}
+
+.eskoofy-entry-content {
+    font-size: 1.05rem;
+}
+
+.eskoofy-entry-content > * + * {
+    margin-top: 1rem;
+}
+
+.eskoofy-page-links {
+    margin-top: 1.5rem;
+}
+
+.eskoofy-tags {
+    margin-top: 1.5rem;
+    font-size: 0.875rem;
+}
+
+/* Post summary (archive/search) */
+
+.eskoofy-post-summary {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.eskoofy-post-title {
+    font-size: 1.5rem;
+}
+
+.eskoofy-post-title a {
+    color: #1a1a1a;
+    text-decoration: none;
+}
+
+.eskoofy-post-title a:hover {
+    color: #2563eb;
+}
+
+.eskoofy-post-meta {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0.25rem 0 0.75rem;
+}
+
+.eskoofy-post-excerpt {
+    color: #374151;
+}
+
+/* =========================================================================
+   Pagination
+   ========================================================================= */
+
+.eskoofy-pagination {
+    margin: 2rem 0;
+}
+
+.eskoofy-pagination .nav-links {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.eskoofy-pagination a,
+.eskoofy-pagination span {
+    padding: 0.4rem 0.8rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #374151;
+}
+
+.eskoofy-pagination .current {
+    background-color: #2563eb;
+    color: #fff;
+    border-color: #2563eb;
+}
+
+/* =========================================================================
+   Sidebar & widgets
+   ========================================================================= */
+
+.eskoofy-sidebar {
+    padding: 1rem 0;
+}
+
+.eskoofy-widget {
+    margin-bottom: 2rem;
+}
+
+.eskoofy-widget-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* =========================================================================
+   Footer
+   ========================================================================= */
+
+.eskoofy-site-footer {
+    background-color: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    padding: 2rem 0;
+    margin-top: 3rem;
+}
+
+.eskoofy-footer-menu {
+    margin-bottom: 1rem;
+}
+
+.eskoofy-copyright {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* =========================================================================
+   404
+   ========================================================================= */
+
+.eskoofy-404 {
+    text-align: center;
+    padding: 4rem 0;
+}
+
+.eskoofy-404-title {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.eskoofy-404-text {
+    font-size: 1.1rem;
+    color: #4b5563;
+    margin-bottom: 2rem;
+}
+
+.eskoofy-button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #2563eb;
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.eskoofy-button:hover {
+    background-color: #1d4ed8;
+}
+
+/* =========================================================================
+   Search form
+   ========================================================================= */
+
+.eskoofy-search-form {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.eskoofy-search-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+}
+
+.eskoofy-search-input {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.95rem;
+}
+
+.eskoofy-search-submit {
+    padding: 0.5rem 1rem;
+    background-color: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.eskoofy-search-submit:hover {
+    background-color: #1d4ed8;
+}
+
+/* =========================================================================
+   Navigation (prev/next)
+   ========================================================================= */
+
+.eskoofy-entry-footer .post-navigation {
+    margin-top: 2rem;
+}
+
+.eskoofy-nav-label {
+    display: block;
+    font-size: 0.8rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}

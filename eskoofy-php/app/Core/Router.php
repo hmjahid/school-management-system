@@ -1,0 +1,92 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Core;
+
+class Router
+{
+    private array $routes = [];
+    private array $middleware = [];
+    private string $prefix = '';
+
+    public function group(string $prefix, callable $callback, array $middleware = []): void
+    {
+        $oldPrefix = $this->prefix;
+        $this->prefix = $oldPrefix . $prefix;
+        $callback($this);
+        $this->prefix = $oldPrefix;
+    }
+
+    public function get(string $path, string $controller, string $method, array $middleware = []): void
+    {
+        $this->addRoute('GET', $path, $controller, $method, $middleware);
+    }
+
+    public function post(string $path, string $controller, string $method, array $middleware = []): void
+    {
+        $this->addRoute('POST', $path, $controller, $method, $middleware);
+    }
+
+    public function put(string $path, string $controller, string $method, array $middleware = []): void
+    {
+        $this->addRoute('PUT', $path, $controller, $method, $middleware);
+    }
+
+    public function delete(string $path, string $controller, string $method, array $middleware = []): void
+    {
+        $this->addRoute('DELETE', $path, $controller, $method, $middleware);
+    }
+
+    private function addRoute(string $httpMethod, string $path, string $controller, string $method, array $middleware): void
+    {
+        $fullPath = $this->prefix . $path;
+        $this->routes[] = [
+            'method'     => $httpMethod,
+            'path'       => $fullPath,
+            'controller' => $controller,
+            'action'     => $method,
+            'middleware'  => $middleware,
+        ];
+    }
+
+    public function dispatch(string $method, string $uri): void
+    {
+        $uri = parse_url($uri, PHP_URL_PATH);
+        $uri = rtrim($uri, '/') ?: '/';
+
+        foreach ($this->routes as $route) {
+            $pattern = $this->toRegex($route['path']);
+            if ($route['method'] === $method && preg_match($pattern, $uri, $matches)) {
+                $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
+
+                foreach ($route['middleware'] as $mw) {
+                    $this->runMiddleware($mw);
+                }
+
+                $controllerClass = $route['controller'];
+                $action = $route['action'];
+                $controller = new $controllerClass();
+                call_user_func_array([$controller, $action], $params);
+                return;
+            }
+        }
+
+        http_response_code(404);
+        require __DIR__ . '/../../views/errors/404.php';
+    }
+
+    private function toRegex(string $path): string
+    {
+        $regex = preg_replace('/\{(\w+)\}/', '(?P<$1>[^/]+)', $path);
+        return '#^' . $regex . '$#';
+    }
+
+    private function runMiddleware(string $name): void
+    {
+        $class = 'App\\Core\\Middleware\\' . $name;
+        if (class_exists($class)) {
+            $instance = new $class();
+            $instance->handle();
+        }
+    }
+}

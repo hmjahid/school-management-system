@@ -54,6 +54,13 @@ records, organized into the folders below so the root stays clean.
 - `self-notes.md`
 - `name-suggetions.md`
 
+## Build & CI
+
+- `.github/workflows/ci.yml` — GitHub Actions: runs tests + lint, exports both BD/INT variants, smoke-tests artifacts, uploads zips.
+- `build/export.sh` — local export script (same logic as CI).
+- `build/profiles/profiles.php` — single source of truth for BD/INT variant differences.
+- Tagging convention: see `docs/RUNBOOKS.md` §7.
+
 ## Agent instructions
 
 - Root `AGENTS.md` — conventions and commands for working in this repo (kept at root, as required).
