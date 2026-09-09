@@ -71,6 +71,7 @@ class ExpenseController extends Controller
 
         $this->view('dashboard.expenses.index', [
             'rows'        => $rows,
+            'expenses' => $rows,
             'total'       => $total,
             'page'        => $page,
             'perPage'     => $perPage,

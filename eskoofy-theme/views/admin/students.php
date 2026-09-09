@@ -53,7 +53,7 @@ $pages       = ceil( $total / $per_page );
 	<div class="esk-toolbar">
 		<form method="get" class="esk-filter-form">
 			<input type="hidden" name="page" value="esk-students">
-			<input type="search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search students...', 'eskoofy' ); ?>">
+			<input type="search" id="esk-student-search" name="s" value="<?php echo esc_attr( $search ); ?>" placeholder="<?php esc_attr_e( 'Search students...', 'eskoofy' ); ?>">
 			<select name="class_id">
 				<option value=""><?php esc_html_e( 'All Classes', 'eskoofy' ); ?></option>
 				<?php foreach ( $all_classes as $c ) : ?>
@@ -62,6 +62,7 @@ $pages       = ceil( $total / $per_page );
 			</select>
 			<button type="submit" class="button"><?php esc_html_e( 'Filter', 'eskoofy' ); ?></button>
 		</form>
+		<div id="esk-student-results"></div>
 	</div>
 
 	<p class="esk-table-info"><?php printf( esc_html__( 'Total: %d students', 'eskoofy' ), $total ); ?></p>

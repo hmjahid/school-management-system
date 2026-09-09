@@ -145,50 +145,63 @@ add_action( 'after_switch_theme', 'esk_theme_activation' );
 /* ─── Handle public form submissions ─────────────────────────────────────── */
 
 if ( isset( $_POST['esk_admission_submit'] ) && ! is_admin() ) {
-	check_admin_referer( 'esk_admission_form' );
-	global $wpdb;
+	$nonce = isset( $_POST['esk_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['esk_nonce'] ) ) : '';
+	if ( wp_verify_nonce( $nonce, 'esk_admission_form' ) ) {
+		global $wpdb;
 
-	$wpdb->insert( $wpdb->prefix . 'esk_admissions', array(
-		'application_number'  => esk_generate_number( 'APP' ),
-		'academic_session_id' => 1,
-		'batch_id'            => 1,
-		'first_name'          => sanitize_text_field( $_POST['first_name'] ?? '' ),
-		'last_name'           => sanitize_text_field( $_POST['last_name'] ?? '' ),
-		'gender'              => sanitize_text_field( $_POST['gender'] ?? 'male' ),
-		'date_of_birth'       => sanitize_text_field( $_POST['date_of_birth'] ?? '' ),
-		'email'               => sanitize_email( $_POST['email'] ?? '' ),
-		'phone'               => sanitize_text_field( $_POST['phone'] ?? '' ),
-		'address'             => sanitize_textarea_field( $_POST['address'] ?? '' ),
-		'city'                => sanitize_text_field( $_POST['city'] ?? '' ),
-		'postal_code'         => sanitize_text_field( $_POST['postal_code'] ?? '' ),
-		'father_name'         => sanitize_text_field( $_POST['father_name'] ?? '' ),
-		'father_phone'        => sanitize_text_field( $_POST['father_phone'] ?? '' ),
-		'mother_name'         => sanitize_text_field( $_POST['mother_name'] ?? '' ),
-		'mother_phone'        => sanitize_text_field( $_POST['mother_phone'] ?? '' ),
-		'status'              => 'submitted',
-		'submitted_at'        => current_time( 'mysql' ),
-	) );
+		$photo_path = '';
+		if ( ! empty( $_FILES['photo']['tmp_name'] ) && is_uploaded_file( $_FILES['photo']['tmp_name'] ) ) {
+			$upload = esk_upload_file( $_FILES['photo'], 'eskoofy/admissions' );
+			if ( $upload ) {
+				$photo_path = $upload['url'];
+			}
+		}
 
-	esk_flash( 'success', __( 'Application submitted successfully!', 'eskoofy' ) );
-	wp_safe_redirect( remove_query_arg() );
-	exit;
+		$wpdb->insert( $wpdb->prefix . 'esk_admissions', array(
+			'application_number'  => esk_generate_number( 'APP', 'admissions' ),
+			'academic_session_id' => 1,
+			'batch_id'            => 1,
+			'first_name'          => sanitize_text_field( wp_unslash( $_POST['first_name'] ?? '' ) ),
+			'last_name'           => sanitize_text_field( wp_unslash( $_POST['last_name'] ?? '' ) ),
+			'gender'              => sanitize_text_field( wp_unslash( $_POST['gender'] ?? 'male' ) ),
+			'date_of_birth'       => sanitize_text_field( wp_unslash( $_POST['date_of_birth'] ?? '' ) ),
+			'photo'               => $photo_path,
+			'email'               => sanitize_email( wp_unslash( $_POST['email'] ?? '' ) ),
+			'phone'               => sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) ),
+			'address'             => sanitize_textarea_field( wp_unslash( $_POST['address'] ?? '' ) ),
+			'city'                => sanitize_text_field( wp_unslash( $_POST['city'] ?? '' ) ),
+			'postal_code'         => sanitize_text_field( wp_unslash( $_POST['postal_code'] ?? '' ) ),
+			'father_name'         => sanitize_text_field( wp_unslash( $_POST['father_name'] ?? '' ) ),
+			'father_phone'        => sanitize_text_field( wp_unslash( $_POST['father_phone'] ?? '' ) ),
+			'mother_name'         => sanitize_text_field( wp_unslash( $_POST['mother_name'] ?? '' ) ),
+			'mother_phone'        => sanitize_text_field( wp_unslash( $_POST['mother_phone'] ?? '' ) ),
+			'status'              => 'submitted',
+			'submitted_at'        => current_time( 'mysql' ),
+		) );
+
+		esk_flash( 'success', __( 'Application submitted successfully!', 'eskoofy' ) );
+		wp_safe_redirect( remove_query_arg() );
+		exit;
+	}
 }
 
 if ( isset( $_POST['esk_contact_submit'] ) && ! is_admin() ) {
-	check_admin_referer( 'esk_contact_form' );
-	global $wpdb;
+	$nonce = isset( $_POST['esk_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['esk_nonce'] ) ) : '';
+	if ( wp_verify_nonce( $nonce, 'esk_contact_form' ) ) {
+		global $wpdb;
 
-	$wpdb->insert( $wpdb->prefix . 'esk_contact_submissions', array(
-		'name'    => sanitize_text_field( $_POST['contact_name'] ?? '' ),
-		'email'   => sanitize_email( $_POST['contact_email'] ?? '' ),
-		'phone'   => sanitize_text_field( $_POST['contact_phone'] ?? '' ),
-		'subject' => sanitize_text_field( $_POST['contact_subject'] ?? '' ),
-		'message' => sanitize_textarea_field( $_POST['contact_message'] ?? '' ),
-	) );
+		$wpdb->insert( $wpdb->prefix . 'esk_contact_submissions', array(
+			'name'    => sanitize_text_field( wp_unslash( $_POST['contact_name'] ?? '' ) ),
+			'email'   => sanitize_email( wp_unslash( $_POST['contact_email'] ?? '' ) ),
+			'phone'   => sanitize_text_field( wp_unslash( $_POST['contact_phone'] ?? '' ) ),
+			'subject' => sanitize_text_field( wp_unslash( $_POST['contact_subject'] ?? '' ) ),
+			'message' => sanitize_textarea_field( wp_unslash( $_POST['contact_message'] ?? '' ) ),
+		) );
 
-	esk_flash( 'success', __( 'Message sent successfully!', 'eskoofy' ) );
-	wp_safe_redirect( remove_query_arg() );
-	exit;
+		esk_flash( 'success', __( 'Message sent successfully!', 'eskoofy' ) );
+		wp_safe_redirect( remove_query_arg() );
+		exit;
+	}
 }
 
 /* ─── Admin menu icon color ──────────────────────────────────────────────── */

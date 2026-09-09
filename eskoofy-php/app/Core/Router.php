@@ -21,24 +21,40 @@ class Router
         $this->groupMiddleware = $oldGroupMiddleware;
     }
 
-    public function get(string $path, string $controller, string $method, array $middleware = []): void
+    public function get(string $path, $controller, $method = null, array $middleware = []): void
     {
-        $this->addRoute('GET', $path, $controller, $method, $middleware);
+        if ($controller instanceof \Closure) {
+            $this->addClosure('GET', $path, $controller, $middleware);
+        } else {
+            $this->addRoute('GET', $path, $controller, $method, $middleware);
+        }
     }
 
-    public function post(string $path, string $controller, string $method, array $middleware = []): void
+    public function post(string $path, $controller, $method = null, array $middleware = []): void
     {
-        $this->addRoute('POST', $path, $controller, $method, $middleware);
+        if ($controller instanceof \Closure) {
+            $this->addClosure('POST', $path, $controller, $middleware);
+        } else {
+            $this->addRoute('POST', $path, $controller, $method, $middleware);
+        }
     }
 
-    public function put(string $path, string $controller, string $method, array $middleware = []): void
+    public function put(string $path, $controller, $method = null, array $middleware = []): void
     {
-        $this->addRoute('PUT', $path, $controller, $method, $middleware);
+        if ($controller instanceof \Closure) {
+            $this->addClosure('PUT', $path, $controller, $middleware);
+        } else {
+            $this->addRoute('PUT', $path, $controller, $method, $middleware);
+        }
     }
 
-    public function delete(string $path, string $controller, string $method, array $middleware = []): void
+    public function delete(string $path, $controller, $method = null, array $middleware = []): void
     {
-        $this->addRoute('DELETE', $path, $controller, $method, $middleware);
+        if ($controller instanceof \Closure) {
+            $this->addClosure('DELETE', $path, $controller, $middleware);
+        } else {
+            $this->addRoute('DELETE', $path, $controller, $method, $middleware);
+        }
     }
 
     private function addRoute(string $httpMethod, string $path, string $controller, string $method, array $middleware): void
@@ -49,6 +65,20 @@ class Router
             'path'       => $fullPath,
             'controller' => $controller,
             'action'     => $method,
+            'closure'    => null,
+            'middleware'  => array_merge($this->groupMiddleware, $middleware),
+        ];
+    }
+
+    private function addClosure(string $httpMethod, string $path, \Closure $closure, array $middleware): void
+    {
+        $fullPath = $this->prefix . $path;
+        $this->routes[] = [
+            'method'     => $httpMethod,
+            'path'       => $fullPath,
+            'controller' => null,
+            'action'     => null,
+            'closure'    => $closure,
             'middleware'  => array_merge($this->groupMiddleware, $middleware),
         ];
     }
@@ -65,6 +95,11 @@ class Router
 
                 foreach ($route['middleware'] as $mw) {
                     $this->runMiddleware($mw);
+                }
+
+                if (!empty($route['closure'])) {
+                    call_user_func_array($route['closure'], $params);
+                    return;
                 }
 
                 $controllerClass = $route['controller'];

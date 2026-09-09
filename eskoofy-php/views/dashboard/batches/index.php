@@ -23,19 +23,19 @@
                 <?php if (!empty($batches)): ?>
                     <?php foreach ($batches as $batch): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4 font-medium"><?= e($batch->name) ?></td>
-                        <td class="py-3 px-4"><?= e($batch->start_year) ?></td>
-                        <td class="py-3 px-4"><?= e($batch->end_year) ?></td>
-                        <td class="py-3 px-4"><?= e($batch->students_count ?? 0) ?></td>
+                        <td class="py-3 px-4 font-medium"><?= e($batch['name']) ?></td>
+                        <td class="py-3 px-4"><?= e($batch['start_year']) ?></td>
+                        <td class="py-3 px-4"><?= e($batch['end_year']) ?></td>
+                        <td class="py-3 px-4"><?= e($batch['students_count'] ?? 0) ?></td>
                         <td class="py-3 px-4">
-                            <span class="px-2 py-1 text-xs rounded-full <?= ($batch->is_active ?? false) ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700' ?>">
-                                <?= ($batch->is_active ?? false) ? 'Active' : 'Inactive' ?>
+                            <span class="px-2 py-1 text-xs rounded-full <?= ($batch['is_active'] ?? false) ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700' ?>">
+                                <?= ($batch['is_active'] ?? false) ? 'Active' : 'Inactive' ?>
                             </span>
                         </td>
                         <td class="py-3 px-4">
                             <div class="flex space-x-2">
-                                <a href="/dashboard/batches/<?= e($batch->id) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
-                                <form action="/dashboard/batches/<?= e($batch->id) ?>" method="POST" onsubmit="return confirm('Are you sure?')">
+                                <a href="/dashboard/batches/<?= e($batch['id']) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
+                                <form action="/dashboard/batches/<?= e($batch['id']) ?>" method="POST" onsubmit="return confirm('Are you sure?')">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="_method" value="DELETE">
                                     <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>

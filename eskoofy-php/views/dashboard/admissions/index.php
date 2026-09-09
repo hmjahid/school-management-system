@@ -37,11 +37,11 @@
                 <?php if (!empty($admissions)): ?>
                     <?php foreach ($admissions as $admission): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4"><?= e($admission->id) ?></td>
-                        <td class="py-3 px-4 font-medium"><?= e($admission->first_name) ?> <?= e($admission->last_name) ?></td>
-                        <td class="py-3 px-4"><?= e($admission->class->name ?? '') ?></td>
-                        <td class="py-3 px-4"><?= e($admission->father_name ?? '') ?></td>
-                        <td class="py-3 px-4"><?= e($admission->created_at->format('M d, Y')) ?></td>
+                        <td class="py-3 px-4"><?= e($admission['id']) ?></td>
+                        <td class="py-3 px-4 font-medium"><?= e($admission['first_name']) ?> <?= e($admission['last_name']) ?></td>
+                        <td class="py-3 px-4"><?= e($admission['class_name'] ?? '-') ?></td>
+                        <td class="py-3 px-4"><?= e($admission['father_name'] ?? '') ?></td>
+                        <td class="py-3 px-4"><?= e(date('M d, Y', strtotime($admission['submitted_at'] ?? $admission['created_at'] ?? 'now'))) ?></td>
                         <td class="py-3 px-4">
                             <?php
                             $statusColors = [
@@ -51,12 +51,12 @@
                                 'enrolled' => 'bg-blue-100 text-blue-700',
                             ];
                             ?>
-                            <span class="px-2 py-1 text-xs rounded-full <?= $statusColors[$admission->status] ?? 'bg-gray-100 text-gray-700' ?>">
-                                <?= e(ucfirst($admission->status)) ?>
+                            <span class="px-2 py-1 text-xs rounded-full <?= $statusColors[$admission['status']] ?? 'bg-gray-100 text-gray-700' ?>">
+                                <?= e(ucfirst($admission['status'])) ?>
                             </span>
                         </td>
                         <td class="py-3 px-4">
-                            <a href="/dashboard/admissions/<?= e($admission->id) ?>" class="text-blue-600 hover:underline text-sm">View</a>
+                            <a href="/dashboard/admissions/<?= e($admission['id']) ?>" class="text-blue-600 hover:underline text-sm">View</a>
                         </td>
                     </tr>
                     <?php endforeach; ?>

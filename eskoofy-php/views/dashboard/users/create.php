@@ -24,7 +24,7 @@
                     <option value="">Select Role</option>
                     <?php if (!empty($roles)): ?>
                         <?php foreach ($roles as $role): ?>
-                        <option value="<?= e($role->id) ?>" <?= old('role_id') == $role->id ? 'selected' : '' ?>><?= e($role->name) ?></option>
+                        <option value="<?= e($role['id']) ?>" <?= old('role_id') == $role['id'] ? 'selected' : '' ?>><?= e($role['name']) ?></option>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>

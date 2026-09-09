@@ -15,20 +15,20 @@
                 <?php foreach ($events as $event): ?>
                 <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col md:flex-row gap-6">
                     <div class="flex-shrink-0 text-center bg-blue-50 rounded-lg p-4 min-w-[100px]">
-                        <div class="text-3xl font-bold text-blue-600"><?= e($event->date->format('d')) ?></div>
-                        <div class="text-sm text-gray-500"><?= e($event->date->format('M Y')) ?></div>
-                        <div class="text-xs text-gray-400 mt-1"><?= e($event->time ?? '') ?></div>
+                        <div class="text-3xl font-bold text-blue-600"><?= e(date('d', strtotime($event['start_date'] ?? $event['date'] ?? 'now'))) ?></div>
+                        <div class="text-sm text-gray-500"><?= e(date('M Y', strtotime($event['start_date'] ?? $event['date'] ?? 'now'))) ?></div>
+                        <div class="text-xs text-gray-400 mt-1"><?= e($event['time'] ?? '') ?></div>
                     </div>
                     <div class="flex-1">
-                        <h2 class="text-xl font-bold mb-2"><?= e($event->title) ?></h2>
-                        <p class="text-gray-600 mb-3"><?= e($event->description) ?></p>
-                        <?php if ($event->location ?? null): ?>
-                            <p class="text-sm text-gray-500">📍 <?= e($event->location) ?></p>
+                        <h2 class="text-xl font-bold mb-2"><?= e($event['title']) ?></h2>
+                        <p class="text-gray-600 mb-3"><?= e($event['description'] ?? '') ?></p>
+                        <?php if (!empty($event['location'])): ?>
+                            <p class="text-sm text-gray-500">📍 <?= e($event['location']) ?></p>
                         <?php endif; ?>
                     </div>
-                    <?php if ($event->image ?? null): ?>
+                    <?php if (!empty($event['image'])): ?>
                     <div class="flex-shrink-0 w-32 h-32 bg-gray-200 rounded-lg overflow-hidden">
-                        <img src="/uploads/events/<?= e($event->image) ?>" alt="<?= e($event->title) ?>" class="w-full h-full object-cover">
+                        <img src="/uploads/events/<?= e($event['image']) ?>" alt="<?= e($event['title']) ?>" class="w-full h-full object-cover">
                     </div>
                     <?php endif; ?>
                 </div>

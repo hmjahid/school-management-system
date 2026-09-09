@@ -183,4 +183,54 @@ class LedgerController extends Controller
             'asOf'         => $asOf,
         ]);
     }
+
+    public function cashFlow(): void
+    {
+        Auth::requireAuth();
+        $from = $_GET['from'] ?? date('Y-01-01');
+        $to = $_GET['to'] ?? date('Y-m-d');
+
+        $operatingIn = (float) ($this->db->fetch(
+            "SELECT COALESCE(SUM(credit), 0) as total FROM journal_entries
+             WHERE account_name LIKE '%Income%' AND entry_date BETWEEN ? AND ?",
+            [$from, $to]
+        )['total'] ?? 0);
+
+        $operatingOut = (float) ($this->db->fetch(
+            "SELECT COALESCE(SUM(debit), 0) as total FROM journal_entries
+             WHERE account_name LIKE '%Expense%' AND entry_date BETWEEN ? AND ?",
+            [$from, $to]
+        )['total'] ?? 0);
+
+        $investingIn = (float) ($this->db->fetch(
+            "SELECT COALESCE(SUM(debit), 0) as total FROM journal_entries
+             WHERE account_name LIKE '%Asset%' AND entry_date BETWEEN ? AND ?",
+            [$from, $to]
+        )['total'] ?? 0);
+
+        $financingIn = (float) ($this->db->fetch(
+            "SELECT COALESCE(SUM(credit), 0) as total FROM journal_entries
+             WHERE account_name LIKE '%Liability%' OR account_name LIKE '%Equity%'
+             AND entry_date BETWEEN ? AND ?",
+            [$from, $to]
+        )['total'] ?? 0);
+
+        $netOperating = $operatingIn - $operatingOut;
+        $netInvesting = -$investingIn;
+        $netFinancing = $financingIn;
+        $netCashFlow = $netOperating + $netInvesting + $netFinancing;
+
+        $this->view('dashboard.ledger.cash_flow', [
+            'from'          => $from,
+            'to'            => $to,
+            'operatingIn'   => $operatingIn,
+            'operatingOut'  => $operatingOut,
+            'netOperating'  => $netOperating,
+            'investingIn'   => $investingIn,
+            'netInvesting'  => $netInvesting,
+            'financingIn'   => $financingIn,
+            'netFinancing'  => $netFinancing,
+            'netCashFlow'   => $netCashFlow,
+        ]);
+    }
 }

@@ -66,6 +66,7 @@ class PaymentController extends Controller
 
         $this->view('dashboard.payments.index', [
             'rows'      => $rows,
+            'payments' => $rows,
             'total'     => $total,
             'page'      => $page,
             'perPage'   => $perPage,
@@ -81,9 +82,12 @@ class PaymentController extends Controller
     {
         Auth::requireAuth();
         $payment = $this->db->fetch(
-            "SELECT p.*, u.name as creator_name
+            "SELECT p.*, u.name as creator_name, s.admission_number, st.name as student_name, c.name as class_name
              FROM payments p
              LEFT JOIN users u ON p.created_by = u.id
+             LEFT JOIN students s ON p.paymentable_id = s.id
+             LEFT JOIN users st ON s.user_id = st.id
+             LEFT JOIN school_classes c ON s.class_id = c.id
              WHERE p.id = ? LIMIT 1",
             [$id]
         );
@@ -161,5 +165,28 @@ class PaymentController extends Controller
 
         Session::getInstance()->flash('success', 'Payment refunded successfully.');
         $this->redirect("/dashboard/payments/{$id}");
+    }
+
+    public function markPaid(string $id): void
+    {
+        Auth::requireAuth();
+        $payment = $this->db->fetch("SELECT * FROM fee_payments WHERE id = ? LIMIT 1", [$id]);
+        if (!$payment) {
+            Session::getInstance()->flash('error', 'Fee payment not found.');
+            $this->redirect('/dashboard/fee-payments');
+            return;
+        }
+
+        $this->db->update('fee_payments', [
+            'status'      => 'paid',
+            'paid_amount' => $payment['amount'],
+            'balance'     => 0,
+            'updated_at'  => date('Y-m-d H:i:s'),
+            'approved_at' => date('Y-m-d H:i:s'),
+            'approved_by' => Auth::id(),
+        ], 'id = ?', [$id]);
+
+        Session::getInstance()->flash('success', 'Fee marked as paid.');
+        $this->redirect('/dashboard/fee-payments');
     }
 }

@@ -13,7 +13,7 @@
             <option value="">All Roles</option>
             <?php if (!empty($roles)): ?>
                 <?php foreach ($roles as $role): ?>
-                <option value="<?= e($role->slug) ?>" <?= ($roleFilter ?? '') == $role->slug ? 'selected' : '' ?>><?= e($role->name) ?></option>
+                <option value="<?= e($role['slug']) ?>" <?= ($roleFilter ?? '') == $role['slug'] ? 'selected' : '' ?>><?= e($role['name']) ?></option>
                 <?php endforeach; ?>
             <?php endif; ?>
         </select>
@@ -41,23 +41,23 @@
                         <td class="py-3 px-4">
                             <div class="flex items-center">
                                 <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold mr-3">
-                                    <?= strtoupper(substr($user->name, 0, 1)) ?>
+                                    <?= strtoupper(substr($user['name'], 0, 1)) ?>
                                 </div>
-                                <?= e($user->name) ?>
+                                <?= e($user['name']) ?>
                             </div>
                         </td>
-                        <td class="py-3 px-4"><?= e($user->email) ?></td>
-                        <td class="py-3 px-4"><span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700"><?= e($user->role->name ?? '') ?></span></td>
+                        <td class="py-3 px-4"><?= e($user['email']) ?></td>
+                        <td class="py-3 px-4"><span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700"><?= e($user['role'] ?? '') ?></span></td>
                         <td class="py-3 px-4">
-                            <span class="px-2 py-1 text-xs rounded-full <?= ($user->is_active ?? true) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
-                                <?= ($user->is_active ?? true) ? 'Active' : 'Inactive' ?>
+                            <span class="px-2 py-1 text-xs rounded-full <?= ($user['is_active'] ?? true) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
+                                <?= ($user['is_active'] ?? true) ? 'Active' : 'Inactive' ?>
                             </span>
                         </td>
-                        <td class="py-3 px-4 text-sm text-gray-500"><?= e($user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never') ?></td>
+                        <td class="py-3 px-4 text-sm text-gray-500"><?= e(!empty($user['last_login_at']) ? time_ago($user['last_login_at']) : 'Never') ?></td>
                         <td class="py-3 px-4">
                             <div class="flex space-x-2">
-                                <a href="/dashboard/users/<?= e($user->id) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
-                                <form action="/dashboard/users/<?= e($user->id) ?>" method="POST" onsubmit="return confirm('Delete this user?')">
+                                <a href="/dashboard/users/<?= e($user['id']) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
+                                <form action="/dashboard/users/<?= e($user['id']) ?>" method="POST" onsubmit="return confirm('Delete this user?')">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="_method" value="DELETE">
                                     <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>

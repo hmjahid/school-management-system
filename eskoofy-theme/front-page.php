@@ -3,7 +3,7 @@
  * Front page template — Eskoofy WordPress theme.
  *
  * Used when "Static page" is set as the front page in Settings > Reading.
- * Provides a flexible landing page with hero + optional content blocks.
+ * Provides a flexible landing page with hero + news, events, gallery blocks.
  *
  * @package Eskoofy
  */
@@ -22,6 +22,9 @@ get_header();
 		<?php if ( $eskoofy_tagline ) : ?>
 			<p class="eskoofy-hero-tagline"><?php echo esc_html( $eskoofy_tagline ); ?></p>
 		<?php endif; ?>
+		<p class="eskoofy-hero-cta">
+			<a href="<?php echo esc_url( home_url( '/admission/' ) ); ?>" class="esk-button esk-button-primary"><?php esc_html_e( 'Apply for Admission', 'eskoofy' ); ?></a>
+		</p>
 	</div>
 </section>
 
@@ -34,6 +37,28 @@ get_header();
 			<?php the_content(); ?>
 		</div>
 	<?php endwhile; ?>
+
+	<div class="eskoofy-blocks">
+		<section class="eskoofy-block eskoofy-block-news">
+			<h2><?php esc_html_e( 'Latest News', 'eskoofy' ); ?></h2>
+			<?php echo do_shortcode( '[eskoofy_news_list count="3"]' ); ?>
+		</section>
+
+		<section class="eskoofy-block eskoofy-block-events">
+			<h2><?php esc_html_e( 'Upcoming Events', 'eskoofy' ); ?></h2>
+			<?php echo do_shortcode( '[eskoofy_events_list count="3"]' ); ?>
+		</section>
+
+		<section class="eskoofy-block eskoofy-block-gallery">
+			<h2><?php esc_html_e( 'Gallery', 'eskoofy' ); ?></h2>
+			<?php echo do_shortcode( '[eskoofy_gallery]' ); ?>
+		</section>
+
+		<section class="eskoofy-block eskoofy-block-contact">
+			<h2><?php esc_html_e( 'Contact Us', 'eskoofy' ); ?></h2>
+			<?php echo do_shortcode( '[eskoofy_contact_form]' ); ?>
+		</section>
+	</div>
 </div>
 
 <?php

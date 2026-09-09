@@ -1,5 +1,6 @@
 <?php $pageTitle = 'Profile'; ?>
 <?php ob_start(); ?>
+<?php $currentUser = auth()->user() ?? []; ?>
 
 <div class="mb-6">
     <h1 class="text-2xl font-bold text-gray-800">My Profile</h1>
@@ -8,11 +9,11 @@
 <div class="grid md:grid-cols-3 gap-6">
     <div class="bg-white rounded-xl shadow-sm p-6 text-center">
         <div class="w-24 h-24 bg-blue-600 text-white rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-4">
-            <?= strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) ?>
+            <?= strtoupper(substr($currentUser['name'] ?? 'U', 0, 1)) ?>
         </div>
-        <h3 class="text-lg font-bold"><?= e(auth()->user()->name ?? '') ?></h3>
-        <p class="text-gray-500 text-sm"><?= e(auth()->user()->email ?? '') ?></p>
-        <span class="inline-block mt-2 px-3 py-1 text-xs rounded-full bg-blue-100 text-blue-700"><?= e(ucfirst(auth()->user()->role ?? '')) ?></span>
+        <h3 class="text-lg font-bold"><?= e($currentUser['name'] ?? '') ?></h3>
+        <p class="text-gray-500 text-sm"><?= e($currentUser['email'] ?? '') ?></p>
+        <span class="inline-block mt-2 px-3 py-1 text-xs rounded-full bg-blue-100 text-blue-700"><?= e(ucfirst($currentUser['role'] ?? '')) ?></span>
     </div>
 
     <div class="md:col-span-2 space-y-6">
@@ -23,15 +24,15 @@
                 <div class="grid md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Name *</label>
-                        <input type="text" name="name" value="<?= e(auth()->user()->name ?? '') ?>" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                        <input type="text" name="name" value="<?= e($currentUser['name'] ?? '') ?>" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                        <input type="email" name="email" value="<?= e(auth()->user()->email ?? '') ?>" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                        <input type="email" name="email" value="<?= e($currentUser['email'] ?? '') ?>" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                        <input type="tel" name="phone" value="<?= e(auth()->user()->phone ?? '') ?>" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                        <input type="tel" name="phone" value="<?= e($currentUser['phone'] ?? '') ?>" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Photo</label>

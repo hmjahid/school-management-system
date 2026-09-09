@@ -24,26 +24,26 @@
                 <?php if (!empty($requests)): ?>
                     <?php foreach ($requests as $request): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4 font-medium"><?= e($request->staff->name ?? '') ?></td>
-                        <td class="py-3 px-4"><span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700"><?= e(ucfirst($request->type ?? '')) ?></span></td>
-                        <td class="py-3 px-4 text-sm"><?= e($request->start_date->format('M d, Y')) ?></td>
-                        <td class="py-3 px-4 text-sm"><?= e($request->end_date->format('M d, Y')) ?></td>
-                        <td class="py-3 px-4 text-center"><?= e($request->days ?? 0) ?></td>
-                        <td class="py-3 px-4 text-sm text-gray-500"><?= e(Str::limit($request->reason ?? '', 50)) ?></td>
+                        <td class="py-3 px-4 font-medium"><?= e($request['staff']['name'] ?? '') ?></td>
+                        <td class="py-3 px-4"><span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700"><?= e(ucfirst($request['type'] ?? '')) ?></span></td>
+                        <td class="py-3 px-4 text-sm"><?= e(date('M d, Y', strtotime($request['start_date']))) ?></td>
+                        <td class="py-3 px-4 text-sm"><?= e(date('M d, Y', strtotime($request['end_date']))) ?></td>
+                        <td class="py-3 px-4 text-center"><?= e($request['days'] ?? 0) ?></td>
+                        <td class="py-3 px-4 text-sm text-gray-500"><?= e(truncate($request['reason'] ?? '', 50)) ?></td>
                         <td class="py-3 px-4">
                             <?php
                             $statusColors = ['pending' => 'bg-yellow-100 text-yellow-700', 'approved' => 'bg-green-100 text-green-700', 'rejected' => 'bg-red-100 text-red-700'];
                             ?>
-                            <span class="px-2 py-1 text-xs rounded-full <?= $statusColors[$request->status ?? 'pending'] ?>"><?= e(ucfirst($request->status ?? 'pending')) ?></span>
+                            <span class="px-2 py-1 text-xs rounded-full <?= $statusColors[$request['status'] ?? 'pending'] ?>"><?= e(ucfirst($request['status'] ?? 'pending')) ?></span>
                         </td>
                         <td class="py-3 px-4">
-                            <?php if (($request->status ?? '') == 'pending'): ?>
+                            <?php if (($request['status'] ?? '') == 'pending'): ?>
                             <div class="flex space-x-2">
-                                <form action="/dashboard/payroll/leave-requests/<?= e($request->id) ?>/approve" method="POST" onsubmit="return confirm('Approve?')">
+                                <form action="/dashboard/payroll/leave-requests/<?= e($request['id']) ?>/approve" method="POST" onsubmit="return confirm('Approve?')">
                                     <?= csrf_field() ?>
                                     <button type="submit" class="text-green-600 hover:underline text-sm">Approve</button>
                                 </form>
-                                <form action="/dashboard/payroll/leave-requests/<?= e($request->id) ?>/reject" method="POST" onsubmit="return confirm('Reject?')">
+                                <form action="/dashboard/payroll/leave-requests/<?= e($request['id']) ?>/reject" method="POST" onsubmit="return confirm('Reject?')">
                                     <?= csrf_field() ?>
                                     <button type="submit" class="text-red-600 hover:underline text-sm">Reject</button>
                                 </form>

@@ -38,20 +38,19 @@
                 <?php if (!empty($payments)): ?>
                     <?php foreach ($payments as $payment): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4 font-mono text-sm"><?= e($payment->receipt_number) ?></td>
-                        <td class="py-3 px-4"><?= e($payment->student->name ?? '') ?></td>
-                        <td class="py-3 px-4"><?= e($payment->fee->name ?? '') ?></td>
-                        <td class="py-3 px-4 text-right"><?= e(config('currency.symbol', '$')) ?><?= number_format($payment->amount, 2) ?></td>
-                        <td class="py-3 px-4 text-right"><?= e(config('currency.symbol', '$')) ?><?= number_format($payment->paid_amount, 2) ?></td>
-                        <td class="py-3 px-4"><?= e($payment->created_at->format('M d, Y')) ?></td>
-                        <td class="py-3 px-4">
-                            <span class="px-2 py-1 text-xs rounded-full <?= $payment->status == 'paid' ? 'bg-green-100 text-green-700' : ($payment->status == 'partial' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700') ?>">
-                                <?= e(ucfirst($payment->status)) ?>
+                        <td class="py-3 px-4 font-mono text-sm"><?= e($payment['invoice_number'] ?? $payment['receipt_number'] ?? '') ?></td>
+                        <td class="py-3 px-4"><?= e($payment['student_name'] ?? '') ?></td>
+                        <td class="py-3 px-4"><?= e($payment['fee_name'] ?? '') ?></td>
+                        <td class="py-3 px-4 text-right"><?= e(format_currency((float)($payment['amount'] ?? 0))) ?></td>
+                        <td class="py-3 px-4 text-right"><?= e(format_currency((float)($payment['paid_amount'] ?? 0))) ?></td>
+                        <td class="py-3 px-4"><?= e(date('M d, Y', strtotime($payment['created_at'] ?? 'now'))) ?></td>
+                            <span class="px-2 py-1 text-xs rounded-full <?= ($payment['status'] ?? '') == 'paid' ? 'bg-green-100 text-green-700' : (($payment['status'] ?? '') == 'partial' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700') ?>">
+                                <?= e(ucfirst($payment['status'] ?? '')) ?>
                             </span>
                         </td>
                         <td class="py-3 px-4">
                             <div class="flex space-x-2">
-                                <a href="/dashboard/fee-payments/<?= e($payment->id) ?>/receipt" class="text-blue-600 hover:underline text-sm" target="_blank">Receipt</a>
+                                <a href="/dashboard/fee-payments/<?= e($payment['id']) ?>/receipt" class="text-blue-600 hover:underline text-sm" target="_blank">Receipt</a>
                             </div>
                         </td>
                     </tr>
@@ -65,7 +64,7 @@
         </table>
     </div>
 
-    <?php if (isset($paginator) && $paginator->hasPages()): ?>
+    <?php if (isset($paginator) && $paginator['hasPages']()): ?>
         <div class="p-6">
             <?php include __DIR__ . '/../../partials/pagination.php'; ?>
         </div>

@@ -13,17 +13,17 @@
             <div class="flex items-start justify-between">
                 <div class="flex items-start">
                     <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-lg font-bold mr-4 flex-shrink-0">
-                        <?= strtoupper(substr($testimonial->name, 0, 1)) ?>
+                        <?= strtoupper(substr($testimonial['name'], 0, 1)) ?>
                     </div>
                     <div>
-                        <h3 class="font-bold"><?= e($testimonial->name) ?></h3>
-                        <p class="text-sm text-gray-500"><?= e($testimonial->position ?? '') ?></p>
-                        <p class="text-yellow-500 text-sm mt-1"><?= str_repeat('⭐', $testimonial->rating ?? 5) ?></p>
-                        <p class="text-gray-600 mt-2"><?= e($testimonial->content) ?></p>
+                        <h3 class="font-bold"><?= e($testimonial['name']) ?></h3>
+                        <p class="text-sm text-gray-500"><?= e($testimonial['position'] ?? '') ?></p>
+                        <p class="text-yellow-500 text-sm mt-1"><?= str_repeat('⭐', $testimonial['rating'] ?? 5) ?></p>
+                        <p class="text-gray-600 mt-2"><?= e($testimonial['content']) ?></p>
                     </div>
                 </div>
                 <div class="flex space-x-2">
-                    <form action="/dashboard/testimonials/<?= e($testimonial->id) ?>" method="POST" onsubmit="return confirm('Delete?')">
+                    <form action="/dashboard/testimonials/<?= e($testimonial['id']) ?>" method="POST" onsubmit="return confirm('Delete?')">
                         <?= csrf_field() ?>
                         <input type="hidden" name="_method" value="DELETE">
                         <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>

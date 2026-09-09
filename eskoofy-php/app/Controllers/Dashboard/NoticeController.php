@@ -50,6 +50,7 @@ class NoticeController extends Controller
 
         $this->view('dashboard.notices.index', [
             'rows'     => $rows,
+            'notices' => $rows,
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

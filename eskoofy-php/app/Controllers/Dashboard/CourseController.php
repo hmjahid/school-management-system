@@ -51,6 +51,7 @@ class CourseController extends Controller
 
         $this->view('dashboard.courses.index', [
             'rows'     => $rows,
+            'courses' => $rows,
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

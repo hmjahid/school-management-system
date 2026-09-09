@@ -55,6 +55,7 @@ class ClassController extends Controller
 
         $this->view('dashboard.classes.index', [
             'rows'     => $rows,
+            'classes'  => $rows,
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,
@@ -127,16 +128,29 @@ class ClassController extends Controller
         }
 
         $sections = $this->db->fetchAll(
-            "SELECT * FROM sections WHERE class_id = ? ORDER BY name ASC", [$id]
+            "SELECT s.*, sec.name as section_name, (SELECT COUNT(*) FROM students st WHERE st.section_id = s.id AND st.status = 'active') as students_count
+             FROM sections s LEFT JOIN sections sec ON s.id = sec.id
+             WHERE s.class_id = ? ORDER BY s.name ASC", [$id]
         );
 
         $students = $this->db->fetchAll(
-            "SELECT s.*, u.name FROM students s LEFT JOIN users u ON s.user_id = u.id WHERE s.class_id = ? AND s.status = 'active' ORDER BY s.roll_number ASC LIMIT 100",
+            "SELECT s.*, u.name, sec.name as section_name
+             FROM students s
+             LEFT JOIN users u ON s.user_id = u.id
+             LEFT JOIN sections sec ON s.section_id = sec.id
+             WHERE s.class_id = ? AND s.status = 'active'
+             ORDER BY s.roll_number ASC LIMIT 100",
             [$id]
         );
 
+        $schoolClass['sections'] = $sections;
+        $schoolClass['students'] = $students;
+        $schoolClass['students_count'] = count($students);
+        $schoolClass['sections_count'] = count($sections);
+
         $this->view('dashboard.classes.show', [
             'schoolClass' => $schoolClass,
+            'class'       => $schoolClass,
             'sections'    => $sections,
             'students'    => $students,
         ]);

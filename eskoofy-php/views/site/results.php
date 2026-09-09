@@ -23,7 +23,7 @@
                         <option value="">Select an exam</option>
                         <?php if (!empty($exams)): ?>
                             <?php foreach ($exams as $exam): ?>
-                            <option value="<?= e($exam->id) ?>" <?= ($exam_id ?? '') == $exam->id ? 'selected' : '' ?>><?= e($exam->name) ?></option>
+                            <option value="<?= e($exam['id']) ?>" <?= ($examId ?? '') == $exam['id'] ? 'selected' : '' ?>><?= e($exam['name']) ?></option>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </select>
@@ -34,8 +34,8 @@
 
         <?php if (!empty($results)): ?>
         <div class="mt-8 bg-white rounded-xl shadow-sm p-8">
-            <h2 class="text-xl font-bold mb-4">Results for <?= e($student->name ?? '') ?></h2>
-            <p class="text-gray-500 text-sm mb-4">Class: <?= e($student->class->name ?? '') ?> | Roll: <?= e($student->roll ?? '') ?></p>
+            <h2 class="text-xl font-bold mb-4">Results for <?= e($student['name'] ?? '') ?></h2>
+            <p class="text-gray-500 text-sm mb-4">Class: <?= e($student['class_name'] ?? '') ?> | Roll: <?= e($student['roll_number'] ?? '') ?></p>
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
@@ -50,10 +50,10 @@
                     <tbody>
                         <?php foreach ($results as $result): ?>
                         <tr class="border-b hover:bg-gray-50">
-                            <td class="py-3 px-4"><?= e($result->subject->name ?? '') ?></td>
-                            <td class="py-3 px-4 text-center"><?= e($result->marks) ?>/<?= e($result->subject->total_marks ?? 100) ?></td>
-                            <td class="py-3 px-4 text-center"><?= e($result->grade ?? '-') ?></td>
-                            <td class="py-3 px-4 text-center"><?= e($result->gpa ?? '-') ?></td>
+                            <td class="py-3 px-4"><?= e($result['subject_name'] ?? '') ?></td>
+                            <td class="py-3 px-4 text-center"><?= e($result['marks']) ?>/<?= e($result['total_marks'] ?? 100) ?></td>
+                            <td class="py-3 px-4 text-center"><?= e($result['grade'] ?? '-') ?></td>
+                            <td class="py-3 px-4 text-center"><?= e($result['gpa'] ?? '-') ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>

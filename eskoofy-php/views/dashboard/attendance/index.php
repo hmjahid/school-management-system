@@ -13,7 +13,7 @@
             <option value="">All Classes</option>
             <?php if (!empty($classes)): ?>
                 <?php foreach ($classes as $class): ?>
-                <option value="<?= e($class->id) ?>" <?= ($class_id ?? '') == $class->id ? 'selected' : '' ?>><?= e($class->name) ?></option>
+                <option value="<?= e($class['id']) ?>" <?= ($classId ?? '') == $class['id'] ? 'selected' : '' ?>><?= e($class['name']) ?></option>
                 <?php endforeach; ?>
             <?php endif; ?>
         </select>
@@ -36,12 +36,12 @@
                 <?php if (!empty($records)): ?>
                     <?php foreach ($records as $record): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4"><?= e($record->student->name ?? '') ?></td>
-                        <td class="py-3 px-4"><?= e($record->student->class->name ?? '') ?></td>
-                        <td class="py-3 px-4"><?= e($record->date->format('M d, Y')) ?></td>
+                        <td class="py-3 px-4"><?= e($record['student_name'] ?? '') ?></td>
+                        <td class="py-3 px-4"><?= e($record['class_name'] ?? '') ?></td>
+                        <td class="py-3 px-4"><?= e(date('M d, Y', strtotime($record['date']))) ?></td>
                         <td class="py-3 px-4">
-                            <span class="px-2 py-1 text-xs rounded-full <?= $record->status == 'present' ? 'bg-green-100 text-green-700' : ($record->status == 'absent' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700') ?>">
-                                <?= e(ucfirst($record->status)) ?>
+                            <span class="px-2 py-1 text-xs rounded-full <?= $record['status'] == 'present' ? 'bg-green-100 text-green-700' : ($record['status'] == 'absent' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700') ?>">
+                                <?= e(ucfirst($record['status'])) ?>
                             </span>
                         </td>
                     </tr>

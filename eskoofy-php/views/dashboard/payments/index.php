@@ -44,10 +44,10 @@
                 <?php if (!empty($payments)): ?>
                     <?php foreach ($payments as $payment): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4 font-mono text-sm"><?= e($payment->transaction_id) ?></td>
-                        <td class="py-3 px-4"><?= e($payment->student->name ?? '') ?></td>
-                        <td class="py-3 px-4"><?= e(ucfirst($payment->gateway ?? '')) ?></td>
-                        <td class="py-3 px-4 text-right font-bold"><?= e(config('currency.symbol', '$')) ?><?= number_format($payment->amount, 2) ?></td>
+                        <td class="py-3 px-4 font-mono text-sm"><?= e($payment['transaction_id']) ?></td>
+                        <td class="py-3 px-4"><?= e($payment['student']['name'] ?? '') ?></td>
+                        <td class="py-3 px-4"><?= e(ucfirst($payment['gateway'] ?? '')) ?></td>
+                        <td class="py-3 px-4 text-right font-bold"><?= e(config('currency.symbol', '$')) ?><?= number_format($payment['amount'], 2) ?></td>
                         <td class="py-3 px-4">
                             <?php
                             $statusColors = [
@@ -57,13 +57,13 @@
                                 'refunded' => 'bg-purple-100 text-purple-700',
                             ];
                             ?>
-                            <span class="px-2 py-1 text-xs rounded-full <?= $statusColors[$payment->status] ?? 'bg-gray-100 text-gray-700' ?>">
-                                <?= e(ucfirst($payment->status)) ?>
+                            <span class="px-2 py-1 text-xs rounded-full <?= $statusColors[$payment['status']] ?? 'bg-gray-100 text-gray-700' ?>">
+                                <?= e(ucfirst($payment['status'])) ?>
                             </span>
                         </td>
-                        <td class="py-3 px-4"><?= e($payment->created_at->format('M d, Y')) ?></td>
+                        <td class="py-3 px-4"><?= e(date('M d, Y', strtotime($payment['created_at']))) ?></td>
                         <td class="py-3 px-4">
-                            <a href="/dashboard/payments/<?= e($payment->id) ?>" class="text-blue-600 hover:underline text-sm">View</a>
+                            <a href="/dashboard/payments/<?= e($payment['id']) ?>" class="text-blue-600 hover:underline text-sm">View</a>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -76,7 +76,7 @@
         </table>
     </div>
 
-    <?php if (isset($paginator) && $paginator->hasPages()): ?>
+    <?php if (isset($paginator) && $paginator['hasPages']()): ?>
         <div class="p-6"><?php include __DIR__ . '/../../partials/pagination.php'; ?></div>
     <?php endif; ?>
 </div>

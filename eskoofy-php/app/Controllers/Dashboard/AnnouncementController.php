@@ -35,6 +35,7 @@ class AnnouncementController extends Controller
 
         $this->view('dashboard.announcements.index', [
             'rows'     => $rows,
+            'announcements' => $rows,
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

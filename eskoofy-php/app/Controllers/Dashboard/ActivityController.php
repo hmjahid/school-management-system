@@ -54,6 +54,7 @@ class ActivityController extends Controller
 
         $this->view('dashboard.activity.index', [
             'rows'     => $rows,
+            'activity' => $rows,
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

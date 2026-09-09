@@ -31,6 +31,7 @@ class VehicleController extends Controller
 
         $this->view('dashboard.vehicles.index', [
             'rows'     => $rows,
+            'vehicles' => $rows,
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

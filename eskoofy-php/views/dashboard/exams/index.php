@@ -24,22 +24,22 @@
                 <?php if (!empty($exams)): ?>
                     <?php foreach ($exams as $exam): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4 font-medium"><?= e($exam->name) ?></td>
-                        <td class="py-3 px-4"><?= e(ucfirst($exam->type ?? 'Final')) ?></td>
-                        <td class="py-3 px-4"><?= e($exam->class->name ?? 'All') ?></td>
-                        <td class="py-3 px-4"><?= e($exam->start_date->format('M d, Y')) ?></td>
-                        <td class="py-3 px-4"><?= e($exam->end_date->format('M d, Y')) ?></td>
+                        <td class="py-3 px-4 font-medium"><?= e($exam['name']) ?></td>
+                        <td class="py-3 px-4"><?= e(ucfirst($exam['type'] ?? 'Final')) ?></td>
+                        <td class="py-3 px-4"><?= e($exam['batch_name'] ?? '-') ?></td>
+                        <td class="py-3 px-4"><?= e(date('M d, Y', strtotime($exam['start_date']))) ?></td>
+                        <td class="py-3 px-4"><?= e(date('M d, Y', strtotime($exam['end_date']))) ?></td>
                         <td class="py-3 px-4">
-                            <span class="px-2 py-1 text-xs rounded-full <?= ($exam->is_published ?? false) ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' ?>">
-                                <?= ($exam->is_published ?? false) ? 'Published' : 'Draft' ?>
+                            <span class="px-2 py-1 text-xs rounded-full <?= ($exam['is_published'] ?? false) ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' ?>">
+                                <?= ($exam['is_published'] ?? false) ? 'Published' : 'Draft' ?>
                             </span>
                         </td>
                         <td class="py-3 px-4">
                             <div class="flex space-x-2">
-                                <a href="/dashboard/exams/<?= e($exam->id) ?>" class="text-blue-600 hover:underline text-sm">View</a>
-                                <a href="/dashboard/exams/<?= e($exam->id) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
-                                <?php if (!($exam->is_published ?? false)): ?>
-                                <form action="/dashboard/exams/<?= e($exam->id) ?>/publish" method="POST" onsubmit="return confirm('Publish this exam? Results will be visible to students.')">
+                                <a href="/dashboard/exams/<?= e($exam['id']) ?>" class="text-blue-600 hover:underline text-sm">View</a>
+                                <a href="/dashboard/exams/<?= e($exam['id']) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
+                                <?php if (!($exam['is_published'] ?? false)): ?>
+                                <form action="/dashboard/exams/<?= e($exam['id']) ?>/publish" method="POST" onsubmit="return confirm('Publish this exam? Results will be visible to students.')">
                                     <?= csrf_field() ?>
                                     <button type="submit" class="text-purple-600 hover:underline text-sm">Publish</button>
                                 </form>

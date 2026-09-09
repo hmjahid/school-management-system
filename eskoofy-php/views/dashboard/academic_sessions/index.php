@@ -22,24 +22,24 @@
                 <?php if (!empty($sessions)): ?>
                     <?php foreach ($sessions as $session): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4 font-medium"><?= e($session->name) ?></td>
-                        <td class="py-3 px-4"><?= e($session->start_date->format('M d, Y')) ?></td>
-                        <td class="py-3 px-4"><?= e($session->end_date->format('M d, Y')) ?></td>
+                        <td class="py-3 px-4 font-medium"><?= e($session['name']) ?></td>
+                        <td class="py-3 px-4"><?= e(date('M d, Y', strtotime($session['start_date']))) ?></td>
+                        <td class="py-3 px-4"><?= e(date('M d, Y', strtotime($session['end_date']))) ?></td>
                         <td class="py-3 px-4">
-                            <span class="px-2 py-1 text-xs rounded-full <?= ($session->is_current ?? false) ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700' ?>">
-                                <?= ($session->is_current ?? false) ? 'Current' : 'Inactive' ?>
+                            <span class="px-2 py-1 text-xs rounded-full <?= ($session['is_current'] ?? false) ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700' ?>">
+                                <?= ($session['is_current'] ?? false) ? 'Current' : 'Inactive' ?>
                             </span>
                         </td>
                         <td class="py-3 px-4">
                             <div class="flex space-x-2">
-                                <?php if (!($session->is_current ?? false)): ?>
-                                <form action="/dashboard/academic-sessions/<?= e($session->id) ?>/activate" method="POST">
+                                <?php if (!($session['is_current'] ?? false)): ?>
+                                <form action="/dashboard/academic-sessions/<?= e($session['id']) ?>/activate" method="POST">
                                     <?= csrf_field() ?>
                                     <button type="submit" class="text-blue-600 hover:underline text-sm">Activate</button>
                                 </form>
                                 <?php endif; ?>
-                                <a href="/dashboard/academic-sessions/<?= e($session->id) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
-                                <form action="/dashboard/academic-sessions/<?= e($session->id) ?>" method="POST" onsubmit="return confirm('Delete?')">
+                                <a href="/dashboard/academic-sessions/<?= e($session['id']) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
+                                <form action="/dashboard/academic-sessions/<?= e($session['id']) ?>" method="POST" onsubmit="return confirm('Delete?')">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="_method" value="DELETE">
                                     <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>

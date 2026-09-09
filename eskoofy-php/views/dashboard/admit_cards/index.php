@@ -16,7 +16,7 @@
                     <option value="">Select Exam</option>
                     <?php if (!empty($exams)): ?>
                         <?php foreach ($exams as $exam): ?>
-                        <option value="<?= e($exam->id) ?>"><?= e($exam->name) ?></option>
+                        <option value="<?= e($exam['id']) ?>"><?= e($exam['name']) ?></option>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>
@@ -27,7 +27,7 @@
                     <option value="">Select Class</option>
                     <?php if (!empty($classes)): ?>
                         <?php foreach ($classes as $class): ?>
-                        <option value="<?= e($class->id) ?>"><?= e($class->name) ?></option>
+                        <option value="<?= e($class['id']) ?>"><?= e($class['name']) ?></option>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>
@@ -49,10 +49,10 @@
                 <?php foreach ($admitCards as $card): ?>
                 <div class="flex justify-between items-center border-b pb-3">
                     <div>
-                        <p class="font-medium text-sm"><?= e($card->student->name ?? '') ?></p>
-                        <p class="text-xs text-gray-500"><?= e($card->exam->name ?? '') ?> | <?= e($card->created_at->format('M d, Y')) ?></p>
+                        <p class="font-medium text-sm"><?= e($card['student']['name'] ?? '') ?></p>
+                        <p class="text-xs text-gray-500"><?= e($card['exam']['name'] ?? '') ?> | <?= e(date('M d, Y', strtotime($card['created_at']))) ?></p>
                     </div>
-                    <a href="/dashboard/admit-cards/<?= e($card->id) ?>/print" target="_blank" class="text-blue-600 hover:underline text-sm">Print</a>
+                    <a href="/dashboard/admit-cards/<?= e($card['id']) ?>/print" target="_blank" class="text-blue-600 hover:underline text-sm">Print</a>
                 </div>
                 <?php endforeach; ?>
             <?php else: ?>

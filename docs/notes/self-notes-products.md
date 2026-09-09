@@ -16,4 +16,8 @@ check whole codebase and ensure that the php version, theme version is fully fea
 
 
 
+now check codes and ensure that workplan-implementation-plan.md file is fully implemented
+
 create a full featured branding website for this theme marketing, selling, license-server, customer license management, payment record, expiry record and others like a full featured enterprise grade branding and licensing management website, api and server. we will add paddle as payment gateway later.
+
+the website for this apllication/theme marketing/branding/selling will be a fully functional website with backend for managing users/customers, licensing, subscriptions, payments, expiration, renewals and more. we will add/use paddle for payment

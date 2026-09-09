@@ -31,28 +31,28 @@
                 <?php if (!empty($teachers)): ?>
                     <?php foreach ($teachers as $teacher): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4"><?= e($teacher->teacher_id) ?></td>
+                        <td class="py-3 px-4"><?= e($teacher['employee_id'] ?? $teacher['id']) ?></td>
                         <td class="py-3 px-4">
                             <div class="flex items-center">
                                 <div class="w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-sm font-bold mr-3">
-                                    <?= strtoupper(substr($teacher->name, 0, 1)) ?>
+                                    <?= strtoupper(substr($teacher['name'] ?? '', 0, 1)) ?>
                                 </div>
-                                <?= e($teacher->name) ?>
+                                <?= e($teacher['name'] ?? '') ?>
                             </div>
                         </td>
-                        <td class="py-3 px-4"><?= e($teacher->email ?? '-') ?></td>
-                        <td class="py-3 px-4"><?= e($teacher->phone ?? '-') ?></td>
-                        <td class="py-3 px-4"><?= e($teacher->subject->name ?? '-') ?></td>
+                        <td class="py-3 px-4"><?= e($teacher['email'] ?? '-') ?></td>
+                        <td class="py-3 px-4"><?= e($teacher['user_phone'] ?? $teacher['phone'] ?? '-') ?></td>
+                        <td class="py-3 px-4"><?= e($teacher['qualification'] ?? '-') ?></td>
                         <td class="py-3 px-4">
-                            <span class="px-2 py-1 text-xs rounded-full <?= $teacher->status == 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
-                                <?= e(ucfirst($teacher->status)) ?>
+                            <span class="px-2 py-1 text-xs rounded-full <?= ($teacher['status'] ?? '') == 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
+                                <?= e(ucfirst($teacher['status'] ?? 'inactive')) ?>
                             </span>
                         </td>
                         <td class="py-3 px-4">
                             <div class="flex space-x-2">
-                                <a href="/dashboard/teachers/<?= e($teacher->id) ?>" class="text-blue-600 hover:underline text-sm">View</a>
-                                <a href="/dashboard/teachers/<?= e($teacher->id) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
-                                <form action="/dashboard/teachers/<?= e($teacher->id) ?>" method="POST" onsubmit="return confirm('Are you sure?')">
+                                <a href="/dashboard/teachers/<?= e($teacher['id']) ?>" class="text-blue-600 hover:underline text-sm">View</a>
+                                <a href="/dashboard/teachers/<?= e($teacher['id']) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
+                                <form action="/dashboard/teachers/<?= e($teacher['id']) ?>" method="POST" onsubmit="return confirm('Are you sure?')">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="_method" value="DELETE">
                                     <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>
@@ -70,7 +70,7 @@
         </table>
     </div>
 
-    <?php if (isset($paginator) && $paginator->hasPages()): ?>
+    <?php if (isset($paginator) && $paginator['hasPages']()): ?>
         <div class="p-6">
             <?php include __DIR__ . '/../../partials/pagination.php'; ?>
         </div>

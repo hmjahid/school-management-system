@@ -50,6 +50,7 @@ class RefundController extends Controller
 
         $this->view('dashboard.refunds.index', [
             'rows'     => $rows,
+            'refunds' => $rows,
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

@@ -62,6 +62,7 @@ class FeeController extends Controller
 
         $this->view('dashboard.fees.index', [
             'rows'      => $rows,
+            'fees'      => $rows,
             'total'     => $total,
             'page'      => $page,
             'perPage'   => $perPage,

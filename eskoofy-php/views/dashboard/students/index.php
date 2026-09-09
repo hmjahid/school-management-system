@@ -9,11 +9,11 @@
 <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
     <form action="/dashboard/students" method="GET" class="flex flex-col sm:flex-row gap-4">
         <input type="text" name="search" value="<?= e($search ?? '') ?>" placeholder="Search students..." class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-        <select name="class_id" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+            <select name="class_id" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
             <option value="">All Classes</option>
             <?php if (!empty($classes)): ?>
                 <?php foreach ($classes as $class): ?>
-                <option value="<?= e($class->id) ?>" <?= ($class_id ?? '') == $class->id ? 'selected' : '' ?>><?= e($class->name) ?></option>
+                <option value="<?= e($class['id']) ?>" <?= ($classId ?? '') == $class['id'] ? 'selected' : '' ?>><?= e($class['name']) ?></option>
                 <?php endforeach; ?>
             <?php endif; ?>
         </select>
@@ -44,28 +44,28 @@
                 <?php if (!empty($students)): ?>
                     <?php foreach ($students as $student): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4"><?= e($student->student_id) ?></td>
+                        <td class="py-3 px-4"><?= e($student['admission_number'] ?? $student['id']) ?></td>
                         <td class="py-3 px-4">
                             <div class="flex items-center">
                                 <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold mr-3">
-                                    <?= strtoupper(substr($student->name, 0, 1)) ?>
+                                    <?= strtoupper(substr($student['name'] ?? '', 0, 1)) ?>
                                 </div>
-                                <?= e($student->name) ?>
+                                <?= e($student['name'] ?? '') ?>
                             </div>
                         </td>
-                        <td class="py-3 px-4"><?= e($student->class->name ?? '-') ?></td>
-                        <td class="py-3 px-4"><?= e($student->section->name ?? '-') ?></td>
-                        <td class="py-3 px-4"><?= e($student->roll ?? '-') ?></td>
+                        <td class="py-3 px-4"><?= e($student['class_name'] ?? '-') ?></td>
+                        <td class="py-3 px-4"><?= e($student['section_name'] ?? '-') ?></td>
+                        <td class="py-3 px-4"><?= e($student['roll_number'] ?? '-') ?></td>
                         <td class="py-3 px-4">
-                            <span class="px-2 py-1 text-xs rounded-full <?= $student->status == 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
-                                <?= e(ucfirst($student->status)) ?>
+                            <span class="px-2 py-1 text-xs rounded-full <?= ($student['status'] ?? '') == 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
+                                <?= e(ucfirst($student['status'] ?? 'inactive')) ?>
                             </span>
                         </td>
                         <td class="py-3 px-4">
                             <div class="flex space-x-2">
-                                <a href="/dashboard/students/<?= e($student->id) ?>" class="text-blue-600 hover:underline text-sm">View</a>
-                                <a href="/dashboard/students/<?= e($student->id) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
-                                <form action="/dashboard/students/<?= e($student->id) ?>" method="POST" onsubmit="return confirm('Are you sure?')">
+                                <a href="/dashboard/students/<?= e($student['id']) ?>" class="text-blue-600 hover:underline text-sm">View</a>
+                                <a href="/dashboard/students/<?= e($student['id']) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
+                                <form action="/dashboard/students/<?= e($student['id']) ?>" method="POST" onsubmit="return confirm('Are you sure?')">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="_method" value="DELETE">
                                     <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>
@@ -83,7 +83,7 @@
         </table>
     </div>
 
-    <?php if (isset($paginator) && $paginator->hasPages()): ?>
+    <?php if (isset($paginator) && $paginator['hasPages']()): ?>
         <div class="p-6">
             <?php include __DIR__ . '/../../partials/pagination.php'; ?>
         </div>

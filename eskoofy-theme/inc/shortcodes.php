@@ -25,8 +25,11 @@ function esk_shortcode_results_lookup( $atts ): string {
 	global $wpdb;
 
 	if ( isset( $_POST['esk_results_lookup'] ) ) {
-		check_admin_referer( 'esk_results_lookup' );
-		$admission_number = sanitize_text_field( $_POST['admission_number'] ?? '' );
+		$nonce = isset( $_POST['esk_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['esk_nonce'] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'esk_results_lookup' ) ) {
+			return '<div class="esk-notice esk-notice-error"><p>' . esc_html__( 'Security check failed. Please reload and try again.', 'eskoofy' ) . '</p></div>';
+		}
+		$admission_number = sanitize_text_field( wp_unslash( $_POST['admission_number'] ?? '' ) );
 		$exam_id          = absint( $_POST['exam_id'] ?? 0 );
 
 		$student = $wpdb->get_row(
@@ -240,8 +243,11 @@ function esk_shortcode_fees_payment( $atts ): string {
 	global $wpdb;
 
 	if ( isset( $_POST['esk_fees_lookup'] ) ) {
-		check_admin_referer( 'esk_fees_lookup' );
-		$admission_number = sanitize_text_field( $_POST['admission_number'] ?? '' );
+		$nonce = isset( $_POST['esk_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['esk_nonce'] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'esk_fees_lookup' ) ) {
+			return '<div class="esk-notice esk-notice-error"><p>' . esc_html__( 'Security check failed. Please reload and try again.', 'eskoofy' ) . '</p></div>';
+		}
+		$admission_number = sanitize_text_field( wp_unslash( $_POST['admission_number'] ?? '' ) );
 		$fee_id           = absint( $_POST['fee_id'] ?? 0 );
 
 		$student = $wpdb->get_row(

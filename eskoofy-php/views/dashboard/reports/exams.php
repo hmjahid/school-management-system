@@ -15,7 +15,7 @@
             <option value="">Select Exam</option>
             <?php if (!empty($exams)): ?>
                 <?php foreach ($exams as $exam): ?>
-                <option value="<?= e($exam->id) ?>" <?= ($exam_id ?? '') == $exam->id ? 'selected' : '' ?>><?= e($exam->name) ?></option>
+                <option value="<?= e($exam['id']) ?>" <?= ($exam_id ?? '') == $exam['id'] ? 'selected' : '' ?>><?= e($exam['name']) ?></option>
                 <?php endforeach; ?>
             <?php endif; ?>
         </select>
@@ -23,7 +23,7 @@
             <option value="">All Classes</option>
             <?php if (!empty($classes)): ?>
                 <?php foreach ($classes as $class): ?>
-                <option value="<?= e($class->id) ?>" <?= ($class_id ?? '') == $class->id ? 'selected' : '' ?>><?= e($class->name) ?></option>
+                <option value="<?= e($class['id']) ?>" <?= ($class_id ?? '') == $class['id'] ? 'selected' : '' ?>><?= e($class['name']) ?></option>
                 <?php endforeach; ?>
             <?php endif; ?>
         </select>

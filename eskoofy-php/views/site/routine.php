@@ -16,7 +16,7 @@
                     <option value="">Select Class</option>
                     <?php if (!empty($classes)): ?>
                         <?php foreach ($classes as $class): ?>
-                        <option value="<?= e($class->id) ?>" <?= ($class_id ?? '') == $class->id ? 'selected' : '' ?>><?= e($class->name) ?></option>
+                        <option value="<?= e($class['id']) ?>" <?= ($classId ?? '') == $class['id'] ? 'selected' : '' ?>><?= e($class['name']) ?></option>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>
@@ -24,7 +24,7 @@
                     <option value="">Select Section</option>
                     <?php if (!empty($sections)): ?>
                         <?php foreach ($sections as $section): ?>
-                        <option value="<?= e($section->id) ?>" <?= ($section_id ?? '') == $section->id ? 'selected' : '' ?>><?= e($section->name) ?></option>
+                        <option value="<?= e($section['id']) ?>" <?= ($sectionId ?? '') == $section['id'] ? 'selected' : '' ?>><?= e($section['name']) ?></option>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>
@@ -48,14 +48,14 @@
                         <?php foreach ($periods as $period): ?>
                         <tr class="border-b hover:bg-gray-50">
                             <td class="py-3 px-4 font-medium whitespace-nowrap">
-                                <?= e($period->start_time) ?> - <?= e($period->end_time) ?>
+                                <?= e($period['start_time']) ?> - <?= e($period['end_time']) ?>
                             </td>
                             <?php foreach ($days as $day): ?>
                             <td class="py-3 px-4 text-center text-sm">
-                                <?php if (isset($routine[$day][$period->id])): ?>
-                                    <?php $slot = $routine[$day][$period->id]; ?>
-                                    <div class="font-medium"><?= e($slot->subject->name ?? '') ?></div>
-                                    <div class="text-gray-500 text-xs"><?= e($slot->teacher->name ?? '') ?></div>
+                                <?php if (isset($routine[$day][$period['id']])): ?>
+                                    <?php $slot = $routine[$day][$period['id']]; ?>
+                                    <div class="font-medium"><?= e($slot['subject_name'] ?? '') ?></div>
+                                    <div class="text-gray-500 text-xs"><?= e($slot['teacher_name'] ?? '') ?></div>
                                 <?php else: ?>
                                     <span class="text-gray-300">-</span>
                                 <?php endif; ?>
@@ -67,7 +67,7 @@
                 </table>
             </div>
         </div>
-        <?php elseif (isset($class_id)): ?>
+        <?php elseif (isset($classId) && $classId > 0): ?>
         <div class="text-center py-12">
             <p class="text-gray-500 text-lg">No routine found for the selected class/section.</p>
         </div>

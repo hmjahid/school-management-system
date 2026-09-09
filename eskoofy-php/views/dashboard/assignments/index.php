@@ -13,7 +13,7 @@
             <option value="">All Classes</option>
             <?php if (!empty($classes)): ?>
                 <?php foreach ($classes as $class): ?>
-                <option value="<?= e($class->id) ?>" <?= ($class_id ?? '') == $class->id ? 'selected' : '' ?>><?= e($class->name) ?></option>
+                <option value="<?= e($class['id']) ?>" <?= ($class_id ?? '') == $class['id'] ? 'selected' : '' ?>><?= e($class['name']) ?></option>
                 <?php endforeach; ?>
             <?php endif; ?>
         </select>
@@ -28,18 +28,18 @@
             <div class="flex justify-between items-start">
                 <div class="flex-1">
                     <h3 class="text-lg font-bold mb-1">
-                        <a href="/dashboard/assignments/<?= e($assignment->id) ?>" class="text-blue-600 hover:underline"><?= e($assignment->title) ?></a>
+                        <a href="/dashboard/assignments/<?= e($assignment['id']) ?>" class="text-blue-600 hover:underline"><?= e($assignment['title']) ?></a>
                     </h3>
                     <div class="flex flex-wrap gap-2 text-sm text-gray-500 mb-2">
-                        <span>📚 <?= e($assignment->subject->name ?? '') ?></span>
-                        <span>🏫 <?= e($assignment->class->name ?? '') ?></span>
-                        <span>📅 Due: <?= e($assignment->due_date->format('M d, Y')) ?></span>
+                        <span>📚 <?= e($assignment['subject']['name'] ?? '') ?></span>
+                        <span>🏫 <?= e($assignment['class']['name'] ?? '') ?></span>
+                        <span>📅 Due: <?= e(date('M d, Y', strtotime($assignment['due_date']))) ?></span>
                     </div>
-                    <p class="text-gray-600 text-sm"><?= e(Str::limit($assignment->description ?? '', 150)) ?></p>
+                    <p class="text-gray-600 text-sm"><?= e(truncate($assignment['description'] ?? '', 150)) ?></p>
                 </div>
                 <div class="text-right ml-4">
-                    <span class="text-sm font-bold text-blue-600"><?= e($assignment->submissions_count ?? 0) ?> submissions</span>
-                    <p class="text-xs text-gray-500 mt-1"><?= e($assignment->total_marks ?? 100) ?> marks</p>
+                    <span class="text-sm font-bold text-blue-600"><?= e($assignment['submissions_count'] ?? 0) ?> submissions</span>
+                    <p class="text-xs text-gray-500 mt-1"><?= e($assignment['total_marks'] ?? 100) ?> marks</p>
                 </div>
             </div>
         </div>
@@ -51,7 +51,7 @@
     <?php endif; ?>
 </div>
 
-<?php if (isset($paginator) && $paginator->hasPages()): ?>
+<?php if (isset($paginator) && $paginator['hasPages']()): ?>
     <div class="mt-6"><?php include __DIR__ . '/../../partials/pagination.php'; ?></div>
 <?php endif; ?>
 

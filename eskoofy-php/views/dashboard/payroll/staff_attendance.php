@@ -30,17 +30,17 @@
                 <?php if (!empty($records)): ?>
                     <?php foreach ($records as $record): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4 font-medium"><?= e($record->staff->name ?? '') ?></td>
-                        <td class="py-3 px-4 text-sm text-gray-500"><?= e($record->staff->role ?? '') ?></td>
-                        <td class="py-3 px-4 text-sm"><?= e($record->date->format('M d, Y')) ?></td>
+                        <td class="py-3 px-4 font-medium"><?= e($record['staff']['name'] ?? '') ?></td>
+                        <td class="py-3 px-4 text-sm text-gray-500"><?= e($record['staff']['role'] ?? '') ?></td>
+                        <td class="py-3 px-4 text-sm"><?= e(date('M d, Y', strtotime($record['date']))) ?></td>
                         <td class="py-3 px-4">
                             <?php
                             $colors = ['present' => 'bg-green-100 text-green-700', 'absent' => 'bg-red-100 text-red-700', 'late' => 'bg-yellow-100 text-yellow-700', 'leave' => 'bg-blue-100 text-blue-700'];
                             ?>
-                            <span class="px-2 py-1 text-xs rounded-full <?= $colors[$record->status ?? 'present'] ?>"><?= e(ucfirst($record->status ?? '')) ?></span>
+                            <span class="px-2 py-1 text-xs rounded-full <?= $colors[$record['status'] ?? 'present'] ?>"><?= e(ucfirst($record['status'] ?? '')) ?></span>
                         </td>
-                        <td class="py-3 px-4 text-sm"><?= e($record->check_in ?? '-') ?></td>
-                        <td class="py-3 px-4 text-sm"><?= e($record->check_out ?? '-') ?></td>
+                        <td class="py-3 px-4 text-sm"><?= e($record['check_in'] ?? '-') ?></td>
+                        <td class="py-3 px-4 text-sm"><?= e($record['check_out'] ?? '-') ?></td>
                     </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -64,12 +64,12 @@
                 <?php if (!empty($allStaff)): ?>
                     <?php foreach ($allStaff as $staff): ?>
                     <div class="flex items-center justify-between p-3 border-b">
-                        <span class="text-sm font-medium"><?= e($staff->name) ?></span>
+                        <span class="text-sm font-medium"><?= e($staff['name']) ?></span>
                         <div class="flex gap-3">
-                            <label class="flex items-center text-xs"><input type="radio" name="attendance[<?= e($staff->id) ?>]" value="present" checked class="mr-1"> Present</label>
-                            <label class="flex items-center text-xs"><input type="radio" name="attendance[<?= e($staff->id) ?>]" value="absent" class="mr-1"> Absent</label>
-                            <label class="flex items-center text-xs"><input type="radio" name="attendance[<?= e($staff->id) ?>]" value="late" class="mr-1"> Late</label>
-                            <label class="flex items-center text-xs"><input type="radio" name="attendance[<?= e($staff->id) ?>]" value="leave" class="mr-1"> Leave</label>
+                            <label class="flex items-center text-xs"><input type="radio" name="attendance[<?= e($staff['id']) ?>]" value="present" checked class="mr-1"> Present</label>
+                            <label class="flex items-center text-xs"><input type="radio" name="attendance[<?= e($staff['id']) ?>]" value="absent" class="mr-1"> Absent</label>
+                            <label class="flex items-center text-xs"><input type="radio" name="attendance[<?= e($staff['id']) ?>]" value="late" class="mr-1"> Late</label>
+                            <label class="flex items-center text-xs"><input type="radio" name="attendance[<?= e($staff['id']) ?>]" value="leave" class="mr-1"> Leave</label>
                         </div>
                     </div>
                     <?php endforeach; ?>

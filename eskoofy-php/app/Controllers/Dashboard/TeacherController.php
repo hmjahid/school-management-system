@@ -58,6 +58,7 @@ class TeacherController extends Controller
 
         $this->view('dashboard.teachers.index', [
             'rows'     => $rows,
+            'teachers' => $rows,
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,
@@ -169,6 +170,20 @@ class TeacherController extends Controller
              WHERE ct.teacher_id = ?",
             [$id]
         );
+
+        $assignedClasses = $this->db->fetchAll(
+            "SELECT c.name as class_name, sec.name as section_name, sub.name as subject_name
+             FROM class_subject_teacher cst
+             LEFT JOIN school_classes c ON cst.class_id = c.id
+             LEFT JOIN sections sec ON cst.section_id = sec.id
+             LEFT JOIN subjects sub ON cst.subject_id = sub.id
+             WHERE cst.teacher_id = ?",
+            [$id]
+        );
+
+        $primarySubject = !empty($subjects) ? $subjects[0] : null;
+        $teacher['subject_name'] = $primarySubject['name'] ?? null;
+        $teacher['assignedClasses'] = $assignedClasses;
 
         $this->view('dashboard.teachers.show', [
             'teacher'  => $teacher,

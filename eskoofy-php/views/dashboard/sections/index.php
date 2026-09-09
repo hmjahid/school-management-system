@@ -23,15 +23,15 @@
                 <?php if (!empty($sections)): ?>
                     <?php foreach ($sections as $section): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4"><?= e($section->id) ?></td>
-                        <td class="py-3 px-4 font-medium"><?= e($section->name) ?></td>
-                        <td class="py-3 px-4"><?= e($section->class->name ?? '-') ?></td>
-                        <td class="py-3 px-4"><?= e($section->teacher->name ?? '-') ?></td>
-                        <td class="py-3 px-4"><?= e($section->students_count ?? 0) ?></td>
+                        <td class="py-3 px-4"><?= e($section['id']) ?></td>
+                        <td class="py-3 px-4 font-medium"><?= e($section['name']) ?></td>
+                        <td class="py-3 px-4"><?= e($section['class_name'] ?? '-') ?></td>
+                        <td class="py-3 px-4"><?= e($section['teacher_name'] ?? '-') ?></td>
+                        <td class="py-3 px-4"><?= e($section['student_count'] ?? 0) ?></td>
                         <td class="py-3 px-4">
                             <div class="flex space-x-2">
-                                <a href="/dashboard/sections/<?= e($section->id) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
-                                <form action="/dashboard/sections/<?= e($section->id) ?>" method="POST" onsubmit="return confirm('Are you sure?')">
+                                <a href="/dashboard/sections/<?= e($section['id']) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
+                                <form action="/dashboard/sections/<?= e($section['id']) ?>" method="POST" onsubmit="return confirm('Are you sure?')">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="_method" value="DELETE">
                                     <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>
@@ -60,7 +60,7 @@
                 <select name="class_id" required class="w-full border border-gray-300 rounded-lg px-4 py-2">
                     <?php if (!empty($classes)): ?>
                         <?php foreach ($classes as $class): ?>
-                        <option value="<?= e($class->id) ?>"><?= e($class->name) ?></option>
+                        <option value="<?= e($class['id']) ?>"><?= e($class['name']) ?></option>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>
@@ -75,7 +75,7 @@
                     <option value="">Select Teacher</option>
                     <?php if (!empty($teachers)): ?>
                         <?php foreach ($teachers as $teacher): ?>
-                        <option value="<?= e($teacher->id) ?>"><?= e($teacher->name) ?></option>
+                        <option value="<?= e($teacher['id']) ?>"><?= e($teacher['name']) ?></option>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>

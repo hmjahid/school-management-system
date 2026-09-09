@@ -66,6 +66,7 @@ class AdmissionController extends Controller
 
         $this->view('dashboard.admissions.index', [
             'rows'      => $rows,
+            'admissions' => $rows,
             'total'     => $total,
             'page'      => $page,
             'perPage'   => $perPage,

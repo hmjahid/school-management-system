@@ -50,6 +50,7 @@ class RoleController extends Controller
 
         $this->view('dashboard.roles.index', [
             'rows'        => $rows,
+            'roles' => $rows,
             'total'       => $total,
             'page'        => $page,
             'perPage'     => $perPage,

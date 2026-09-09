@@ -46,6 +46,7 @@ class MessageController extends Controller
 
         $this->view('dashboard.messages.index', [
             'rows'     => $rows,
+            'messages' => $rows,
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,
@@ -78,6 +79,7 @@ class MessageController extends Controller
 
         $this->view('dashboard.messages.index', [
             'rows'    => $rows,
+            'messages' => $rows,
             'total'   => $total,
             'page'    => $page,
             'perPage' => $perPage,

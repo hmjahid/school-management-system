@@ -51,6 +51,7 @@ class SectionController extends Controller
 
         $this->view('dashboard.sections.index', [
             'rows'     => $rows,
+            'sections' => $rows,
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

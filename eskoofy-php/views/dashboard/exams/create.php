@@ -30,7 +30,7 @@
                     <option value="">Select Class</option>
                     <?php if (!empty($classes)): ?>
                         <?php foreach ($classes as $class): ?>
-                        <option value="<?= e($class->id) ?>" <?= old('class_id') == $class->id ? 'selected' : '' ?>><?= e($class->name) ?></option>
+                        <option value="<?= e($class['id']) ?>" <?= old('class_id') == $class['id'] ? 'selected' : '' ?>><?= e($class['name']) ?></option>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>
@@ -41,7 +41,7 @@
                     <option value="">Select Session</option>
                     <?php if (!empty($sessions)): ?>
                         <?php foreach ($sessions as $session): ?>
-                        <option value="<?= e($session->id) ?>" <?= old('academic_session_id') == $session->id ? 'selected' : '' ?>><?= e($session->name) ?></option>
+                        <option value="<?= e($session['id']) ?>" <?= old('academic_session_id') == $session['id'] ? 'selected' : '' ?>><?= e($session['name']) ?></option>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>

@@ -23,16 +23,16 @@
                 <?php if (!empty($classes)): ?>
                     <?php foreach ($classes as $class): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4"><?= e($class->id) ?></td>
-                        <td class="py-3 px-4 font-medium"><?= e($class->name) ?></td>
-                        <td class="py-3 px-4"><?= e($class->sections->count()) ?></td>
-                        <td class="py-3 px-4"><?= e($class->students_count ?? 0) ?></td>
-                        <td class="py-3 px-4"><?= e(config('currency.symbol', '$')) ?><?= number_format($class->monthly_fee ?? 0, 2) ?></td>
+                        <td class="py-3 px-4"><?= e($class['id']) ?></td>
+                        <td class="py-3 px-4 font-medium"><?= e($class['name']) ?></td>
+                        <td class="py-3 px-4"><?= e($class['section_count'] ?? 0) ?></td>
+                        <td class="py-3 px-4"><?= e($class['student_count'] ?? 0) ?></td>
+                        <td class="py-3 px-4"><?= e(format_currency((float)($class['monthly_fee'] ?? 0))) ?></td>
                         <td class="py-3 px-4">
                             <div class="flex space-x-2">
-                                <a href="/dashboard/classes/<?= e($class->id) ?>" class="text-blue-600 hover:underline text-sm">View</a>
-                                <a href="/dashboard/classes/<?= e($class->id) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
-                                <form action="/dashboard/classes/<?= e($class->id) ?>" method="POST" onsubmit="return confirm('Are you sure?')">
+                                <a href="/dashboard/classes/<?= e($class['id']) ?>" class="text-blue-600 hover:underline text-sm">View</a>
+                                <a href="/dashboard/classes/<?= e($class['id']) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
+                                <form action="/dashboard/classes/<?= e($class['id']) ?>" method="POST" onsubmit="return confirm('Are you sure?')">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="_method" value="DELETE">
                                     <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>

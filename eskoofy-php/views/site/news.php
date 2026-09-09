@@ -15,21 +15,21 @@
                 <?php foreach ($news as $article): ?>
                 <div class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition">
                     <div class="h-48 bg-gray-200">
-                        <?php if ($article->image): ?>
-                            <img src="/uploads/news/<?= e($article->image) ?>" alt="<?= e($article->title) ?>" class="w-full h-full object-cover">
+                        <?php if (!empty($article['image'])): ?>
+                            <img src="/uploads/news/<?= e($article['image']) ?>" alt="<?= e($article['title']) ?>" class="w-full h-full object-cover">
                         <?php endif; ?>
                     </div>
                     <div class="p-6">
                         <div class="flex items-center text-sm text-gray-500 mb-2">
-                            <span><?= e($article->created_at->format('M d, Y')) ?></span>
-                            <?php if ($article->category): ?>
+                            <span><?= e(date('M d, Y', strtotime($article['created_at'] ?? 'now'))) ?></span>
+                            <?php if (!empty($article['category'])): ?>
                                 <span class="mx-2">•</span>
-                                <span class="text-blue-600"><?= e($article->category) ?></span>
+                                <span class="text-blue-600"><?= e($article['category']) ?></span>
                             <?php endif; ?>
                         </div>
-                        <h2 class="text-xl font-bold mb-2"><?= e($article->title) ?></h2>
-                        <p class="text-gray-600 text-sm mb-4"><?= e(Str::limit($article->content, 150)) ?></p>
-                        <a href="/news/<?= e($article->slug) ?>" class="text-blue-600 font-semibold hover:underline">Read More →</a>
+                        <h2 class="text-xl font-bold mb-2"><?= e($article['title']) ?></h2>
+                        <p class="text-gray-600 text-sm mb-4"><?= e(truncate($article['content'] ?? '', 150)) ?></p>
+                        <a href="/news/<?= e($article['slug']) ?>" class="text-blue-600 font-semibold hover:underline">Read More →</a>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -40,7 +40,7 @@
             <?php endif; ?>
         </div>
 
-        <?php if (isset($paginator) && $paginator->hasPages()): ?>
+        <?php if (isset($paginator) && $paginator['hasPages']()): ?>
             <?php include __DIR__ . '/../partials/pagination.php'; ?>
         <?php endif; ?>
     </div>

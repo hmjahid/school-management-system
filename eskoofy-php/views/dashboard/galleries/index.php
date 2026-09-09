@@ -12,7 +12,7 @@
             <option value="">All Categories</option>
             <?php if (!empty($categories)): ?>
                 <?php foreach ($categories as $category): ?>
-                <option value="<?= e($category->slug) ?>" <?= ($categorySlug ?? '') == $category->slug ? 'selected' : '' ?>><?= e($category->name) ?></option>
+                <option value="<?= e($category['slug'] ?? '') ?>" <?= ($categorySlug ?? '') == ($category['slug'] ?? '') ? 'selected' : '' ?>><?= e($category['name']) ?></option>
                 <?php endforeach; ?>
             <?php endif; ?>
         </select>
@@ -25,16 +25,16 @@
         <?php foreach ($photos as $photo): ?>
         <div class="relative group">
             <div class="aspect-square bg-gray-200 rounded-xl overflow-hidden">
-                <img src="/uploads/gallery/<?= e($photo->image) ?>" alt="<?= e($photo->title) ?>" class="w-full h-full object-cover">
+                <img src="/uploads/gallery/<?= e($photo['image']) ?>" alt="<?= e($photo['title']) ?>" class="w-full h-full object-cover">
             </div>
             <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 rounded-xl transition flex items-center justify-center opacity-0 group-hover:opacity-100">
-                <form action="/dashboard/galleries/<?= e($photo->id) ?>" method="POST" onsubmit="return confirm('Delete this photo?')">
+                <form action="/dashboard/galleries/<?= e($photo['id']) ?>" method="POST" onsubmit="return confirm('Delete this photo?')">
                     <?= csrf_field() ?>
                     <input type="hidden" name="_method" value="DELETE">
                     <button type="submit" class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">Delete</button>
                 </form>
             </div>
-            <p class="text-xs text-gray-500 mt-1 truncate"><?= e($photo->title) ?></p>
+            <p class="text-xs text-gray-500 mt-1 truncate"><?= e($photo['title']) ?></p>
         </div>
         <?php endforeach; ?>
     <?php else: ?>
@@ -53,7 +53,7 @@
                     <option value="">Uncategorized</option>
                     <?php if (!empty($categories)): ?>
                         <?php foreach ($categories as $category): ?>
-                        <option value="<?= e($category->id) ?>"><?= e($category->name) ?></option>
+                        <option value="<?= e($category['id']) ?>"><?= e($category['name']) ?></option>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>

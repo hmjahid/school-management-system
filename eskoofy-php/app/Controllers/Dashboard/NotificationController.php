@@ -42,6 +42,7 @@ class NotificationController extends Controller
 
         $this->view('dashboard.notifications.index', [
             'rows'        => $rows,
+            'notifications' => $rows,
             'total'       => $total,
             'page'        => $page,
             'perPage'     => $perPage,

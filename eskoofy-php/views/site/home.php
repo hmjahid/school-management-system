@@ -43,15 +43,15 @@
                 <?php foreach ($latestNews as $news): ?>
                 <div class="bg-white rounded-xl shadow-sm overflow-hidden">
                     <div class="h-48 bg-gray-200">
-                        <?php if ($news->image): ?>
-                            <img src="/uploads/news/<?= e($news->image) ?>" alt="<?= e($news->title) ?>" class="w-full h-full object-cover">
+                        <?php if (!empty($news['image'])): ?>
+                            <img src="/uploads/news/<?= e($news['image']) ?>" alt="<?= e($news['title']) ?>" class="w-full h-full object-cover">
                         <?php endif; ?>
                     </div>
                     <div class="p-6">
-                        <span class="text-sm text-blue-600"><?= e($news->created_at->format('M d, Y')) ?></span>
-                        <h3 class="text-lg font-bold mt-2 mb-2"><?= e($news->title) ?></h3>
-                        <p class="text-gray-600 text-sm"><?= e(Str::limit($news->content, 120)) ?></p>
-                        <a href="/news/<?= e($news->slug) ?>" class="text-blue-600 text-sm font-semibold mt-3 inline-block hover:underline">Read More →</a>
+                        <span class="text-sm text-blue-600"><?= e(date('M d, Y', strtotime($news['created_at'] ?? 'now'))) ?></span>
+                        <h3 class="text-lg font-bold mt-2 mb-2"><?= e($news['title']) ?></h3>
+                        <p class="text-gray-600 text-sm"><?= e(truncate($news['content'] ?? '', 120)) ?></p>
+                        <a href="/news/<?= e($news['slug'] ?? '') ?>" class="text-blue-600 text-sm font-semibold mt-3 inline-block hover:underline">Read More →</a>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -74,15 +74,15 @@
                 <div class="bg-white rounded-xl shadow-sm p-6">
                     <div class="flex items-center mb-4">
                         <div class="bg-blue-100 text-blue-600 px-3 py-1 rounded-lg text-sm font-bold mr-3">
-                            <?= e($event->date->format('d')) ?>
+                            <?= e(date('d', strtotime($event['start_date'] ?? $event['date'] ?? 'now'))) ?>
                         </div>
                         <div>
-                            <div class="text-sm text-gray-500"><?= e($event->date->format('M Y')) ?></div>
-                            <div class="text-xs text-gray-400"><?= e($event->time ?? '') ?></div>
+                            <div class="text-sm text-gray-500"><?= e(date('M Y', strtotime($event['start_date'] ?? $event['date'] ?? 'now'))) ?></div>
+                            <div class="text-xs text-gray-400"><?= e($event['time'] ?? '') ?></div>
                         </div>
                     </div>
-                    <h3 class="text-lg font-bold mb-2"><?= e($event->title) ?></h3>
-                    <p class="text-gray-600 text-sm"><?= e(Str::limit($event->description, 100)) ?></p>
+                    <h3 class="text-lg font-bold mb-2"><?= e($event['title']) ?></h3>
+                    <p class="text-gray-600 text-sm"><?= e(truncate($event['description'] ?? '', 100)) ?></p>
                 </div>
                 <?php endforeach; ?>
             <?php else: ?>

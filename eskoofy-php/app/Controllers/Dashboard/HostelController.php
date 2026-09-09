@@ -35,6 +35,7 @@ class HostelController extends Controller
 
         $this->view('dashboard.hostels.index', [
             'rows'     => $rows,
+            'hostels' => $rows,
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

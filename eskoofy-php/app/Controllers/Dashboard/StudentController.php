@@ -74,6 +74,7 @@ class StudentController extends Controller
 
         $this->view('dashboard.students.index', [
             'rows'       => $rows,
+            'students'   => $rows,
             'total'      => $total,
             'page'       => $page,
             'perPage'    => $perPage,

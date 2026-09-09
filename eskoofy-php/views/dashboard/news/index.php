@@ -22,18 +22,18 @@
                 <?php if (!empty($news)): ?>
                     <?php foreach ($news as $article): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4 font-medium"><?= e($article->title) ?></td>
-                        <td class="py-3 px-4"><?= e($article->category ?? '-') ?></td>
+                        <td class="py-3 px-4 font-medium"><?= e($article['title']) ?></td>
+                        <td class="py-3 px-4"><?= e($article['category'] ?? '-') ?></td>
                         <td class="py-3 px-4">
-                            <span class="px-2 py-1 text-xs rounded-full <?= ($article->is_published ?? false) ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' ?>">
-                                <?= ($article->is_published ?? false) ? 'Published' : 'Draft' ?>
+                            <span class="px-2 py-1 text-xs rounded-full <?= ($article['status'] ?? '') === 'published' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' ?>">
+                                <?= ucfirst($article['status'] ?? 'draft') ?>
                             </span>
                         </td>
-                        <td class="py-3 px-4"><?= e($article->created_at->format('M d, Y')) ?></td>
+                        <td class="py-3 px-4"><?= e(date('M d, Y', strtotime($article['created_at'] ?? 'now'))) ?></td>
                         <td class="py-3 px-4">
                             <div class="flex space-x-2">
-                                <a href="/dashboard/news/<?= e($article->id) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
-                                <form action="/dashboard/news/<?= e($article->id) ?>" method="POST" onsubmit="return confirm('Delete this article?')">
+                                <a href="/dashboard/news/<?= e($article['id']) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
+                                <form action="/dashboard/news/<?= e($article['id']) ?>" method="POST" onsubmit="return confirm('Delete this article?')">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="_method" value="DELETE">
                                     <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>

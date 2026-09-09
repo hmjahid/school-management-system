@@ -30,7 +30,7 @@ if ( isset( $_POST['esk_notice_save'] ) ) {
 			'post_type'    => 'esk_notices',
 			'post_status'  => 'publish',
 		) );
-		if ( $post_id && is_wp_error( $post_id ) ) {
+		if ( is_wp_error( $post_id ) ) {
 			$post_id = 0;
 		}
 	}

@@ -40,14 +40,14 @@
                 <?php if (!empty($payslips)): ?>
                     <?php foreach ($payslips as $payslip): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4 font-medium"><?= e($payslip->staff->name ?? '') ?></td>
-                        <td class="py-3 px-4"><?= e(date('F Y', strtotime($payslip->month . '-01'))) ?></td>
-                        <td class="py-3 px-4 text-right"><?= e(config('currency.symbol', '$')) ?><?= number_format($payslip->basic_salary, 2) ?></td>
-                        <td class="py-3 px-4 text-right text-green-600">+<?= e(config('currency.symbol', '$')) ?><?= number_format($payslip->total_allowances, 2) ?></td>
-                        <td class="py-3 px-4 text-right text-red-600">-<?= e(config('currency.symbol', '$')) ?><?= number_format($payslip->total_deductions, 2) ?></td>
-                        <td class="py-3 px-4 text-right font-bold"><?= e(config('currency.symbol', '$')) ?><?= number_format($payslip->net_salary, 2) ?></td>
+                        <td class="py-3 px-4 font-medium"><?= e($payslip['staff']['name'] ?? '') ?></td>
+                        <td class="py-3 px-4"><?= e(date('F Y', strtotime($payslip['month'] . '-01'))) ?></td>
+                        <td class="py-3 px-4 text-right"><?= e(config('currency.symbol', '$')) ?><?= number_format($payslip['basic_salary'], 2) ?></td>
+                        <td class="py-3 px-4 text-right text-green-600">+<?= e(config('currency.symbol', '$')) ?><?= number_format($payslip['total_allowances'], 2) ?></td>
+                        <td class="py-3 px-4 text-right text-red-600">-<?= e(config('currency.symbol', '$')) ?><?= number_format($payslip['total_deductions'], 2) ?></td>
+                        <td class="py-3 px-4 text-right font-bold"><?= e(config('currency.symbol', '$')) ?><?= number_format($payslip['net_salary'], 2) ?></td>
                         <td class="py-3 px-4">
-                            <a href="/dashboard/payroll/payslips/<?= e($payslip->id) ?>/print" target="_blank" class="text-blue-600 hover:underline text-sm">Print</a>
+                            <a href="/dashboard/payroll/payslips/<?= e($payslip['id']) ?>/print" target="_blank" class="text-blue-600 hover:underline text-sm">Print</a>
                         </td>
                     </tr>
                     <?php endforeach; ?>

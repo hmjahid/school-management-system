@@ -55,6 +55,7 @@ class EventController extends Controller
 
         $this->view('dashboard.events.index', [
             'rows'     => $rows,
+            'events' => $rows,
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

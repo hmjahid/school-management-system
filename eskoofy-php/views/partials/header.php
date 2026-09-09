@@ -9,12 +9,13 @@
             <div class="hidden md:flex items-center space-x-8">
                 <a href="/" class="text-gray-700 hover:text-blue-600"><?= e(site_ui('nav.home')) ?></a>
                 <a href="/about" class="text-gray-700 hover:text-blue-600"><?= e(site_ui('nav.about')) ?></a>
+                <a href="/academics" class="text-gray-700 hover:text-blue-600">Academics</a>
+                <a href="/faculty" class="text-gray-700 hover:text-blue-600">Faculty</a>
                 <a href="/news" class="text-gray-700 hover:text-blue-600"><?= e(site_ui('nav.news')) ?></a>
                 <a href="/events" class="text-gray-700 hover:text-blue-600"><?= e(site_ui('nav.events')) ?></a>
                 <a href="/gallery" class="text-gray-700 hover:text-blue-600"><?= e(site_ui('nav.gallery')) ?></a>
-                <a href="/contact" class="text-gray-700 hover:text-blue-600"><?= e(site_ui('nav.contact')) ?></a>
-                <a href="/results" class="text-gray-700 hover:text-blue-600"><?= e(site_ui('nav.results')) ?></a>
                 <a href="/admission" class="text-gray-700 hover:text-blue-600"><?= e(site_ui('nav.admission')) ?></a>
+                <a href="/portal" class="text-gray-700 hover:text-blue-600 font-semibold">Portal</a>
                 <a href="/login" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"><?= e(site_ui('nav.login')) ?></a>
             </div>
             <div class="md:hidden flex items-center">
@@ -30,12 +31,16 @@
         <div class="px-4 py-2 space-y-1">
             <a href="/" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded"><?= e(site_ui('nav.home')) ?></a>
             <a href="/about" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded"><?= e(site_ui('nav.about')) ?></a>
+            <a href="/academics" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded">Academics</a>
+            <a href="/faculty" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded">Faculty</a>
+            <a href="/students-life" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded">Student Life</a>
             <a href="/news" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded"><?= e(site_ui('nav.news')) ?></a>
             <a href="/events" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded"><?= e(site_ui('nav.events')) ?></a>
             <a href="/gallery" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded"><?= e(site_ui('nav.gallery')) ?></a>
             <a href="/contact" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded"><?= e(site_ui('nav.contact')) ?></a>
             <a href="/results" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded"><?= e(site_ui('nav.results')) ?></a>
             <a href="/admission" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded"><?= e(site_ui('nav.admission')) ?></a>
+            <a href="/portal" class="block px-3 py-2 text-blue-600 hover:bg-gray-100 rounded font-semibold">Portal</a>
             <a href="/login" class="block px-3 py-2 bg-blue-600 text-white rounded text-center"><?= e(site_ui('nav.login')) ?></a>
         </div>
     </div>

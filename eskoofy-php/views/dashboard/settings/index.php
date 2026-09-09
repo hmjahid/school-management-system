@@ -84,7 +84,7 @@
                 <select name="current_session_id" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
                     <?php if (!empty($sessions)): ?>
                         <?php foreach ($sessions as $session): ?>
-                        <option value="<?= e($session->id) ?>" <?= ($settings['current_session_id'] ?? '') == $session->id ? 'selected' : '' ?>><?= e($session->name) ?></option>
+                        <option value="<?= e($session['id']) ?>" <?= ($settings['current_session_id'] ?? '') == $session['id'] ? 'selected' : '' ?>><?= e($session['name']) ?></option>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>

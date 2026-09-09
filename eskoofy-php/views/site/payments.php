@@ -15,12 +15,12 @@
             <div class="grid md:grid-cols-3 gap-4 mb-8">
                 <?php if (!empty($gateways)): ?>
                     <?php foreach ($gateways as $gateway): ?>
-                    <label class="border-2 rounded-lg p-4 cursor-pointer hover:border-blue-500 transition <?= ($selected_gateway ?? '') == $gateway->id ? 'border-blue-500 bg-blue-50' : 'border-gray-200' ?>">
-                        <input type="radio" name="payment_gateway" value="<?= e($gateway->id) ?>" class="hidden gateway-radio" <?= ($selected_gateway ?? '') == $gateway->id ? 'checked' : '' ?>>
+                    <label class="border-2 rounded-lg p-4 cursor-pointer hover:border-blue-500 transition <?= ($selectedGateway ?? '') == $gateway['id'] ? 'border-blue-500 bg-blue-50' : 'border-gray-200' ?>">
+                        <input type="radio" name="payment_gateway" value="<?= e($gateway['id']) ?>" class="hidden gateway-radio" <?= ($selectedGateway ?? '') == $gateway['id'] ? 'checked' : '' ?>>
                         <div class="text-center">
-                            <div class="text-2xl mb-2"><?= e($gateway->icon ?? '💳') ?></div>
-                            <div class="font-bold"><?= e($gateway->name) ?></div>
-                            <?php if ($gateway->is_test_mode ?? false): ?>
+                            <div class="text-2xl mb-2">💳</div>
+                            <div class="font-bold"><?= e($gateway['name']) ?></div>
+                            <?php if (!empty($gateway['is_test_mode'])): ?>
                                 <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">Test Mode</span>
                             <?php endif; ?>
                         </div>
@@ -36,7 +36,7 @@
             <h2 class="text-xl font-bold mb-6">Payment Details</h2>
             <form action="/payments/process" method="POST" class="space-y-4">
                 <?= csrf_field() ?>
-                <input type="hidden" name="gateway_id" id="selected_gateway_id" value="<?= e($selected_gateway ?? '') ?>">
+                <input type="hidden" name="gateway_id" id="selected_gateway_id" value="<?= e($selectedGateway ?? '') ?>">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Student ID *</label>
                     <input type="text" name="student_id" value="<?= old('student_id') ?>" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
@@ -47,7 +47,7 @@
                         <option value="">Select Fee Type</option>
                         <?php if (!empty($fees)): ?>
                             <?php foreach ($fees as $fee): ?>
-                            <option value="<?= e($fee->id) ?>" data-amount="<?= e($fee->amount) ?>"><?= e($fee->name) ?> - <?= e(config('currency.symbol', '$')) ?><?= number_format($fee->amount, 2) ?></option>
+                            <option value="<?= e($fee['id']) ?>" data-amount="<?= e($fee['amount']) ?>"><?= e($fee['name']) ?> - <?= e(config('currency.symbol', '$')) ?><?= number_format($fee['amount'], 2) ?></option>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </select>

@@ -66,6 +66,7 @@ class AttendanceController extends Controller
 
         $this->view('dashboard.attendance.index', [
             'rows'         => $rows,
+            'records' => $rows,
             'total'        => $total,
             'page'         => $page,
             'perPage'      => $perPage,

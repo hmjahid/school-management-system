@@ -13,7 +13,7 @@
             <option value="">All Categories</option>
             <?php if (!empty($categories)): ?>
                 <?php foreach ($categories as $category): ?>
-                <option value="<?= e($category->id) ?>" <?= ($category_id ?? '') == $category->id ? 'selected' : '' ?>><?= e($category->name) ?></option>
+                <option value="<?= e($category['id']) ?>" <?= ($category_id ?? '') == $category['id'] ? 'selected' : '' ?>><?= e($category['name']) ?></option>
                 <?php endforeach; ?>
             <?php endif; ?>
         </select>
@@ -40,21 +40,21 @@
                 <?php if (!empty($expenses)): ?>
                     <?php foreach ($expenses as $expense): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4"><?= e($expense->date->format('M d, Y')) ?></td>
-                        <td class="py-3 px-4"><span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700"><?= e($expense->category->name ?? '') ?></span></td>
-                        <td class="py-3 px-4"><?= e($expense->description) ?></td>
+                        <td class="py-3 px-4"><?= e(date('M d, Y', strtotime($expense['date'] ?? 'now'))) ?></td>
+                        <td class="py-3 px-4"><span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700"><?= e($expense['category'] ?? '') ?></span></td>
+                        <td class="py-3 px-4"><?= e($expense['description']) ?></td>
                         <td class="py-3 px-4">
-                            <?php if ($expense->receipt ?? null): ?>
-                                <a href="/uploads/expenses/<?= e($expense->receipt) ?>" class="text-blue-600 hover:underline text-sm" target="_blank">📎 View</a>
+                            <?php if ($expense['receipt'] ?? null): ?>
+                                <a href="/uploads/expenses/<?= e($expense['receipt']) ?>" class="text-blue-600 hover:underline text-sm" target="_blank">📎 View</a>
                             <?php else: ?>
                                 <span class="text-gray-400">-</span>
                             <?php endif; ?>
                         </td>
-                        <td class="py-3 px-4 text-right font-bold text-red-600">-<?= e(config('currency.symbol', '$')) ?><?= number_format($expense->amount, 2) ?></td>
+                        <td class="py-3 px-4 text-right font-bold text-red-600">-<?= e(format_currency((float)($expense['amount'] ?? 0))) ?></td>
                         <td class="py-3 px-4">
                             <div class="flex space-x-2">
-                                <a href="/dashboard/expenses/<?= e($expense->id) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
-                                <form action="/dashboard/expenses/<?= e($expense->id) ?>" method="POST" onsubmit="return confirm('Delete this expense?')">
+                                <a href="/dashboard/expenses/<?= e($expense['id']) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
+                                <form action="/dashboard/expenses/<?= e($expense['id']) ?>" method="POST" onsubmit="return confirm('Delete this expense?')">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="_method" value="DELETE">
                                     <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>
@@ -83,7 +83,7 @@
                 <select name="category_id" required class="w-full border border-gray-300 rounded-lg px-4 py-2">
                     <?php if (!empty($categories)): ?>
                         <?php foreach ($categories as $category): ?>
-                        <option value="<?= e($category->id) ?>"><?= e($category->name) ?></option>
+                        <option value="<?= e($category['id']) ?>"><?= e($category['name']) ?></option>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>

@@ -8,7 +8,7 @@ function config(string $key, mixed $default = null): mixed
 {
     static $config = null;
     if ($config === null) {
-        $config = require __DIR__ . '/../config/app.php';
+        $config = require __DIR__ . '/../../config/app.php';
     }
     $keys = explode('.', $key);
     $value = $config;
@@ -24,9 +24,9 @@ function site_ui(string $key, ?string $locale = null): string
     static $strings = null;
     if ($strings === null) {
         $locale = $locale ?? ($_SESSION['locale'] ?? config('app.locale', 'en'));
-        $file = __DIR__ . '/../lang/' . $locale . '/site_frontend.php';
+        $file = __DIR__ . '/../../lang/' . $locale . '/site_frontend.php';
         if (!file_exists($file)) {
-            $file = __DIR__ . '/../lang/en/site_frontend.php';
+            $file = __DIR__ . '/../../lang/en/site_frontend.php';
         }
         $strings = require $file;
     }
@@ -220,9 +220,9 @@ function dashboard_ui(string $key, ?string $locale = null): string
     static $strings = null;
     if ($strings === null) {
         $locale = $locale ?? ($_SESSION['locale'] ?? config('app.locale', 'en'));
-        $file = __DIR__ . '/../lang/' . $locale . '/dashboard.php';
+        $file = __DIR__ . '/../../lang/' . $locale . '/dashboard.php';
         if (!file_exists($file)) {
-            $file = __DIR__ . '/../lang/en/dashboard.php';
+            $file = __DIR__ . '/../../lang/en/dashboard.php';
         }
         $strings = require $file;
     }
@@ -233,4 +233,28 @@ function dashboard_ui(string $key, ?string $locale = null): string
         $value = $value[$k];
     }
     return (string) $value;
+}
+
+if (!function_exists('auth')) {
+    function auth(): object
+    {
+        return new class {
+            public function user(): ?array
+            {
+                return \App\Core\Auth::user();
+            }
+            public function id(): ?int
+            {
+                return \App\Core\Auth::id();
+            }
+            public function check(): bool
+            {
+                return \App\Core\Auth::check();
+            }
+            public function role(): ?string
+            {
+                return \App\Core\Auth::role();
+            }
+        };
+    }
 }

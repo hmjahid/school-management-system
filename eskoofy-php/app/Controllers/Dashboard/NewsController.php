@@ -55,6 +55,7 @@ class NewsController extends Controller
 
         $this->view('dashboard.news.index', [
             'rows'     => $rows,
+            'news' => $rows,
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

@@ -9,21 +9,21 @@
 <div class="space-y-4">
     <?php if (!empty($notices)): ?>
         <?php foreach ($notices as $notice): ?>
-        <div class="bg-white rounded-xl shadow-sm p-6 <?= ($notice->is_pinned ?? false) ? 'border-l-4 border-yellow-500' : '' ?>">
+        <div class="bg-white rounded-xl shadow-sm p-6 <?= ($notice['is_pinned'] ?? false) ? 'border-l-4 border-yellow-500' : '' ?>">
             <div class="flex justify-between items-start">
                 <div class="flex-1">
                     <div class="flex items-center mb-2">
-                        <?php if ($notice->is_pinned ?? false): ?>
+                        <?php if ($notice['is_pinned'] ?? false): ?>
                             <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded mr-2">📌 Pinned</span>
                         <?php endif; ?>
-                        <span class="text-sm text-gray-500"><?= e($notice->created_at->format('M d, Y')) ?></span>
+                        <span class="text-sm text-gray-500"><?= e(date('M d, Y', strtotime($notice['created_at']))) ?></span>
                     </div>
-                    <h3 class="text-lg font-bold mb-2"><?= e($notice->title) ?></h3>
-                    <p class="text-gray-600 text-sm"><?= e(Str::limit($notice->content, 200)) ?></p>
+                    <h3 class="text-lg font-bold mb-2"><?= e($notice['title']) ?></h3>
+                    <p class="text-gray-600 text-sm"><?= e(truncate($notice['content'], 200)) ?></p>
                 </div>
                 <div class="flex space-x-2 ml-4">
-                    <a href="/dashboard/notices/<?= e($notice->id) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
-                    <form action="/dashboard/notices/<?= e($notice->id) ?>" method="POST" onsubmit="return confirm('Delete this notice?')">
+                    <a href="/dashboard/notices/<?= e($notice['id']) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
+                    <form action="/dashboard/notices/<?= e($notice['id']) ?>" method="POST" onsubmit="return confirm('Delete this notice?')">
                         <?= csrf_field() ?>
                         <input type="hidden" name="_method" value="DELETE">
                         <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>

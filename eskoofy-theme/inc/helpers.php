@@ -42,12 +42,37 @@ if ( ! function_exists( 'esk_format_currency' ) ) {
 if ( ! function_exists( 'esk_generate_number' ) ) {
 	/**
 	 * Generate a unique prefixed number (admission, invoice, etc.).
+	 *
+	 * Looks at the maximum numeric portion of existing numbers with the
+	 * given prefix and increments. Defaults the table via prefix->table map.
 	 */
-	function esk_generate_number( string $prefix = 'ADM', string $table = 'students' ): string {
+	function esk_generate_number( string $prefix = 'ADM', ?string $table = null ): string {
 		global $wpdb;
-		$count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}esk_{$table}" );
-		$next  = $count + 1;
-		return $prefix . '-' . str_pad( (string) $next, 6, '0', STR_PAD_LEFT );
+
+		$map = array(
+			'ADM' => 'students',
+			'APP' => 'admissions',
+			'INV' => 'payments',
+			'FPT' => 'fee_payments',
+			'TRN' => 'hostel_rooms',
+			'JOB' => 'job_applications',
+		);
+
+		if ( null === $table ) {
+			$table = $map[ $prefix ] ?? 'students';
+		}
+
+		$full_table = $wpdb->prefix . 'esk_' . $table;
+
+		$max = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT MAX(CAST(SUBSTRING(number, %d) AS UNSIGNED)) FROM (SELECT CONCAT(%s, '-', LPAD(id, 6, '0')) AS number FROM {$full_table}) sub",
+				5,
+				$prefix
+			)
+		);
+
+		return $prefix . '-' . str_pad( (string) ( $max + 1 ), 6, '0', STR_PAD_LEFT );
 	}
 }
 

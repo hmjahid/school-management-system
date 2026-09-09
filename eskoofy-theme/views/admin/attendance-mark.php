@@ -86,7 +86,7 @@ if ( $selected_class ) {
 			<label><?php esc_html_e( 'Date', 'eskoofy' ); ?>:</label>
 			<input type="date" name="date" value="<?php echo esc_attr( $selected_date ); ?>">
 			<label><?php esc_html_e( 'Class', 'eskoofy' ); ?>:</label>
-			<select name="class_id" required>
+			<select id="esk-class-select" name="class_id" required>
 				<option value=""><?php esc_html_e( 'Select Class', 'eskoofy' ); ?></option>
 				<?php foreach ( $all_classes as $c ) : ?>
 					<option value="<?php echo esc_attr( $c->id ); ?>" <?php selected( $selected_class, $c->id ); ?>><?php echo esc_html( $c->name ); ?></option>

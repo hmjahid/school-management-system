@@ -58,6 +58,7 @@ class LibraryController extends Controller
 
         $this->view('dashboard.library.index', [
             'rows'       => $rows,
+            'books' => $rows,
             'total'      => $total,
             'page'       => $page,
             'perPage'    => $perPage,

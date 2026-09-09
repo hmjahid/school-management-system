@@ -11,20 +11,20 @@
         <?php foreach ($members as $member): ?>
         <div class="bg-white rounded-xl shadow-sm p-6 text-center">
             <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
-                <?= strtoupper(substr($member->name, 0, 1)) ?>
+                <?= strtoupper(substr($member['name'], 0, 1)) ?>
             </div>
-            <h3 class="font-bold text-lg"><?= e($member->name) ?></h3>
-            <p class="text-blue-600 text-sm font-medium"><?= e($member->position ?? '') ?></p>
-            <?php if ($member->phone ?? null): ?>
-                <p class="text-gray-500 text-sm mt-1">📞 <?= e($member->phone) ?></p>
+            <h3 class="font-bold text-lg"><?= e($member['name']) ?></h3>
+            <p class="text-blue-600 text-sm font-medium"><?= e($member['position'] ?? '') ?></p>
+            <?php if ($member['phone'] ?? null): ?>
+                <p class="text-gray-500 text-sm mt-1">📞 <?= e($member['phone']) ?></p>
             <?php endif; ?>
-            <?php if ($member->email ?? null): ?>
-                <p class="text-gray-500 text-sm">✉️ <?= e($member->email) ?></p>
+            <?php if ($member['email'] ?? null): ?>
+                <p class="text-gray-500 text-sm">✉️ <?= e($member['email']) ?></p>
             <?php endif; ?>
-            <p class="text-gray-600 text-sm mt-2"><?= e(Str::limit($member->bio ?? '', 100)) ?></p>
+            <p class="text-gray-600 text-sm mt-2"><?= e(truncate($member['bio'] ?? '', 100)) ?></p>
             <div class="flex justify-center space-x-2 mt-4">
-                <a href="/dashboard/committee/<?= e($member->id) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
-                <form action="/dashboard/committee/<?= e($member->id) ?>" method="POST" onsubmit="return confirm('Delete?')">
+                <a href="/dashboard/committee/<?= e($member['id']) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
+                <form action="/dashboard/committee/<?= e($member['id']) ?>" method="POST" onsubmit="return confirm('Delete?')">
                     <?= csrf_field() ?>
                     <input type="hidden" name="_method" value="DELETE">
                     <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>

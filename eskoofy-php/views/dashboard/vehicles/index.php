@@ -23,19 +23,19 @@
                 <?php if (!empty($vehicles)): ?>
                     <?php foreach ($vehicles as $vehicle): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4 font-mono font-medium"><?= e($vehicle->plate_number) ?></td>
-                        <td class="py-3 px-4"><?= e(ucfirst($vehicle->type ?? '')) ?></td>
-                        <td class="py-3 px-4"><?= e($vehicle->driver_name ?? '-') ?></td>
-                        <td class="py-3 px-4"><?= e($vehicle->capacity ?? '-') ?></td>
+                        <td class="py-3 px-4 font-mono font-medium"><?= e($vehicle['number']) ?></td>
+                        <td class="py-3 px-4"><?= e(ucfirst($vehicle['type'] ?? '')) ?></td>
+                        <td class="py-3 px-4"><?= e($vehicle['driver_name'] ?? '-') ?></td>
+                        <td class="py-3 px-4"><?= e($vehicle['capacity'] ?? '-') ?></td>
                         <td class="py-3 px-4">
-                            <span class="px-2 py-1 text-xs rounded-full <?= ($vehicle->status ?? 'active') == 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
-                                <?= e(ucfirst($vehicle->status ?? 'active')) ?>
+                            <span class="px-2 py-1 text-xs rounded-full <?= ($vehicle['status'] ?? 'active') == 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
+                                <?= e(ucfirst($vehicle['status'] ?? 'active')) ?>
                             </span>
                         </td>
                         <td class="py-3 px-4">
                             <div class="flex space-x-2">
-                                <a href="/dashboard/vehicles/<?= e($vehicle->id) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
-                                <form action="/dashboard/vehicles/<?= e($vehicle->id) ?>" method="POST" onsubmit="return confirm('Delete?')">
+                                <a href="/dashboard/vehicles/<?= e($vehicle['id']) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
+                                <form action="/dashboard/vehicles/<?= e($vehicle['id']) ?>" method="POST" onsubmit="return confirm('Delete?')">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="_method" value="DELETE">
                                     <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>
@@ -59,7 +59,7 @@
             <?= csrf_field() ?>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Plate Number *</label>
-                <input type="text" name="plate_number" required class="w-full border border-gray-300 rounded-lg px-4 py-2">
+                <input type="text" name="number" required class="w-full border border-gray-300 rounded-lg px-4 py-2">
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>

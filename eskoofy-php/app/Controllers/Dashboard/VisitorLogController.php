@@ -51,6 +51,7 @@ class VisitorLogController extends Controller
 
         $this->view('dashboard.visitor_logs.index', [
             'rows'     => $rows,
+            'visitor_logs' => $rows,
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

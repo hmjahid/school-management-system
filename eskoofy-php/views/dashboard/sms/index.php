@@ -25,7 +25,7 @@
                     <option value="">Select Class</option>
                     <?php if (!empty($classes)): ?>
                         <?php foreach ($classes as $class): ?>
-                        <option value="<?= e($class->id) ?>"><?= e($class->name) ?></option>
+                        <option value="<?= e($class['id']) ?>"><?= e($class['name']) ?></option>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>
@@ -46,11 +46,11 @@
                 <?php foreach ($history as $sms): ?>
                 <div class="border-b pb-3">
                     <div class="flex justify-between text-sm">
-                        <span class="text-gray-500"><?= e($sms->created_at->format('M d, H:i')) ?></span>
-                        <span class="px-2 py-0.5 text-xs rounded-full <?= ($sms->status ?? '') == 'sent' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>"><?= e(ucfirst($sms->status ?? '')) ?></span>
+                        <span class="text-gray-500"><?= e(date('M d, H:i', strtotime($sms['created_at']))) ?></span>
+                        <span class="px-2 py-0.5 text-xs rounded-full <?= ($sms['status'] ?? '') == 'sent' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>"><?= e(ucfirst($sms['status'] ?? '')) ?></span>
                     </div>
-                    <p class="text-sm mt-1"><?= e(Str::limit($sms->message, 80)) ?></p>
-                    <p class="text-xs text-gray-400 mt-1">To: <?= e($sms->recipients_count ?? 0) ?> recipients</p>
+                    <p class="text-sm mt-1"><?= e(truncate($sms['message'], 80)) ?></p>
+                    <p class="text-xs text-gray-400 mt-1">To: <?= e($sms['recipients_count'] ?? 0) ?> recipients</p>
                 </div>
                 <?php endforeach; ?>
             <?php else: ?>

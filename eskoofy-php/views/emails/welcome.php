@@ -9,7 +9,7 @@
         <div style="text-align: center; margin-bottom: 30px;">
             <h1 style="color: #2563eb;"><?= e(config('school.name', 'School')) ?></h1>
         </div>
-        <h2 style="color: #333;">Welcome, <?= e($user->name ?? '') ?>!</h2>
+        <h2 style="color: #333;">Welcome, <?= e($user['name'] ?? '') ?>!</h2>
         <p style="color: #666; line-height: 1.6;">
             Your account has been created successfully. You can now log in to access the school management system.
         </p>

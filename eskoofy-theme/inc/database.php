@@ -1108,6 +1108,201 @@ function esk_create_tables(): void {
 		KEY idx_type (type)
 	) {$charset_collate}";
 
+	// ─── Salary Structures ──────────────────────────────────────
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_salary_structures (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		user_id BIGINT UNSIGNED NOT NULL,
+		basic_salary DECIMAL(10,2) DEFAULT 0,
+		house_allowance DECIMAL(10,2) DEFAULT 0,
+		medical_allowance DECIMAL(10,2) DEFAULT 0,
+		transport_allowance DECIMAL(10,2) DEFAULT 0,
+		other_allowance DECIMAL(10,2) DEFAULT 0,
+		tax_deduction DECIMAL(10,2) DEFAULT 0,
+		provident_fund DECIMAL(10,2) DEFAULT 0,
+		other_deduction DECIMAL(10,2) DEFAULT 0,
+		effective_from DATE,
+		effective_to DATE,
+		notes TEXT DEFAULT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		UNIQUE KEY uk_user_effective (user_id, effective_from),
+		KEY idx_user (user_id)
+	) {$charset_collate}";
+
+	// ─── Leave Types ────────────────────────────────────────────
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_leave_types (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		name VARCHAR(100) NOT NULL,
+		days_per_year INT DEFAULT 0,
+		is_paid TINYINT(1) DEFAULT 1,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		UNIQUE KEY uk_name (name)
+	) {$charset_collate}";
+
+	// ─── Leave Requests ─────────────────────────────────────────
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_leave_requests (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		user_id BIGINT UNSIGNED NOT NULL,
+		leave_type_id BIGINT UNSIGNED DEFAULT NULL,
+		start_date DATE NOT NULL,
+		end_date DATE NOT NULL,
+		days INT DEFAULT 0,
+		reason TEXT DEFAULT NULL,
+		status VARCHAR(20) DEFAULT 'pending',
+		approved_by BIGINT UNSIGNED DEFAULT NULL,
+		approved_at DATETIME DEFAULT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		KEY idx_user_id (user_id),
+		KEY idx_status (status)
+	) {$charset_collate}";
+
+	// ─── Staff Attendances ──────────────────────────────────────
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_staff_attendances (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		user_id BIGINT UNSIGNED NOT NULL,
+		date DATE NOT NULL,
+		check_in TIME DEFAULT NULL,
+		check_out TIME DEFAULT NULL,
+		status VARCHAR(20) DEFAULT 'present',
+		notes TEXT DEFAULT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		KEY idx_user_date (user_id, date),
+		KEY idx_status (status)
+	) {$charset_collate}";
+
+	// ─── Notifications ──────────────────────────────────────────
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_notifications (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		user_id BIGINT UNSIGNED NOT NULL,
+		type VARCHAR(50) NOT NULL,
+		title VARCHAR(255) NOT NULL,
+		message TEXT DEFAULT NULL,
+		link VARCHAR(500) DEFAULT NULL,
+		read_at DATETIME DEFAULT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		KEY idx_user_read (user_id, read_at)
+	) {$charset_collate}";
+
+	// ─── Ledger Entries ─────────────────────────────────────────
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_ledger_entries (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		account VARCHAR(100) NOT NULL,
+		type VARCHAR(20) NOT NULL,
+		amount DECIMAL(12,2) NOT NULL,
+		date DATE NOT NULL,
+		description TEXT DEFAULT NULL,
+		reference_id BIGINT UNSIGNED DEFAULT NULL,
+		reference_type VARCHAR(50) DEFAULT NULL,
+		created_by BIGINT UNSIGNED DEFAULT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		KEY idx_account_date (account, date),
+		KEY idx_type (type)
+	) {$charset_collate}";
+
+	// ─── Bank Statements ────────────────────────────────────────
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_bank_statements (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		bank_account VARCHAR(100) NOT NULL,
+		transaction_date DATE NOT NULL,
+		description TEXT DEFAULT NULL,
+		amount DECIMAL(12,2) NOT NULL,
+		type VARCHAR(10) DEFAULT 'credit',
+		reconciled TINYINT(1) DEFAULT 0,
+		ledger_entry_id BIGINT UNSIGNED DEFAULT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		KEY idx_bank (bank_account, transaction_date),
+		KEY idx_reconciled (reconciled)
+	) {$charset_collate}";
+
+	// ─── Payslips ───────────────────────────────────────────────
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_payslips (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		user_id BIGINT UNSIGNED NOT NULL,
+		salary_structure_id BIGINT UNSIGNED DEFAULT NULL,
+		period_start DATE NOT NULL,
+		period_end DATE NOT NULL,
+		basic_salary DECIMAL(10,2) DEFAULT 0,
+		total_allowances DECIMAL(10,2) DEFAULT 0,
+		total_deductions DECIMAL(10,2) DEFAULT 0,
+		net_salary DECIMAL(10,2) DEFAULT 0,
+		status VARCHAR(20) DEFAULT 'pending',
+		paid_at DATETIME DEFAULT NULL,
+		notes TEXT DEFAULT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		KEY idx_user_period (user_id, period_start, period_end)
+	) {$charset_collate}";
+
+	// ─── Website Contents ───────────────────────────────────────
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_website_contents (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		page VARCHAR(100) NOT NULL,
+		section VARCHAR(100) NOT NULL,
+		title VARCHAR(255) DEFAULT NULL,
+		content LONGTEXT DEFAULT NULL,
+		image VARCHAR(500) DEFAULT NULL,
+		meta TEXT DEFAULT NULL,
+		sort_order INT DEFAULT 0,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		UNIQUE KEY uk_page_section (page, section)
+	) {$charset_collate}";
+
+	// ─── Documents ──────────────────────────────────────────────
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_documents (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		title VARCHAR(255) NOT NULL,
+		category VARCHAR(100) DEFAULT NULL,
+		file_path VARCHAR(500) NOT NULL,
+		file_type VARCHAR(50) DEFAULT NULL,
+		file_size INT DEFAULT NULL,
+		description TEXT DEFAULT NULL,
+		uploaded_by BIGINT UNSIGNED DEFAULT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		KEY idx_category (category)
+	) {$charset_collate}";
+
+	// ─── Media ──────────────────────────────────────────────────
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_media (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		title VARCHAR(255) DEFAULT NULL,
+		file_path VARCHAR(500) NOT NULL,
+		file_type VARCHAR(50) DEFAULT NULL,
+		file_size INT DEFAULT NULL,
+		alt_text VARCHAR(255) DEFAULT NULL,
+		caption TEXT DEFAULT NULL,
+		uploaded_by BIGINT UNSIGNED DEFAULT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (id)
+	) {$charset_collate}";
+
+	// ─── Seat Plans ─────────────────────────────────────────────
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_seat_plans (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		exam_id BIGINT UNSIGNED NOT NULL,
+		room_number VARCHAR(50) NOT NULL,
+		row_number INT DEFAULT 0,
+		column_number INT DEFAULT 0,
+		student_id BIGINT UNSIGNED DEFAULT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		KEY idx_exam_room (exam_id, room_number)
+	) {$charset_collate}";
+
 	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 	foreach ( $sql as $query ) {
 		dbDelta( $query );

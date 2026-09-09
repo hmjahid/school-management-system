@@ -334,6 +334,259 @@ function esk_register_admin_menus(): void {
 		'esk-settings',
 		'esk_settings_page'
 	);
+
+	// ─── Tools / System submenu ────────────────────────────────
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Onboarding', 'eskoofy' ),
+		esc_html__( 'Onboarding', 'eskoofy' ),
+		'manage_options',
+		'esk-onboarding',
+		'esk_onboarding_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Documents', 'eskoofy' ),
+		esc_html__( 'Documents', 'eskoofy' ),
+		'manage_options',
+		'esk-documents',
+		'esk_documents_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Media Library', 'eskoofy' ),
+		esc_html__( 'Media Library', 'eskoofy' ),
+		'manage_options',
+		'esk-media',
+		'esk_media_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Contact Submissions', 'eskoofy' ),
+		esc_html__( 'Contact', 'eskoofy' ),
+		'manage_options',
+		'esk-contact-submissions',
+		'esk_contact_submissions_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Global Search', 'eskoofy' ),
+		esc_html__( 'Search', 'eskoofy' ),
+		'manage_options',
+		'esk-search',
+		'esk_search_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'CMS Pages', 'eskoofy' ),
+		esc_html__( 'CMS Pages', 'eskoofy' ),
+		'manage_options',
+		'esk-cms',
+		'esk_cms_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Bulk Import/Export', 'eskoofy' ),
+		esc_html__( 'Bulk Import/Export', 'eskoofy' ),
+		'manage_options',
+		'esk-bulk',
+		'esk_bulk_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Reports Builder', 'eskoofy' ),
+		esc_html__( 'Reports Builder', 'eskoofy' ),
+		'manage_options',
+		'esk-reports-builder',
+		'esk_reports_builder_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Analytics', 'eskoofy' ),
+		esc_html__( 'Analytics', 'eskoofy' ),
+		'manage_options',
+		'esk-analytics',
+		'esk_analytics_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Income Statement', 'eskoofy' ),
+		esc_html__( 'Income Statement', 'eskoofy' ),
+		'manage_options',
+		'esk-income-statement',
+		'esk_income_statement_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Balance Sheet', 'eskoofy' ),
+		esc_html__( 'Balance Sheet', 'eskoofy' ),
+		'manage_options',
+		'esk-balance-sheet',
+		'esk_balance_sheet_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Cash Flow', 'eskoofy' ),
+		esc_html__( 'Cash Flow', 'eskoofy' ),
+		'manage_options',
+		'esk-cash-flow',
+		'esk_cash_flow_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Bank Reconciliation', 'eskoofy' ),
+		esc_html__( 'Bank Recon', 'eskoofy' ),
+		'manage_options',
+		'esk-bank-reconciliation',
+		'esk_bank_reconciliation_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Payslips', 'eskoofy' ),
+		esc_html__( 'Payslips', 'eskoofy' ),
+		'manage_options',
+		'esk-payslips',
+		'esk_payslips_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Salary Structures', 'eskoofy' ),
+		esc_html__( 'Salary Structures', 'eskoofy' ),
+		'manage_options',
+		'esk-salary-structures',
+		'esk_salary_structures_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Leave Types', 'eskoofy' ),
+		esc_html__( 'Leave Types', 'eskoofy' ),
+		'manage_options',
+		'esk-leave-types',
+		'esk_leave_types_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Leave Requests', 'eskoofy' ),
+		esc_html__( 'Leave Requests', 'eskoofy' ),
+		'manage_options',
+		'esk-leave-requests',
+		'esk_leave_requests_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Staff Attendance', 'eskoofy' ),
+		esc_html__( 'Staff Attendance', 'eskoofy' ),
+		'manage_options',
+		'esk-staff-attendance',
+		'esk_staff_attendance_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Refunds', 'eskoofy' ),
+		esc_html__( 'Refunds', 'eskoofy' ),
+		'manage_options',
+		'esk-refunds',
+		'esk_refunds_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Notifications', 'eskoofy' ),
+		esc_html__( 'Notifications', 'eskoofy' ),
+		'manage_options',
+		'esk-notifications',
+		'esk_notifications_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Activity Log', 'eskoofy' ),
+		esc_html__( 'Activity Log', 'eskoofy' ),
+		'manage_options',
+		'esk-activity',
+		'esk_activity_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Visitor Logs', 'eskoofy' ),
+		esc_html__( 'Visitor Logs', 'eskoofy' ),
+		'manage_options',
+		'esk-visitor-logs',
+		'esk_visitor_logs_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Messages', 'eskoofy' ),
+		esc_html__( 'Messages', 'eskoofy' ),
+		'manage_options',
+		'esk-messages',
+		'esk_messages_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Assignments', 'eskoofy' ),
+		esc_html__( 'Assignments', 'eskoofy' ),
+		'manage_options',
+		'esk-assignments',
+		'esk_assignments_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Class Routines', 'eskoofy' ),
+		esc_html__( 'Class Routines', 'eskoofy' ),
+		'manage_options',
+		'esk-routines',
+		'esk_routines_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Progress Reports', 'eskoofy' ),
+		esc_html__( 'Progress Reports', 'eskoofy' ),
+		'manage_options',
+		'esk-progress-reports',
+		'esk_progress_reports_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Exam Seat Plans', 'eskoofy' ),
+		esc_html__( 'Seat Plans', 'eskoofy' ),
+		'manage_options',
+		'esk-seat-plans',
+		'esk_seat_plans_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Library Reports', 'eskoofy' ),
+		esc_html__( 'Library Reports', 'eskoofy' ),
+		'manage_options',
+		'esk-library-reports',
+		'esk_library_reports_page'
+	);
 }
 add_action( 'admin_menu', 'esk_register_admin_menus' );
 
@@ -494,6 +747,35 @@ function esk_users_page(): void {
 function esk_settings_page(): void {
 	esk_render_admin_view( 'settings' );
 }
+
+function esk_onboarding_page(): void              { esk_render_admin_view( 'onboarding' ); }
+function esk_documents_page(): void               { esk_render_admin_view( 'documents' ); }
+function esk_media_page(): void                   { esk_render_admin_view( 'media' ); }
+function esk_contact_submissions_page(): void     { esk_render_admin_view( 'contact-submissions' ); }
+function esk_search_page(): void                  { esk_render_admin_view( 'search' ); }
+function esk_cms_page(): void                     { esk_render_admin_view( 'cms' ); }
+function esk_bulk_page(): void                    { esk_render_admin_view( 'bulk' ); }
+function esk_reports_builder_page(): void        { esk_render_admin_view( 'reports-builder' ); }
+function esk_analytics_page(): void               { esk_render_admin_view( 'analytics' ); }
+function esk_income_statement_page(): void        { esk_render_admin_view( 'income-statement' ); }
+function esk_balance_sheet_page(): void           { esk_render_admin_view( 'balance-sheet' ); }
+function esk_cash_flow_page(): void               { esk_render_admin_view( 'cash-flow' ); }
+function esk_bank_reconciliation_page(): void     { esk_render_admin_view( 'bank-reconciliation' ); }
+function esk_payslips_page(): void                { esk_render_admin_view( 'payslips' ); }
+function esk_salary_structures_page(): void       { esk_render_admin_view( 'salary-structures' ); }
+function esk_leave_types_page(): void             { esk_render_admin_view( 'leave-types' ); }
+function esk_leave_requests_page(): void          { esk_render_admin_view( 'leave-requests' ); }
+function esk_staff_attendance_page(): void        { esk_render_admin_view( 'staff-attendance' ); }
+function esk_refunds_page(): void                 { esk_render_admin_view( 'refunds' ); }
+function esk_notifications_page(): void           { esk_render_admin_view( 'notifications' ); }
+function esk_activity_page(): void                { esk_render_admin_view( 'activity' ); }
+function esk_visitor_logs_page(): void            { esk_render_admin_view( 'visitor-logs' ); }
+function esk_messages_page(): void                { esk_render_admin_view( 'messages' ); }
+function esk_assignments_page(): void             { esk_render_admin_view( 'assignments' ); }
+function esk_routines_page(): void                { esk_render_admin_view( 'routines' ); }
+function esk_progress_reports_page(): void        { esk_render_admin_view( 'progress-reports' ); }
+function esk_seat_plans_page(): void              { esk_render_admin_view( 'seat-plans' ); }
+function esk_library_reports_page(): void         { esk_render_admin_view( 'library-reports' ); }
 
 /**
  * Render an admin view template.

@@ -57,6 +57,7 @@ class UserController extends Controller
 
         $this->view('dashboard.users.index', [
             'rows'     => $rows,
+            'users' => $rows,
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

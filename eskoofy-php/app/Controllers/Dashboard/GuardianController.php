@@ -52,6 +52,7 @@ class GuardianController extends Controller
 
         $this->view('dashboard.guardians.index', [
             'rows'     => $rows,
+            'guardians' => $rows,
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

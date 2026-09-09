@@ -59,6 +59,7 @@ class BudgetController extends Controller
 
         $this->view('dashboard.budgets.index', [
             'rows'         => $rows,
+            'budgets' => $rows,
             'total'        => $total,
             'page'         => $page,
             'perPage'      => $perPage,

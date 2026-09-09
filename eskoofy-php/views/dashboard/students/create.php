@@ -117,7 +117,7 @@
                     <option value="">Select Class</option>
                     <?php if (!empty($classes)): ?>
                         <?php foreach ($classes as $class): ?>
-                        <option value="<?= e($class->id) ?>" <?= old('class_id') == $class->id ? 'selected' : '' ?>><?= e($class->name) ?></option>
+                        <option value="<?= e($class['id']) ?>" <?= old('class_id') == $class['id'] ? 'selected' : '' ?>><?= e($class['name']) ?></option>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>
@@ -144,7 +144,7 @@
                     <option value="">Select Fee Group</option>
                     <?php if (!empty($feeGroups)): ?>
                         <?php foreach ($feeGroups as $group): ?>
-                        <option value="<?= e($group->id) ?>" <?= old('fee_group_id') == $group->id ? 'selected' : '' ?>><?= e($group->name) ?></option>
+                        <option value="<?= e($group['id']) ?>" <?= old('fee_group_id') == $group['id'] ? 'selected' : '' ?>><?= e($group['name']) ?></option>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>

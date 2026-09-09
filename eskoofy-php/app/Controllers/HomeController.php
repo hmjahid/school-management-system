@@ -14,15 +14,15 @@ class HomeController extends Controller
 
         $settings = $db->fetch("SELECT * FROM website_settings ORDER BY id DESC LIMIT 1");
 
-        $latestNews = $db->fetchAll(
+        $news = $db->fetchAll(
             "SELECT * FROM news WHERE is_event = 0 AND status = 'published' ORDER BY published_at DESC LIMIT 5"
         );
 
-        $upcomingEvents = $db->fetchAll(
-            "SELECT * FROM events WHERE status = 'published' AND start_date >= CURDATE() ORDER BY start_date ASC LIMIT 5"
+        $events = $db->fetchAll(
+            "SELECT * FROM events WHERE status = 'published' AND start_date >= CURRENT_DATE ORDER BY start_date ASC LIMIT 5"
         );
 
-        $recentNotices = $db->fetchAll(
+        $notices = $db->fetchAll(
             "SELECT * FROM notices ORDER BY pinned DESC, id DESC LIMIT 5"
         );
 
@@ -40,25 +40,32 @@ class HomeController extends Controller
 
         $studentCount = $db->count('students');
         $teacherCount = $db->count('teachers');
+        $classCount = $db->count('school_classes');
 
         $years = null;
         if ($settings && !empty($settings['established_year'])) {
             $years = (int) date('Y') - (int) $settings['established_year'];
         }
 
+        $stats = [
+            'total_students' => $studentCount,
+            'total_teachers' => $teacherCount,
+            'total_classes'  => $classCount,
+            'years'          => $years,
+        ];
+
         $this->view('site.home', [
             'settings'         => $settings,
-            'latestNews'       => $latestNews,
-            'upcomingEvents'   => $upcomingEvents,
-            'recentNotices'    => $recentNotices,
+            'news'             => $news,
+            'latestNews'       => $news,
+            'events'           => $events,
+            'upcomingEvents'   => $events,
+            'notices'          => $notices,
+            'recentNotices'    => $notices,
             'teachers'         => $teachers,
             'testimonials'     => $testimonials,
             'committeeMembers' => $committeeMembers,
-            'stats'            => [
-                'students' => $studentCount,
-                'teachers' => $teacherCount,
-                'years'    => $years,
-            ],
+            'stats'            => $stats,
         ]);
     }
 }

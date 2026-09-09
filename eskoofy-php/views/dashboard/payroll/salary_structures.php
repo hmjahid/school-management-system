@@ -23,15 +23,15 @@
                 <?php if (!empty($structures)): ?>
                     <?php foreach ($structures as $structure): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4 font-medium"><?= e($structure->title) ?></td>
-                        <td class="py-3 px-4 text-right"><?= e(config('currency.symbol', '$')) ?><?= number_format($structure->basic_salary, 2) ?></td>
-                        <td class="py-3 px-4 text-right text-green-600">+<?= e(config('currency.symbol', '$')) ?><?= number_format($structure->total_allowances ?? 0, 2) ?></td>
-                        <td class="py-3 px-4 text-right text-red-600">-<?= e(config('currency.symbol', '$')) ?><?= number_format($structure->total_deductions ?? 0, 2) ?></td>
-                        <td class="py-3 px-4 text-right font-bold"><?= e(config('currency.symbol', '$')) ?><?= number_format($structure->net_salary ?? 0, 2) ?></td>
+                        <td class="py-3 px-4 font-medium"><?= e($structure['title']) ?></td>
+                        <td class="py-3 px-4 text-right"><?= e(config('currency.symbol', '$')) ?><?= number_format($structure['basic_salary'], 2) ?></td>
+                        <td class="py-3 px-4 text-right text-green-600">+<?= e(config('currency.symbol', '$')) ?><?= number_format($structure['total_allowances'] ?? 0, 2) ?></td>
+                        <td class="py-3 px-4 text-right text-red-600">-<?= e(config('currency.symbol', '$')) ?><?= number_format($structure['total_deductions'] ?? 0, 2) ?></td>
+                        <td class="py-3 px-4 text-right font-bold"><?= e(config('currency.symbol', '$')) ?><?= number_format($structure['net_salary'] ?? 0, 2) ?></td>
                         <td class="py-3 px-4">
                             <div class="flex space-x-2">
-                                <a href="/dashboard/payroll/salary-structures/<?= e($structure->id) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
-                                <form action="/dashboard/payroll/salary-structures/<?= e($structure->id) ?>" method="POST" onsubmit="return confirm('Delete?')">
+                                <a href="/dashboard/payroll/salary-structures/<?= e($structure['id']) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
+                                <form action="/dashboard/payroll/salary-structures/<?= e($structure['id']) ?>" method="POST" onsubmit="return confirm('Delete?')">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="_method" value="DELETE">
                                     <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>

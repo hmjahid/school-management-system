@@ -12,7 +12,7 @@
             <option value="">Select Class</option>
             <?php if (!empty($classes)): ?>
                 <?php foreach ($classes as $class): ?>
-                <option value="<?= e($class->id) ?>" <?= ($class_id ?? '') == $class->id ? 'selected' : '' ?>><?= e($class->name) ?></option>
+                <option value="<?= e($class['id']) ?>" <?= ($class_id ?? '') == $class['id'] ? 'selected' : '' ?>><?= e($class['name']) ?></option>
                 <?php endforeach; ?>
             <?php endif; ?>
         </select>
@@ -51,20 +51,20 @@
                 <tbody>
                     <?php foreach ($students as $student): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4"><?= e($student->roll ?? '-') ?></td>
-                        <td class="py-3 px-4 font-medium"><?= e($student->name) ?></td>
+                        <td class="py-3 px-4"><?= e($student['roll'] ?? '-') ?></td>
+                        <td class="py-3 px-4 font-medium"><?= e($student['name']) ?></td>
                         <td class="py-3 px-4">
                             <div class="flex justify-center gap-4">
                                 <label class="flex items-center cursor-pointer">
-                                    <input type="radio" name="attendance[<?= e($student->id) ?>]" value="present" class="text-green-600 focus:ring-green-500" checked>
+                                    <input type="radio" name="attendance[<?= e($student['id']) ?>]" value="present" class="text-green-600 focus:ring-green-500" checked>
                                     <span class="ml-1 text-sm text-green-700">Present</span>
                                 </label>
                                 <label class="flex items-center cursor-pointer">
-                                    <input type="radio" name="attendance[<?= e($student->id) ?>]" value="absent" class="text-red-600 focus:ring-red-500">
+                                    <input type="radio" name="attendance[<?= e($student['id']) ?>]" value="absent" class="text-red-600 focus:ring-red-500">
                                     <span class="ml-1 text-sm text-red-700">Absent</span>
                                 </label>
                                 <label class="flex items-center cursor-pointer">
-                                    <input type="radio" name="attendance[<?= e($student->id) ?>]" value="late" class="text-yellow-600 focus:ring-yellow-500">
+                                    <input type="radio" name="attendance[<?= e($student['id']) ?>]" value="late" class="text-yellow-600 focus:ring-yellow-500">
                                     <span class="ml-1 text-sm text-yellow-700">Late</span>
                                 </label>
                             </div>

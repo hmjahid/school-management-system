@@ -38,21 +38,21 @@
                 <?php if (!empty($issues)): ?>
                     <?php foreach ($issues as $issue): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4 font-medium"><?= e($issue->book->title ?? '') ?></td>
-                        <td class="py-3 px-4"><?= e($issue->student->name ?? '') ?></td>
-                        <td class="py-3 px-4 text-sm"><?= e($issue->issue_date->format('M d, Y')) ?></td>
-                        <td class="py-3 px-4 text-sm"><?= e($issue->due_date->format('M d, Y')) ?></td>
-                        <td class="py-3 px-4 text-sm"><?= e($issue->return_date ? $issue->return_date->format('M d, Y') : '-') ?></td>
+                        <td class="py-3 px-4 font-medium"><?= e($issue['book_title'] ?? '') ?></td>
+                        <td class="py-3 px-4"><?= e($issue['member_name'] ?? '') ?></td>
+                        <td class="py-3 px-4 text-sm"><?= e(date('M d, Y', strtotime($issue['issued_at'] ?? 'now'))) ?></td>
+                        <td class="py-3 px-4 text-sm"><?= e(date('M d, Y', strtotime($issue['due_date'] ?? 'now'))) ?></td>
+                        <td class="py-3 px-4 text-sm"><?= e(!empty($issue['returned_at']) ? date('M d, Y', strtotime($issue['returned_at'])) : '-') ?></td>
                         <td class="py-3 px-4">
                             <?php
-                            $issueStatus = $issue->status ?? 'issued';
+                            $issueStatus = $issue['status'] ?? 'issued';
                             $colors = ['issued' => 'bg-blue-100 text-blue-700', 'returned' => 'bg-green-100 text-green-700', 'overdue' => 'bg-red-100 text-red-700'];
                             ?>
                             <span class="px-2 py-1 text-xs rounded-full <?= $colors[$issueStatus] ?? 'bg-gray-100 text-gray-700' ?>"><?= e(ucfirst($issueStatus)) ?></span>
                         </td>
                         <td class="py-3 px-4">
                             <?php if ($issueStatus == 'issued' || $issueStatus == 'overdue'): ?>
-                            <form action="/dashboard/library/issues/<?= e($issue->id) ?>/return" method="POST" class="inline">
+                            <form action="/dashboard/library/issues/<?= e($issue['id']) ?>/return" method="POST" class="inline">
                                 <?= csrf_field() ?>
                                 <button type="submit" class="text-green-600 hover:underline text-sm">Return</button>
                             </form>
@@ -81,7 +81,7 @@
                     <option value="">Select Book</option>
                     <?php if (!empty($books)): ?>
                         <?php foreach ($books as $book): ?>
-                        <option value="<?= e($book->id) ?>"><?= e($book->title) ?> (<?= e($book->available ?? 0) ?> available)</option>
+                        <option value="<?= e($book['id']) ?>"><?= e($book['title'] ?? '') ?> (<?= e($book['available'] ?? 0) ?> available)</option>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>

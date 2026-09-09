@@ -23,15 +23,15 @@
                 <?php if (!empty($fees)): ?>
                     <?php foreach ($fees as $fee): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4 font-medium"><?= e($fee->name) ?></td>
-                        <td class="py-3 px-4"><?= e($fee->class->name ?? 'All') ?></td>
-                        <td class="py-3 px-4"><span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700"><?= e(ucfirst($fee->type ?? 'tuition')) ?></span></td>
-                        <td class="py-3 px-4 text-right font-bold"><?= e(config('currency.symbol', '$')) ?><?= number_format($fee->amount, 2) ?></td>
-                        <td class="py-3 px-4"><?= e(ucfirst($fee->frequency ?? 'monthly')) ?></td>
+                        <td class="py-3 px-4 font-medium"><?= e($fee['name']) ?></td>
+                        <td class="py-3 px-4"><?= e($fee['class_name'] ?? 'All') ?></td>
+                        <td class="py-3 px-4"><span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700"><?= e(ucfirst($fee['fee_type'] ?? 'tuition')) ?></span></td>
+                        <td class="py-3 px-4 text-right font-bold"><?= e(format_currency((float)$fee['amount'])) ?></td>
+                        <td class="py-3 px-4"><?= e(ucfirst($fee['frequency'] ?? 'monthly')) ?></td>
                         <td class="py-3 px-4">
                             <div class="flex space-x-2">
-                                <a href="/dashboard/fees/<?= e($fee->id) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
-                                <form action="/dashboard/fees/<?= e($fee->id) ?>" method="POST" onsubmit="return confirm('Are you sure?')">
+                                <a href="/dashboard/fees/<?= e($fee['id']) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
+                                <form action="/dashboard/fees/<?= e($fee['id']) ?>" method="POST" onsubmit="return confirm('Are you sure?')">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="_method" value="DELETE">
                                     <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>

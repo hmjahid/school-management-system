@@ -45,6 +45,7 @@ class SubjectController extends Controller
 
         $this->view('dashboard.subjects.index', [
             'rows'     => $rows,
+            'subjects' => $rows,
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

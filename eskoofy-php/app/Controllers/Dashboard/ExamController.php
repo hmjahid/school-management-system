@@ -62,6 +62,7 @@ class ExamController extends Controller
 
         $this->view('dashboard.exams.index', [
             'rows'      => $rows,
+            'exams' => $rows,
             'total'     => $total,
             'page'      => $page,
             'perPage'   => $perPage,

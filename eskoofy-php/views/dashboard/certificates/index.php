@@ -43,10 +43,10 @@
                 <?php foreach ($certificates as $cert): ?>
                 <div class="flex justify-between items-center border-b pb-3">
                     <div>
-                        <p class="font-medium text-sm"><?= e($cert->student->name ?? '') ?></p>
-                        <p class="text-xs text-gray-500"><?= e(ucfirst($cert->type)) ?> | <?= e($cert->created_at->format('M d, Y')) ?></p>
+                        <p class="font-medium text-sm"><?= e($cert['student']['name'] ?? '') ?></p>
+                        <p class="text-xs text-gray-500"><?= e(ucfirst($cert['type'])) ?> | <?= e(date('M d, Y', strtotime($cert['created_at']))) ?></p>
                     </div>
-                    <a href="/dashboard/certificates/<?= e($cert->id) ?>/print" target="_blank" class="text-blue-600 hover:underline text-sm">Print</a>
+                    <a href="/dashboard/certificates/<?= e($cert['id']) ?>/print" target="_blank" class="text-blue-600 hover:underline text-sm">Print</a>
                 </div>
                 <?php endforeach; ?>
             <?php else: ?>

@@ -24,16 +24,16 @@
                 <?php if (!empty($subjects)): ?>
                     <?php foreach ($subjects as $subject): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4 font-mono text-sm"><?= e($subject->code) ?></td>
-                        <td class="py-3 px-4 font-medium"><?= e($subject->name) ?></td>
-                        <td class="py-3 px-4"><?= e($subject->class->name ?? 'All') ?></td>
-                        <td class="py-3 px-4"><span class="px-2 py-1 text-xs rounded-full <?= ($subject->type ?? '') == 'compulsory' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700' ?>"><?= e(ucfirst($subject->type ?? 'compulsory')) ?></span></td>
-                        <td class="py-3 px-4"><?= e($subject->teacher->name ?? '-') ?></td>
-                        <td class="py-3 px-4 text-center"><?= e($subject->total_marks ?? 100) ?></td>
+                        <td class="py-3 px-4 font-mono text-sm"><?= e($subject['code']) ?></td>
+                        <td class="py-3 px-4 font-medium"><?= e($subject['name']) ?></td>
+                        <td class="py-3 px-4"><?= e($subject['class']['name'] ?? 'All') ?></td>
+                        <td class="py-3 px-4"><span class="px-2 py-1 text-xs rounded-full <?= ($subject['type'] ?? '') == 'compulsory' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700' ?>"><?= e(ucfirst($subject['type'] ?? 'compulsory')) ?></span></td>
+                        <td class="py-3 px-4"><?= e($subject['teacher']['name'] ?? '-') ?></td>
+                        <td class="py-3 px-4 text-center"><?= e($subject['total_marks'] ?? 100) ?></td>
                         <td class="py-3 px-4">
                             <div class="flex space-x-2">
-                                <a href="/dashboard/subjects/<?= e($subject->id) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
-                                <form action="/dashboard/subjects/<?= e($subject->id) ?>" method="POST" onsubmit="return confirm('Are you sure?')">
+                                <a href="/dashboard/subjects/<?= e($subject['id']) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
+                                <form action="/dashboard/subjects/<?= e($subject['id']) ?>" method="POST" onsubmit="return confirm('Are you sure?')">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="_method" value="DELETE">
                                     <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>
@@ -71,7 +71,7 @@
                     <option value="">All Classes</option>
                     <?php if (!empty($classes)): ?>
                         <?php foreach ($classes as $class): ?>
-                        <option value="<?= e($class->id) ?>"><?= e($class->name) ?></option>
+                        <option value="<?= e($class['id']) ?>"><?= e($class['name']) ?></option>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>
@@ -89,7 +89,7 @@
                     <option value="">Select Teacher</option>
                     <?php if (!empty($teachers)): ?>
                         <?php foreach ($teachers as $teacher): ?>
-                        <option value="<?= e($teacher->id) ?>"><?= e($teacher->name) ?></option>
+                        <option value="<?= e($teacher['id']) ?>"><?= e($teacher['name']) ?></option>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>

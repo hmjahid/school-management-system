@@ -12,13 +12,13 @@
         <div class="bg-white rounded-xl shadow-sm p-6">
             <div class="flex justify-between items-start">
                 <div>
-                    <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"><?= e(ucfirst($announcement->type ?? 'general')) ?></span>
-                    <h3 class="text-lg font-bold mt-2"><?= e($announcement->title) ?></h3>
-                    <p class="text-gray-600 text-sm mt-1"><?= e($announcement->content) ?></p>
-                    <p class="text-xs text-gray-400 mt-2"><?= e($announcement->created_at->diffForHumans()) ?></p>
+                    <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"><?= e(ucfirst($announcement['type'] ?? 'general')) ?></span>
+                    <h3 class="text-lg font-bold mt-2"><?= e($announcement['title']) ?></h3>
+                    <p class="text-gray-600 text-sm mt-1"><?= e($announcement['content']) ?></p>
+                    <p class="text-xs text-gray-400 mt-2"><?= e(time_ago($announcement['created_at'] ?? 'now')) ?></p>
                 </div>
                 <div class="flex space-x-2">
-                    <form action="/dashboard/announcements/<?= e($announcement->id) ?>" method="POST" onsubmit="return confirm('Delete?')">
+                    <form action="/dashboard/announcements/<?= e($announcement['id']) ?>" method="POST" onsubmit="return confirm('Delete?')">
                         <?= csrf_field() ?>
                         <input type="hidden" name="_method" value="DELETE">
                         <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>

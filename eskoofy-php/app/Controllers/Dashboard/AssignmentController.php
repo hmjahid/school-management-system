@@ -59,6 +59,7 @@ class AssignmentController extends Controller
 
         $this->view('dashboard.assignments.index', [
             'rows'      => $rows,
+            'assignments' => $rows,
             'total'     => $total,
             'page'      => $page,
             'perPage'   => $perPage,

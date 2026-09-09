@@ -16,27 +16,27 @@
             <table style="width: 100%; border-collapse: collapse;">
                 <tr>
                     <td style="padding: 8px 0; color: #666;">Receipt No:</td>
-                    <td style="padding: 8px 0; color: #333; font-weight: bold;"><?= e($payment->receipt_number ?? '') ?></td>
+                    <td style="padding: 8px 0; color: #333; font-weight: bold;"><?= e($payment['receipt_number'] ?? '') ?></td>
                 </tr>
                 <tr>
                     <td style="padding: 8px 0; color: #666;">Date:</td>
-                    <td style="padding: 8px 0; color: #333;"><?= e($payment->created_at ?? '') ?></td>
+                    <td style="padding: 8px 0; color: #333;"><?= e($payment['created_at'] ?? '') ?></td>
                 </tr>
                 <tr>
                     <td style="padding: 8px 0; color: #666;">Student:</td>
-                    <td style="padding: 8px 0; color: #333;"><?= e($payment->student->name ?? '') ?></td>
+                    <td style="padding: 8px 0; color: #333;"><?= e($payment['student_name'] ?? '') ?></td>
                 </tr>
                 <tr>
                     <td style="padding: 8px 0; color: #666;">Fee Type:</td>
-                    <td style="padding: 8px 0; color: #333;"><?= e($payment->fee->name ?? '') ?></td>
+                    <td style="padding: 8px 0; color: #333;"><?= e($payment['fee_name'] ?? '') ?></td>
                 </tr>
                 <tr>
                     <td style="padding: 8px 0; color: #666;">Amount:</td>
-                    <td style="padding: 8px 0; color: #22c55e; font-weight: bold;"><?= e(config('currency.symbol', '$')) ?><?= number_format($payment->amount ?? 0, 2) ?></td>
+                    <td style="padding: 8px 0; color: #22c55e; font-weight: bold;"><?= e(format_currency((float)($payment['amount'] ?? 0))) ?></td>
                 </tr>
                 <tr>
                     <td style="padding: 8px 0; color: #666;">Method:</td>
-                    <td style="padding: 8px 0; color: #333;"><?= e($payment->method ?? '') ?></td>
+                    <td style="padding: 8px 0; color: #333;"><?= e($payment['payment_method'] ?? $payment['method'] ?? '') ?></td>
                 </tr>
                 <tr>
                     <td style="padding: 8px 0; color: #666;">Status:</td>

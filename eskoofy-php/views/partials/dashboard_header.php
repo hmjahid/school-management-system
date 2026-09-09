@@ -1,4 +1,4 @@
-<?php $currentUser = auth()->user(); ?>
+<?php $currentUser = auth()->user() ?? []; ?>
 <aside class="fixed left-0 top-0 h-full w-64 bg-gray-900 text-white overflow-y-auto">
     <div class="p-4 border-b border-gray-700">
         <a href="/dashboard" class="text-lg font-bold"><?= e(config('school.name', 'School')) ?></a>
@@ -61,6 +61,21 @@
             <li><a href="/dashboard/payroll/staff-attendance" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-800">👥 Staff Attendance</a></li>
 
             <li class="pt-2"><span class="text-xs text-gray-500 uppercase tracking-wider px-3">System</span></li>
+            <li><a href="/dashboard/onboarding" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-800">🚀 Onboarding</a></li>
+            <li><a href="/dashboard/cms" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-800">📝 CMS Pages</a></li>
+            <li><a href="/dashboard/contact-submissions" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-800">✉️ Inbox</a></li>
+            <li><a href="/dashboard/documents" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-800">📂 Documents</a></li>
+            <li><a href="/dashboard/media" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-800">🖼️ Media</a></li>
+            <li><a href="/dashboard/bulk" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-800">📤 Bulk Import/Export</a></li>
+            <li><a href="/dashboard/communications" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-800">📡 Communications</a></li>
+            <li><a href="/dashboard/help" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-800">❓ Help</a></li>
+            <li><a href="/dashboard/permissions" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-800">🔐 Permissions</a></li>
+            <li><a href="/dashboard/bank-reconciliation" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-800">🏦 Bank Recon</a></li>
+            <li><a href="/dashboard/progress-reports" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-800">📊 Progress Reports</a></li>
+            <li><a href="/dashboard/seat-plans" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-800">🪑 Seat Plans</a></li>
+            <li><a href="/dashboard/library-reports" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-800">📚 Library Reports</a></li>
+            <li><a href="/dashboard/careers" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-800">💼 Careers</a></li>
+            <li><a href="/dashboard/staff-attendance" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-800">👥 Staff Attendance</a></li>
             <li><a href="/dashboard/guardians" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-800">👨‍👩‍👧 Guardians</a></li>
             <li><a href="/dashboard/committee" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-800">🏛️ Committee</a></li>
             <li><a href="/dashboard/users" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-800">👤 Users</a></li>
@@ -78,11 +93,11 @@
         </div>
         <div class="flex items-center space-x-4">
             <div class="text-right">
-                <p class="text-sm font-medium text-gray-800"><?= e($currentUser->name ?? 'Admin') ?></p>
-                <p class="text-xs text-gray-500"><?= e($currentUser->role ?? 'Administrator') ?></p>
+                <p class="text-sm font-medium text-gray-800"><?= e($currentUser['name'] ?? 'Admin') ?></p>
+                <p class="text-xs text-gray-500"><?= e($currentUser['role'] ?? 'Administrator') ?></p>
             </div>
             <div class="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                <?= strtoupper(substr($currentUser->name ?? 'A', 0, 1)) ?>
+                <?= strtoupper(substr($currentUser['name'] ?? 'A', 0, 1)) ?>
             </div>
             <a href="/logout" class="text-gray-500 hover:text-red-600" title="Logout">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

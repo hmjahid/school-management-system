@@ -21,13 +21,13 @@
                 <?php if (!empty($categories)): ?>
                     <?php foreach ($categories as $category): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4 font-medium"><?= e($category->name) ?></td>
-                        <td class="py-3 px-4 text-sm text-gray-500"><?= e($category->description ?? '-') ?></td>
-                        <td class="py-3 px-4 text-right font-bold text-red-600"><?= e(config('currency.symbol', '$')) ?><?= number_format($category->total_expenses ?? 0, 2) ?></td>
+                        <td class="py-3 px-4 font-medium"><?= e($category['name']) ?></td>
+                        <td class="py-3 px-4 text-sm text-gray-500"><?= e($category['description'] ?? '-') ?></td>
+                        <td class="py-3 px-4 text-right font-bold text-red-600"><?= e(config('currency.symbol', '$')) ?><?= number_format($category['total_expenses'] ?? 0, 2) ?></td>
                         <td class="py-3 px-4">
                             <div class="flex space-x-2">
-                                <a href="/dashboard/expense-categories/<?= e($category->id) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
-                                <form action="/dashboard/expense-categories/<?= e($category->id) ?>" method="POST" onsubmit="return confirm('Delete?')">
+                                <a href="/dashboard/expense-categories/<?= e($category['id']) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
+                                <form action="/dashboard/expense-categories/<?= e($category['id']) ?>" method="POST" onsubmit="return confirm('Delete?')">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="_method" value="DELETE">
                                     <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>

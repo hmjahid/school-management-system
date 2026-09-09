@@ -27,24 +27,24 @@
         <div class="bg-white rounded-xl shadow-sm p-6">
             <div class="flex justify-between items-start mb-4">
                 <div>
-                    <h3 class="text-lg font-bold"><?= e($hostel->name) ?></h3>
-                    <p class="text-sm text-gray-500"><?= e($hostel->type ?? 'Boys') ?> Hostel | <?= e($hostel->rooms_count ?? 0) ?> rooms</p>
+                    <h3 class="text-lg font-bold"><?= e($hostel['name']) ?></h3>
+                    <p class="text-sm text-gray-500"><?= e($hostel['type'] ?? 'Boys') ?> Hostel | <?= e($hostel['rooms_count'] ?? 0) ?> rooms</p>
                 </div>
                 <div class="flex space-x-2">
-                    <a href="/dashboard/hostels/<?= e($hostel->id) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
-                    <form action="/dashboard/hostels/<?= e($hostel->id) ?>" method="POST" onsubmit="return confirm('Delete?')">
+                    <a href="/dashboard/hostels/<?= e($hostel['id']) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
+                    <form action="/dashboard/hostels/<?= e($hostel['id']) ?>" method="POST" onsubmit="return confirm('Delete?')">
                         <?= csrf_field() ?>
                         <input type="hidden" name="_method" value="DELETE">
                         <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>
                     </form>
                 </div>
             </div>
-            <?php if (!empty($hostel->rooms)): ?>
+            <?php if (!empty($hostel['rooms'])): ?>
             <div class="grid grid-cols-4 md:grid-cols-8 gap-2">
-                <?php foreach ($hostel->rooms as $room): ?>
-                <div class="text-center p-2 rounded-lg <?= $room->is_full ? 'bg-red-100' : 'bg-green-100' ?>">
-                    <div class="text-sm font-bold"><?= e($room->number) ?></div>
-                    <div class="text-xs text-gray-500"><?= e($room->occupants_count ?? 0) ?>/<?= e($room->capacity) ?></div>
+                <?php foreach ($hostel['rooms'] as $room): ?>
+                <div class="text-center p-2 rounded-lg <?= $room['is_full'] ? 'bg-red-100' : 'bg-green-100' ?>">
+                    <div class="text-sm font-bold"><?= e($room['number']) ?></div>
+                    <div class="text-xs text-gray-500"><?= e($room['occupants_count'] ?? 0) ?>/<?= e($room['capacity']) ?></div>
                 </div>
                 <?php endforeach; ?>
             </div>

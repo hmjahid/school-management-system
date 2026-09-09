@@ -16,7 +16,7 @@
                     <option value="">Select Class</option>
                     <?php if (!empty($classes)): ?>
                         <?php foreach ($classes as $class): ?>
-                        <option value="<?= e($class->id) ?>"><?= e($class->name) ?></option>
+                        <option value="<?= e($class['id']) ?>"><?= e($class['name']) ?></option>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </select>
@@ -70,10 +70,10 @@
         <?php foreach ($generatedCards as $card): ?>
         <div class="text-center text-sm">
             <div class="border rounded-lg p-3 mb-1">
-                <p class="font-bold"><?= e($card->student->name ?? '') ?></p>
-                <p class="text-xs text-gray-500"><?= e($card->student->student_id ?? '') ?></p>
+                <p class="font-bold"><?= e($card['student']['name'] ?? '') ?></p>
+                <p class="text-xs text-gray-500"><?= e($card['student']['student_id'] ?? '') ?></p>
             </div>
-            <a href="/dashboard/id-cards/<?= e($card->id) ?>/print" target="_blank" class="text-blue-600 hover:underline text-xs">Print</a>
+            <a href="/dashboard/id-cards/<?= e($card['id']) ?>/print" target="_blank" class="text-blue-600 hover:underline text-xs">Print</a>
         </div>
         <?php endforeach; ?>
     </div>

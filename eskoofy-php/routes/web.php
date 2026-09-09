@@ -26,9 +26,48 @@ $router->get('/routine', 'App\\Controllers\\SiteController', 'routine');
 $router->get('/admission', 'App\\Controllers\\SiteController', 'admission');
 $router->post('/admission', 'App\\Controllers\\SiteController', 'submitAdmission');
 $router->get('/payments', 'App\\Controllers\\SiteController', 'payments');
+$router->get('/payments/status/{id}', 'App\\Controllers\\SiteController', 'paymentStatus');
+$router->get('/payments/receipts/{id}', 'App\\Controllers\\SiteController', 'feeReceipt');
 $router->get('/about', 'App\\Controllers\\SiteController', 'about');
+$router->get('/academics', 'App\\Controllers\\SiteController', 'academics');
+$router->get('/students-life', 'App\\Controllers\\SiteController', 'studentsLife');
+$router->get('/faculty', 'App\\Controllers\\SiteController', 'faculty');
+$router->get('/transport', 'App\\Controllers\\SiteController', 'transport');
+$router->get('/committee', 'App\\Controllers\\SiteController', 'committee');
+$router->get('/terms', 'App\\Controllers\\SiteController', 'terms');
+$router->get('/privacy', 'App\\Controllers\\SiteController', 'privacy');
+$router->get('/portal', 'App\\Controllers\\SiteController', 'portal');
+$router->get('/search', 'App\\Controllers\\SiteController', 'search');
 $router->get('/careers', 'App\\Controllers\\SiteController', 'careers');
 $router->post('/careers/apply', 'App\\Controllers\\SiteController', 'applyCareer');
+
+// Student / Guardian portal auth
+$router->get('/student/login', 'App\\Controllers\\Auth\\StudentGuardianAuthController', 'showStudentLogin');
+$router->post('/student/login', 'App\\Controllers\\Auth\\StudentGuardianAuthController', 'studentLogin');
+$router->get('/student/logout', 'App\\Controllers\\Auth\\StudentGuardianAuthController', 'studentLogout');
+$router->get('/guardian/login', 'App\\Controllers\\Auth\\StudentGuardianAuthController', 'showGuardianLogin');
+$router->post('/guardian/login', 'App\\Controllers\\Auth\\StudentGuardianAuthController', 'guardianLogin');
+$router->get('/guardian/logout', 'App\\Controllers\\Auth\\StudentGuardianAuthController', 'guardianLogout');
+
+// Static files (no auth)
+$router->get('/robots.txt', function () {
+    header('Content-Type: text/plain');
+    echo "User-agent: *\nDisallow: /dashboard/\nDisallow: /admin/\nAllow: /\n";
+    exit;
+});
+$router->get('/manifest.json', function () {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'name'             => config('school.name', 'Eskoofy'),
+        'short_name'       => 'Eskoofy',
+        'start_url'        => '/',
+        'display'          => 'standalone',
+        'background_color' => '#ffffff',
+        'theme_color'      => '#1d4ed8',
+        'icons'            => [],
+    ]);
+    exit;
+});
 
 // Password reset
 $router->get('/forgot-password', 'App\\Controllers\\PasswordResetController', 'showForm');
@@ -320,4 +359,100 @@ $router->group('/dashboard', function (Router $r) {
     $r->get('/notifications/preferences', 'App\\Controllers\\Dashboard\\NotificationController', 'preferences');
     $r->post('/notifications/{id}/read', 'App\\Controllers\\Dashboard\\NotificationController', 'markRead');
     $r->post('/notifications/mark-all-read', 'App\\Controllers\\Dashboard\\NotificationController', 'markAllRead');
+
+    // CMS
+    $r->get('/cms', 'App\\Controllers\\Dashboard\\CmsController', 'index');
+    $r->get('/cms/{id}/edit', 'App\\Controllers\\Dashboard\\CmsController', 'edit');
+    $r->put('/cms/{id}', 'App\\Controllers\\Dashboard\\CmsController', 'update');
+
+    // Global Search
+    $r->get('/search', 'App\\Controllers\\Dashboard\\SearchController', 'search');
+
+    // Contact Submissions
+    $r->get('/contact-submissions', 'App\\Controllers\\Dashboard\\ContactSubmissionController', 'index');
+    $r->post('/contact-submissions/{id}/read', 'App\\Controllers\\Dashboard\\ContactSubmissionController', 'markRead');
+    $r->delete('/contact-submissions/{id}', 'App\\Controllers\\Dashboard\\ContactSubmissionController', 'destroy');
+    $r->get('/contact-submissions/export', 'App\\Controllers\\Dashboard\\ContactSubmissionController', 'export');
+
+    // Onboarding
+    $r->get('/onboarding', 'App\\Controllers\\Dashboard\\OnboardingController', 'index');
+
+    // Bulk Import/Export
+    $r->get('/bulk', 'App\\Controllers\\Dashboard\\BulkController', 'index');
+    $r->get('/bulk/export/{resource}', 'App\\Controllers\\Dashboard\\BulkController', 'export');
+    $r->get('/bulk/import/{resource}', 'App\\Controllers\\Dashboard\\BulkController', 'import');
+    $r->post('/bulk/import/{resource}', 'App\\Controllers\\Dashboard\\BulkController', 'importStore');
+
+    // Documents
+    $r->get('/documents', 'App\\Controllers\\Dashboard\\DocumentController', 'index');
+    $r->get('/documents/create', 'App\\Controllers\\Dashboard\\DocumentController', 'create');
+    $r->post('/documents', 'App\\Controllers\\Dashboard\\DocumentController', 'store');
+    $r->delete('/documents/{id}', 'App\\Controllers\\Dashboard\\DocumentController', 'destroy');
+
+    // Media
+    $r->get('/media', 'App\\Controllers\\Dashboard\\MediaController', 'index');
+    $r->post('/media', 'App\\Controllers\\Dashboard\\MediaController', 'store');
+    $r->get('/media/{id}/download', 'App\\Controllers\\Dashboard\\MediaController', 'download');
+    $r->delete('/media/{id}', 'App\\Controllers\\Dashboard\\MediaController', 'destroy');
+
+    // Communications
+    $r->get('/communications', 'App\\Controllers\\Dashboard\\CommunicationController', 'index');
+
+    // Help
+    $r->get('/help', 'App\\Controllers\\Dashboard\\HelpController', 'index');
+
+    // Permissions
+    $r->get('/permissions', 'App\\Controllers\\Dashboard\\PermissionController', 'index');
+
+    // Favorites (AJAX)
+    $r->post('/favorites/toggle/{module}', 'App\\Controllers\\Dashboard\\FavoriteController', 'toggle');
+
+    // Bank Reconciliation
+    $r->get('/bank-reconciliation', 'App\\Controllers\\Dashboard\\BankReconciliationController', 'index');
+    $r->post('/bank-reconciliation/reconcile', 'App\\Controllers\\Dashboard\\BankReconciliationController', 'reconcile');
+
+    // Progress Reports
+    $r->get('/progress-reports', 'App\\Controllers\\Dashboard\\ProgressReportController', 'index');
+    $r->get('/progress-reports/{id}/generate', 'App\\Controllers\\Dashboard\\ProgressReportController', 'generate');
+
+    // Seat Plans
+    $r->get('/seat-plans', 'App\\Controllers\\Dashboard\\SeatPlanController', 'index');
+    $r->get('/seat-plans/{id}/generate', 'App\\Controllers\\Dashboard\\SeatPlanController', 'generate');
+
+    // Library Reports
+    $r->get('/library-reports', 'App\\Controllers\\Dashboard\\LibraryReportController', 'index');
+    $r->get('/library-reports/currently-issued', 'App\\Controllers\\Dashboard\\LibraryReportController', 'currentlyIssued');
+    $r->get('/library-reports/overdue', 'App\\Controllers\\Dashboard\\LibraryReportController', 'overdue');
+    $r->get('/library-reports/history', 'App\\Controllers\\Dashboard\\LibraryReportController', 'history');
+
+    // Mark paid fee payments
+    $r->post('/fee-payments/{id}/mark-paid', 'App\\Controllers\\Dashboard\\PaymentController', 'markPaid');
+
+    // Cash Flow
+    $r->get('/ledger/cash-flow', 'App\\Controllers\\Dashboard\\LedgerController', 'cashFlow');
+
+    // Settings tabs
+    $r->get('/settings/theme', 'App\\Controllers\\Dashboard\\SettingController', 'theme');
+    $r->put('/settings/theme', 'App\\Controllers\\Dashboard\\SettingController', 'updateTheme');
+    $r->get('/settings/payment', 'App\\Controllers\\Dashboard\\SettingController', 'payment');
+    $r->put('/settings/payment', 'App\\Controllers\\Dashboard\\SettingController', 'updatePayment');
+    $r->get('/settings/mail', 'App\\Controllers\\Dashboard\\SettingController', 'mail');
+    $r->post('/settings/mail/test', 'App\\Controllers\\Dashboard\\SettingController', 'testMail');
+    $r->get('/settings/library', 'App\\Controllers\\Dashboard\\SettingController', 'library');
+    $r->put('/settings/library', 'App\\Controllers\\Dashboard\\SettingController', 'updateLibrary');
+    $r->get('/settings/global-labels', 'App\\Controllers\\Dashboard\\SettingController', 'globalLabels');
+    $r->put('/settings/global-labels', 'App\\Controllers\\Dashboard\\SettingController', 'updateGlobalLabels');
+    $r->get('/settings/about', 'App\\Controllers\\Dashboard\\SettingController', 'about');
+    $r->put('/settings/about', 'App\\Controllers\\Dashboard\\SettingController', 'updateAbout');
+
+    // Careers admin
+    $r->get('/careers', 'App\\Controllers\\Dashboard\\CareerController', 'index');
+    $r->get('/careers/applications', 'App\\Controllers\\Dashboard\\CareerController', 'applications');
+    $r->post('/careers/applications/{id}/status', 'App\\Controllers\\Dashboard\\CareerController', 'updateApplicationStatus');
+    $r->delete('/careers/applications/{id}', 'App\\Controllers\\Dashboard\\CareerController', 'destroyApplication');
+
+    // Staff Attendance
+    $r->get('/staff-attendance', 'App\\Controllers\\Dashboard\\StaffAttendanceController', 'index');
+    $r->post('/staff-attendance', 'App\\Controllers\\Dashboard\\StaffAttendanceController', 'store');
+    $r->get('/staff-attendance/report', 'App\\Controllers\\Dashboard\\StaffAttendanceController', 'report');
 }, ['AuthMiddleware']);

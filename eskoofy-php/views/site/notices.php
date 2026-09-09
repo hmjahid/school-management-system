@@ -12,17 +12,17 @@
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <?php if (!empty($notices)): ?>
             <?php foreach ($notices as $notice): ?>
-            <div class="bg-white rounded-xl shadow-sm p-6 mb-6 <?= ($notice->is_pinned ?? false) ? 'border-l-4 border-yellow-500' : '' ?>">
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-6 <?= !empty($notice['pinned']) ? 'border-l-4 border-yellow-500' : '' ?>">
                 <div class="flex items-start justify-between">
                     <div class="flex-1">
                         <div class="flex items-center mb-2">
-                            <?php if ($notice->is_pinned ?? false): ?>
+                            <?php if (!empty($notice['pinned'])): ?>
                                 <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded mr-2">📌 Pinned</span>
                             <?php endif; ?>
-                            <span class="text-sm text-gray-500"><?= e($notice->created_at->format('M d, Y')) ?></span>
+                            <span class="text-sm text-gray-500"><?= e(date('M d, Y', strtotime($notice['created_at'] ?? 'now'))) ?></span>
                         </div>
-                        <h2 class="text-xl font-bold mb-2"><?= e($notice->title) ?></h2>
-                        <p class="text-gray-600"><?= nl2br(e($notice->content)) ?></p>
+                        <h2 class="text-xl font-bold mb-2"><?= e($notice['title']) ?></h2>
+                        <p class="text-gray-600"><?= nl2br(e($notice['content'] ?? '')) ?></p>
                     </div>
                 </div>
             </div>

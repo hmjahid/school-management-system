@@ -12,7 +12,7 @@
             <option value="">All Classes</option>
             <?php if (!empty($classes)): ?>
                 <?php foreach ($classes as $class): ?>
-                <option value="<?= e($class->id) ?>" <?= ($class_id ?? '') == $class->id ? 'selected' : '' ?>><?= e($class->name) ?></option>
+                <option value="<?= e($class['id']) ?>" <?= ($class_id ?? '') == $class['id'] ? 'selected' : '' ?>><?= e($class['name']) ?></option>
                 <?php endforeach; ?>
             <?php endif; ?>
         </select>
@@ -63,13 +63,13 @@
                 <?php if (!empty($students)): ?>
                     <?php foreach ($students as $student): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4 text-sm"><?= e($student->student_id) ?></td>
-                        <td class="py-3 px-4 font-medium"><?= e($student->name) ?></td>
-                        <td class="py-3 px-4"><?= e($student->class->name ?? '') ?></td>
-                        <td class="py-3 px-4"><?= e($student->section->name ?? '') ?></td>
-                        <td class="py-3 px-4"><?= e($student->roll ?? '-') ?></td>
-                        <td class="py-3 px-4"><?= e(ucfirst($student->gender ?? '')) ?></td>
-                        <td class="py-3 px-4"><span class="px-2 py-1 text-xs rounded-full <?= $student->status == 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>"><?= e(ucfirst($student->status)) ?></span></td>
+                        <td class="py-3 px-4 text-sm"><?= e($student['student_id']) ?></td>
+                        <td class="py-3 px-4 font-medium"><?= e($student['name']) ?></td>
+                        <td class="py-3 px-4"><?= e($student['class']['name'] ?? '') ?></td>
+                        <td class="py-3 px-4"><?= e($student['section']['name'] ?? '') ?></td>
+                        <td class="py-3 px-4"><?= e($student['roll'] ?? '-') ?></td>
+                        <td class="py-3 px-4"><?= e(ucfirst($student['gender'] ?? '')) ?></td>
+                        <td class="py-3 px-4"><span class="px-2 py-1 text-xs rounded-full <?= $student['status'] == 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>"><?= e(ucfirst($student['status'])) ?></span></td>
                     </tr>
                     <?php endforeach; ?>
                 <?php else: ?>

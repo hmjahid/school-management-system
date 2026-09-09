@@ -57,6 +57,7 @@ class RoutineController extends Controller
 
         $this->view('dashboard.routines.index', [
             'rows'      => $rows,
+            'periods' => $rows,
             'classes'   => $classes,
             'sections'  => $sections,
             'subjects'  => $subjects,

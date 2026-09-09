@@ -63,15 +63,42 @@ class DashboardController extends Controller
              ORDER BY p.id DESC LIMIT 10"
         );
 
-        $todayPresent = $db->fetch(
-            "SELECT COUNT(*) as cnt FROM attendances WHERE date = CURDATE() AND status IN ('present', 'late', 'half_day')"
-        )['cnt'] ?? 0;
-        $todayTotal = $db->fetch(
-            "SELECT COUNT(*) as cnt FROM attendances WHERE date = CURDATE()"
-        )['cnt'] ?? 0;
+        $upcomingEvents = $db->fetchAll(
+            "SELECT * FROM events WHERE status = 'published' AND start_date >= CURRENT_DATE ORDER BY start_date ASC LIMIT 5"
+        );
+
+        $recentActivity = $db->fetchAll(
+            "SELECT * FROM activity_log ORDER BY created_at DESC LIMIT 10"
+        );
+
+        $todayPresent = (int) ($db->fetch(
+            "SELECT COUNT(*) as cnt FROM attendances WHERE date = CURRENT_DATE AND status IN ('present', 'late', 'half_day')"
+        )['cnt'] ?? 0);
+        $todayTotal = (int) ($db->fetch(
+            "SELECT COUNT(*) as cnt FROM attendances WHERE date = CURRENT_DATE"
+        )['cnt'] ?? 0);
+
+        $stats = [
+            'total_students'        => $totalStudents,
+            'total_teachers'        => $totalTeachers,
+            'total_classes'         => $totalClasses,
+            'total_sections'        => $totalSections,
+            'students_growth'       => 0,
+            'teachers_growth'       => 0,
+            'fees_collected'        => $totalRevenue,
+            'fees_pending'          => $pendingDues,
+            'fees_growth'           => 0,
+            'fees_collection_rate'  => $totalRevenue > 0 ? min(100, (int) round(100 * $totalRevenue / max(1, ($totalRevenue + $pendingDues)))) : 0,
+            'total_fees'            => $totalRevenue + $pendingDues,
+            'today_attendance_rate' => $attendanceRate,
+            'present_today'         => $todayPresent,
+            'absent_today'          => max(0, $todayTotal - $todayPresent),
+            'late_today'            => 0,
+        ];
 
         $this->view('dashboard.index', [
             'user'              => $user,
+            'stats'             => $stats,
             'totalStudents'     => $totalStudents,
             'totalTeachers'     => $totalTeachers,
             'totalClasses'      => $totalClasses,
@@ -86,6 +113,8 @@ class DashboardController extends Controller
             'recentStudents'    => $recentStudents,
             'recentAdmissions'  => $recentAdmissions,
             'recentPayments'    => $recentPayments,
+            'recentActivity'    => $recentActivity,
+            'upcomingEvents'    => $upcomingEvents,
         ]);
     }
 }

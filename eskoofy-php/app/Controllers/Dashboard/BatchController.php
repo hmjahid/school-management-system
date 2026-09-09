@@ -36,6 +36,7 @@ class BatchController extends Controller
 
         $this->view('dashboard.batches.index', [
             'rows'     => $rows,
+            'batches' => $rows,
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

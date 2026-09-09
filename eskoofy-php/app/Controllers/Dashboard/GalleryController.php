@@ -40,13 +40,30 @@ class GalleryController extends Controller
              ORDER BY gi.id DESC LIMIT 200"
         );
 
+        $categories = $this->db->fetchAll(
+            "SELECT * FROM gallery_albums WHERE is_active = 1 ORDER BY title ASC"
+        );
+
+        $photos = array_map(function ($img) {
+            $img['image'] = $img['path'] ?? ($img['image'] ?? '');
+            $img['title'] = $img['caption'] ?? ($img['title'] ?? '');
+            return $img;
+        }, $images);
+
+        $cats = [];
+        foreach ($categories as $c) {
+            $cats[] = ['slug' => slugify($c['title']), 'name' => $c['title'], 'id' => $c['id']];
+        }
+
         $this->view('dashboard.galleries.index', [
-            'albums'    => $albums,
-            'images'    => $images,
-            'total'     => $total,
-            'page'      => $page,
-            'perPage'   => $perPage,
-            'lastPage'  => max(1, (int) ceil($total / $perPage)),
+            'albums'     => $albums,
+            'images'     => $images,
+            'photos'     => $photos,
+            'categories' => $cats,
+            'total'      => $total,
+            'page'       => $page,
+            'perPage'    => $perPage,
+            'lastPage'   => max(1, (int) ceil($total / $perPage)),
         ]);
     }
 

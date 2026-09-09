@@ -35,6 +35,7 @@ class SmsController extends Controller
 
         $this->view('dashboard.sms.index', [
             'rows'     => $rows,
+            'history' => $rows,
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

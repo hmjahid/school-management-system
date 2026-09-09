@@ -24,7 +24,10 @@ class PaymentGatewayController extends Controller
             "SELECT * FROM payment_gateways ORDER BY sort_order ASC, name ASC"
         );
 
-        $this->view('dashboard.payment-gateways.index', ['rows' => $rows]);
+        $this->view('dashboard.payment-gateways.index', [
+            'rows'     => $rows,
+            'gateways' => $rows,
+        ]);
     }
 
     public function update(int $id): void

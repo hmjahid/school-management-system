@@ -11,19 +11,19 @@
         <?php foreach ($events as $event): ?>
         <div class="bg-white rounded-xl shadow-sm p-6 flex items-center">
             <div class="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg text-center mr-6 min-w-[80px]">
-                <div class="text-2xl font-bold"><?= e($event->date->format('d')) ?></div>
-                <div class="text-xs"><?= e($event->date->format('M')) ?></div>
+                <div class="text-2xl font-bold"><?= e(date('d', strtotime($event['start_date'] ?? 'now'))) ?></div>
+                <div class="text-xs"><?= e(date('M', strtotime($event['start_date'] ?? 'now'))) ?></div>
             </div>
             <div class="flex-1">
-                <h3 class="text-lg font-bold"><?= e($event->title) ?></h3>
-                <p class="text-gray-600 text-sm"><?= e(Str::limit($event->description ?? '', 120)) ?></p>
-                <?php if ($event->location ?? null): ?>
-                    <p class="text-sm text-gray-500 mt-1">📍 <?= e($event->location) ?></p>
+                <h3 class="text-lg font-bold"><?= e($event['title']) ?></h3>
+                <p class="text-gray-600 text-sm"><?= e(truncate($event['description'] ?? '', 120)) ?></p>
+                <?php if ($event['location'] ?? null): ?>
+                    <p class="text-sm text-gray-500 mt-1">📍 <?= e($event['location']) ?></p>
                 <?php endif; ?>
             </div>
             <div class="flex space-x-2 ml-4">
-                <a href="/dashboard/events/<?= e($event->id) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
-                <form action="/dashboard/events/<?= e($event->id) ?>" method="POST" onsubmit="return confirm('Delete this event?')">
+                <a href="/dashboard/events/<?= e($event['id']) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
+                <form action="/dashboard/events/<?= e($event['id']) ?>" method="POST" onsubmit="return confirm('Delete this event?')">
                     <?= csrf_field() ?>
                     <input type="hidden" name="_method" value="DELETE">
                     <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>

@@ -18,27 +18,26 @@
 
     <div class="text-center mb-6">
         <h2 class="text-xl font-bold">FEE PAYMENT RECEIPT</h2>
-        <p class="text-sm text-gray-500">Receipt #: <?= e($payment->receipt_number) ?></p>
+        <p class="text-sm text-gray-500">Receipt #: <?= e($payment['invoice_number'] ?? $payment['receipt_number'] ?? '') ?></p>
     </div>
 
     <div class="grid grid-cols-2 gap-4 mb-6">
         <div>
             <p class="text-sm text-gray-500">Date</p>
-            <p class="font-medium"><?= e($payment->created_at->format('M d, Y')) ?></p>
+            <p class="font-medium"><?= e(date('M d, Y', strtotime($payment['payment_date'] ?? $payment['created_at'] ?? 'now'))) ?></p>
         </div>
         <div>
             <p class="text-sm text-gray-500">Payment Method</p>
-            <p class="font-medium"><?= e(ucfirst($payment->method ?? 'Cash')) ?></p>
+            <p class="font-medium"><?= e(ucfirst($payment['payment_method'] ?? 'Cash')) ?></p>
         </div>
     </div>
 
     <div class="border rounded-lg p-4 mb-6">
         <h3 class="font-bold mb-3">Student Information</h3>
         <div class="grid grid-cols-2 gap-2 text-sm">
-            <div><span class="text-gray-500">Name:</span> <?= e($payment->student->name ?? '') ?></div>
-            <div><span class="text-gray-500">ID:</span> <?= e($payment->student->student_id ?? '') ?></div>
-            <div><span class="text-gray-500">Class:</span> <?= e($payment->student->class->name ?? '') ?></div>
-            <div><span class="text-gray-500">Roll:</span> <?= e($payment->student->roll ?? '') ?></div>
+            <div><span class="text-gray-500">Name:</span> <?= e($payment['student_name'] ?? '') ?></div>
+            <div><span class="text-gray-500">ID:</span> <?= e($payment['admission_number'] ?? '') ?></div>
+            <div><span class="text-gray-500">Class:</span> <?= e($payment['class_name'] ?? '') ?></div>
         </div>
     </div>
 
@@ -51,19 +50,19 @@
         </thead>
         <tbody>
             <tr class="border-b">
-                <td class="py-3"><?= e($payment->fee->name ?? 'Fee Payment') ?></td>
-                <td class="py-3 text-right"><?= e(config('currency.symbol', '$')) ?><?= number_format($payment->amount, 2) ?></td>
+                <td class="py-3"><?= e($payment['fee_name'] ?? 'Fee Payment') ?></td>
+                <td class="py-3 text-right"><?= e(format_currency((float)($payment['amount'] ?? 0))) ?></td>
             </tr>
         </tbody>
         <tfoot>
             <tr class="font-bold text-lg">
                 <td class="py-3">Total Paid</td>
-                <td class="py-3 text-right text-green-600"><?= e(config('currency.symbol', '$')) ?><?= number_format($payment->paid_amount, 2) ?></td>
+                <td class="py-3 text-right text-green-600"><?= e(format_currency((float)($payment['paid_amount'] ?? 0))) ?></td>
             </tr>
-            <?php if (($payment->amount - $payment->paid_amount) > 0): ?>
+            <?php if (((float)($payment['amount'] ?? 0) - (float)($payment['paid_amount'] ?? 0)) > 0): ?>
             <tr class="text-red-600">
                 <td class="py-1">Due</td>
-                <td class="py-1 text-right"><?= e(config('currency.symbol', '$')) ?><?= number_format($payment->amount - $payment->paid_amount, 2) ?></td>
+                <td class="py-1 text-right"><?= e(format_currency((float)$payment['amount'] - (float)$payment['paid_amount'])) ?></td>
             </tr>
             <?php endif; ?>
         </tfoot>

@@ -12,13 +12,13 @@
         <div class="bg-white rounded-xl shadow-sm overflow-hidden">
             <div class="p-6 border-b flex justify-between items-center">
                 <div>
-                    <h3 class="text-lg font-bold"><?= e($role->name) ?></h3>
-                    <p class="text-sm text-gray-500"><?= e($role->users_count ?? 0) ?> users</p>
+                    <h3 class="text-lg font-bold"><?= e($role['name']) ?></h3>
+                    <p class="text-sm text-gray-500"><?= e($role['users_count'] ?? 0) ?> users</p>
                 </div>
                 <div class="flex space-x-2">
-                    <a href="/dashboard/roles/<?= e($role->id) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
-                    <?php if (!$role->is_default ?? false): ?>
-                    <form action="/dashboard/roles/<?= e($role->id) ?>" method="POST" onsubmit="return confirm('Delete this role?')">
+                    <a href="/dashboard/roles/<?= e($role['id']) ?>/edit" class="text-green-600 hover:underline text-sm">Edit</a>
+                    <?php if (!$role['is_default'] ?? false): ?>
+                    <form action="/dashboard/roles/<?= e($role['id']) ?>" method="POST" onsubmit="return confirm('Delete this role?')">
                         <?= csrf_field() ?>
                         <input type="hidden" name="_method" value="DELETE">
                         <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>
@@ -28,9 +28,9 @@
             </div>
             <div class="p-6">
                 <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
-                    <?php if (!empty($role->permissions)): ?>
-                        <?php foreach ($role->permissions as $permission): ?>
-                        <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded text-center"><?= e($permission->name) ?></span>
+                    <?php if (!empty($role['permissions'])): ?>
+                        <?php foreach ($role['permissions'] as $permission): ?>
+                        <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded text-center"><?= e($permission['name']) ?></span>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <span class="text-gray-400 text-sm">No permissions assigned</span>
@@ -59,8 +59,8 @@
                     <?php if (!empty($allPermissions)): ?>
                         <?php foreach ($allPermissions as $permission): ?>
                         <label class="flex items-center text-sm">
-                            <input type="checkbox" name="permissions[]" value="<?= e($permission->id) ?>" class="rounded border-gray-300 text-blue-600 mr-2">
-                            <?= e($permission->name) ?>
+                            <input type="checkbox" name="permissions[]" value="<?= e($permission['id']) ?>" class="rounded border-gray-300 text-blue-600 mr-2">
+                            <?= e($permission['name']) ?>
                         </label>
                         <?php endforeach; ?>
                     <?php endif; ?>

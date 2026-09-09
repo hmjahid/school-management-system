@@ -110,8 +110,8 @@ Verification baseline (2026-09-09): `cd eskoofy-app && composer test` → **912 
 | Product | Files | Key components |
 |---------|-------|----------------|
 | eskoofy-app (Laravel) | existing | 900+ tests, 95 models, 130+ controllers, 32 services |
-| eskoofy-php (Raw PHP) | 310 | Core (16), Models (78), Controllers (55+11 API), Gateways (9), Views (128), Config (3), Lang (6), Schema (93 tables) |
-| eskoofy-theme (WordPress) | 67+ | Root templates (17), Inc (13), Admin views (39), Languages (5), 54 DB tables, 7 CPTs, REST (11 routes), Shortcodes (10) |
+| eskoofy-php (Raw PHP) | 374 | Core (16), Models (78), Controllers (67+11 API), Gateways (9), Views (173), Config (3), Lang (6), Schema (93 tables) |
+| eskoofy-theme (WordPress) | 115+ | Root templates (32), Inc (13), Admin views (67), Languages (5), 64 admin pages, 54+ DB tables, 7 CPTs, REST (11 routes), Shortcodes (10) |
 
 ## Next actions
 
