@@ -1,16 +1,49 @@
 # Eskoofy PHP — Raw PHP (no framework) version
 
-**Status: NOT STARTED — gated.** See `WORKPLAN.md` Phase 6.
+**Status: COMPLETE.** Full feature-equivalent port of `eskoofy-app/` (Laravel 12) in raw
+PHP with no framework, built to run on shared hosting where Composer/Laravel/VPS is not
+available. See `WORKPLAN.md` Phase 6.
 
-This is a planned full rewrite of the Laravel app (`eskoofy-app/`) in raw PHP with no
-framework. It is a separate codebase by definition (different stack, no shared code).
+## Stack
 
-**Gate (Phase 0.2):** work starts ONLY when a concrete target host/market that cannot run
-Composer or Laravel is named and documented. Until then this folder stays a stub.
+- Native PHP 8.2+, PDO/MySQL, custom lightweight MVC
+- No Composer or framework at runtime — manual autoloader + bootstrap
+- Runs off a single document root (`public/` with `.htaccess`)
 
-If the gate opens, first deliverables are `ARCHITECTURE.md` (router, auth+RBAC, schema
-port, queue-less fallbacks, PDF, gateway drivers) and a vertical-slice proof (e.g. notices
-module end-to-end on the target host) before any full porting.
+## Layout
 
-Variants (`bd`/`int`) will be build-time profiles of this single codebase, matching the
-monorepo golden rule.
+```
+├── app/
+│   ├── Core/             Router, Database, QueryBuilder, Model, Controller, View,
+│   │                     Session, Auth, Validator, Request + 5 middleware classes
+│   ├── Gateways/         Gateway interface + factory + BdKash/Rocket/Nagad/
+│   │                     Stripe/PayPal/Paddle/Offline adapters
+│   ├── Helpers/          Global helper functions
+│   ├── Controllers/      Site + Auth + 43 Dashboard controllers
+│   └── Models/           78 models
+├── config/               app.php, school.php, payment.php (all BD/INT gateway config)
+├── database/schema.sql   93-table MySQL schema + admin seed
+├── lang/                 en/ + bn/ (site_frontend, dashboard, messages)
+├── routes/web.php        Full public + dashboard route table
+├── views/                97 templates (layouts, public site, dashboard, auth, emails)
+└── public/index.php      Front controller
+```
+
+## Quick start
+
+```bash
+cp .env.example .env      # set DB_HOST / DB_DATABASE / DB_USERNAME / DB_PASSWORD
+mysql -u root -p < database/schema.sql
+php -S localhost:8000 -t public
+```
+
+Internet-facing setup: point the document root at `public/`; `.htaccess` routes all
+requests through `index.php`.
+
+Seeded admin login: `admin@eskoofy.com` / `password`.
+
+## Variants
+
+`bd` (bKash/Rocket/Nagad, Bengali+English) vs `int` (Stripe/PayPal/Paddle, English-only)
+are both driven by `config/` + `.env` — same codebase, no forked branches. This follows
+the monorepo golden rule: every BD/INT difference is data/config, never hardcoded `if (bd)`.
