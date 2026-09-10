@@ -14,7 +14,7 @@ class SeatPlanController extends Controller
     {
         Auth::requireAuth();
         $db = Database::getInstance();
-        $exams = $db->fetchAll("SELECT id, name, exam_date FROM exams ORDER BY exam_date DESC LIMIT 50");
+        $exams = $db->fetchAll("SELECT id, name, start_date FROM exams ORDER BY start_date DESC LIMIT 50");
         $this->view('dashboard.seat_plans.index', ['exams' => $exams]);
     }
 

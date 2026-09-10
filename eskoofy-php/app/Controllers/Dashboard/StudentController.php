@@ -353,12 +353,12 @@ class StudentController extends Controller
         }
 
         $results = $this->db->fetchAll(
-            "SELECT er.*, e.name as exam_name, e.exam_date, sub.name as subject_name
+            "SELECT er.*, e.name as exam_name, e.start_date, sub.name as subject_name
              FROM exam_results er
              LEFT JOIN exams e ON er.exam_id = e.id
              LEFT JOIN subjects sub ON er.subject_id = sub.id
              WHERE er.student_id = ?
-             ORDER BY e.exam_date DESC, sub.name ASC",
+             ORDER BY e.start_date DESC, sub.name ASC",
             [$id]
         );
 

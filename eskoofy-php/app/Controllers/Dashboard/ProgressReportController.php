@@ -54,7 +54,7 @@ class ProgressReportController extends Controller
              LEFT JOIN exams e ON er.exam_id = e.id
              LEFT JOIN subjects sub ON er.subject_id = sub.id
              WHERE er.student_id = ?
-             ORDER BY e.exam_date DESC, sub.name ASC",
+             ORDER BY e.start_date DESC, sub.name ASC",
             [$studentId]
         );
 

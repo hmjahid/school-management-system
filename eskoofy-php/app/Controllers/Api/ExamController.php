@@ -23,9 +23,9 @@ class ExamController extends Controller
 
         $total = $this->db->count('exams');
         $rows = $this->db->fetchAll(
-            "SELECT e.id, e.name, e.exam_type, e.exam_date, e.total_marks, e.passing_marks, e.is_published, e.status
+            "SELECT e.id, e.name, e.exam_type, e.start_date, e.total_marks, e.passing_marks, e.is_published, e.status
              FROM exams e
-             ORDER BY e.exam_date DESC
+             ORDER BY e.start_date DESC
              LIMIT {$perPage} OFFSET {$offset}"
         );
 
@@ -61,7 +61,7 @@ class ExamController extends Controller
         $id = $this->db->insert('exams', [
             'name'          => $data['name'],
             'exam_type'     => $data['exam_type'],
-            'exam_date'     => $data['exam_date'],
+            'start_date'   => $data['exam_date'],
             'batch_id'      => $data['batch_id'],
             'total_marks'   => $data['total_marks'],
             'passing_marks' => $data['passing_marks'],
@@ -84,16 +84,18 @@ class ExamController extends Controller
         $data = $this->validate([
             'name'          => 'max:255',
             'exam_type'     => 'max:50',
-            'exam_date'     => '',
+            'start_date'   => '',
             'total_marks'   => 'numeric',
             'passing_marks' => 'numeric',
             'is_published'  => 'numeric',
         ]);
 
         $updates = [];
+        $fieldMap = ['exam_date' => 'start_date'];
         foreach (['name', 'exam_type', 'exam_date', 'total_marks', 'passing_marks', 'is_published'] as $field) {
             if (isset($data[$field])) {
-                $updates[$field] = $data[$field];
+                $column = $fieldMap[$field] ?? $field;
+                $updates[$column] = $data[$field];
             }
         }
         $updates['updated_at'] = date('Y-m-d H:i:s');

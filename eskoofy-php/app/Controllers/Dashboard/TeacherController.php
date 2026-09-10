@@ -6,11 +6,12 @@ namespace App\Controllers\Dashboard;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Database;
+use App\Core\DatabaseInterface;
 use App\Core\Session;
 
 class TeacherController extends Controller
 {
-    private Database $db;
+    private DatabaseInterface $db;
 
     public function __construct()
     {
@@ -128,7 +129,7 @@ class TeacherController extends Controller
             $subjectIds = array_map('intval', explode(',', $data['subject_ids']));
             foreach ($subjectIds as $sid) {
                 if ($sid > 0) {
-                    $this->db->insert('teacher_subject', [
+                    $this->db->insert('class_subject_teacher', [
                         'teacher_id' => $teacherId,
                         'subject_id' => $sid,
                     ]);
@@ -159,7 +160,7 @@ class TeacherController extends Controller
 
         $subjects = $this->db->fetchAll(
             "SELECT sub.* FROM subjects sub
-             INNER JOIN teacher_subject ts ON sub.id = ts.subject_id
+             INNER JOIN class_subject_teacher ts ON sub.id = ts.subject_id
              WHERE ts.teacher_id = ?",
             [$id]
         );
@@ -207,7 +208,7 @@ class TeacherController extends Controller
         $classes = $this->db->fetchAll("SELECT id, name FROM school_classes ORDER BY name ASC");
 
         $assignedSubjectIds = array_column(
-            $this->db->fetchAll("SELECT subject_id FROM teacher_subject WHERE teacher_id = ?", [$id]),
+            $this->db->fetchAll("SELECT subject_id FROM class_subject_teacher WHERE teacher_id = ?", [$id]),
             'subject_id'
         );
 
@@ -260,12 +261,12 @@ class TeacherController extends Controller
             'updated_at'    => date('Y-m-d H:i:s'),
         ], 'id = ?', [$id]);
 
-        $this->db->delete('teacher_subject', 'teacher_id = ?', [$id]);
+        $this->db->delete('class_subject_teacher', 'teacher_id = ?', [$id]);
         if (!empty($data['subject_ids'])) {
             $subjectIds = array_map('intval', explode(',', $data['subject_ids']));
             foreach ($subjectIds as $sid) {
                 if ($sid > 0) {
-                    $this->db->insert('teacher_subject', [
+                    $this->db->insert('class_subject_teacher', [
                         'teacher_id' => $id,
                         'subject_id' => $sid,
                     ]);
@@ -287,7 +288,7 @@ class TeacherController extends Controller
             return;
         }
 
-        $this->db->delete('teacher_subject', 'teacher_id = ?', [$id]);
+        $this->db->delete('class_subject_teacher', 'teacher_id = ?', [$id]);
         $this->db->delete('teachers', 'id = ?', [$id]);
         $this->db->update('users', ['deleted_at' => date('Y-m-d H:i:s')], 'id = ?', [$teacher['user_id']]);
 

@@ -6,11 +6,12 @@ namespace App\Controllers\Dashboard;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Database;
+use App\Core\DatabaseInterface;
 use App\Core\Session;
 
 class ExamController extends Controller
 {
-    private Database $db;
+    private DatabaseInterface $db;
 
     public function __construct()
     {
@@ -50,7 +51,7 @@ class ExamController extends Controller
              LEFT JOIN batches b ON e.batch_id = b.id
              LEFT JOIN academic_sessions s ON e.academic_session_id = s.id
              WHERE {$where}
-             ORDER BY e.exam_date DESC
+             ORDER BY e.start_date DESC
              LIMIT {$perPage} OFFSET {$offset}",
             $params
         );
@@ -111,7 +112,7 @@ class ExamController extends Controller
         $id = $this->db->insert('exams', [
             'name'                => $data['name'],
             'exam_type'           => $data['exam_type'],
-            'exam_date'           => $data['exam_date'],
+            'start_date'         => $data['exam_date'],
             'batch_id'            => $data['batch_id'],
             'academic_session_id' => $data['academic_session_id'] ?? null,
             'section_id'          => $data['section_id'] ?? null,
@@ -218,7 +219,7 @@ class ExamController extends Controller
         $this->db->update('exams', [
             'name'                => $data['name'],
             'exam_type'           => $data['exam_type'],
-            'exam_date'           => $data['exam_date'],
+            'start_date'         => $data['exam_date'],
             'batch_id'            => $data['batch_id'],
             'academic_session_id' => $data['academic_session_id'] ?? null,
             'section_id'          => $data['section_id'] ?? null,

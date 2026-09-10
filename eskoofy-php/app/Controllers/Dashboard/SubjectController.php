@@ -109,7 +109,7 @@ class SubjectController extends Controller
     public function destroy(int $id): void
     {
         Auth::requireAuth();
-        $this->db->delete('teacher_subject', 'subject_id = ?', [$id]);
+        $this->db->delete('class_subject_teacher', 'subject_id = ?', [$id]);
         $this->db->delete('subjects', 'id = ?', [$id]);
 
         Session::getInstance()->flash('success', 'Subject removed.');

@@ -117,7 +117,7 @@ class ReportController extends Controller
                 (SELECT COUNT(*) FROM exam_results WHERE exam_id = e.id AND grade = 'Fail') as fail_count
              FROM exams e
              WHERE e.is_published = 1
-             ORDER BY e.exam_date DESC LIMIT 20"
+             ORDER BY e.start_date DESC LIMIT 20"
         );
 
         $this->view('dashboard.reports.exams', ['exams' => $exams]);

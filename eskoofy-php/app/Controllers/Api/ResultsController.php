@@ -39,12 +39,12 @@ class ResultsController extends Controller
 
         $results = $db->fetchAll(
             "SELECT er.obtained_marks, er.total_marks, er.passing_marks, er.grade, er.remarks,
-                    e.name as exam_name, e.exam_type, e.exam_date, sub.name as subject_name
+                    e.name as exam_name, e.exam_type, e.start_date, sub.name as subject_name
              FROM exam_results er
              LEFT JOIN exams e ON er.exam_id = e.id
-             LEFT JOIN subjects sub ON er.subject_id = sub.id
+             LEFT JOIN subjects sub ON e.subject_id = sub.id
              WHERE {$where}
-             ORDER BY e.exam_date DESC, sub.name ASC",
+             ORDER BY e.start_date DESC, sub.name ASC",
             $params
         );
 

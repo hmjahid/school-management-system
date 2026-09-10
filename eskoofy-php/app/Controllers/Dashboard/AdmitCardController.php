@@ -6,11 +6,12 @@ namespace App\Controllers\Dashboard;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Database;
+use App\Core\DatabaseInterface;
 use App\Core\Session;
 
 class AdmitCardController extends Controller
 {
-    private Database $db;
+    private DatabaseInterface $db;
 
     public function __construct()
     {
@@ -21,7 +22,7 @@ class AdmitCardController extends Controller
     {
         Auth::requireAuth();
         $exams = $this->db->fetchAll(
-            "SELECT * FROM exams WHERE is_published = 1 ORDER BY exam_date DESC LIMIT 50"
+            "SELECT * FROM exams WHERE is_published = 1 ORDER BY start_date DESC LIMIT 50"
         );
 
         $students = $this->db->fetchAll(

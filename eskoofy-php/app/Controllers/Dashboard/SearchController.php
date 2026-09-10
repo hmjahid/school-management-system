@@ -44,7 +44,7 @@ class SearchController extends Controller
                 [$like, $like]
             );
             $results['exams'] = $db->fetchAll(
-                "SELECT id, name, exam_date FROM exams WHERE name LIKE ? LIMIT 20",
+                "SELECT id, name, start_date FROM exams WHERE name LIKE ? LIMIT 20",
                 [$like]
             );
             $results['fees'] = $db->fetchAll(
