@@ -232,24 +232,26 @@ INSERT IGNORE INTO `post_categories` (`id`, `name`, `slug`, `description`, `sort
 (2, 'Guides', 'guides', 'How-tos and buying guidance for schools', 2, 1, NOW(), NOW());
 
 -- Example posts (one draft as an editor example).
-INSERT IGNORE INTO `posts` (`id`, `category_id`, `author_id`, `title`, `slug`, `excerpt`, `content`, `status`, `views`, `published_at`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, 'Introducing Eskoofy: one school management system, two deployments', 'introducing-eskoofy-two-deployments',
- 'The Eskoofy school management system now comes in two flavors — a Laravel application and a WordPress theme. Pick the deployment that fits your school.',
+INSERT IGNORE INTO `posts` (`id`, `category_id`, `author_id`, `title`, `slug`, `excerpt`, `content`, `status`, `featured_image`, `meta_title`, `meta_description`, `views`, `published_at`, `created_at`, `updated_at`) VALUES
+(1, 1, 1, 'Introducing Eskoofy: one school management system, three deployments', 'introducing-eskoofy-three-deployments',
+ 'The Eskoofy school management system now ships in three flavors — a Laravel application, a WordPress theme, and a raw PHP rewrite for shared hosting. Pick the deployment that fits your school.',
  '<p>Managing a school means managing admissions, attendance, fees, exams, results, transport, hostels and more. Eskoofy brings all of it into one place.</p>
-<h2>Two deployments, one system</h2>
-<p><a href="/products/app">Eskoofy School App</a> is the full Laravel application — run it yourself or let us host it. <a href="/products/theme">Eskoofy WP Theme</a> turns your existing WordPress site into a school management portal.</p>
-<p>Both share the same modules, the same data model, and the same license server. See <a href="/pricing">pricing</a> to get started.</p>',
- 'published', 12, NOW(), NOW(), NOW()),
-(2, 2, 1, 'How to choose between the Eskoofy app and the WordPress theme', 'choose-app-or-theme',
- 'A practical comparison to help your school decide between the self-hosted WordPress theme and the full application.',
- '<p>Choosing between the app and the theme mostly comes down to infrastructure and control.</p>
+<h2>Three deployments, one system</h2>
+<p><a href="/products/app">Eskoofy School App</a> is the full Laravel application — run it yourself or let us host it. <a href="/products/theme">Eskoofy WP Theme</a> turns your existing WordPress site into a school management portal. <a href="/products/php">Eskoofy School System (PHP)</a> is the same system, rewritten in raw PHP for shared hosting and low-cost VPS.</p>
+<p>All three share the same modules, the same data model, and the same license server. See <a href="/pricing">pricing</a> to get started.</p>',
+ 'published', NULL, NULL, NULL, 12, NOW(), NOW(), NOW()),
+(2, 2, 1, 'How to choose between the Eskoofy app, theme, and raw PHP rewrite', 'choose-app-theme-or-php',
+ 'A practical comparison to help your school decide between the Laravel app, the WordPress theme, and the raw PHP rewrite.',
+ '<p>Choosing between the three deployments mostly comes down to infrastructure and control.</p>
 <h2>Choose the app if...</h2>
 <p>...you want the complete package with all modules, an admin dashboard, and a license server that handles API validation automatically.</p>
 <h2>Choose the theme if...</h2>
 <p>...you already run WordPress and want your data on your own server with a familiar theme workflow.</p>
+<h2>Choose the raw PHP rewrite if...</h2>
+<p>...you are on shared hosting without Composer access, or you want a no-framework, low-cost option that runs on PHP 8.2+ and MySQL.</p>
 <p>Either way you can <a href="/contact">talk to us</a> before buying.</p>',
- 'published', 8, NOW(), NOW(), NOW()),
+ 'published', NULL, NULL, NULL, 8, NOW(), NOW(), NOW()),
 (3, 1, 1, 'Coming soon: Paddle payments and the Eskoofy license portal', 'coming-soon-paddle-license-portal',
  'Payments via Paddle and the self-service license portal are on the roadmap.',
  '<p>We are adding Paddle as a payment gateway and upgrading the <a href="/account">customer license portal</a> with renewal reminders and activation history.</p>',
- 'draft', 0, NULL, NOW(), NOW(), NOW());
+ 'draft', NULL, NULL, NULL, 0, NULL, NOW(), NOW());
