@@ -15,8 +15,8 @@
 
         <h2 class="font-bold mt-6 mb-3">Actions</h2>
         <div class="flex flex-wrap gap-2">
-            <form method="post" action="/admin/licenses/<?= (int) $license['id'] ?>
-            <?= csrf_field() ?>/status">
+            <form method="post" action="/admin/licenses/<?= (int) $license['id'] ?>/status">
+                <?= csrf_field() ?>
                 <?php if ($license['status'] === 'active'): ?>
                     <input type="hidden" name="status" value="suspended">
                     <button class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm">Suspend</button>
@@ -25,8 +25,8 @@
                     <button class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm">Activate</button>
                 <?php endif; ?>
             </form>
-            <form method="post" action="/admin/licenses/<?= (int) $license['id'] ?>
-            <?= csrf_field() ?>/extend" class="flex gap-2 items-center">
+            <form method="post" action="/admin/licenses/<?= (int) $license['id'] ?>/extend" class="flex gap-2 items-center">
+                <?= csrf_field() ?>
                 <input type="number" name="days" value="365" min="1" class="border border-slate-300 rounded-lg px-3 py-2 text-sm w-28">
                 <button class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm">Extend (days)</button>
             </form>

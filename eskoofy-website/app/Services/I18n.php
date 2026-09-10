@@ -30,14 +30,21 @@ class I18n
     }
 
     /**
-     * The currently active locale: session -> env default.
+     * The currently active locale: session (manual switch) -> session geo
+     * locale -> env default.
      */
     public static function current(): string
     {
-        $session = Session::getInstance()->get('locale');
         $locales = self::supported();
+
+        $session = Session::getInstance()->get('locale');
         if (is_string($session) && array_key_exists($session, $locales)) {
             return $session;
+        }
+
+        $geo = Session::getInstance()->get('geo_locale');
+        if (is_string($geo) && array_key_exists($geo, $locales)) {
+            return $geo;
         }
 
         return self::defaultLocale();
@@ -53,6 +60,30 @@ class I18n
         Session::getInstance()->set('locale', $locale);
 
         return true;
+    }
+
+    /**
+     * Whether the page should ask the browser for its timezone to refine the
+     * geo-language guess. True only while the current locale is not already the
+     * BD locale, the hint is config-enabled, and the check has not run yet.
+     */
+    public static function wantsTimezoneHint(): bool
+    {
+        $config = require dirname(__DIR__, 2) . '/config/app.php';
+        $geo = $config['i18n']['geo'] ?? [];
+
+        if (($geo['use_timezone_hint'] ?? true) !== true) {
+            return false;
+        }
+
+        $session = Session::getInstance();
+        if ($session->has('locale') || $session->get('geo_tz_checked') === true) {
+            return false;
+        }
+
+        $bdLocale = $geo['bd_locale'] ?? 'bn';
+
+        return self::current() !== $bdLocale;
     }
 
     public static function t(string $key, array $params = [], ?string $locale = null): string

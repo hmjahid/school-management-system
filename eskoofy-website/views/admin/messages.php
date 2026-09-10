@@ -6,8 +6,7 @@
             <div class="flex items-center justify-between mb-2">
                 <div class="font-semibold"><?= htmlspecialchars($m['name']) ?> <span class="text-slate-400 font-normal">· <?= htmlspecialchars($m['email']) ?></span></div>
                 <?php if (!$m['read_at']): ?>
-                    <form method="post" action="/admin/messages/<?= (int) $m['id'] ?>
-            <?= csrf_field() ?>/read"><button class="text-xs text-blue-600 hover:underline">mark read</button></form>
+                    <form method="post" action="/admin/messages/<?= (int) $m['id'] ?>/read"><?= csrf_field() ?><button class="text-xs text-blue-600 hover:underline">mark read</button></form>
                 <?php endif; ?>
             </div>
             <div class="text-sm text-slate-500 mb-2"><?= htmlspecialchars((string) ($m['subject'] ?? '')) ?></div>

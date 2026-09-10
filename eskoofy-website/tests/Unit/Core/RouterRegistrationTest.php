@@ -47,7 +47,7 @@ class RouterRegistrationTest extends TestCase
     {
         $base = dirname(__DIR__, 3) . '/views/';
 
-        foreach (['home', 'pricing', 'features', 'about', 'contact', 'checkout'] as $view) {
+        foreach (['home', 'pricing', 'features', 'about', 'contact', 'checkout', 'blog', 'post'] as $view) {
             $this->assertFileExists($base . 'site/' . $view . '.php', "Missing site view: {$view}");
         }
         foreach (['app', 'theme'] as $view) {
@@ -58,6 +58,67 @@ class RouterRegistrationTest extends TestCase
         }
         foreach (['main', 'admin'] as $view) {
             $this->assertFileExists($base . 'layouts/' . $view . '.php', "Missing layout: {$view}");
+        }
+    }
+
+    public function test_blog_routes_registered_in_correct_order(): void
+    {
+        $router = new Router();
+        require dirname(__DIR__, 3) . '/routes/web.php';
+
+        $routes = $router->getRoutes();
+        $paths = array_map(fn ($r) => $r['path'], $routes);
+
+        $this->assertContains('/blog', $paths);
+        $this->assertContains('/blog/category/{slug}', $paths);
+        $this->assertContains('/blog/{slug}', $paths);
+
+        // /blog/category/{slug} must be registered before /blog/{slug} so the
+        // router doesn't treat 'category' as a slug.
+        $categoryIdx = array_search('/blog/category/{slug}', $paths, true);
+        $slugIdx = array_search('/blog/{slug}', $paths, true);
+        $this->assertNotFalse($categoryIdx);
+        $this->assertNotFalse($slugIdx);
+        $this->assertLessThan($slugIdx, $categoryIdx);
+    }
+
+    public function test_admin_post_routes_registered(): void
+    {
+        $router = new Router();
+        require dirname(__DIR__, 3) . '/routes/web.php';
+
+        $paths = array_map(fn ($r) => $r['path'], $router->getRoutes());
+
+        $this->assertContains('/admin/posts', $paths);
+        $this->assertContains('/admin/posts/create', $paths);
+        $this->assertContains('/admin/posts/{id}/edit', $paths);
+        $this->assertContains('/admin/posts/{id}/delete', $paths);
+        $this->assertContains('/admin/post-categories', $paths);
+        $this->assertContains('/admin/post-categories/create', $paths);
+        $this->assertContains('/admin/post-categories/{id}/edit', $paths);
+        $this->assertContains('/admin/post-categories/{id}/delete', $paths);
+    }
+
+    public function test_geo_language_route_registered_before_switch(): void
+    {
+        $router = new Router();
+        require dirname(__DIR__, 3) . '/routes/web.php';
+
+        $paths = array_map(fn ($r) => $r['path'], $router->getRoutes());
+
+        $this->assertContains('/language/geo', $paths);
+        $this->assertContains('/language/{locale}', $paths);
+
+        $geoIdx = array_search('/language/geo', $paths, true);
+        $switchIdx = array_search('/language/{locale}', $paths, true);
+        $this->assertLessThan($switchIdx, $geoIdx);
+    }
+
+    public function test_admin_post_views_exist(): void
+    {
+        $base = dirname(__DIR__, 3) . '/views/admin/';
+        foreach (['posts', 'post_form', 'post_categories', 'post_category_form'] as $view) {
+            $this->assertFileExists($base . $view . '.php', "Missing admin view: {$view}");
         }
     }
 }

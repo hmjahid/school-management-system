@@ -13,8 +13,8 @@
                 <td class="px-4 py-3"><?= htmlspecialchars($p['gateway']) ?></td>
                 <td class="px-4 py-3 text-right"><?= htmlspecialchars($p['currency']) ?> <?= number_format((float) $p['amount'], 2) ?></td>
                 <td class="px-4 py-3">
-                    <form method="post" action="/admin/payments/<?= (int) $p['id'] ?>
-            <?= csrf_field() ?>" class="flex gap-1 items-center">
+                    <form method="post" action="/admin/payments/<?= (int) $p['id'] ?>" class="flex gap-1 items-center">
+                        <?= csrf_field() ?>
                         <select name="status" class="border border-slate-300 rounded-lg px-2 py-1 text-xs">
                             <?php foreach (['pending', 'paid', 'failed', 'refunded'] as $status): ?>
                                 <option value="<?= $status ?>" <?= $p['status'] === $status ? 'selected' : '' ?>><?= $status ?></option>

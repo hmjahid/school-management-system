@@ -13,14 +13,25 @@ class Model
     protected array $fillable = [];
     protected array $hidden = [];
 
+    private static ?DatabaseInterface $testDb = null;
+
     public function __construct(array $attributes = [])
     {
         $this->attributes = $attributes;
     }
 
-    public static function db(): Database
+    /**
+     * Test-only: swap the active database for a fake so unit tests can exercise
+     * models without a real MySQL connection. Pass null to clear.
+     */
+    public static function setTestDatabase(?DatabaseInterface $db): void
     {
-        return Database::getInstance();
+        self::$testDb = $db;
+    }
+
+    public static function db(): DatabaseInterface
+    {
+        return self::$testDb ?? Database::getInstance();
     }
 
     public static function find(int $id): ?static

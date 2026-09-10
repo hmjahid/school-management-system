@@ -7,7 +7,7 @@ Per-task tracker for `WORKPLAN.md`. Status legend:
 - ⬜ **not started** — out of scope / future phase
 - ⬜ **deferred** — permanently or indefinitely postponed (reason given)
 
-Verification baseline (2026-09-10): `cd eskoofy-app && composer test` → **923 passed, 2361 assertions**; `cd eskoofy-php && composer test` → **232 passed, 411 assertions**; `cd eskoofy-website && composer test` → **35 passed, 101 assertions**; `pint --test` clean on all touched files.
+Verification baseline (2026-09-11): `cd eskoofy-app && composer test` → **923 passed, 2361 assertions**; `cd eskoofy-php && composer test` → **232 passed, 411 assertions**; `cd eskoofy-website && composer test` → **77 passed, 209 assertions**; `pint --test` clean on all touched files.
 
 ---
 
@@ -101,12 +101,15 @@ Verification baseline (2026-09-10): `cd eskoofy-app && composer test` → **923 
 | 8.3 | License server API | ✅ done | `routes/api.php` `/api/v1`: `ping`, `licenses/{activate,validate,deactivate}` (license-key auth), `licenses/status` (`X-Api-Key`). JSON + CORS; DB-free `ping` tested. |
 | 8.4 | Customer/admin backends | ✅ done | Auth (customers), account area (licenses, activations renew/revoke, payments), admin area (customers, plans, licenses, payments, messages, activities). Manual gateway fulfills instantly; Paddle stub. CSRF enforced on all POST forms; API exempt. |
 | 8.5 | Tests + CI + export | ✅ done | 35 tests / 101 assertions (LicenseManager, gateways, Router, I18n incl. full en↔bn key parity). `ci.yml` `website-test` job + export step (`website int`) + APP_LOCALE=en smoke. `build/export.sh website <any>` always emits int env. |
+| 8.6 | PWA (installable + offline shell) | ✅ done | `public/manifest.json` + committed PNG icons (192/512/maskable + apple-touch) + `sw.js` (network-first navs, SWR assets incl. Tailwind CDN; never caches `/admin`, `/api`, `/account`, `/checkout`) + `offline.html` + head wiring in main/admin layouts. Single-variant int site; installable on Android/Chrome over HTTPS. |
+| 8.7 | Location-based default language (BD → bn, else en) | ✅ done | `App\Services\GeoLocale` (CDN header → Accept-Language → optional remote IP-geo API → client-tz backstop), `config/app.php` `i18n.geo`, `LocaleMiddleware` resolves per-session geo_locale, manual switch always wins, `GET /language/geo?tz=...` upgrades en→bn for Asia/Dhaka. Pure runtime config — no bd/int branching. |
+| 8.8 | Marketing blog (post system) | ✅ done | `posts` + `post_categories` tables (with seeds), public `/blog`, `/blog/category/{slug}`, `/blog/{slug}` + admin CRUD for posts and categories, `views/admin/posts*` + `post_categories*`, `views/site/blog.php` + `post.php`, "Latest from the blog" on home, `nav.blog` + `blog.*` en/bn keys (parity test still green). |
 
 ---
 
 ## Summary
 
-- ✅ Complete: Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6 (full raw PHP port + tests + CI), Phase 7 (full WP hybrid), Phase 8 (website + license server + i18n).
+- ✅ Complete: Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6 (full raw PHP port + tests + CI), Phase 7 (full WP hybrid), Phase 8 (website + license server + i18n + PWA + geo-language + marketing blog).
 
 ## File counts
 
@@ -115,10 +118,11 @@ Verification baseline (2026-09-10): `cd eskoofy-app && composer test` → **923 
 | eskoofy-app (Laravel) | existing | 900+ tests, 95 models, 130+ controllers, 32 services |
 | eskoofy-php (Raw PHP) | 402 | Core (16), Models (78), Controllers (67+11 API), Gateways (9), Views (173), Config (3), Lang (6), Schema (93 tables), Tests (17 files / 232 cases) |
 | eskoofy-theme (WordPress) | 115+ | Root templates (32), Inc (13), Admin views (67), Languages (5), 64 admin pages, 54+ DB tables, 7 CPTs, REST (11 routes), Shortcodes (10) |
-| eskoofy-website (Raw PHP) | 100+ | Core + Middleware (10), Services (I18n, LicenseManager, ActivityLog), Gateways (Manual/Paddle stub), Models, Site/Auth/Account/Admin/API controllers, 10+ views, `routes/{web,api}.php`, `lang/{en,bn}.php` |
+| eskoofy-website (Raw PHP) | 110+ | Core + Middleware (10), Services (I18n, GeoLocale, LicenseManager, ActivityLog), Gateways (Manual/Paddle stub), Models (Plan/Customer/Payment/Subscription/LicenseActivation/Post/PostCategory), Site/Auth/Account/Admin/API controllers, 15+ views, `routes/{web,api}.php`, `lang/{en,bn}.php`, PWA shell (`manifest.json`, `sw.js`, `offline.html`, icons, `register-sw.js`, `favicon.svg`) |
 
 ## Next actions
 
 1. Sandbox E2E for INT gateways (Stripe/PayPal/Paddle with real test creds) in all 3 products.
 2. Design pass on the WP theme when ready.
 3. Provision the licensing DB + deploy the website; load real plan/price data into `plans`.
+4. Add a media upload pipeline for blog featured images (currently URL-only).

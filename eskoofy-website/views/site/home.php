@@ -67,6 +67,37 @@
     <p class="text-center text-slate-400 text-sm mt-6"><a href="/pricing" class="text-blue-600"><?= __('home.pricing_all') ?> →</a></p>
 </section>
 
+<?php if (!empty($recentPosts)): ?>
+<section class="max-w-7xl mx-auto px-4 py-16 border-t border-slate-200">
+    <div class="flex items-center justify-between mb-10">
+        <div>
+            <h2 class="text-3xl font-bold"><?= __('blog.title') ?></h2>
+            <p class="text-slate-500 mt-2"><?= __('blog.sub') ?></p>
+        </div>
+        <a href="/blog" class="text-blue-600 font-semibold text-sm"><?= __('blog.all') ?> →</a>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+        <?php foreach ($recentPosts as $post): ?>
+            <a href="/blog/<?= htmlspecialchars($post['slug']) ?>" class="bg-white rounded-2xl border border-slate-200 esk-card-hover flex flex-col overflow-hidden">
+                <?php if (!empty($post['featured_image'])): ?>
+                    <img src="<?= htmlspecialchars($post['featured_image']) ?>" alt="" class="h-40 w-full object-cover">
+                <?php else: ?>
+                    <div class="h-40 bg-gradient-to-r from-slate-900 to-blue-700"></div>
+                <?php endif; ?>
+                <div class="p-6 flex-1">
+                    <div class="text-xs text-slate-500 mb-2">
+                        <?php if (!empty($post['category_name'])): ?><span class="text-blue-600 font-semibold"><?= htmlspecialchars($post['category_name']) ?></span> · <?php endif; ?>
+                        <?= date('M j, Y', strtotime((string) $post['published_at'])) ?>
+                    </div>
+                    <h3 class="font-bold mb-2"><?= htmlspecialchars($post['title']) ?></h3>
+                    <p class="text-sm text-slate-600"><?= htmlspecialchars((string) $post['excerpt']) ?></p>
+                </div>
+            </a>
+        <?php endforeach; ?>
+    </div>
+</section>
+<?php endif; ?>
+
 <section class="bg-white border-t border-slate-200">
     <div class="max-w-7xl mx-auto px-4 py-16 grid md:grid-cols-3 gap-8 text-center text-sm">
         <div>

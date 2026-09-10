@@ -15,6 +15,7 @@ return [
     'nav.wp_theme'      => 'WP Theme',
     'nav.pricing'       => 'Pricing',
     'nav.features'      => 'Features',
+    'nav.blog'          => 'Blog',
     'nav.about'         => 'About',
     'nav.contact'       => 'Contact',
     'nav.login'         => 'Login',
@@ -134,6 +135,21 @@ return [
     'footer.create_account' => 'Create Account',
     'footer.sign_in'        => 'Sign In',
     'footer.rights'         => 'All rights reserved. Licenses sold in USD.',
+
+    // Blog
+    'blog.title'            => 'From the Eskoofy blog',
+    'blog.sub'              => 'Announcements, guides, and product news for the Eskoofy school management system.',
+    'blog.all'              => 'All posts',
+    'blog.read_more'        => 'Read more',
+    'blog.empty'            => 'No posts yet — check back soon.',
+    'blog.back'             => 'Back to blog',
+    'blog.recent'           => 'Recent posts',
+    'blog.category'         => 'Category',
+    'blog.published_on'     => 'Published',
+    'blog.views'            => 'Views',
+    'blog.prev'             => 'Previous',
+    'blog.next'             => 'Next',
+    'blog.featured'         => 'Featured',
 
     // Errors
     'error.404_title'       => 'Page not found',

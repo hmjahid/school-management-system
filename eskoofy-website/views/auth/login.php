@@ -5,8 +5,8 @@
         <h1 class="text-2xl font-bold mb-1">Welcome back</h1>
         <p class="text-sm text-slate-500 mb-6">Log in to manage your licenses.</p>
 
-        <form method="post" action="/login<?= isset($_GET['redirect']) ? '?redirect=' . urlencode((string) $_GET['redirect']) : '' ?>
-            <?= csrf_field() ?>" class="space-y-4">
+        <form method="post" action="/login<?= isset($_GET['redirect']) ? '?redirect=' . urlencode((string) $_GET['redirect']) : '' ?>" class="space-y-4">
+            <?= csrf_field() ?>
             <div>
                 <label class="block text-sm font-semibold mb-1">Email</label>
                 <input type="email" name="email" required maxlength="191" class="w-full border border-slate-300 rounded-lg px-4 py-2">

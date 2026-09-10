@@ -167,6 +167,48 @@ CREATE TABLE IF NOT EXISTS `activity_logs` (
   KEY `activity_logs_action_index` (`action`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 9. POST CATEGORIES (marketing blog)
+CREATE TABLE IF NOT EXISTS `post_categories` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(191) NOT NULL,
+  `slug` VARCHAR(191) NOT NULL,
+  `description` VARCHAR(400) NULL,
+  `sort_order` INT NOT NULL DEFAULT 0,
+  `active` TINYINT(1) NOT NULL DEFAULT 1,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `post_categories_slug_unique` (`slug`),
+  KEY `post_categories_active_index` (`active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 10. POSTS (marketing blog / announcements)
+CREATE TABLE IF NOT EXISTS `posts` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `category_id` BIGINT UNSIGNED NULL,
+  `author_id` BIGINT UNSIGNED NULL,
+  `title` VARCHAR(191) NOT NULL,
+  `slug` VARCHAR(191) NOT NULL,
+  `excerpt` VARCHAR(400) NULL,
+  `content` LONGTEXT NOT NULL,
+  `status` VARCHAR(16) NOT NULL DEFAULT 'draft',
+  `featured_image` VARCHAR(255) NULL,
+  `meta_title` VARCHAR(191) NULL,
+  `meta_description` VARCHAR(255) NULL,
+  `views` INT UNSIGNED NOT NULL DEFAULT 0,
+  `published_at` DATETIME NULL,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  `deleted_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `posts_slug_unique` (`slug`),
+  KEY `posts_status_published_index` (`status`, `published_at`),
+  KEY `posts_category_id_index` (`category_id`),
+  KEY `posts_author_id_index` (`author_id`),
+  CONSTRAINT `posts_category_id_foreign` FOREIGN KEY (`category_id`) REFERENCES `post_categories` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `posts_author_id_foreign` FOREIGN KEY (`author_id`) REFERENCES `customers` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================================
@@ -182,3 +224,31 @@ INSERT IGNORE INTO `plans` (`id`, `product`, `name`, `slug`, `description`, `pri
 (1, 'app',     'Monthly',    'monthly',    'School management app — monthly license', 9.00,  'USD', 'monthly', 3, '["One school", "All modules", "Email support"]', 1, 1, NOW(), NOW()),
 (2, 'app',     'Yearly',     'yearly',     'School management app — yearly license',  90.00, 'USD', 'yearly',  3, '["One school", "All modules", "Priority support"]', 2, 1, NOW(), NOW()),
 (3, 'theme',   'Lifetime',   'lifetime',   'WordPress theme — lifetime license',      59.00, 'USD', 'one-time', 1, '["Unlimited sites", "Lifetime updates", "Support for 1 year"]', 1, 1, NOW(), NOW());
+
+-- Blog categories (marketing).
+INSERT IGNORE INTO `post_categories` (`id`, `name`, `slug`, `description`, `sort_order`, `active`, `created_at`, `updated_at`) VALUES
+(1, 'Announcements', 'announcements', 'News and updates from the Eskoofy team', 1, 1, NOW(), NOW()),
+(2, 'Guides', 'guides', 'How-tos and buying guidance for schools', 2, 1, NOW(), NOW());
+
+-- Example posts (one draft as an editor example).
+INSERT IGNORE INTO `posts` (`id`, `category_id`, `author_id`, `title`, `slug`, `excerpt`, `content`, `status`, `views`, `published_at`, `created_at`, `updated_at`) VALUES
+(1, 1, 1, 'Introducing Eskoofy: one school management system, two deployments', 'introducing-eskoofy-two-deployments',
+ 'The Eskoofy school management system now comes in two flavors — a Laravel application and a WordPress theme. Pick the deployment that fits your school.',
+ '<p>Managing a school means managing admissions, attendance, fees, exams, results, transport, hostels and more. Eskoofy brings all of it into one place.</p>
+<h2>Two deployments, one system</h2>
+<p><a href="/products/app">Eskoofy School App</a> is the full Laravel application — run it yourself or let us host it. <a href="/products/theme">Eskoofy WP Theme</a> turns your existing WordPress site into a school management portal.</p>
+<p>Both share the same modules, the same data model, and the same license server. See <a href="/pricing">pricing</a> to get started.</p>',
+ 'published', 12, NOW(), NOW(), NOW()),
+(2, 2, 1, 'How to choose between the Eskoofy app and the WordPress theme', 'choose-app-or-theme',
+ 'A practical comparison to help your school decide between the self-hosted WordPress theme and the full application.',
+ '<p>Choosing between the app and the theme mostly comes down to infrastructure and control.</p>
+<h2>Choose the app if...</h2>
+<p>...you want the complete package with all modules, an admin dashboard, and a license server that handles API validation automatically.</p>
+<h2>Choose the theme if...</h2>
+<p>...you already run WordPress and want your data on your own server with a familiar theme workflow.</p>
+<p>Either way you can <a href="/contact">talk to us</a> before buying.</p>',
+ 'published', 8, NOW(), NOW(), NOW()),
+(3, 1, 1, 'Coming soon: Paddle payments and the Eskoofy license portal', 'coming-soon-paddle-license-portal',
+ 'Payments via Paddle and the self-service license portal are on the roadmap.',
+ '<p>We are adding Paddle as a payment gateway and upgrading the <a href="/account">customer license portal</a> with renewal reminders and activation history.</p>',
+ 'draft', 0, NULL, NOW(), NOW(), NOW());

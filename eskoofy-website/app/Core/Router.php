@@ -114,6 +114,14 @@ class Router
         View::render('errors.404');
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function getRoutes(): array
+    {
+        return $this->routes;
+    }
+
     private function toRegex(string $path): string
     {
         $regex = preg_replace('/\{(\w+)\}/', '(?P<$1>[^/]+)', $path);

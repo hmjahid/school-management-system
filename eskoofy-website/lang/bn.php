@@ -16,6 +16,7 @@ return [
     'nav.wp_theme'      => 'ডব্লিউপি থিম',
     'nav.pricing'       => 'মূল্য তালিকা',
     'nav.features'      => 'ফিচারসমূহ',
+    'nav.blog'          => 'ব্লগ',
     'nav.about'         => 'আমাদের সম্পর্কে',
     'nav.contact'       => 'যোগাযোগ',
     'nav.login'         => 'লগইন',
@@ -135,6 +136,21 @@ return [
     'footer.create_account' => 'অ্যাকাউন্ট তৈরি করুন',
     'footer.sign_in'        => 'সাইন ইন',
     'footer.rights'         => 'সর্বস্বত্ব সংরক্ষিত। লাইসেন্স বিক্রয় ইউএসডিতে।',
+
+    // Blog
+    'blog.title'            => 'এসকুফি ব্লগ',
+    'blog.sub'              => 'এসকুফি স্কুল ম্যানেজমেন্ট সিস্টেম সম্পর্কে ঘোষণা, গাইড ও প্রোডাক্ট সংবাদ।',
+    'blog.all'              => 'সকল পোস্ট',
+    'blog.read_more'        => 'আরও পড়ুন',
+    'blog.empty'            => 'এখনও কোনো পোস্ট নেই — শীঘ্রই আবার দেখুন।',
+    'blog.back'             => 'ব্লগে ফিরুন',
+    'blog.recent'           => 'সাম্প্রতিক পোস্ট',
+    'blog.category'         => 'ক্যাটাগরি',
+    'blog.published_on'     => 'প্রকাশিত',
+    'blog.views'            => 'ভিউ',
+    'blog.prev'             => 'পূর্ববর্তী',
+    'blog.next'             => 'পরবর্তী',
+    'blog.featured'         => 'বিশেষ',
 
     // Errors
     'error.404_title'       => 'পৃষ্ঠাটি পাওয়া যায়নি',

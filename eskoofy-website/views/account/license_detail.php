@@ -18,8 +18,8 @@
             </dl>
 
             <h2 class="font-bold mt-6 mb-3">Renew</h2>
-            <form method="post" action="/account/licenses/<?= (int) $license['id'] ?>
-            <?= csrf_field() ?>/renew" class="flex gap-2">
+            <form method="post" action="/account/licenses/<?= (int) $license['id'] ?>/renew" class="flex gap-2">
+                <?= csrf_field() ?>
                 <input type="hidden" name="plan_id" value="<?= (int) $license['plan_id'] ?>">
                 <input type="hidden" name="gateway" value="manual">
                 <button class="bg-slate-900 hover:bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold">
@@ -39,7 +39,7 @@
                         </div>
                         <?php if (!$a['deactivated_at']): ?>
                             <form method="post" action="/account/activations/revoke">
-            <?= csrf_field() ?>
+                                <?= csrf_field() ?>
                                 <input type="hidden" name="activation_id" value="<?= (int) $a['id'] ?>">
                                 <button class="text-xs text-red-600 hover:underline">Revoke</button>
                             </form>

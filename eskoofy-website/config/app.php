@@ -20,5 +20,17 @@ return [
             'en' => 'English',
             'bn' => 'বাংলা',
         ],
+        // Location-based default language: Bangladeshi visitors get `bd_locale`,
+        // everyone else gets `other_locale`. A manual switch always wins.
+        'geo' => [
+            'enabled'            => $_ENV['GEO_LANG_ENABLED'] ?? 'true',
+            'cdn_headers'        => ['CF-IPCountry', 'X-IPCountry', 'IPCountry'],
+            'accept_language'    => true,
+            'remote_api_url'     => $_ENV['GEO_IP_API_URL'] ?? '',
+            'remote_api_timeout' => 2,
+            'use_timezone_hint'  => true,
+            'bd_locale'          => 'bn',
+            'other_locale'       => 'en',
+        ],
     ],
 ];

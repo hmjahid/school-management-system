@@ -10,8 +10,8 @@
             <div class="flex justify-between"><dt class="text-slate-400">API token</dt><dd class="font-mono text-xs"><?= htmlspecialchars((string) ($customer['api_token'] ?? '—')) ?></dd></div>
             <div class="flex justify-between"><dt class="text-slate-400">Status</dt><dd><?= $customer['status'] ?></dd></div>
         </dl>
-        <form method="post" action="/admin/customers/<?= (int) $customer['id'] ?>
-            <?= csrf_field() ?>" class="mt-4 flex gap-2">
+        <form method="post" action="/admin/customers/<?= (int) $customer['id'] ?>" class="mt-4 flex gap-2">
+            <?= csrf_field() ?>
             <input name="status" value="<?= $customer['status'] === 'active' ? 'suspended' : 'active' ?>" hidden>
             <button class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm"><?= $customer['status'] === 'active' ? 'Suspend' : 'Reactivate' ?></button>
         </form>

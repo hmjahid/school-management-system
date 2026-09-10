@@ -40,7 +40,7 @@ class FakeDatabase implements DatabaseInterface
         }
 
         if (stripos($sql, 'COUNT(*)') !== false) {
-            return ['c' => count($rows)];
+            return ['c' => count($rows), 'total' => count($rows)];
         }
 
         return $rows[0];
@@ -108,6 +108,12 @@ class FakeDatabase implements DatabaseInterface
             }
         }
 
+        if (preg_match('/LIMIT\s+(\d+)(?:\s+OFFSET\s+(\d+))?/i', $sql, $m)) {
+            $limit = (int) $m[1];
+            $offset = isset($m[2]) ? (int) $m[2] : 0;
+            $out = array_slice($out, $offset, $limit);
+        }
+
         return $out;
     }
 
@@ -117,22 +123,6 @@ class FakeDatabase implements DatabaseInterface
     private function matchesPredicate(string $predicate, array $row, array $params, int &$paramIdx): bool
     {
         $predicate = trim((string) preg_replace('/`/u', '', $predicate));
-
-        // col IS [NOT] NULL
-        if (preg_match('/^([a-z_]+)\s+IS NULL$/i', $predicate, $m)) {
-            return empty($row[$m[1]]);
-        }
-        if (preg_match('/^([a-z_]+)\s+IS NOT NULL$/i', $predicate, $m)) {
-            return !empty($row[$m[1]]);
-        }
-
-        // col <=> ? (null-safe equality)
-        if (preg_match('/^([a-z_]+)\s*<=>\s*\?$/i', $predicate, $m)) {
-            $value = $params[$paramIdx] ?? null;
-            $paramIdx++;
-
-            return ($row[$m[1]] ?? null) === $value;
-        }
 
         // col = ? / col != ? / col LIKE ?
         if (preg_match('/^([a-z_]+)\s*(=|!=|LIKE)\s*\?$/i', $predicate, $m)) {
@@ -147,6 +137,69 @@ class FakeDatabase implements DatabaseInterface
             }
 
             return $m[2] === '=' ? $actual === $value : $actual !== $value;
+        }
+
+        // col = 'literal' / col != 'literal'
+        if (preg_match("/^([a-z_]+)\s*(=|!=)\s*'((?:[^'\\\\]|\\\\.)*)'$/i", $predicate, $m)) {
+            $value = stripcslashes($m[3]);
+            $actual = $row[$m[1]] ?? null;
+
+            return $m[2] === '=' ? $actual === $value : $actual !== $value;
+        }
+
+        // col = bare / col != bare (numeric, identifier)
+        if (preg_match('/^([a-z_]+)\s*(=|!=)\s*([a-z0-9_\-]+)$/i', $predicate, $m)) {
+            $value = $m[3];
+            $actual = $row[$m[1]] ?? null;
+            if (is_numeric($value)) {
+                $actual = is_numeric($actual) ? (float) $actual : null;
+                $value = (float) $value;
+            }
+
+            return $m[2] === '=' ? $actual === $value : $actual !== $value;
+        }
+
+        // c.col = 'literal' / c.col = ? (joined-table literal)
+        if (preg_match("/^([a-z_]+)\.([a-z_]+)\s*(=|!=)\s*'((?:[^'\\\\]|\\\\.)*)'$/i", $predicate, $m)) {
+            $value = stripcslashes($m[4]);
+            $actual = $row[$m[2]] ?? null;
+
+            return $m[3] === '=' ? $actual === $value : $actual !== $value;
+        }
+        if (preg_match('/^([a-z_]+)\.([a-z_]+)\s*(=|!=|LIKE)\s*\?$/i', $predicate, $m)) {
+            $value = $params[$paramIdx] ?? null;
+            $paramIdx++;
+            $actual = $row[$m[2]] ?? null;
+
+            if (strcasecmp($m[3], 'LIKE') === 0) {
+                $like = str_replace('%', '', (string) $value);
+
+                return str_contains((string) $actual, $like);
+            }
+
+            return $m[3] === '=' ? $actual === $value : $actual !== $value;
+        }
+
+        // col IS [NOT] NULL — with optional table qualifier.
+        if (preg_match('/^([a-z_]+)\.([a-z_]+)\s+IS NULL$/i', $predicate, $m)) {
+            return empty($row[$m[2]]);
+        }
+        if (preg_match('/^([a-z_]+)\.([a-z_]+)\s+IS NOT NULL$/i', $predicate, $m)) {
+            return !empty($row[$m[2]]);
+        }
+        if (preg_match('/^([a-z_]+)\s+IS NULL$/i', $predicate, $m)) {
+            return empty($row[$m[1]]);
+        }
+        if (preg_match('/^([a-z_]+)\s+IS NOT NULL$/i', $predicate, $m)) {
+            return !empty($row[$m[1]]);
+        }
+
+        // col <=> ? (null-safe equality)
+        if (preg_match('/^([a-z_]+)\s*<=>\s*\?$/i', $predicate, $m)) {
+            $value = $params[$paramIdx] ?? null;
+            $paramIdx++;
+
+            return ($row[$m[1]] ?? null) === $value;
         }
 
         // Unsupported predicate: assume match to keep tests focused.

@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($title ?? ($siteTitle ?? __('brand.name'))) ?> — <?= __('brand.name') ?></title>
+    <meta name="description" content="Eskoofy is a school management system — admissions, attendance, fees, exams, results and more — delivered as a cloud app or a WordPress theme.">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Eskoofy">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .esk-hero { background: linear-gradient(135deg, #0f172a 0%, #2563eb 100%); }
@@ -24,6 +32,7 @@
             <a href="/products/theme" class="hover:text-white"><?= __('nav.wp_theme') ?></a>
             <a href="/pricing" class="hover:text-white"><?= __('nav.pricing') ?></a>
             <a href="/features" class="hover:text-white"><?= __('nav.features') ?></a>
+            <a href="/blog" class="hover:text-white"><?= __('nav.blog') ?></a>
             <a href="/about" class="hover:text-white"><?= __('nav.about') ?></a>
             <a href="/contact" class="hover:text-white"><?= __('nav.contact') ?></a>
         </div>
@@ -91,6 +100,7 @@ foreach (['success', 'error', 'info'] as $fType) {
             <div class="text-white font-semibold mb-2"><?= __('footer.company') ?></div>
             <ul class="space-y-1">
                 <li><a href="/about" class="hover:text-white"><?= __('nav.about') ?></a></li>
+                <li><a href="/blog" class="hover:text-white"><?= __('nav.blog') ?></a></li>
                 <li><a href="/pricing" class="hover:text-white"><?= __('nav.pricing') ?></a></li>
                 <li><a href="/contact" class="hover:text-white"><?= __('nav.contact') ?></a></li>
             </ul>
@@ -109,5 +119,22 @@ foreach (['success', 'error', 'info'] as $fType) {
     </div>
 </footer>
 
+<?php if (\App\Services\I18n::wantsTimezoneHint()): ?>
+<script>
+window.addEventListener('load', function () {
+    try {
+        var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+        if (!tz) return;
+        fetch('/language/geo?tz=' + encodeURIComponent(tz), {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        }).then(function (r) { return r.json(); }).then(function (d) {
+            if (d && d.reload) window.location.reload();
+        }).catch(function () {});
+    } catch (e) {}
+});
+</script>
+<?php endif; ?>
+
+<script src="/js/register-sw.js" defer></script>
 </body>
 </html>

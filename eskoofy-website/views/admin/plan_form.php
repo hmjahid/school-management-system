@@ -1,8 +1,8 @@
 <?php $adminTitle = $plan ? ('Edit plan — ' . $plan['name']) : 'New plan'; ?>
 
 <div class="max-w-2xl bg-white rounded-xl border border-slate-200 p-6">
-    <form method="post" action="<?= $plan ? "/admin/plans/{$plan['id']}" : '/admin/plans' ?>
-            <?= csrf_field() ?>" class="space-y-4">
+    <form method="post" action="<?= $plan ? "/admin/plans/{$plan['id']}" : '/admin/plans' ?>" class="space-y-4">
+        <?= csrf_field() ?>
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-semibold mb-1">Product</label>

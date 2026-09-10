@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($adminTitle ?? 'Eskoofy Admin') ?> — Eskoofy Admin</title>
+    <meta name="theme-color" content="#2563eb">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Eskoofy">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased">
@@ -20,6 +27,8 @@
             <a href="/admin/licenses" class="block px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white">Licenses</a>
             <a href="/admin/plans" class="block px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white">Plans</a>
             <a href="/admin/payments" class="block px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white">Payments</a>
+            <a href="/admin/posts" class="block px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white">Posts</a>
+            <a href="/admin/post-categories" class="block px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white">Post categories</a>
             <a href="/admin/messages" class="block px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white">Messages</a>
             <a href="/admin/activities" class="block px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white">Activity log</a>
         </nav>

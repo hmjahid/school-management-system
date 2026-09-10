@@ -12,12 +12,15 @@ use App\Controllers\Admin\LicenseController as AdminLicense;
 use App\Controllers\Admin\MessageController;
 use App\Controllers\Admin\PaymentController as AdminPayment;
 use App\Controllers\Admin\PlanController;
+use App\Controllers\Admin\PostCategoryController;
+use App\Controllers\Admin\PostController;
 use App\Controllers\Auth\LoginController;
 use App\Controllers\Auth\LogoutController;
 use App\Controllers\Auth\RegisterController;
 use App\Controllers\Site\CheckoutController;
 use App\Controllers\Site\HomeController;
 use App\Controllers\Site\LanguageController;
+use App\Controllers\Site\PostController as SitePostController;
 
 // ─── Public marketing site ───────────────────────────────────
 $router->get('/', HomeController::class, 'index');
@@ -28,7 +31,13 @@ $router->get('/about', HomeController::class, 'about');
 $router->get('/contact', HomeController::class, 'contact');
 $router->post('/contact', HomeController::class, 'storeMessage');
 
+// ─── Blog ────────────────────────────────────────────────────
+$router->get('/blog', SitePostController::class, 'index');
+$router->get('/blog/category/{slug}', SitePostController::class, 'category');
+$router->get('/blog/{slug}', SitePostController::class, 'show');
+
 // ─── Language switcher ───────────────────────────────────────
+$router->get('/language/geo', LanguageController::class, 'geo');
 $router->get('/language/{locale}', LanguageController::class, 'switch');
 
 // ─── Checkout / purchase ─────────────────────────────────────
@@ -76,6 +85,20 @@ $router->group('/admin', function (App\Core\Router $router): void {
 
     $router->get('/payments', AdminPayment::class, 'index');
     $router->post('/payments/{id}', AdminPayment::class, 'updateStatus');
+
+    $router->get('/posts', PostController::class, 'index');
+    $router->get('/posts/create', PostController::class, 'create');
+    $router->post('/posts', PostController::class, 'store');
+    $router->get('/posts/{id}/edit', PostController::class, 'edit');
+    $router->post('/posts/{id}', PostController::class, 'update');
+    $router->post('/posts/{id}/delete', PostController::class, 'delete');
+
+    $router->get('/post-categories', PostCategoryController::class, 'index');
+    $router->get('/post-categories/create', PostCategoryController::class, 'create');
+    $router->post('/post-categories', PostCategoryController::class, 'store');
+    $router->get('/post-categories/{id}/edit', PostCategoryController::class, 'edit');
+    $router->post('/post-categories/{id}', PostCategoryController::class, 'update');
+    $router->post('/post-categories/{id}/delete', PostCategoryController::class, 'delete');
 
     $router->get('/messages', MessageController::class, 'index');
     $router->post('/messages/{id}/read', MessageController::class, 'markRead');
