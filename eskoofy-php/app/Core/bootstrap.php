@@ -5,13 +5,15 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
-    require_once __DIR__ . '/../vendor/autoload.php';
+$appRoot = dirname(__DIR__, 2);
+
+if (file_exists($appRoot . '/vendor/autoload.php')) {
+    require_once $appRoot . '/vendor/autoload.php';
 }
-require_once __DIR__ . '/../app/Helpers/helpers.php';
+require_once __DIR__ . '/../Helpers/helpers.php';
 
 // Load .env if vlucas/dotenv is not available (shared hosting)
-$envFile = __DIR__ . '/../.env';
+$envFile = $appRoot . '/.env';
 if (file_exists($envFile)) {
     $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
@@ -34,14 +36,14 @@ if (!isset($_SESSION['csrf_token'])) {
 }
 
 // Load config
-$config = require __DIR__ . '/../config/app.php';
+$config = require $appRoot . '/config/app.php';
 
 // Register autoloader for app/ classes
-spl_autoload_register(function (string $class) {
+spl_autoload_register(function (string $class) use ($appRoot) {
     $prefix = 'App\\';
     if (!str_starts_with($class, $prefix)) return;
     $relative = str_replace('\\', '/', substr($class, strlen($prefix)));
-    $file = __DIR__ . '/../app/' . $relative . '.php';
+    $file = $appRoot . '/app/' . $relative . '.php';
     if (file_exists($file)) {
         require_once $file;
     }
