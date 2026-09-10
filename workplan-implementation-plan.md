@@ -7,7 +7,7 @@ Per-task tracker for `WORKPLAN.md`. Status legend:
 - ⬜ **not started** — out of scope / future phase
 - ⬜ **deferred** — permanently or indefinitely postponed (reason given)
 
-Verification baseline (2026-09-09): `cd eskoofy-app && composer test` → **912 passed, 0 risky**; `pint --test` clean on all touched files.
+Verification baseline (2026-09-10): `cd eskoofy-app && composer test` → **912 passed, 0 risky**; `cd eskoofy-php && composer test` → **206 passed, 348 assertions**; `pint --test` clean on all touched files.
 
 ---
 
@@ -77,7 +77,7 @@ Verification baseline (2026-09-09): `cd eskoofy-app && composer test` → **912 
 | 6.3 | Parity checklist vs Laravel BD | ✅ done | 93-table schema, 78 models, 66 controllers (11 API), 128 views, 9 gateway adapters, 6 language files (en+bn), 3 config files. Full module parity: academics, finance, admissions, CMS, transport, hostel, library, SMS, payroll, reports, certificates, backups, API surface. |
 | 6.4 | Full module port + vertical slice | ✅ done | All modules ported: students (CRUD+sub-pages), teachers, classes, sections, subjects, batches, guardians, attendance (mark+list), exams (CRUD+publish+results), fees, fee_payments+receipts, payments+gateway wiring+refund, admissions (CRUD+workflow+documents), routines, assignments, notices, news, events, announcements, galleries, expenses+categories, budgets, ledger (journal/cashbook/bankbook/income-statement/balance-sheet), transport (vehicles/routes/assignments), hostel (rooms+assignments), library (books+categories+issues), SMS, reports, certificates+admit_cards+id_cards+generate, settings, users+roles, profile, academic_sessions, payroll (salary_structures/payslips/leave_requests+types/staff_attendance), testimonials, committee, backups, visitor_logs, activity, messages, courses, notifications, device_tokens, password_reset, dashboard_favorites. API: 11 controllers (results/lookup, news, notices, events, students, teachers, classes, exams, fees, admissions, dashboard). |
 | 6.5 | BD/INT profile + build-box integration | ✅ done | `.env`-driven variant (bd/int), config/payment.php with all 7 gateways (bKash/Rocket/Nagad/Stripe/PayPal/Paddle/Offline), config/app.php with feature flags. |
-| 6.6 | Tests + CI | ⬜ not started | CI integration pending. |
+| 6.6 | Tests + CI | ✅ done | Added dev-only `composer.json` (PHPUnit 11), `phpunit.xml`, `tests/bootstrap.php`, `Tests\TestCase`. 206 tests / 348 assertions across Core (Router, Validator, Session, Request, Auth, View, Model, QueryBuilder), all 9 gateway adapters (Offline + Stripe/PayPal/Paddle/bKash/Rocket/Nagad signatures + callbacks), and global helpers. CI job `php-test` (`.github/workflows/ci.yml`) runs `composer test`; `export` job now ships `eskoofy-php-{bd,int}.zip` with lang/bn + variant smoke checks. `build/export.sh php {bd,int}` wired (rsync → profile `.env` incl. TIMEZONE→APP_TIMEZONE → strip lang/bn for int → zip). |
 
 ## Phase 7 — eskoofy-theme (WordPress) — COMPLETE
 
@@ -102,7 +102,7 @@ Verification baseline (2026-09-09): `cd eskoofy-app && composer test` → **912 
 
 ## Summary
 
-- ✅ Complete: Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6 (full raw PHP port), Phase 7 (full WP hybrid).
+- ✅ Complete: Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6 (full raw PHP port + tests + CI), Phase 7 (full WP hybrid).
 - ⬜ Deferred: Phase 8 (website — not needed now).
 
 ## File counts
@@ -110,7 +110,7 @@ Verification baseline (2026-09-09): `cd eskoofy-app && composer test` → **912 
 | Product | Files | Key components |
 |---------|-------|----------------|
 | eskoofy-app (Laravel) | existing | 900+ tests, 95 models, 130+ controllers, 32 services |
-| eskoofy-php (Raw PHP) | 374 | Core (16), Models (78), Controllers (67+11 API), Gateways (9), Views (173), Config (3), Lang (6), Schema (93 tables) |
+| eskoofy-php (Raw PHP) | 402 | Core (16), Models (78), Controllers (67+11 API), Gateways (9), Views (173), Config (3), Lang (6), Schema (93 tables), Tests (17 files / 206 cases) |
 | eskoofy-theme (WordPress) | 115+ | Root templates (32), Inc (13), Admin views (67), Languages (5), 64 admin pages, 54+ DB tables, 7 CPTs, REST (11 routes), Shortcodes (10) |
 
 ## Next actions

@@ -5,10 +5,13 @@
 # Usage:
 #   ./build/export.sh app bd
 #   ./build/export.sh app int
+#   ./build/export.sh php bd
+#   ./build/export.sh php int
 #   ./build/export.sh theme int
 #
-# Products: app (eskoofy-app, Laravel), theme (eskoofy-theme, WordPress).
-# (eskoofy-php is gated, eskoofy-website not started.)
+# Products: app (eskoofy-app, Laravel), php (eskoofy-php, raw PHP),
+#           theme (eskoofy-theme, WordPress).
+# (eskoofy-website deferred.)
 #
 # Output: build/dist/eskoofy-<product>-<variant>.zip  + the raw tree in
 #         build/artifacts/ for inspection.
@@ -16,7 +19,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PRODUCT="${1:?usage: export.sh <product|app|theme> <variant|bd|int>}"
+PRODUCT="${1:?usage: export.sh <product|app|php|theme> <variant|bd|int>}"
 VARIANT="${2:?usage: export.sh <product> <variant>}"
 ARTIFACTS="$ROOT/build/artifacts"
 DIST="$ROOT/build/dist"
@@ -107,8 +110,63 @@ case "$PRODUCT" in
         ( cd "$OUT" && wp i18n make-pot . languages/eskoofy.pot --slug=eskoofy 2>/dev/null || true )
     fi
     ;;
+  php)
+    SRC="$ROOT/eskoofy-php"
+    [ -d "$SRC" ] || { echo "error: $SRC not found"; exit 1; }
+    OUT="$ARTIFACTS/eskoofy-php-$VARIANT"
+    STAGE="$OUT-stage"
+
+    rm -rf "$STAGE" "$OUT"
+    mkdir -p "$STAGE"
+
+    # rsync the raw PHP tree, excluding dev / local-only tooling.
+    rsync -a \
+        --exclude '.git/' \
+        --exclude 'vendor/' \
+        --exclude '.env' \
+        --exclude '.phpunit.cache/' \
+        --exclude 'tests/' \
+        --exclude 'composer.json' \
+        --exclude 'composer.lock' \
+        --exclude 'phpunit.xml' \
+        --exclude '.gitignore' \
+        --exclude 'public/uploads/' \
+        --exclude 'storage/' \
+        "$SRC/" "$STAGE/"
+
+    # Apply variant profile to .env. eskoofy-php reads APP_TIMEZONE (not TIMEZONE),
+    # so translate the profile's generic TIMEZONE key.
+    cp "$STAGE/.env.example" "$STAGE/.env"
+
+    php -r '
+        $overrides = json_decode($argv[1], true)["env"];
+        $path = $argv[2];
+        $env = file_get_contents($path);
+        foreach ($overrides as $line) {
+            $parts = explode("=", $line, 2);
+            $key = $parts[0];
+            if ($key === "TIMEZONE") {
+                $line = "APP_TIMEZONE=" . $parts[1];
+                $key = "APP_TIMEZONE";
+            }
+            if (preg_match("/^${key}=.*$/m", $env)) {
+                $env = preg_replace("/^${key}=.*$/m", $line, $env);
+            } else {
+                $env .= "\n${line}\n";
+            }
+        }
+        file_put_contents($path, $env);
+    ' "$PROFILE_JSON" "$STAGE/.env"
+
+    # Per-variant resource handling.
+    if [ "$STRIP_BN" = "yes" ]; then
+        rm -rf "$STAGE/lang/bn"
+    fi
+
+    mv "$STAGE" "$OUT"
+    ;;
   *)
-    echo "error: unknown product '$PRODUCT' (expected: app|theme)"
+    echo "error: unknown product '$PRODUCT' (expected: app|php|theme)"
     exit 1
     ;;
 esac
@@ -119,7 +177,7 @@ rm -f "$ZIP"
 ( cd "$ARTIFACTS" && zip -rq "$ZIP" "$(basename "$OUT")" )
 
 # INT smoke assertions.
-if [ "$PRODUCT" = "app" ] && [ "$STRIP_BN" = "yes" ]; then
+if [ "$STRIP_BN" = "yes" ] && { [ "$PRODUCT" = "app" ] || [ "$PRODUCT" = "php" ]; }; then
     if unzip -l "$ZIP" | grep -q "lang/bn/"; then
         echo "error: bn lang pack leaked into int artifact"
         exit 1
