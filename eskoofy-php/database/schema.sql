@@ -2397,5 +2397,27 @@ ON DUPLICATE KEY UPDATE `updated_at` = NOW();
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================================
+-- 85. SMS LOGS
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS `sms_logs` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `recipients` TEXT NOT NULL,
+  `message` TEXT NOT NULL,
+  `status` VARCHAR(20) NOT NULL DEFAULT 'sent',
+  `gateway` VARCHAR(32) NULL,
+  `sms_status` MEDIUMTEXT NULL,
+  `sent_by` BIGINT UNSIGNED NULL,
+  `sent_at` TIMESTAMP NULL,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`),
+  KEY `sms_logs_status_index` (`status`),
+  KEY `sms_logs_gateway_index` (`gateway`),
+  KEY `sms_logs_sent_by_foreign` (`sent_by`),
+  CONSTRAINT `sms_logs_sent_by_foreign` FOREIGN KEY (`sent_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
 -- END OF SCHEMA
 -- ============================================================

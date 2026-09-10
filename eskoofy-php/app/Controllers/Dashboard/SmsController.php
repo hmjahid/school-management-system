@@ -7,14 +7,18 @@ use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Database;
 use App\Core\Session;
+use App\Services\Sms\SmsManager;
 
 class SmsController extends Controller
 {
     private Database $db;
 
+    private SmsManager $sms;
+
     public function __construct()
     {
         $this->db = Database::getInstance();
+        $this->sms = new SmsManager();
     }
 
     public function index(): void
@@ -54,17 +58,43 @@ class SmsController extends Controller
         $recipients = array_map('trim', explode(',', $data['recipients']));
         $recipients = array_filter($recipients);
 
+        $driver = $this->sms->driver();
+
+        $results = [];
+        $delivered = 0;
+        foreach ($recipients as $recipient) {
+            $result = $driver->send($recipient, $data['message']);
+            $results[$recipient] = [
+                'success' => $result['success'],
+                'status'  => $result['status'],
+                'message_id' => $result['message_id'] ?? null,
+                'error'   => $result['error'] ?? null,
+                'provider' => $result['provider'] ?? $driver->name(),
+            ];
+            if ($result['success']) {
+                $delivered++;
+            }
+        }
+
+        $status = $delivered === count($recipients) ? 'sent'
+            : ($delivered === 0 ? 'failed' : 'partial');
+
         $this->db->insert('sms_logs', [
             'recipients'  => $data['recipients'],
             'message'     => $data['message'],
-            'status'      => 'sent',
+            'status'      => $status,
+            'gateway'     => $driver->name(),
+            'sms_status'  => json_encode($results, JSON_UNESCAPED_SLASHES),
             'sent_by'     => Auth::id(),
             'sent_at'     => date('Y-m-d H:i:s'),
             'created_at'  => date('Y-m-d H:i:s'),
             'updated_at'  => date('Y-m-d H:i:s'),
         ]);
 
-        Session::getInstance()->flash('success', 'SMS sent to ' . count($recipients) . ' recipient(s).');
+        $flash = $delivered === count($recipients)
+            ? 'SMS sent to ' . count($recipients) . ' recipient(s) via ' . $driver->name() . '.'
+            : ('SMS delivery incomplete: ' . $delivered . ' of ' . count($recipients) . ' delivered via ' . $driver->name() . '.');
+        Session::getInstance()->flash($delivered === count($recipients) ? 'success' : 'error', $flash);
         $this->redirect('/dashboard/sms');
     }
 }

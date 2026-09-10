@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Contracts\SmsService;
 use App\Services\Sms\TwilioSmsService;
+use App\Services\Sms\VonageSmsService;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 
@@ -57,6 +58,10 @@ class SmsServiceProvider extends ServiceProvider
                 }
 
                 return new TwilioSmsService($config);
+
+            case 'vonage':
+            case 'nexmo':
+                return new VonageSmsService($config);
 
             case 'log':
                 return new \App\Services\Sms\LogSmsService($config);

@@ -17,6 +17,7 @@ define('ESK_PLUGIN_DIR', __DIR__);
 $esk_includes = array(
 	'helpers.php',
 	'database.php',
+	'sms-gateway.php',
 	'custom-post-types.php',
 	'admin-pages.php',
 	'admin-ajax.php',

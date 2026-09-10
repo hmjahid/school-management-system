@@ -44,6 +44,17 @@ return [
             'from' => env('NEXMO_FROM_NUMBER'),
         ],
 
+        'vonage' => [
+            'driver' => 'vonage',
+            'api_key' => env('VONAGE_API_KEY', env('NEXMO_KEY')),
+            'api_secret' => env('VONAGE_API_SECRET', env('NEXMO_SECRET')),
+            'from' => env('VONAGE_FROM', env('NEXMO_FROM_NUMBER', 'Eskoofy')),
+            'brand' => env('VONAGE_BRAND', 'Eskoofy'),
+            'country_code' => env('SMS_COUNTRY_CODE', '1'),
+            'api_base' => env('VONAGE_API_BASE', 'https://api.nexmo.com'),
+            'channel' => 'sms',
+        ],
+
         'textlocal' => [
             'driver' => 'textlocal',
             'api_key' => env('TEXTLOCAL_API_KEY'),

@@ -44,6 +44,13 @@ return [
             'paypal' => false,
             'paddle' => false,
         ],
+
+        // International (int variant) messaging drivers. The active driver is chosen
+        // by SMS_DRIVER (build profiles set SMS_DRIVER=twilio for int). The bd variant
+        // keeps today's behavior with the `log` driver.
+        'sms' => [
+            'international_drivers' => ['twilio', 'vonage', 'nexmo'],
+        ],
     ],
 
     /*

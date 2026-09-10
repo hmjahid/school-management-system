@@ -971,6 +971,22 @@ function esk_create_tables(): void {
 		KEY idx_status (status)
 	) {$charset_collate}";
 
+	// ─── SMS Logs ────────────────────────────────────────────────
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_sms_logs (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		recipient VARCHAR(32) NOT NULL,
+		message TEXT NOT NULL,
+		provider VARCHAR(32) DEFAULT 'log',
+		driver VARCHAR(32) DEFAULT 'log',
+		status VARCHAR(20) DEFAULT 'sent',
+		message_id VARCHAR(191) DEFAULT NULL,
+		error TEXT DEFAULT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		KEY idx_recipient (recipient),
+		KEY idx_status (status)
+	) {$charset_collate}";
+
 	// ─── Messages ───────────────────────────────────────────────
 	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_messages (
 		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
