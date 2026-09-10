@@ -16,9 +16,9 @@ class SiteController extends Controller
         $perPage = 12;
         $offset = ($page - 1) * $perPage;
 
-        $total = $db->fetch("SELECT COUNT(*) as cnt FROM news WHERE is_event = 0 AND status = 'published'")['cnt'] ?? 0;
+        $total = $db->fetch("SELECT COUNT(*) as cnt FROM news WHERE is_event = 0 AND is_published = 1")['cnt'] ?? 0;
         $rows = $db->fetchAll(
-            "SELECT * FROM news WHERE is_event = 0 AND status = 'published' ORDER BY published_at DESC LIMIT {$perPage} OFFSET {$offset}"
+            "SELECT * FROM news WHERE is_event = 0 AND is_published = 1 ORDER BY published_at DESC LIMIT {$perPage} OFFSET {$offset}"
         );
 
         $this->view('site.news', [
@@ -34,7 +34,7 @@ class SiteController extends Controller
     public function newsShow(string $slug): void
     {
         $db = Database::getInstance();
-        $row = $db->fetch("SELECT * FROM news WHERE slug = ? AND status = 'published' LIMIT 1", [$slug]);
+        $row = $db->fetch("SELECT * FROM news WHERE slug = ? AND is_published = 1 LIMIT 1", [$slug]);
 
         if (!$row) {
             http_response_code(404);
@@ -79,8 +79,11 @@ class SiteController extends Controller
     public function gallery(): void
     {
         $db = Database::getInstance();
+        // The raw-PHP port has a single `galleries` table (no separate
+        // `gallery_albums`); treat the published galleries list as the album
+        // list so the view can iterate. View key `albums` is preserved.
         $albums = $db->fetchAll(
-            "SELECT * FROM gallery_albums WHERE is_active = 1 ORDER BY sort_order ASC, id DESC LIMIT 50"
+            "SELECT * FROM galleries WHERE is_published = 1 ORDER BY id DESC LIMIT 50"
         );
         $photos = $db->fetchAll(
             "SELECT * FROM galleries WHERE is_published = 1 ORDER BY id DESC LIMIT 100"
@@ -135,7 +138,7 @@ class SiteController extends Controller
         $db = Database::getInstance();
 
         $exams = $db->fetchAll(
-            "SELECT id, name, exam_date FROM exams ORDER BY exam_date DESC LIMIT 30"
+            "SELECT id, name, start_date FROM exams ORDER BY start_date DESC LIMIT 30"
         );
 
         $search = trim((string) ($_GET['search'] ?? ''));
@@ -215,7 +218,7 @@ class SiteController extends Controller
         $where = '1=1';
         $params = [];
         if ($classId > 0) {
-            $where .= ' AND r.class_id = ?';
+            $where .= ' AND r.school_class_id = ?';
             $params[] = $classId;
         }
         if ($sectionId > 0) {
@@ -226,7 +229,7 @@ class SiteController extends Controller
         $routines = $db->fetchAll(
             "SELECT r.*, c.name as class_name, s.name as section_name, sub.name as subject_name, u.name as teacher_name
              FROM routines r
-             LEFT JOIN school_classes c ON r.class_id = c.id
+             LEFT JOIN school_classes c ON r.school_class_id = c.id
              LEFT JOIN sections s ON r.section_id = s.id
              LEFT JOIN subjects sub ON r.subject_id = sub.id
              LEFT JOIN teachers t ON r.teacher_id = t.id

@@ -15,7 +15,7 @@ class HomeController extends Controller
         $settings = $db->fetch("SELECT * FROM website_settings ORDER BY id DESC LIMIT 1");
 
         $news = $db->fetchAll(
-            "SELECT * FROM news WHERE is_event = 0 AND status = 'published' ORDER BY published_at DESC LIMIT 5"
+            "SELECT * FROM news WHERE is_event = 0 AND is_published = 1 ORDER BY published_at DESC LIMIT 5"
         );
 
         $events = $db->fetchAll(
@@ -31,7 +31,7 @@ class HomeController extends Controller
         );
 
         $testimonials = $db->fetchAll(
-            "SELECT * FROM testimonials WHERE is_active = 1 ORDER BY id DESC LIMIT 10"
+            "SELECT * FROM testimonials WHERE is_visible = 1 ORDER BY id DESC LIMIT 10"
         );
 
         $committeeMembers = $db->fetchAll(
