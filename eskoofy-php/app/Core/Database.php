@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace App\Core;
 
-class Database
+class Database implements DatabaseInterface
 {
-    private static ?Database $instance = null;
+    private static ?DatabaseInterface $instance = null;
     private \PDO $pdo;
 
     private function __construct()
@@ -24,12 +24,22 @@ class Database
         ]);
     }
 
-    public static function getInstance(): self
+    public static function getInstance(): DatabaseInterface
     {
         if (self::$instance === null) {
             self::$instance = new self();
         }
         return self::$instance;
+    }
+
+    /**
+     * Test-only: swap the active database for an in-memory fake so the
+     * front controller can be exercised without a real MySQL connection.
+     * Pass null to restore the real singleton.
+     */
+    public static function setInstance(?DatabaseInterface $db): void
+    {
+        self::$instance = $db;
     }
 
     public function getConnection(): \PDO

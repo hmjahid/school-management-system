@@ -7,7 +7,7 @@ Per-task tracker for `WORKPLAN.md`. Status legend:
 - ⬜ **not started** — out of scope / future phase
 - ⬜ **deferred** — permanently or indefinitely postponed (reason given)
 
-Verification baseline (2026-09-11): `cd eskoofy-app && composer test` → **923 passed, 2361 assertions**; `cd eskoofy-php && composer test` → **232 passed, 411 assertions**; `cd eskoofy-website && composer test` → **79 passed, 214 assertions**; `pint --test` clean on all touched files.
+Verification baseline (2026-09-11): `cd eskoofy-app && composer test` → **923 passed, 2361 assertions**; `cd eskoofy-php && composer test` → **238 passed, 428 assertions**; `cd eskoofy-website && composer test` → **79 passed, 214 assertions**; `pint --test` clean on all touched files.
 
 ---
 
@@ -79,6 +79,7 @@ Verification baseline (2026-09-11): `cd eskoofy-app && composer test` → **923 
 | 6.5 | BD/INT profile + build-box integration | ✅ done | `.env`-driven variant (bd/int), config/payment.php with all 7 gateways (bKash/Rocket/Nagad/Stripe/PayPal/Paddle/Offline), config/app.php with feature flags. |
 | 6.6 | Tests + CI | ✅ done | Added dev-only `composer.json` (PHPUnit 11), `phpunit.xml`, `tests/bootstrap.php`, `Tests\TestCase`. 206 tests / 348 assertions across Core (Router, Validator, Session, Request, Auth, View, Model, QueryBuilder), all 9 gateway adapters (Offline + Stripe/PayPal/Paddle/bKash/Rocket/Nagad signatures + callbacks), and global helpers. CI job `php-test` (`.github/workflows/ci.yml`) runs `composer test`; `export` job now ships `eskoofy-php-{bd,int}.zip` with lang/bn + variant smoke checks. `build/export.sh php {bd,int}` wired (rsync → profile `.env` incl. TIMEZONE→APP_TIMEZONE → strip lang/bn for int → zip). |
 | 6.7 | Public-site runtime repairs (controllers vs schema) | ✅ done | `HomeController` and `SiteController` (22 public routes — `/`, `/about`, `/contact`, `/login`, `/register`, `/news`, `/events`, `/notices`, `/gallery`, `/faculty`, `/committee`, `/academics`, `/results`, `/routine`, `/admission`, `/careers`, `/privacy`, `/terms`, `/transport`, `/students-life`, `/portal`, `/search`) now return 200 against the real schema. Repairs: `news.status` → `news.is_published`; `testimonials.is_active` → `testimonials.is_visible`; `exams.exam_date` → `exams.start_date`; `routines.class_id` → `routines.school_class_id`; `gallery_albums` removed (no such table — use `galleries` as the album list). Suite still 232/411. |
+| 6.8 | Schema patch + front-controller regression test | ✅ done | `refunds.processed_by NOT NULL` → `NULL` (was incompatible with `ON DELETE SET NULL`; import errored with errno 150 on MySQL 8 / MariaDB 11). New `App\Core\DatabaseInterface` extracted; `Database::setInstance(?DatabaseInterface $db)` test override. `tests/Integration/FrontControllerTest` (PHPUnit `Integration` suite, 6 tests) drives `HomeController` and `SiteController` against `Tests\Fakes\FakeDatabase` and asserts the SQL log uses the right column names — reverts a fix and the corresponding test fails with a clear message. Suite 238/428 (+6). |
 
 ## Phase 7 — eskoofy-theme (WordPress) — COMPLETE
 
