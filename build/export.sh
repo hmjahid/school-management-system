@@ -10,8 +10,7 @@
 #   ./build/export.sh theme int
 #
 # Products: app (eskoofy-app, Laravel), php (eskoofy-php, raw PHP),
-#           theme (eskoofy-theme, WordPress).
-# (eskoofy-website deferred.)
+#           theme (eskoofy-theme, WordPress), website (eskoofy-website, raw PHP).
 #
 # Output: build/dist/eskoofy-<product>-<variant>.zip  + the raw tree in
 #         build/artifacts/ for inspection.
@@ -19,7 +18,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PRODUCT="${1:?usage: export.sh <product|app|php|theme> <variant|bd|int>}"
+PRODUCT="${1:?usage: export.sh <product|app|php|theme|website> <variant|bd|int>}"
 VARIANT="${2:?usage: export.sh <product> <variant>}"
 ARTIFACTS="$ROOT/build/artifacts"
 DIST="$ROOT/build/dist"
@@ -165,8 +164,53 @@ case "$PRODUCT" in
 
     mv "$STAGE" "$OUT"
     ;;
+  website)
+    # The licensing site is English-only / USD / UTC in BOTH variants, so it is
+    # always exported as `int`. Passing `bd` simply produces the int artifact.
+    SRC="$ROOT/eskoofy-website"
+    [ -d "$SRC" ] || { echo "error: $SRC not found"; exit 1; }
+    OUT="$ARTIFACTS/eskoofy-website-$VARIANT"
+    STAGE="$OUT-stage"
+
+    rm -rf "$STAGE" "$OUT"
+    mkdir -p "$STAGE"
+
+    # Ship the runtime tree minus dev tooling, secrets, and test doubles.
+    rsync -a \
+        --exclude '.git/' \
+        --exclude 'vendor/' \
+        --exclude '.env' \
+        --exclude '.phpunit.cache/' \
+        --exclude 'tests/' \
+        --exclude 'composer.json' \
+        --exclude 'composer.lock' \
+        --exclude 'phpunit.xml' \
+        --exclude '.gitignore' \
+        "$SRC/" "$STAGE/"
+
+    cp "$STAGE/.env.example" "$STAGE/.env"
+
+    # English-only, USD, UTC. ESKOOFY_VARIANT stays `int` always.
+    php -r '
+        $path = $argv[1];
+        $env = file_get_contents($path);
+        $overrides = ["ESKOOFY_VARIANT=int", "APP_LOCALE=en", "APP_TIMEZONE=UTC", "LICENSE_CURRENCY=USD", "GATEWAY_CURRENCY=USD"];
+        foreach ($overrides as $line) {
+            $parts = explode("=", $line, 2);
+            $key = $parts[0];
+            if (preg_match("/^${key}=.*$/m", $env)) {
+                $env = preg_replace("/^${key}=.*$/m", $line, $env);
+            } else {
+                $env .= "\n${line}\n";
+            }
+        }
+        file_put_contents($path, $env);
+    ' "$STAGE/.env"
+
+    mv "$STAGE" "$OUT"
+    ;;
   *)
-    echo "error: unknown product '$PRODUCT' (expected: app|php|theme)"
+    echo "error: unknown product '$PRODUCT' (expected: app|php|theme|website)"
     exit 1
     ;;
 esac

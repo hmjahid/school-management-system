@@ -7,7 +7,7 @@ Per-task tracker for `WORKPLAN.md`. Status legend:
 - ⬜ **not started** — out of scope / future phase
 - ⬜ **deferred** — permanently or indefinitely postponed (reason given)
 
-Verification baseline (2026-09-10): `cd eskoofy-app && composer test` → **912 passed, 0 risky**; `cd eskoofy-php && composer test` → **206 passed, 348 assertions**; `pint --test` clean on all touched files.
+Verification baseline (2026-09-10): `cd eskoofy-app && composer test` → **923 passed, 2361 assertions**; `cd eskoofy-php && composer test` → **232 passed, 411 assertions**; `cd eskoofy-website && composer test` → **35 passed, 101 assertions**; `pint --test` clean on all touched files.
 
 ---
 
@@ -92,29 +92,33 @@ Verification baseline (2026-09-10): `cd eskoofy-app && composer test` → **912 
 | 7.7 | Public shortcodes wired | ✅ done | Results lookup: GET form, POST queries student+exam_results with pass/fail display. Fee payment: GET form, POST queries fee_payments showing paid/unpaid/partial status. |
 | 7.8 | All missing module admin pages added | ✅ done | 20 new admin pages: sections, subjects, batches, guardians, expenses, transport (vehicles+routes+assignments), hostels (hostels+rooms), library (books+issue/return), SMS, payroll (structures+payslips+leave+attendance), reports, certificates, admit-cards, id-cards, announcements, testimonials, committee, careers, academic-sessions, users. All with full CRUD via $wpdb, nonce fields, escaping. |
 
-## Phase 8 — eskoofy-website (marketing/branding) — DEFERRED
+## Phase 8 — eskoofy-website (marketing/branding + license server) — COMPLETE
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| 8.1–8.2 | Brief + implementation | ⬜ deferred | Not needed now. Will revisit when core products are ready for launch. |
+| 8.1 | Scope + single-variant decision | ✅ done | ONE English/USD/UTC site (no bd/int split) with a language switcher. I18n via `lang/{en,bn}.php` + `App\Services\I18n` + `GET /language/{locale}`. |
+| 8.2 | Marketing site | ✅ done | Raw PHP stack (eskoofy-php Core), themed pages: home, products (app/theme), pricing, features, about, contact, 404. All strings via `__()`. |
+| 8.3 | License server API | ✅ done | `routes/api.php` `/api/v1`: `ping`, `licenses/{activate,validate,deactivate}` (license-key auth), `licenses/status` (`X-Api-Key`). JSON + CORS; DB-free `ping` tested. |
+| 8.4 | Customer/admin backends | ✅ done | Auth (customers), account area (licenses, activations renew/revoke, payments), admin area (customers, plans, licenses, payments, messages, activities). Manual gateway fulfills instantly; Paddle stub. CSRF enforced on all POST forms; API exempt. |
+| 8.5 | Tests + CI + export | ✅ done | 35 tests / 101 assertions (LicenseManager, gateways, Router, I18n incl. full en↔bn key parity). `ci.yml` `website-test` job + export step (`website int`) + APP_LOCALE=en smoke. `build/export.sh website <any>` always emits int env. |
 
 ---
 
 ## Summary
 
-- ✅ Complete: Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6 (full raw PHP port + tests + CI), Phase 7 (full WP hybrid).
-- ⬜ Deferred: Phase 8 (website — not needed now).
+- ✅ Complete: Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6 (full raw PHP port + tests + CI), Phase 7 (full WP hybrid), Phase 8 (website + license server + i18n).
 
 ## File counts
 
 | Product | Files | Key components |
 |---------|-------|----------------|
 | eskoofy-app (Laravel) | existing | 900+ tests, 95 models, 130+ controllers, 32 services |
-| eskoofy-php (Raw PHP) | 402 | Core (16), Models (78), Controllers (67+11 API), Gateways (9), Views (173), Config (3), Lang (6), Schema (93 tables), Tests (17 files / 206 cases) |
+| eskoofy-php (Raw PHP) | 402 | Core (16), Models (78), Controllers (67+11 API), Gateways (9), Views (173), Config (3), Lang (6), Schema (93 tables), Tests (17 files / 232 cases) |
 | eskoofy-theme (WordPress) | 115+ | Root templates (32), Inc (13), Admin views (67), Languages (5), 64 admin pages, 54+ DB tables, 7 CPTs, REST (11 routes), Shortcodes (10) |
+| eskoofy-website (Raw PHP) | 100+ | Core + Middleware (10), Services (I18n, LicenseManager, ActivityLog), Gateways (Manual/Paddle stub), Models, Site/Auth/Account/Admin/API controllers, 10+ views, `routes/{web,api}.php`, `lang/{en,bn}.php` |
 
 ## Next actions
 
 1. Sandbox E2E for INT gateways (Stripe/PayPal/Paddle with real test creds) in all 3 products.
 2. Design pass on the WP theme when ready.
-3. Phase 8 (marketing website) when ready to launch.
+3. Provision the licensing DB + deploy the website; load real plan/price data into `plans`.

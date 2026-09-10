@@ -67,6 +67,28 @@ jobs:
       - name: Run tests
         run: composer test
 
+  website-test:
+    name: eskoofy-website Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: eskoofy-website
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, json, bcmath
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Run tests
+        run: composer test
+
   theme-lint:
     name: Theme Lint (PHPCS)
     runs-on: ubuntu-latest
@@ -91,7 +113,7 @@ jobs:
   export:
     name: Export Artifacts
     runs-on: ubuntu-latest
-    needs: [test, php-test, theme-lint]
+    needs: [test, php-test, website-test, theme-lint]
     steps:
       - uses: actions/checkout@v4
 
@@ -119,6 +141,9 @@ jobs:
       - name: Export INT php
         run: ./build/export.sh php int
 
+      - name: Export website (English-only licensing site)
+        run: ./build/export.sh website int
+
       - name: Verify BD artifact exists
         run: test -f build/dist/eskoofy-app-bd.zip
 
@@ -136,6 +161,16 @@ jobs:
 
       - name: Verify INT php artifact exists
         run: test -f build/dist/eskoofy-php-int.zip
+
+      - name: Verify website artifact exists
+        run: test -f build/dist/eskoofy-website-int.zip
+
+      - name: Verify website artifact is English-only / int variant
+        run: |
+          if unzip -p build/dist/eskoofy-website-int.zip "eskoofy-website-int/.env" | grep -q "APP_LOCALE=bn"; then
+            echo "error: website artifact is not English-only"
+            exit 1
+          fi
 
       - name: Smoke — INT app has no lang/bn
         run: |
@@ -207,3 +242,9 @@ jobs:
         with:
           name: eskoofy-php-int
           path: build/dist/eskoofy-php-int.zip
+
+      - name: Upload website artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: eskoofy-website-int
+          path: build/dist/eskoofy-website-int.zip
