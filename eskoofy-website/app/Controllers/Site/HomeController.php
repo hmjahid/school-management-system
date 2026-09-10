@@ -14,13 +14,14 @@ class HomeController extends Controller
         $this->view('site.home', [
             'appPlans'    => Plan::activeFor('app'),
             'themePlans'  => Plan::activeFor('theme'),
+            'phpPlans'    => Plan::activeFor('php'),
             'recentPosts' => Post::latest(3),
         ]);
     }
 
     public function product(string $slug): void
     {
-        $products = ['app', 'theme'];
+        $products = ['app', 'theme', 'php'];
         if (!in_array($slug, $products, true)) {
             $this->view('errors.404');
 
@@ -37,6 +38,7 @@ class HomeController extends Controller
         $this->view('site.pricing', [
             'appPlans'   => Plan::activeFor('app'),
             'themePlans' => Plan::activeFor('theme'),
+            'phpPlans'   => Plan::activeFor('php'),
         ]);
     }
 

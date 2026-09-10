@@ -29,7 +29,7 @@
         <h2 class="text-3xl font-bold"><?= __('home.products_heading') ?></h2>
         <p class="text-slate-500 mt-2"><?= __('home.products_sub') ?></p>
     </div>
-    <div class="grid md:grid-cols-2 gap-6">
+    <div class="grid md:grid-cols-3 gap-6">
         <div class="bg-white rounded-2xl p-8 border border-slate-200 esk-card-hover">
             <div class="text-xs text-blue-600 font-semibold uppercase tracking-wide"><?= __('home.products.app_tag') ?></div>
             <h3 class="text-2xl font-bold mt-2"><?= __('home.products.app_name') ?></h3>
@@ -41,6 +41,12 @@
             <h3 class="text-2xl font-bold mt-2"><?= __('home.products.theme_name') ?></h3>
             <p class="text-slate-500 mt-2"><?= __('home.products.theme_desc') ?></p>
             <a href="/products/theme" class="mt-6 inline-block text-blue-600 font-semibold"><?= __('home.products.theme_cta') ?> →</a>
+        </div>
+        <div class="bg-white rounded-2xl p-8 border border-slate-200 esk-card-hover">
+            <div class="text-xs text-blue-600 font-semibold uppercase tracking-wide"><?= __('home.products.php_tag') ?></div>
+            <h3 class="text-2xl font-bold mt-2"><?= __('home.products.php_name') ?></h3>
+            <p class="text-slate-500 mt-2"><?= __('home.products.php_desc') ?></p>
+            <a href="/products/php" class="mt-6 inline-block text-blue-600 font-semibold"><?= __('home.products.php_cta') ?> →</a>
         </div>
     </div>
 </section>

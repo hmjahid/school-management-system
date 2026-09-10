@@ -223,7 +223,8 @@ VALUES (1, 'Eskoofy Admin', 'admin@eskoofy.com', '$2y$12$V0siFMqG1/FSwS/hqKypNOW
 INSERT IGNORE INTO `plans` (`id`, `product`, `name`, `slug`, `description`, `price`, `currency`, `period`, `max_activations`, `features`, `sort_order`, `active`, `created_at`, `updated_at`) VALUES
 (1, 'app',     'Monthly',    'monthly',    'School management app — monthly license', 9.00,  'USD', 'monthly', 3, '["One school", "All modules", "Email support"]', 1, 1, NOW(), NOW()),
 (2, 'app',     'Yearly',     'yearly',     'School management app — yearly license',  90.00, 'USD', 'yearly',  3, '["One school", "All modules", "Priority support"]', 2, 1, NOW(), NOW()),
-(3, 'theme',   'Lifetime',   'lifetime',   'WordPress theme — lifetime license',      59.00, 'USD', 'one-time', 1, '["Unlimited sites", "Lifetime updates", "Support for 1 year"]', 1, 1, NOW(), NOW());
+(3, 'theme',   'Lifetime',   'lifetime',   'WordPress theme — lifetime license',      59.00, 'USD', 'one-time', 1, '["Unlimited sites", "Lifetime updates", "Support for 1 year"]', 1, 1, NOW(), NOW()),
+(4, 'php',     'Lifetime',   'lifetime',   'School management system (raw PHP) — lifetime license', 149.00, 'USD', 'one-time', 1, '["One school", "All modules", "Self-hosted raw PHP", "Shared-hosting ready", "Lifetime updates"]', 1, 1, NOW(), NOW());
 
 -- Blog categories (marketing).
 INSERT IGNORE INTO `post_categories` (`id`, `name`, `slug`, `description`, `sort_order`, `active`, `created_at`, `updated_at`) VALUES

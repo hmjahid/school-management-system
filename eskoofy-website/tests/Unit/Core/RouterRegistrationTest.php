@@ -50,7 +50,7 @@ class RouterRegistrationTest extends TestCase
         foreach (['home', 'pricing', 'features', 'about', 'contact', 'checkout', 'blog', 'post'] as $view) {
             $this->assertFileExists($base . 'site/' . $view . '.php', "Missing site view: {$view}");
         }
-        foreach (['app', 'theme'] as $view) {
+        foreach (['app', 'theme', 'php'] as $view) {
             $this->assertFileExists($base . 'site/products/' . $view . '.php', "Missing product view: {$view}");
         }
         foreach (['login', 'register'] as $view) {

@@ -2,10 +2,12 @@
 
 The Eskoofy **website** is the marketing, sales, and licensing site for the
 Eskoofy school management system. It is **not itself a product** — it markets
-and sells the two deployments:
+and sells the three deployments of the school management system:
 
-- **Eskoofy School App** (`/products/app`)
-- **Eskoofy WP Theme** (`/products/theme`)
+- **Eskoofy School App** (`/products/app`) — Laravel application
+- **Eskoofy WP Theme** (`/products/theme`) — WordPress theme
+- **Eskoofy School System (PHP)** (`/products/php`) — raw PHP rewrite for
+  shared hosting and low-cost VPS
 
 …and operates the license server (JSON API + customer dashboard + admin
 backend). The site is **one codebase, one variant** (always exported as
@@ -47,6 +49,23 @@ and (optionally) seed data:
 cp .env.example .env
 mysql -u root -p eskoofy_website < database/schema.sql
 ```
+
+## Run the dev server
+
+The site is a plain PHP front-controller — no Composer at runtime.
+
+```bash
+# from eskoofy-website/
+php -S 127.0.0.1:8011 -t public
+# or any host/port you like
+php -S localhost:8001 -t public
+```
+
+Then open <http://127.0.0.1:8011/>. Static assets in `public/` (`/sw.js`,
+`/manifest.json`, `/icons/*.png`, `/offline.html`, `/favicon.svg`) are served
+directly; everything else routes to `public/index.php`.
+
+The admin seed user is `admin@eskoofy.com` / `admin123` (change in production).
 
 ### Geo / language env
 
