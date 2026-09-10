@@ -5,6 +5,13 @@ namespace Tests\Integration;
 
 use App\Controllers\Api\ExamController;
 use App\Controllers\Dashboard\AdmitCardController;
+use App\Controllers\Dashboard\AssignmentController;
+use App\Controllers\Dashboard\AttendanceController;
+use App\Controllers\Dashboard\ExamController as DashboardExamController;
+use App\Controllers\Dashboard\ExpenseCategoryController;
+use App\Controllers\Dashboard\LibraryReportController;
+use App\Controllers\Dashboard\PayrollController;
+use App\Controllers\Dashboard\RefundController;
 use App\Controllers\Dashboard\ReportController;
 use App\Controllers\Dashboard\SearchController;
 use App\Controllers\Dashboard\SeatPlanController;
@@ -350,5 +357,107 @@ class FrontControllerTest extends PHPUnitTestCase
         $this->assertStringNotContainsString('teacher_subject', $joined,
             'teacher_subject does not exist in the schema — port uses class_subject_teacher');
         $this->assertStringContainsString('class_subject_teacher', $joined);
+    }
+
+    public function test_attendance_uses_school_class_id_not_class_id(): void
+    {
+        $this->authAs();
+        $this->db->seed('attendances', []);
+        $this->db->seed('students', []);
+        $this->db->seed('users', []);
+        $this->db->seed('school_classes', []);
+
+        $this->invoke(fn () => (new AttendanceController())->index());
+
+        $sqls = array_column($this->db->log, 'sql');
+        $joined = implode("\n", $sqls);
+        $this->assertStringNotContainsString('attendances.class_id', $joined,
+            'attendances schema has school_class_id, not class_id');
+    }
+
+    public function test_assignments_uses_batch_id_due_date_created_by(): void
+    {
+        $this->authAs();
+        $this->db->seed('assignments', []);
+        $this->db->seed('batches', []);
+        $this->db->seed('subjects', []);
+        $this->db->seed('users', []);
+        $this->db->seed('school_classes', []);
+        $this->db->seed('students', []);
+
+        $this->invoke(fn () => (new AssignmentController())->index());
+
+        $sqls = array_column($this->db->log, 'sql');
+        $joined = implode("\n", $sqls);
+        $this->assertStringNotContainsString('a.class_id', $joined,
+            'assignments schema has batch_id, not class_id');
+        $this->assertStringNotContainsString('a.teacher_id', $joined,
+            'assignments schema has created_by, not teacher_id');
+        $this->assertStringNotContainsString('a.deadline', $joined,
+            'assignments schema has due_date, not deadline');
+    }
+
+    public function test_expense_category_uses_expense_category_id(): void
+    {
+        $this->authAs();
+        $this->db->seed('expense_categories', []);
+        $this->db->seed('expenses', []);
+
+        $this->invoke(fn () => (new ExpenseCategoryController())->index());
+
+        $sqls = array_column($this->db->log, 'sql');
+        $joined = implode("\n", $sqls);
+        $this->assertStringNotContainsString('e.category_id', $joined,
+            'expenses schema has expense_category_id, not category_id');
+    }
+
+    public function test_library_report_uses_return_date_not_returned_at(): void
+    {
+        $this->authAs();
+        $this->db->seed('book_issues', []);
+        $this->db->seed('books', []);
+        $this->db->seed('students', []);
+        $this->db->seed('teachers', []);
+        $this->db->seed('users', []);
+
+        $this->invoke(fn () => (new LibraryReportController())->currentlyIssued());
+
+        $sqls = array_column($this->db->log, 'sql');
+        $joined = implode("\n", $sqls);
+        $this->assertStringNotContainsString('returned_at', $joined,
+            'book_issues schema has return_date, not returned_at');
+    }
+
+    public function test_refund_show_uses_user_id_not_student_id(): void
+    {
+        $this->authAs();
+        $this->db->seed('refunds', [
+            ['id' => 1, 'user_id' => 1, 'amount' => 50.0, 'currency' => 'USD', 'status' => 'pending'],
+        ]);
+        $this->db->seed('users', [
+            ['id' => 1, 'name' => 'Test User'],
+        ]);
+
+        $this->invoke(fn () => (new RefundController())->show(1));
+
+        $sqls = array_column($this->db->log, 'sql');
+        $joined = implode("\n", $sqls);
+        $this->assertStringNotContainsString('r.student_id', $joined,
+            'refunds schema has user_id, not student_id');
+    }
+
+    public function test_payroll_salary_structures_uses_teacher_id(): void
+    {
+        $this->authAs();
+        $this->db->seed('salary_structures', []);
+        $this->db->seed('teachers', []);
+        $this->db->seed('users', []);
+
+        $this->invoke(fn () => (new PayrollController())->salaryStructures());
+
+        $sqls = array_column($this->db->log, 'sql');
+        $joined = implode("\n", $sqls);
+        $this->assertStringNotContainsString('ss.user_id', $joined,
+            'salary_structures schema has teacher_id, not user_id');
     }
 }
