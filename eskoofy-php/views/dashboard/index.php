@@ -185,4 +185,4 @@
 </div>
 
 <?php $content = ob_get_clean(); ?>
-<?php include __DIR__ . '/../layouts/dashboard.php'; ?>
+<?php include __DIR__ . '/../../layouts/dashboard.php'; ?>

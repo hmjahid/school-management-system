@@ -31,7 +31,7 @@ class AttendanceController extends Controller
         $params = [$date];
 
         if ($classId > 0) {
-            $where .= ' AND a.class_id = ?';
+            $where .= ' AND a.school_class_id = ?';
             $params[] = $classId;
         }
         if ($sectionId > 0) {
@@ -108,7 +108,7 @@ class AttendanceController extends Controller
         $existing = [];
         if ($classId > 0) {
             $existingRows = $this->db->fetchAll(
-                "SELECT * FROM attendances WHERE date = ? AND class_id = ?" .
+                "SELECT * FROM attendances WHERE date = ? AND school_class_id = ?" .
                 ($sectionId > 0 ? ' AND section_id = ?' : ''),
                 $sectionId > 0 ? [$date, $classId, $sectionId] : [$date, $classId]
             );
@@ -172,7 +172,7 @@ class AttendanceController extends Controller
                     'date'       => $date,
                     'type'       => 'daily',
                     'status'     => $status,
-                    'class_id'   => $classId,
+                    'school_class_id' => $classId,
                     'section_id' => $sectionId,
                     'remarks'    => $remarks[$studentId] ?? null,
                     'recorded_by'=> $userId,

@@ -29,7 +29,7 @@ class AssignmentController extends Controller
         $where = '1=1';
         $params = [];
         if ($classId > 0) {
-            $where .= ' AND a.class_id = ?';
+            $where .= ' AND a.batch_id = ?';
             $params[] = $classId;
         }
         if ($subjectId > 0) {
@@ -42,14 +42,13 @@ class AssignmentController extends Controller
         )['cnt'] ?? 0);
 
         $rows = $this->db->fetchAll(
-            "SELECT a.*, c.name as class_name, sub.name as subject_name, t.name as teacher_name
+            "SELECT a.*, b.name as class_name, sub.name as subject_name, t.name as teacher_name
              FROM assignments a
-             LEFT JOIN school_classes c ON a.class_id = c.id
+             LEFT JOIN batches b ON a.batch_id = b.id
              LEFT JOIN subjects sub ON a.subject_id = sub.id
-             LEFT JOIN teachers te ON a.teacher_id = te.id
-             LEFT JOIN users t ON te.user_id = t.id
+             LEFT JOIN users t ON a.created_by = t.id
              WHERE {$where}
-             ORDER BY a.deadline DESC
+             ORDER BY a.due_date DESC
              LIMIT {$perPage} OFFSET {$offset}",
             $params
         );
@@ -95,22 +94,14 @@ class AssignmentController extends Controller
             'max_marks'   => 'numeric',
         ]);
 
-        $teacherId = null;
-        $userId = Auth::id();
-        $teacher = $this->db->fetch("SELECT id FROM teachers WHERE user_id = ? LIMIT 1", [$userId]);
-        if ($teacher) {
-            $teacherId = $teacher['id'];
-        }
-
         $this->db->insert('assignments', [
             'title'       => $data['title'],
             'description' => $data['description'] ?? null,
-            'class_id'    => $data['class_id'],
+            'batch_id'    => $data['class_id'],
             'subject_id'  => $data['subject_id'],
-            'teacher_id'  => $teacherId,
-            'deadline'    => $data['deadline'],
-            'max_marks'   => $data['max_marks'] ?? null,
-            'created_by'  => $userId,
+            'due_date'    => $data['deadline'],
+            'total_marks' => $data['max_marks'] ?? null,
+            'created_by'  => Auth::id(),
             'created_at'  => date('Y-m-d H:i:s'),
             'updated_at'  => date('Y-m-d H:i:s'),
         ]);
@@ -123,12 +114,11 @@ class AssignmentController extends Controller
     {
         Auth::requireAuth();
         $assignment = $this->db->fetch(
-            "SELECT a.*, c.name as class_name, sub.name as subject_name, t.name as teacher_name
+            "SELECT a.*, b.name as class_name, sub.name as subject_name, t.name as teacher_name
              FROM assignments a
-             LEFT JOIN school_classes c ON a.class_id = c.id
+             LEFT JOIN batches b ON a.batch_id = b.id
              LEFT JOIN subjects sub ON a.subject_id = sub.id
-             LEFT JOIN teachers te ON a.teacher_id = te.id
-             LEFT JOIN users t ON te.user_id = t.id
+             LEFT JOIN users t ON a.created_by = t.id
              WHERE a.id = ? LIMIT 1",
             [$id]
         );

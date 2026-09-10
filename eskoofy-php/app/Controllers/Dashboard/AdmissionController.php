@@ -82,9 +82,8 @@ class AdmissionController extends Controller
     {
         Auth::requireAuth();
         $admission = $this->db->fetch(
-            "SELECT a.*, c.name as class_name, b.name as batch_name, s.name as session_name
+            "SELECT a.*, b.name as batch_name, s.name as session_name
              FROM admissions a
-             LEFT JOIN school_classes c ON a.class_id = c.id
              LEFT JOIN batches b ON a.batch_id = b.id
              LEFT JOIN academic_sessions s ON a.academic_session_id = s.id
              WHERE a.id = ? LIMIT 1",

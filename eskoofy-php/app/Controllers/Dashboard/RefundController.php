@@ -63,10 +63,9 @@ class RefundController extends Controller
     {
         Auth::requireAuth();
         $refund = $this->db->fetch(
-            "SELECT r.*, u.name as student_name, s.admission_number, u2.name as processed_by_name
+            "SELECT r.*, u.name as requester_name, u2.name as processed_by_name
              FROM refunds r
-             LEFT JOIN students s ON r.student_id = s.id
-             LEFT JOIN users u ON s.user_id = u.id
+             LEFT JOIN users u ON r.user_id = u.id
              LEFT JOIN users u2 ON r.processed_by = u2.id
              WHERE r.id = ? LIMIT 1",
             [$id]

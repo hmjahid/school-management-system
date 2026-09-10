@@ -173,10 +173,9 @@ class TeacherController extends Controller
         );
 
         $assignedClasses = $this->db->fetchAll(
-            "SELECT c.name as class_name, sec.name as section_name, sub.name as subject_name
+            "SELECT c.name as class_name, sub.name as subject_name
              FROM class_subject_teacher cst
              LEFT JOIN school_classes c ON cst.class_id = c.id
-             LEFT JOIN sections sec ON cst.section_id = sec.id
              LEFT JOIN subjects sub ON cst.subject_id = sub.id
              WHERE cst.teacher_id = ?",
             [$id]

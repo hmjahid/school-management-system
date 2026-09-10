@@ -22,8 +22,8 @@ class ExpenseCategoryController extends Controller
         Auth::requireAuth();
         $rows = $this->db->fetchAll(
             "SELECT ec.*,
-                (SELECT COUNT(*) FROM expenses e WHERE e.category_id = ec.id) as expense_count,
-                (SELECT COALESCE(SUM(e.amount), 0) FROM expenses e WHERE e.category_id = ec.id) as total_amount
+                (SELECT COUNT(*) FROM expenses e WHERE e.expense_category_id = ec.id) as expense_count,
+                (SELECT COALESCE(SUM(e.amount), 0) FROM expenses e WHERE e.expense_category_id = ec.id) as total_amount
              FROM expense_categories ec
              ORDER BY ec.name ASC"
         );

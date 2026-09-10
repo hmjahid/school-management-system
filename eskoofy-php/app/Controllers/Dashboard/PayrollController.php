@@ -23,7 +23,8 @@ class PayrollController extends Controller
         $rows = $this->db->fetchAll(
             "SELECT ss.*, u.name as employee_name, u.designation
              FROM salary_structures ss
-             LEFT JOIN users u ON ss.user_id = u.id
+             LEFT JOIN teachers t ON ss.teacher_id = t.id
+             LEFT JOIN users u ON t.user_id = u.id
              ORDER BY u.name ASC"
         );
 
@@ -34,7 +35,7 @@ class PayrollController extends Controller
     {
         Auth::requireAuth();
         $data = $this->validate([
-            'user_id'    => 'required|numeric',
+            'teacher_id'  => 'required|numeric',
             'basic'      => 'required|numeric',
             'house_rent' => 'numeric',
             'medical'    => 'numeric',
@@ -44,30 +45,37 @@ class PayrollController extends Controller
             'effective_from' => 'required',
         ]);
 
+        // Form posts allowance/deduction sub-fields; the schema stores them
+        // as JSON in `allowances` / `deductions` longtext columns.
+        $allowances = json_encode(array_filter([
+            'house_rent' => (float) ($data['house_rent'] ?? 0),
+            'medical'    => (float) ($data['medical'] ?? 0),
+            'transport'  => (float) ($data['transport'] ?? 0),
+            'other'      => (float) ($data['other'] ?? 0),
+        ]));
+        $deductions = json_encode(array_filter([
+            'total'      => (float) ($data['deductions'] ?? 0),
+        ]));
+
         $existing = $this->db->fetch(
-            "SELECT id FROM salary_structures WHERE user_id = ? AND effective_from = ? LIMIT 1",
-            [$data['user_id'], $data['effective_from']]
+            "SELECT id FROM salary_structures WHERE teacher_id = ? AND effective_from = ? LIMIT 1",
+            [$data['teacher_id'], $data['effective_from']]
         );
         if ($existing) {
             $this->db->update('salary_structures', [
                 'basic'      => $data['basic'],
-                'house_rent' => $data['house_rent'] ?? 0,
-                'medical'    => $data['medical'] ?? 0,
-                'transport'  => $data['transport'] ?? 0,
-                'other'      => $data['other'] ?? 0,
-                'deductions' => $data['deductions'] ?? 0,
+                'allowances' => $allowances,
+                'deductions' => $deductions,
                 'updated_at' => date('Y-m-d H:i:s'),
             ], 'id = ?', [$existing['id']]);
         } else {
             $this->db->insert('salary_structures', [
-                'user_id'        => $data['user_id'],
+                'teacher_id'     => $data['teacher_id'],
                 'basic'          => $data['basic'],
-                'house_rent'     => $data['house_rent'] ?? 0,
-                'medical'        => $data['medical'] ?? 0,
-                'transport'      => $data['transport'] ?? 0,
-                'other'          => $data['other'] ?? 0,
-                'deductions'     => $data['deductions'] ?? 0,
+                'allowances'     => $allowances,
+                'deductions'     => $deductions,
                 'effective_from' => $data['effective_from'],
+                'is_active'      => 1,
                 'created_at'     => date('Y-m-d H:i:s'),
                 'updated_at'     => date('Y-m-d H:i:s'),
             ]);
@@ -84,7 +92,8 @@ class PayrollController extends Controller
         $rows = $this->db->fetchAll(
             "SELECT p.*, u.name as employee_name, u.designation
              FROM payslips p
-             LEFT JOIN users u ON p.user_id = u.id
+             LEFT JOIN teachers t ON p.teacher_id = t.id
+             LEFT JOIN users u ON t.user_id = u.id
              WHERE p.month = ?
              ORDER BY u.name ASC",
             [$month]
@@ -100,43 +109,47 @@ class PayrollController extends Controller
     {
         Auth::requireAuth();
         $data = $this->validate([
-            'user_id'  => 'required|numeric',
-            'month'    => 'required|max:7',
-            'basic'    => 'required|numeric',
-            'allowances' => 'numeric',
-            'deductions' => 'numeric',
-            'status'   => 'required|max:20',
+            'teacher_id' => 'required|numeric',
+            'month'      => 'required|max:7',
+            'basic'      => 'required|numeric',
+            'total_allowances' => 'numeric',
+            'total_deductions' => 'numeric',
+            'status'     => 'required|max:20',
         ]);
 
+        // Form posts month as "YYYY-MM"; the schema splits it into month+year.
+        [$year, $month] = explode('-', $data['month']) + [null, null];
+
         $existing = $this->db->fetch(
-            "SELECT id FROM payslips WHERE user_id = ? AND month = ? LIMIT 1",
-            [$data['user_id'], $data['month']]
+            "SELECT id FROM payslips WHERE teacher_id = ? AND month = ? AND year = ? LIMIT 1",
+            [$data['teacher_id'], (int) $month, (int) $year]
         );
 
         $total = (float) $data['basic']
-            + (float) ($data['allowances'] ?? 0)
-            - (float) ($data['deductions'] ?? 0);
+            + (float) ($data['total_allowances'] ?? 0)
+            - (float) ($data['total_deductions'] ?? 0);
 
         if ($existing) {
             $this->db->update('payslips', [
-                'basic'      => $data['basic'],
-                'allowances' => $data['allowances'] ?? 0,
-                'deductions' => $data['deductions'] ?? 0,
-                'total'      => $total,
-                'status'     => $data['status'],
-                'updated_at' => date('Y-m-d H:i:s'),
+                'basic'             => $data['basic'],
+                'total_allowances'  => $data['total_allowances'] ?? 0,
+                'total_deductions'  => $data['total_deductions'] ?? 0,
+                'net_salary'        => $total,
+                'status'            => $data['status'],
+                'updated_at'        => date('Y-m-d H:i:s'),
             ], 'id = ?', [$existing['id']]);
         } else {
             $this->db->insert('payslips', [
-                'user_id'     => $data['user_id'],
-                'month'       => $data['month'],
-                'basic'       => $data['basic'],
-                'allowances'  => $data['allowances'] ?? 0,
-                'deductions'  => $data['deductions'] ?? 0,
-                'total'       => $total,
-                'status'      => $data['status'],
-                'created_at'  => date('Y-m-d H:i:s'),
-                'updated_at'  => date('Y-m-d H:i:s'),
+                'teacher_id'        => $data['teacher_id'],
+                'month'             => (int) $month,
+                'year'              => (int) $year,
+                'basic'             => $data['basic'],
+                'total_allowances'  => $data['total_allowances'] ?? 0,
+                'total_deductions'  => $data['total_deductions'] ?? 0,
+                'net_salary'        => $total,
+                'status'            => $data['status'],
+                'created_at'        => date('Y-m-d H:i:s'),
+                'updated_at'        => date('Y-m-d H:i:s'),
             ]);
         }
 
@@ -150,7 +163,8 @@ class PayrollController extends Controller
         $rows = $this->db->fetchAll(
             "SELECT lr.*, u.name as employee_name, u.designation
              FROM leave_requests lr
-             LEFT JOIN users u ON lr.user_id = u.id
+             LEFT JOIN teachers t ON lr.teacher_id = t.id
+             LEFT JOIN users u ON t.user_id = u.id
              ORDER BY lr.created_at DESC"
         );
 
@@ -189,7 +203,8 @@ class PayrollController extends Controller
         $rows = $this->db->fetchAll(
             "SELECT sa.*, u.name as employee_name, u.designation
              FROM staff_attendances sa
-             LEFT JOIN users u ON sa.user_id = u.id
+             LEFT JOIN teachers t ON sa.teacher_id = t.id
+             LEFT JOIN users u ON t.user_id = u.id
              WHERE sa.date = ?
              ORDER BY u.name ASC",
             [$date]
@@ -217,33 +232,33 @@ class PayrollController extends Controller
         }
 
         foreach ($users as $entry) {
-            if (empty($entry['user_id'])) continue;
-            $userId = (int) $entry['user_id'];
+            if (empty($entry['teacher_id'])) continue;
+            $teacherId = (int) $entry['teacher_id'];
             $status = $entry['status'] ?? 'absent';
             $checkIn = $entry['check_in'] ?? null;
             $checkOut = $entry['check_out'] ?? null;
             $note = $entry['note'] ?? null;
 
             $existing = $this->db->fetch(
-                "SELECT id FROM staff_attendances WHERE user_id = ? AND date = ? LIMIT 1",
-                [$userId, $data['date']]
+                "SELECT id FROM staff_attendances WHERE teacher_id = ? AND date = ? LIMIT 1",
+                [$teacherId, $data['date']]
             );
 
             if ($existing) {
                 $this->db->update('staff_attendances', [
                     'status'    => $status,
-                    'check_in'  => $checkIn,
-                    'check_out' => $checkOut,
+                    'check_in_at'  => $checkIn,
+                    'check_out_at' => $checkOut,
                     'note'      => $note,
                     'updated_at' => date('Y-m-d H:i:s'),
                 ], 'id = ?', [$existing['id']]);
             } else {
                 $this->db->insert('staff_attendances', [
-                    'user_id'    => $userId,
+                    'teacher_id'    => $teacherId,
                     'date'       => $data['date'],
                     'status'     => $status,
-                    'check_in'   => $checkIn,
-                    'check_out'  => $checkOut,
+                    'check_in_at'   => $checkIn,
+                    'check_out_at'  => $checkOut,
                     'note'       => $note,
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),

@@ -557,6 +557,7 @@ CREATE TABLE IF NOT EXISTS `exam_results` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `exam_id` BIGINT UNSIGNED NOT NULL,
   `student_id` BIGINT UNSIGNED NOT NULL,
+  `subject_id` BIGINT UNSIGNED NULL,
   `total_marks` DECIMAL(8,2) NULL,
   `obtained_marks` DECIMAL(8,2) NOT NULL DEFAULT 0.00,
   `grade` VARCHAR(10) NULL,

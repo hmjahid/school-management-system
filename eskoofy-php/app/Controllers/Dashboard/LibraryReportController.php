@@ -21,11 +21,13 @@ class LibraryReportController extends Controller
         $db = Database::getInstance();
 
         $rows = $db->fetchAll(
-            "SELECT bi.*, b.title, b.author, u.name as borrower
+            "SELECT bi.*, b.title, b.author,
+                    COALESCE(s.name, t.name) as borrower
              FROM book_issues bi
              LEFT JOIN books b ON bi.book_id = b.id
-             LEFT JOIN users u ON bi.user_id = u.id
-             WHERE bi.returned_at IS NULL
+             LEFT JOIN students s ON bi.student_id = s.id
+             LEFT JOIN teachers t ON bi.teacher_id = t.id
+             WHERE bi.return_date IS NULL
              ORDER BY bi.issue_date DESC LIMIT 200"
         );
 
@@ -38,12 +40,14 @@ class LibraryReportController extends Controller
         $db = Database::getInstance();
 
         $rows = $db->fetchAll(
-            "SELECT bi.*, b.title, b.author, u.name as borrower,
+            "SELECT bi.*, b.title, b.author,
+                    COALESCE(s.name, t.name) as borrower,
                     DATEDIFF(CURRENT_DATE, bi.due_date) as days_overdue
              FROM book_issues bi
              LEFT JOIN books b ON bi.book_id = b.id
-             LEFT JOIN users u ON bi.user_id = u.id
-             WHERE bi.returned_at IS NULL AND bi.due_date < CURRENT_DATE
+             LEFT JOIN students s ON bi.student_id = s.id
+             LEFT JOIN teachers t ON bi.teacher_id = t.id
+             WHERE bi.return_date IS NULL AND bi.due_date < CURRENT_DATE
              ORDER BY bi.due_date ASC LIMIT 200"
         );
 
@@ -56,10 +60,12 @@ class LibraryReportController extends Controller
         $db = Database::getInstance();
 
         $rows = $db->fetchAll(
-            "SELECT bi.*, b.title, b.author, u.name as borrower
+            "SELECT bi.*, b.title, b.author,
+                    COALESCE(s.name, t.name) as borrower
              FROM book_issues bi
              LEFT JOIN books b ON bi.book_id = b.id
-             LEFT JOIN users u ON bi.user_id = u.id
+             LEFT JOIN students s ON bi.student_id = s.id
+             LEFT JOIN teachers t ON bi.teacher_id = t.id
              ORDER BY bi.issue_date DESC LIMIT 200"
         );
 
