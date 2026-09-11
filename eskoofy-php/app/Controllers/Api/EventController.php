@@ -14,14 +14,14 @@ class EventController extends Controller
         $limit = min(50, max(1, (int) ($_GET['limit'] ?? 10)));
         $upcoming = ($_GET['upcoming'] ?? '1') === '1';
 
-        $where = $upcoming ? 'e.event_date >= ?' : '1=1';
+        $where = $upcoming ? 'e.start_date >= ?' : '1=1';
         $params = $upcoming ? [date('Y-m-d')] : [];
 
         $rows = $db->fetchAll(
-            "SELECT e.id, e.title, e.description, e.event_date, e.location, e.created_at
+            "SELECT e.id, e.title, e.description, e.start_date, e.location, e.created_at
              FROM events e
              WHERE {$where}
-             ORDER BY e.event_date ASC
+             ORDER BY e.start_date ASC
              LIMIT {$limit}",
             $params
         );

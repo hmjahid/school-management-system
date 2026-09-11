@@ -26,6 +26,22 @@ class RouterTest extends TestCase
         $this->assertTrue($called);
     }
 
+    public function test_route_param_name_must_match_controller_signature(): void
+    {
+        // Regression: /dashboard/seat-plans/{id}/generate crashed with
+        // "Unknown named parameter $id" because the route declared {id}
+        // while SeatPlanController::generate(int $examId) / 
+        // ProgressReportController::generate(int $studentId) used a
+        // different name. Router dispatches params by name, so the route
+        // parameter must equal the action's parameter name.
+        $received = null;
+        $this->router->get('/progress-reports/{studentId}/generate', function (int $studentId) use (&$received) {
+            $received = $studentId;
+        });
+        $this->router->dispatch('GET', '/progress-reports/7/generate');
+        $this->assertSame(7, $received);
+    }
+
     public function test_closure_route_post(): void
     {
         $called = false;

@@ -6,12 +6,13 @@ namespace App\Controllers\Dashboard;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Database;
+use App\Core\DatabaseInterface;
 use App\Core\Session;
 use App\Services\Sms\SmsManager;
 
 class SmsController extends Controller
 {
-    private Database $db;
+    private DatabaseInterface $db;
 
     private SmsManager $sms;
 

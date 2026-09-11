@@ -413,11 +413,11 @@ $router->group('/dashboard', function (Router $r) {
 
     // Progress Reports
     $r->get('/progress-reports', 'App\\Controllers\\Dashboard\\ProgressReportController', 'index');
-    $r->get('/progress-reports/{id}/generate', 'App\\Controllers\\Dashboard\\ProgressReportController', 'generate');
+    $r->get('/progress-reports/{studentId}/generate', 'App\\Controllers\\Dashboard\\ProgressReportController', 'generate');
 
     // Seat Plans
     $r->get('/seat-plans', 'App\\Controllers\\Dashboard\\SeatPlanController', 'index');
-    $r->get('/seat-plans/{id}/generate', 'App\\Controllers\\Dashboard\\SeatPlanController', 'generate');
+    $r->get('/seat-plans/{examId}/generate', 'App\\Controllers\\Dashboard\\SeatPlanController', 'generate');
 
     // Library Reports
     $r->get('/library-reports', 'App\\Controllers\\Dashboard\\LibraryReportController', 'index');

@@ -11,10 +11,12 @@ use App\Controllers\Dashboard\ExamController as DashboardExamController;
 use App\Controllers\Dashboard\ExpenseCategoryController;
 use App\Controllers\Dashboard\LibraryReportController;
 use App\Controllers\Dashboard\PayrollController;
+use App\Controllers\Dashboard\ProgressReportController;
 use App\Controllers\Dashboard\RefundController;
 use App\Controllers\Dashboard\ReportController;
 use App\Controllers\Dashboard\SearchController;
 use App\Controllers\Dashboard\SeatPlanController;
+use App\Controllers\Dashboard\StudentController;
 use App\Controllers\Dashboard\TeacherController;
 use App\Controllers\HomeController;
 use App\Controllers\SiteController;
@@ -315,6 +317,92 @@ class FrontControllerTest extends PHPUnitTestCase
         foreach ($examsQueries as $sql) {
             $this->assertStringNotContainsString('exam_date', $sql);
         }
+    }
+
+    public function test_seat_plan_generate_uses_start_date_for_found_exam(): void
+    {
+        $this->authAs();
+        $this->db->seed('exams', [
+            ['id' => 1, 'name' => 'Mid', 'is_published' => 1, 'start_date' => '2026-06-01 09:00:00'],
+        ]);
+        $this->db->seed('students', []);
+        $this->db->seed('users', []);
+        $this->db->seed('school_classes', []);
+        $this->db->seed('sections', []);
+
+        $this->invoke(fn () => (new SeatPlanController())->generate(1));
+
+        $sqls = array_column($this->db->log, 'sql');
+        $examsQueries = array_filter($sqls, fn ($s) => str_contains($s, 'FROM exams'));
+        $this->assertNotEmpty($examsQueries);
+        foreach ($examsQueries as $sql) {
+            $this->assertStringNotContainsString('exam_date', $sql,
+                'seat-plans generate must read exams.start_date');
+        }
+    }
+
+    public function test_student_fees_uses_paid_amount_not_amount_paid(): void
+    {
+        $this->authAs();
+        $this->db->seed('students', [
+            ['id' => 1, 'admission_number' => 'A1', 'user_id' => 1, 'class_id' => 1, 'status' => 'active'],
+        ]);
+        $this->db->seed('users', [
+            ['id' => 1, 'name' => 'Pupil', 'email' => 'p@x.com'],
+        ]);
+        $this->db->seed('school_classes', [
+            ['id' => 1, 'name' => 'Class 1'],
+        ]);
+        $this->db->seed('fees', [
+            ['id' => 1, 'name' => 'Tuition', 'class_id' => 1],
+        ]);
+        $this->db->seed('fee_payments', [
+            ['id' => 1, 'student_id' => 1, 'fee_id' => 1, 'paid_amount' => 500, 'balance' => 0, 'status' => 'paid'],
+        ]);
+
+        $this->invoke(fn () => (new StudentController())->fees(1));
+
+        $joined = implode("\n", array_column($this->db->log, 'sql'));
+        $this->assertStringNotContainsString('amount_paid', $joined,
+            'fee_payments schema has paid_amount, not amount_paid');
+        $this->assertStringContainsString('paid_amount', $joined);
+    }
+
+    public function test_progress_report_generate_uses_subject_id_and_attendance_rate(): void
+    {
+        $this->authAs();
+        $this->db->seed('students', [
+            ['id' => 1, 'admission_number' => 'A1', 'user_id' => 1, 'class_id' => 1, 'section_id' => 1, 'status' => 'active'],
+        ]);
+        $this->db->seed('users', [
+            ['id' => 1, 'name' => 'Pupil', 'email' => 'p@x.com'],
+        ]);
+        $this->db->seed('school_classes', [
+            ['id' => 1, 'name' => 'Class 1'],
+        ]);
+        $this->db->seed('sections', [
+            ['id' => 1, 'name' => 'A'],
+        ]);
+        $this->db->seed('exams', [
+            ['id' => 1, 'name' => 'Mid', 'start_date' => '2026-06-01 09:00:00'],
+        ]);
+        $this->db->seed('subjects', [
+            ['id' => 1, 'name' => 'Math'],
+        ]);
+        $this->db->seed('exam_results', [
+            ['id' => 1, 'student_id' => 1, 'exam_id' => 1, 'subject_id' => 1, 'marks' => 85],
+        ]);
+        $this->db->seed('attendances', [
+            ['id' => 1, 'student_id' => 1, 'status' => 'present'],
+        ]);
+
+        $this->invoke(fn () => (new ProgressReportController())->generate(1));
+
+        $sqls = implode("\n", array_column($this->db->log, 'sql'));
+        $this->assertStringContainsString('er.subject_id', $sqls,
+            'exam_results uses subject_id in the port schema');
+        $this->assertStringContainsString('attendances', $sqls,
+            'progress report must query attendances for the attendance rate');
     }
 
     public function test_search_uses_start_date(): void

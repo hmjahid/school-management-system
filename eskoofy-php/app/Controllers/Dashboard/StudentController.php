@@ -6,11 +6,12 @@ namespace App\Controllers\Dashboard;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Database;
+use App\Core\DatabaseInterface;
 use App\Core\Session;
 
 class StudentController extends Controller
 {
-    private Database $db;
+    private DatabaseInterface $db;
 
     public function __construct()
     {
@@ -403,7 +404,7 @@ class StudentController extends Controller
         )['total'] ?? 0);
 
         $totalPaid = (float) ($this->db->fetch(
-            "SELECT COALESCE(SUM(amount_paid), 0) as total FROM fee_payments WHERE student_id = ? AND status = 'paid'",
+            "SELECT COALESCE(SUM(paid_amount), 0) as total FROM fee_payments WHERE student_id = ? AND status = 'paid'",
             [$id]
         )['total'] ?? 0);
 

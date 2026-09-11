@@ -6,11 +6,12 @@ namespace App\Controllers\Dashboard;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Database;
+use App\Core\DatabaseInterface;
 use App\Core\Session;
 
 class BulkController extends Controller
 {
-    private Database $db;
+    private DatabaseInterface $db;
 
     private array $resources = [
         'students' => ['label' => 'Students', 'columns' => ['admission_number', 'name', 'class', 'roll']],

@@ -6,12 +6,13 @@ namespace App\Controllers\Dashboard;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Database;
+use App\Core\DatabaseInterface;
 use App\Core\Session;
 use App\Gateways\GatewayFactory;
 
 class PaymentController extends Controller
 {
-    private Database $db;
+    private DatabaseInterface $db;
 
     public function __construct()
     {

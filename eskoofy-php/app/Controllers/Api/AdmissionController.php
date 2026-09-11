@@ -5,10 +5,11 @@ namespace App\Controllers\Api;
 
 use App\Core\Controller;
 use App\Core\Database;
+use App\Core\DatabaseInterface;
 
 class AdmissionController extends Controller
 {
-    private Database $db;
+    private DatabaseInterface $db;
 
     public function __construct()
     {
