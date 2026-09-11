@@ -139,4 +139,117 @@ class TransportController extends Controller
         Session::getInstance()->flash('success', 'Assignment created; transport fee applied.');
         $this->redirect('/dashboard/transport-assignments');
     }
+
+    public function destroyAssignment(int $id): void
+    {
+        Auth::requireAuth();
+        $this->db->delete('transport_assignments', 'id = ?', [$id]);
+        Session::getInstance()->flash('success', 'Assignment removed.');
+        $this->redirect('/dashboard/transport-assignments');
+    }
+
+    public function editRoute(int $id): void
+    {
+        Auth::requireAuth();
+        $route = $this->db->fetch(
+            "SELECT tr.*, v.number as vehicle_number FROM transport_routes tr
+             LEFT JOIN vehicles v ON tr.vehicle_id = v.id WHERE tr.id = ? LIMIT 1",
+            [$id]
+        );
+        if (!$route) {
+            Session::getInstance()->flash('error', 'Route not found.');
+            $this->redirect('/dashboard/transport-routes');
+            return;
+        }
+        $stops = $this->db->fetchAll(
+            "SELECT * FROM transport_stops WHERE route_id = ? ORDER BY sort ASC, id ASC", [$id]
+        );
+        $vehicles = $this->db->fetchAll(
+            "SELECT id, number FROM vehicles WHERE is_active = 1 ORDER BY number ASC"
+        );
+
+        $this->view('dashboard.transport.route_edit', [
+            'route'    => $route,
+            'stops'    => $stops,
+            'vehicles' => $vehicles,
+        ]);
+    }
+
+    public function updateRoute(int $id): void
+    {
+        Auth::requireAuth();
+        $route = $this->db->fetch("SELECT * FROM transport_routes WHERE id = ? LIMIT 1", [$id]);
+        if (!$route) {
+            Session::getInstance()->flash('error', 'Route not found.');
+            $this->redirect('/dashboard/transport-routes');
+            return;
+        }
+
+        $data = $this->validate([
+            'name'       => 'required|max:191',
+            'code'       => 'required|max:32',
+            'fare'       => 'required|numeric',
+            'vehicle_id' => 'numeric',
+            'is_active'  => 'numeric',
+        ]);
+
+        $this->db->update('transport_routes', [
+            'name'       => $data['name'],
+            'code'       => $data['code'],
+            'fare'       => $data['fare'],
+            'vehicle_id' => $data['vehicle_id'] ?? null,
+            'is_active'  => $data['is_active'] ?? 1,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ], 'id = ?', [$id]);
+
+        // Inline stops sync.
+        $kept = [];
+        $stops = $_POST['stops'] ?? [];
+        $sort = 0;
+        foreach ($stops as $stop) {
+            if (empty($stop['name'])) {
+                continue;
+            }
+            $pickup = !empty($stop['pickup_time']) ? $stop['pickup_time'] : null;
+            $drop = !empty($stop['drop_time']) ? $stop['drop_time'] : null;
+            $stopId = !empty($stop['id']) ? (int) $stop['id'] : 0;
+            $sort++;
+            if ($stopId > 0) {
+                $this->db->update('transport_stops', [
+                    'name'       => $stop['name'],
+                    'pickup_time'=> $pickup,
+                    'drop_time'  => $drop,
+                    'sort'       => $sort,
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ], 'id = ?', [$stopId]);
+                $kept[] = $stopId;
+            } else {
+                $kept[] = $this->db->insert('transport_stops', [
+                    'route_id'    => $id,
+                    'name'        => $stop['name'],
+                    'pickup_time' => $pickup,
+                    'drop_time'   => $drop,
+                    'sort'        => $sort,
+                    'created_at'  => date('Y-m-d H:i:s'),
+                    'updated_at'  => date('Y-m-d H:i:s'),
+                ]);
+            }
+        }
+        if (!empty($kept)) {
+            $in = implode(',', array_map('intval', $kept));
+            $this->db->delete('transport_stops', "route_id = ? AND id NOT IN ({$in})", [$id]);
+        }
+
+        Session::getInstance()->flash('success', 'Route updated.');
+        $this->redirect('/dashboard/transport-routes');
+    }
+
+    public function destroyRoute(int $id): void
+    {
+        Auth::requireAuth();
+        $this->db->delete('transport_stops', 'route_id = ?', [$id]);
+        $this->db->delete('transport_routes', 'id = ?', [$id]);
+        Session::getInstance()->flash('success', 'Route removed.');
+        $this->redirect('/dashboard/transport-routes');
+    }
 }

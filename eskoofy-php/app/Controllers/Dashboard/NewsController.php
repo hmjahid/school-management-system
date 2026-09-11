@@ -102,18 +102,21 @@ class NewsController extends Controller
             $imagePath = 'uploads/news/' . $filename;
         }
 
+        $isPublished = isset($data['status']) && $data['status'] === 'published' ? 1 : (!empty($_POST['is_published']) ? 1 : 0);
+        $publishedAt = $isPublished ? ($data['published_at'] ?: date('Y-m-d H:i:s')) : null;
+
         $this->db->insert('news', [
             'title'          => $data['title'],
             'slug'           => $data['slug'],
             'content'        => $data['content'],
             'image_url'      => $imagePath,
             'category'       => $data['category'] ?? null,
-            'is_published'   => ($data['status'] ?? 'draft') === 'published' ? 1 : 0,
-            'is_event'       => $data['is_event'] ?? 0,
-            'published_at'   => $data['published_at'] ?? null,
+            'is_published'   => $isPublished,
+            'is_event'       => !empty($_POST['is_event']) ? 1 : ($data['is_event'] ?? 0),
+            'published_at'   => $publishedAt,
             'event_date'     => $data['event_date'] ?? null,
             'event_location' => $data['event_location'] ?? null,
-            'author_name'    => Auth::user()['name'] ?? 'Admin',
+            'author_name'    => $data['author_name'] ?? (Auth::user()['name'] ?? 'Admin'),
             'created_at'     => date('Y-m-d H:i:s'),
             'updated_at'     => date('Y-m-d H:i:s'),
         ]);
@@ -177,11 +180,59 @@ class NewsController extends Controller
         $this->redirect('/dashboard/news');
     }
 
-    public function destroy(int $id): void
+public function destroy(int $id): void
     {
         Auth::requireAuth();
         $this->db->delete('news', 'id = ?', [$id]);
-        Session::getInstance()->flash('success', 'News article deleted.');
+        Session::getInstance()->flash('success', 'News deleted.');
         $this->redirect('/dashboard/news');
+    }
+
+    public function create(): void
+    {
+        Auth::requireAuth();
+        $this->view('dashboard.news.create');
+    }
+
+    public function edit(int $id): void
+    {
+        Auth::requireAuth();
+        $news = $this->db->fetch("SELECT * FROM news WHERE id = ? LIMIT 1", [$id]);
+        if (!$news) {
+            Session::getInstance()->flash('error', 'News item not found.');
+            $this->redirect('/dashboard/news');
+            return;
+        }
+        $this->view('dashboard.news.edit', ['news' => $news]);
+    }
+
+    public function bulk(): void
+    {
+        Auth::requireAuth();
+        $ids = $_POST['ids'] ?? [];
+        $action = $_POST['action'] ?? '';
+        if (empty($ids) || !in_array($action, ['delete', 'publish', 'unpublish'], true)) {
+            Session::getInstance()->flash('error', 'Invalid bulk action.');
+            $this->redirect('/dashboard/news');
+            return;
+        }
+
+        $count = $this->applyBulk(array_map('intval', $ids), $action);
+
+        Session::getInstance()->flash('success', 'Bulk action applied to ' . $count . ' news item(s).');
+        $this->redirect('/dashboard/news');
+    }
+
+    public function applyBulk(array $ids, string $action): int
+    {
+        $in = implode(',', array_map('intval', $ids));
+        if ($action === 'delete') {
+            $this->db->delete('news', "id IN ({$in})");
+        } elseif ($action === 'publish') {
+            $this->db->update('news', ['is_published' => 1, 'published_at' => date('Y-m-d H:i:s'), 'updated_at' => date('Y-m-d H:i:s')], "id IN ({$in})");
+        } else {
+            $this->db->update('news', ['is_published' => 0, 'published_at' => null, 'updated_at' => date('Y-m-d H:i:s')], "id IN ({$in})");
+        }
+        return count($ids);
     }
 }

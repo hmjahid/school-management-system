@@ -120,4 +120,22 @@ class NoticeController extends Controller
         Session::getInstance()->flash('success', 'Notice deleted.');
         $this->redirect('/dashboard/notices');
     }
+
+    public function bulk(): void
+    {
+        Auth::requireAuth();
+        $ids = $_POST['ids'] ?? [];
+        $action = $_POST['action'] ?? '';
+        if (empty($ids) || $action !== 'delete') {
+            Session::getInstance()->flash('error', 'Invalid bulk action.');
+            $this->redirect('/dashboard/notices');
+            return;
+        }
+
+        $in = implode(',', array_map('intval', $ids));
+        $this->db->delete('notices', "id IN ({$in})");
+
+        Session::getInstance()->flash('success', 'Deleted ' . count($ids) . ' notice(s).');
+        $this->redirect('/dashboard/notices');
+    }
 }

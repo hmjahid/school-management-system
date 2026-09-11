@@ -133,6 +133,10 @@ $router->group('/dashboard', function (Router $r) {
     $r->get('/guardians', 'App\\Controllers\\Dashboard\\GuardianController', 'index');
     $r->get('/guardians/create', 'App\\Controllers\\Dashboard\\GuardianController', 'create');
     $r->post('/guardians', 'App\\Controllers\\Dashboard\\GuardianController', 'store');
+    $r->get('/guardians/{id}', 'App\\Controllers\\Dashboard\\GuardianController', 'show');
+    $r->get('/guardians/{id}/edit', 'App\\Controllers\\Dashboard\\GuardianController', 'edit');
+    $r->put('/guardians/{id}', 'App\\Controllers\\Dashboard\\GuardianController', 'update');
+    $r->delete('/guardians/{id}', 'App\\Controllers\\Dashboard\\GuardianController', 'destroy');
 
     // Attendance
     $r->get('/attendance', 'App\\Controllers\\Dashboard\\AttendanceController', 'index');
@@ -175,10 +179,13 @@ $router->group('/dashboard', function (Router $r) {
 
     // Admissions
     $r->get('/admissions', 'App\\Controllers\\Dashboard\\AdmissionController', 'index');
+    $r->post('/admissions/toggle', 'App\\Controllers\\Dashboard\\AdmissionController', 'toggleOpen');
     $r->get('/admissions/{id}', 'App\\Controllers\\Dashboard\\AdmissionController', 'show');
     $r->post('/admissions/{id}/approve', 'App\\Controllers\\Dashboard\\AdmissionController', 'approve');
     $r->post('/admissions/{id}/reject', 'App\\Controllers\\Dashboard\\AdmissionController', 'reject');
     $r->post('/admissions/{id}/enroll', 'App\\Controllers\\Dashboard\\AdmissionController', 'enroll');
+    $r->post('/admissions/{id}/status', 'App\\Controllers\\Dashboard\\AdmissionController', 'updateStatus');
+    $r->post('/admissions/{id}/verify-payment', 'App\\Controllers\\Dashboard\\AdmissionController', 'verifyPayment');
 
     // Routines
     $r->get('/routines', 'App\\Controllers\\Dashboard\\RoutineController', 'index');
@@ -202,10 +209,14 @@ $router->group('/dashboard', function (Router $r) {
     $r->post('/notices', 'App\\Controllers\\Dashboard\\NoticeController', 'store');
     $r->put('/notices/{id}', 'App\\Controllers\\Dashboard\\NoticeController', 'update');
     $r->delete('/notices/{id}', 'App\\Controllers\\Dashboard\\NoticeController', 'destroy');
+    $r->post('/notices/bulk', 'App\\Controllers\\Dashboard\\NoticeController', 'bulk');
     $r->get('/news', 'App\\Controllers\\Dashboard\\NewsController', 'index');
+    $r->get('/news/create', 'App\\Controllers\\Dashboard\\NewsController', 'create');
     $r->post('/news', 'App\\Controllers\\Dashboard\\NewsController', 'store');
+    $r->get('/news/{id}/edit', 'App\\Controllers\\Dashboard\\NewsController', 'edit');
     $r->put('/news/{id}', 'App\\Controllers\\Dashboard\\NewsController', 'update');
     $r->delete('/news/{id}', 'App\\Controllers\\Dashboard\\NewsController', 'destroy');
+    $r->post('/news/bulk', 'App\\Controllers\\Dashboard\\NewsController', 'bulk');
     $r->get('/events', 'App\\Controllers\\Dashboard\\EventController', 'index');
     $r->get('/events/calendar', 'App\\Controllers\\Dashboard\\EventController', 'calendar');
     $r->get('/events/create', 'App\\Controllers\\Dashboard\\EventController', 'create');
@@ -217,6 +228,7 @@ $router->group('/dashboard', function (Router $r) {
     $r->post('/announcements', 'App\\Controllers\\Dashboard\\AnnouncementController', 'store');
     $r->put('/announcements/{id}', 'App\\Controllers\\Dashboard\\AnnouncementController', 'update');
     $r->delete('/announcements/{id}', 'App\\Controllers\\Dashboard\\AnnouncementController', 'destroy');
+    $r->post('/announcements/bulk', 'App\\Controllers\\Dashboard\\AnnouncementController', 'bulk');
     $r->get('/galleries', 'App\\Controllers\\Dashboard\\GalleryController', 'index');
     $r->post('/galleries', 'App\\Controllers\\Dashboard\\GalleryController', 'store');
     $r->delete('/galleries/{id}', 'App\\Controllers\\Dashboard\\GalleryController', 'destroy');
@@ -231,11 +243,19 @@ $router->group('/dashboard', function (Router $r) {
 
     // Transport
     $r->get('/vehicles', 'App\\Controllers\\Dashboard\\VehicleController', 'index');
+    $r->get('/vehicles/create', 'App\\Controllers\\Dashboard\\VehicleController', 'create');
     $r->post('/vehicles', 'App\\Controllers\\Dashboard\\VehicleController', 'store');
+    $r->get('/vehicles/{id}/edit', 'App\\Controllers\\Dashboard\\VehicleController', 'edit');
+    $r->put('/vehicles/{id}', 'App\\Controllers\\Dashboard\\VehicleController', 'update');
+    $r->delete('/vehicles/{id}', 'App\\Controllers\\Dashboard\\VehicleController', 'destroy');
     $r->get('/transport-routes', 'App\\Controllers\\Dashboard\\TransportController', 'routes');
     $r->post('/transport-routes', 'App\\Controllers\\Dashboard\\TransportController', 'storeRoute');
+    $r->get('/transport-routes/{id}/edit', 'App\\Controllers\\Dashboard\\TransportController', 'editRoute');
+    $r->put('/transport-routes/{id}', 'App\\Controllers\\Dashboard\\TransportController', 'updateRoute');
+    $r->delete('/transport-routes/{id}', 'App\\Controllers\\Dashboard\\TransportController', 'destroyRoute');
     $r->get('/transport-assignments', 'App\\Controllers\\Dashboard\\TransportController', 'assignments');
     $r->post('/transport-assignments', 'App\\Controllers\\Dashboard\\TransportController', 'storeAssignment');
+    $r->delete('/transport-assignments/{id}', 'App\\Controllers\\Dashboard\\TransportController', 'destroyAssignment');
 
     // Hostel
     $r->get('/hostels', 'App\\Controllers\\Dashboard\\HostelController', 'index');
@@ -359,9 +379,13 @@ $router->group('/dashboard', function (Router $r) {
 
     // Testimonials & Committee
     $r->get('/testimonials', 'App\\Controllers\\Dashboard\\TestimonialController', 'index');
+    $r->get('/testimonials/create', 'App\\Controllers\\Dashboard\\TestimonialController', 'create');
     $r->post('/testimonials', 'App\\Controllers\\Dashboard\\TestimonialController', 'store');
+    $r->get('/testimonials/{id}', 'App\\Controllers\\Dashboard\\TestimonialController', 'show');
+    $r->get('/testimonials/{id}/edit', 'App\\Controllers\\Dashboard\\TestimonialController', 'edit');
     $r->put('/testimonials/{id}', 'App\\Controllers\\Dashboard\\TestimonialController', 'update');
     $r->delete('/testimonials/{id}', 'App\\Controllers\\Dashboard\\TestimonialController', 'destroy');
+    $r->get('/testimonials/{id}/print', 'App\\Controllers\\Dashboard\\TestimonialController', 'print');
     $r->get('/committee', 'App\\Controllers\\Dashboard\\CommitteeController', 'index');
     $r->post('/committee', 'App\\Controllers\\Dashboard\\CommitteeController', 'store');
     $r->put('/committee/{id}', 'App\\Controllers\\Dashboard\\CommitteeController', 'update');

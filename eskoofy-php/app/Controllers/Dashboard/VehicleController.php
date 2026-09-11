@@ -52,7 +52,14 @@ class VehicleController extends Controller
             'is_active'    => 'numeric',
         ]);
 
-        $this->db->insert('vehicles', [
+        $this->saveVehicle($data);
+        Session::getInstance()->flash('success', 'Vehicle added.');
+        $this->redirect('/dashboard/vehicles');
+    }
+
+    public function saveVehicle(array $data): int
+    {
+        return $this->db->insert('vehicles', [
             'number'       => $data['number'],
             'type'         => $data['type'] ?? null,
             'capacity'     => $data['capacity'] ?? null,
@@ -62,8 +69,64 @@ class VehicleController extends Controller
             'created_at'   => date('Y-m-d H:i:s'),
             'updated_at'   => date('Y-m-d H:i:s'),
         ]);
+    }
 
-        Session::getInstance()->flash('success', 'Vehicle added.');
+    public function create(): void
+    {
+        Auth::requireAuth();
+        $this->view('dashboard.vehicles.create');
+    }
+
+    public function edit(int $id): void
+    {
+        Auth::requireAuth();
+        $vehicle = $this->db->fetch("SELECT * FROM vehicles WHERE id = ? LIMIT 1", [$id]);
+        if (!$vehicle) {
+            Session::getInstance()->flash('error', 'Vehicle not found.');
+            $this->redirect('/dashboard/vehicles');
+            return;
+        }
+        $this->view('dashboard.vehicles.edit', ['vehicle' => $vehicle]);
+    }
+
+    public function update(int $id): void
+    {
+        Auth::requireAuth();
+        $vehicle = $this->db->fetch("SELECT * FROM vehicles WHERE id = ? LIMIT 1", [$id]);
+        if (!$vehicle) {
+            Session::getInstance()->flash('error', 'Vehicle not found.');
+            $this->redirect('/dashboard/vehicles');
+            return;
+        }
+
+        $data = $this->validate([
+            'number'       => 'required|max:64',
+            'type'         => 'max:64',
+            'capacity'     => 'numeric',
+            'driver_name'  => 'max:191',
+            'driver_phone' => 'max:32',
+            'is_active'    => 'numeric',
+        ]);
+
+        $this->db->update('vehicles', [
+            'number'       => $data['number'],
+            'type'         => $data['type'] ?? null,
+            'capacity'     => $data['capacity'] ?? null,
+            'driver_name'  => $data['driver_name'] ?? null,
+            'driver_phone' => $data['driver_phone'] ?? null,
+            'is_active'    => $data['is_active'] ?? 1,
+            'updated_at'   => date('Y-m-d H:i:s'),
+        ], 'id = ?', [$id]);
+
+        Session::getInstance()->flash('success', 'Vehicle updated.');
+        $this->redirect('/dashboard/vehicles');
+    }
+
+    public function destroy(int $id): void
+    {
+        Auth::requireAuth();
+        $this->db->delete('vehicles', 'id = ?', [$id]);
+        Session::getInstance()->flash('success', 'Vehicle removed.');
         $this->redirect('/dashboard/vehicles');
     }
 }

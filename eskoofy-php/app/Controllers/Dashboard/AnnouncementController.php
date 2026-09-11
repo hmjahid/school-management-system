@@ -110,4 +110,28 @@ class AnnouncementController extends Controller
         Session::getInstance()->flash('success', 'Announcement deleted.');
         $this->redirect('/dashboard/announcements');
     }
+
+    public function bulk(): void
+    {
+        Auth::requireAuth();
+        $ids = $_POST['ids'] ?? [];
+        $action = $_POST['action'] ?? '';
+        if (empty($ids) || !in_array($action, ['delete', 'publish', 'unpublish'], true)) {
+            Session::getInstance()->flash('error', 'Invalid bulk action.');
+            $this->redirect('/dashboard/announcements');
+            return;
+        }
+
+        $in = implode(',', array_map('intval', $ids));
+        if ($action === 'delete') {
+            $this->db->delete('announcements', "id IN ({$in})");
+        } elseif ($action === 'publish') {
+            $this->db->update('announcements', ['is_published' => 1, 'updated_at' => date('Y-m-d H:i:s')], "id IN ({$in})");
+        } else {
+            $this->db->update('announcements', ['is_published' => 0, 'updated_at' => date('Y-m-d H:i:s')], "id IN ({$in})");
+        }
+
+        Session::getInstance()->flash('success', 'Bulk action applied to ' . count($ids) . ' announcement(s).');
+        $this->redirect('/dashboard/announcements');
+    }
 }

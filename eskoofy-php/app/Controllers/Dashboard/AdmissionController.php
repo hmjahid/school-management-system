@@ -198,4 +198,155 @@ class AdmissionController extends Controller
         Session::getInstance()->flash('success', 'Student enrolled successfully. Admission number: ' . $admissionNumber);
         $this->redirect("/dashboard/admissions/{$id}");
     }
+
+    public function toggleOpen(): void
+    {
+        Auth::requireAuth();
+        $data = $this->validate([
+            'is_open'     => 'required|boolean',
+            'admission_fee' => 'numeric',
+            'display_year'  => 'max:9',
+        ]);
+
+        $isOpen = !empty($data['is_open']);
+        $this->saveAdmissionSettings($data);
+
+        Session::getInstance()->flash('success', $isOpen ? 'Admissions opened for new applications.' : 'Admissions closed.');
+        $this->redirect('/dashboard/admissions');
+    }
+
+    public function saveAdmissionSettings(array $data): void
+    {
+        $settings = $this->db->fetch("SELECT * FROM admission_settings ORDER BY id DESC LIMIT 1");
+
+        if ($settings) {
+            $this->db->update('admission_settings', [
+                'is_open'       => !empty($data['is_open']) ? 1 : 0,
+                'display_year'  => $data['display_year'] ?? $settings['display_year'] ?? null,
+                'admission_fee' => isset($data['admission_fee']) ? $data['admission_fee'] : ($settings['admission_fee'] ?? 0),
+                'payment_number'=> $_POST['payment_number'] ?? $settings['payment_number'] ?? null,
+                'closed_message_en' => $_POST['closed_message_en'] ?? $settings['closed_message_en'] ?? null,
+                'closed_message_bn' => $_POST['closed_message_bn'] ?? $settings['closed_message_bn'] ?? null,
+                'payment_instructions_en' => $_POST['payment_instructions_en'] ?? $settings['payment_instructions_en'] ?? null,
+                'payment_instructions_bn' => $_POST['payment_instructions_bn'] ?? $settings['payment_instructions_bn'] ?? null,
+                'notice_en'     => $_POST['notice_en'] ?? $settings['notice_en'] ?? null,
+                'notice_bn'     => $_POST['notice_bn'] ?? $settings['notice_bn'] ?? null,
+                'bar_title_en'  => $_POST['bar_title_en'] ?? $settings['bar_title_en'] ?? null,
+                'bar_title_bn'  => $_POST['bar_title_bn'] ?? $settings['bar_title_bn'] ?? null,
+                'updated_at'    => date('Y-m-d H:i:s'),
+            ], 'id = ?', [$settings['id']]);
+        } else {
+            $this->db->insert('admission_settings', [
+                'is_open'       => !empty($data['is_open']) ? 1 : 0,
+                'display_year'  => $data['display_year'] ?? null,
+                'admission_fee' => $data['admission_fee'] ?? 0,
+                'payment_number'=> $_POST['payment_number'] ?? null,
+                'closed_message_en' => $_POST['closed_message_en'] ?? null,
+                'closed_message_bn' => $_POST['closed_message_bn'] ?? null,
+                'payment_instructions_en' => $_POST['payment_instructions_en'] ?? null,
+                'payment_instructions_bn' => $_POST['payment_instructions_bn'] ?? null,
+                'notice_en'     => $_POST['notice_en'] ?? null,
+                'notice_bn'     => $_POST['notice_bn'] ?? null,
+                'bar_title_en'  => $_POST['bar_title_en'] ?? null,
+                'bar_title_bn'  => $_POST['bar_title_bn'] ?? null,
+                'created_at'    => date('Y-m-d H:i:s'),
+                'updated_at'    => date('Y-m-d H:i:s'),
+            ]);
+        }
+    }
+
+    public function updateStatus(int $id): void
+    {
+        Auth::requireAuth();
+        $admission = $this->db->fetch("SELECT * FROM admissions WHERE id = ? LIMIT 1", [$id]);
+        if (!$admission) {
+            Session::getInstance()->flash('error', 'Admission not found.');
+            $this->redirect('/dashboard/admissions');
+            return;
+        }
+
+        $status = $_POST['status'] ?? '';
+        $allowed = ['under_review', 'approved', 'rejected', 'waitlisted', 'cancelled'];
+        if (!in_array($status, $allowed, true)) {
+            Session::getInstance()->flash('error', 'Invalid status.');
+            $this->redirect("/dashboard/admissions/{$id}");
+            return;
+        }
+
+        $notes = $_POST['admission_notes'] ?? null;
+        $rejectionReason = $_POST['rejection_reason'] ?? null;
+
+        if ($status === 'approved') {
+            if (!in_array($admission['status'], ['submitted', 'under_review'], true)) {
+                Session::getInstance()->flash('error', 'Unable to update status from current state.');
+                $this->redirect("/dashboard/admissions/{$id}");
+                return;
+            }
+            $this->db->update('admissions', [
+                'status'         => 'approved',
+                'admission_date' => date('Y-m-d'),
+                'admission_notes'=> $notes,
+                'approved_by'    => Auth::id(),
+                'approved_at'    => date('Y-m-d H:i:s'),
+                'updated_at'     => date('Y-m-d H:i:s'),
+            ], 'id = ?', [$id]);
+        } elseif ($status === 'rejected') {
+            if (!in_array($admission['status'], ['submitted', 'under_review'], true)) {
+                Session::getInstance()->flash('error', 'Unable to update status from current state.');
+                $this->redirect("/dashboard/admissions/{$id}");
+                return;
+            }
+            $this->db->update('admissions', [
+                'status'           => 'rejected',
+                'rejection_reason' => $rejectionReason ?? 'Not specified',
+                'rejected_by'      => Auth::id(),
+                'rejected_at'      => date('Y-m-d H:i:s'),
+                'updated_at'       => date('Y-m-d H:i:s'),
+            ], 'id = ?', [$id]);
+        } else {
+            $update = [
+                'status'     => $status,
+                'updated_at' => date('Y-m-d H:i:s'),
+            ];
+            if ($status === 'cancelled') {
+                $update['cancelled_at'] = date('Y-m-d H:i:s');
+            }
+            $this->db->update('admissions', $update, 'id = ?', [$id]);
+        }
+
+        Session::getInstance()->flash('success', 'Status updated.');
+        $this->redirect("/dashboard/admissions/{$id}");
+    }
+
+    public function verifyPayment(int $id): void
+    {
+        Auth::requireAuth();
+        $admission = $this->db->fetch("SELECT * FROM admissions WHERE id = ? LIMIT 1", [$id]);
+        if (!$admission) {
+            Session::getInstance()->flash('error', 'Admission not found.');
+            $this->redirect('/dashboard/admissions');
+            return;
+        }
+
+        if ($admission['payment_status'] === 'verified') {
+            Session::getInstance()->flash('success', 'Payment is already verified.');
+            $this->redirect("/dashboard/admissions/{$id}");
+            return;
+        }
+        if (empty($admission['transaction_id'])) {
+            Session::getInstance()->flash('error', 'No transaction ID was submitted by the applicant.');
+            $this->redirect("/dashboard/admissions/{$id}");
+            return;
+        }
+
+        $this->db->update('admissions', [
+            'payment_status' => 'verified',
+            'verified_at'    => date('Y-m-d H:i:s'),
+            'verified_by'    => Auth::id(),
+            'updated_at'     => date('Y-m-d H:i:s'),
+        ], 'id = ?', [$id]);
+
+        Session::getInstance()->flash('success', 'Payment verified.');
+        $this->redirect("/dashboard/admissions/{$id}");
+    }
 }

@@ -7,6 +7,11 @@ use App\Controllers\Api\ExamController;
 use App\Controllers\Dashboard\AdmitCardController;
 use App\Controllers\Dashboard\CertificateController;
 use App\Controllers\Dashboard\StudentIdCardController;
+use App\Controllers\Dashboard\TestimonialController;
+use App\Controllers\Dashboard\VehicleController;
+use App\Controllers\Dashboard\GuardianController;
+use App\Controllers\Dashboard\AdmissionController;
+use App\Controllers\Dashboard\NewsController;
 use App\Controllers\Dashboard\AssignmentController;
 use App\Controllers\Dashboard\EventController;
 use App\Controllers\Dashboard\LeaveController;
@@ -930,5 +935,92 @@ class FrontControllerTest extends PHPUnitTestCase
         $this->assertSame(5000.0, (float) $stored['total_allowances']);
         $this->assertSame(34000.0, (float) $stored['net_salary']);
         $this->assertSame('draft', $stored['status'] ?? '');
+    }
+
+    public function test_testimonial_store_generates_year_number(): void
+    {
+        $this->authAs();
+        $this->db->seed('testimonials', []);
+        $this->db->seed('students', [
+            ['id' => 1, 'user_id' => 1],
+        ]);
+        $this->db->seed('users', []);
+
+        $this->invoke(fn () => (new TestimonialController())->storeOne(1, 'academic_excellence', 'Award', '2026-09-11', 'Great', 'issued', 'Principal', null, 5));
+
+        $stored = $this->db->tables['testimonials'][0] ?? [];
+        $this->assertStringStartsWith('TEST-' . date('Y') . '-', $stored['testimonial_number'] ?? '');
+        $this->assertSame('academic_excellence', $stored['testimonial_type'] ?? '');
+        $this->assertSame('issued', $stored['status'] ?? '');
+        $this->assertSame(5, $stored['rating'] ?? 0);
+    }
+
+    public function test_vehicle_store_persists_required_columns(): void
+    {
+        $this->authAs();
+        $this->db->seed('vehicles', []);
+
+        $_POST = ['number' => 'DHK-11', 'type' => 'Bus', 'capacity' => '40', 'driver_name' => 'Rahim', 'is_active' => '1'];
+        $this->invoke(fn () => (new VehicleController())->saveVehicle($_POST));
+        $_POST = [];
+
+        $stored = $this->db->tables['vehicles'][0] ?? [];
+        $this->assertSame('DHK-11', $stored['number'] ?? '');
+        $this->assertSame('Bus', $stored['type'] ?? '');
+        $this->assertSame(40, (int) ($stored['capacity'] ?? 0));
+        $this->assertSame(1, (int) ($stored['is_active'] ?? 0));
+    }
+
+    public function test_guardian_store_creates_user_and_pivot(): void
+    {
+        $this->authAs();
+        $this->db->seed('users', []);
+        $this->db->seed('guardians', []);
+        $this->db->seed('guardian_student', []);
+        $this->db->seed('students', [
+            ['id' => 1, 'user_id' => 1],
+        ]);
+
+        $_POST = ['name' => 'Parent', 'email' => 'p@x.com', 'phone' => '+8801', 'relationship' => 'father', 'present_address' => 'Dhaka', 'student_ids' => ['1']];
+        $this->invoke(fn () => (new GuardianController())->saveGuardian($_POST, ['1']));
+        $_POST = [];
+
+        $this->assertNotEmpty($this->db->tables['users'] ?? [], 'guardian store must create a users row');
+        $guardian = $this->db->tables['guardians'][0] ?? [];
+        $this->assertSame('father', $guardian['relation_type'] ?? '');
+        $pivot = $this->db->tables['guardian_student'][0] ?? [];
+        $this->assertSame(1, $pivot['student_id'] ?? null);
+    }
+
+    public function test_admission_toggle_upserts_settings(): void
+    {
+        $this->authAs();
+        $this->db->seed('admission_settings', []);
+
+        $_POST = ['is_open' => '0', 'admission_fee' => '500', 'display_year' => '2026'];
+        $this->invoke(fn () => (new AdmissionController())->saveAdmissionSettings($_POST));
+        $_POST = [];
+
+        $settings = $this->db->tables['admission_settings'][0] ?? [];
+        $this->assertSame(0, (int) ($settings['is_open'] ?? 1));
+        $this->assertSame(500.0, (float) ($settings['admission_fee'] ?? 0));
+    }
+
+    public function test_news_bulk_publish_updates_rows(): void
+    {
+        $this->authAs();
+        $this->db->seed('news', [
+            ['id' => 1, 'title' => 'N1', 'slug' => 'n1', 'content' => 'c', 'is_published' => 0],
+            ['id' => 2, 'title' => 'N2', 'slug' => 'n2', 'content' => 'c', 'is_published' => 0],
+        ]);
+
+        $_POST = ['action' => 'publish', 'ids' => ['1', '2']];
+        $this->invoke(fn () => (new NewsController())->applyBulk([1, 2], 'publish'));
+        $_POST = [];
+
+        $news = $this->db->tables['news'] ?? [];
+        $this->assertCount(2, $news);
+        $this->assertSame(1, (int) ($news[0]['is_published'] ?? 0));
+        $this->assertSame(1, (int) ($news[1]['is_published'] ?? 0));
     }
 }
