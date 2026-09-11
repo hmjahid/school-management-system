@@ -188,9 +188,11 @@ class PayrollController extends Controller
         ]);
 
         $this->db->update('leave_requests', [
-            'status'     => $data['status'],
-            'admin_note' => $data['admin_note'] ?? null,
-            'updated_at' => date('Y-m-d H:i:s'),
+            'status'       => $data['status'],
+            'approver_note'=> $data['admin_note'] ?? null,
+            'approver_id'  => Auth::id(),
+            'decided_at'   => date('Y-m-d H:i:s'),
+            'updated_at'   => date('Y-m-d H:i:s'),
         ], 'id = ?', [$id]);
 
         Session::getInstance()->flash('success', 'Leave request updated.');

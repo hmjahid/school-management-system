@@ -75,10 +75,18 @@ class EventController extends Controller
             'start_date'  => 'required',
             'end_date'    => '',
             'location'    => 'max:255',
-            'status'      => 'in:draft,published',
+            'status'      => 'in:draft,published,cancelled,completed',
             'image'       => 'max:2048',
         ]);
 
+        $this->storeOne($data);
+
+        Session::getInstance()->flash('success', 'Event created.');
+        $this->redirect('/dashboard/events');
+    }
+
+    public function storeOne(array $data): int
+    {
         $imagePath = null;
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
             $uploadDir = __DIR__ . '/../../public/uploads/events/';
@@ -91,7 +99,7 @@ class EventController extends Controller
             $imagePath = 'uploads/events/' . $filename;
         }
 
-        $this->db->insert('events', [
+        return $this->db->insert('events', [
             'title'       => $data['title'],
             'description' => $data['description'] ?? null,
             'start_date'  => $data['start_date'],
@@ -103,9 +111,166 @@ class EventController extends Controller
             'created_at'  => date('Y-m-d H:i:s'),
             'updated_at'  => date('Y-m-d H:i:s'),
         ]);
+    }
 
-        Session::getInstance()->flash('success', 'Event created successfully.');
-        $this->redirect('/dashboard/events');
+    public function create(): void
+    {
+        Auth::requireAuth();
+        $this->view('dashboard.events.create');
+    }
+
+    public function edit(int $id): void
+    {
+        Auth::requireAuth();
+        $event = $this->db->fetch("SELECT * FROM events WHERE id = ? LIMIT 1", [$id]);
+        if (!$event) {
+            Session::getInstance()->flash('error', 'Event not found.');
+            $this->redirect('/dashboard/events');
+            return;
+        }
+        $this->view('dashboard.events.edit', ['event' => $event]);
+    }
+
+    public function calendar(): void
+    {
+        Auth::requireAuth();
+        $month = $_GET['month'] ?? date('Y-m');
+        if (!preg_match('/^\d{4}-\d{2}$/', (string) $month)) {
+            $month = date('Y-m');
+        }
+
+        $anchorTs = strtotime($month . '-01');
+        $year = (int) date('Y', $anchorTs);
+
+        // Week starts Sunday.
+        $start = date('Y-m-d', strtotime('last sunday', $anchorTs) ?: $anchorTs);
+        if (date('w', $anchorTs) === '0') {
+            $start = date('Y-m-d', $anchorTs);
+        }
+        $end = date('Y-m-d', strtotime('next saturday', strtotime(date('Y-m-t', $anchorTs))));
+
+        $rows = $this->db->fetchAll(
+            "SELECT * FROM events WHERE start_date BETWEEN ? AND ? ORDER BY start_date ASC",
+            [$start . ' 00:00:00', $end . ' 23:59:59']
+        );
+
+        $byDay = [];
+        foreach ($rows as $row) {
+            $key = date('Y-m-d', strtotime($row['start_date']));
+            $byDay[$key][] = ['type' => 'event', 'title' => $row['title'], 'id' => $row['id']];
+        }
+
+        $holidays = $this->governmentHolidays($year);
+        foreach ($holidays as $h) {
+            $hDate = $year . '-' . $h['date'];
+            if ($hDate >= $start && $hDate <= $end) {
+                $byDay[$hDate][] = ['type' => 'holiday', 'title' => $h['name']];
+            }
+        }
+
+        $academic = $this->academicActivities($year);
+        foreach ($academic as $a) {
+            $aDate = $year . '-' . $a['date'];
+            if ($aDate >= $start && $aDate <= $end) {
+                $byDay[$aDate][] = ['type' => 'academic', 'title' => $a['name']];
+            }
+        }
+
+        $school = $this->schoolActivities($year);
+        foreach ($school as $s) {
+            $sDate = $year . '-' . $s['date'];
+            if ($sDate >= $start && $sDate <= $end) {
+                $byDay[$sDate][] = ['type' => 'school', 'title' => $s['name']];
+            }
+        }
+
+        ksort($byDay);
+
+        $upcomingHolidays = [];
+        foreach ($holidays as $h) {
+            $d = $year . '-' . $h['date'];
+            if ($d >= date('Y-m-d')) {
+                $upcomingHolidays[] = ['date' => $d, 'name' => $h['name']];
+            }
+            if (count($upcomingHolidays) >= 5) {
+                break;
+            }
+        }
+
+        $upcomingEvents = $this->db->fetchAll(
+            "SELECT id, title, start_date FROM events WHERE start_date >= NOW() ORDER BY start_date ASC LIMIT 5"
+        );
+
+        $this->view('dashboard.events.calendar', [
+            'anchor'          => date('F Y', $anchorTs),
+            'month'           => $month,
+            'year'            => $year,
+            'start'           => $start,
+            'end'             => $end,
+            'byDay'           => $byDay,
+            'upcomingHolidays'=> $upcomingHolidays,
+            'upcomingEvents'  => $upcomingEvents,
+        ]);
+    }
+
+    private function governmentHolidays(int $year): array
+    {
+        $dates = [
+            ['02-21', 'International Mother Language Day'], ['03-26', 'Independence Day'],
+            ['04-14', 'Bangla New Year (Pohela Boishakh)'], ['04-21', 'Shab-e-Barat'],
+            ['05-01', 'May Day (Labour Day)'], ['05-23', 'Buddha Purnima'],
+            ['06-17', 'Eid ul-Adha'], ['06-18', 'Eid ul-Adha Holiday'], ['06-19', 'Eid ul-Adha Holiday'],
+            ['07-15', 'Shab-e-Qadr'], ['07-16', 'Jumatul Bidah'],
+            ['07-17', 'Eid ul-Fitr'], ['07-18', 'Eid ul-Fitr Holiday'], ['07-19', 'Eid ul-Fitr Holiday'],
+            ['08-15', 'National Mourning Day'], ['09-05', 'Janmashtami'],
+            ['10-02', 'Eid-e-Milad-un-Nabi'], ['12-16', 'Victory Day'],
+            ['12-25', 'Christmas Day'], ['12-31', "New Year's Eve (Bank Holiday)"],
+        ];
+        $out = [];
+        foreach ($dates as $d) {
+            $out[] = ['date' => $d[0], 'name' => $d[1]];
+        }
+        return $out;
+    }
+
+    private function academicActivities(int $year): array
+    {
+        $periods = [
+            ['02-01', '02-15', 'Half-Yearly Exams'], ['02-20', '02-28', 'Results Publication'],
+            ['04-01', '04-10', 'Class Test'], ['06-01', '06-15', 'Annual Exams Begin'],
+            ['06-25', '07-05', 'Annual Results'], ['09-01', '09-15', 'Mid-Term Exams'],
+            ['09-20', '09-30', 'Mid-Term Results'], ['11-15', '11-30', 'Pre-Final Exams'],
+            ['12-05', '12-15', 'Final Results'],
+        ];
+        $terms = [
+            ['01-02', 'Winter Term Begins'], ['04-15', 'Summer Term Begins'], ['09-01', 'Autumn Term Begins'],
+        ];
+        $out = [];
+        foreach ($periods as $p) {
+            $out[] = ['date' => $p[0], 'name' => $p[2]];
+        }
+        foreach ($terms as $t) {
+            $out[] = ['date' => $t[0], 'name' => $t[1]];
+        }
+        return $out;
+    }
+
+    private function schoolActivities(int $year): array
+    {
+        $dates = [
+            ['01-15', 'Annual Sports Day'], ['02-21', 'Language Day Assembly'],
+            ['03-17', 'Science Fair'], ['03-26', 'Independence Day Program'],
+            ['04-14', 'Cultural Program (Pohela Boishakh)'], ['05-01', "Workers' Day Assembly"],
+            ['06-05', 'World Environment Day'], ['08-15', 'Mourning Day Assembly'],
+            ['09-08', "Teachers' Day"], ['10-16', 'World Food Day'],
+            ['10-31', 'Annual Cultural Program'], ['11-01', "Parents' Day"],
+            ['12-02', 'Sports Tournament'], ['12-16', 'Victory Day Assembly'],
+        ];
+        $out = [];
+        foreach ($dates as $d) {
+            $out[] = ['date' => $d[0], 'name' => $d[1]];
+        }
+        return $out;
     }
 
     public function update(int $id): void

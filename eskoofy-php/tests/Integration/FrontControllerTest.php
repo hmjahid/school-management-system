@@ -8,6 +8,8 @@ use App\Controllers\Dashboard\AdmitCardController;
 use App\Controllers\Dashboard\CertificateController;
 use App\Controllers\Dashboard\StudentIdCardController;
 use App\Controllers\Dashboard\AssignmentController;
+use App\Controllers\Dashboard\EventController;
+use App\Controllers\Dashboard\LeaveController;
 use App\Controllers\Dashboard\AttendanceController;
 use App\Controllers\Dashboard\ExamController as DashboardExamController;
 use App\Controllers\Dashboard\ExpenseCategoryController;
@@ -761,5 +763,90 @@ class FrontControllerTest extends PHPUnitTestCase
         $this->assertStringStartsWith('Character certificate for', $stored['name'] ?? '');
         $this->assertSame('issued', $stored['status'] ?? '');
         $this->assertNotEmpty($stored['template'] ?? '');
+    }
+
+    public function test_event_store_inserts_full_row(): void
+    {
+        $this->authAs();
+        $this->db->seed('events', []);
+
+        $_POST = ['title' => 'Fair', 'start_date' => '2026-09-15 10:00:00', 'status' => 'published'];
+        $_POST['_token'] = 'x';
+        $this->invoke(fn () => (new EventController())->storeOne($_POST));
+        $_POST = [];
+
+        $stored = $this->db->tables['events'][0] ?? [];
+        $this->assertSame('Fair', $stored['title'] ?? '');
+        $this->assertSame('published', $stored['status'] ?? '');
+        $this->assertArrayHasKey('created_by', $stored);
+    }
+
+    public function test_leave_approve_sets_approver_and_decided_at(): void
+    {
+        $this->authAs();
+        $this->db->seed('leave_requests', [
+            ['id' => 1, 'teacher_id' => 1, 'leave_type_id' => 1, 'from_date' => '2026-09-20', 'to_date' => '2026-09-22', 'reason' => 'x', 'status' => 'pending'],
+        ]);
+        $this->db->seed('teachers', [
+            ['id' => 1, 'user_id' => 1],
+        ]);
+        $this->db->seed('users', []);
+
+        $this->invoke(fn () => (new LeaveController())->applyDecision(1, 'approved', 'OK'));
+
+        $rows = array_values(array_filter($this->db->tables['leave_requests'] ?? [], fn ($r) => $r['id'] == 1));
+        $updated = $rows[0] ?? [];
+        $this->assertSame('approved', $updated['status'] ?? '');
+        $this->assertSame(1, $updated['approver_id'] ?? null);
+        $this->assertArrayHasKey('decided_at', $updated);
+    }
+
+    public function test_leave_days_inclusive_diff(): void
+    {
+        $this->authAs();
+        $this->db->seed('leave_requests', [
+            ['id' => 1, 'teacher_id' => 1, 'leave_type_id' => 1, 'from_date' => '2026-09-20', 'to_date' => '2026-09-22', 'reason' => 'x', 'status' => 'pending'],
+        ]);
+        $this->db->seed('teachers', [
+            ['id' => 1, 'user_id' => 1],
+        ]);
+        $this->db->seed('users', []);
+        $this->db->seed('leave_types', [
+            ['id' => 1, 'name_en' => 'Casual'],
+        ]);
+
+        $this->invoke(fn () => (new LeaveController())->index());
+
+        $joined = implode("\n", array_column($this->db->log, 'sql'));
+        $this->assertStringContainsString('FROM leave_requests lr', $joined);
+        $this->assertStringContainsString('leave_types lt', $joined,
+            'leave index must join leave_types for the type name');
+        $this->assertStringContainsString('teachers t', $joined);
+    }
+
+    public function test_assignment_grade_sets_marks_status_graded_by(): void
+    {
+        $this->authAs();
+        $this->db->seed('assignment_submissions', [
+            ['id' => 1, 'assignment_id' => 1, 'student_id' => 1, 'status' => 'submitted'],
+        ]);
+        $this->db->seed('assignments', [
+            ['id' => 1, 'title' => 'A', 'total_marks' => 100],
+        ]);
+
+        $_POST = ['marks' => '85', 'feedback' => 'Great'];
+        $this->invoke(fn () => (new AssignmentController())->applyGrade(
+            ['id' => 1, 'assignment_id' => 1, 'total_marks' => 100],
+            85.0,
+            'Great'
+        ));
+        $_POST = [];
+
+        $rows = array_values(array_filter($this->db->tables['assignment_submissions'] ?? [], fn ($r) => $r['id'] == 1));
+        $updated = $rows[0] ?? [];
+        $this->assertSame('85', (string) ($updated['marks'] ?? ''));
+        $this->assertSame('graded', $updated['status'] ?? '');
+        $this->assertSame(1, $updated['graded_by'] ?? null);
+        $this->assertArrayHasKey('graded_at', $updated);
     }
 }

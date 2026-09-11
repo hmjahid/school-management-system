@@ -191,6 +191,11 @@ $router->group('/dashboard', function (Router $r) {
     $r->get('/assignments/create', 'App\\Controllers\\Dashboard\\AssignmentController', 'create');
     $r->post('/assignments', 'App\\Controllers\\Dashboard\\AssignmentController', 'store');
     $r->get('/assignments/{id}', 'App\\Controllers\\Dashboard\\AssignmentController', 'show');
+    $r->get('/assignments/{id}/edit', 'App\\Controllers\\Dashboard\\AssignmentController', 'edit');
+    $r->put('/assignments/{id}', 'App\\Controllers\\Dashboard\\AssignmentController', 'update');
+    $r->delete('/assignments/{id}', 'App\\Controllers\\Dashboard\\AssignmentController', 'destroy');
+    $r->get('/assignments/{id}/submissions', 'App\\Controllers\\Dashboard\\AssignmentController', 'submissions');
+    $r->post('/assignments/submissions/{submissionId}/grade', 'App\\Controllers\\Dashboard\\AssignmentController', 'grade');
 
     // Notices & Events
     $r->get('/notices', 'App\\Controllers\\Dashboard\\NoticeController', 'index');
@@ -202,7 +207,10 @@ $router->group('/dashboard', function (Router $r) {
     $r->put('/news/{id}', 'App\\Controllers\\Dashboard\\NewsController', 'update');
     $r->delete('/news/{id}', 'App\\Controllers\\Dashboard\\NewsController', 'destroy');
     $r->get('/events', 'App\\Controllers\\Dashboard\\EventController', 'index');
+    $r->get('/events/calendar', 'App\\Controllers\\Dashboard\\EventController', 'calendar');
+    $r->get('/events/create', 'App\\Controllers\\Dashboard\\EventController', 'create');
     $r->post('/events', 'App\\Controllers\\Dashboard\\EventController', 'store');
+    $r->get('/events/{id}/edit', 'App\\Controllers\\Dashboard\\EventController', 'edit');
     $r->put('/events/{id}', 'App\\Controllers\\Dashboard\\EventController', 'update');
     $r->delete('/events/{id}', 'App\\Controllers\\Dashboard\\EventController', 'destroy');
     $r->get('/announcements', 'App\\Controllers\\Dashboard\\AnnouncementController', 'index');
@@ -326,6 +334,13 @@ $router->group('/dashboard', function (Router $r) {
     $r->post('/payslips', 'App\\Controllers\\Dashboard\\PayrollController', 'storePayslip');
     $r->get('/leave-requests', 'App\\Controllers\\Dashboard\\PayrollController', 'leaveRequests');
     $r->put('/leave-requests/{id}', 'App\\Controllers\\Dashboard\\PayrollController', 'updateLeaveRequest');
+    $r->get('/leaves', 'App\\Controllers\\Dashboard\\LeaveController', 'index');
+    $r->get('/leaves/create', 'App\\Controllers\\Dashboard\\LeaveController', 'create');
+    $r->post('/leaves', 'App\\Controllers\\Dashboard\\LeaveController', 'store');
+    $r->get('/leaves/{id}', 'App\\Controllers\\Dashboard\\LeaveController', 'show');
+    $r->post('/leaves/{id}/approve', 'App\\Controllers\\Dashboard\\LeaveController', 'approve');
+    $r->post('/leaves/{id}/reject', 'App\\Controllers\\Dashboard\\LeaveController', 'reject');
+    $r->post('/leaves/{id}/cancel', 'App\\Controllers\\Dashboard\\LeaveController', 'cancel');
     $r->get('/staff-attendance', 'App\\Controllers\\Dashboard\\PayrollController', 'staffAttendance');
     $r->post('/staff-attendance', 'App\\Controllers\\Dashboard\\PayrollController', 'storeStaffAttendance');
 
