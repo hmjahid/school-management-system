@@ -21,12 +21,12 @@ class I18nTest extends TestCase
 
     public function test_english_translation_resolves(): void
     {
-        $this->assertSame('International · USD pricing · SaaS', I18n::t('home.badge', [], 'en'));
+        $this->assertSame('Enterprise school management · SaaS & self-hosted', I18n::t('home.badge', [], 'en'));
     }
 
     public function test_bangla_translation_resolves(): void
     {
-        $this->assertSame('আন্তর্জাতিক · ইউএসডি মূল্য · সাস', I18n::t('home.badge', [], 'bn'));
+        $this->assertSame('এন্টারপ্রাইজ স্কুল ম্যানেজমেন্ট · সাস ও স্ব-হোস্টেড', I18n::t('home.badge', [], 'bn'));
     }
 
     public function test_unknown_key_falls_back_to_key(): void

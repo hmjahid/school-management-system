@@ -1,7 +1,7 @@
 {
   "name": "Eskoofy — School Management System",
   "short_name": "Eskoofy",
-  "description": "Marketing, pricing, and licensing site for the Eskoofy school management system.",
+  "description": "Eskoofy school management system — 40+ modules for admissions, attendance, fees, exams, results and more. Available as a cloud or self-hosted Laravel app, a raw PHP system, and a WordPress theme. Licensed in USD.",
   "lang": "en",
   "dir": "ltr",
   "start_url": "/",

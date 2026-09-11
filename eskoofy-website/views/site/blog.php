@@ -1,10 +1,13 @@
 <?php $title = __('blog.title'); $siteTitle = $title; ?>
 
-<section class="max-w-7xl mx-auto px-4 py-16">
-    <div class="text-center mb-10">
+<section class="esk-hero text-white">
+    <div class="relative z-10 max-w-7xl mx-auto px-4 py-16 text-center">
         <h1 class="text-4xl font-extrabold"><?= __('blog.title') ?></h1>
-        <p class="text-slate-500 mt-2"><?= __('blog.sub') ?></p>
+        <p class="mt-3 text-slate-300 max-w-2xl mx-auto"><?= __('blog.sub') ?></p>
     </div>
+</section>
+
+<section class="max-w-7xl mx-auto px-4 py-16">
 
     <?php if (!empty($categories)): ?>
     <div class="flex flex-wrap gap-2 justify-center mb-10">
