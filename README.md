@@ -22,7 +22,7 @@ codebase, sharing one BD/INT variant strategy.
 | `eskoofy-app/` | Full management software | Laravel 12, Blade, Tailwind CSS | Active — most work happens here |
 | `eskoofy-php/` | Raw PHP version (no framework) | Native PHP + PDO/MySQL | Complete — for shared hosting without Composer |
 | `eskoofy-theme/` | WordPress theme | WP hooks, shortcodes, REST, CPTs | Complete — plugin-theme hybrid |
-| `eskoofy-website/` | Marketing/branding site | TBD | Deferred (non-blocking) |
+| `eskoofy-website/` | Marketing site + license server | Raw PHP (app Core), en/bn i18n, PWA | Complete — int-only, USD pricing |
 
 ## Features
 
@@ -53,10 +53,10 @@ codebase, sharing one BD/INT variant strategy.
 
 ```
 ├── eskoofy-app/          Laravel 12 app (bd/int profiles via config/eskoolfy.php)
-├── eskoofy-php/          Raw PHP app — no Composer, runs on shared hosting
+├── eskoofy-php/          Raw PHP app — no Composer at runtime, runs on shared hosting
 ├── eskoofy-theme/        WordPress theme — plugin-theme hybrid
-├── eskoofy-website/      Marketing site (deferred)
-├── build/                Export box: profiles + zip the app/theme/php variants
+├── eskoofy-website/      Marketing site + license server, license/lookup API, PWA, en/bn i18n
+├── build/                Export box: profiles + zip the app/theme/php/website variants
 ├── docs/                 Design/review/runbook docs
 ├── WORKPLAN.md           Multi-product plan (phases, gates, milestones)
 └── workplan-implementation-plan.md   Per-task implementation tracker
@@ -88,6 +88,22 @@ php -S localhost:8000 -t public
 
 Point the document root at `public/` on the shared host.
 
+```bash
+cd eskoofy-php && composer test     # dev-only PHPUnit suite (255 tests / 463 assertions)
+```
+
+### eskoofy-website (marketing + license server)
+
+```bash
+cd eskoofy-website
+cp .env.example .env        # set DB_* for the licensing DB
+mysql -u root -p < database/schema.sql
+php -S localhost:8001 -t public
+```
+
+Single international (int) site: USD pricing, en/bn language switcher, PWA shell,
+and a license management API at `/api/v1`.
+
 ### eskoofy-theme (WordPress)
 
 ```bash
@@ -104,7 +120,8 @@ activation.
 
 ```bash
 cd build
-./export.sh app bd   # or: int | theme bd | theme int | php bd | php int
+./export.sh app bd   # or: app int | theme bd | theme int | php bd | php int
+./export.sh website  # website is always int (en/USD/UTC)
 ```
 
 ## Tests & CI
@@ -112,10 +129,13 @@ cd build
 | Product | Command |
 |---------|---------|
 | Laravel | `cd eskoofy-app && composer test` (PHPUnit, 900+ tests) + `./vendor/bin/pint --test` |
+| Raw PHP | `cd eskoofy-php && composer test` (PHPUnit, 255 tests / 463 assertions) |
 | WordPress theme | `cd eskoofy-theme && composer run lint` (PHPCS) |
+| Website | `cd eskoofy-website && composer test` (PHPUnit, 79 tests / 214 assertions) |
 
 GitHub Actions (`.github/workflows/ci.yml`) runs the Laravel test suite, theme
-linting, and a 4-variant export smoke test on every push/PR.
+linting, PHP + website tests, and export smoke tests for the app/theme/php/website
+variants on every push/PR.
 
 ## Documentation
 
