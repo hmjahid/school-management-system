@@ -58,4 +58,66 @@ class WebsiteSetting extends Model
         'academic_start_month' => 'integer',
         'mail_enabled' => 'boolean',
     ];
+
+    public static function getSettings(): static
+    {
+        try {
+            return static::query()->first() ?? new static();
+        } catch (\Throwable) {
+            return new static();
+        }
+    }
+
+    public function resolvedDefaultLocale(): string
+    {
+        $supported = (array) config('school.supported_locales', ['en']);
+        $value = (string) ($this->default_locale ?: config('app.locale', 'en'));
+        return in_array($value, $supported, true) ? $value : ($supported[0] ?? 'en');
+    }
+
+    public function getLogoUrlAttribute(): ?string
+    {
+        $path = $this->attributes['logo_path'] ?? null;
+        return $path ? url('storage/' . ltrim($path, '/')) : null;
+    }
+
+    public function getLocalizedSchoolNameAttribute(): string
+    {
+        if (app()->getLocale() === 'bn' && !empty($this->attributes['school_name_bn'] ?? '')) {
+            return (string) $this->attributes['school_name_bn'];
+        }
+        return (string) ($this->attributes['school_name'] ?? '');
+    }
+
+    public function getLocalizedTaglineAttribute(): string
+    {
+        if (app()->getLocale() === 'bn' && !empty($this->attributes['tagline_bn'] ?? '')) {
+            return (string) $this->attributes['tagline_bn'];
+        }
+        return (string) ($this->attributes['tagline'] ?? '');
+    }
+
+    public function getFullAddressAttribute(): string
+    {
+        $parts = array_filter([
+            $this->attributes['address'] ?? '',
+            $this->attributes['city'] ?? '',
+            $this->attributes['state'] ?? '',
+            $this->attributes['postal_code'] ?? '',
+            $this->attributes['country'] ?? '',
+        ]);
+        return implode(', ', $parts);
+    }
+
+    public function getFaviconUrlAttribute(): ?string
+    {
+        $path = $this->attributes['favicon_path'] ?? null;
+        return $path ? url('storage/' . ltrim($path, '/')) : null;
+    }
+
+    public function getOgImageUrlAttribute(): ?string
+    {
+        $path = $this->attributes['og_image_path'] ?? null;
+        return $path ? url('storage/' . ltrim($path, '/')) : null;
+    }
 }

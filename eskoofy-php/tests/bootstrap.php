@@ -39,6 +39,10 @@ $_ENV['OFFLINE_INSTRUCTIONS'] = 'Transfer to the account above.';
 
 date_default_timezone_set('UTC');
 
+// The integration tests assert the SQL controllers emit, not the rendered HTML.
+// Skip view rendering so Blade/legacy view errors don't fail those assertions.
+\App\Core\View::$renderViews = false;
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }

@@ -1,45 +1,139 @@
 <?php
-declare(strict_types=1);
 
 return [
     /*
-    | Default SMS driver. bd keeps `log` (today's behavior); int sets SMS_DRIVER=twilio
-    | or SMS_DRIVER=vonage via the build profile / .env — never hardcode variant
-    | branching.
+    |--------------------------------------------------------------------------
+    | Default SMS Driver
+    |--------------------------------------------------------------------------
+    |
+    | This option controls the default SMS driver that is used to send any SMS
+    | messages sent by your application. Alternative drivers may be setup
+    | and used as needed; however, this default driver will be used by default.
+    |
     */
-    'default' => $_ENV['SMS_DRIVER'] ?? 'log',
 
-    'currency' => $_ENV['SMS_CURRENCY'] ?? 'USD',
+    'default' => env('SMS_DRIVER', 'log'),
 
-    'aliases' => [
-        'nexmo' => 'vonage',
-    ],
+    /*
+    |--------------------------------------------------------------------------
+    | SMS Drivers
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure the driver information for each service that
+    | is used by your application. A default configuration has been added
+    | for each driver as an example of the required options.
+    |
+    */
 
     'drivers' => [
         'log' => [
-            'driver'       => 'log',
-            'log_file'     => $_ENV['SMS_LOG_FILE'] ?? null,
+            'driver' => 'log',
         ],
 
         'twilio' => [
-            'driver'       => 'twilio',
-            'account_sid'  => $_ENV['TWILIO_ACCOUNT_SID'] ?? '',
-            'auth_token'   => $_ENV['TWILIO_AUTH_TOKEN'] ?? '',
-            'from'         => $_ENV['TWILIO_FROM_NUMBER'] ?? '',
-        ],
-
-        'vonage' => [
-            'driver'       => 'vonage',
-            'api_key'      => $_ENV['VONAGE_API_KEY'] ?? ($_ENV['NEXMO_KEY'] ?? ''),
-            'api_secret'   => $_ENV['VONAGE_API_SECRET'] ?? ($_ENV['NEXMO_SECRET'] ?? ''),
-            'from'         => $_ENV['VONAGE_FROM'] ?? ($_ENV['NEXMO_FROM_NUMBER'] ?? 'Eskoofy'),
+            'driver' => 'twilio',
+            'account_sid' => env('TWILIO_ACCOUNT_SID'),
+            'auth_token' => env('TWILIO_AUTH_TOKEN'),
+            'from' => env('TWILIO_FROM_NUMBER'),
         ],
 
         'nexmo' => [
-            'driver'       => 'nexmo',
-            'api_key'      => $_ENV['NEXMO_KEY'] ?? '',
-            'api_secret'   => $_ENV['NEXMO_SECRET'] ?? '',
-            'from'         => $_ENV['NEXMO_FROM_NUMBER'] ?? '',
+            'driver' => 'nexmo',
+            'api_key' => env('NEXMO_KEY'),
+            'api_secret' => env('NEXMO_SECRET'),
+            'from' => env('NEXMO_FROM_NUMBER'),
         ],
+
+        'vonage' => [
+            'driver' => 'vonage',
+            'api_key' => env('VONAGE_API_KEY', env('NEXMO_KEY')),
+            'api_secret' => env('VONAGE_API_SECRET', env('NEXMO_SECRET')),
+            'from' => env('VONAGE_FROM', env('NEXMO_FROM_NUMBER', 'Eskoofy')),
+            'brand' => env('VONAGE_BRAND', 'Eskoofy'),
+            'country_code' => env('SMS_COUNTRY_CODE', '1'),
+            'api_base' => env('VONAGE_API_BASE', 'https://api.nexmo.com'),
+            'channel' => 'sms',
+        ],
+
+        'textlocal' => [
+            'driver' => 'textlocal',
+            'api_key' => env('TEXTLOCAL_API_KEY'),
+            'sender' => env('TEXTLOCAL_SENDER'),
+            'test_mode' => env('TEXTLOCAL_TEST_MODE', false),
+        ],
+
+        'africastalking' => [
+            'driver' => 'africastalking',
+            'api_key' => env('AFRICASTALKING_API_KEY'),
+            'username' => env('AFRICASTALKING_USERNAME'),
+            'from' => env('AFRICASTALKING_FROM'),
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Global "From" Number
+    |--------------------------------------------------------------------------
+    |
+    | You may specify a default "from" number for all SMS messages sent by
+    | the application. This number should be in a format that is accepted
+    | by your chosen SMS provider.
+    |
+    */
+
+    'from' => env('SMS_FROM', 'SchoolMS'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Queue
+    |--------------------------------------------------------------------------
+    |
+    | This option allows you to control whether SMS messages should be sent
+    | asynchronously using the queue. If this is set to true, the SMS
+    | messages will be dispatched to the default queue.
+    |
+    */
+
+    'queue' => env('SMS_QUEUE', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Queue Connection
+    |--------------------------------------------------------------------------
+    |
+    | This option allows you to specify the queue connection that should be
+    | used to send SMS messages. If set to null, the default queue connection
+    | will be used.
+    |
+    */
+
+    'queue_connection' => env('SMS_QUEUE_CONNECTION', null),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Queue Name
+    |--------------------------------------------------------------------------
+    |
+    | This option allows you to specify the queue name that should be used
+    | when sending SMS messages asynchronously.
+    |
+    */
+
+    'queue_name' => env('SMS_QUEUE_NAME', 'default'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Callbacks
+    |--------------------------------------------------------------------------
+    |
+    | Here you can define callback URLs for delivery reports and incoming
+    | messages. These URLs will be called by the SMS provider when a
+    | message status changes or when a new message is received.
+    |
+    */
+
+    'callbacks' => [
+        'status' => env('SMS_STATUS_CALLBACK', '/api/sms/status'),
+        'incoming' => env('SMS_INCOMING_CALLBACK', '/api/sms/incoming'),
     ],
 ];

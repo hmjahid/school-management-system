@@ -7,6 +7,9 @@ class View
 {
     private static array $shared = [];
 
+    /** When false, render() is a no-op (used by the SQL-focused integration tests). */
+    public static bool $renderViews = true;
+
     public static function share(string $key, mixed $value): void
     {
         self::$shared[$key] = $value;
@@ -62,7 +65,18 @@ class View
 
     public static function render(string $template, array $data = []): void
     {
+        if (!self::$renderViews) {
+            return;
+        }
         $data = array_merge(self::$shared, $data);
+
+        // Prefer Blade templates (Laravel parity). Fall back to legacy PHP views.
+        $bladePath = \App\Core\Blade::resolvePath($template);
+        if ($bladePath !== null) {
+            echo \App\Core\Blade::render($template, $data);
+            return;
+        }
+
         extract($data);
 
         $contentPath = self::resolve($template);

@@ -5,116 +5,138 @@ namespace App\Controllers\Dashboard;
 
 use App\Core\Auth;
 use App\Core\Controller;
-use App\Core\Database;
+use App\Core\Schema;
+use App\Core\Support\Collection;
 
 class DashboardController extends Controller
 {
     public function index(): void
     {
         Auth::requireAuth();
-        $db = Database::getInstance();
+
         $user = Auth::user();
+        $stats = $this->stats();
+        $attendanceStats = $this->attendanceStats();
+        $revenueExpense = $this->revenueExpenseTrend();
+        $workbench = null;
 
-        $totalStudents = $db->count('students');
-        $totalTeachers = $db->count('teachers');
-        $totalClasses = $db->count('school_classes');
-        $totalSections = $db->count('sections');
-
-        $totalRevenue = (float) ($db->fetch(
-            "SELECT COALESCE(SUM(paid_amount), 0) as total FROM payments WHERE payment_status = 'completed'"
-        )['total'] ?? 0);
-
-        $totalExpenses = (float) ($db->fetch(
-            "SELECT COALESCE(SUM(amount), 0) as total FROM expenses"
-        )['total'] ?? 0);
-
-        $pendingAdmissions = $db->count('admissions', "status = 'submitted'");
-
-        $pendingDues = (float) ($db->fetch(
-            "SELECT COALESCE(SUM(balance), 0) as total FROM fee_payments WHERE status IN ('pending', 'partial')"
-        )['total'] ?? 0);
-
-        $sevenDaysAgo = date('Y-m-d', strtotime('-7 days'));
-        $totalAttendance = (int) ($db->fetch(
-            "SELECT COUNT(*) as cnt FROM attendances WHERE date >= ?", [$sevenDaysAgo]
-        )['cnt'] ?? 0);
-        $presentAttendance = (int) ($db->fetch(
-            "SELECT COUNT(*) as cnt FROM attendances WHERE date >= ? AND status IN ('present', 'late', 'half_day')",
-            [$sevenDaysAgo]
-        )['cnt'] ?? 0);
-        $attendanceRate = $totalAttendance > 0 ? (int) round(100 * $presentAttendance / $totalAttendance) : 0;
-
-        $recentStudents = $db->fetchAll(
-            "SELECT s.*, u.name, c.name as class_name
-             FROM students s
-             LEFT JOIN users u ON s.user_id = u.id
-             LEFT JOIN school_classes c ON s.class_id = c.id
-             ORDER BY s.id DESC LIMIT 10"
-        );
-
-        $recentAdmissions = $db->fetchAll(
-            "SELECT * FROM admissions ORDER BY submitted_at DESC LIMIT 5"
-        );
-
-        $recentPayments = $db->fetchAll(
-            "SELECT p.*, u.name as creator_name
-             FROM payments p
-             LEFT JOIN users u ON p.created_by = u.id
-             ORDER BY p.id DESC LIMIT 10"
-        );
-
-        $upcomingEvents = $db->fetchAll(
-            "SELECT * FROM events WHERE status = 'published' AND start_date >= CURRENT_DATE ORDER BY start_date ASC LIMIT 5"
-        );
-
-        $recentActivity = $db->fetchAll(
-            "SELECT * FROM activity_log ORDER BY created_at DESC LIMIT 10"
-        );
-
-        $todayPresent = (int) ($db->fetch(
-            "SELECT COUNT(*) as cnt FROM attendances WHERE date = CURRENT_DATE AND status IN ('present', 'late', 'half_day')"
-        )['cnt'] ?? 0);
-        $todayTotal = (int) ($db->fetch(
-            "SELECT COUNT(*) as cnt FROM attendances WHERE date = CURRENT_DATE"
-        )['cnt'] ?? 0);
-
-        $stats = [
-            'total_students'        => $totalStudents,
-            'total_teachers'        => $totalTeachers,
-            'total_classes'         => $totalClasses,
-            'total_sections'        => $totalSections,
-            'students_growth'       => 0,
-            'teachers_growth'       => 0,
-            'fees_collected'        => $totalRevenue,
-            'fees_pending'          => $pendingDues,
-            'fees_growth'           => 0,
-            'fees_collection_rate'  => $totalRevenue > 0 ? min(100, (int) round(100 * $totalRevenue / max(1, ($totalRevenue + $pendingDues)))) : 0,
-            'total_fees'            => $totalRevenue + $pendingDues,
-            'today_attendance_rate' => $attendanceRate,
-            'present_today'         => $todayPresent,
-            'absent_today'          => max(0, $todayTotal - $todayPresent),
-            'late_today'            => 0,
+        $setupItems = [
+            ['key' => 'school_settings', 'label' => __('Dashboard Settings'), 'done' => Schema::hasTable('website_settings') && (bool) Schema::hasTable('website_settings')],
+            ['key' => 'students', 'label' => __('Add Students'), 'done' => $stats['totalStudents'] > 0],
+            ['key' => 'teachers', 'label' => __('Add Teachers'), 'done' => $stats['totalTeachers'] > 0],
+            ['key' => 'classes', 'label' => __('Create Classes'), 'done' => ($stats['totalClasses'] ?? 0) > 0],
         ];
+        $doneCount = count(array_filter($setupItems, fn ($i) => $i['done']));
+        $setupPercent = (int) round(100 * $doneCount / max(1, count($setupItems)));
+        $setupComplete = $doneCount === count($setupItems);
 
         $this->view('dashboard.index', [
-            'user'              => $user,
-            'stats'             => $stats,
-            'totalStudents'     => $totalStudents,
-            'totalTeachers'     => $totalTeachers,
-            'totalClasses'      => $totalClasses,
-            'totalSections'     => $totalSections,
-            'totalRevenue'      => $totalRevenue,
-            'totalExpenses'     => $totalExpenses,
-            'pendingAdmissions' => $pendingAdmissions,
-            'pendingDues'       => $pendingDues,
-            'attendanceRate'    => $attendanceRate,
-            'todayPresent'      => $todayPresent,
-            'todayTotal'        => $todayTotal,
-            'recentStudents'    => $recentStudents,
-            'recentAdmissions'  => $recentAdmissions,
-            'recentPayments'    => $recentPayments,
-            'recentActivity'    => $recentActivity,
-            'upcomingEvents'    => $upcomingEvents,
+            'user'          => $user,
+            'roleNames'     => $user ? ($user->attributes['role'] ?? '') : '',
+            'stats'         => $stats,
+            'attendanceStats' => $attendanceStats,
+            'revenueExpense' => $revenueExpense,
+            'setupItems'    => $setupItems,
+            'setupPercent'  => $setupPercent,
+            'setupComplete' => $setupComplete,
+            'workbench'     => $workbench,
         ]);
+    }
+
+    protected function stats(): array
+    {
+        $defaults = [
+            'totalStudents'       => 0,
+            'totalTeachers'       => 0,
+            'totalClasses'        => 0,
+            'totalParents'        => 0,
+            'pendingAdmissions'   => 0,
+            'attendanceRate'      => 0,
+            'totalRevenue'        => 0,
+            'pendingDues'         => 0,
+            'totalExpenses'       => 0,
+        ];
+        try {
+            if (Schema::hasTable('students')) {
+                $defaults['totalStudents'] = (int) \App\Models\Student::query()->count();
+            }
+            if (Schema::hasTable('teachers')) {
+                $defaults['totalTeachers'] = (int) \App\Models\Teacher::query()->count();
+            }
+            if (Schema::hasTable('school_classes')) {
+                $defaults['totalClasses'] = (int) \App\Models\SchoolClass::query()->count();
+            }
+            if (Schema::hasTable('guardians')) {
+                $defaults['totalParents'] = (int) \App\Models\Guardian::query()->count();
+            }
+            if (Schema::hasTable('admissions')) {
+                $defaults['pendingAdmissions'] = (int) \App\Models\Admission::query()->where('status', 'submitted')->count();
+            }
+            if (Schema::hasTable('payments')) {
+                $defaults['totalRevenue'] = (float) (\App\Models\Payment::query()
+                    ->where('payment_status', 'completed')
+                    ->sum('paid_amount'));
+            }
+            if (Schema::hasTable('fee_payments')) {
+                $defaults['pendingDues'] = (float) \App\Models\FeePayment::query()->whereRaw("status IN ('pending', 'partial')")->sum('balance');
+            }
+            if (Schema::hasTable('expenses')) {
+                $defaults['totalExpenses'] = (float) \App\Models\Expense::query()->sum('amount');
+            }
+        } catch (\Throwable) {
+            //
+        }
+        return $defaults;
+    }
+
+    protected function attendanceStats(): array
+    {
+        $defaults = [
+            'today'       => 0,
+            'present_today' => 0,
+            'absent_today'  => 0,
+            'late_today'    => 0,
+            'leave_today'   => 0,
+            'today_rate'    => 0,
+            'trend'         => [],
+        ];
+        try {
+            if (Schema::hasTable('attendances')) {
+                $today = date('Y-m-d');
+                $defaults['today'] = (int) \App\Models\Attendance::query()->whereDate('date', $today)->count();
+                $defaults['present_today'] = (int) \App\Models\Attendance::query()->whereDate('date', $today)->whereIn('status', ['present', 'late', 'half_day'])->count();
+                $defaults['absent_today'] = (int) \App\Models\Attendance::query()->whereDate('date', $today)->where('status', 'absent')->count();
+                $defaults['late_today'] = (int) \App\Models\Attendance::query()->whereDate('date', $today)->where('status', 'late')->count();
+                $defaults['today_rate'] = $defaults['today'] > 0 ? (int) round(100 * $defaults['present_today'] / $defaults['today']) : 0;
+                $trend = [];
+                for ($i = 6; $i >= 0; $i--) {
+                    $day = date('Y-m-d', strtotime("-{$i} days"));
+                    $total = (int) \App\Models\Attendance::query()->whereDate('date', $day)->count();
+                    $present = (int) \App\Models\Attendance::query()->whereDate('date', $day)->whereIn('status', ['present', 'late', 'half_day'])->count();
+                    $trend[] = ['date' => $day, 'rate' => $total > 0 ? (int) round(100 * $present / $total) : 0];
+                }
+                $defaults['trend'] = $trend;
+            }
+        } catch (\Throwable) {
+            //
+        }
+        return $defaults;
+    }
+
+    protected function revenueExpenseTrend(): array
+    {
+        $months = [];
+        $revenue = [];
+        $expenses = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $months[] = date('M', strtotime("-{$i} months"));
+            $revenue[] = 0;
+            $expenses[] = 0;
+        }
+        return [
+            'months'   => $months,
+            'revenue'  => $revenue,
+            'expenses' => $expenses,
+        ];
     }
 }

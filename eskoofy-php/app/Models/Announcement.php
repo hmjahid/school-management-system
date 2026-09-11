@@ -21,4 +21,42 @@ class Announcement extends Model
         'starts_at' => 'datetime',
         'ends_at' => 'datetime',
     ];
+
+    public function scopePublished($query)
+    {
+        return $query->where('is_published', true);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query
+            ->whereRaw('(starts_at IS NULL OR starts_at <= ?)', [date('Y-m-d H:i:s')])
+            ->whereRaw('(ends_at IS NULL OR ends_at >= ?)', [date('Y-m-d H:i:s')]);
+    }
+
+    public function scopeForHeader($query)
+    {
+        return $query->whereRaw("(display_target = ? OR display_target = ?)", ['header', 'both']);
+    }
+
+    public function scopeForNotification($query)
+    {
+        return $query->whereRaw("(display_target = ? OR display_target = ?)", ['notification', 'both']);
+    }
+
+    public function localizedTitle(): string
+    {
+        if (app()->getLocale() === 'bn' && !empty($this->title_bn)) {
+            return $this->title_bn;
+        }
+        return (string) $this->title;
+    }
+
+    public function localizedBody(): ?string
+    {
+        if (app()->getLocale() === 'bn' && !empty($this->body_bn)) {
+            return $this->body_bn;
+        }
+        return $this->body;
+    }
 }

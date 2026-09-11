@@ -50,7 +50,10 @@ class Database implements DatabaseInterface
     public function query(string $sql, array $params = []): \PDOStatement
     {
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
+        $bound = array_map(static function (mixed $p): mixed {
+            return $p instanceof \Stringable ? (string) $p : $p;
+        }, $params);
+        $stmt->execute($bound);
         return $stmt;
     }
 
@@ -92,6 +95,29 @@ class Database implements DatabaseInterface
     {
         $result = $this->fetch("SELECT COUNT(*) as cnt FROM {$table} WHERE {$where}", $params);
         return (int) ($result['cnt'] ?? 0);
+    }
+
+    public function hasTable(string $table): bool
+    {
+        try {
+            $driver = $this->pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+            if ($driver === 'sqlite') {
+                $row = $this->fetch("SELECT name FROM sqlite_master WHERE type='table' AND name = ?", [$table]);
+                return (bool) $row;
+            }
+            $row = $this->fetch(
+                'SELECT COUNT(*) AS cnt FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ?',
+                [$table]
+            );
+            return (bool) $row && ((int) ($row['cnt'] ?? 0) > 0 || ($row['name'] ?? null) === $table);
+        } catch (\Throwable) {
+            try {
+                $this->fetch("SELECT 1 FROM {$table} LIMIT 1");
+                return true;
+            } catch (\Throwable) {
+                return false;
+            }
+        }
     }
 
     public function beginTransaction(): void { $this->pdo->beginTransaction(); }

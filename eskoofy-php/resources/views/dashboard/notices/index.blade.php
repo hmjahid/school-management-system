@@ -1,0 +1,91 @@
+@extends('layouts.dashboard')
+
+@section('title', __('Notices') . ' — ' . config('app.name'))
+
+@section('content')
+    <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ __('Notices') }}</h1>
+            <p class="mt-1 text-sm text-gray-600">{{ __('Create and manage school notices for staff, students, and parents.') }}</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+            <form method="get" class="flex flex-wrap items-center gap-2">
+                <input name="q" value="{{ request('q') }}" placeholder="{{ __('Search...') }}"
+                    class="rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                <button class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50">{{ __('Filter') }}</button>
+            </form>
+            <a href="{{ route('dashboard.notices.create') }}"
+                class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">
+                {{ __('New Notice') }}
+            </a>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        @include('dashboard.partials.bulk-actions-bar', ['action' => route('dashboard.notices.bulk'), 'publishable' => false])
+    </div>
+
+    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <table class="min-w-full divide-y divide-gray-200 text-sm" data-bulk-table>
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="w-10 px-4 py-3"><input type="checkbox" class="bulk-all rounded border-gray-300" aria-label="{{ __('Select all') }}"></th>
+                    <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Title') }}</th>
+                    <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Audience') }}</th>
+                    <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Status') }}</th>
+                    <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ __('Created') }}</th>
+                    <th class="px-4 py-3 text-right font-semibold text-gray-700">{{ __('Actions') }}</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                @forelse($rows as $row)
+                    <tr>
+                        <td class="w-10 px-4 py-3"><input type="checkbox" class="bulk-check rounded border-gray-300" value="{{ $row->id }}" aria-label="{{ __('Select') }}"></td>
+                        <td class="px-4 py-3">
+                            <div class="font-medium text-gray-900">{{ $row->localizedTitle() }}</div>
+                            <div class="text-xs text-gray-500">{{ \Illuminate\Support\Str::limit(strip_tags($row->localizedContent()), 80) }}</div>
+                        </td>
+                        <td class="px-4 py-3 text-gray-700">
+                            @if(is_array($row->audience))
+                                @foreach($row->audience as $a)
+                                    <span class="mr-1 inline-block rounded-full bg-brand-100 px-2 py-0.5 text-xs font-semibold text-brand-800">{{ ucfirst($a) }}</span>
+                                @endforeach
+                            @else
+                                <span class="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700">{{ $row->audience ?? __('All') }}</span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3">
+                            @if($row->pinned)
+                                <x-badge variant="warning">{{ __('Pinned') }}</x-badge>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3 text-gray-700">{{ $row->created_at?->format('Y-m-d') ?: '—' }}</td>
+                        <td class="px-4 py-3 text-right">
+                            <div class="inline-flex items-center gap-1">
+                                <a class="inline-flex items-center rounded-md bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100" href="{{ route('dashboard.notices.edit', $row) }}">{{ __('Edit') }}</a>
+                                <form method="post" action="{{ route('dashboard.notices.destroy', $row) }}" data-confirm="{{ __('Delete this notice?') }}">
+                                    @csrf
+                                    @method('delete')
+                                    <button class="inline-flex items-center rounded-md bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-100" type="submit">{{ __('Delete') }}</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="px-4 py-10">
+                            <x-empty-state
+                                icon="document"
+                                :title="__('No notices yet')"
+                                :message="__('Post official notices so students and staff stay up to date.')"
+                                :cta="['label' => __('Add notice'), 'url' => route('dashboard.notices.create')]"
+                            />
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-6">{{ $rows->links() }}</div>
+@endsection

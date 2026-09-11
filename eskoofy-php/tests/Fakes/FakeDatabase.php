@@ -112,6 +112,11 @@ class FakeDatabase implements DatabaseInterface
         return $matched;
     }
 
+    public function hasTable(string $table): bool
+    {
+        return isset($this->tables[$table]);
+    }
+
     public function beginTransaction(): void
     {
         $this->log[] = ['action' => 'beginTransaction', 'sql' => '', 'params' => []];

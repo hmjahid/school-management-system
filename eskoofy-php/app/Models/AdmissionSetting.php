@@ -20,4 +20,13 @@ class AdmissionSetting extends Model
         'is_open' => 'boolean',
         'admission_fee' => 'float',
     ];
+
+    public static function getSettings(): static
+    {
+        try {
+            return static::query()->first() ?? new static();
+        } catch (\Throwable) {
+            return new static();
+        }
+    }
 }

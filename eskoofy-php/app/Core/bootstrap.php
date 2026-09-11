@@ -65,3 +65,14 @@ if (in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['POST', 'PUT', 'PATCH', 'DELE
 \App\Core\View::share('schoolName', $config['school']['name'] ?? 'Eskoofy School');
 \App\Core\View::share('variant', $config['variant'] ?? 'bd');
 \App\Core\View::share('locale', $config['locale'] ?? 'en');
+
+$flashErrors = $_SESSION['_flash']['errors'] ?? null;
+\App\Core\View::share('errors', new \App\Core\ViewErrorBag(is_array($flashErrors) ? $flashErrors : []));
+
+// Mirror Laravel's global `$siteSettings` view composer so every Blade view can
+// read site settings without the controller passing them explicitly.
+try {
+    \App\Core\View::share('siteSettings', \App\Models\WebsiteSetting::getSettings());
+} catch (\Throwable) {
+    \App\Core\View::share('siteSettings', new \App\Models\WebsiteSetting());
+}

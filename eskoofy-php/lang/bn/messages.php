@@ -1,38 +1,33 @@
 <?php
-declare(strict_types=1);
 
 return [
-    'navigation' => [
-        'back'   => 'পিছনে',
-        'next'   => 'পরবর্তী',
-        'previous' => 'পূর্ববর্তী',
-        'close'  => 'বন্ধ',
-    ],
-
-    'gender' => [
-        'male'   => 'পুরুষ',
-        'female' => 'নারী',
-        'other'  => 'অন্য',
-    ],
-
-    'search' => [
-        'placeholder' => 'খুঁজুন...',
-        'no_results'  => 'কোনো ফলাফল পাওয়া যায়নি',
-        'results_for' => 'ফলাফল',
-    ],
-
-    'common' => [
-        'yes'      => 'হ্যাঁ',
-        'no'       => 'না',
-        'ok'       => 'ঠিক আছে',
-        'error'    => 'ত্রুটি',
-        'success'  => 'সফল',
-        'warning'  => 'সতর্কতা',
-        'info'     => 'তথ্য',
-        'none'     => 'কোনোটি নয়',
-        'all'      => 'সব',
-        'select'   => 'নির্বাচন',
-        'confirm'  => 'নিশ্চিত করুন',
-        'required' => 'আবশ্যক',
-    ],
+    'Admissions Open' => 'ভর্তি খোলা',
+    'Apply Now' => 'এখনই আবেদন করুন',
+    'Contact' => 'যোগাযোগ',
+    'Example — set real details in Dashboard → School settings' => 'উদাহরণ — ড্যাশবোর্ড → স্কুল সেটিংসে প্রকৃত তথ্য সেট করুন',
+    'Excellence in Education' => 'শিক্ষায় শ্রেষ্ঠত্ব',
+    'Extracurricular' => 'পাঠ্যক্রম বহির্ভূত',
+    'Junior (Class 6-8)' => 'জুনিয়র (শ্রেণি ৬-৮)',
+    'Language' => 'ভাষা',
+    'Menu' => 'মেনু',
+    'Newsletter' => 'নিউজলেটার',
+    'Notice' => 'নোটিশ',
+    'Play to KG-2' => 'প্লে থেকে KG-2',
+    'Primary (Class 1-5)' => 'প্রাথমিক (শ্রেণি ১-৫)',
+    'Search...' => 'অনুসন্ধান...',
+    'Secondary (Class 9-10)' => 'সেকেন্ডারি (শ্রেণি ৯-১০)',
+    'Sitemap' => 'সাইটম্যাপ',
+    'Urgent' => 'জরুরি',
+    'Your email' => 'আপনার ইমেইল',
+    'Select' => 'নির্বাচন করুন',
+    'Male' => 'পুরুষ',
+    'Female' => 'মহিলা',
+    'Profile updated successfully.' => 'প্রোফাইল সফলভাবে আপডেট হয়েছে।',
+    'Dashboard' => 'ড্যাশবোর্ড',
+    'Start typing to search...' => 'অনুসন্ধান করতে টাইপ করুন...',
+    'No results found.' => 'কোনো ফলাফল পাওয়া যায়নি।',
+    'Search students, teachers, notices, classes...' => 'শিক্ষার্থী, শিক্ষক, নোটিশ, শ্রেণি অনুসন্ধান করুন...',
+    'Student' => 'শিক্ষার্থী',
+    'Teacher' => 'শিক্ষক',
+    'Class' => 'শ্রেণি',
 ];

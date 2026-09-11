@@ -1,0 +1,75 @@
+@extends('layouts.dashboard')
+@section('title', __('dashboard.edit_role') . ' — ' . config('app.name'))
+@section('content')
+<div class="mb-6 flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ __('dashboard.edit_role') }}</h1>
+    <a href="{{ route('dashboard.roles.index') }}" class="text-sm font-medium text-brand-600 hover:text-brand-800 dark:text-brand-400 dark:hover:text-brand-300">{{ __('Back') }}</a>
+</div>
+@include('dashboard.partials.form-errors')
+<form method="post" action="{{ route('dashboard.roles.update', $role) }}" class="space-y-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    @csrf @method('put')
+    <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('dashboard.role') }} *</label>
+            <input name="name" value="{{ old('name', $role->name) }}" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('dashboard.guard_name') }} *</label>
+            <select name="guard_name" required class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">
+                <option value="web" @selected(old('guard_name', $role->guard_name) === 'web')>Web</option>
+                <option value="api" @selected(old('guard_name', $role->guard_name) === 'api')>API</option>
+            </select>
+        </div>
+        <div class="sm:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Description') }}</label>
+            <textarea name="description" rows="2" class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200">{{ old('description', $role->description) }}</textarea>
+        </div>
+    </div>
+
+    <div class="border-t border-gray-200 pt-6 dark:border-gray-700">
+        <div class="mb-4 flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ __('dashboard.permissions') }}</h3>
+            <div class="flex gap-2">
+                <button type="button" onclick="toggleAllRolePerms(true)" class="rounded-md bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100 dark:bg-brand-900/30 dark:text-brand-400 dark:hover:bg-brand-900/50">{{ __('Select all') }}</button>
+                <button type="button" onclick="toggleAllRolePerms(false)" class="rounded-md bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">{{ __('Deselect all') }}</button>
+            </div>
+        </div>
+        @php
+            $rolePermissionNames = $role->permissions->pluck('name')->toArray();
+        @endphp
+        @foreach($permissions as $group => $groupPermissions)
+            <details class="group mb-3" open>
+                <summary class="flex cursor-pointer items-center gap-2 rounded-lg bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 [&::-webkit-details-marker]:hidden">
+                    <svg class="h-4 w-4 text-gray-400 transition group-open:rotate-90 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    <span class="flex-1 capitalize">{{ $group }}</span>
+                    <span class="text-xs text-gray-400 dark:text-gray-500">({{ $groupPermissions->count() }})</span>
+                    <button type="button" onclick="toggleGroupPerms(this, true)" class="rounded bg-brand-50 px-2 py-0.5 text-[10px] font-medium text-brand-700 hover:bg-brand-100 dark:bg-brand-900/30 dark:text-brand-400">All</button>
+                    <button type="button" onclick="toggleGroupPerms(this, false)" class="rounded bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600 hover:bg-gray-200 dark:bg-gray-600 dark:text-gray-400">None</button>
+                </summary>
+                <div class="mt-2 grid gap-2 pl-4 sm:grid-cols-2 lg:grid-cols-3">
+                    @foreach($groupPermissions as $permission)
+                        <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                            <input type="checkbox" name="permissions[]" value="{{ $permission->name }}" @checked(in_array($permission->name, old('permissions', $rolePermissionNames))) class="role-perm-checkbox rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-600">
+                            {{ $permission->name }}
+                        </label>
+                    @endforeach
+                </div>
+            </details>
+        @endforeach
+    </div>
+
+    <button type="submit" class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 focus:ring-brand-500">{{ __('dashboard.save_changes') }}</button>
+</form>
+
+<script>
+function toggleAllRolePerms(select) {
+    document.querySelectorAll('.role-perm-checkbox').forEach(function(cb) { cb.checked = select; });
+}
+function toggleGroupPerms(btn, select) {
+    var details = btn.closest('details');
+    if (details) {
+        details.querySelectorAll('.role-perm-checkbox').forEach(function(cb) { cb.checked = select; });
+    }
+}
+</script>
+@endsection

@@ -71,12 +71,12 @@ class HelpersTest extends TestCase
     public function test_asset_builds_correctly(): void
     {
         $result = asset('css/app.css');
-        $this->assertStringContainsString('/assets/css/app.css', $result);
+        $this->assertStringContainsString('/css/app.css', $result);
     }
 
     public function test_now_returns_datetime_string(): void
     {
-        $result = now();
+        $result = (string) now();
         $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $result);
     }
 

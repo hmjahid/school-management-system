@@ -29,4 +29,16 @@ class Event extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function scopeUpcoming($query)
+    {
+        return $query->where('start_date', '>=', now())
+            ->where('status', 'published')
+            ->orderBy('start_date');
+    }
+
+    public function scopePublished($query)
+    {
+        return $query->where('status', 'published');
+    }
 }

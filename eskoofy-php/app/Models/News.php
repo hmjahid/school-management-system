@@ -22,4 +22,27 @@ class News extends Model
         'published_at' => 'datetime',
         'event_date' => 'datetime',
     ];
+
+    public function scopePublished($query)
+    {
+        return $query->where('is_published', true);
+    }
+
+    public function scopeEvents($query)
+    {
+        return $query->where('is_event', true);
+    }
+
+    public function scopeUpcoming($query)
+    {
+        return $query->where('event_date', '>=', now());
+    }
+
+    public function localizedTitle(): string
+    {
+        if (app()->getLocale() === 'bn' && !empty($this->title_bn)) {
+            return $this->title_bn;
+        }
+        return (string) $this->title;
+    }
 }

@@ -48,14 +48,19 @@ class Auth
         return Session::getInstance()->get('user_role');
     }
 
-    public static function user(): ?array
+    public static function user(): ?\App\Models\User
     {
         $id = self::id();
         if (!$id) return null;
-        return Database::getInstance()->fetch(
-            "SELECT * FROM users WHERE id = ? AND deleted_at IS NULL",
-            [$id]
-        );
+        try {
+            $row = Database::getInstance()->fetch(
+                "SELECT * FROM users WHERE id = ? AND deleted_at IS NULL",
+                [$id]
+            );
+            return $row ? \App\Models\User::newFromRow($row) : null;
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     public static function hasRole(string ...$roles): bool

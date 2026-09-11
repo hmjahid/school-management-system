@@ -36,6 +36,67 @@ class Request
         return isset($_GET[$key]) || isset($_POST[$key]);
     }
 
+    public function filled(string|array $key): bool
+    {
+        foreach ((array) $key as $k) {
+            $value = $this->get($k);
+            if ($value === null || $value === '') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public function isFilled(string|array $key): bool
+    {
+        return $this->filled($key);
+    }
+
+    public function missing(string $key): bool
+    {
+        return !$this->has($key);
+    }
+
+    public function hasAny(array|string $keys): bool
+    {
+        foreach ((array) $keys as $key) {
+            if ($this->has($key)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function string(string $key, mixed $default = ''): \App\Core\Support\Stringable
+    {
+        return new \App\Core\Support\Stringable((string) ($this->get($key, $default) ?? ''));
+    }
+
+    public function integer(string $key, int $default = 0): int
+    {
+        return (int) $this->get($key, $default);
+    }
+
+    public function boolean(string $key, bool $default = false): bool
+    {
+        $value = $this->get($key, $default);
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    public function query(?string $key = null, mixed $default = null): mixed
+    {
+        if ($key === null) {
+            return $_GET;
+        }
+        return $_GET[$key] ?? $default;
+    }
+
+    public function date(string $key, mixed $default = null): mixed
+    {
+        $value = $this->get($key, $default);
+        return $value ? new \App\Core\Support\Carbon($value) : null;
+    }
+
     public function method(): string
     {
         return strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
@@ -45,6 +106,11 @@ class Request
     {
         $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
         return rtrim($uri, '/') ?: '/';
+    }
+
+    public function getRequestUri(): string
+    {
+        return $_SERVER['REQUEST_URI'] ?? '/';
     }
 
     public function url(): string
@@ -93,5 +159,79 @@ class Request
     {
         $body = file_get_contents('php://input');
         return json_decode($body, true);
+    }
+
+    public function is(string ...$patterns): bool
+    {
+        $path = $this->path();
+        foreach ($patterns as $pattern) {
+            $pattern = '/' . trim($pattern, '/');
+            if ($pattern === $path) {
+                return true;
+            }
+            if (fnmatch($pattern, $path)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function route(): object
+    {
+        return new class($this->path()) {
+            public function __construct(protected string $path)
+            {
+            }
+
+            public function getName(): ?string
+            {
+                return null;
+            }
+
+            public function uri(): string
+            {
+                return $this->path;
+            }
+
+            public function parameter(string $key, mixed $default = null): mixed
+            {
+                return $default;
+            }
+        };
+    }
+
+    /**
+     * Laravel-compatible request()->routeIs('dashboard.students.*') using the
+     * generated name -> URI map.
+     */
+    public function routeIs(string ...$patterns): bool
+    {
+        static $map = null;
+        if ($map === null) {
+            $file = dirname(__DIR__, 2) . '/config/routes.php';
+            $map = is_file($file) ? require $file : [];
+        }
+        $path = $this->path();
+        foreach ($patterns as $pattern) {
+            $matches = array_keys($map, $path, true);
+            if ($matches === []) {
+                // wildcard: match names against pattern, compare URIs
+                foreach ($map as $name => $uri) {
+                    if (fnmatch($pattern, (string) $name)) {
+                        $regex = '#^' . str_replace(['{', '}'], ['[^/]+', ''], $uri) . '$#';
+                        if (preg_match($regex, $path)) {
+                            return true;
+                        }
+                    }
+                }
+                continue;
+            }
+            foreach ($matches as $name) {
+                if (fnmatch($pattern, (string) $name)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

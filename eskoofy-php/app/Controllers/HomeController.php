@@ -4,68 +4,148 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Controller;
-use App\Core\Database;
+use App\Core\Schema;
+use App\Core\Support\Collection;
+use App\Models\AdmissionSetting;
+use App\Models\CommitteeMember;
+use App\Models\Event;
+use App\Models\News;
+use App\Models\Notice;
+use App\Models\Student;
+use App\Models\Teacher;
+use App\Models\WebsiteContent;
+use App\Models\WebsiteSetting;
 
 class HomeController extends Controller
 {
     public function index(): void
     {
-        $db = Database::getInstance();
+        $settings = Schema::hasTable('website_settings') ? WebsiteSetting::getSettings() : new WebsiteSetting();
 
-        $settings = $db->fetch("SELECT * FROM website_settings ORDER BY id DESC LIMIT 1");
+        $homeContent = WebsiteContent::getContent('home', [
+            'hero'         => [],
+            'highlights'   => [],
+            'testimonials' => [],
+        ]);
 
-        $news = $db->fetchAll(
-            "SELECT * FROM news WHERE is_event = 0 AND is_published = 1 ORDER BY published_at DESC LIMIT 5"
-        );
+        $latestNews = new Collection();
+        $upcomingEvents = new Collection();
+        $recentNotices = new Collection();
+        $teachers = new Collection();
+        $remarkableStudents = new Collection();
+        $sliderFallback = new Collection();
+        $committeeMembers = new Collection();
 
-        $events = $db->fetchAll(
-            "SELECT * FROM events WHERE status = 'published' AND start_date >= CURRENT_DATE ORDER BY start_date ASC LIMIT 5"
-        );
-
-        $notices = $db->fetchAll(
-            "SELECT * FROM notices ORDER BY pinned DESC, id DESC LIMIT 5"
-        );
-
-        $teachers = $db->fetchAll(
-            "SELECT t.*, u.name, u.photo FROM teachers t JOIN users u ON t.user_id = u.id WHERE t.status = 'active' ORDER BY t.id DESC LIMIT 8"
-        );
-
-        $testimonials = $db->fetchAll(
-            "SELECT * FROM testimonials WHERE is_visible = 1 ORDER BY id DESC LIMIT 10"
-        );
-
-        $committeeMembers = $db->fetchAll(
-            "SELECT * FROM committee_members WHERE is_active = 1 ORDER BY sort_order ASC, id ASC LIMIT 20"
-        );
-
-        $studentCount = $db->count('students');
-        $teacherCount = $db->count('teachers');
-        $classCount = $db->count('school_classes');
-
-        $years = null;
-        if ($settings && !empty($settings['established_year'])) {
-            $years = (int) date('Y') - (int) $settings['established_year'];
+        try {
+            if (Schema::hasTable('news')) {
+                $latestNews = new Collection(News::query()
+                    ->published()
+                    ->where('is_event', false)
+                    ->orderByDesc('published_at')
+                    ->limit(5)
+                    ->get());
+            }
+            if (Schema::hasTable('events')) {
+                $upcomingEvents = new Collection(Event::query()
+                    ->where('status', 'published')
+                    ->where('start_date', '>=', now())
+                    ->orderBy('start_date')
+                    ->limit(5)
+                    ->get());
+            }
+            if (Schema::hasTable('events')) {
+                $sliderFallback = collect(Event::query()
+                    ->where('status', 'published')
+                    ->whereNotNull('image')
+                    ->where('image', '!=', '')
+                    ->orderByDesc('id')
+                    ->limit(6)
+                    ->get())
+                    ->map(function (Event $e): array {
+                        return [
+                            'image'   => $e->image ? url('storage/' . ltrim((string) $e->image, '/')) : null,
+                            'title'   => $e->title,
+                            'caption' => (string) ($e->location ?? ''),
+                            'link'    => route('site.events'),
+                        ];
+                    });
+            }
+            if (Schema::hasTable('notices')) {
+                $recentNotices = new Collection(Notice::query()
+                    ->orderByDesc('pinned')
+                    ->orderByDesc('id')
+                    ->limit(5)
+                    ->get());
+            }
+            if (Schema::hasTable('teachers')) {
+                $teachers = new Collection(Teacher::query()
+                    ->where('status', 'active')
+                    ->orderByDesc('id')
+                    ->limit(8)
+                    ->get());
+            }
+            if (Schema::hasTable('students') && Schema::hasColumn('students', 'is_notable')) {
+                $remarkableStudents = new Collection(Student::query()
+                    ->where('is_notable', true)
+                    ->orderByDesc('id')
+                    ->limit(8)
+                    ->get());
+            }
+            if (Schema::hasTable('committee_members')) {
+                $committeeMembers = new Collection(CommitteeMember::query()
+                    ->active()
+                    ->ordered()
+                    ->limit(20)
+                    ->get());
+            }
+        } catch (\Throwable) {
+            // A partially imported schema should never take down the homepage.
         }
 
         $stats = [
-            'total_students' => $studentCount,
-            'total_teachers' => $teacherCount,
-            'total_classes'  => $classCount,
-            'years'          => $years,
+            'students' => 0,
+            'teachers' => 0,
+            'years'    => ($settings->established_year)
+                ? max(0, (int) date('Y') - (int) $settings->established_year)
+                : null,
+            'awards'   => 0,
         ];
 
-        $this->view('site.home', [
-            'settings'         => $settings,
-            'news'             => $news,
-            'latestNews'       => $news,
-            'events'           => $events,
-            'upcomingEvents'   => $events,
-            'notices'          => $notices,
-            'recentNotices'    => $notices,
-            'teachers'         => $teachers,
-            'testimonials'     => $testimonials,
-            'committeeMembers' => $committeeMembers,
-            'stats'            => $stats,
-        ]);
+        $admissionsOpen = true;
+        if (Schema::hasTable('admission_settings')) {
+            try {
+                $admissionsOpen = (bool) AdmissionSetting::getSettings()->is_open;
+            } catch (\Throwable) {
+                //
+            }
+        }
+
+        try {
+            if (Schema::hasTable('students')) {
+                $stats['students'] = Student::query()->count();
+            }
+            if (Schema::hasTable('users') && Schema::hasTable('teachers')) {
+                $stats['teachers'] = Teacher::query()->count();
+            }
+        } catch (\Throwable) {
+            //
+        }
+
+        $sliderSlides = $homeContent->content['slider'] ?? [];
+
+        $this->view('home', compact(
+            'settings',
+            'homeContent',
+            'latestNews',
+            'upcomingEvents',
+            'recentNotices',
+            'teachers',
+            'remarkableStudents',
+            'sliderFallback',
+            'sliderSlides',
+            'stats',
+            'admissionsOpen',
+            'committeeMembers'
+        ));
     }
 }

@@ -35,4 +35,20 @@ class Notice extends Model
     {
         return $this->belongsTo(SchoolClass::class, 'class_id');
     }
+
+    public function localizedTitle(): string
+    {
+        if (app()->getLocale() === 'bn' && !empty($this->title_bn)) {
+            return $this->title_bn;
+        }
+        return (string) $this->title;
+    }
+
+    public function localizedContent(): string
+    {
+        if (app()->getLocale() === 'bn' && !empty($this->content_bn)) {
+            return $this->content_bn;
+        }
+        return (string) $this->content;
+    }
 }

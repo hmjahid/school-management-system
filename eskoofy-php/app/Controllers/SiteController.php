@@ -4,108 +4,448 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Controller;
-use App\Core\Database;
-use App\Core\Session;
+use App\Core\Schema;
+use App\Core\Support\Collection;
+use App\Core\Support\LengthAwarePaginator;
+use App\Models\AdmissionSetting;
+use App\Models\CommitteeMember;
+use App\Models\Event;
+use App\Models\Exam;
+use App\Models\Fee;
+use App\Models\Gallery;
+use App\Models\News;
+use App\Models\Notice;
+use App\Models\PaymentGateway;
+use App\Models\Routine;
+use App\Models\SchoolClass;
+use App\Models\Student;
+use App\Models\Teacher;
+use App\Models\TransportRoute;
+use App\Models\Vehicle;
+use App\Models\WebsiteContent;
+use App\Models\AcademicSession;
+use App\Models\ExamResult;
 
 class SiteController extends Controller
 {
+    protected function renderCmsPage(string $slug): void
+    {
+        $content = WebsiteContent::getContent($slug);
+        $this->view('site.page', ['slug' => $slug, 'content' => $content]);
+    }
+
+    public function about(): void
+    {
+        $this->renderCmsPage('about');
+    }
+
+    public function academics(): void
+    {
+        $this->renderCmsPage('academics');
+    }
+
+    public function studentsLife(): void
+    {
+        $this->renderCmsPage('students');
+    }
+
+    public function terms(): void
+    {
+        $this->renderCmsPage('terms');
+    }
+
+    public function privacy(): void
+    {
+        $this->renderCmsPage('privacy');
+    }
+
+    public function careers(): void
+    {
+        $this->renderCmsPage('careers');
+    }
+
     public function news(): void
     {
-        $db = Database::getInstance();
-        $page = max(1, (int) ($_GET['page'] ?? 1));
-        $perPage = 12;
-        $offset = ($page - 1) * $perPage;
+        $content = WebsiteContent::getContent('news');
 
-        $total = $db->fetch("SELECT COUNT(*) as cnt FROM news WHERE is_event = 0 AND is_published = 1")['cnt'] ?? 0;
-        $rows = $db->fetchAll(
-            "SELECT * FROM news WHERE is_event = 0 AND is_published = 1 ORDER BY published_at DESC LIMIT {$perPage} OFFSET {$offset}"
-        );
+        $latestNews = new Collection();
+        $newsEvents = new Collection();
+        $upcomingEvents = new Collection();
+        $pastEvents = new Collection();
 
-        $this->view('site.news', [
-            'news'     => $rows,
-            'rows'     => $rows,
-            'total'    => (int) $total,
-            'page'     => $page,
-            'perPage'  => $perPage,
-            'lastPage' => max(1, (int) ceil($total / $perPage)),
-        ]);
+        try {
+            $latestNews = new Collection(News::query()
+                ->published()
+                ->where('is_event', false)
+                ->orderByDesc('published_at')
+                ->limit(12)
+                ->get());
+
+            $newsEvents = new Collection(News::query()
+                ->published()
+                ->events()
+                ->orderByDesc('event_date')
+                ->limit(8)
+                ->get());
+
+            $upcomingEvents = new Collection(Event::query()
+                ->where('status', 'published')
+                ->where('start_date', '>=', now())
+                ->orderBy('start_date')
+                ->limit(8)
+                ->get());
+
+            $pastEvents = new Collection(Event::query()
+                ->where('status', 'published')
+                ->where('start_date', '<', now())
+                ->orderByDesc('start_date')
+                ->limit(8)
+                ->get());
+        } catch (\Throwable) {
+            //
+        }
+
+        $this->view('site.news', compact('content', 'latestNews', 'newsEvents', 'upcomingEvents', 'pastEvents'));
     }
 
     public function newsShow(string $slug): void
     {
-        $db = Database::getInstance();
-        $row = $db->fetch("SELECT * FROM news WHERE slug = ? AND is_published = 1 LIMIT 1", [$slug]);
-
-        if (!$row) {
+        $article = News::query()->published()->where('slug', $slug)->first();
+        if (!$article) {
             http_response_code(404);
-            echo 'News article not found.';
+            $this->view('errors.404');
             return;
         }
-
-        $this->view('site.news_show', ['row' => $row]);
+        $this->view('site.news-show', ['article' => $article]);
     }
 
     public function notices(): void
     {
-        $db = Database::getInstance();
-        $rows = $db->fetchAll(
-            "SELECT * FROM notices ORDER BY pinned DESC, id DESC LIMIT 50"
-        );
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+        $notices = new LengthAwarePaginator([], 0, 15, $page);
+        try {
+            $paginated = Notice::query()
+                ->orderByDesc('pinned')
+                ->orderByDesc('id')
+                ->paginate(15, $page);
+            $notices = LengthAwarePaginator::fromQuery($paginated);
+        } catch (\Throwable) {
+            //
+        }
 
-        $this->view('site.notices', [
-            'notices' => $rows,
-            'rows'    => $rows,
-        ]);
+        $this->view('site.notices', ['notices' => $notices]);
     }
 
     public function events(): void
     {
-        $db = Database::getInstance();
-        $upcoming = $db->fetchAll(
-            "SELECT * FROM events WHERE status = 'published' AND start_date >= CURRENT_DATE ORDER BY start_date ASC LIMIT 50"
-        );
-        $past = $db->fetchAll(
-            "SELECT * FROM events WHERE status = 'published' AND start_date < CURRENT_DATE ORDER BY start_date DESC LIMIT 20"
-        );
-        $allRows = array_merge($upcoming, $past);
+        $upcoming = new Collection();
+        $past = new Collection();
+        try {
+            $upcoming = new Collection(Event::query()
+                ->where('start_date', '>=', now())
+                ->where('status', 'published')
+                ->orderBy('start_date')
+                ->limit(50)
+                ->get());
 
-        $this->view('site.events', [
-            'events'   => $allRows,
-            'upcoming' => $upcoming,
-            'past'     => $past,
-        ]);
+            $past = new Collection(Event::query()
+                ->where('start_date', '<', now())
+                ->where('status', 'published')
+                ->orderByDesc('start_date')
+                ->limit(20)
+                ->get());
+        } catch (\Throwable) {
+            //
+        }
+
+        $this->view('site.events', ['upcoming' => $upcoming, 'past' => $past]);
     }
 
     public function gallery(): void
     {
-        $db = Database::getInstance();
-        // The raw-PHP port has a single `galleries` table (no separate
-        // `gallery_albums`); treat the published galleries list as the album
-        // list so the view can iterate. View key `albums` is preserved.
-        $albums = $db->fetchAll(
-            "SELECT * FROM galleries WHERE is_published = 1 ORDER BY id DESC LIMIT 50"
-        );
-        $photos = $db->fetchAll(
-            "SELECT * FROM galleries WHERE is_published = 1 ORDER BY id DESC LIMIT 100"
-        );
-        $cats = [];
-        foreach ($photos as $p) {
-            if (!empty($p['category']) && !isset($cats[$p['category']])) {
-                $cats[$p['category']] = ['slug' => slugify($p['category']), 'name' => $p['category']];
-            }
-        }
-        $cats = array_values($cats);
+        $content = WebsiteContent::getContent('gallery');
 
-        $this->view('site.gallery', [
-            'albums'     => $albums,
-            'categories' => $cats,
-            'photos'     => $photos,
-        ]);
+        $items = new Collection();
+        try {
+            $items = collect(Gallery::query()
+                ->published()
+                ->orderByDesc('id')
+                ->get())
+                ->groupBy(fn ($g) => $g->category ?: __('General'));
+        } catch (\Throwable) {
+            //
+        }
+
+        $this->view('site.gallery', ['content' => $content, 'items' => $items]);
     }
 
     public function contact(): void
     {
-        $this->view('site.contact');
+        $content = WebsiteContent::getContent('contact');
+        $this->view('site.contact', ['content' => $content]);
+    }
+
+    public function faculty(): void
+    {
+        $content = WebsiteContent::getContent('faculty');
+
+        $teachers = new Collection();
+        try {
+            $teachers = new Collection(Teacher::query()
+                ->where('status', 'active')
+                ->orderByDesc('joining_date')
+                ->limit(80)
+                ->get());
+        } catch (\Throwable) {
+            //
+        }
+
+        $this->view('site.faculty', ['content' => $content, 'teachers' => $teachers]);
+    }
+
+    public function committee(): void
+    {
+        $content = WebsiteContent::getContent('committee');
+
+        $members = new Collection();
+        try {
+            $members = new Collection(CommitteeMember::query()->active()->ordered()->get());
+        } catch (\Throwable) {
+            //
+        }
+
+        $this->view('site.committee', ['content' => $content, 'members' => $members]);
+    }
+
+    public function transport(): void
+    {
+        $routes = new Collection();
+        try {
+            $routes = new Collection(TransportRoute::query()
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get());
+        } catch (\Throwable) {
+            //
+        }
+        $routeNames = $routes->pluck('name')->filter()->values();
+
+        $this->view('site.transport', ['routes' => $routes, 'routeNames' => $routeNames]);
+    }
+
+    public function routine(): void
+    {
+        $classId = (int) ($_GET['class_id'] ?? 0);
+        $sectionId = (int) ($_GET['section_id'] ?? 0);
+
+        $classes = new Collection();
+        $sections = new Collection();
+        $routines = new Collection();
+        try {
+            $classes = new Collection(SchoolClass::query()->orderBy('name')->get());
+            $sections = new Collection(\App\Models\Section::query()->orderBy('name')->get());
+            $query = Routine::query();
+            if ($classId > 0) {
+                $query->where('school_class_id', $classId);
+            }
+            if ($sectionId > 0) {
+                $query->where('section_id', $sectionId);
+            }
+            $routines = new Collection($query->orderBy('day_of_week')->orderBy('start_time')->get());
+        } catch (\Throwable) {
+            //
+        }
+
+        $this->view('site.routines', compact('classes', 'sections', 'routines', 'classId', 'sectionId'));
+    }
+
+    public function results(): void
+    {
+        $classes = new Collection();
+        $sessions = new Collection();
+        $result = new Collection();
+        $student = null;
+
+        try {
+            $classes = new Collection(SchoolClass::query()->orderBy('name')->get(['id', 'name']));
+            $sessions = new Collection(AcademicSession::query()->orderByDesc('name')->get(['id', 'name']));
+
+            $classId = (int) ($_GET['class_id'] ?? 0);
+            $sessionId = (int) ($_GET['academic_session_id'] ?? 0);
+            $roll = trim((string) ($_GET['roll'] ?? ''));
+
+            if ($classId > 0 && $sessionId > 0 && $roll !== '') {
+                $student = Student::query()
+                    ->where('class_id', $classId)
+                    ->whereRaw('(roll_no = ? OR roll_number = ?)', [$roll, $roll])
+                    ->first();
+
+                if ($student) {
+                    $examIds = Exam::query()
+                        ->where('is_published_to_public', true)
+                        ->where('academic_session_id', $sessionId)
+                        ->where('batch_id', $student->batch_id)
+                        ->pluck('id');
+
+                    if ($examIds !== []) {
+                        $result = new Collection(ExamResult::query()
+                            ->whereIn('exam_id', $examIds)
+                            ->where('student_id', $student->id)
+                            ->where('is_published', true)
+                            ->get());
+                    }
+                }
+            }
+        } catch (\Throwable) {
+            //
+        }
+
+        $this->view('site.results', compact('classes', 'sessions', 'result', 'student'));
+    }
+
+    public function admission(): void
+    {
+        $content = WebsiteContent::getContent('admissions');
+        $admissionsClosed = true;
+        try {
+            $admissionsClosed = !AdmissionSetting::getSettings()->is_open;
+        } catch (\Throwable) {
+            //
+        }
+
+        $settings = [];
+        $classes = new Collection();
+        try {
+            $settings = \App\Models\AdmissionSetting::getSettings();
+            $classes = new Collection(SchoolClass::query()->orderBy('name')->get());
+        } catch (\Throwable) {
+            //
+        }
+
+        $this->view('site.admissions', compact('content', 'admissionsClosed', 'settings', 'classes'));
+    }
+
+    public function payments(): void
+    {
+        $content = WebsiteContent::getContent('payments');
+
+        $feeRows = new Collection();
+        $gateways = new Collection();
+        $feePayments = new Collection();
+        $students = new Collection();
+        try {
+            $feeRows = new Collection(Fee::query()
+                ->where('status', 'active')
+                ->orderBy('name')
+                ->limit(40)
+                ->get());
+
+            $gateways = new Collection(PaymentGateway::query()
+                ->where('is_active', true)
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get());
+        } catch (\Throwable) {
+            //
+        }
+
+        $this->view('site.payments', compact('content', 'feeRows', 'gateways', 'feePayments', 'students'));
+    }
+
+    public function paymentStatus(string $id): void
+    {
+        $this->view('site.payment-status', ['payment' => null]);
+    }
+
+    public function feeReceipt(string $id): void
+    {
+        $this->view('site.fee-receipt', ['feePayment' => null]);
+    }
+
+    public function portal(): void
+    {
+        if (!\App\Core\Auth::check()) {
+            $this->redirect('/login');
+        }
+        $this->view('site.portal', [
+            'student'            => null,
+            'children'           => new Collection(),
+            'assignments'        => new Collection(),
+            'recentAttendance'   => new Collection(),
+            'examResults'        => new Collection(),
+            'feePayments'        => new Collection(),
+            'announcements'      => new Collection(),
+            'upcomingEvents'     => new Collection(),
+            'routine'            => new Collection(),
+            'teachers'           => new Collection(),
+            'attendanceCalendar' => new Collection(),
+            'duesTimeline'       => new Collection(),
+        ]);
+    }
+
+    public function search(): void
+    {
+        $query = trim((string) ($_GET['q'] ?? ''));
+        $activeType = $_GET['type'] ?? 'all';
+        $results = new Collection();
+
+        if (mb_strlen($query) >= 2) {
+            try {
+                if (Schema::hasTable('news')) {
+                    $results = $results->merge(collect(News::query()->published()
+                        ->whereRaw('(title LIKE ? OR content LIKE ?)', ["%{$query}%", "%{$query}%"])
+                        ->limit(10)
+                        ->get())
+                        ->map(fn ($item) => [
+                            'type_key' => 'news',
+                            'title'    => $item->title,
+                            'excerpt'  => \App\Core\Support\Str::limit(strip_tags((string) $item->content), 150),
+                            'url'      => route('site.news.show', $item->slug),
+                            'type'     => __('News'),
+                            'date'     => $item->published_at?->format('M j, Y'),
+                        ]));
+                }
+                if (Schema::hasTable('notices')) {
+                    $results = $results->merge(collect(Notice::query()
+                        ->whereRaw('(title LIKE ? OR content LIKE ?)', ["%{$query}%", "%{$query}%"])
+                        ->limit(10)
+                        ->get())
+                        ->map(fn ($item) => [
+                            'type_key' => 'notice',
+                            'title'    => $item->localizedTitle(),
+                            'excerpt'  => \App\Core\Support\Str::limit(strip_tags($item->localizedContent()), 150),
+                            'url'      => route('site.notices'),
+                            'type'     => __('Notices'),
+                            'date'     => $item->created_at?->format('M j, Y'),
+                        ]));
+                }
+                if (Schema::hasTable('events')) {
+                    $results = $results->merge(collect(Event::query()
+                        ->where('status', 'published')
+                        ->whereRaw('(title LIKE ? OR description LIKE ?)', ["%{$query}%", "%{$query}%"])
+                        ->limit(10)
+                        ->get())
+                        ->map(fn ($item) => [
+                            'type_key' => 'event',
+                            'title'    => $item->title,
+                            'excerpt'  => \App\Core\Support\Str::limit(strip_tags((string) $item->description), 150),
+                            'url'      => route('site.events'),
+                            'type'     => __('Events'),
+                            'date'     => $item->start_date?->format('M j, Y'),
+                        ]));
+                }
+            } catch (\Throwable) {
+                //
+            }
+        }
+
+        $this->view('site.search', ['query' => $query, 'results' => $results, 'activeType' => $activeType]);
+    }
+
+    public function sitemap(): void
+    {
+        header('Content-Type: application/xml');
+        $this->view('site.sitemap-xml');
     }
 
     public function submitContact(): void
@@ -118,8 +458,7 @@ class SiteController extends Controller
             'message' => 'required|max:5000',
         ]);
 
-        $db = Database::getInstance();
-        $db->insert('contact_submissions', [
+        \App\Core\Database::getInstance()->insert('contact_submissions', [
             'type'       => 'contact',
             'name'       => $data['name'],
             'email'      => $data['email'],
@@ -129,175 +468,8 @@ class SiteController extends Controller
             'created_at' => date('Y-m-d H:i:s'),
         ]);
 
-        Session::getInstance()->flash('success', 'Thank you. We will get back to you soon.');
+        \App\Core\Session::getInstance()->flash('success', 'Thank you. We will get back to you soon.');
         $this->redirect('/contact');
-    }
-
-    public function results(): void
-    {
-        $db = Database::getInstance();
-
-        $exams = $db->fetchAll(
-            "SELECT id, name, start_date FROM exams ORDER BY start_date DESC LIMIT 30"
-        );
-
-        $search = trim((string) ($_GET['search'] ?? ''));
-        $examId = (int) ($_GET['exam_id'] ?? 0);
-
-        $student = null;
-        $results = [];
-        $totalMarks = null;
-        $overallGrade = null;
-        $overallGpa = null;
-        $position = null;
-
-        if ($search !== '') {
-            $student = $db->fetch(
-                "SELECT s.*, u.name, c.name as class_name, sec.name as section_name
-                 FROM students s
-                 LEFT JOIN users u ON s.user_id = u.id
-                 LEFT JOIN school_classes c ON s.class_id = c.id
-                 LEFT JOIN sections sec ON s.section_id = sec.id
-                 WHERE s.admission_number LIKE ? OR s.roll_number LIKE ? OR u.name LIKE ?
-                 LIMIT 1",
-                ["%{$search}%", "%{$search}%", "%{$search}%"]
-            );
-
-            if ($student) {
-                $where = 'er.student_id = ?';
-                $params = [$student['id']];
-                if ($examId > 0) {
-                    $where .= ' AND er.exam_id = ?';
-                    $params[] = $examId;
-                }
-                $results = $db->fetchAll(
-                    "SELECT er.*, sub.name as subject_name, sub.total_marks as total_marks
-                     FROM exam_results er
-                     LEFT JOIN subjects sub ON er.subject_id = sub.id
-                     WHERE {$where}
-                     ORDER BY sub.name ASC",
-                    $params
-                );
-
-                if (!empty($results)) {
-                    $sum = 0;
-                    $cnt = 0;
-                    foreach ($results as $r) {
-                        $sum += (float) ($r['marks'] ?? 0);
-                        $cnt++;
-                    }
-                    if ($cnt > 0) {
-                        $totalMarks = number_format($sum, 2);
-                        $avg = $sum / $cnt;
-                        $overallGpa = number_format($avg / 20, 2);
-                        $overallGrade = $avg >= 80 ? 'A+' : ($avg >= 70 ? 'A' : ($avg >= 60 ? 'B' : ($avg >= 50 ? 'C' : 'F')));
-                    }
-                }
-            }
-        }
-
-        $this->view('site.results', [
-            'exams'        => $exams,
-            'results'      => $results,
-            'student'      => $student,
-            'search'       => $search,
-            'examId'       => $examId,
-            'totalMarks'   => $totalMarks,
-            'overallGrade' => $overallGrade,
-            'overallGpa'   => $overallGpa,
-            'position'     => $position,
-        ]);
-    }
-
-    public function routine(): void
-    {
-        $db = Database::getInstance();
-        $classId = (int) ($_GET['class_id'] ?? 0);
-        $sectionId = (int) ($_GET['section_id'] ?? 0);
-
-        $where = '1=1';
-        $params = [];
-        if ($classId > 0) {
-            $where .= ' AND r.school_class_id = ?';
-            $params[] = $classId;
-        }
-        if ($sectionId > 0) {
-            $where .= ' AND r.section_id = ?';
-            $params[] = $sectionId;
-        }
-
-        $routines = $db->fetchAll(
-            "SELECT r.*, c.name as class_name, s.name as section_name, sub.name as subject_name, u.name as teacher_name
-             FROM routines r
-             LEFT JOIN school_classes c ON r.school_class_id = c.id
-             LEFT JOIN sections s ON r.section_id = s.id
-             LEFT JOIN subjects sub ON r.subject_id = sub.id
-             LEFT JOIN teachers t ON r.teacher_id = t.id
-             LEFT JOIN users u ON t.user_id = u.id
-             WHERE {$where}
-             ORDER BY r.day_of_week ASC, r.start_time ASC",
-            $params
-        );
-
-        $classes = $db->fetchAll("SELECT id, name FROM school_classes ORDER BY name ASC");
-        $sections = $db->fetchAll("SELECT id, name FROM sections ORDER BY name ASC");
-
-        $days = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-        $periodMap = [];
-        foreach ($routines as $r) {
-            $periodKey = ($r['start_time'] ?? '') . '-' . ($r['end_time'] ?? '');
-            if (!isset($periodMap[$periodKey])) {
-                $periodMap[$periodKey] = [
-                    'id'         => count($periodMap) + 1,
-                    'start_time' => $r['start_time'] ?? '',
-                    'end_time'   => $r['end_time'] ?? '',
-                ];
-            }
-        }
-        $periods = array_values($periodMap);
-
-        $routine = [];
-        foreach ($routines as $r) {
-            $day = $r['day_of_week'] ?? '';
-            $periodKey = ($r['start_time'] ?? '') . '-' . ($r['end_time'] ?? '');
-            if (isset($periodMap[$periodKey])) {
-                $routine[$day][$periodMap[$periodKey]['id']] = $r;
-            }
-        }
-
-        $this->view('site.routine', [
-            'routines'  => $routines,
-            'routine'   => $routine,
-            'classes'   => $classes,
-            'sections'  => $sections,
-            'days'      => $days,
-            'periods'   => $periods,
-            'classId'   => $classId,
-            'sectionId' => $sectionId,
-        ]);
-    }
-
-    public function admission(): void
-    {
-        $db = Database::getInstance();
-        $settings = $db->fetch("SELECT * FROM admission_settings ORDER BY id DESC LIMIT 1");
-        $classes = $db->fetchAll(
-            "SELECT c.id, c.name, c.code FROM school_classes c ORDER BY c.name ASC"
-        );
-
-        $currentSession = $db->fetch(
-            "SELECT id FROM academic_sessions WHERE is_current = 1 LIMIT 1"
-        );
-        $currentBatch = $db->fetch(
-            "SELECT id FROM batches ORDER BY id DESC LIMIT 1"
-        );
-
-        $this->view('site.admission', [
-            'settings' => $settings,
-            'classes'  => $classes,
-            'academicSessionId' => $currentSession['id'] ?? 1,
-            'batchId'           => $currentBatch['id'] ?? 1,
-        ]);
     }
 
     public function submitAdmission(): void
@@ -334,414 +506,34 @@ class SiteController extends Controller
         ]);
 
         try {
-            $admissionId = \App\Services\AdmissionSubmitter::submitPublicApplication($data, $_FILES ?? []);
+            \App\Services\AdmissionSubmitter::submitPublicApplication($data, $_FILES ?? []);
+            \App\Core\Session::getInstance()->flash('success', 'Admission application submitted successfully.');
         } catch (\Throwable $e) {
-            Session::getInstance()->flash('error', 'Could not submit application: ' . $e->getMessage());
+            \App\Core\Session::getInstance()->flash('error', 'Could not submit application: ' . $e->getMessage());
             $this->back();
-            return;
         }
-
-        $db = Database::getInstance();
-        $row = $db->fetch("SELECT application_number FROM admissions WHERE id = ?", [$admissionId]);
-        $appNumber = $row['application_number'] ?? '';
-
-        Session::getInstance()->flash('success', 'Admission application submitted. Application number: ' . $appNumber);
         $this->redirect('/admission');
-    }
-
-    public function payments(): void
-    {
-        $db = Database::getInstance();
-        $gateways = $db->fetchAll(
-            "SELECT * FROM payment_gateways WHERE is_active = 1 ORDER BY sort_order ASC, name ASC"
-        );
-        $fees = $db->fetchAll(
-            "SELECT f.*, c.name as class_name
-             FROM fees f
-             LEFT JOIN school_classes c ON f.class_id = c.id
-             WHERE f.status = 'active'
-             ORDER BY f.amount DESC
-             LIMIT 50"
-        );
-
-        $this->view('site.payments', [
-            'gateways' => $gateways,
-            'fees'     => $fees,
-        ]);
-    }
-
-    public function about(): void
-    {
-        $db = Database::getInstance();
-        $content = $db->fetch("SELECT * FROM website_contents WHERE page = 'about' LIMIT 1");
-        $about = $db->fetch("SELECT * FROM about_contents ORDER BY id DESC LIMIT 1");
-        $settings = $db->fetch("SELECT * FROM website_settings ORDER BY id DESC LIMIT 1");
-
-        $school = array_merge((array) ($settings ?? []), (array) ($about ?? []), (array) ($content ?? []));
-
-        $committeeMembers = $db->fetchAll(
-            "SELECT * FROM committee_members WHERE is_active = 1 ORDER BY sort_order ASC, id ASC LIMIT 20"
-        );
-
-        $this->view('site.about', [
-            'content'          => $content,
-            'school'           => $school,
-            'committeeMembers' => $committeeMembers,
-        ]);
-    }
-
-    public function careers(): void
-    {
-        $db = Database::getInstance();
-        $jobs = $db->fetchAll(
-            "SELECT * FROM careers WHERE is_published = 1 ORDER BY created_at DESC LIMIT 50"
-        );
-
-        $this->view('site.careers', ['jobs' => $jobs]);
     }
 
     public function applyCareer(): void
     {
         $data = $this->validate([
-            'career_id' => 'required|numeric',
-            'name'      => 'required|max:255',
-            'email'     => 'required|email',
-            'phone'     => 'max:30',
-            'resume'    => 'required|max:2048',
-            'cover_letter' => 'max:5000',
+            'name'  => 'required|max:191',
+            'email' => 'required|email',
+            'phone' => 'required|max:30',
         ]);
 
-        $db = Database::getInstance();
-
-        $filePath = null;
-        if (isset($_FILES['resume']) && $_FILES['resume']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = __DIR__ . '/../../public/uploads/resumes/';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
-            }
-            $ext = pathinfo($_FILES['resume']['name'], PATHINFO_EXTENSION);
-            $filename = 'resume-' . time() . '-' . bin2hex(random_bytes(4)) . '.' . $ext;
-            move_uploaded_file($_FILES['resume']['tmp_name'], $uploadDir . $filename);
-            $filePath = 'uploads/resumes/' . $filename;
-        }
-
-        $db->insert('career_applications', [
-            'career_id'    => $data['career_id'],
-            'name'         => $data['name'],
-            'email'        => $data['email'],
-            'phone'        => $data['phone'] ?? null,
-            'resume_path'  => $filePath,
-            'cover_letter' => $data['cover_letter'] ?? null,
-            'status'       => 'pending',
-            'created_at'   => date('Y-m-d H:i:s'),
-            'updated_at'   => date('Y-m-d H:i:s'),
+        \App\Core\Database::getInstance()->insert('job_applications', [
+            'career_id'   => (int) ($_POST['career_id'] ?? 0),
+            'name'        => $data['name'],
+            'email'       => $data['email'],
+            'phone'       => $data['phone'],
+            'status'      => 'pending',
+            'created_at'  => date('Y-m-d H:i:s'),
+            'updated_at'  => date('Y-m-d H:i:s'),
         ]);
 
-        Session::getInstance()->flash('success', 'Your application has been submitted.');
-        $this->redirect('/careers');
-    }
-
-    public function sitemap(): void
-    {
-        $db = Database::getInstance();
-        $baseUrl = 'http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
-
-        header('Content-Type: application/xml; charset=utf-8');
-        echo '<?xml version="1.0" encoding="UTF-8"?>';
-        echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-
-        $staticPages = ['', '/about', '/contact', '/news', '/notices', '/events', '/admission', '/careers', '/payments'];
-        foreach ($staticPages as $page) {
-            echo '<url>';
-            echo '<loc>' . htmlspecialchars($baseUrl . $page) . '</loc>';
-            echo '<changefreq>weekly</changefreq>';
-            echo '<priority>0.8</priority>';
-            echo '</url>';
-        }
-
-        $news = $db->fetchAll("SELECT slug, updated_at FROM news WHERE is_published = 1 AND slug IS NOT NULL");
-        foreach ($news as $item) {
-            echo '<url>';
-            echo '<loc>' . htmlspecialchars($baseUrl . '/news/' . $item['slug']) . '</loc>';
-            echo '<lastmod>' . date('Y-m-d', strtotime($item['updated_at'])) . '</lastmod>';
-            echo '<changefreq>monthly</changefreq>';
-            echo '</url>';
-        }
-
-        $events = $db->fetchAll("SELECT slug, updated_at FROM events WHERE status = 'published' AND slug IS NOT NULL");
-        foreach ($events as $item) {
-            echo '<url>';
-            echo '<loc>' . htmlspecialchars($baseUrl . '/events/' . $item['slug']) . '</loc>';
-            echo '<lastmod>' . date('Y-m-d', strtotime($item['updated_at'])) . '</lastmod>';
-            echo '<changefreq>monthly</changefreq>';
-            echo '</url>';
-        }
-
-        echo '</urlset>';
-        exit;
-    }
-
-    public function academics(): void
-    {
-        $db = Database::getInstance();
-        $classes = $db->fetchAll(
-            "SELECT c.*, (SELECT COUNT(*) FROM students s WHERE s.class_id = c.id AND s.status = 'active') as student_count
-             FROM school_classes c
-             WHERE c.is_active = 1 OR c.is_active IS NULL
-             ORDER BY c.name ASC"
-        );
-        $settings = $db->fetch("SELECT * FROM website_settings ORDER BY id DESC LIMIT 1");
-        $subjects = $db->fetchAll("SELECT * FROM subjects ORDER BY name ASC LIMIT 50");
-
-        $this->view('site.academics', [
-            'classes'  => $classes,
-            'settings' => $settings,
-            'subjects' => $subjects,
-        ]);
-    }
-
-    public function studentsLife(): void
-    {
-        $db = Database::getInstance();
-        $activities = $db->fetchAll(
-            "SELECT * FROM website_contents WHERE page = 'student_activities' LIMIT 1"
-        );
-        $clubs = $db->fetchAll(
-            "SELECT * FROM website_contents WHERE page LIKE 'club_%' AND is_active = 1 LIMIT 12"
-        );
-        $recentStudents = $db->fetchAll(
-            "SELECT s.*, u.name, u.photo, c.name as class_name
-             FROM students s
-             LEFT JOIN users u ON s.user_id = u.id
-             LEFT JOIN school_classes c ON s.class_id = c.id
-             WHERE s.status = 'active'
-             ORDER BY s.id DESC LIMIT 12"
-        );
-
-        $this->view('site.students_life', [
-            'activities'     => $activities[0] ?? null,
-            'clubs'          => $clubs,
-            'recentStudents' => $recentStudents,
-        ]);
-    }
-
-    public function faculty(): void
-    {
-        $db = Database::getInstance();
-        $teachers = $db->fetchAll(
-            "SELECT t.id, t.qualification, u.name, u.email, u.photo, u.phone as user_phone
-             FROM teachers t
-             LEFT JOIN users u ON t.user_id = u.id
-             WHERE t.status = 'active'
-             ORDER BY u.name ASC
-             LIMIT 100"
-        );
-
-        foreach ($teachers as &$t) {
-            $subs = $db->fetchAll(
-                "SELECT DISTINCT sub.name FROM class_subject_teacher cst
-                 LEFT JOIN subjects sub ON cst.subject_id = sub.id
-                 WHERE cst.teacher_id = ?",
-                [$t['id']]
-            );
-            $t['subjects'] = implode(', ', array_column($subs, 'name'));
-        }
-        unset($t);
-
-        $this->view('site.faculty', ['teachers' => $teachers]);
-    }
-
-    public function transport(): void
-    {
-        $db = Database::getInstance();
-        $routes = $db->fetchAll(
-            "SELECT tr.*, v.number as vehicle_number, v.driver_name, v.driver_phone, v.capacity
-             FROM transport_routes tr
-             LEFT JOIN vehicles v ON tr.vehicle_id = v.id
-             WHERE tr.is_active = 1
-             ORDER BY tr.name ASC"
-        );
-        $vehicles = $db->fetchAll(
-            "SELECT * FROM vehicles WHERE is_active = 1 ORDER BY number ASC"
-        );
-
-        $stops = [];
-        foreach ($routes as $r) {
-            $stops[$r['id']] = $db->fetchAll(
-                "SELECT * FROM transport_stops WHERE route_id = ? ORDER BY sort ASC, id ASC",
-                [$r['id']]
-            );
-        }
-
-        $this->view('site.transport', [
-            'routes'   => $routes,
-            'vehicles' => $vehicles,
-            'stops'    => $stops,
-        ]);
-    }
-
-    public function committee(): void
-    {
-        $db = Database::getInstance();
-        $members = $db->fetchAll(
-            "SELECT * FROM committee_members WHERE is_active = 1 ORDER BY sort_order ASC, id ASC LIMIT 50"
-        );
-
-        $this->view('site.committee', ['members' => $members]);
-    }
-
-    public function terms(): void
-    {
-        $db = Database::getInstance();
-        $content = $db->fetch("SELECT * FROM website_contents WHERE page = 'terms' AND is_active = 1 LIMIT 1");
-        if (!$content) {
-            $content = [
-                'title'   => 'Terms of Service',
-                'content' => json_encode(['Default terms of service. Please update via CMS.']),
-            ];
-        }
-        $contentDecoded = $content;
-        if (!empty($content['content']) && is_string($content['content'])) {
-            $decoded = json_decode($content['content'], true);
-            if (is_array($decoded)) {
-                $contentDecoded['content'] = $decoded;
-            }
-        }
-        $this->view('site.terms', ['content' => $contentDecoded]);
-    }
-
-    public function privacy(): void
-    {
-        $db = Database::getInstance();
-        $content = $db->fetch("SELECT * FROM website_contents WHERE page = 'privacy' AND is_active = 1 LIMIT 1");
-        if (!$content) {
-            $content = [
-                'title'   => 'Privacy Policy',
-                'content' => json_encode(['Default privacy policy. Please update via CMS.']),
-            ];
-        }
-        $contentDecoded = $content;
-        if (!empty($content['content']) && is_string($content['content'])) {
-            $decoded = json_decode($content['content'], true);
-            if (is_array($decoded)) {
-                $contentDecoded['content'] = $decoded;
-            }
-        }
-        $this->view('site.privacy', ['content' => $contentDecoded]);
-    }
-
-    public function portal(): void
-    {
-        $this->view('site.portal');
-    }
-
-    public function search(): void
-    {
-        $db = Database::getInstance();
-        $term = trim((string) ($_GET['q'] ?? ''));
-
-        $results = [
-            'news'    => [],
-            'notices' => [],
-            'events'  => [],
-            'pages'   => [],
-        ];
-
-        if ($term !== '') {
-            $like = "%{$term}%";
-            $results['news'] = $db->fetchAll(
-                "SELECT id, title, slug, content, created_at FROM news
-                 WHERE is_published = 1 AND (title LIKE ? OR content LIKE ?)
-                 ORDER BY created_at DESC LIMIT 20",
-                [$like, $like]
-            );
-            $results['notices'] = $db->fetchAll(
-                "SELECT id, title, content, created_at FROM notices
-                 WHERE title LIKE ? OR content LIKE ?
-                 ORDER BY pinned DESC, id DESC LIMIT 20",
-                [$like, $like]
-            );
-            $results['events'] = $db->fetchAll(
-                "SELECT id, title, description, start_date FROM events
-                 WHERE status = 'published' AND (title LIKE ? OR description LIKE ?)
-                 ORDER BY start_date DESC LIMIT 20",
-                [$like, $like]
-            );
-            $results['pages'] = $db->fetchAll(
-                "SELECT id, page as slug, title, content_en, content FROM website_contents
-                 WHERE is_active = 1 AND (title LIKE ? OR title_en LIKE ? OR content LIKE ? OR content_en LIKE ?)
-                 LIMIT 20",
-                [$like, $like, $like, $like]
-            );
-        }
-
-        $this->view('site.search', [
-            'term'    => $term,
-            'results' => $results,
-        ]);
-    }
-
-    public function paymentStatus(int $id): void
-    {
-        $db = Database::getInstance();
-        $payment = $db->fetch("SELECT * FROM payments WHERE id = ?", [$id]);
-        $verified = false;
-        $gateway = null;
-        $status = 'pending';
-        if ($payment) {
-            $status = $payment['payment_status'] ?? 'pending';
-            $gatewayRow = $db->fetch(
-                "SELECT * FROM payment_gateways WHERE code = ? LIMIT 1",
-                [$payment['payment_method'] ?? 'offline']
-            );
-            try {
-                if ($gatewayRow) {
-                    $adapter = \App\Gateways\GatewayFactory::makeFromPaymentRecord($payment, $gatewayRow);
-                    $verified = $adapter->verifyPayment($payment['transaction_id'] ?? '');
-                    $gateway = $gatewayRow['name'] ?? 'Gateway';
-                }
-            } catch (\Throwable $e) {
-                $verified = false;
-            }
-        }
-
-        $this->view('site.payment_status', [
-            'payment'  => $payment,
-            'verified' => $verified,
-            'gateway'  => $gateway,
-            'status'   => $status,
-        ]);
-    }
-
-    public function feeReceipt(int $id): void
-    {
-        $db = Database::getInstance();
-        $payment = $db->fetch(
-            "SELECT fp.*, s.admission_number, u.name as student_name, u.email as student_email,
-                    f.name as fee_name, c.name as class_name, sec.name as section_name,
-                    ru.name as receipt_name
-             FROM fee_payments fp
-             LEFT JOIN students s ON fp.student_id = s.id
-             LEFT JOIN users u ON s.user_id = u.id
-             LEFT JOIN fees f ON fp.fee_id = f.id
-             LEFT JOIN school_classes c ON s.class_id = c.id
-             LEFT JOIN sections sec ON s.section_id = sec.id
-             LEFT JOIN users ru ON fp.created_by = ru.id
-             WHERE fp.id = ?",
-            [$id]
-        );
-
-        if (!$payment) {
-            http_response_code(404);
-            echo 'Receipt not found.';
-            return;
-        }
-
-        $school = $db->fetch("SELECT * FROM website_settings ORDER BY id DESC LIMIT 1");
-
-        $this->view('site.fee_receipt', [
-            'payment' => $payment,
-            'school'  => $school,
-        ]);
+        \App\Core\Session::getInstance()->flash('success', 'Application submitted successfully.');
+        $this->back();
     }
 }

@@ -176,19 +176,19 @@ class FrontControllerTest extends PHPUnitTestCase
         }
     }
 
-    public function test_home_uses_is_visible_not_is_active_for_testimonials(): void
+    public function test_home_uses_is_active_not_other_column_for_committee_members(): void
     {
         $this->seedHomePage();
 
         $this->invoke(fn () => (new HomeController())->index());
 
         $sqls = array_column($this->db->log, 'sql');
-        $testimonialQueries = array_filter($sqls, fn ($s) => str_contains($s, 'FROM testimonials'));
+        $committeeQueries = array_filter($sqls, fn ($s) => str_contains($s, 'FROM committee_members'));
 
-        $this->assertNotEmpty($testimonialQueries);
-        foreach ($testimonialQueries as $sql) {
-            $this->assertStringNotContainsString('is_active', $sql,
-                'testimonials has is_visible, not is_active');
+        $this->assertNotEmpty($committeeQueries, 'Home page should query the committee_members table');
+        foreach ($committeeQueries as $sql) {
+            $this->assertStringContainsString('is_active', $sql,
+                'committee_members has is_active — controller must use the schema column');
         }
     }
 
@@ -221,12 +221,20 @@ class FrontControllerTest extends PHPUnitTestCase
     public function test_exams_use_start_date_not_exam_date(): void
     {
         $this->db->seed('exams', [
-            ['id' => 1, 'name' => 'Mid-term', 'start_date' => '2026-06-01 09:00:00', 'is_published' => 1],
+            ['id' => 1, 'name' => 'Mid-term', 'start_date' => '2026-06-01 09:00:00', 'is_published' => 1, 'is_published_to_public' => 1, 'academic_session_id' => 1, 'batch_id' => 1],
         ]);
-        $this->db->seed('students', []);
-        $this->db->seed('school_classes', []);
+        $this->db->seed('students', [
+            ['id' => 1, 'class_id' => 1, 'batch_id' => 1, 'roll_no' => '1', 'roll_number' => '1'],
+        ]);
+        $this->db->seed('school_classes', [['id' => 1, 'name' => 'Six']]);
+        $this->db->seed('academic_sessions', [['id' => 1, 'name' => '2026']]);
         $this->db->seed('sections', []);
         $this->db->seed('subjects', []);
+        $this->db->seed('exam_results', []);
+
+        $_GET['class_id'] = '1';
+        $_GET['academic_session_id'] = '1';
+        $_GET['roll'] = '1';
 
         $this->invoke(fn () => (new SiteController())->results());
 

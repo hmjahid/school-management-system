@@ -1,38 +1,34 @@
 <?php
-declare(strict_types=1);
 
 return [
-    'navigation' => [
-        'back'   => 'Back',
-        'next'   => 'Next',
-        'previous' => 'Previous',
-        'close'  => 'Close',
-    ],
-
-    'gender' => [
-        'male'   => 'Male',
-        'female' => 'Female',
-        'other'  => 'Other',
-    ],
-
-    'search' => [
-        'placeholder' => 'Search...',
-        'no_results'  => 'No results found',
-        'results_for' => 'Results for',
-    ],
-
-    'common' => [
-        'yes'   => 'Yes',
-        'no'    => 'No',
-        'ok'    => 'OK',
-        'error' => 'Error',
-        'success' => 'Success',
-        'warning' => 'Warning',
-        'info'    => 'Info',
-        'none'    => 'None',
-        'all'     => 'All',
-        'select'  => 'Select',
-        'confirm' => 'Confirm',
-        'required' => 'Required',
-    ],
+    'Admissions Open' => 'Admissions Open',
+    'Apply Now' => 'Apply Now',
+    'Contact' => 'Contact',
+    'Example — set real details in Dashboard → School settings' => 'Example — set real details in Dashboard → School settings',
+    'Excellence in Education' => 'Excellence in Education',
+    'Extracurricular' => 'Extracurricular',
+    'Junior (Class 6-8)' => 'Junior (Class 6-8)',
+    'Language' => 'Language',
+    'Menu' => 'Menu',
+    'Newsletter' => 'Newsletter',
+    'Notice' => 'Notice',
+    'Play to KG-2' => 'Play to KG-2',
+    'Primary (Class 1-5)' => 'Primary (Class 1-5)',
+    'Search...' => 'Search...',
+    'Secondary (Class 9-10)' => 'Secondary (Class 9-10)',
+    'Sitemap' => 'Sitemap',
+    'Urgent' => 'Urgent',
+    'Your email' => 'Your email',
+    'Select' => 'Select',
+    'Male' => 'Male',
+    'Female' => 'Female',
+    'Profile updated successfully.' => 'Profile updated successfully.',
+    'Dashboard' => 'Dashboard',
+    'Start typing to search...' => 'Start typing to search...',
+    'No results found.' => 'No results found.',
+    'Search students, teachers, notices, classes...' => 'Search students, teachers, notices, classes...',
+    'Student' => 'Student',
+    'Teacher' => 'Teacher',
+    'Class' => 'Class',
+    'Notice' => 'Notice',
 ];

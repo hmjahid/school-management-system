@@ -24,6 +24,8 @@ interface DatabaseInterface
 
     public function count(string $table, string $where = '1=1', array $params = []): int;
 
+    public function hasTable(string $table): bool;
+
     public function beginTransaction(): void;
 
     public function commit(): void;
