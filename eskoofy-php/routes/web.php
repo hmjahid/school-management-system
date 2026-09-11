@@ -89,6 +89,8 @@ $router->group('/dashboard', function (Router $r) {
     $r->get('/students', 'App\\Controllers\\Dashboard\\StudentController', 'index');
     $r->get('/students/create', 'App\\Controllers\\Dashboard\\StudentController', 'create');
     $r->post('/students', 'App\\Controllers\\Dashboard\\StudentController', 'store');
+    $r->get('/students/promote', 'App\\Controllers\\Dashboard\\StudentController', 'promoteForm');
+    $r->post('/students/promote', 'App\\Controllers\\Dashboard\\StudentController', 'promote');
     $r->get('/students/{id}', 'App\\Controllers\\Dashboard\\StudentController', 'show');
     $r->get('/students/{id}/edit', 'App\\Controllers\\Dashboard\\StudentController', 'edit');
     $r->put('/students/{id}', 'App\\Controllers\\Dashboard\\StudentController', 'update');
@@ -136,6 +138,8 @@ $router->group('/dashboard', function (Router $r) {
     $r->get('/attendance', 'App\\Controllers\\Dashboard\\AttendanceController', 'index');
     $r->post('/attendance', 'App\\Controllers\\Dashboard\\AttendanceController', 'store');
     $r->get('/attendance/mark', 'App\\Controllers\\Dashboard\\AttendanceController', 'mark');
+    $r->get('/attendance/bulk', 'App\\Controllers\\Dashboard\\AttendanceController', 'bulk');
+    $r->post('/attendance/bulk', 'App\\Controllers\\Dashboard\\AttendanceController', 'bulkStore');
 
     // Exams & Results
     $r->get('/exams', 'App\\Controllers\\Dashboard\\ExamController', 'index');
@@ -148,6 +152,9 @@ $router->group('/dashboard', function (Router $r) {
     $r->post('/exams/{id}/publish', 'App\\Controllers\\Dashboard\\ExamController', 'publish');
     $r->get('/exams/{id}/results', 'App\\Controllers\\Dashboard\\ExamController', 'results');
     $r->post('/exams/{id}/results', 'App\\Controllers\\Dashboard\\ExamController', 'storeResults');
+    $r->get('/exams/{id}/results/export', 'App\\Controllers\\Dashboard\\ExamController', 'exportResults');
+    $r->get('/my-results', 'App\\Controllers\\Dashboard\\ExamController', 'myResults');
+    $r->get('/students/{id}/results/export', 'App\\Controllers\\Dashboard\\ExamController', 'studentResultsExport');
 
     // Fees & Payments
     $r->get('/fees', 'App\\Controllers\\Dashboard\\FeeController', 'index');
@@ -248,6 +255,10 @@ $router->group('/dashboard', function (Router $r) {
     $r->get('/reports/fees', 'App\\Controllers\\Dashboard\\ReportController', 'fees');
     $r->get('/reports/attendance', 'App\\Controllers\\Dashboard\\ReportController', 'attendance');
     $r->get('/reports/exams', 'App\\Controllers\\Dashboard\\ReportController', 'exams');
+    $r->get('/reports/builder', 'App\\Controllers\\Dashboard\\ReportBuilderController', 'index');
+    $r->post('/reports/builder/export', 'App\\Controllers\\Dashboard\\ReportBuilderController', 'export');
+    $r->get('/reports/export/{type}', 'App\\Controllers\\Dashboard\\ReportController', 'exportCsv');
+    $r->get('/analytics', 'App\\Controllers\\Dashboard\\ReportController', 'analytics');
 
     // Documents (certificates, admit cards, ID cards)
     $r->get('/certificates', 'App\\Controllers\\Dashboard\\CertificateController', 'index');

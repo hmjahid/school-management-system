@@ -13,6 +13,7 @@ use App\Controllers\Dashboard\LibraryReportController;
 use App\Controllers\Dashboard\PayrollController;
 use App\Controllers\Dashboard\ProgressReportController;
 use App\Controllers\Dashboard\RefundController;
+use App\Controllers\Dashboard\ReportBuilderController;
 use App\Controllers\Dashboard\ReportController;
 use App\Controllers\Dashboard\SearchController;
 use App\Controllers\Dashboard\SeatPlanController;
@@ -547,5 +548,140 @@ class FrontControllerTest extends PHPUnitTestCase
         $joined = implode("\n", $sqls);
         $this->assertStringNotContainsString('ss.user_id', $joined,
             'salary_structures schema has teacher_id, not user_id');
+    }
+
+    public function test_student_promote_form_uses_batches_sections_classes(): void
+    {
+        $this->authAs();
+        $this->db->seed('school_classes', [
+            ['id' => 1, 'name' => 'Class 1'],
+        ]);
+        $this->db->seed('sections', [
+            ['id' => 1, 'name' => 'A'],
+        ]);
+        $this->db->seed('batches', [
+            ['id' => 1, 'name' => 'Batch 1'],
+        ]);
+        $this->db->seed('students', []);
+        $this->db->seed('users', []);
+
+        $_GET['from_class_id'] = '1';
+        $this->invoke(fn () => (new StudentController())->promoteForm());
+        unset($_GET['from_class_id']);
+
+        $joined = implode("\n", array_column($this->db->log, 'sql'));
+        $this->assertStringContainsString('school_classes', $joined);
+        $this->assertStringContainsString('batches', $joined);
+        $this->assertStringContainsString('s.class_id', $joined,
+            'promote list filters students by class_id column');
+    }
+
+    public function test_bulk_attendance_inserts_marked_by_and_school_class_id(): void
+    {
+        $this->authAs();
+        $this->db->seed('students', [
+            ['id' => 1, 'class_id' => 1, 'status' => 'active'],
+        ]);
+        $this->db->seed('users', []);
+
+        $_POST = [
+            'date'       => '2026-09-11',
+            'batch_id'   => '1',
+            'section_id' => '1',
+            'status'     => ['1' => 'present'],
+            'remarks'    => ['1' => 'ok'],
+        ];
+        $this->invoke(fn () => (new AttendanceController())->saveBulk($_POST));
+        $_POST = [];
+
+        $sqls = array_column($this->db->log, 'sql');
+        $joined = implode("\n", $sqls);
+        $this->assertStringContainsString("INSERT INTO attendances", $joined);
+        $stored = $this->db->tables['attendances'][0] ?? [];
+        $this->assertArrayHasKey('marked_by', $stored,
+            'attendances.marked_by is NOT NULL and must be set on insert');
+        $this->assertArrayHasKey('school_class_id', $stored);
+        $this->assertSame('present', $stored['status'] ?? null);
+    }
+
+    public function test_report_builder_export_selects_only_requested_columns(): void
+    {
+        $this->authAs();
+        $this->db->seed('students', [
+            ['id' => 1, 'first_name' => 'A', 'status' => 'active'],
+        ]);
+        $this->db->seed('users', []);
+
+        $_POST = [
+            'entity'   => 'students',
+            'columns'  => ['id', 'status'],
+            'date_from' => '',
+            'date_to'   => '',
+            'status'    => 'active',
+            'class_id'  => '0',
+        ];
+        $this->invoke(fn () => (new ReportBuilderController())->buildExport($_POST));
+        $_POST = [];
+
+        $sqls = array_column($this->db->log, 'sql');
+        $joined = implode("\n", $sqls);
+        $this->assertStringContainsString('students.id', $joined);
+        $this->assertStringContainsString('students.status', $joined);
+        $this->assertStringNotContainsString('students.address', $joined,
+            'report builder must only select the requested columns');
+    }
+
+    public function test_analytics_queries_students_payments_and_fees(): void
+    {
+        $this->authAs();
+        $this->db->seed('students', [
+            ['id' => 1, 'status' => 'active'],
+        ]);
+        $this->db->seed('payments', [
+            ['id' => 1, 'paid_amount' => 100, 'payment_status' => 'completed', 'payment_date' => date('Y-m-d')],
+        ]);
+        $this->db->seed('fees', [
+            ['id' => 1, 'amount' => 50, 'status' => 'active', 'frequency' => 'monthly'],
+        ]);
+        $this->db->seed('attendances', []);
+        $this->db->seed('expenses', []);
+        $this->db->seed('school_classes', []);
+        $this->db->seed('teachers', []);
+        $this->db->seed('class_teacher', []);
+        $this->db->seed('users', []);
+
+        $this->invoke(fn () => (new ReportController())->analytics());
+
+        $joined = implode("\n", array_column($this->db->log, 'sql'));
+        $this->assertStringContainsString('FROM students', $joined);
+        $this->assertStringContainsString('FROM payments', $joined);
+        $this->assertStringContainsString('FROM fees', $joined);
+        $this->assertStringContainsString('class_teacher', $joined,
+            'analytics teacher workload joins class_teacher');
+    }
+
+    public function test_exam_results_export_uses_obtained_marks_columns(): void
+    {
+        $this->authAs();
+        $this->db->seed('exams', [
+            ['id' => 1, 'name' => 'Mid', 'code' => 'M1', 'total_marks' => 100],
+        ]);
+        $this->db->seed('exam_results', [
+            ['id' => 1, 'exam_id' => 1, 'student_id' => 1, 'obtained_marks' => 80],
+        ]);
+        $this->db->seed('students', [
+            ['id' => 1, 'admission_number' => 'A1', 'class_id' => 1],
+        ]);
+        $this->db->seed('users', [
+            ['id' => 1, 'name' => 'Pupil'],
+        ]);
+        $this->db->seed('school_classes', []);
+        $this->db->seed('sections', []);
+
+        $this->invoke(fn () => (new DashboardExamController())->buildResultsExport($exam = ['id' => 1, 'total_marks' => 100]));
+
+        $joined = implode("\n", array_column($this->db->log, 'sql'));
+        $this->assertStringContainsString('er.obtained_marks', $joined);
+        $this->assertStringContainsString('FROM exam_results er', $joined);
     }
 }

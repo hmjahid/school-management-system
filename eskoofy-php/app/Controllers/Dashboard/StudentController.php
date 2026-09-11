@@ -416,4 +416,123 @@ class StudentController extends Controller
             'totalPaid' => $totalPaid,
         ]);
     }
+
+    public function promoteForm(): void
+    {
+        Auth::requireAuth();
+        $classes = $this->db->fetchAll("SELECT id, name FROM school_classes ORDER BY name ASC");
+        $sections = $this->db->fetchAll("SELECT id, name FROM sections ORDER BY name ASC");
+        $batches = $this->db->fetchAll("SELECT id, name FROM batches ORDER BY id DESC LIMIT 50");
+
+        $fromClassId = (int) ($_GET['from_class_id'] ?? 0);
+        $fromSectionId = (int) ($_GET['from_section_id'] ?? 0);
+
+        $students = [];
+        if ($fromClassId > 0) {
+            $where = 's.class_id = ? AND s.status = ?';
+            $params = [$fromClassId, 'active'];
+            if ($fromSectionId > 0) {
+                $where .= ' AND s.section_id = ?';
+                $params[] = $fromSectionId;
+            }
+            $students = $this->db->fetchAll(
+                "SELECT s.id, u.name, s.admission_number, s.roll_number, c.name as class_name, sec.name as section_name
+                 FROM students s
+                 LEFT JOIN users u ON s.user_id = u.id
+                 LEFT JOIN school_classes c ON s.class_id = c.id
+                 LEFT JOIN sections sec ON s.section_id = sec.id
+                 WHERE {$where}
+                 ORDER BY s.roll_number ASC, u.name ASC",
+                $params
+            );
+        }
+
+        $this->view('dashboard.students.promote', [
+            'classes'       => $classes,
+            'sections'      => $sections,
+            'batches'       => $batches,
+            'fromClassId'   => $fromClassId,
+            'fromSectionId' => $fromSectionId,
+            'students'      => $students,
+        ]);
+    }
+
+    public function promote(): void
+    {
+        Auth::requireAuth();
+        $data = $this->validate([
+            'from_class_id'    => 'required|numeric',
+            'to_class_id'      => 'required|numeric',
+            'to_batch_id'      => 'required|numeric',
+            'from_section_id'  => 'numeric',
+            'to_section_id'    => 'numeric',
+            'student_ids'      => 'array',
+            'promote_all'      => 'boolean',
+            'keep_roll_number' => 'boolean',
+        ]);
+
+        $result = $this->runPromote($data);
+        if ($result < 0) {
+            Session::getInstance()->flash('error', 'No matching students found to promote.');
+            $this->redirect('/dashboard/students/promote');
+            return;
+        }
+        if ($result === 0) {
+            Session::getInstance()->flash('error', 'No students selected for promotion.');
+            $this->redirect('/dashboard/students/promote');
+            return;
+        }
+
+        Session::getInstance()->flash('success', "Promoted {$result} student(s) to the next class.");
+        $this->redirect('/dashboard/students/promote');
+    }
+
+    public function runPromote(array $data): int
+    {
+        $fromClassId = (int) $data['from_class_id'];
+        $toClassId = (int) $data['to_class_id'];
+        $toBatchId = (int) $data['to_batch_id'];
+        $fromSectionId = isset($data['from_section_id']) ? (int) $data['from_section_id'] : 0;
+        $toSectionId = isset($data['to_section_id']) ? (int) $data['to_section_id'] : null;
+        $promoteAll = !empty($data['promote_all']);
+        $keepRoll = !empty($data['keep_roll_number']);
+        $studentIds = $_POST['student_ids'] ?? $data['student_ids'] ?? [];
+
+        $where = 's.class_id = ? AND s.status = ?';
+        $params = [$fromClassId, 'active'];
+        if ($fromSectionId > 0) {
+            $where .= ' AND s.section_id = ?';
+            $params[] = $fromSectionId;
+        }
+        if (!$promoteAll && !empty($studentIds)) {
+            $in = implode(',', array_map('intval', $studentIds));
+            $where .= " AND s.id IN ({$in})";
+        }
+
+        $students = $this->db->fetchAll(
+            "SELECT s.* FROM students s WHERE {$where} ORDER BY s.roll_number ASC",
+            $params
+        );
+
+        if (!$promoteAll && empty($studentIds)) {
+            return 0;
+        }
+        if (empty($students)) {
+            return -1;
+        }
+
+        $count = 0;
+        foreach ($students as $student) {
+            $this->db->update('students', [
+                'class_id'   => $toClassId,
+                'section_id' => $toSectionId,
+                'batch_id'   => $toBatchId,
+                'roll_number'=> $keepRoll ? ($student['roll_number'] ?? null) : null,
+                'updated_at' => date('Y-m-d H:i:s'),
+            ], 'id = ?', [$student['id']]);
+            $count++;
+        }
+
+        return $count;
+    }
 }

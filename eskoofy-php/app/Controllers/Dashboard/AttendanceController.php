@@ -177,6 +177,7 @@ class AttendanceController extends Controller
                     'section_id' => $sectionId,
                     'remarks'    => $remarks[$studentId] ?? null,
                     'recorded_by'=> $userId,
+                    'marked_by'  => $userId,
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
@@ -187,5 +188,139 @@ class AttendanceController extends Controller
         Session::getInstance()->flash('success', "Saved {$count} attendance records.");
         $this->redirect("/dashboard/attendance?date={$date}&class_id={$classId}" .
             ($sectionId ? "&section_id={$sectionId}" : ''));
+    }
+
+    public function bulk(): void
+    {
+        Auth::requireAuth();
+        $batchId = (int) ($_GET['batch_id'] ?? 0);
+        $sectionId = (int) ($_GET['section_id'] ?? 0);
+        $date = $_GET['date'] ?? date('Y-m-d');
+
+        $students = [];
+        if ($batchId > 0) {
+            $where = 's.batch_id = ? AND s.status = ?';
+            $params = [$batchId, 'active'];
+            if ($sectionId > 0) {
+                $where .= ' AND s.section_id = ?';
+                $params[] = $sectionId;
+            }
+            $students = $this->db->fetchAll(
+                "SELECT s.id, s.class_id, u.name, s.roll_number
+                 FROM students s
+                 LEFT JOIN users u ON s.user_id = u.id
+                 WHERE {$where}
+                 ORDER BY s.roll_number ASC, u.name ASC
+                 LIMIT 120",
+                $params
+            );
+        }
+
+        $existing = [];
+        if ($batchId > 0) {
+            $where = 'date = ? AND batch_id = ?';
+            $params = [$date, $batchId];
+            if ($sectionId > 0) {
+                $where .= ' AND section_id = ?';
+                $params[] = $sectionId;
+            }
+            $rows = $this->db->fetchAll(
+                "SELECT * FROM attendances WHERE {$where}", $params
+            );
+            foreach ($rows as $row) {
+                $existing[$row['student_id']] = $row;
+            }
+        }
+
+        $batches = $this->db->fetchAll("SELECT id, name FROM batches ORDER BY name ASC LIMIT 80");
+        $sections = $this->db->fetchAll("SELECT id, name FROM sections ORDER BY name ASC LIMIT 200");
+
+        $this->view('dashboard.attendance.bulk', [
+            'students'  => $students,
+            'existing'  => $existing,
+            'batches'   => $batches,
+            'sections'  => $sections,
+            'batchId'   => $batchId,
+            'sectionId' => $sectionId,
+            'date'      => $date,
+        ]);
+    }
+
+    public function bulkStore(): void
+    {
+        Auth::requireAuth();
+        $data = $this->validate([
+            'date'       => 'required',
+            'batch_id'   => 'numeric',
+            'section_id' => 'numeric',
+            'status'     => 'array',
+            'remarks'    => 'array',
+        ]);
+
+        $count = $this->saveBulk($data);
+        $date = $data['date'];
+        $batchId = isset($data['batch_id']) ? (int) $data['batch_id'] : null;
+        $sectionId = isset($data['section_id']) ? (int) $data['section_id'] : null;
+
+        Session::getInstance()->flash('success', "Saved {$count} attendance records.");
+        $this->redirect('/dashboard/attendance/bulk?date=' . urlencode($date) .
+            ($batchId ? '&batch_id=' . $batchId : '') .
+            ($sectionId ? '&section_id=' . $sectionId : ''));
+    }
+
+    public function saveBulk(array $data): int
+    {
+        $date = $data['date'];
+        $batchId = isset($data['batch_id']) ? (int) $data['batch_id'] : null;
+        $sectionId = isset($data['section_id']) ? (int) $data['section_id'] : null;
+        $userId = Auth::id();
+        $statuses = $_POST['status'] ?? $data['status'] ?? [];
+        $remarks = $_POST['remarks'] ?? $data['remarks'] ?? [];
+
+        $validStatuses = ['present', 'absent', 'late', 'half_day', 'holiday', 'on_leave'];
+        $count = 0;
+
+        foreach ($statuses as $studentId => $status) {
+            if (!in_array($status, $validStatuses, true)) {
+                continue;
+            }
+            $student = $this->db->fetch("SELECT id, class_id FROM students WHERE id = ? LIMIT 1", [(int) $studentId]);
+            if (!$student) {
+                continue;
+            }
+
+            $existing = $this->db->fetch(
+                "SELECT id FROM attendances WHERE student_id = ? AND date = ? AND type = 'daily' LIMIT 1",
+                [(int) $studentId, $date]
+            );
+
+            if ($existing) {
+                $this->db->update('attendances', [
+                    'status'     => $status,
+                    'section_id' => $sectionId,
+                    'remarks'    => $remarks[$studentId] ?? null,
+                    'recorded_by'=> $userId,
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ], 'id = ?', [$existing['id']]);
+            } else {
+                $this->db->insert('attendances', [
+                    'student_id'      => (int) $studentId,
+                    'date'            => $date,
+                    'type'            => 'daily',
+                    'status'          => $status,
+                    'school_class_id' => $student['class_id'],
+                    'section_id'      => $sectionId,
+                    'batch_id'        => $batchId,
+                    'remarks'         => $remarks[$studentId] ?? null,
+                    'recorded_by'     => $userId,
+                    'marked_by'       => $userId,
+                    'created_at'      => date('Y-m-d H:i:s'),
+                    'updated_at'      => date('Y-m-d H:i:s'),
+                ]);
+            }
+            $count++;
+        }
+
+        return $count;
     }
 }

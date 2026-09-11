@@ -368,4 +368,139 @@ class ExamController extends Controller
         Session::getInstance()->flash('success', "Saved {$count} results.");
         $this->redirect("/dashboard/exams/{$id}");
     }
+
+    public function exportResults(int $id): void
+    {
+        Auth::requireAuth();
+        $exam = $this->db->fetch("SELECT * FROM exams WHERE id = ? LIMIT 1", [$id]);
+        if (!$exam) {
+            Session::getInstance()->flash('error', 'Exam not found.');
+            $this->redirect('/dashboard/exams');
+            return;
+        }
+
+        [$header, $rows] = $this->buildResultsExport($exam);
+        $filename = 'exam-' . ($exam['code'] ?: $exam['id']) . '-results.csv';
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename=' . $filename);
+        $out = fopen('php://output', 'w');
+        fputcsv($out, $header);
+        foreach ($rows as $row) {
+            fputcsv($out, $row);
+        }
+        fclose($out);
+        exit;
+    }
+
+    public function buildResultsExport(array $exam): array
+    {
+        $rows = $this->db->fetchAll(
+            "SELECT er.obtained_marks, er.grade, er.grade_point, er.status, er.is_published,
+                    s.admission_number, s.roll_number, u.name, c.name as class_name, sec.name as section_name
+             FROM exam_results er
+             LEFT JOIN students s ON er.student_id = s.id
+             LEFT JOIN users u ON s.user_id = u.id
+             LEFT JOIN school_classes c ON s.class_id = c.id
+             LEFT JOIN sections sec ON s.section_id = sec.id
+             WHERE er.exam_id = ?
+             ORDER BY s.roll_number ASC, u.name ASC",
+            [$exam['id']]
+        );
+
+        $header = ['admission_number', 'name', 'class', 'section', 'roll', 'obtained_marks', 'total_marks', 'grade', 'grade_point', 'status', 'is_published'];
+        $data = [];
+        foreach ($rows as $r) {
+            $data[] = [
+                $r['admission_number'], $r['name'], $r['class_name'], $r['section_name'], $r['roll_number'],
+                $r['obtained_marks'], $exam['total_marks'], $r['grade'], $r['grade_point'], $r['status'],
+                $r['is_published'] ? '1' : '0',
+            ];
+        }
+        return [$header, $data];
+    }
+
+    public function myResults(): void
+    {
+        Auth::requireAuth();
+        $role = Auth::role() ?? '';
+        $userId = Auth::id();
+
+        $exams = [];
+        if ($role === 'admin') {
+            $exams = $this->db->fetchAll(
+                "SELECT e.*, sub.name as subject_name, b.name as batch_name, sec.name as section_name,
+                    (SELECT COUNT(*) FROM exam_results er WHERE er.exam_id = e.id) as result_count,
+                    (SELECT COUNT(*) FROM exam_results er WHERE er.exam_id = e.id AND er.is_published = 1) as published_count
+                 FROM exams e
+                 LEFT JOIN subjects sub ON e.subject_id = sub.id
+                 LEFT JOIN batches b ON e.batch_id = b.id
+                 LEFT JOIN sections sec ON e.section_id = sec.id
+                 ORDER BY e.start_date DESC LIMIT 100"
+            );
+        } else {
+            $student = $this->db->fetch("SELECT * FROM students WHERE user_id = ? LIMIT 1", [$userId]);
+            if ($student) {
+                $exams = $this->db->fetchAll(
+                    "SELECT e.*, sub.name as subject_name, b.name as batch_name, sec.name as section_name,
+                        (SELECT COUNT(*) FROM exam_results er WHERE er.exam_id = e.id) as result_count,
+                        (SELECT COUNT(*) FROM exam_results er WHERE er.exam_id = e.id AND er.is_published = 1) as published_count,
+                        (SELECT COUNT(*) FROM students s WHERE s.batch_id = e.batch_id AND s.status = 'active') as total_students
+                     FROM exams e
+                     LEFT JOIN subjects sub ON e.subject_id = sub.id
+                     LEFT JOIN batches b ON e.batch_id = b.id
+                     LEFT JOIN sections sec ON e.section_id = sec.id
+                     WHERE e.batch_id = ? AND e.is_published = 1
+                     ORDER BY e.start_date DESC LIMIT 100",
+                    [$student['batch_id']]
+                );
+            }
+        }
+
+        $this->view('dashboard.exams.my_results', [
+            'exams' => $exams,
+        ]);
+    }
+
+    public function studentResultsExport(int $id): void
+    {
+        Auth::requireAuth();
+        $student = $this->db->fetch("SELECT * FROM students WHERE id = ? LIMIT 1", [$id]);
+        if (!$student) {
+            Session::getInstance()->flash('error', 'Student not found.');
+            $this->redirect('/dashboard/students');
+            return;
+        }
+
+        [$header, $rows] = $this->buildStudentResultsExport($student);
+        $filename = 'student-' . ($student['admission_number'] ?: $student['id']) . '-results.csv';
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename=' . $filename);
+        $out = fopen('php://output', 'w');
+        fputcsv($out, $header);
+        foreach ($rows as $row) {
+            fputcsv($out, $row);
+        }
+        fclose($out);
+        exit;
+    }
+
+    public function buildStudentResultsExport(array $student): array
+    {
+        $rows = $this->db->fetchAll(
+            "SELECT er.*, e.name as exam_name, e.start_date, sub.name as subject_name
+             FROM exam_results er
+             LEFT JOIN exams e ON er.exam_id = e.id
+             LEFT JOIN subjects sub ON er.subject_id = sub.id
+             WHERE er.student_id = ? AND er.is_published = 1
+             ORDER BY e.start_date DESC, sub.name ASC",
+            [$student['id']]
+        );
+
+        $header = ['exam', 'date', 'subject', 'obtained_marks', 'total_marks', 'grade', 'grade_point', 'status'];
+        $data = [];
+        foreach ($rows as $r) {
+            $data[] = [$r['exam_name'], $r['start_date'], $r['subject_name'], $r['obtained_marks'], $r['total_marks'], $r['grade'], $r['grade_point'], $r['status']];
+        }
+        return [$header, $data];
+    }
 }
