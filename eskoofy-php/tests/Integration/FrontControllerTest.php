@@ -5,6 +5,8 @@ namespace Tests\Integration;
 
 use App\Controllers\Api\ExamController;
 use App\Controllers\Dashboard\AdmitCardController;
+use App\Controllers\Dashboard\CertificateController;
+use App\Controllers\Dashboard\StudentIdCardController;
 use App\Controllers\Dashboard\AssignmentController;
 use App\Controllers\Dashboard\AttendanceController;
 use App\Controllers\Dashboard\ExamController as DashboardExamController;
@@ -683,5 +685,81 @@ class FrontControllerTest extends PHPUnitTestCase
         $joined = implode("\n", array_column($this->db->log, 'sql'));
         $this->assertStringContainsString('er.obtained_marks', $joined);
         $this->assertStringContainsString('FROM exam_results er', $joined);
+    }
+
+    public function test_admit_card_store_persists_unique_number(): void
+    {
+        $this->authAs();
+        $this->db->seed('admit_cards', []);
+        $this->db->seed('students', []);
+        $this->db->seed('users', []);
+        $this->db->seed('school_classes', []);
+        $this->db->seed('sections', []);
+
+        $this->invoke(fn () => (new AdmitCardController())->storeOne(7, 9, '2026-09-11'));
+
+        $stored = $this->db->tables['admit_cards'][0] ?? [];
+        $this->assertSame(7, $stored['exam_id'] ?? null);
+        $this->assertSame(9, $stored['student_id'] ?? null);
+        $this->assertStringStartsWith('ADMIT-7-9-', $stored['admit_card_number'] ?? '');
+        $this->assertSame('issued', $stored['status'] ?? '');
+    }
+
+    public function test_admit_card_store_dedupes_on_exam_student(): void
+    {
+        $this->authAs();
+        $this->db->seed('admit_cards', [
+            ['id' => 1, 'exam_id' => 7, 'student_id' => 9, 'admit_card_number' => 'ADMIT-7-9-0001', 'issue_date' => '2026-01-01', 'status' => 'issued'],
+        ]);
+        $this->db->seed('students', []);
+        $this->db->seed('users', []);
+
+        $this->invoke(fn () => (new AdmitCardController())->storeOne(7, 9, '2026-09-11'));
+
+        $this->assertCount(1, $this->db->tables['admit_cards'] ?? [],
+            'admit_cards is unique per (exam_id, student_id) — a second insert must be skipped');
+    }
+
+    public function test_id_card_store_persists_and_dedupes_per_student(): void
+    {
+        $this->authAs();
+        $this->db->seed('student_id_cards', []);
+        $this->db->seed('students', []);
+        $this->db->seed('users', []);
+
+        $this->invoke(fn () => (new StudentIdCardController())->storeOne(9, '2026-09-11', null, 'A+'));
+
+        $stored = $this->db->tables['student_id_cards'][0] ?? [];
+        $this->assertSame(9, $stored['student_id'] ?? null);
+        $this->assertStringStartsWith('ID-9-', $stored['id_card_number'] ?? '');
+        $this->assertSame('A+', $stored['blood_group'] ?? '');
+        $this->assertSame('active', $stored['status'] ?? '');
+
+        $this->db->seed('student_id_cards', [
+            ['id' => 1, 'student_id' => 9, 'id_card_number' => 'ID-9-0001', 'issue_date' => '2026-01-01', 'status' => 'active'],
+        ]);
+        $this->invoke(fn () => (new StudentIdCardController())->storeOne(9, '2026-09-12', null, null));
+        $active = array_values(array_filter($this->db->tables['student_id_cards'] ?? [], fn ($r) => ($r['deleted_at'] ?? null) === null));
+        $this->assertCount(2, $active, 'dedupe is per-student on active rows only');
+    }
+
+    public function test_certificate_store_generates_year_number_and_name(): void
+    {
+        $this->authAs();
+        $this->db->seed('certificates', []);
+        $this->db->seed('students', [
+            ['id' => 1, 'user_id' => 1],
+        ]);
+        $this->db->seed('users', [
+            ['id' => 1, 'name' => 'Pupil'],
+        ]);
+
+        $this->invoke(fn () => (new CertificateController())->storeOne(1, 'character', '2026-09-11', 'Good student', 'issued'));
+
+        $stored = $this->db->tables['certificates'][0] ?? [];
+        $this->assertStringStartsWith('CERT-' . date('Y') . '-', $stored['certificate_number'] ?? '');
+        $this->assertStringStartsWith('Character certificate for', $stored['name'] ?? '');
+        $this->assertSame('issued', $stored['status'] ?? '');
+        $this->assertNotEmpty($stored['template'] ?? '');
     }
 }

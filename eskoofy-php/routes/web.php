@@ -262,11 +262,38 @@ $router->group('/dashboard', function (Router $r) {
 
     // Documents (certificates, admit cards, ID cards)
     $r->get('/certificates', 'App\\Controllers\\Dashboard\\CertificateController', 'index');
+    $r->get('/certificates/create', 'App\\Controllers\\Dashboard\\CertificateController', 'create');
+    $r->post('/certificates', 'App\\Controllers\\Dashboard\\CertificateController', 'store');
     $r->post('/certificates/generate', 'App\\Controllers\\Dashboard\\CertificateController', 'generate');
+    $r->get('/certificates/{id}', 'App\\Controllers\\Dashboard\\CertificateController', 'show');
+    $r->get('/certificates/{id}/edit', 'App\\Controllers\\Dashboard\\CertificateController', 'edit');
+    $r->put('/certificates/{id}', 'App\\Controllers\\Dashboard\\CertificateController', 'update');
+    $r->delete('/certificates/{id}', 'App\\Controllers\\Dashboard\\CertificateController', 'destroy');
+    $r->get('/certificates/{id}/print', 'App\\Controllers\\Dashboard\\CertificateController', 'print');
     $r->get('/admit-cards', 'App\\Controllers\\Dashboard\\AdmitCardController', 'index');
+    $r->get('/admit-cards/create', 'App\\Controllers\\Dashboard\\AdmitCardController', 'create');
+    $r->post('/admit-cards', 'App\\Controllers\\Dashboard\\AdmitCardController', 'store');
     $r->post('/admit-cards/generate', 'App\\Controllers\\Dashboard\\AdmitCardController', 'generate');
+    $r->get('/admit-cards/batch/create', 'App\\Controllers\\Dashboard\\AdmitCardController', 'batchCreate');
+    $r->post('/admit-cards/batch', 'App\\Controllers\\Dashboard\\AdmitCardController', 'batchStore');
+    $r->get('/admit-cards/{id}', 'App\\Controllers\\Dashboard\\AdmitCardController', 'show');
+    $r->get('/admit-cards/{id}/edit', 'App\\Controllers\\Dashboard\\AdmitCardController', 'edit');
+    $r->put('/admit-cards/{id}', 'App\\Controllers\\Dashboard\\AdmitCardController', 'update');
+    $r->delete('/admit-cards/{id}', 'App\\Controllers\\Dashboard\\AdmitCardController', 'destroy');
+    $r->get('/admit-cards/{id}/print', 'App\\Controllers\\Dashboard\\AdmitCardController', 'print');
+    $r->get('/admit-cards/{id}/preview', 'App\\Controllers\\Dashboard\\AdmitCardController', 'preview');
     $r->get('/id-cards', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'index');
+    $r->get('/id-cards/create', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'create');
+    $r->post('/id-cards', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'store');
     $r->post('/id-cards/generate', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'generate');
+    $r->get('/id-cards/batch/create', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'batchCreate');
+    $r->post('/id-cards/batch', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'batchStore');
+    $r->get('/id-cards/{id}', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'show');
+    $r->get('/id-cards/{id}/edit', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'edit');
+    $r->put('/id-cards/{id}', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'update');
+    $r->delete('/id-cards/{id}', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'destroy');
+    $r->get('/id-cards/{id}/print', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'print');
+    $r->get('/id-cards/{id}/preview', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'preview');
 
     // Settings
     $r->get('/settings', 'App\\Controllers\\Dashboard\\SettingController', 'index');

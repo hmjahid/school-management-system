@@ -88,6 +88,15 @@ class Router
         $uri = parse_url($uri, PHP_URL_PATH);
         $uri = rtrim($uri, '/') ?: '/';
 
+        // Laravel-style _method spoofing: HTML forms can only POST, so a
+        // hidden _method field lets them trigger PUT/PATCH/DELETE routes.
+        if (strtoupper($method) === 'POST') {
+            $spoof = $_POST['_method'] ?? null;
+            if (is_string($spoof) && in_array(strtoupper($spoof), ['PUT', 'PATCH', 'DELETE'], true)) {
+                $method = strtoupper($spoof);
+            }
+        }
+
         foreach ($this->routes as $route) {
             $pattern = $this->toRegex($route['path']);
             if ($route['method'] === $method && preg_match($pattern, $uri, $matches)) {

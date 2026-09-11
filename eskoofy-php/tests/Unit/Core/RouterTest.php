@@ -91,6 +91,30 @@ class RouterTest extends TestCase
         $this->assertSame(404, http_response_code());
     }
 
+    public function test_post_with_method_spoof_matches_put_route(): void
+    {
+        $called = false;
+        $this->router->put('/resource/{id}', function ($id) use (&$called) {
+            $called = $id;
+        });
+        $_POST['_method'] = 'PUT';
+        $this->router->dispatch('POST', '/resource/7');
+        unset($_POST['_method']);
+        $this->assertSame('7', $called);
+    }
+
+    public function test_post_with_method_spoof_matches_delete_route(): void
+    {
+        $called = false;
+        $this->router->delete('/resource/{id}', function ($id) use (&$called) {
+            $called = $id;
+        });
+        $_POST['_method'] = 'DELETE';
+        $this->router->dispatch('POST', '/resource/9');
+        unset($_POST['_method']);
+        $this->assertSame('9', $called);
+    }
+
     public function test_group_prefix(): void
     {
         $called = false;
