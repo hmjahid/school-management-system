@@ -83,7 +83,7 @@ class PayrollController extends Controller
         }
 
         Session::getInstance()->flash('success', 'Salary structure saved.');
-        $this->redirect('/dashboard/payroll/salary-structures');
+        $this->redirect('/dashboard/salary-structures');
     }
 
     public function payslips(): void
@@ -154,8 +154,202 @@ class PayrollController extends Controller
             ]);
         }
 
-        Session::getInstance()->flash('success', 'Payslip saved.');
-        $this->redirect('/dashboard/payroll/payslips');
+Session::getInstance()->flash('success', 'Payslip saved.');
+        $this->redirect('/dashboard/payslips');
+    }
+
+    public function generate(): void
+    {
+        Auth::requireAuth();
+        $month = (int) ($_GET['month'] ?? date('n'));
+        $year = (int) ($_GET['year'] ?? date('Y'));
+        if ($month < 1 || $month > 12) {
+            $month = (int) date('n');
+        }
+        if ($year < 2020 || $year > 2099) {
+            $year = (int) date('Y');
+        }
+
+        $structures = $this->db->fetchAll(
+            "SELECT ss.*, u.name as employee_name, u.role
+             FROM salary_structures ss
+             LEFT JOIN teachers t ON ss.teacher_id = t.id
+             LEFT JOIN users u ON t.user_id = u.id
+             WHERE ss.is_active = 1
+             ORDER BY u.name ASC"
+        );
+
+        $preview = [];
+        foreach ($structures as $s) {
+            $allowances = json_decode((string) $s['allowances'], true) ?: [];
+            $deductions = json_decode((string) $s['deductions'], true) ?: [];
+            $totalAllowances = array_sum(array_map('floatval', $allowances));
+            $totalDeductions = array_sum(array_map('floatval', $deductions));
+
+            $leaveDays = 0;
+            $rows = $this->db->fetchAll(
+                "SELECT from_date, to_date FROM leave_requests
+                 WHERE teacher_id = ? AND status = 'approved'
+                   AND ((YEAR(from_date) = ? AND MONTH(from_date) = ?)
+                     OR (YEAR(to_date) = ? AND MONTH(to_date) = ?))",
+                [$s['teacher_id'], $year, $month, $year, $month]
+            );
+            foreach ($rows as $lr) {
+                $f = new \DateTime($lr['from_date']);
+                $t = new \DateTime($lr['to_date']);
+                $leaveDays += (int) $f->diff($t)->format('%a') + 1;
+            }
+
+            $dailyRate = (float) $s['basic'] / 30;
+            $leaveDeduction = $leaveDays * $dailyRate;
+            $gross = (float) $s['basic'] + $totalAllowances;
+            $net = $gross - ($totalDeductions + $leaveDeduction);
+
+            $preview[] = [
+                'teacher_id'    => $s['teacher_id'],
+                'employee_name' => $s['employee_name'],
+                'basic'         => (float) $s['basic'],
+                'allowances'    => $totalAllowances,
+                'deductions'    => $totalDeductions,
+                'leave_days'    => $leaveDays,
+                'leave_deduction' => $leaveDeduction,
+                'net'           => round($net, 2),
+            ];
+        }
+
+        $this->view('dashboard.payroll.generate', [
+            'preview' => $preview,
+            'month'   => $month,
+            'year'    => $year,
+        ]);
+    }
+
+    public function generateStore(): void
+    {
+        Auth::requireAuth();
+        $month = (int) ($_POST['month'] ?? 0);
+        $year = (int) ($_POST['year'] ?? 0);
+        $teacherIds = $_POST['teacher_ids'] ?? [];
+        if ($month < 1 || $month > 12 || $year < 2020 || $year > 2099) {
+            Session::getInstance()->flash('error', 'Invalid month/year.');
+            $this->redirect('/dashboard/payroll/generate');
+            return;
+        }
+
+        $count = $this->buildPayslips(array_map('intval', (array) $teacherIds), $month, $year);
+
+        Session::getInstance()->flash('success', "Generated {$count} payslips.");
+        $this->redirect('/dashboard/payslips?month=' . $month . '&year=' . $year);
+    }
+
+    public function buildPayslips(array $teacherIds, int $month, int $year): int
+    {
+        $count = 0;
+        foreach ($teacherIds as $teacherId) {
+            $s = $this->db->fetch(
+                "SELECT * FROM salary_structures WHERE teacher_id = ? AND is_active = 1 LIMIT 1",
+                [$teacherId]
+            );
+            if (!$s) {
+                continue;
+            }
+            $exists = $this->db->fetch(
+                "SELECT id FROM payslips WHERE teacher_id = ? AND month = ? AND year = ? LIMIT 1",
+                [$teacherId, $month, $year]
+            );
+            if ($exists) {
+                continue;
+            }
+
+            $allowances = json_decode((string) $s['allowances'], true) ?: [];
+            $deductions = json_decode((string) $s['deductions'], true) ?: [];
+            $totalAllowances = array_sum(array_map('floatval', $allowances));
+            $totalDeductions = array_sum(array_map('floatval', $deductions));
+
+            $leaveDays = 0;
+            $rows = $this->db->fetchAll(
+                "SELECT from_date, to_date FROM leave_requests
+                 WHERE teacher_id = ? AND status = 'approved'
+                   AND ((YEAR(from_date) = ? AND MONTH(from_date) = ?)
+                     OR (YEAR(to_date) = ? AND MONTH(to_date) = ?))",
+                [$teacherId, $year, $month, $year, $month]
+            );
+            foreach ($rows as $lr) {
+                $f = new \DateTime($lr['from_date']);
+                $t = new \DateTime($lr['to_date']);
+                $leaveDays += (int) $f->diff($t)->format('%a') + 1;
+            }
+
+            $dailyRate = (float) $s['basic'] / 30;
+            $leaveDeduction = $leaveDays * $dailyRate;
+            $gross = (float) $s['basic'] + $totalAllowances;
+            $totalDeductionsWithLeave = $totalDeductions + $leaveDeduction;
+            $net = round($gross - $totalDeductionsWithLeave, 2);
+
+            $this->db->insert('payslips', [
+                'teacher_id'        => $teacherId,
+                'month'             => $month,
+                'year'              => $year,
+                'basic'             => (float) $s['basic'],
+                'total_allowances'  => round($totalAllowances, 2),
+                'total_deductions'  => round($totalDeductionsWithLeave, 2),
+                'net_salary'        => $net,
+                'details'           => json_encode([
+                    'allowances'     => $allowances,
+                    'deductions'     => $deductions,
+                    'leave_days'     => $leaveDays,
+                    'leave_deduction'=> round($leaveDeduction, 2),
+                ]),
+                'status'            => 'draft',
+                'generated_at'      => date('Y-m-d H:i:s'),
+                'created_at'        => date('Y-m-d H:i:s'),
+                'updated_at'        => date('Y-m-d H:i:s'),
+            ]);
+            $count++;
+        }
+
+        return $count;
+    }
+
+    public function showPayslip(int $id): void
+    {
+        Auth::requireAuth();
+        $payslip = $this->db->fetch(
+            "SELECT p.*, u.name as employee_name, u.role
+             FROM payslips p
+             LEFT JOIN teachers t ON p.teacher_id = t.id
+             LEFT JOIN users u ON t.user_id = u.id
+             WHERE p.id = ? LIMIT 1",
+            [$id]
+        );
+        if (!$payslip) {
+            Session::getInstance()->flash('error', 'Payslip not found.');
+            $this->redirect('/dashboard/payslips');
+            return;
+        }
+        $payslip['details'] = isset($payslip['details']) && $payslip['details'] !== '' ? json_decode((string) $payslip['details'], true) : [];
+
+        $this->view('dashboard.payroll.payslip_show', ['payslip' => $payslip]);
+    }
+
+    public function markPaid(int $id): void
+    {
+        Auth::requireAuth();
+        $payslip = $this->db->fetch("SELECT * FROM payslips WHERE id = ? LIMIT 1", [$id]);
+        if (!$payslip) {
+            Session::getInstance()->flash('error', 'Payslip not found.');
+            $this->redirect('/dashboard/payslips');
+            return;
+        }
+
+        $this->db->update('payslips', [
+            'status'    => 'paid',
+            'paid_at'   => date('Y-m-d H:i:s'),
+            'updated_at'=> date('Y-m-d H:i:s'),
+        ], 'id = ?', [$id]);
+
+        Session::getInstance()->flash('success', 'Payslip marked as paid.');
+        $this->redirect('/dashboard/payslips/' . $id);
     }
 
     public function leaveRequests(): void

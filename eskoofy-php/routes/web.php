@@ -251,11 +251,20 @@ $router->group('/dashboard', function (Router $r) {
     $r->delete('/books/{id}', 'App\\Controllers\\Dashboard\\LibraryController', 'destroy');
     $r->get('/book-issues', 'App\\Controllers\\Dashboard\\LibraryController', 'issues');
     $r->post('/book-issues', 'App\\Controllers\\Dashboard\\LibraryController', 'issueBook');
+    $r->get('/book-issues/{id}', 'App\\Controllers\\Dashboard\\LibraryController', 'showIssue');
     $r->post('/book-issues/{id}/return', 'App\\Controllers\\Dashboard\\LibraryController', 'returnBook');
+    $r->post('/book-issues/{id}/fine', 'App\\Controllers\\Dashboard\\LibraryController', 'collectFine');
+    $r->post('/book-issues/{id}/lost', 'App\\Controllers\\Dashboard\\LibraryController', 'markLost');
 
     // SMS
     $r->get('/sms', 'App\\Controllers\\Dashboard\\SmsController', 'index');
+    $r->get('/sms/compose', 'App\\Controllers\\Dashboard\\SmsController', 'compose');
+    $r->post('/sms/preview', 'App\\Controllers\\Dashboard\\SmsController', 'preview');
     $r->post('/sms/send', 'App\\Controllers\\Dashboard\\SmsController', 'send');
+    $r->post('/sms/campaign', 'App\\Controllers\\Dashboard\\SmsController', 'sendCampaign');
+    $r->get('/sms/templates', 'App\\Controllers\\Dashboard\\SmsController', 'templates');
+    $r->get('/sms/due-reminder', 'App\\Controllers\\Dashboard\\SmsController', 'dueReminder');
+    $r->post('/sms/due-reminder', 'App\\Controllers\\Dashboard\\SmsController', 'dueReminder');
 
     // Reports
     $r->get('/reports', 'App\\Controllers\\Dashboard\\ReportController', 'index');
@@ -332,6 +341,10 @@ $router->group('/dashboard', function (Router $r) {
     $r->post('/salary-structures', 'App\\Controllers\\Dashboard\\PayrollController', 'storeSalaryStructure');
     $r->get('/payslips', 'App\\Controllers\\Dashboard\\PayrollController', 'payslips');
     $r->post('/payslips', 'App\\Controllers\\Dashboard\\PayrollController', 'storePayslip');
+    $r->get('/payroll/generate', 'App\\Controllers\\Dashboard\\PayrollController', 'generate');
+    $r->post('/payroll/generate', 'App\\Controllers\\Dashboard\\PayrollController', 'generateStore');
+    $r->get('/payslips/{id}', 'App\\Controllers\\Dashboard\\PayrollController', 'showPayslip');
+    $r->post('/payslips/{id}/paid', 'App\\Controllers\\Dashboard\\PayrollController', 'markPaid');
     $r->get('/leave-requests', 'App\\Controllers\\Dashboard\\PayrollController', 'leaveRequests');
     $r->put('/leave-requests/{id}', 'App\\Controllers\\Dashboard\\PayrollController', 'updateLeaveRequest');
     $r->get('/leaves', 'App\\Controllers\\Dashboard\\LeaveController', 'index');
@@ -357,6 +370,8 @@ $router->group('/dashboard', function (Router $r) {
     // Backup
     $r->post('/backup', 'App\\Controllers\\Dashboard\\BackupController', 'create');
     $r->get('/backups', 'App\\Controllers\\Dashboard\\BackupController', 'index');
+    $r->get('/backups/download/{file}', 'App\\Controllers\\Dashboard\\BackupController', 'download');
+    $r->delete('/backups/{file}', 'App\\Controllers\\Dashboard\\BackupController', 'destroy');
 
     // Courses
     $r->get('/courses', 'App\\Controllers\\Dashboard\\CourseController', 'index');

@@ -228,6 +228,30 @@ class LibraryController extends Controller
         ]);
     }
 
+    public function showIssue(int $id): void
+    {
+        Auth::requireAuth();
+        $issue = $this->db->fetch(
+            "SELECT bi.*, b.title as book_title,
+                COALESCE(su.name, tu.name) as member_name
+             FROM book_issues bi
+             LEFT JOIN books b ON bi.book_id = b.id
+             LEFT JOIN students st ON bi.student_id = st.id
+             LEFT JOIN users su ON st.user_id = su.id
+             LEFT JOIN teachers te ON bi.teacher_id = te.id
+             LEFT JOIN users tu ON te.user_id = tu.id
+             WHERE bi.id = ? LIMIT 1",
+            [$id]
+        );
+        if (!$issue) {
+            Session::getInstance()->flash('error', 'Issue record not found.');
+            $this->redirect('/dashboard/book-issues');
+            return;
+        }
+
+        $this->view('dashboard.library.issue_show', ['issue' => $issue]);
+    }
+
     public function issueBook(): void
     {
         Auth::requireAuth();
@@ -257,7 +281,10 @@ class LibraryController extends Controller
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
-        $this->db->query("UPDATE books SET available_quantity = available_quantity - 1 WHERE id = ?", [$data['book_id']]);
+        $this->db->update('books', [
+            'available_quantity' => ((int) $book['available_quantity']) - 1,
+            'updated_at'         => date('Y-m-d H:i:s'),
+        ], 'id = ?', [$data['book_id']]);
 
         Session::getInstance()->flash('success', 'Book issued successfully.');
         $this->redirect('/dashboard/book-issues');
@@ -273,15 +300,88 @@ class LibraryController extends Controller
             return;
         }
 
+        $this->applyReturn($issue);
+        Session::getInstance()->flash('success', 'Book returned successfully.');
+        $this->redirect('/dashboard/book-issues');
+    }
+
+    public function applyReturn(array $issue): void
+    {
+        $settings = $this->db->fetch("SELECT * FROM library_settings ORDER BY id DESC LIMIT 1");
+        $lateFeePerDay = (float) ($settings['late_fee_per_day'] ?? 5.00);
+
+        $lateFee = 0.0;
+        if ($issue['due_date'] && $issue['due_date'] < date('Y-m-d')) {
+            $days = (int) ((strtotime(date('Y-m-d')) - strtotime($issue['due_date'])) / 86400);
+            $lateFee = round($days * $lateFeePerDay, 2);
+        }
+
         $this->db->update('book_issues', [
-            'status'     => 'returned',
-            'returned_at'=> date('Y-m-d H:i:s'),
+            'status'      => 'returned',
+            'return_date' => date('Y-m-d'),
+            'late_fee'    => $lateFee,
+            'updated_at'  => date('Y-m-d H:i:s'),
+        ], 'id = ?', [$issue['id']]);
+
+        $book = $this->db->fetch("SELECT * FROM books WHERE id = ? LIMIT 1", [$issue['book_id']]);
+        if ($book) {
+            $this->db->update('books', [
+                'available_quantity' => ((int) $book['available_quantity']) + 1,
+                'updated_at'         => date('Y-m-d H:i:s'),
+            ], 'id = ?', [$issue['book_id']]);
+        }
+    }
+
+    public function collectFine(int $id): void
+    {
+        Auth::requireAuth();
+        $issue = $this->db->fetch("SELECT * FROM book_issues WHERE id = ? LIMIT 1", [$id]);
+        if (!$issue) {
+            Session::getInstance()->flash('error', 'Issue record not found.');
+            $this->redirect('/dashboard/book-issues');
+            return;
+        }
+        if ($issue['status'] !== 'returned') {
+            Session::getInstance()->flash('error', 'Can only collect fine for returned books.');
+            $this->redirect('/dashboard/book-issues/' . $id);
+            return;
+        }
+
+        $this->applyFine($id);
+
+        Session::getInstance()->flash('success', 'Fine collected.');
+        $this->redirect('/dashboard/book-issues/' . $id);
+    }
+
+    public function applyFine(int $id): void
+    {
+        $this->db->update('book_issues', [
+            'fine_paid'  => 1,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ], 'id = ?', [$id]);
+    }
+
+    public function markLost(int $id): void
+    {
+        Auth::requireAuth();
+        $issue = $this->db->fetch("SELECT * FROM book_issues WHERE id = ? LIMIT 1", [$id]);
+        if (!$issue) {
+            Session::getInstance()->flash('error', 'Issue record not found.');
+            $this->redirect('/dashboard/book-issues');
+            return;
+        }
+        if ($issue['status'] !== 'issued') {
+            Session::getInstance()->flash('error', 'Only issued books can be marked as lost.');
+            $this->redirect('/dashboard/book-issues/' . $id);
+            return;
+        }
+
+        $this->db->update('book_issues', [
+            'status'     => 'lost',
             'updated_at' => date('Y-m-d H:i:s'),
         ], 'id = ?', [$id]);
 
-        $this->db->query("UPDATE books SET available_quantity = available_quantity + 1 WHERE id = ?", [$issue['book_id']]);
-
-        Session::getInstance()->flash('success', 'Book returned successfully.');
-        $this->redirect('/dashboard/book-issues');
+        Session::getInstance()->flash('success', 'Book marked as lost.');
+        $this->redirect('/dashboard/book-issues/' . $id);
     }
 }

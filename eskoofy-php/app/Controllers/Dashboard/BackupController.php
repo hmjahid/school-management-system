@@ -95,4 +95,33 @@ class BackupController extends Controller
         Session::getInstance()->flash('success', "Backup created: {$filename} (" . number_format(filesize($filepath)) . " bytes)");
         $this->redirect('/dashboard/backups');
     }
+
+    public function download(string $file): void
+    {
+        Auth::requireAuth();
+        $path = $this->backupDir . '/' . basename((string) $file);
+        if (!file_exists($path)) {
+            http_response_code(404);
+            echo 'Not found';
+            return;
+        }
+
+        header('Content-Type: application/sql');
+        header('Content-Disposition: attachment; filename=' . basename($path));
+        header('Content-Length: ' . filesize($path));
+        readfile($path);
+        exit;
+    }
+
+    public function destroy(string $file): void
+    {
+        Auth::requireAuth();
+        $path = $this->backupDir . '/' . basename((string) $file);
+        if (file_exists($path)) {
+            @unlink($path);
+        }
+
+        Session::getInstance()->flash('success', 'Backup deleted.');
+        $this->redirect('/dashboard/backups');
+    }
 }

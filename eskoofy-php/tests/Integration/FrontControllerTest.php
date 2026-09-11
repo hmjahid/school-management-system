@@ -13,8 +13,10 @@ use App\Controllers\Dashboard\LeaveController;
 use App\Controllers\Dashboard\AttendanceController;
 use App\Controllers\Dashboard\ExamController as DashboardExamController;
 use App\Controllers\Dashboard\ExpenseCategoryController;
+use App\Controllers\Dashboard\LibraryController;
 use App\Controllers\Dashboard\LibraryReportController;
 use App\Controllers\Dashboard\PayrollController;
+use App\Controllers\Dashboard\SmsController;
 use App\Controllers\Dashboard\ProgressReportController;
 use App\Controllers\Dashboard\RefundController;
 use App\Controllers\Dashboard\ReportBuilderController;
@@ -848,5 +850,85 @@ class FrontControllerTest extends PHPUnitTestCase
         $this->assertSame('graded', $updated['status'] ?? '');
         $this->assertSame(1, $updated['graded_by'] ?? null);
         $this->assertArrayHasKey('graded_at', $updated);
+    }
+
+    public function test_book_return_computes_late_fee(): void
+    {
+        $this->authAs();
+        $this->db->seed('book_issues', [
+            ['id' => 1, 'book_id' => 1, 'student_id' => 1, 'issue_date' => '2026-09-01', 'due_date' => '2026-09-05', 'status' => 'issued'],
+        ]);
+        $this->db->seed('library_settings', [
+            ['id' => 1, 'late_fee_per_day' => 5.00],
+        ]);
+        $this->db->seed('books', [
+            ['id' => 1, 'title' => 'B', 'available_quantity' => 1],
+        ]);
+
+        $this->invoke(fn () => (new LibraryController())->applyReturn([
+            'id' => 1, 'book_id' => 1, 'due_date' => '2026-09-05',
+        ]));
+
+        $rows = array_values(array_filter($this->db->tables['book_issues'] ?? [], fn ($r) => $r['id'] == 1));
+        $updated = $rows[0] ?? [];
+        $this->assertSame('returned', $updated['status'] ?? '');
+        $this->assertArrayHasKey('return_date', $updated,
+            'book_issues uses return_date, not returned_at');
+        $this->assertNotEmpty($updated['late_fee'] ?? null, 'late fee must be set on return');
+    }
+
+    public function test_library_collect_fine_flips_flag_only(): void
+    {
+        $this->authAs();
+        $this->db->seed('book_issues', [
+            ['id' => 1, 'book_id' => 1, 'student_id' => 1, 'issue_date' => '2026-09-01', 'due_date' => '2026-09-05', 'status' => 'returned', 'late_fee' => 30.00, 'fine_paid' => 0],
+        ]);
+
+        $this->invoke(fn () => (new LibraryController())->applyFine(1));
+
+        $rows = array_values(array_filter($this->db->tables['book_issues'] ?? [], fn ($r) => $r['id'] == 1));
+        $updated = $rows[0] ?? [];
+        $this->assertSame(1, $updated['fine_paid'] ?? 0);
+        $this->assertSame(30.00, $updated['late_fee'] ?? 0);
+    }
+
+    public function test_due_reminder_recipients_group_due_balances(): void
+    {
+        $this->authAs();
+        $this->db->seed('fee_payments', [
+            ['id' => 1, 'student_id' => 1, 'balance' => 400, 'status' => 'partial'],
+        ]);
+        $this->db->seed('students', [
+            ['id' => 1, 'phone_1' => '+8801', 'user_id' => 1],
+        ]);
+        $this->db->seed('users', [
+            ['id' => 1, 'name' => 'Pupil'],
+        ]);
+
+        $this->invoke(fn () => (new SmsController())->dueReminder());
+
+        $joined = implode("\n", array_column($this->db->log, 'sql'));
+        $this->assertStringContainsString('SUM(fp.balance)', $joined);
+        $this->assertStringContainsString("NOT IN ('paid', 'cancelled', 'refunded')", $joined);
+    }
+
+    public function test_payroll_generate_store_creates_payslip_with_net(): void
+    {
+        $this->authAs();
+        $this->db->seed('salary_structures', [
+            ['id' => 1, 'teacher_id' => 1, 'basic' => 30000, 'allowances' => '{"house_rent":5000}', 'deductions' => '{"pf":1000}', 'is_active' => 1],
+        ]);
+        $this->db->seed('payslips', []);
+        $this->db->seed('leave_requests', []);
+
+        $_POST = ['month' => '9', 'year' => '2026', 'teacher_ids' => ['1']];
+        $this->invoke(fn () => (new PayrollController())->buildPayslips([1], 9, 2026));
+        $_POST = [];
+
+        $stored = $this->db->tables['payslips'][0] ?? [];
+        $this->assertSame(30000.0, (float) $stored['basic']);
+        $this->assertSame(5000.0, (float) $stored['total_allowances']);
+        $this->assertSame(34000.0, (float) $stored['net_salary']);
+        $this->assertSame('draft', $stored['status'] ?? '');
     }
 }

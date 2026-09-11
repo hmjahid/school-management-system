@@ -37,7 +37,7 @@ class FakeDatabase implements DatabaseInterface
     public function query(string $sql, array $params = []): \PDOStatement
     {
         $this->log[] = ['action' => 'query', 'sql' => $sql, 'params' => $params];
-        return new FakeStatement(array_merge($this->fetchAll($sql, $params), [$params]));
+        throw new \LogicException('Controllers should not rely on the PDOStatement return value; use insert/update/delete instead');
     }
 
     public function fetch(string $sql, array $params = []): ?array
