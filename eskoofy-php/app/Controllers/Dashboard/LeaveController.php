@@ -23,13 +23,19 @@ class LeaveController extends Controller
         Auth::requireAuth();
         $status = $_GET['status'] ?? '';
         $role = Auth::role() ?? '';
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+        $perPage = 15;
+        $offset = ($page - 1) * $perPage;
 
         $where = '1=1';
         $params = [];
         if (in_array($role, ['admin', 'staff'], true) === false) {
             $teacher = $this->db->fetch("SELECT id FROM teachers WHERE user_id = ? LIMIT 1", [Auth::id()]);
             if (!$teacher) {
-                $this->view('dashboard.leaves.index', ['rows' => [], 'status' => $status]);
+                $this->view('dashboard.leaves.index', [
+                    'rows'   => $this->paginateRows([], 0, $perPage, $page, \App\Models\LeaveRequest::class),
+                    'status' => $status,
+                ]);
                 return;
             }
             $where .= ' AND lr.teacher_id = ?';
@@ -40,6 +46,10 @@ class LeaveController extends Controller
             $params[] = $status;
         }
 
+        $total = (int) ($this->db->fetch(
+            "SELECT COUNT(*) as cnt FROM leave_requests lr WHERE {$where}", $params
+        )['cnt'] ?? 0);
+
         $rows = $this->db->fetchAll(
             "SELECT lr.*, u.name as teacher_name, lt.name_en as leave_type, lt.name_bn as leave_type_bn,
                     u2.name as approver_name
@@ -49,17 +59,13 @@ class LeaveController extends Controller
              LEFT JOIN leave_types lt ON lr.leave_type_id = lt.id
              LEFT JOIN users u2 ON lr.approver_id = u2.id
              WHERE {$where}
-             ORDER BY lr.created_at DESC",
+             ORDER BY lr.created_at DESC
+             LIMIT {$perPage} OFFSET {$offset}",
             $params
         );
 
-        foreach ($rows as &$row) {
-            $row['days'] = $this->inclusiveDays($row['from_date'] ?? '', $row['to_date'] ?? '');
-        }
-        unset($row);
-
         $this->view('dashboard.leaves.index', [
-            'rows'   => $rows,
+            'rows'   => $this->paginateRows($this->normalizeLeaveDates($rows), $total, $perPage, $page, \App\Models\LeaveRequest::class),
             'status' => $status,
         ]);
     }
@@ -133,7 +139,7 @@ class LeaveController extends Controller
             $this->redirect('/dashboard/leaves');
             return;
         }
-        $this->view('dashboard.leaves.show', ['leave' => $leave]);
+        $this->view('dashboard.leaves.show', ['leave' => \App\Models\LeaveRequest::newFromRow($leave)]);
     }
 
     public function approve(int $id): void
@@ -201,8 +207,21 @@ class LeaveController extends Controller
         if (!$leave) {
             return null;
         }
-        $leave['days'] = $this->inclusiveDays($leave['from_date'] ?? '', $leave['to_date'] ?? '');
+        $leave = $this->normalizeLeaveDates([$leave])[0] ?? $leave;
         return $leave;
+    }
+
+    /**
+     * Copy start_date/end_date onto from_date/to_date when the legacy
+     * columns are absent (some seeded/legacy rows only carry the former).
+     */
+    private function normalizeLeaveDates(array $rows): array
+    {
+        foreach ($rows as &$row) {
+            $row['from_date'] ??= $row['start_date'] ?? null;
+            $row['to_date'] ??= $row['end_date'] ?? null;
+        }
+        return $rows;
     }
 
     private function inclusiveDays(string $from, string $to): int

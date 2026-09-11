@@ -90,7 +90,7 @@ function e(?string $value): string
     return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 }
 
-function old(string $key, ?string $default = null): ?string
+function old(string $key, mixed $default = null): mixed
 {
     return Session::getInstance()->get('_old_' . $key) ?? $default;
 }
@@ -324,13 +324,15 @@ if (!function_exists('route')) {
         if ($uri === null) {
             return $name;
         }
-        if (!is_array($parameters)) {
+        if ($parameters instanceof \App\Core\Model || $parameters instanceof \App\Core\Support\Collection) {
+            $parameters = [$parameters];
+        } elseif (!is_array($parameters)) {
             $parameters = is_iterable($parameters) ? (array) $parameters : [$parameters];
         }
         $unused = [];
         foreach ($parameters as $key => $value) {
             if (is_int($key)) {
-                $uri = preg_replace('/\{[^}]+\}/', (string) $value, $uri, 1) ?? $uri;
+                $uri = preg_replace('/\{[^}]+\}/', (string) ($value instanceof \App\Core\Model ? $value->getKey() : $value), $uri, 1) ?? $uri;
             } elseif (str_contains($uri, '{' . $key . '}')) {
                 $uri = str_replace('{' . $key . '}', (string) $value, $uri);
             } else {
@@ -345,8 +347,11 @@ if (!function_exists('route')) {
 }
 
 if (!function_exists('__')) {
-    function __(string $key, array $replace = []): mixed
+    function __(mixed $key, array $replace = []): mixed
     {
+        if (!is_string($key)) {
+            return '';
+        }
         static $files = null;
         if ($files === null) {
             $locale = $_SESSION['locale'] ?? config('app.locale', 'en');
@@ -620,6 +625,9 @@ if (!class_exists('Illuminate\Support\Str', false)) {
 }
 if (!class_exists('Illuminate\Support\Carbon', false)) {
     class_alias(\App\Core\Support\Carbon::class, 'Illuminate\Support\Carbon');
+}
+if (!class_exists('Carbon\Carbon', false)) {
+    class_alias(\App\Core\Support\Carbon::class, 'Carbon\Carbon');
 }
 if (!class_exists('Illuminate\Support\Facades\Schema', false)) {
     class_alias(\App\Core\Schema::class, 'Illuminate\Support\Facades\Schema');

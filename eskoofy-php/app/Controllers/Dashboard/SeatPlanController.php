@@ -14,7 +14,27 @@ class SeatPlanController extends Controller
     {
         Auth::requireAuth();
         $db = Database::getInstance();
-        $exams = $db->fetchAll("SELECT id, name, start_date FROM exams ORDER BY start_date DESC LIMIT 50");
+
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+        $perPage = 20;
+
+        $where = '1=1';
+        $params = [];
+        if (isset($_GET['published']) && $_GET['published'] !== '') {
+            $where .= ' AND is_published = ?';
+            $params[] = (int) (bool) $_GET['published'];
+        }
+
+        $total = (int) ($db->fetch("SELECT COUNT(*) as cnt FROM exams WHERE {$where}", $params)['cnt'] ?? 0);
+        $offset = ($page - 1) * $perPage;
+
+        $examRows = $db->fetchAll(
+            "SELECT * FROM exams WHERE {$where} ORDER BY start_date DESC LIMIT {$perPage} OFFSET {$offset}",
+            $params
+        );
+
+        $exams = $this->paginateRows($examRows, $total, $perPage, $page, \App\Models\Exam::class);
+
         $this->view('dashboard.seat_plans.index', ['exams' => $exams]);
     }
 

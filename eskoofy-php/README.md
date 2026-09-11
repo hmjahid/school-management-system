@@ -58,17 +58,23 @@ minimal Blade compiler supporting the directives the app actually uses:
   `Collection`, plus `route()`, `__()`, `collect()`, `request()`, `auth()`, `session()`
 - `route()` resolves Laravel route names via the generated `config/routes.php` map
 
-**Ported so far (renders the exact Laravel UI, verified 200s + green suite):**
+**Ported and verified (HTTP 200 / smoke-OK, zero fatal errors):**
 - Full public site — home, about, academics, news, news article, notices (paginated),
   events, gallery, contact, faculty, committee, transport, routines, results,
   admissions, payments, search, portal, terms, privacy, careers, students-life, sitemap
-- Dashboard shell — `layouts.dashboard`, sidebar, topbar (dark mode, locale switch,
-  favorites, live clock, user menu, command-palette search) and the dashboard overview
-- Home + every public page verified via `php -S` smoke (HTTP 200)
+- **Full dashboard** — the `layouts.dashboard` shell (sidebar, topbar, dark mode, locale
+  switch, favorites, live clock, command-palette) plus all module pages. Every dashboard
+  controller now feeds the copied Blade views Eloquent-shaped data
+  (models/collections/paginators/Carbon). Verified via an authenticated smoke harness:
+  181 dashboard GET routes render cleanly (176 `OK`; 5 are CSV-export/redirect actions).
+- Legacy `views/*.php` templates remain as fallbacks for any view without a Blade copy;
+  they will be retired once a real-DB pass confirms full coverage.
 
-**Remaining (tracked in `workplan-implementation-plan.md`):** porting the remaining
-dashboard module controllers to feed the copied Blade views the Eloquent-shaped data they
-expect (models/collections/paginators) — the backend-parity track.
+## Tests
+
+```bash
+composer test   # PHPUnit 11 (dev-only). 287 tests / 553 assertions.
+```
 
 ## Quick start
 
@@ -82,16 +88,6 @@ Internet-facing setup: point the document root at `public/`; `.htaccess` routes 
 requests through `index.php`.
 
 Seeded admin login: `admin@eskoofy.com` / `password`.
-
-## Tests
-
-```bash
-composer test   # PHPUnit 11 (dev-only). 279 tests / 535 assertions.
-```
-
-The integration suite exercises the front controllers against an in-memory fake DB and
-asserts the SQL uses real schema columns; it skips view rendering by design (see
-`tests/bootstrap.php` — `View::$renderViews = false`).
 
 ## Variants
 

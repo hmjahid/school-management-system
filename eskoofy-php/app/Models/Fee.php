@@ -6,6 +6,10 @@ use App\Core\Model;
 
 class Fee extends Model
 {
+
+    public const TYPE_TUITION = 'tuition';
+    public const FREQUENCY_MONTHLY = 'monthly';
+
     protected static string $table = 'fees';
     protected static string $primaryKey = 'id';
     protected static bool $softDeletes = true;

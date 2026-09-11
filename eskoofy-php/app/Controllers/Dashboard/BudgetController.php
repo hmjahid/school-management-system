@@ -56,8 +56,8 @@ class BudgetController extends Controller
         $categories = $this->db->fetchAll("SELECT id, name FROM expense_categories WHERE is_active = 1 ORDER BY name ASC");
 
         $this->view('dashboard.budgets.index', [
-            'rows'         => $rows,
-            'budgets'      => $rows,
+            'rows'         => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Budget::class),
+            'budgets'      => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Budget::class),
             'total'        => $total,
             'page'         => $page,
             'perPage'      => $perPage,

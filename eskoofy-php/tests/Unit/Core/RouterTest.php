@@ -100,7 +100,7 @@ class RouterTest extends TestCase
         $_POST['_method'] = 'PUT';
         $this->router->dispatch('POST', '/resource/7');
         unset($_POST['_method']);
-        $this->assertSame('7', $called);
+        $this->assertSame(7, $called);
     }
 
     public function test_post_with_method_spoof_matches_delete_route(): void
@@ -112,7 +112,7 @@ class RouterTest extends TestCase
         $_POST['_method'] = 'DELETE';
         $this->router->dispatch('POST', '/resource/9');
         unset($_POST['_method']);
-        $this->assertSame('9', $called);
+        $this->assertSame(9, $called);
     }
 
     public function test_group_prefix(): void
@@ -158,7 +158,7 @@ class RouterTest extends TestCase
             $params = $id;
         });
         $this->router->dispatch('GET', '/users/42');
-        $this->assertSame('42', $params);
+        $this->assertSame(42, $params);
     }
 
     public function test_first_match_wins(): void

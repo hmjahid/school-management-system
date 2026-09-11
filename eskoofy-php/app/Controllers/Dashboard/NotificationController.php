@@ -47,8 +47,8 @@ class NotificationController extends Controller
         )['cnt'] ?? 0);
 
         $this->view('dashboard.notifications.index', [
-            'rows'          => $rows,
-            'notifications' => $rows,
+            'rows'          => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\NotificationLog::class),
+            'notifications' => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\NotificationLog::class),
             'total'         => $total,
             'page'          => $page,
             'perPage'       => $perPage,

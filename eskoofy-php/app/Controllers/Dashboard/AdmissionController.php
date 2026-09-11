@@ -63,25 +63,30 @@ class AdmissionController extends Controller
         );
 
         $settings = $this->db->fetch("SELECT * FROM admission_settings ORDER BY id DESC LIMIT 1");
+        $settingsModel = $settings !== null
+            ? \App\Models\AdmissionSetting::hydrate([$settings])[0]
+            : new \App\Models\AdmissionSetting();
+
+        $paginator = $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Admission::class);
 
         $this->view('dashboard.admissions.index', [
-            'rows'      => $rows,
-            'admissions' => $rows,
-            'total'     => $total,
-            'page'      => $page,
-            'perPage'   => $perPage,
-            'lastPage'  => max(1, (int) ceil($total / $perPage)),
-            'search'    => $search,
-            'status'    => $status,
+            'rows'          => $paginator,
+            'admissions'    => $paginator,
+            'total'         => $total,
+            'page'          => $page,
+            'perPage'       => $perPage,
+            'lastPage'      => max(1, (int) ceil($total / $perPage)),
+            'search'        => $search,
+            'status'        => $status,
             'paymentStatus' => $paymentStatus,
-            'settings'  => $settings,
+            'settings'      => $settingsModel,
         ]);
     }
 
     public function show(int $id): void
     {
         Auth::requireAuth();
-        $admission = $this->db->fetch(
+        $admissionRow = $this->db->fetch(
             "SELECT a.*, b.name as batch_name, s.name as session_name
              FROM admissions a
              LEFT JOIN batches b ON a.batch_id = b.id
@@ -90,11 +95,15 @@ class AdmissionController extends Controller
             [$id]
         );
 
-        if (!$admission) {
+        if (!$admissionRow) {
             Session::getInstance()->flash('error', 'Admission not found.');
             $this->redirect('/dashboard/admissions');
             return;
         }
+
+        $admission = \App\Models\Admission::hydrate([$admissionRow])[0];
+        $admission->setRelation('documents', new \App\Core\Support\Collection());
+        $admission->setRelation('tests', new \App\Core\Support\Collection());
 
         $this->view('dashboard.admissions.show', ['admission' => $admission]);
     }

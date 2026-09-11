@@ -64,8 +64,8 @@ class FeePaymentController extends Controller
         );
 
         $this->view('dashboard.fee-payments.index', [
-            'rows'     => $rows,
-            'payments' => $rows,
+            'rows'     => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\FeePayment::class),
+            'payments' => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\FeePayment::class),
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

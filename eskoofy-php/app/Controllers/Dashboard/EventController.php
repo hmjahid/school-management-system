@@ -55,8 +55,8 @@ class EventController extends Controller
         );
 
         $this->view('dashboard.events.index', [
-            'rows'     => $rows,
-            'events' => $rows,
+            'rows'     => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Event::class),
+            'events' => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Event::class),
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,
@@ -139,31 +139,33 @@ class EventController extends Controller
             $month = date('Y-m');
         }
 
-        $anchorTs = strtotime($month . '-01');
-        $year = (int) date('Y', $anchorTs);
+        [$year, $monthNum] = array_map('intval', explode('-', $month));
+        $anchor = \App\Core\Support\Carbon::create($year, $monthNum, 1);
 
         // Week starts Sunday.
-        $start = date('Y-m-d', strtotime('last sunday', $anchorTs) ?: $anchorTs);
-        if (date('w', $anchorTs) === '0') {
-            $start = date('Y-m-d', $anchorTs);
+        $start = $anchor->copy()->startOfDay();
+        if ($start->format('w') !== '0') {
+            $start = \App\Core\Support\Carbon::parse(date('Y-m-d', strtotime('last sunday', $anchor->timestamp())));
         }
-        $end = date('Y-m-d', strtotime('next saturday', strtotime(date('Y-m-t', $anchorTs))));
+        $lastDay = \App\Core\Support\Carbon::create($year, $monthNum, (int) $anchor->copy()->endOfMonth()->format('j'));
+        $end = \App\Core\Support\Carbon::parse(date('Y-m-d', strtotime('next saturday', $lastDay->timestamp())));
 
         $rows = $this->db->fetchAll(
             "SELECT * FROM events WHERE start_date BETWEEN ? AND ? ORDER BY start_date ASC",
-            [$start . ' 00:00:00', $end . ' 23:59:59']
+            [$start->format('Y-m-d H:i:s'), $end->format('Y-m-d 23:59:59')]
         );
+        $eventModels = \App\Models\Event::hydrate($rows);
 
         $byDay = [];
-        foreach ($rows as $row) {
-            $key = date('Y-m-d', strtotime($row['start_date']));
-            $byDay[$key][] = ['type' => 'event', 'title' => $row['title'], 'id' => $row['id']];
+        foreach ($eventModels as $model) {
+            $key = $model->start_date?->format('Y-m-d') ?? date('Y-m-d', strtotime((string) ($model->getAttributes()['start_date'] ?? '')));
+            $byDay[$key][] = ['type' => 'event', 'title' => $model->title, 'id' => $model->id, 'model' => $model];
         }
 
         $holidays = $this->governmentHolidays($year);
         foreach ($holidays as $h) {
-            $hDate = $year . '-' . $h['date'];
-            if ($hDate >= $start && $hDate <= $end) {
+            $hDate = $h['date'];
+            if ($hDate >= $start->toDateString() && $hDate <= $end->toDateString()) {
                 $byDay[$hDate][] = ['type' => 'holiday', 'title' => $h['name']];
             }
         }
@@ -171,7 +173,7 @@ class EventController extends Controller
         $academic = $this->academicActivities($year);
         foreach ($academic as $a) {
             $aDate = $year . '-' . $a['date'];
-            if ($aDate >= $start && $aDate <= $end) {
+            if ($aDate >= $start->toDateString() && $aDate <= $end->toDateString()) {
                 $byDay[$aDate][] = ['type' => 'academic', 'title' => $a['name']];
             }
         }
@@ -179,7 +181,7 @@ class EventController extends Controller
         $school = $this->schoolActivities($year);
         foreach ($school as $s) {
             $sDate = $year . '-' . $s['date'];
-            if ($sDate >= $start && $sDate <= $end) {
+            if ($sDate >= $start->toDateString() && $sDate <= $end->toDateString()) {
                 $byDay[$sDate][] = ['type' => 'school', 'title' => $s['name']];
             }
         }
@@ -188,7 +190,7 @@ class EventController extends Controller
 
         $upcomingHolidays = [];
         foreach ($holidays as $h) {
-            $d = $year . '-' . $h['date'];
+            $d = $h['date'];
             if ($d >= date('Y-m-d')) {
                 $upcomingHolidays[] = ['date' => $d, 'name' => $h['name']];
             }
@@ -202,7 +204,7 @@ class EventController extends Controller
         );
 
         $this->view('dashboard.events.calendar', [
-            'anchor'          => date('F Y', $anchorTs),
+            'anchor'          => $anchor,
             'month'           => $month,
             'year'            => $year,
             'start'           => $start,
@@ -210,6 +212,7 @@ class EventController extends Controller
             'byDay'           => $byDay,
             'upcomingHolidays'=> $upcomingHolidays,
             'upcomingEvents'  => $upcomingEvents,
+            'holidays'        => $holidays,
         ]);
     }
 
@@ -228,7 +231,7 @@ class EventController extends Controller
         ];
         $out = [];
         foreach ($dates as $d) {
-            $out[] = ['date' => $d[0], 'name' => $d[1]];
+            $out[] = ['date' => "{$year}-{$d[0]}", 'name' => $d[1]];
         }
         return $out;
     }

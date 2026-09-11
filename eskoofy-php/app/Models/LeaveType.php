@@ -24,4 +24,10 @@ class LeaveType extends Model
     {
         return $this->hasMany(LeaveRequest::class);
     }
+
+    public function name(): string
+    {
+        $name = $this->name_en ?? $this->name_bn ?? ($this->attributes['name'] ?? null);
+        return (string) ($name ?? '');
+    }
 }

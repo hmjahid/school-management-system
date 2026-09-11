@@ -30,4 +30,10 @@ class Payslip extends Model
     {
         return $this->belongsTo(Teacher::class);
     }
+
+    public function monthName(): string
+    {
+        $month = (int) ($this->attributes['month'] ?? 0);
+        return $month >= 1 && $month <= 12 ? date('F', mktime(0, 0, 0, $month, 1)) : '';
+    }
 }

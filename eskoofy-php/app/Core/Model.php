@@ -40,6 +40,15 @@ class Model implements \ArrayAccess, \JsonSerializable, \IteratorAggregate
         return new static($row);
     }
 
+    /**
+     * @param array<int,array<string,mixed>> $rows
+     * @return array<int,static>
+     */
+    public static function hydrate(array $rows): array
+    {
+        return array_map(static fn ($row) => new static($row), $rows);
+    }
+
     public static function table(): string
     {
         return static::$table;
@@ -58,6 +67,16 @@ class Model implements \ArrayAccess, \JsonSerializable, \IteratorAggregate
     public function getKey(): mixed
     {
         return $this->attributes[static::$primaryKey] ?? null;
+    }
+
+    public function getRouteKey(): mixed
+    {
+        return $this->getKey();
+    }
+
+    public function __toString(): string
+    {
+        return (string) $this->getKey();
     }
 
     public static function db(): DatabaseInterface
@@ -246,7 +265,10 @@ class Model implements \ArrayAccess, \JsonSerializable, \IteratorAggregate
             'bool', 'boolean'         => (bool) $value,
             'array', 'json', 'object' => is_array($value) ? $value : (json_decode((string) $value, true) ?? []),
             'date', 'datetime', 'timestamp', 'immutable_date', 'immutable_datetime'
-                => $value instanceof Carbon ? $value : new Carbon($value),
+                => $value instanceof Carbon ? $value
+                    : (($value === '' || $value === '0000-00-00' || $value === '0000-00-00 00:00:00' || $value === null)
+                        ? null
+                        : new Carbon($value)),
             default                   => $value,
         };
     }

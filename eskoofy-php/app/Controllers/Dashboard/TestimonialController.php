@@ -62,14 +62,14 @@ class TestimonialController extends Controller
         );
 
         $this->view('dashboard.testimonials.index', [
-            'rows'     => $rows,
-            'types'    => self::TYPES,
-            'total'    => $total,
-            'page'     => $page,
-            'perPage'  => $perPage,
-            'lastPage' => max(1, (int) ceil($total / $perPage)),
-            'search'   => $search,
-            'type'     => $type,
+            'testimonials' => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Testimonial::class),
+            'types'        => self::TYPES,
+            'total'        => $total,
+            'page'         => $page,
+            'perPage'      => $perPage,
+            'lastPage'     => max(1, (int) ceil($total / $perPage)),
+            'search'       => $search,
+            'type'         => $type,
         ]);
     }
 

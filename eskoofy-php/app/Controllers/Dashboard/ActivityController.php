@@ -54,8 +54,8 @@ class ActivityController extends Controller
         $users = $this->db->fetchAll("SELECT id, name FROM users WHERE deleted_at IS NULL ORDER BY name ASC LIMIT 500");
 
         $this->view('dashboard.activity.index', [
-            'rows'     => $rows,
-            'activity' => $rows,
+            'rows'     => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Activity::class),
+            'activity' => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Activity::class),
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

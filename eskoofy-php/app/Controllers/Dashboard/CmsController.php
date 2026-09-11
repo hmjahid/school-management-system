@@ -30,20 +30,56 @@ class CmsController extends Controller
         $this->view('dashboard.cms.index', ['pages' => $pages]);
     }
 
-    public function edit(string $id): void
+    public function edit(?string $page = ''): void
     {
         Auth::requireAuth();
-        $page = $this->db->fetch(
-            "SELECT * FROM website_contents WHERE id = ? LIMIT 1",
-            [$id]
-        );
-        if (!$page) {
-            Session::getInstance()->flash('error', 'Page not found.');
-            $this->redirect('/dashboard/cms');
-            return;
+        $page = trim((string) $page);
+
+        $content = \App\Models\WebsiteContent::query()->where('page', $page)->first();
+        if (!$content) {
+            $title = \App\Core\Support\Str::title(str_replace('-', ' ', $page !== '' ? $page : 'home'));
+            $content = new \App\Models\WebsiteContent([
+                'page'       => $page !== '' ? $page : 'home',
+                'title'      => $title,
+                'title_en'   => $title,
+                'title_bn'   => $title,
+                'content'    => [],
+                'content_en' => [],
+                'content_bn' => [],
+                'is_active'  => true,
+            ]);
         }
 
-        $this->view('dashboard.cms.edit', ['page' => $page]);
+        $registry = [];
+        if (is_file(base_path('config/cms_pages.php'))) {
+            $registry = (array) require base_path('config/cms_pages.php');
+        }
+        $def = $registry[$page] ?? [
+            'label'       => $content->title ?: \App\Core\Support\Str::title(str_replace('-', ' ', $page)),
+            'description' => '',
+            'sections'    => [],
+        ];
+
+        $visibilityRegistry = [];
+        if (is_file(base_path('config/cms_section_visibility.php'))) {
+            $visibilityRegistry = (array) require base_path('config/cms_section_visibility.php');
+        }
+        $visibilityKeys = $visibilityRegistry[$page] ?? [];
+
+        $settings = \App\Models\WebsiteSetting::query()->first();
+        $sectionVis = is_array($settings->section_visibility ?? null) ? $settings->section_visibility : [];
+
+        $this->view('dashboard.cms.edit', [
+            'content'        => $content,
+            'page'           => (string) ($content->page ?? $page),
+            'def'            => $def,
+            'values'         => [
+                'en' => $content->englishContentTree(),
+                'bn' => $content->bengaliContentTree(),
+            ],
+            'visibilityKeys' => $visibilityKeys,
+            'sectionVis'     => $sectionVis,
+        ]);
     }
 
     public function update(string $id): void

@@ -59,6 +59,8 @@ class VisitorLogController extends Controller
             $params
         );
 
+        $logs = $this->paginateRows($rows, $total, $perPage, $page, \App\Models\VisitorLog::class);
+
         $stats = $this->db->fetch(
             "SELECT COUNT(*) as total, COUNT(DISTINCT ip) as unique_visitors,
                     SUM(CASE WHEN DATE(created_at) = CURRENT_DATE THEN 1 ELSE 0 END) as today,
@@ -68,14 +70,7 @@ class VisitorLogController extends Controller
 
         $this->view('dashboard.visitor_logs.index', [
             'rows'           => $rows,
-            'visitor_logs'   => $rows,
-            'total'          => $total,
-            'page'           => $page,
-            'perPage'        => $perPage,
-            'lastPage'       => max(1, (int) ceil($total / $perPage)),
-            'search'         => $search,
-            'date_from'      => $dateFrom,
-            'date_to'        => $dateTo,
+            'logs'           => $logs,
             'totalVisits'    => (int) ($stats['total'] ?? 0),
             'uniqueVisitors' => (int) ($stats['unique_visitors'] ?? 0),
             'todayVisits'    => (int) ($stats['today'] ?? 0),

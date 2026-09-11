@@ -18,7 +18,13 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
 
     public function __construct(mixed $items = [])
     {
-        $this->items = is_iterable($items) ? (array) $items : [$items];
+        if ($items instanceof self) {
+            $this->items = $items->all();
+        } elseif (is_iterable($items)) {
+            $this->items = is_array($items) ? $items : iterator_to_array($items);
+        } else {
+            $this->items = [$items];
+        }
     }
 
     public static function make(mixed $items = []): static
@@ -74,6 +80,11 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
             }
         }
         return $default;
+    }
+
+    public function firstWhere(mixed $key, mixed $operator = null, mixed $value = null): mixed
+    {
+        return $this->where($key, $operator, $value)->first();
     }
 
     public function last(?callable $callback = null, mixed $default = null): mixed
@@ -151,6 +162,20 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
             return false;
         }
         return in_array($value, $this->items, true);
+    }
+
+    public function whereIn(string $key, array $values, bool $strict = false): static
+    {
+        return $this->filter(function ($item) use ($key, $values, $strict) {
+            return in_array(data_get($item, $key), $values, $strict);
+        })->values();
+    }
+
+    public function whereNotIn(string $key, array $values, bool $strict = false): static
+    {
+        return $this->filter(function ($item) use ($key, $values, $strict) {
+            return !in_array(data_get($item, $key), $values, $strict);
+        })->values();
     }
 
     public function where(string $key, mixed $operator = null, mixed $value = null): static

@@ -39,8 +39,8 @@ class SmsController extends Controller
         );
 
         $this->view('dashboard.sms.index', [
-            'rows'     => $rows,
-            'history' => $rows,
+            'rows'     => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\SmsCampaign::class),
+            'history' => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\SmsCampaign::class),
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,
@@ -106,7 +106,10 @@ class SmsController extends Controller
         $sections = $this->db->fetchAll("SELECT id, name FROM sections ORDER BY name ASC");
         $roles = $this->db->fetchAll("SELECT id, name FROM roles ORDER BY name ASC");
         $users = $this->db->fetchAll(
-            "SELECT id, name, phone, role_id FROM users WHERE phone IS NOT NULL AND phone != '' ORDER BY name ASC"
+            "SELECT u.id, u.name, u.phone, u.role_id
+             FROM users u
+             WHERE u.phone IS NOT NULL AND u.phone != ''
+             ORDER BY u.name ASC"
         );
         $students = $this->db->fetchAll(
             "SELECT s.id, s.user_id, u.name,
@@ -117,10 +120,24 @@ class SmsController extends Controller
              ORDER BY u.name ASC LIMIT 500"
         );
 
+        $roleNames = [];
+        foreach ($roles as $role) {
+            $roleNames[$role['id']] = $role['name'];
+        }
+        foreach ($users as &$u) {
+            $u['role_names'] = $roleNames[$u['role_id'] ?? 0] ?? '';
+        }
+        unset($u);
+        foreach ($students as &$s) {
+            $s['phone'] = ($s['phone_1'] ?? '') ?: (($s['father_phone'] ?? '') ?: ($s['mother_phone'] ?? ''));
+        }
+        unset($s);
+
         $this->view('dashboard.sms.compose', [
-            'classes'  => $classes,
-            'sections' => $sections,
-            'roles'    => $roles,
+            'classes'  => new \App\Core\Support\Collection(\App\Models\SchoolClass::hydrate($classes)),
+            'sections' => new \App\Core\Support\Collection(\App\Models\Section::hydrate($sections)),
+            'roles'    => new \App\Core\Support\Collection(\App\Models\Role::hydrate($roles)),
+            'shifts'   => ['morning' => 'Morning', 'day' => 'Day', 'evening' => 'Evening'],
             'users'    => $users,
             'students' => $students,
         ]);
@@ -217,7 +234,7 @@ class SmsController extends Controller
         Auth::requireAuth();
         $recipients = $this->dueFeeRecipients();
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $data = $this->validate(['message' => 'required|max:1000']);
             if (empty($recipients)) {
                 Session::getInstance()->flash('error', 'No students with outstanding dues to notify.');
@@ -256,7 +273,7 @@ class SmsController extends Controller
         $defaultMessage = 'Dear parent, your child has an outstanding fee balance of {{amount}}. Please clear the dues at your earliest convenience. - School Administration';
 
         $this->view('dashboard.sms.due_reminder', [
-            'recipients'    => array_slice($recipients, 0, 50),
+            'recipients'    => new \App\Core\Support\Collection(array_slice($recipients, 0, 50)),
             'recipientCount'=> count($recipients),
             'totalDue'      => (float) $totalDue,
             'defaultMessage'=> $defaultMessage,
@@ -402,15 +419,15 @@ class SmsController extends Controller
 
         $out = [];
         foreach ($rows as $r) {
-            $phone = $r['phone_1'] ?: ($r['father_phone'] ?: $r['mother_phone']);
+            $phone = ($r['phone_1'] ?? '') ?: (($r['father_phone'] ?? '') ?: ($r['mother_phone'] ?? ''));
             if (empty($phone)) {
                 continue;
             }
             $out[] = [
-                'student_id' => $r['student_id'],
-                'name'       => $r['name'] ?? ('Student #' . $r['student_id']),
+                'student_id' => $r['student_id'] ?? 0,
+                'name'       => $r['name'] ?? ('Student #' . ($r['student_id'] ?? 0)),
                 'phone'      => $phone,
-                'due'        => (float) $r['due'],
+                'due'        => (float) ($r['due'] ?? 0),
             ];
         }
         return $out;

@@ -70,10 +70,40 @@ class ExpenseController extends Controller
             "SELECT COALESCE(SUM(amount), 0) as total FROM expenses e WHERE {$where}", $params
         )['total'] ?? 0);
 
+        $now = new \App\Core\Support\Carbon();
+        $monthStart = $now->copy()->startOfMonth();
+        $monthEnd = $now->copy()->endOfMonth();
+
+        $budgetRows = $this->db->fetchAll(
+            "SELECT b.*, ec.name as category_name
+             FROM budgets b
+             LEFT JOIN expense_categories ec ON b.expense_category_id = ec.id
+             WHERE b.period_type = 'monthly' AND b.period_start <= ? AND b.period_end >= ?",
+            [$now->toDateString(), $now->toDateString()]
+        );
+
+        $budgetStatus = [];
+        foreach ($budgetRows as $b) {
+            $amount = (float) ($b['amount'] ?? 0);
+            $spent = (float) ($this->db->fetch(
+                "SELECT COALESCE(SUM(amount), 0) as total FROM expenses e WHERE e.expense_category_id = ? AND e.date BETWEEN ? AND ?",
+                [$b['expense_category_id'] ?? 0, $monthStart->toDateString(), $monthEnd->toDateString()]
+            )['total'] ?? 0);
+            $variance = $amount - $spent;
+            $budgetStatus[] = (object) [
+                'category' => $b['category_name'] ?? 'Uncategorized',
+                'budget'   => $amount,
+                'spent'    => $spent,
+                'variance' => $variance,
+                'pct'      => $amount > 0 ? min(100, (int) round(($spent / $amount) * 100)) : 0,
+                'over'     => $spent > $amount,
+            ];
+        }
+
         $this->view('dashboard.expenses.index', [
-            'rows'        => $rows,
-            'expenses' => $rows,
-            'total'       => $total,
+            'rows'        => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Expense::class),
+            'expenses'    => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Expense::class),
+            'total'       => $totalAmount,
             'page'        => $page,
             'perPage'     => $perPage,
             'lastPage'    => max(1, (int) ceil($total / $perPage)),
@@ -81,8 +111,9 @@ class ExpenseController extends Controller
             'categoryId'  => $categoryId,
             'dateFrom'    => $dateFrom,
             'dateTo'      => $dateTo,
-            'categories'  => $categories,
+            'categories'  => new \App\Core\Support\Collection(\App\Models\ExpenseCategory::hydrate($categories)),
             'totalAmount' => $totalAmount,
+            'budgetStatus' => new \App\Core\Support\Collection($budgetStatus),
         ]);
     }
 

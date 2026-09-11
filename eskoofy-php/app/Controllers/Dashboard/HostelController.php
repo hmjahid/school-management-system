@@ -35,8 +35,8 @@ class HostelController extends Controller
         );
 
         $this->view('dashboard.hostels.index', [
-            'rows'     => $rows,
-            'hostels' => $rows,
+            'rows'     => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Hostel::class),
+            'hostels' => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Hostel::class),
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

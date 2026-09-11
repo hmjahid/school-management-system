@@ -347,26 +347,34 @@ class StudentController extends Controller
     public function results(int $id): void
     {
         Auth::requireAuth();
-        $student = $this->db->fetch("SELECT s.*, u.name FROM students s LEFT JOIN users u ON s.user_id = u.id WHERE s.id = ? LIMIT 1", [$id]);
-        if (!$student) {
+        $studentRow = $this->db->fetch("SELECT s.*, u.name FROM students s LEFT JOIN users u ON s.user_id = u.id WHERE s.id = ? LIMIT 1", [$id]);
+        if (!$studentRow) {
             Session::getInstance()->flash('error', 'Student not found.');
             $this->redirect('/dashboard/students');
             return;
         }
 
-        $results = $this->db->fetchAll(
-            "SELECT er.*, e.name as exam_name, e.start_date, sub.name as subject_name
-             FROM exam_results er
+        $rows = $this->db->fetchAll(
+            "SELECT er.* FROM exam_results er
              LEFT JOIN exams e ON er.exam_id = e.id
-             LEFT JOIN subjects sub ON er.subject_id = sub.id
-             WHERE er.student_id = ?
-             ORDER BY e.start_date DESC, sub.name ASC",
+             WHERE er.student_id = ? AND er.is_published = 1
+             ORDER BY e.start_date DESC, er.id DESC",
             [$id]
         );
 
+        $gradePoints = array_values(array_filter(array_map(static fn ($r) => $r['grade_point'] ?? null, $rows), static fn ($v) => $v !== null));
+        $summary = [
+            'count'           => count($rows),
+            'avg_grade_point' => $gradePoints !== [] ? round(array_sum($gradePoints) / count($gradePoints), 2) : null,
+            'latest_grade'    => $rows[0]['grade'] ?? null,
+        ];
+
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+
         $this->view('dashboard.students.results', [
-            'student' => $student,
-            'results' => $results,
+            'student' => \App\Models\Student::hydrate([$studentRow])[0],
+            'summary' => $summary,
+            'results' => $this->paginateRows($rows, count($rows), 20, $page, \App\Models\ExamResult::class),
         ]);
     }
 
@@ -436,7 +444,7 @@ class StudentController extends Controller
                 $params[] = $fromSectionId;
             }
             $students = $this->db->fetchAll(
-                "SELECT s.id, u.name, s.admission_number, s.roll_number, c.name as class_name, sec.name as section_name
+                "SELECT s.*, u.name, c.name as class_name, sec.name as section_name
                  FROM students s
                  LEFT JOIN users u ON s.user_id = u.id
                  LEFT JOIN school_classes c ON s.class_id = c.id
@@ -448,12 +456,12 @@ class StudentController extends Controller
         }
 
         $this->view('dashboard.students.promote', [
-            'classes'       => $classes,
-            'sections'      => $sections,
-            'batches'       => $batches,
+            'classes'       => \App\Core\Support\Collection::make(\App\Models\SchoolClass::hydrate($classes)),
+            'sections'      => \App\Core\Support\Collection::make(\App\Models\Section::hydrate($sections)),
+            'batches'       => \App\Core\Support\Collection::make(\App\Models\Batch::hydrate($batches)),
             'fromClassId'   => $fromClassId,
             'fromSectionId' => $fromSectionId,
-            'students'      => $students,
+            'students'      => \App\Core\Support\Collection::make(\App\Models\Student::hydrate($students)),
         ]);
     }
 

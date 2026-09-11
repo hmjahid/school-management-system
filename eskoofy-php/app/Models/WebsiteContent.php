@@ -133,4 +133,54 @@ class WebsiteContent extends Model
     {
         return static::query()->where('is_active', true)->pluck('page');
     }
+
+    /**
+     * English base content (legacy `content` column acts as fallback).
+     */
+    public function englishContentTree(): array
+    {
+        if (is_array($this->content_en) && $this->content_en !== []) {
+            return $this->content_en;
+        }
+        if (is_array($this->content) && $this->content !== []) {
+            return $this->content;
+        }
+        return [];
+    }
+
+    /**
+     * Bengali content tree (may be partial; merged over English on the site).
+     */
+    public function bengaliContentTree(): array
+    {
+        $bn = is_array($this->content_bn) ? $this->content_bn : [];
+        $en = $this->englishContentTree();
+        if ($bn === [] || $en === []) {
+            return $bn;
+        }
+        return self::pruneIdentical($bn, $en);
+    }
+
+    protected static function pruneIdentical(array $bn, array $en): array
+    {
+        $out = [];
+        foreach ($bn as $k => $v) {
+            $enV = $en[$k] ?? null;
+            if (is_array($v) && is_array($enV)) {
+                $sub = self::pruneIdentical($v, $enV);
+                if ($sub !== []) {
+                    $out[$k] = $sub;
+                }
+            } elseif (is_array($v)) {
+                $out[$k] = $v;
+            } else {
+                $bnStr = is_scalar($v) ? trim((string) $v) : '';
+                $enStr = is_scalar($enV) ? trim((string) $enV) : '';
+                if ($bnStr !== '' && $bnStr !== $enStr) {
+                    $out[$k] = $v;
+                }
+            }
+        }
+        return $out;
+    }
 }

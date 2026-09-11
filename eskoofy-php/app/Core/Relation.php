@@ -22,10 +22,12 @@ class Relation
     public function getResults(): mixed
     {
         if ($this->preloaded !== null) {
-            return $this->type === 'one' ? ($this->preloaded[0] ?? null) : $this->preloaded;
+            return $this->type === 'one'
+                ? ($this->preloaded[0] ?? null)
+                : new \App\Core\Support\Collection($this->preloaded);
         }
         if ($this->query === null) {
-            return $this->type === 'one' ? null : [];
+            return $this->type === 'one' ? null : new \App\Core\Support\Collection();
         }
         return $this->type === 'one' ? $this->query->first() : $this->query->get();
     }
@@ -46,7 +48,7 @@ class Relation
     {
         return $this->type === 'one'
             ? $this->getResults() !== null
-            : count((array) $this->getResults()) > 0;
+            : $this->getResults()->isNotEmpty();
     }
 
     public function count(): int
@@ -55,6 +57,6 @@ class Relation
         if ($this->type === 'one') {
             return $results === null ? 0 : 1;
         }
-        return is_countable($results) ? count($results) : 0;
+        return $results instanceof \Countable ? $results->count() : 0;
     }
 }

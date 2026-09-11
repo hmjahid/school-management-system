@@ -195,9 +195,9 @@ class AttendanceController extends Controller
         Auth::requireAuth();
         $batchId = (int) ($_GET['batch_id'] ?? 0);
         $sectionId = (int) ($_GET['section_id'] ?? 0);
-        $date = $_GET['date'] ?? date('Y-m-d');
+        $date = \App\Core\Support\Carbon::parse($_GET['date'] ?? date('Y-m-d'));
 
-        $students = [];
+        $studentRows = [];
         if ($batchId > 0) {
             $where = 's.batch_id = ? AND s.status = ?';
             $params = [$batchId, 'active'];
@@ -205,8 +205,8 @@ class AttendanceController extends Controller
                 $where .= ' AND s.section_id = ?';
                 $params[] = $sectionId;
             }
-            $students = $this->db->fetchAll(
-                "SELECT s.id, s.class_id, u.name, s.roll_number
+            $studentRows = $this->db->fetchAll(
+                "SELECT s.id, s.class_id, s.first_name, s.last_name, s.roll_no, s.roll_number, u.name
                  FROM students s
                  LEFT JOIN users u ON s.user_id = u.id
                  WHERE {$where}
@@ -216,10 +216,10 @@ class AttendanceController extends Controller
             );
         }
 
-        $existing = [];
+        $existing = new \App\Core\Support\Collection();
         if ($batchId > 0) {
             $where = 'date = ? AND batch_id = ?';
-            $params = [$date, $batchId];
+            $params = [$date->toDateString(), $batchId];
             if ($sectionId > 0) {
                 $where .= ' AND section_id = ?';
                 $params[] = $sectionId;
@@ -227,19 +227,25 @@ class AttendanceController extends Controller
             $rows = $this->db->fetchAll(
                 "SELECT * FROM attendances WHERE {$where}", $params
             );
+            $byStudent = [];
             foreach ($rows as $row) {
-                $existing[$row['student_id']] = $row;
+                $byStudent[$row['student_id']] = $row;
             }
+            $existing = new \App\Core\Support\Collection(array_combine(
+                array_keys($byStudent),
+                \App\Models\Attendance::hydrate(array_values($byStudent))
+            ));
         }
 
         $batches = $this->db->fetchAll("SELECT id, name FROM batches ORDER BY name ASC LIMIT 80");
         $sections = $this->db->fetchAll("SELECT id, name FROM sections ORDER BY name ASC LIMIT 200");
 
         $this->view('dashboard.attendance.bulk', [
-            'students'  => $students,
+            'students'  => new \App\Core\Support\Collection(\App\Models\Student::hydrate($studentRows)),
             'existing'  => $existing,
-            'batches'   => $batches,
-            'sections'  => $sections,
+            'batches'   => new \App\Core\Support\Collection(\App\Models\Batch::hydrate($batches)),
+            'sections'  => new \App\Core\Support\Collection(\App\Models\Section::hydrate($sections)),
+            'statuses'  => \App\Models\Attendance::getStatuses(),
             'batchId'   => $batchId,
             'sectionId' => $sectionId,
             'date'      => $date,

@@ -29,7 +29,9 @@ class ExpenseCategoryController extends Controller
              ORDER BY ec.name ASC"
         );
 
-        $this->view('dashboard.expense-categories.index', ['rows' => $rows]);
+        $this->view('dashboard.expense-categories.index', [
+            'rows' => $this->paginateRows($rows, count($rows), max(1, count($rows)), 1, \App\Models\ExpenseCategory::class),
+        ]);
     }
 
     public function store(): void

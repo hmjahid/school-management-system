@@ -17,8 +17,13 @@ class LengthAwarePaginator
     protected array $query = [];
     protected string $fragment = '';
 
-    public function __construct(array $items, int $total, int $perPage, int $currentPage, array $options = [])
+    public function __construct(array|\App\Core\Support\Collection|\Traversable $items, int $total, int $perPage, int $currentPage, array $options = [])
     {
+        if ($items instanceof \App\Core\Support\Collection) {
+            $items = $items->all();
+        } elseif ($items instanceof \Traversable) {
+            $items = iterator_to_array($items);
+        }
         $this->items = $items;
         $this->total = $total;
         $this->perPage = $perPage;

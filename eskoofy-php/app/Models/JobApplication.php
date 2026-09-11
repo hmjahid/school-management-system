@@ -17,6 +17,7 @@ class JobApplication extends Model
 
     protected array $casts = [
         'applied_at' => 'datetime',
+        'created_at' => 'datetime',
     ];
 
     public function career()

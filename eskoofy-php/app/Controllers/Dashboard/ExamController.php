@@ -269,39 +269,75 @@ class ExamController extends Controller
     public function results(int $id): void
     {
         Auth::requireAuth();
-        $exam = $this->db->fetch("SELECT * FROM exams WHERE id = ? LIMIT 1", [$id]);
-        if (!$exam) {
+        $examRow = $this->db->fetch("SELECT * FROM exams WHERE id = ? LIMIT 1", [$id]);
+        if (!$examRow) {
             Session::getInstance()->flash('error', 'Exam not found.');
             $this->redirect('/dashboard/exams');
             return;
         }
 
-        $students = $this->db->fetchAll(
-            "SELECT s.id, u.name, s.admission_number, s.roll_number
+        $studentRows = $this->db->fetchAll(
+            "SELECT s.id, s.user_id, s.class_id, s.section_id, s.admission_number, s.roll_number, u.name
              FROM students s
              LEFT JOIN users u ON s.user_id = u.id
              WHERE s.batch_id = ? AND s.status = 'active'
              ORDER BY s.roll_number ASC, u.name ASC",
-            [$exam['batch_id']]
+            [$examRow['batch_id']]
         );
 
         $subjects = $this->db->fetchAll(
             "SELECT * FROM subjects ORDER BY name ASC"
         );
 
-        $existingResults = [];
         $rows = $this->db->fetchAll(
             "SELECT * FROM exam_results WHERE exam_id = ?", [$id]
         );
+
+        $byStudent = [];
         foreach ($rows as $row) {
-            $existingResults[$row['student_id']][$row['subject_id']] = $row;
+            $byStudent[$row['student_id']] ??= $row;
         }
 
+        $students = new \App\Core\Support\Collection(\App\Models\Student::hydrate($studentRows));
+        $results = new \App\Core\Support\Collection(
+            $byStudent !== []
+                ? array_combine(array_keys($byStudent), \App\Models\ExamResult::hydrate(array_values($byStudent)))
+                : []
+        );
+
+        $totalStudents = $students->count();
+        $participated = count($byStudent);
+        $passed = count(array_filter($rows, static fn ($r) => in_array($r['status'] ?? null, ['passed', 'Pass'], true) || (float) ($r['obtained_marks'] ?? 0) >= (float) ($examRow['passing_marks'] ?? 0)));
+        $marks = array_filter(array_map(static fn ($r) => $r['obtained_marks'] ?? null, $rows), static fn ($v) => $v !== null);
+
+        $stats = [
+            'total_students' => $totalStudents,
+            'participated'   => $participated,
+            'not_participated' => max(0, $totalStudents - $participated),
+            'passed'         => $passed,
+            'failed'         => $participated - $passed,
+            'average_score'  => $marks !== [] ? round(array_sum($marks) / count($marks), 2) : 0,
+            'highest_score'  => $marks !== [] ? max($marks) : 0,
+            'lowest_score'   => $marks !== [] ? min($marks) : 0,
+            'pass_rate'      => $participated > 0 ? round(($passed / $participated) * 100, 2) : 0,
+            'participation_rate' => $totalStudents > 0 ? round(($participated / $totalStudents) * 100, 2) : 0,
+        ];
+
+        $smsRecipients = $this->db->fetch(
+            "SELECT COUNT(DISTINCT g.id) as cnt
+             FROM students s
+             LEFT JOIN guardians g ON s.guardian_id = g.id
+             WHERE s.batch_id = ? AND s.status = 'active' AND g.id IS NOT NULL",
+            [$examRow['batch_id']]
+        )['cnt'] ?? 0;
+
         $this->view('dashboard.exams.results', [
-            'exam'            => $exam,
+            'exam'            => \App\Models\Exam::hydrate([$examRow])[0],
             'students'        => $students,
-            'subjects'        => $subjects,
-            'existingResults' => $existingResults,
+            'subjects'        => new \App\Core\Support\Collection(\App\Models\Subject::hydrate($subjects)),
+            'results'         => $results,
+            'stats'           => $stats,
+            'smsRecipients'   => (int) $smsRecipients,
         ]);
     }
 
@@ -380,7 +416,7 @@ class ExamController extends Controller
         }
 
         [$header, $rows] = $this->buildResultsExport($exam);
-        $filename = 'exam-' . ($exam['code'] ?: $exam['id']) . '-results.csv';
+        $filename = 'exam-' . (($exam['code'] ?? '') ?: $exam['id']) . '-results.csv';
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename=' . $filename);
         $out = fopen('php://output', 'w');
@@ -407,13 +443,15 @@ class ExamController extends Controller
             [$exam['id']]
         );
 
+        $results = \App\Models\ExamResult::hydrate($rows);
+
         $header = ['admission_number', 'name', 'class', 'section', 'roll', 'obtained_marks', 'total_marks', 'grade', 'grade_point', 'status', 'is_published'];
         $data = [];
-        foreach ($rows as $r) {
+        foreach ($results as $r) {
             $data[] = [
-                $r['admission_number'], $r['name'], $r['class_name'], $r['section_name'], $r['roll_number'],
-                $r['obtained_marks'], $exam['total_marks'], $r['grade'], $r['grade_point'], $r['status'],
-                $r['is_published'] ? '1' : '0',
+                $r['admission_number'] ?? '', $r['name'] ?? '', $r['class_name'] ?? '', $r['section_name'] ?? '', $r['roll_number'] ?? '',
+                $r['obtained_marks'] ?? '', $exam['total_marks'] ?? '', $r['grade'] ?? '', $r['grade_point'] ?? '', $r['status'] ?? '',
+                !empty($r['is_published']) ? '1' : '0',
             ];
         }
         return [$header, $data];
@@ -429,7 +467,7 @@ class ExamController extends Controller
         if ($role === 'admin') {
             $exams = $this->db->fetchAll(
                 "SELECT e.*, sub.name as subject_name, b.name as batch_name, sec.name as section_name,
-                    (SELECT COUNT(*) FROM exam_results er WHERE er.exam_id = e.id) as result_count,
+                    (SELECT COUNT(*) FROM exam_results er WHERE er.exam_id = e.id) as results_count,
                     (SELECT COUNT(*) FROM exam_results er WHERE er.exam_id = e.id AND er.is_published = 1) as published_count
                  FROM exams e
                  LEFT JOIN subjects sub ON e.subject_id = sub.id
@@ -442,9 +480,8 @@ class ExamController extends Controller
             if ($student) {
                 $exams = $this->db->fetchAll(
                     "SELECT e.*, sub.name as subject_name, b.name as batch_name, sec.name as section_name,
-                        (SELECT COUNT(*) FROM exam_results er WHERE er.exam_id = e.id) as result_count,
-                        (SELECT COUNT(*) FROM exam_results er WHERE er.exam_id = e.id AND er.is_published = 1) as published_count,
-                        (SELECT COUNT(*) FROM students s WHERE s.batch_id = e.batch_id AND s.status = 'active') as total_students
+                        (SELECT COUNT(*) FROM exam_results er WHERE er.exam_id = e.id) as results_count,
+                        (SELECT COUNT(*) FROM exam_results er WHERE er.exam_id = e.id AND er.is_published = 1) as published_count
                      FROM exams e
                      LEFT JOIN subjects sub ON e.subject_id = sub.id
                      LEFT JOIN batches b ON e.batch_id = b.id
@@ -456,8 +493,54 @@ class ExamController extends Controller
             }
         }
 
+        $countRows = $this->db->fetchAll(
+            "SELECT COALESCE(batch_id, 0) as batch_id, COALESCE(section_id, 0) as section_id, COUNT(*) as c
+             FROM students
+             WHERE status = 'active'
+             GROUP BY COALESCE(batch_id, 0), COALESCE(section_id, 0)"
+        );
+        $byBatch = [];
+        $bySection = [];
+        $byPair = [];
+        foreach ($countRows as $row) {
+            $count = (int) ($row['c'] ?? 0);
+            $byBatch[$row['batch_id']] = ($byBatch[$row['batch_id']] ?? 0) + $count;
+            $bySection[$row['section_id']] = ($bySection[$row['section_id']] ?? 0) + $count;
+            $byPair[$row['batch_id'] . ':' . $row['section_id']] = $count;
+        }
+
+        $models = [];
+        foreach ($exams as $e) {
+            $model = \App\Models\Exam::newFromRow($e);
+            $model->setAttribute('results_count', (int) ($e['results_count'] ?? 0));
+            $total = 0;
+            if (!empty($e['batch_id']) && !empty($e['section_id'])) {
+                $total = $byPair[$e['batch_id'] . ':' . $e['section_id']] ?? 0;
+            } elseif (!empty($e['batch_id'])) {
+                $total = $byBatch[$e['batch_id']] ?? 0;
+            } elseif (!empty($e['section_id'])) {
+                $total = $bySection[$e['section_id']] ?? 0;
+            }
+            $model->setAttribute('total_students', $total);
+            $models[] = $model;
+        }
+
+        $all = new \App\Core\Support\Collection($models);
+        $published = $all->filter(static fn ($e) => (bool) ($e->is_published ?? false));
+        $ready = $all->filter(static function ($e) {
+            return !(bool) ($e->is_published ?? false)
+                && (int) ($e->total_students ?? 0) > 0
+                && (int) ($e->results_count ?? 0) >= (int) ($e->total_students ?? 0);
+        });
+        $pending = $all->filter(static function ($e) {
+            return !(bool) ($e->is_published ?? false)
+                && !((int) ($e->total_students ?? 0) > 0 && (int) ($e->results_count ?? 0) >= (int) ($e->total_students ?? 0));
+        });
+
         $this->view('dashboard.exams.my_results', [
-            'exams' => $exams,
+            'pending'   => $pending,
+            'ready'     => $ready,
+            'published' => $published,
         ]);
     }
 
@@ -472,7 +555,7 @@ class ExamController extends Controller
         }
 
         [$header, $rows] = $this->buildStudentResultsExport($student);
-        $filename = 'student-' . ($student['admission_number'] ?: $student['id']) . '-results.csv';
+        $filename = 'student-' . (($student['admission_number'] ?? '') ?: $student['id']) . '-results.csv';
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename=' . $filename);
         $out = fopen('php://output', 'w');
@@ -496,10 +579,15 @@ class ExamController extends Controller
             [$student['id']]
         );
 
+        $results = \App\Models\ExamResult::hydrate($rows);
+
         $header = ['exam', 'date', 'subject', 'obtained_marks', 'total_marks', 'grade', 'grade_point', 'status'];
         $data = [];
-        foreach ($rows as $r) {
-            $data[] = [$r['exam_name'], $r['start_date'], $r['subject_name'], $r['obtained_marks'], $r['total_marks'], $r['grade'], $r['grade_point'], $r['status']];
+        foreach ($results as $r) {
+            $data[] = [
+                $r['exam_name'] ?? '', $r['start_date'] ?? '', $r['subject_name'] ?? '', $r['obtained_marks'] ?? '',
+                $r['total_marks'] ?? '', $r['grade'] ?? '', $r['grade_point'] ?? '', $r['status'] ?? '',
+            ];
         }
         return [$header, $data];
     }

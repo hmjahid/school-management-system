@@ -34,8 +34,8 @@ class AnnouncementController extends Controller
         );
 
         $this->view('dashboard.announcements.index', [
-            'rows'     => $rows,
-            'announcements' => $rows,
+            'rows'     => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Announcement::class),
+            'announcements' => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Announcement::class),
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

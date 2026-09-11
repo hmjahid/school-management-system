@@ -25,7 +25,10 @@ class DocumentController extends Controller
             "SELECT * FROM website_documents ORDER BY created_at DESC LIMIT 100"
         );
 
-        $this->view('dashboard.documents.index', ['documents' => $documents]);
+        $this->view('dashboard.documents.index', [
+            'documents' => $documents,
+            'rows' => $this->paginateRows($documents, count($documents), max(1, count($documents)), 1, \App\Models\WebsiteDocument::class),
+        ]);
     }
 
     public function create(): void

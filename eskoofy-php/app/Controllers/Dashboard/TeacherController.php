@@ -145,7 +145,7 @@ class TeacherController extends Controller
     public function show(int $id): void
     {
         Auth::requireAuth();
-        $teacher = $this->db->fetch(
+        $teacherRow = $this->db->fetch(
             "SELECT t.*, u.name, u.email, u.photo, u.phone as user_phone, u.address
              FROM teachers t
              LEFT JOIN users u ON t.user_id = u.id
@@ -153,13 +153,13 @@ class TeacherController extends Controller
             [$id]
         );
 
-        if (!$teacher) {
+        if (!$teacherRow) {
             Session::getInstance()->flash('error', 'Teacher not found.');
             $this->redirect('/dashboard/teachers');
             return;
         }
 
-        $subjects = $this->db->fetchAll(
+        $subjectRows = $this->db->fetchAll(
             "SELECT sub.* FROM subjects sub
              INNER JOIN class_subject_teacher ts ON sub.id = ts.subject_id
              WHERE ts.teacher_id = ?",
@@ -173,38 +173,28 @@ class TeacherController extends Controller
             [$id]
         );
 
-        $assignedClasses = $this->db->fetchAll(
-            "SELECT c.name as class_name, sub.name as subject_name
-             FROM class_subject_teacher cst
-             LEFT JOIN school_classes c ON cst.class_id = c.id
-             LEFT JOIN subjects sub ON cst.subject_id = sub.id
-             WHERE cst.teacher_id = ?",
-            [$id]
-        );
-
-        $primarySubject = !empty($subjects) ? $subjects[0] : null;
-        $teacher['subject_name'] = $primarySubject['name'] ?? null;
-        $teacher['assignedClasses'] = $assignedClasses;
+        $teacher = \App\Models\Teacher::hydrate([$teacherRow])[0];
+        $teacher->setRelation('subjects', new \App\Core\Support\Collection(\App\Models\Subject::hydrate($subjectRows)));
 
         $this->view('dashboard.teachers.show', [
             'teacher'  => $teacher,
-            'subjects' => $subjects,
-            'classes'  => $classes,
+            'subjects' => new \App\Core\Support\Collection(\App\Models\Subject::hydrate($subjectRows)),
+            'classes'  => new \App\Core\Support\Collection(\App\Models\SchoolClass::hydrate($classes)),
         ]);
     }
 
     public function edit(int $id): void
     {
         Auth::requireAuth();
-        $teacher = $this->db->fetch("SELECT * FROM teachers WHERE id = ? LIMIT 1", [$id]);
-        if (!$teacher) {
+        $teacherRow = $this->db->fetch("SELECT * FROM teachers WHERE id = ? LIMIT 1", [$id]);
+        if (!$teacherRow) {
             Session::getInstance()->flash('error', 'Teacher not found.');
             $this->redirect('/dashboard/teachers');
             return;
         }
 
-        $user = $this->db->fetch("SELECT * FROM users WHERE id = ? LIMIT 1", [$teacher['user_id']]);
-        $subjects = $this->db->fetchAll("SELECT id, name FROM subjects ORDER BY name ASC");
+        $user = $this->db->fetch("SELECT * FROM users WHERE id = ? LIMIT 1", [$teacherRow['user_id']]);
+        $subjectRows = $this->db->fetchAll("SELECT id, name FROM subjects ORDER BY name ASC");
         $classes = $this->db->fetchAll("SELECT id, name FROM school_classes ORDER BY name ASC");
 
         $assignedSubjectIds = array_column(
@@ -212,11 +202,14 @@ class TeacherController extends Controller
             'subject_id'
         );
 
+        $teacher = \App\Models\Teacher::hydrate([$teacherRow])[0];
+        $teacher->setRelation('subjects', new \App\Core\Support\Collection(\App\Models\Subject::hydrate($subjectRows)));
+
         $this->view('dashboard.teachers.edit', [
             'teacher'           => $teacher,
-            'user'              => $user,
-            'subjects'          => $subjects,
-            'classes'           => $classes,
+            'user'              => $user !== null ? \App\Models\User::hydrate([$user])[0] : null,
+            'subjects'          => new \App\Core\Support\Collection(\App\Models\Subject::hydrate($subjectRows)),
+            'classes'           => new \App\Core\Support\Collection(\App\Models\SchoolClass::hydrate($classes)),
             'assignedSubjectIds' => $assignedSubjectIds,
         ]);
     }

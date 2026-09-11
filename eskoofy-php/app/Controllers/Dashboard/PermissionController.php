@@ -6,6 +6,7 @@ namespace App\Controllers\Dashboard;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Database;
+use App\Core\Support\Collection;
 
 class PermissionController extends Controller
 {
@@ -17,9 +18,16 @@ class PermissionController extends Controller
         $permissions = $db->fetchAll("SELECT * FROM permissions ORDER BY name ASC LIMIT 200");
         $roles = $db->fetchAll("SELECT * FROM roles ORDER BY name ASC LIMIT 50");
 
+        $grouped = (new Collection(\App\Models\Permission::hydrate($permissions)))->groupBy(
+            static function ($permission) {
+                $parts = explode('_', (string) $permission->name);
+                return count($parts) > 1 ? $parts[0] : 'general';
+            }
+        );
+
         $this->view('dashboard.permissions.index', [
-            'permissions' => $permissions,
-            'roles'       => $roles,
+            'permissions' => $grouped,
+            'roles'       => new Collection(\App\Models\Role::hydrate($roles)),
         ]);
     }
 }

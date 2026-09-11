@@ -50,8 +50,8 @@ class NoticeController extends Controller
         );
 
         $this->view('dashboard.notices.index', [
-            'rows'     => $rows,
-            'notices' => $rows,
+            'rows'     => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Notice::class),
+            'notices' => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Notice::class),
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

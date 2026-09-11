@@ -14,6 +14,21 @@ class Controller
     }
 
     /**
+     * Build a LengthAwarePaginator for Blade list views, optionally hydrating
+     * raw query rows into model instances.
+     */
+    protected function paginateRows(array|\App\Core\Support\Collection $rows, int $total, int $perPage, int $page, ?string $model = null): \App\Core\Support\LengthAwarePaginator
+    {
+        if ($rows instanceof \App\Core\Support\Collection) {
+            $rows = $rows->all();
+        }
+        if ($model !== null && $rows !== []) {
+            $rows = $model::hydrate($rows);
+        }
+        return new \App\Core\Support\LengthAwarePaginator($rows, $total, $perPage, $page);
+    }
+
+    /**
      * Shared data every dashboard view needs (mirrors Laravel's sidebar/topbar
      * view composers). Computed per-request so auth() is current.
      *

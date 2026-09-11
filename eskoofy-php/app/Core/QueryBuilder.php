@@ -302,13 +302,13 @@ class QueryBuilder
         return array_map(static fn ($row) => $class::newFromRow($row), $rows);
     }
 
-    public function get(array $columns = []): array
+    public function get(array $columns = []): \App\Core\Support\Collection
     {
         if ($columns !== []) {
             $this->selectColumns = $columns;
         }
         $rows = Database::getInstance()->fetchAll($this->buildSql(), $this->getParams());
-        return $this->hydrate($rows);
+        return new \App\Core\Support\Collection($this->hydrate($rows));
     }
 
     public function first(): mixed
@@ -402,14 +402,14 @@ class QueryBuilder
             $clone->limit = $size;
             $clone->offset = ($page - 1) * $size;
             $results = $clone->get();
-            if ($results === []) {
+            if ($results->isEmpty()) {
                 break;
             }
             if ($callback($results, $page) === false) {
                 return false;
             }
             $page++;
-        } while (count($results) === $size);
+        } while ($results->count() === $size);
         return true;
     }
 

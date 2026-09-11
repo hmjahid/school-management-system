@@ -6,6 +6,10 @@ use App\Core\Model;
 
 class Admission extends Model
 {
+
+    public const PAYMENT_VERIFIED = 'verified';
+    public const STATUS_SUBMITTED = 'submitted';
+
     protected static string $table = 'admissions';
     protected static string $primaryKey = 'id';
     protected static bool $softDeletes = true;
@@ -54,5 +58,16 @@ class Admission extends Model
     public function student()
     {
         return $this->hasOne(Student::class, 'admission_id');
+    }
+
+    public function getFullNameAttribute(): string
+    {
+        return trim(($this->attributes['first_name'] ?? '') . ' ' . ($this->attributes['last_name'] ?? ''));
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        $status = $this->attributes['status'] ?? '';
+        return $status !== '' ? ucwords(str_replace('_', ' ', $status)) : __('Unknown');
     }
 }

@@ -50,14 +50,14 @@ class RoleController extends Controller
         $permissions = $this->db->fetchAll("SELECT * FROM permissions ORDER BY name ASC");
 
         $this->view('dashboard.roles.index', [
-            'rows'        => $rows,
-            'roles' => $rows,
+            'rows'        => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Role::class),
+            'roles' => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Role::class),
             'total'       => $total,
             'page'        => $page,
             'perPage'     => $perPage,
             'lastPage'    => max(1, (int) ceil($total / $perPage)),
             'search'      => $search,
-            'permissions' => $permissions,
+            'permissions' => \App\Models\Permission::hydrate($permissions),
         ]);
     }
 

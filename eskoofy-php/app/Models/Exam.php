@@ -6,6 +6,12 @@ use App\Core\Model;
 
 class Exam extends Model
 {
+
+    public const STATUS_DRAFT = 'draft';
+    public const STATUS_PUBLISHED = 'published';
+    public const STATUS_SCHEDULED = 'scheduled';
+    public const STATUS_COMPLETED = 'completed';
+
     protected static string $table = 'exams';
     protected static string $primaryKey = 'id';
     protected static bool $softDeletes = true;

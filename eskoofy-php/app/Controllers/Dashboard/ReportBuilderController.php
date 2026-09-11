@@ -52,9 +52,26 @@ class ReportBuilderController extends Controller
         Auth::requireAuth();
         $classes = $this->db->fetchAll("SELECT id, name FROM school_classes ORDER BY name ASC");
 
+        $config = [];
+        foreach (self::CONFIG as $entity => $def) {
+            $columns = [];
+            foreach ($def['columns'] as $key => $label) {
+                $columns[] = ['key' => $key, 'label' => $label];
+            }
+            $config[$entity] = [
+                'name'    => $def['label'],
+                'columns' => $columns,
+            ];
+        }
+
+        $classMap = [];
+        foreach ($classes as $row) {
+            $classMap[$row['id']] = $row['name'];
+        }
+
         $this->view('dashboard.reports.builder', [
-            'config'  => self::CONFIG,
-            'classes' => $classes,
+            'config'  => $config,
+            'classes' => $classMap,
         ]);
     }
 

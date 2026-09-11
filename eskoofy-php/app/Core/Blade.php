@@ -537,6 +537,15 @@ class Blade
                 $i++;
             }
             $expr = trim(substr($value, $pos + 2, $i - $pos - 2));
+            $prev = $pos > 0 ? $value[$pos - 1] : '';
+            $next = ($i + 2) < $len ? $value[$i + 2] : '';
+            $isBareWord = preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $expr) === 1;
+            if ($isBareWord && (($prev === "'" || $prev === '"') || ($next === "'" || $next === '"'))) {
+                // Literal {{word}} inside a JS/HTML string, e.g. {{amount}}.
+                $result .= substr($value, $pos, $i - $pos + 2);
+                $offset = $i + 2;
+                continue;
+            }
             $result .= '<?php echo e(' . $expr . '); ?>';
             $offset = $i + 2;
         }

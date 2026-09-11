@@ -23,6 +23,7 @@ class RoutineController extends Controller
         Auth::requireAuth();
         $classId = (int) ($_GET['class_id'] ?? 0);
         $sectionId = (int) ($_GET['section_id'] ?? 0);
+        $type = $_GET['type'] ?? 'class';
 
         $where = '1=1';
         $params = [];
@@ -33,6 +34,11 @@ class RoutineController extends Controller
         if ($sectionId > 0) {
             $where .= ' AND r.section_id = ?';
             $params[] = $sectionId;
+        }
+        if ($type === 'exam') {
+            $where .= " AND r.type = 'exam'";
+        } else {
+            $where .= " AND (r.type IS NULL OR r.type = 'class')";
         }
 
         $rows = $this->db->fetchAll(
@@ -56,13 +62,16 @@ class RoutineController extends Controller
             "SELECT t.id, u.name FROM teachers t JOIN users u ON t.user_id = u.id WHERE t.status = 'active' ORDER BY u.name ASC"
         );
 
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+
         $this->view('dashboard.routines.index', [
-            'rows'      => $rows,
-            'periods' => $rows,
-            'classes'   => $classes,
-            'sections'  => $sections,
-            'subjects'  => $subjects,
-            'teachers'  => $teachers,
+            'rows'      => $this->paginateRows($rows, count($rows), 50, $page, \App\Models\Routine::class),
+            'routines'  => $this->paginateRows($rows, count($rows), 50, $page, \App\Models\Routine::class),
+            'classes'   => new \App\Core\Support\Collection(\App\Models\SchoolClass::hydrate($classes)),
+            'sections'  => new \App\Core\Support\Collection(\App\Models\Section::hydrate($sections)),
+            'subjects'  => new \App\Core\Support\Collection(\App\Models\Subject::hydrate($subjects)),
+            'teachers'  => new \App\Core\Support\Collection(\App\Models\Teacher::hydrate($teachers)),
+            'type'      => $type,
             'classId'   => $classId,
             'sectionId' => $sectionId,
         ]);

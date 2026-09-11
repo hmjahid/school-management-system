@@ -8,6 +8,8 @@ use App\Core\Controller;
 use App\Core\Database;
 use App\Core\DatabaseInterface;
 use App\Core\Session;
+use App\Core\Support\Carbon;
+use App\Core\Support\Collection;
 
 class StaffAttendanceController extends Controller
 {
@@ -21,7 +23,7 @@ class StaffAttendanceController extends Controller
     public function index(): void
     {
         Auth::requireAuth();
-        $date = $_GET['date'] ?? date('Y-m-d');
+        $date = new Carbon($_GET['date'] ?? date('Y-m-d'));
 
         $records = $this->db->fetchAll(
             "SELECT sa.*, t.employee_id, u.name, u.email
@@ -30,20 +32,26 @@ class StaffAttendanceController extends Controller
              LEFT JOIN users u ON t.user_id = u.id
              WHERE sa.date = ?
              ORDER BY u.name ASC",
-            [$date]
+            [$date->toDateString()]
         );
 
-        $teachers = $this->db->fetchAll(
-            "SELECT t.id, u.name, t.employee_id
+        $existing = [];
+        foreach ($records as $r) {
+            $existing[$r['teacher_id']] = \App\Models\StaffAttendance::newFromRow($r);
+        }
+
+        $teachers = new Collection(\App\Models\Teacher::hydrate($this->db->fetchAll(
+            "SELECT t.id, t.user_id, u.name, t.employee_id
              FROM teachers t
              LEFT JOIN users u ON t.user_id = u.id
              WHERE t.status = 'active'
              ORDER BY u.name ASC"
-        );
+        )));
 
         $this->view('dashboard.staff_attendance.index', [
             'records'  => $records,
             'teachers' => $teachers,
+            'existing' => $existing,
             'date'     => $date,
         ]);
     }
@@ -95,28 +103,49 @@ class StaffAttendanceController extends Controller
     public function report(): void
     {
         Auth::requireAuth();
-        $from = $_GET['from'] ?? date('Y-m-01');
-        $to = $_GET['to'] ?? date('Y-m-d');
+        $month = new Carbon(($_GET['month'] ?? date('Y-m')) . '-01');
+        $from = $month->copy()->startOfMonth()->toDateString();
+        $to = $month->copy()->endOfMonth()->toDateString();
 
-        $rows = $this->db->fetchAll(
-            "SELECT t.id, u.name, t.employee_id,
-                    COUNT(*) as total_days,
-                    SUM(CASE WHEN sa.status = 'present' THEN 1 ELSE 0 END) as present_days,
-                    SUM(CASE WHEN sa.status = 'absent' THEN 1 ELSE 0 END) as absent_days,
-                    SUM(CASE WHEN sa.status = 'leave' THEN 1 ELSE 0 END) as leave_days
+        $period = new Collection();
+        $day = $month->copy()->startOfMonth();
+        $last = $month->copy()->endOfMonth();
+        while ($day->lte($last)) {
+            $period->push($day->copy());
+            $day->addDay();
+        }
+
+        $teachers = new Collection(\App\Models\Teacher::hydrate($this->db->fetchAll(
+            "SELECT t.id, t.user_id, u.name, t.employee_id
              FROM teachers t
              LEFT JOIN users u ON t.user_id = u.id
-             LEFT JOIN staff_attendances sa ON sa.teacher_id = t.id AND sa.date BETWEEN ? AND ?
              WHERE t.status = 'active'
-             GROUP BY t.id
-             ORDER BY u.name ASC",
+             ORDER BY u.name ASC"
+        )));
+
+        $attRows = $this->db->fetchAll(
+            "SELECT sa.*, t.employee_id, u.name
+             FROM staff_attendances sa
+             LEFT JOIN teachers t ON sa.teacher_id = t.id
+             LEFT JOIN users u ON t.user_id = u.id
+             WHERE sa.date BETWEEN ? AND ?
+             ORDER BY sa.date ASC",
             [$from, $to]
         );
 
+        $records = [];
+        foreach ($attRows as $r) {
+            $records[$r['teacher_id']][] = \App\Models\StaffAttendance::newFromRow($r);
+        }
+        foreach ($records as $tid => $list) {
+            $records[$tid] = new Collection($list);
+        }
+
         $this->view('dashboard.staff_attendance.report', [
-            'rows' => $rows,
-            'from' => $from,
-            'to'   => $to,
+            'teachers' => $teachers,
+            'records'  => $records,
+            'month'    => $month,
+            'period'   => $period,
         ]);
     }
 }

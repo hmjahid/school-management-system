@@ -6,6 +6,9 @@ use App\Core\Model;
 
 class Certificate extends Model
 {
+
+    public const TYPES = ['transfer', 'character', 'achievement', 'participation', 'completion'];
+
     protected static string $table = 'certificates';
     protected static string $primaryKey = 'id';
     protected static bool $softDeletes = false;

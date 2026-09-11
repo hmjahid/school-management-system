@@ -38,7 +38,7 @@ class Carbon implements \Stringable
     public static function create(int $year = 0, int $month = 1, int $day = 1, int $hour = 0, int $minute = 0, int $second = 0, ?string $timezone = null): static
     {
         $tz = new \DateTimeZone($timezone ?? ($_ENV['APP_TIMEZONE'] ?? 'Asia/Dhaka'));
-        $dt = \DateTimeImmutable::createFromFormat('Y-n-j G:i:s', sprintf('%d-%d-%d %d:%d:%d', $year, $month, $day, $hour, $minute, $second), $tz);
+        $dt = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', sprintf('%04d-%02d-%02d %02d:%02d:%02d', $year, $month, $day, $hour, $minute, $second), $tz);
         return new static($dt ?? 'now', $timezone);
     }
 
@@ -105,7 +105,8 @@ class Carbon implements \Stringable
 
     public function addDays(int $days): static
     {
-        return new static((clone $this->dt)->modify("{$days} days"));
+        $this->dt = (clone $this->dt)->modify("{$days} days");
+        return $this;
     }
 
     public function subDays(int $days): static
@@ -115,7 +116,8 @@ class Carbon implements \Stringable
 
     public function addMonths(int $months): static
     {
-        return new static((clone $this->dt)->modify("{$months} months"));
+        $this->dt = (clone $this->dt)->modify("{$months} months");
+        return $this;
     }
 
     public function subMonths(int $months): static
@@ -125,12 +127,123 @@ class Carbon implements \Stringable
 
     public function addYears(int $years): static
     {
-        return new static((clone $this->dt)->modify("{$years} years"));
+        $this->dt = (clone $this->dt)->modify("{$years} years");
+        return $this;
     }
 
     public function subYears(int $years): static
     {
         return $this->addYears(-$years);
+    }
+
+    public function copy(): static
+    {
+        return new static(clone $this->dt);
+    }
+
+    public function month(?int $value = null): int|static
+    {
+        if ($value === null) {
+            return (int) $this->dt->format('n');
+        }
+        return new static($this->dt->format('Y') . '-' . str_pad((string) $value, 2, '0', STR_PAD_LEFT) . '-' . $this->dt->format('d H:i:s'));
+    }
+
+    public function day(?int $value = null): int|static
+    {
+        if ($value === null) {
+            return (int) $this->dt->format('j');
+        }
+        return new static($this->dt->format('Y-m') . '-' . str_pad((string) $value, 2, '0', STR_PAD_LEFT) . ' ' . $this->dt->format('H:i:s'));
+    }
+
+    public function year(?int $value = null): int|static
+    {
+        if ($value === null) {
+            return (int) $this->dt->format('Y');
+        }
+        return new static($value . '-' . $this->dt->format('m-d H:i:s'));
+    }
+
+    public function monthName(): string
+    {
+        return $this->dt->format('F');
+    }
+
+    public function addDay(): static
+    {
+        return $this->addDays(1);
+    }
+
+    public function subDay(): static
+    {
+        return $this->addDays(-1);
+    }
+
+    public function lte(mixed $other): bool
+    {
+        return $this->timestamp() <= $this->timestampOf($other);
+    }
+
+    public function gte(mixed $other): bool
+    {
+        return $this->timestamp() >= $this->timestampOf($other);
+    }
+
+    public function lt(mixed $other): bool
+    {
+        return $this->timestamp() < $this->timestampOf($other);
+    }
+
+    public function gt(mixed $other): bool
+    {
+        return $this->timestamp() > $this->timestampOf($other);
+    }
+
+    public function eq(mixed $other): bool
+    {
+        return $this->timestamp() === $this->timestampOf($other);
+    }
+
+    protected function timestampOf(mixed $other): int
+    {
+        if ($other instanceof self) {
+            return $other->timestamp();
+        }
+        return (new static($other))->timestamp();
+    }
+
+    public function startOfWeek(): static
+    {
+        return new static($this->dt->modify('monday this week')->format('Y-m-d 00:00:00'));
+    }
+
+    public function endOfWeek(): static
+    {
+        return new static($this->dt->modify('sunday this week')->format('Y-m-d 23:59:59'));
+    }
+
+    public function startOfQuarter(): static
+    {
+        $q = (int) ceil((int) $this->dt->format('n') / 3);
+        return new static($this->dt->format('Y') . '-' . ($q * 3 - 2) . '-01 00:00:00');
+    }
+
+    public function endOfQuarter(): static
+    {
+        $q = (int) ceil((int) $this->dt->format('n') / 3);
+        $last = (new \DateTimeImmutable($this->dt->format('Y') . '-' . ($q * 3) . '-01'))->modify('last day of this month')->format('Y-m-d 23:59:59');
+        return new static($last);
+    }
+
+    public function subMonth(): static
+    {
+        return $this->addMonths(-1);
+    }
+
+    public function addMonth(): static
+    {
+        return $this->addMonths(1);
     }
 
     public function diffInDays(mixed $other = null): int
@@ -172,5 +285,19 @@ class Carbon implements \Stringable
     public function __toString(): string
     {
         return $this->toDateTimeString();
+    }
+
+    public function __get(string $key): mixed
+    {
+        return match ($key) {
+            'year'      => (int) $this->dt->format('Y'),
+            'month'     => (int) $this->dt->format('n'),
+            'day'       => (int) $this->dt->format('j'),
+            'hour'      => (int) $this->dt->format('G'),
+            'minute'    => (int) $this->dt->format('i'),
+            'second'    => (int) $this->dt->format('s'),
+            'dayOfWeek' => (int) $this->dt->format('w'),
+            default     => null,
+        };
     }
 }

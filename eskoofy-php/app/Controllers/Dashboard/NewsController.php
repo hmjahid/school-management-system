@@ -59,8 +59,8 @@ class NewsController extends Controller
         }, $rows);
 
         $this->view('dashboard.news.index', [
-            'rows'     => $rows,
-            'news' => $rows,
+            'rows'     => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\News::class),
+            'news' => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\News::class),
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,

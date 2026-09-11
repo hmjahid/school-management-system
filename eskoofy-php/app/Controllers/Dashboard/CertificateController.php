@@ -58,14 +58,14 @@ class CertificateController extends Controller
         );
 
         $this->view('dashboard.certificates.index', [
-            'rows'     => $rows,
-            'types'    => self::TYPES,
-            'total'    => $total,
-            'page'     => $page,
-            'perPage'  => $perPage,
-            'lastPage' => max(1, (int) ceil($total / $perPage)),
-            'search'   => $search,
-            'type'     => $type,
+            'certificates' => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Certificate::class),
+            'types'        => self::TYPES,
+            'total'        => $total,
+            'page'         => $page,
+            'perPage'      => $perPage,
+            'lastPage'     => max(1, (int) ceil($total / $perPage)),
+            'search'       => $search,
+            'type'         => $type,
         ]);
     }
 

@@ -25,7 +25,10 @@ class MediaController extends Controller
             "SELECT * FROM website_media ORDER BY created_at DESC LIMIT 200"
         );
 
-        $this->view('dashboard.media.index', ['media' => $media]);
+        $this->view('dashboard.media.index', [
+            'media' => $this->paginateRows($media, count($media), max(1, count($media)), 1, \App\Models\WebsiteMedia::class),
+            'rows' => $this->paginateRows($media, count($media), max(1, count($media)), 1, \App\Models\WebsiteMedia::class),
+        ]);
     }
 
     public function store(): void

@@ -57,15 +57,15 @@ class UserController extends Controller
         $roles = $this->db->fetchAll("SELECT id, name FROM roles ORDER BY name ASC");
 
         $this->view('dashboard.users.index', [
-            'rows'     => $rows,
-            'users' => $rows,
+            'rows'     => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\User::class),
+            'users' => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\User::class),
             'total'    => $total,
             'page'     => $page,
             'perPage'  => $perPage,
             'lastPage' => max(1, (int) ceil($total / $perPage)),
             'search'   => $search,
             'roleId'   => $roleId,
-            'roles'    => $roles,
+            'roles'    => \App\Models\Role::hydrate($roles),
         ]);
     }
 
@@ -73,7 +73,12 @@ class UserController extends Controller
     {
         Auth::requireAuth();
         $roles = $this->db->fetchAll("SELECT id, name FROM roles ORDER BY name ASC");
-        $this->view('dashboard.users.create', ['roles' => $roles]);
+        $permissions = $this->db->fetchAll("SELECT id, name FROM permissions ORDER BY name ASC");
+
+        $this->view('dashboard.users.create', [
+            'roles'       => new \App\Core\Support\Collection(\App\Models\Role::hydrate($roles)),
+            'permissions' => new \App\Core\Support\Collection(\App\Models\Permission::hydrate($permissions)),
+        ]);
     }
 
     public function store(): void

@@ -101,6 +101,12 @@ class Router
             $pattern = $this->toRegex($route['path']);
             if ($route['method'] === $method && preg_match($pattern, $uri, $matches)) {
                 $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
+                // Controllers type-hint integer route params (e.g. show(int $id));
+                // the URI gives strings, so cast purely-numeric params to int.
+                $params = array_map(
+                    static fn ($v) => is_string($v) && $v !== '' && ctype_digit($v) ? (int) $v : $v,
+                    $params
+                );
 
                 foreach ($route['middleware'] as $mw) {
                     $this->runMiddleware($mw);

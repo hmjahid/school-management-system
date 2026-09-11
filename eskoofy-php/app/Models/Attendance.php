@@ -6,6 +6,27 @@ use App\Core\Model;
 
 class Attendance extends Model
 {
+
+    public const TYPE_DAILY = 'daily';
+    public const STATUS_PRESENT = 'present';
+    public const STATUS_ABSENT = 'absent';
+    public const STATUS_LATE = 'late';
+    public const STATUS_HALF_DAY = 'half_day';
+    public const STATUS_HOLIDAY = 'holiday';
+    public const STATUS_LEAVE = 'on_leave';
+
+    public static function getStatuses(): array
+    {
+        return [
+            self::STATUS_PRESENT  => 'Present',
+            self::STATUS_ABSENT   => 'Absent',
+            self::STATUS_LATE     => 'Late',
+            self::STATUS_HALF_DAY => 'Half Day',
+            self::STATUS_HOLIDAY  => 'Holiday',
+            self::STATUS_LEAVE    => 'On Leave',
+        ];
+    }
+
     protected static string $table = 'attendances';
     protected static string $primaryKey = 'id';
     protected static bool $softDeletes = true;

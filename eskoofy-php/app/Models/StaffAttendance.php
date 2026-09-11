@@ -6,6 +6,18 @@ use App\Core\Model;
 
 class StaffAttendance extends Model
 {
+
+    public const STATUS_PRESENT = 'present';
+    public const STATUS_ABSENT = 'absent';
+    public const STATUS_LATE = 'late';
+    public const STATUS_LEAVE = 'leave';
+    public const STATUSES = [
+        self::STATUS_PRESENT => 'Present',
+        self::STATUS_ABSENT => 'Absent',
+        self::STATUS_LATE => 'Late',
+        self::STATUS_LEAVE => 'On leave',
+    ];
+
     protected static string $table = 'staff_attendances';
     protected static string $primaryKey = 'id';
     protected static bool $softDeletes = false;

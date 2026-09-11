@@ -6,6 +6,12 @@ use App\Core\Model;
 
 class Testimonial extends Model
 {
+
+    public const TYPES = [
+        'behavior', 'academic_excellence', 'sports', 'arts', 'leadership',
+        'community_service', 'attendance', 'discipline', 'creativity', 'overall',
+    ];
+
     protected static string $table = 'testimonials';
     protected static string $primaryKey = 'id';
     protected static bool $softDeletes = false;

@@ -60,14 +60,14 @@ class AdmitCardController extends Controller
         $exams = $this->db->fetchAll("SELECT id, name FROM exams ORDER BY id DESC LIMIT 50");
 
         $this->view('dashboard.admit-cards.index', [
-            'rows'     => $rows,
-            'exams'    => $exams,
-            'total'    => $total,
-            'page'     => $page,
-            'perPage'  => $perPage,
-            'lastPage' => max(1, (int) ceil($total / $perPage)),
-            'search'   => $search,
-            'examId'   => $examId,
+            'admitCards' => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\AdmitCard::class),
+            'exams'      => new \App\Core\Support\Collection(\App\Models\Exam::hydrate($exams)),
+            'total'      => $total,
+            'page'       => $page,
+            'perPage'    => $perPage,
+            'lastPage'   => max(1, (int) ceil($total / $perPage)),
+            'search'     => $search,
+            'examId'     => $examId,
         ]);
     }
 

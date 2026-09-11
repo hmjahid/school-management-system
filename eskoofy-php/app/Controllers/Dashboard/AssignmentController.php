@@ -58,14 +58,14 @@ class AssignmentController extends Controller
         $subjects = $this->db->fetchAll("SELECT id, name FROM subjects ORDER BY name ASC");
 
         $this->view('dashboard.assignments.index', [
-            'rows'      => $rows,
-            'assignments' => $rows,
+            'rows'      => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Assignment::class),
+            'assignments' => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Assignment::class),
             'total'     => $total,
             'page'      => $page,
             'perPage'   => $perPage,
             'lastPage'  => max(1, (int) ceil($total / $perPage)),
-            'classes'   => $classes,
-            'subjects'  => $subjects,
+            'classes'   => \App\Models\SchoolClass::hydrate($classes),
+            'subjects'  => \App\Models\Subject::hydrate($subjects),
             'classId'   => $classId,
             'subjectId' => $subjectId,
         ]);
@@ -128,7 +128,7 @@ class AssignmentController extends Controller
     public function show(int $id): void
     {
         Auth::requireAuth();
-        $assignment = $this->db->fetch(
+        $assignmentRow = $this->db->fetch(
             "SELECT a.*, b.name as class_name, sub.name as subject_name, t.name as teacher_name
              FROM assignments a
              LEFT JOIN batches b ON a.batch_id = b.id
@@ -138,13 +138,13 @@ class AssignmentController extends Controller
             [$id]
         );
 
-        if (!$assignment) {
+        if (!$assignmentRow) {
             Session::getInstance()->flash('error', 'Assignment not found.');
             $this->redirect('/dashboard/assignments');
             return;
         }
 
-        $submissions = $this->db->fetchAll(
+        $submissionRows = $this->db->fetchAll(
             "SELECT asub.*, u.name as student_name
              FROM assignment_submissions asub
              LEFT JOIN students s ON asub.student_id = s.id
@@ -154,9 +154,12 @@ class AssignmentController extends Controller
             [$id]
         );
 
+        $assignment = \App\Models\Assignment::hydrate([$assignmentRow])[0];
+        $assignment->setRelation('submissions', new \App\Core\Support\Collection(\App\Models\AssignmentSubmission::hydrate($submissionRows)));
+
         $this->view('dashboard.assignments.show', [
             'assignment'  => $assignment,
-            'submissions' => $submissions,
+            'submissions' => new \App\Core\Support\Collection(\App\Models\AssignmentSubmission::hydrate($submissionRows)),
         ]);
     }
 

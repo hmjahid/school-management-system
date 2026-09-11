@@ -35,4 +35,14 @@ class LeaveRequest extends Model
     {
         return $this->belongsTo(User::class, 'approver_id');
     }
+
+    public function days(): int
+    {
+        $from = $this->from_date;
+        $to = $this->to_date;
+        if (!$from instanceof \App\Core\Support\Carbon || !$to instanceof \App\Core\Support\Carbon) {
+            return 0;
+        }
+        return (int) $from->diffInDays($to) + 1;
+    }
 }

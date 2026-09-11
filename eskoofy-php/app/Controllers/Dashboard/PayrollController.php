@@ -89,20 +89,38 @@ class PayrollController extends Controller
     public function payslips(): void
     {
         Auth::requireAuth();
-        $month = $_GET['month'] ?? date('Y-m');
+        $month = (int) ($_GET['month'] ?? date('n'));
+        $year = (int) ($_GET['year'] ?? date('Y'));
+        if ($month < 1 || $month > 12) {
+            $month = (int) date('n');
+        }
+        if ($year < 2020 || $year > 2099) {
+            $year = (int) date('Y');
+        }
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+        $perPage = 15;
+        $offset = ($page - 1) * $perPage;
+
+        $total = (int) ($this->db->fetch(
+            "SELECT COUNT(*) as cnt FROM payslips p WHERE p.month = ? AND p.year = ?",
+            [$month, $year]
+        )['cnt'] ?? 0);
+
         $rows = $this->db->fetchAll(
             "SELECT p.*, u.name as employee_name, u.role
              FROM payslips p
              LEFT JOIN teachers t ON p.teacher_id = t.id
              LEFT JOIN users u ON t.user_id = u.id
-             WHERE p.month = ?
-             ORDER BY u.name ASC",
-            [$month]
+             WHERE p.month = ? AND p.year = ?
+             ORDER BY u.name ASC
+             LIMIT {$perPage} OFFSET {$offset}",
+            [$month, $year]
         );
 
         $this->view('dashboard.payroll.payslips', [
-            'rows'  => $rows,
+            'rows'  => $this->paginateRows($rows, $total, $perPage, $page, \App\Models\Payslip::class),
             'month' => $month,
+            'year'  => $year,
         ]);
     }
 
@@ -171,7 +189,7 @@ Session::getInstance()->flash('success', 'Payslip saved.');
         }
 
         $structures = $this->db->fetchAll(
-            "SELECT ss.*, u.name as employee_name, u.role
+            "SELECT ss.*, t.user_id, u.name as employee_name, u.role
              FROM salary_structures ss
              LEFT JOIN teachers t ON ss.teacher_id = t.id
              LEFT JOIN users u ON t.user_id = u.id
@@ -181,8 +199,8 @@ Session::getInstance()->flash('success', 'Payslip saved.');
 
         $preview = [];
         foreach ($structures as $s) {
-            $allowances = json_decode((string) $s['allowances'], true) ?: [];
-            $deductions = json_decode((string) $s['deductions'], true) ?: [];
+            $allowances = json_decode((string) ($s['allowances'] ?? '[]'), true) ?: [];
+            $deductions = json_decode((string) ($s['deductions'] ?? '[]'), true) ?: [];
             $totalAllowances = array_sum(array_map('floatval', $allowances));
             $totalDeductions = array_sum(array_map('floatval', $deductions));
 
@@ -195,30 +213,37 @@ Session::getInstance()->flash('success', 'Payslip saved.');
                 [$s['teacher_id'], $year, $month, $year, $month]
             );
             foreach ($rows as $lr) {
-                $f = new \DateTime($lr['from_date']);
-                $t = new \DateTime($lr['to_date']);
+                $fromDate = $lr['from_date'] ?? null;
+                $toDate = $lr['to_date'] ?? null;
+                if ($fromDate === null || $toDate === null) {
+                    continue;
+                }
+                $f = new \DateTime($fromDate);
+                $t = new \DateTime($toDate);
                 $leaveDays += (int) $f->diff($t)->format('%a') + 1;
             }
 
-            $dailyRate = (float) $s['basic'] / 30;
+            $basic = (float) ($s['basic'] ?? 0);
+            $dailyRate = $basic / 30;
             $leaveDeduction = $leaveDays * $dailyRate;
-            $gross = (float) $s['basic'] + $totalAllowances;
+            $gross = $basic + $totalAllowances;
             $net = $gross - ($totalDeductions + $leaveDeduction);
 
             $preview[] = [
-                'teacher_id'    => $s['teacher_id'],
-                'employee_name' => $s['employee_name'],
-                'basic'         => (float) $s['basic'],
-                'allowances'    => $totalAllowances,
-                'deductions'    => $totalDeductions,
-                'leave_days'    => $leaveDays,
-                'leave_deduction' => $leaveDeduction,
-                'net'           => round($net, 2),
+                'teacher'     => new \App\Models\Teacher([
+                    'id'      => (int) $s['teacher_id'],
+                    'user_id' => (int) ($s['user_id'] ?? 0),
+                ]),
+                'basic'       => $basic,
+                'allowances'  => $totalAllowances,
+                'leave_days'  => $leaveDays,
+                'deductions'  => $totalDeductions,
+                'net'         => round($net, 2),
             ];
         }
 
         $this->view('dashboard.payroll.generate', [
-            'preview' => $preview,
+            'preview' => new \App\Core\Support\Collection($preview),
             'month'   => $month,
             'year'    => $year,
         ]);
@@ -329,7 +354,7 @@ Session::getInstance()->flash('success', 'Payslip saved.');
         }
         $payslip['details'] = isset($payslip['details']) && $payslip['details'] !== '' ? json_decode((string) $payslip['details'], true) : [];
 
-        $this->view('dashboard.payroll.payslip_show', ['payslip' => $payslip]);
+        $this->view('dashboard.payroll.payslip_show', ['payslip' => \App\Models\Payslip::newFromRow($payslip)]);
     }
 
     public function markPaid(int $id): void

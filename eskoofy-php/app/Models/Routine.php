@@ -6,6 +6,19 @@ use App\Core\Model;
 
 class Routine extends Model
 {
+
+    public const DAYS = [
+        1 => 'Monday',
+        2 => 'Tuesday',
+        3 => 'Wednesday',
+        4 => 'Thursday',
+        5 => 'Friday',
+        6 => 'Saturday',
+        7 => 'Sunday',
+    ];
+    public const TYPE_CLASS = 'class';
+    public const TYPE_EXAM = 'exam';
+
     protected static string $table = 'routines';
     protected static string $primaryKey = 'id';
     protected static bool $softDeletes = false;

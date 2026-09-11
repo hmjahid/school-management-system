@@ -27,7 +27,10 @@ class CommitteeController extends Controller
              ORDER BY cm.sort_order ASC, cm.id ASC"
         );
 
-        $this->view('dashboard.committee.index', ['rows' => $rows, 'members' => $rows]);
+        $this->view('dashboard.committee.index', [
+            'rows' => $this->paginateRows($rows, count($rows), max(1, count($rows)), 1, \App\Models\CommitteeMember::class),
+            'members' => $this->paginateRows($rows, count($rows), max(1, count($rows)), 1, \App\Models\CommitteeMember::class),
+        ]);
     }
 
     public function store(): void

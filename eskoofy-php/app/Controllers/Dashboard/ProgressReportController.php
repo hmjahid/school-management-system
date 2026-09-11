@@ -7,6 +7,7 @@ use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Database;
 use App\Core\Session;
+use App\Core\Support\Collection;
 
 class ProgressReportController extends Controller
 {
@@ -15,16 +16,51 @@ class ProgressReportController extends Controller
         Auth::requireAuth();
         $db = Database::getInstance();
 
-        $students = $db->fetchAll(
-            "SELECT s.id, s.admission_number, u.name, c.name as class_name
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+        $perPage = 20;
+
+        $where = "s.status = 'active'";
+        $params = [];
+        if (!empty($_GET['class_id'])) {
+            $where .= ' AND s.class_id = ?';
+            $params[] = (int) $_GET['class_id'];
+        }
+        if (!empty($_GET['section_id'])) {
+            $where .= ' AND s.section_id = ?';
+            $params[] = (int) $_GET['section_id'];
+        }
+        if (!empty($_GET['batch_id'])) {
+            $where .= ' AND s.batch_id = ?';
+            $params[] = (int) $_GET['batch_id'];
+        }
+
+        $total = (int) ($db->fetch("SELECT COUNT(*) as cnt FROM students s WHERE {$where}", $params)['cnt'] ?? 0);
+        $offset = ($page - 1) * $perPage;
+
+        $studentRows = $db->fetchAll(
+            "SELECT s.*, u.name as user_name, c.name as class_name, sec.name as section_name
              FROM students s
              LEFT JOIN users u ON s.user_id = u.id
              LEFT JOIN school_classes c ON s.class_id = c.id
-             WHERE s.status = 'active'
-             ORDER BY u.name ASC LIMIT 200"
+             LEFT JOIN sections sec ON s.section_id = sec.id
+             WHERE {$where}
+             ORDER BY u.name ASC
+             LIMIT {$perPage} OFFSET {$offset}",
+            $params
         );
 
-        $this->view('dashboard.progress_reports.index', ['students' => $students]);
+        $students = $this->paginateRows($studentRows, $total, $perPage, $page, \App\Models\Student::class);
+
+        $classes = \App\Models\SchoolClass::hydrate($db->fetchAll("SELECT id, name FROM school_classes ORDER BY name"));
+        $sections = \App\Models\Section::hydrate($db->fetchAll("SELECT id, name FROM sections ORDER BY name"));
+        $batches = \App\Models\Batch::hydrate($db->fetchAll("SELECT id, name FROM batches ORDER BY name"));
+
+        $this->view('dashboard.progress_reports.index', [
+            'students' => $students,
+            'classes'  => new Collection($classes),
+            'sections' => new Collection($sections),
+            'batches'  => new Collection($batches),
+        ]);
     }
 
     public function generate(int $studentId): void
