@@ -26,9 +26,8 @@ class AnnouncementController extends Controller
 
         $total = $this->db->count('announcements');
         $rows = $this->db->fetchAll(
-            "SELECT a.*, u.name as creator_name
+            "SELECT a.*
              FROM announcements a
-             LEFT JOIN users u ON a.created_by = u.id
              ORDER BY a.id DESC
              LIMIT {$perPage} OFFSET {$offset}"
         );
@@ -48,22 +47,22 @@ class AnnouncementController extends Controller
         Auth::requireAuth();
         $data = $this->validate([
             'title'      => 'required|max:255',
-            'message'    => 'required|max:5000',
-            'priority'   => 'in:low,normal,high,urgent',
+            'content'    => 'required|max:5000',
+            'audience'   => 'max:191',
             'starts_at'  => '',
-            'expires_at' => '',
+            'ends_at'    => '',
         ]);
 
         $this->db->insert('announcements', [
-            'title'      => $data['title'],
-            'message'    => $data['message'],
-            'priority'   => $data['priority'] ?? 'normal',
-            'starts_at'  => $data['starts_at'] ?? null,
-            'expires_at' => $data['expires_at'] ?? null,
-            'is_active'  => 1,
-            'created_by' => Auth::id(),
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
+            'title'          => $data['title'],
+            'body'           => $data['content'],
+            'audience'       => $data['audience'] ?? 'all',
+            'display_target' => 'header',
+            'is_published'   => 1,
+            'starts_at'      => $data['starts_at'] ?? null,
+            'ends_at'        => $data['ends_at'] ?? null,
+            'created_at'     => date('Y-m-d H:i:s'),
+            'updated_at'     => date('Y-m-d H:i:s'),
         ]);
 
         Session::getInstance()->flash('success', 'Announcement created.');
@@ -82,21 +81,21 @@ class AnnouncementController extends Controller
 
         $data = $this->validate([
             'title'      => 'required|max:255',
-            'message'    => 'required|max:5000',
-            'priority'   => 'in:low,normal,high,urgent',
-            'is_active'  => 'numeric',
+            'content'    => 'required|max:5000',
+            'audience'   => 'max:191',
+            'is_published' => 'numeric',
             'starts_at'  => '',
-            'expires_at' => '',
+            'ends_at'    => '',
         ]);
 
         $this->db->update('announcements', [
-            'title'      => $data['title'],
-            'message'    => $data['message'],
-            'priority'   => $data['priority'] ?? 'normal',
-            'is_active'  => $data['is_active'] ?? 1,
-            'starts_at'  => $data['starts_at'] ?? null,
-            'expires_at' => $data['expires_at'] ?? null,
-            'updated_at' => date('Y-m-d H:i:s'),
+            'title'          => $data['title'],
+            'body'           => $data['content'],
+            'audience'       => $data['audience'] ?? 'all',
+            'is_published'   => $data['is_published'] ?? 1,
+            'starts_at'      => $data['starts_at'] ?? null,
+            'ends_at'        => $data['ends_at'] ?? null,
+            'updated_at'     => date('Y-m-d H:i:s'),
         ], 'id = ?', [$id]);
 
         Session::getInstance()->flash('success', 'Announcement updated.');

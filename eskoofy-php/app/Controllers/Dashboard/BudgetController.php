@@ -21,15 +21,15 @@ class BudgetController extends Controller
     {
         Auth::requireAuth();
         $year = $_GET['year'] ?? date('Y');
-        $category = $_GET['category'] ?? '';
+        $category = (int) ($_GET['category_id'] ?? 0);
         $page = max(1, (int) ($_GET['page'] ?? 1));
         $perPage = 20;
         $offset = ($page - 1) * $perPage;
 
-        $where = "YEAR(b.budget_date) = ?";
+        $where = "YEAR(b.period_start) = ?";
         $params = [(int) $year];
-        if ($category !== '') {
-            $where .= " AND b.category = ?";
+        if ($category > 0) {
+            $where .= " AND b.expense_category_id = ?";
             $params[] = $category;
         }
 
@@ -38,70 +38,67 @@ class BudgetController extends Controller
         )['cnt'] ?? 0);
 
         $rows = $this->db->fetchAll(
-            "SELECT b.*, u.name as creator_name
+            "SELECT b.*, ec.name as category_name
              FROM budgets b
-             LEFT JOIN users u ON b.created_by = u.id
+             LEFT JOIN expense_categories ec ON b.expense_category_id = ec.id
              WHERE {$where}
-             ORDER BY b.budget_date DESC
+             ORDER BY b.period_start DESC
              LIMIT {$perPage} OFFSET {$offset}",
             $params
         );
 
         $totalBudget = (float) ($this->db->fetch(
-            "SELECT COALESCE(SUM(amount), 0) as total FROM budgets WHERE YEAR(budget_date) = ? AND type = 'income'",
+            "SELECT COALESCE(SUM(amount), 0) as total FROM budgets b WHERE YEAR(b.period_start) = ?",
             [$year]
         )['total'] ?? 0);
 
-        $totalExpense = (float) ($this->db->fetch(
-            "SELECT COALESCE(SUM(amount), 0) as total FROM budgets WHERE YEAR(budget_date) = ? AND type = 'expense'",
-            [$year]
-        )['total'] ?? 0);
+        $categories = $this->db->fetchAll("SELECT id, name FROM expense_categories WHERE is_active = 1 ORDER BY name ASC");
 
         $this->view('dashboard.budgets.index', [
             'rows'         => $rows,
-            'budgets' => $rows,
+            'budgets'      => $rows,
             'total'        => $total,
             'page'         => $page,
             'perPage'      => $perPage,
             'lastPage'     => max(1, (int) ceil($total / $perPage)),
             'year'         => $year,
-            'category'     => $category,
+            'categoryId'   => $category,
+            'categories'   => $categories,
             'totalBudget'  => $totalBudget,
-            'totalExpense' => $totalExpense,
         ]);
     }
 
     public function create(): void
     {
         Auth::requireAuth();
-        $this->view('dashboard.budgets.create', []);
+        $categories = $this->db->fetchAll("SELECT id, name FROM expense_categories WHERE is_active = 1 ORDER BY name ASC");
+        $this->view('dashboard.budgets.create', ['categories' => $categories]);
     }
 
     public function store(): void
     {
         Auth::requireAuth();
         $data = $this->validate([
-            'title'       => 'required|max:255',
-            'type'        => 'required|in:income,expense',
-            'amount'      => 'required|numeric',
-            'category'    => 'required|max:100',
-            'budget_date' => 'required',
-            'description' => 'max:1000',
+            'expense_category_id' => 'required|numeric',
+            'period_type'    => 'required|in:monthly,yearly,custom',
+            'period_start'   => 'required',
+            'period_end'     => 'required',
+            'amount'         => 'required|numeric',
+            'notes'          => 'max:2000',
         ]);
 
         $this->db->insert('budgets', [
-            'title'        => $data['title'],
-            'type'         => $data['type'],
-            'amount'       => $data['amount'],
-            'category'     => $data['category'],
-            'budget_date'  => $data['budget_date'],
-            'description'  => $data['description'] ?? null,
-            'created_by'   => Auth::id(),
-            'created_at'   => date('Y-m-d H:i:s'),
-            'updated_at'   => date('Y-m-d H:i:s'),
+            'expense_category_id' => $data['expense_category_id'],
+            'period_type'    => $data['period_type'],
+            'period_start'   => $data['period_start'],
+            'period_end'     => $data['period_end'],
+            'amount'         => $data['amount'],
+            'notes'          => $data['notes'] ?? null,
+            'created_at'     => date('Y-m-d H:i:s'),
+            'updated_at'     => date('Y-m-d H:i:s'),
         ]);
 
-        Session::getInstance()->flash('success', 'Budget entry created.');
+        Session::getInstance()->flash('success', 'Budget created.');
         $this->redirect('/dashboard/budgets');
     }
 
@@ -116,22 +113,22 @@ class BudgetController extends Controller
         }
 
         $data = $this->validate([
-            'title'       => 'required|max:255',
-            'type'        => 'required|in:income,expense',
-            'amount'      => 'required|numeric',
-            'category'    => 'required|max:100',
-            'budget_date' => 'required',
-            'description' => 'max:1000',
+            'expense_category_id' => 'required|numeric',
+            'period_type'    => 'required|in:monthly,yearly,custom',
+            'period_start'   => 'required',
+            'period_end'     => 'required',
+            'amount'         => 'required|numeric',
+            'notes'          => 'max:2000',
         ]);
 
         $this->db->update('budgets', [
-            'title'        => $data['title'],
-            'type'         => $data['type'],
-            'amount'       => $data['amount'],
-            'category'     => $data['category'],
-            'budget_date'  => $data['budget_date'],
-            'description'  => $data['description'] ?? null,
-            'updated_at'   => date('Y-m-d H:i:s'),
+            'expense_category_id' => $data['expense_category_id'],
+            'period_type'    => $data['period_type'],
+            'period_start'   => $data['period_start'],
+            'period_end'     => $data['period_end'],
+            'amount'         => $data['amount'],
+            'notes'          => $data['notes'] ?? null,
+            'updated_at'     => date('Y-m-d H:i:s'),
         ], 'id = ?', [$id]);
 
         Session::getInstance()->flash('success', 'Budget entry updated.');

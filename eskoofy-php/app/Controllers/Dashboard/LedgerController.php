@@ -32,22 +32,25 @@ class LedgerController extends Controller
         $perPage = 20;
         $offset = ($page - 1) * $perPage;
 
-        $where = "je.entry_date BETWEEN ? AND ?";
+        $where = "je.date BETWEEN ? AND ?";
         $params = [$from, $to];
 
         $total = (int) ($this->db->fetch(
-            "SELECT COUNT(*) as cnt FROM journal_entries je WHERE {$where}", $params
+            "SELECT COUNT(*) as cnt FROM ledger_entries je WHERE {$where}", $params
         )['cnt'] ?? 0);
 
         $rows = $this->db->fetchAll(
-            "SELECT je.*, u.name as creator_name
-             FROM journal_entries je
+            "SELECT je.*, je.date as entry_date, je.note as description, coa.name_en as account_name, u.name as creator_name
+             FROM ledger_entries je
+             LEFT JOIN chart_of_accounts coa ON je.chart_of_account_id = coa.id
              LEFT JOIN users u ON je.created_by = u.id
              WHERE {$where}
-             ORDER BY je.entry_date DESC, je.id DESC
+             ORDER BY je.date DESC, je.id DESC
              LIMIT {$perPage} OFFSET {$offset}",
             $params
         );
+
+        $accounts = $this->db->fetchAll("SELECT id, name_en FROM chart_of_accounts WHERE is_active = 1 ORDER BY name_en ASC");
 
         $this->view('dashboard.ledger.journal', [
             'rows'     => $rows,
@@ -57,6 +60,7 @@ class LedgerController extends Controller
             'lastPage' => max(1, (int) ceil($total / $perPage)),
             'from'     => $from,
             'to'       => $to,
+            'accounts' => $accounts,
         ]);
     }
 
@@ -69,19 +73,30 @@ class LedgerController extends Controller
             'credit'       => 'required|numeric',
             'entry_date'   => 'required',
             'description'  => 'max:500',
-            'reference'    => 'max:100',
         ]);
 
-        $this->db->insert('journal_entries', [
-            'account_name' => $data['account_name'],
-            'debit'        => $data['debit'],
-            'credit'       => $data['credit'],
-            'entry_date'   => $data['entry_date'],
-            'description'  => $data['description'] ?? null,
-            'reference'    => $data['reference'] ?? null,
-            'created_by'   => Auth::id(),
-            'created_at'   => date('Y-m-d H:i:s'),
-            'updated_at'   => date('Y-m-d H:i:s'),
+        $account = $this->db->fetch("SELECT id FROM chart_of_accounts WHERE name_en = ? LIMIT 1", [$data['account_name']]);
+        if (!$account) {
+            $this->db->insert('chart_of_accounts', [
+                'code'       => 'GEN-' . substr(md5((string) $data['account_name']), 0, 8),
+                'name_en'    => $data['account_name'],
+                'type'       => 'expense',
+                'is_active'  => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+            $account = $this->db->fetch("SELECT id FROM chart_of_accounts WHERE name_en = ? LIMIT 1", [$data['account_name']]);
+        }
+
+        $this->db->insert('ledger_entries', [
+            'chart_of_account_id' => $account['id'],
+            'date'           => $data['entry_date'],
+            'debit'          => $data['debit'],
+            'credit'         => $data['credit'],
+            'note'           => $data['description'] ?? null,
+            'created_by'     => Auth::id(),
+            'created_at'     => date('Y-m-d H:i:s'),
+            'updated_at'     => date('Y-m-d H:i:s'),
         ]);
 
         Session::getInstance()->flash('success', 'Journal entry created.');
@@ -95,10 +110,11 @@ class LedgerController extends Controller
         $to = $_GET['to'] ?? date('Y-m-d');
 
         $rows = $this->db->fetchAll(
-            "SELECT je.*
-             FROM journal_entries je
-             WHERE je.account_name LIKE '%Cash%' AND je.entry_date BETWEEN ? AND ?
-             ORDER BY je.entry_date ASC",
+            "SELECT je.*, je.date as entry_date, je.note as description, coa.name_en as account_name
+             FROM ledger_entries je
+             LEFT JOIN chart_of_accounts coa ON je.chart_of_account_id = coa.id
+             WHERE LOWER(coa.name_en) LIKE '%cash%' AND je.date BETWEEN ? AND ?
+             ORDER BY je.date ASC",
             [$from, $to]
         );
 
@@ -116,11 +132,12 @@ class LedgerController extends Controller
         $to = $_GET['to'] ?? date('Y-m-d');
 
         $rows = $this->db->fetchAll(
-            "SELECT je.*
-             FROM journal_entries je
-             WHERE (je.account_name LIKE '%Bank%' OR je.account_name LIKE '%bKash%' OR je.account_name LIKE '%Rocket%')
-             AND je.entry_date BETWEEN ? AND ?
-             ORDER BY je.entry_date ASC",
+            "SELECT je.*, je.date as entry_date, je.note as description, coa.name_en as account_name
+             FROM ledger_entries je
+             LEFT JOIN chart_of_accounts coa ON je.chart_of_account_id = coa.id
+             WHERE (LOWER(coa.name_en) LIKE '%bank%' OR LOWER(coa.name_en) LIKE '%bkash%' OR LOWER(coa.name_en) LIKE '%rocket%' OR LOWER(coa.name_en) LIKE '%nagad%')
+             AND je.date BETWEEN ? AND ?
+             ORDER BY je.date ASC",
             [$from, $to]
         );
 
@@ -138,12 +155,16 @@ class LedgerController extends Controller
         $to = $_GET['to'] ?? date('Y-m-d');
 
         $income = (float) ($this->db->fetch(
-            "SELECT COALESCE(SUM(debit), 0) as total FROM journal_entries WHERE account_name LIKE '%Income%' AND entry_date BETWEEN ? AND ?",
+            "SELECT COALESCE(SUM(je.debit), 0) as total
+             FROM ledger_entries je LEFT JOIN chart_of_accounts coa ON je.chart_of_account_id = coa.id
+             WHERE coa.type = 'income' AND je.date BETWEEN ? AND ?",
             [$from, $to]
         )['total'] ?? 0);
 
         $expenses = (float) ($this->db->fetch(
-            "SELECT COALESCE(SUM(credit), 0) as total FROM journal_entries WHERE account_name LIKE '%Expense%' AND entry_date BETWEEN ? AND ?",
+            "SELECT COALESCE(SUM(je.credit), 0) as total
+             FROM ledger_entries je LEFT JOIN chart_of_accounts coa ON je.chart_of_account_id = coa.id
+             WHERE coa.type = 'expense' AND je.date BETWEEN ? AND ?",
             [$from, $to]
         )['total'] ?? 0);
 
@@ -162,17 +183,23 @@ class LedgerController extends Controller
         $asOf = $_GET['as_of'] ?? date('Y-m-d');
 
         $assets = (float) ($this->db->fetch(
-            "SELECT COALESCE(SUM(debit) - SUM(credit), 0) as total FROM journal_entries WHERE account_name LIKE '%Asset%' AND entry_date <= ?",
+            "SELECT COALESCE(SUM(je.debit) - SUM(je.credit), 0) as total
+             FROM ledger_entries je LEFT JOIN chart_of_accounts coa ON je.chart_of_account_id = coa.id
+             WHERE coa.type = 'asset' AND je.date <= ?",
             [$asOf]
         )['total'] ?? 0);
 
         $liabilities = (float) ($this->db->fetch(
-            "SELECT COALESCE(SUM(credit) - SUM(debit), 0) as total FROM journal_entries WHERE account_name LIKE '%Liability%' AND entry_date <= ?",
+            "SELECT COALESCE(SUM(je.credit) - SUM(je.debit), 0) as total
+             FROM ledger_entries je LEFT JOIN chart_of_accounts coa ON je.chart_of_account_id = coa.id
+             WHERE coa.type = 'liability' AND je.date <= ?",
             [$asOf]
         )['total'] ?? 0);
 
         $equity = (float) ($this->db->fetch(
-            "SELECT COALESCE(SUM(credit) - SUM(debit), 0) as total FROM journal_entries WHERE account_name LIKE '%Equity%' AND entry_date <= ?",
+            "SELECT COALESCE(SUM(je.credit) - SUM(je.debit), 0) as total
+             FROM ledger_entries je LEFT JOIN chart_of_accounts coa ON je.chart_of_account_id = coa.id
+             WHERE coa.type = 'equity' AND je.date <= ?",
             [$asOf]
         )['total'] ?? 0);
 
@@ -191,27 +218,30 @@ class LedgerController extends Controller
         $to = $_GET['to'] ?? date('Y-m-d');
 
         $operatingIn = (float) ($this->db->fetch(
-            "SELECT COALESCE(SUM(credit), 0) as total FROM journal_entries
-             WHERE account_name LIKE '%Income%' AND entry_date BETWEEN ? AND ?",
+            "SELECT COALESCE(SUM(je.credit), 0) as total
+             FROM ledger_entries je LEFT JOIN chart_of_accounts coa ON je.chart_of_account_id = coa.id
+             WHERE coa.type = 'income' AND je.date BETWEEN ? AND ?",
             [$from, $to]
         )['total'] ?? 0);
 
         $operatingOut = (float) ($this->db->fetch(
-            "SELECT COALESCE(SUM(debit), 0) as total FROM journal_entries
-             WHERE account_name LIKE '%Expense%' AND entry_date BETWEEN ? AND ?",
+            "SELECT COALESCE(SUM(je.debit), 0) as total
+             FROM ledger_entries je LEFT JOIN chart_of_accounts coa ON je.chart_of_account_id = coa.id
+             WHERE coa.type = 'expense' AND je.date BETWEEN ? AND ?",
             [$from, $to]
         )['total'] ?? 0);
 
         $investingIn = (float) ($this->db->fetch(
-            "SELECT COALESCE(SUM(debit), 0) as total FROM journal_entries
-             WHERE account_name LIKE '%Asset%' AND entry_date BETWEEN ? AND ?",
+            "SELECT COALESCE(SUM(je.debit), 0) as total
+             FROM ledger_entries je LEFT JOIN chart_of_accounts coa ON je.chart_of_account_id = coa.id
+             WHERE coa.type = 'asset' AND je.date BETWEEN ? AND ?",
             [$from, $to]
         )['total'] ?? 0);
 
         $financingIn = (float) ($this->db->fetch(
-            "SELECT COALESCE(SUM(credit), 0) as total FROM journal_entries
-             WHERE account_name LIKE '%Liability%' OR account_name LIKE '%Equity%'
-             AND entry_date BETWEEN ? AND ?",
+            "SELECT COALESCE(SUM(je.credit), 0) as total
+             FROM ledger_entries je LEFT JOIN chart_of_accounts coa ON je.chart_of_account_id = coa.id
+             WHERE (coa.type = 'liability' OR coa.type = 'equity') AND je.date BETWEEN ? AND ?",
             [$from, $to]
         )['total'] ?? 0);
 

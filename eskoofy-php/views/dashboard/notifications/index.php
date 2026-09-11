@@ -23,14 +23,15 @@
     <div class="divide-y">
         <?php if (!empty($rows)): ?>
             <?php foreach ($rows as $row): ?>
-            <div class="p-4 <?= !($row['is_read'] ?? 0) ? 'bg-blue-50' : '' ?> hover:bg-gray-50 flex justify-between items-start">
+            <?php $unread = empty($row['opened_at']); ?>
+            <div class="p-4 <?= $unread ? 'bg-blue-50' : '' ?> hover:bg-gray-50 flex justify-between items-start">
                 <div class="flex-1">
-                    <p class="font-medium <?= !($row['is_read'] ?? 0) ? 'text-gray-900' : 'text-gray-600' ?>"><?= e($row['title'] ?? $row['type'] ?? 'Notification') ?></p>
-                    <p class="text-sm text-gray-500 mt-1"><?= e($row['message'] ?? $row['body'] ?? '') ?></p>
+                    <p class="font-medium <?= $unread ? 'text-gray-900' : 'text-gray-600' ?>"><?= e($row['type'] ?? 'Notification') ?></p>
+                    <p class="text-sm text-gray-500 mt-1"><?= e($row['content'] ?? '') ?></p>
                     <p class="text-xs text-gray-400 mt-1"><?= e($row['created_at'] ?? '') ?></p>
                 </div>
                 <div class="ml-4 flex-shrink-0">
-                    <?php if (!($row['is_read'] ?? 0)): ?>
+                    <?php if ($unread): ?>
                     <a href="/dashboard/notifications/<?= e($row['id']) ?>/read" class="text-blue-600 hover:underline text-sm">Mark Read</a>
                     <?php else: ?>
                     <span class="text-gray-400 text-xs">Read</span>

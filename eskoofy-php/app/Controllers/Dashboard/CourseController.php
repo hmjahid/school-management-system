@@ -39,10 +39,8 @@ class CourseController extends Controller
         )['cnt'] ?? 0);
 
         $rows = $this->db->fetchAll(
-            "SELECT co.*, sc.name as class_name,
-                (SELECT COUNT(*) FROM course_subjects cs WHERE cs.course_id = co.id) as subject_count
+            "SELECT co.*
              FROM courses co
-             LEFT JOIN school_classes sc ON co.class_id = sc.id
              WHERE {$where}
              ORDER BY co.name ASC
              LIMIT {$perPage} OFFSET {$offset}",
@@ -66,17 +64,15 @@ class CourseController extends Controller
         $data = $this->validate([
             'name'      => 'required|max:255',
             'code'      => 'required|max:50',
-            'class_id'  => 'numeric',
             'description' => 'max:1000',
-            'status'    => 'in:active,inactive',
+            'is_active'   => 'in:0,1',
         ]);
 
         $this->db->insert('courses', [
             'name'        => $data['name'],
             'code'        => $data['code'],
-            'class_id'    => $data['class_id'] ?? null,
             'description' => $data['description'] ?? null,
-            'status'      => $data['status'] ?? 'active',
+            'is_active'   => (int) ($data['is_active'] ?? 1),
             'created_at'  => date('Y-m-d H:i:s'),
             'updated_at'  => date('Y-m-d H:i:s'),
         ]);
@@ -98,17 +94,15 @@ class CourseController extends Controller
         $data = $this->validate([
             'name'      => 'required|max:255',
             'code'      => 'required|max:50',
-            'class_id'  => 'numeric',
             'description' => 'max:1000',
-            'status'    => 'in:active,inactive',
+            'is_active'   => 'in:0,1',
         ]);
 
         $this->db->update('courses', [
             'name'        => $data['name'],
             'code'        => $data['code'],
-            'class_id'    => $data['class_id'] ?? null,
             'description' => $data['description'] ?? null,
-            'status'      => $data['status'] ?? 'active',
+            'is_active'   => (int) ($data['is_active'] ?? 1),
             'updated_at'  => date('Y-m-d H:i:s'),
         ], 'id = ?', [$id]);
 

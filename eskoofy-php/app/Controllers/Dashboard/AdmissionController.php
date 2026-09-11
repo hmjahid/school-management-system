@@ -52,9 +52,8 @@ class AdmissionController extends Controller
         )['cnt'] ?? 0);
 
         $rows = $this->db->fetchAll(
-            "SELECT a.*, c.name as class_name, b.name as batch_name
+            "SELECT a.*, b.name as batch_name
              FROM admissions a
-             LEFT JOIN school_classes c ON a.class_id = c.id
              LEFT JOIN batches b ON a.batch_id = b.id
              WHERE {$where}
              ORDER BY a.submitted_at DESC, a.id DESC
@@ -163,6 +162,7 @@ class AdmissionController extends Controller
             'email'      => $admission['email'],
             'phone'      => $admission['phone'] ?? null,
             'role'       => 'student',
+            'role_id'     => \App\Core\Auth::roleId('student'),
             'password'   => Auth::hashPassword('password'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
@@ -170,10 +170,12 @@ class AdmissionController extends Controller
 
         $admissionNumber = 'STU-' . date('Ymd') . '-' . str_pad((string) $userId, 4, '0', STR_PAD_LEFT);
 
+        $classId = (int) ($admission['class_id'] ?? 0) ?: (int) ($this->db->fetch("SELECT id FROM school_classes ORDER BY id ASC LIMIT 1")['id'] ?? 1);
+
         $studentId = $this->db->insert('students', [
             'user_id'          => $userId,
             'admission_number' => $admissionNumber,
-            'class_id'         => $admission['class_id'],
+            'class_id'         => $classId,
             'batch_id'         => $admission['batch_id'] ?? 1,
             'gender'           => $admission['gender'] ?? null,
             'date_of_birth'    => $admission['date_of_birth'] ?? null,

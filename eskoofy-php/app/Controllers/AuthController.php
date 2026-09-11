@@ -74,6 +74,7 @@ class AuthController extends Controller
             'email'      => $data['email'],
             'password'   => Auth::hashPassword($data['password']),
             'role'       => 'student',
+            'role_id'     => \App\Core\Auth::roleId('student'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);

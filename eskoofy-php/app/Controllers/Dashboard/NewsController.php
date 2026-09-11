@@ -34,9 +34,10 @@ class NewsController extends Controller
             $params[] = $like;
             $params[] = $like;
         }
-        if ($status !== '') {
-            $where .= ' AND n.status = ?';
-            $params[] = $status;
+        if ($status === 'published') {
+            $where .= ' AND n.is_published = 1';
+        } elseif ($status === 'draft') {
+            $where .= ' AND n.is_published = 0';
         }
 
         $total = (int) ($this->db->fetch(
@@ -44,14 +45,17 @@ class NewsController extends Controller
         )['cnt'] ?? 0);
 
         $rows = $this->db->fetchAll(
-            "SELECT n.*, u.name as creator_name
-             FROM news n
-             LEFT JOIN users u ON n.created_by = u.id
+            "SELECT n.* FROM news n
              WHERE {$where}
              ORDER BY n.id DESC
              LIMIT {$perPage} OFFSET {$offset}",
             $params
         );
+
+        $rows = array_map(function ($row) {
+            $row['status'] = !empty($row['is_published']) ? 'published' : 'draft';
+            return $row;
+        }, $rows);
 
         $this->view('dashboard.news.index', [
             'rows'     => $rows,
@@ -69,14 +73,16 @@ class NewsController extends Controller
     {
         Auth::requireAuth();
         $data = $this->validate([
-            'title'        => 'required|max:255',
-            'slug'         => 'max:255',
-            'content'      => 'required',
-            'excerpt'      => 'max:1000',
-            'status'       => 'in:draft,published',
-            'is_event'     => 'numeric',
-            'published_at' => '',
-            'image'        => 'max:2048',
+            'title'          => 'required|max:255',
+            'slug'           => 'max:255',
+            'content'        => 'required',
+            'category'       => 'max:191',
+            'status'         => 'in:draft,published',
+            'is_event'       => 'numeric',
+            'published_at'   => '',
+            'event_date'     => '',
+            'event_location' => 'max:191',
+            'image'          => 'max:2048',
         ]);
 
         if (empty($data['slug'])) {
@@ -96,17 +102,19 @@ class NewsController extends Controller
         }
 
         $this->db->insert('news', [
-            'title'        => $data['title'],
-            'slug'         => $data['slug'],
-            'content'      => $data['content'],
-            'excerpt'      => $data['excerpt'] ?? null,
-            'status'       => $data['status'] ?? 'draft',
-            'is_event'     => $data['is_event'] ?? 0,
-            'image'        => $imagePath,
-            'published_at' => $data['published_at'] ?? null,
-            'created_by'   => Auth::id(),
-            'created_at'   => date('Y-m-d H:i:s'),
-            'updated_at'   => date('Y-m-d H:i:s'),
+            'title'          => $data['title'],
+            'slug'           => $data['slug'],
+            'content'        => $data['content'],
+            'image_url'      => $imagePath,
+            'category'       => $data['category'] ?? null,
+            'is_published'   => ($data['status'] ?? 'draft') === 'published' ? 1 : 0,
+            'is_event'       => $data['is_event'] ?? 0,
+            'published_at'   => $data['published_at'] ?? null,
+            'event_date'     => $data['event_date'] ?? null,
+            'event_location' => $data['event_location'] ?? null,
+            'author_name'    => Auth::user()['name'] ?? 'Admin',
+            'created_at'     => date('Y-m-d H:i:s'),
+            'updated_at'     => date('Y-m-d H:i:s'),
         ]);
 
         Session::getInstance()->flash('success', 'News article created successfully.');
@@ -124,13 +132,15 @@ class NewsController extends Controller
         }
 
         $data = $this->validate([
-            'title'        => 'required|max:255',
-            'slug'         => 'max:255',
-            'content'      => 'required',
-            'excerpt'      => 'max:1000',
-            'status'       => 'in:draft,published',
-            'is_event'     => 'numeric',
-            'published_at' => '',
+            'title'          => 'required|max:255',
+            'slug'           => 'max:255',
+            'content'        => 'required',
+            'category'       => 'max:191',
+            'status'         => 'in:draft,published',
+            'is_event'       => 'numeric',
+            'published_at'   => '',
+            'event_date'     => '',
+            'event_location' => 'max:191',
         ]);
 
         if (empty($data['slug'])) {
@@ -138,14 +148,16 @@ class NewsController extends Controller
         }
 
         $updateData = [
-            'title'        => $data['title'],
-            'slug'         => $data['slug'],
-            'content'      => $data['content'],
-            'excerpt'      => $data['excerpt'] ?? null,
-            'status'       => $data['status'] ?? 'draft',
-            'is_event'     => $data['is_event'] ?? 0,
-            'published_at' => $data['published_at'] ?? null,
-            'updated_at'   => date('Y-m-d H:i:s'),
+            'title'          => $data['title'],
+            'slug'           => $data['slug'],
+            'content'        => $data['content'],
+            'category'       => $data['category'] ?? null,
+            'is_published'   => ($data['status'] ?? 'draft') === 'published' ? 1 : 0,
+            'is_event'       => $data['is_event'] ?? 0,
+            'published_at'   => $data['published_at'] ?? null,
+            'event_date'     => $data['event_date'] ?? null,
+            'event_location' => $data['event_location'] ?? null,
+            'updated_at'     => date('Y-m-d H:i:s'),
         ];
 
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
@@ -156,7 +168,7 @@ class NewsController extends Controller
             $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
             $filename = 'news-' . time() . '-' . bin2hex(random_bytes(4)) . '.' . $ext;
             move_uploaded_file($_FILES['image']['tmp_name'], $uploadDir . $filename);
-            $updateData['image'] = 'uploads/news/' . $filename;
+            $updateData['image_url'] = 'uploads/news/' . $filename;
         }
 
         $this->db->update('news', $updateData, 'id = ?', [$id]);

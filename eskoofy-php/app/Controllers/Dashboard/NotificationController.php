@@ -24,30 +24,35 @@ class NotificationController extends Controller
         $page = max(1, (int) ($_GET['page'] ?? 1));
         $perPage = 20;
         $offset = ($page - 1) * $perPage;
+        $notifiable = 'App\\Models\\User';
 
         $total = (int) ($this->db->fetch(
-            "SELECT COUNT(*) as cnt FROM notifications WHERE user_id = ?", [$userId]
+            "SELECT COUNT(*) as cnt FROM notification_logs WHERE notifiable_type = ? AND notifiable_id = ?",
+            [$notifiable, $userId]
         )['cnt'] ?? 0);
 
         $rows = $this->db->fetchAll(
-            "SELECT * FROM notifications WHERE user_id = ?
-             ORDER BY is_read ASC, created_at DESC
+            "SELECT * FROM notification_logs
+             WHERE notifiable_type = ? AND notifiable_id = ?
+             ORDER BY opened_at IS NULL DESC, created_at DESC
              LIMIT {$perPage} OFFSET {$offset}",
-            [$userId]
+            [$notifiable, $userId]
         );
 
         $unreadCount = (int) ($this->db->fetch(
-            "SELECT COUNT(*) as cnt FROM notifications WHERE user_id = ? AND is_read = 0", [$userId]
+            "SELECT COUNT(*) as cnt FROM notification_logs
+             WHERE notifiable_type = ? AND notifiable_id = ? AND opened_at IS NULL",
+            [$notifiable, $userId]
         )['cnt'] ?? 0);
 
         $this->view('dashboard.notifications.index', [
-            'rows'        => $rows,
+            'rows'          => $rows,
             'notifications' => $rows,
-            'total'       => $total,
-            'page'        => $page,
-            'perPage'     => $perPage,
-            'lastPage'    => max(1, (int) ceil($total / $perPage)),
-            'unreadCount' => $unreadCount,
+            'total'         => $total,
+            'page'          => $page,
+            'perPage'       => $perPage,
+            'lastPage'      => max(1, (int) ceil($total / $perPage)),
+            'unreadCount'   => $unreadCount,
         ]);
     }
 
@@ -69,10 +74,11 @@ class NotificationController extends Controller
     public function markRead(int $id): void
     {
         Auth::requireAuth();
-        $this->db->update('notifications', [
-            'is_read' => 1,
-            'read_at' => date('Y-m-d H:i:s'),
-        ], 'id = ? AND user_id = ?', [$id, Auth::id()]);
+        $this->db->update('notification_logs', [
+            'status'      => 'delivered',
+            'opened_at'   => date('Y-m-d H:i:s'),
+            'updated_at'  => date('Y-m-d H:i:s'),
+        ], 'id = ? AND notifiable_type = ? AND notifiable_id = ?', [$id, 'App\\Models\\User', Auth::id()]);
 
         $this->redirect('/dashboard/notifications');
     }
@@ -80,10 +86,11 @@ class NotificationController extends Controller
     public function markAllRead(): void
     {
         Auth::requireAuth();
-        $this->db->update('notifications', [
-            'is_read' => 1,
-            'read_at' => date('Y-m-d H:i:s'),
-        ], 'user_id = ? AND is_read = 0', [Auth::id()]);
+        $this->db->update('notification_logs', [
+            'status'      => 'delivered',
+            'opened_at'   => date('Y-m-d H:i:s'),
+            'updated_at'  => date('Y-m-d H:i:s'),
+        ], 'notifiable_type = ? AND notifiable_id = ? AND opened_at IS NULL', ['App\\Models\\User', Auth::id()]);
 
         Session::getInstance()->flash('success', 'All notifications marked as read.');
         $this->redirect('/dashboard/notifications');

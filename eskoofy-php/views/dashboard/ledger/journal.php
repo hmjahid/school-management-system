@@ -47,12 +47,12 @@
                 <?php if (!empty($rows)): ?>
                     <?php foreach ($rows as $row): ?>
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 px-4 text-sm"><?= e($row['entry_date'] ?? '') ?></td>
+                        <td class="py-3 px-4 text-sm"><?= e($row['date'] ?? '') ?></td>
                         <td class="py-3 px-4 font-medium"><?= e($row['account_name'] ?? '') ?></td>
-                        <td class="py-3 px-4 text-sm text-gray-500"><?= e($row['description'] ?? '-') ?></td>
+                        <td class="py-3 px-4 text-sm text-gray-500"><?= e($row['note'] ?? '-') ?></td>
                         <td class="py-3 px-4 text-center text-green-600 font-medium"><?= (float) ($row['debit'] ?? 0) > 0 ? e(number_format((float) $row['debit'], 2)) : '-' ?></td>
                         <td class="py-3 px-4 text-center text-red-600 font-medium"><?= (float) ($row['credit'] ?? 0) > 0 ? e(number_format((float) $row['credit'], 2)) : '-' ?></td>
-                        <td class="py-3 px-4 text-sm text-gray-500"><?= e($row['reference'] ?? '-') ?></td>
+                        <td class="py-3 px-4 text-sm text-gray-500"><?= e($row['reference_type'] ?? (($row['reference_id'] ?? '') !== '' ? '#' . $row['reference_id'] : '-')) ?></td>
                     </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -70,7 +70,15 @@
             <?= csrf_field() ?>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Account Name *</label>
-                <input type="text" name="account_name" required class="w-full border border-gray-300 rounded-lg px-4 py-2">
+                <select name="account_name" required class="w-full border border-gray-300 rounded-lg px-4 py-2">
+                    <option value="">Select an account</option>
+                    <?php if (!empty($accounts)): ?>
+                        <?php foreach ($accounts as $acc): ?>
+                        <option value="<?= e($acc['name_en']) ?>"><?= e($acc['name_en']) ?></option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </select>
+                <p class="text-xs text-gray-500 mt-1">New account names are created automatically as an expense account.</p>
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div>
@@ -89,10 +97,6 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
                 <input type="text" name="description" class="w-full border border-gray-300 rounded-lg px-4 py-2">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Reference</label>
-                <input type="text" name="reference" class="w-full border border-gray-300 rounded-lg px-4 py-2">
             </div>
             <div class="flex justify-end space-x-3">
                 <button type="button" onclick="document.getElementById('create-modal').classList.add('hidden')" class="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-50">Cancel</button>

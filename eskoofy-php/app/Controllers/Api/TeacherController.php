@@ -71,6 +71,7 @@ class TeacherController extends Controller
             'email'      => $data['email'],
             'phone'      => $data['phone'] ?? null,
             'role'       => 'teacher',
+            'role_id'     => \App\Core\Auth::roleId('teacher'),
             'password'   => \App\Core\Auth::hashPassword('password'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),

@@ -21,76 +21,82 @@ class CommitteeController extends Controller
     {
         Auth::requireAuth();
         $rows = $this->db->fetchAll(
-            "SELECT mc.*, u.name as member_name, u.photo, u.designation
-             FROM management_committees mc
-             LEFT JOIN users u ON mc.user_id = u.id
-             ORDER BY mc.designation ASC, mc.sort_order ASC, mc.id ASC"
+            "SELECT cm.*, cm.designation as position
+             FROM committee_members cm
+             ORDER BY cm.sort_order ASC, cm.id ASC"
         );
 
-        $this->view('dashboard.committees.index', ['rows' => $rows]);
+        $this->view('dashboard.committee.index', ['rows' => $rows, 'members' => $rows]);
     }
 
     public function store(): void
     {
         Auth::requireAuth();
         $data = $this->validate([
-            'user_id'      => 'required|numeric',
-            'designation'  => 'required|max:100',
-            'role'         => 'required|max:100',
-            'sort_order'   => 'numeric',
-            'bio'          => 'max:1000',
+            'name'        => 'required|max:191',
+            'designation' => 'max:191',
+            'position'    => 'max:191',
+            'phone'       => 'max:191',
+            'email'       => 'email',
+            'bio'         => 'max:2000',
+            'sort_order'  => 'numeric',
         ]);
 
-        $this->db->insert('management_committees', [
-            'user_id'      => $data['user_id'],
-            'designation'  => $data['designation'],
-            'role'         => $data['role'],
-            'sort_order'   => $data['sort_order'] ?? 0,
-            'bio'          => $data['bio'] ?? null,
-            'created_at'   => date('Y-m-d H:i:s'),
-            'updated_at'   => date('Y-m-d H:i:s'),
+        $this->db->insert('committee_members', [
+            'name'        => $data['name'],
+            'designation' => $data['designation'] ?? $data['position'] ?? '',
+            'phone'       => $data['phone'] ?? null,
+            'email'       => $data['email'] ?? null,
+            'bio'         => $data['bio'] ?? null,
+            'sort_order'  => $data['order'] ?? $data['sort_order'] ?? 0,
+            'is_active'   => 1,
+            'created_at'  => date('Y-m-d H:i:s'),
+            'updated_at'  => date('Y-m-d H:i:s'),
         ]);
 
         Session::getInstance()->flash('success', 'Committee member added.');
-        $this->redirect('/dashboard/committees');
+        $this->redirect('/dashboard/committee');
     }
 
     public function update(int $id): void
     {
         Auth::requireAuth();
-        $member = $this->db->fetch("SELECT * FROM management_committees WHERE id = ? LIMIT 1", [$id]);
+        $member = $this->db->fetch("SELECT * FROM committee_members WHERE id = ? LIMIT 1", [$id]);
         if (!$member) {
             Session::getInstance()->flash('error', 'Member not found.');
-            $this->redirect('/dashboard/committees');
+            $this->redirect('/dashboard/committee');
             return;
         }
 
         $data = $this->validate([
-            'user_id'      => 'required|numeric',
-            'designation'  => 'required|max:100',
-            'role'         => 'required|max:100',
-            'sort_order'   => 'numeric',
-            'bio'          => 'max:1000',
+            'name'        => 'required|max:191',
+            'designation' => 'max:191',
+            'position'    => 'max:191',
+            'phone'       => 'max:191',
+            'email'       => 'email',
+            'bio'         => 'max:2000',
+            'sort_order'  => 'numeric',
         ]);
 
-        $this->db->update('management_committees', [
-            'user_id'      => $data['user_id'],
-            'designation'  => $data['designation'],
-            'role'         => $data['role'],
-            'sort_order'   => $data['sort_order'] ?? 0,
-            'bio'          => $data['bio'] ?? null,
-            'updated_at'   => date('Y-m-d H:i:s'),
+        $this->db->update('committee_members', [
+            'name'        => $data['name'],
+            'designation' => $data['designation'] ?? $data['position'] ?? '',
+            'phone'       => $data['phone'] ?? null,
+            'email'       => $data['email'] ?? null,
+            'bio'         => $data['bio'] ?? null,
+            'sort_order'  => $data['order'] ?? $data['sort_order'] ?? 0,
+            'updated_at'  => date('Y-m-d H:i:s'),
         ], 'id = ?', [$id]);
 
         Session::getInstance()->flash('success', 'Member updated.');
-        $this->redirect('/dashboard/committees');
+        $this->redirect('/dashboard/committee');
     }
 
     public function destroy(int $id): void
     {
         Auth::requireAuth();
-        $this->db->delete('management_committees', 'id = ?', [$id]);
+        $this->db->delete('committee_members', 'id = ?', [$id]);
         Session::getInstance()->flash('success', 'Member removed.');
-        $this->redirect('/dashboard/committees');
+        $this->redirect('/dashboard/committee');
     }
 }

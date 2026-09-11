@@ -28,22 +28,22 @@ class ActivityController extends Controller
         $where = '1=1';
         $params = [];
         if ($userId !== '') {
-            $where .= ' AND al.user_id = ?';
+            $where .= " AND al.causer_type = 'App\\Models\\User' AND al.causer_id = ?";
             $params[] = (int) $userId;
         }
         if ($action !== '') {
-            $where .= ' AND al.action = ?';
+            $where .= ' AND al.event = ?';
             $params[] = $action;
         }
 
         $total = (int) ($this->db->fetch(
-            "SELECT COUNT(*) as cnt FROM activity_logs al WHERE {$where}", $params
+            "SELECT COUNT(*) as cnt FROM activity_log al WHERE {$where}", $params
         )['cnt'] ?? 0);
 
         $rows = $this->db->fetchAll(
             "SELECT al.*, u.name as user_name
-             FROM activity_logs al
-             LEFT JOIN users u ON al.user_id = u.id
+             FROM activity_log al
+             LEFT JOIN users u ON al.causer_type = 'App\\Models\\User' AND al.causer_id = u.id
              WHERE {$where}
              ORDER BY al.created_at DESC
              LIMIT {$perPage} OFFSET {$offset}",

@@ -87,6 +87,22 @@ class Auth
         return password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
     }
 
+    public static function roleId(string $role): int
+    {
+        $db = Database::getInstance();
+        $row = $db->fetch("SELECT id FROM roles WHERE name = ? LIMIT 1", [$role]);
+        if (!$row) {
+            $db->insert('roles', [
+                'name'       => $role,
+                'guard_name' => 'web',
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+            $row = $db->fetch("SELECT id FROM roles WHERE name = ? LIMIT 1", [$role]);
+        }
+        return (int) ($row['id'] ?? 1);
+    }
+
     public static function createToken(): string
     {
         return bin2hex(random_bytes(32));

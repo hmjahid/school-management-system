@@ -12,9 +12,9 @@
         <div class="bg-white rounded-xl shadow-sm p-6">
             <div class="flex justify-between items-start">
                 <div>
-                    <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"><?= e(ucfirst($announcement['type'] ?? 'general')) ?></span>
+                    <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"><?= e(ucfirst($announcement['audience'] ?? 'all')) ?></span>
                     <h3 class="text-lg font-bold mt-2"><?= e($announcement['title']) ?></h3>
-                    <p class="text-gray-600 text-sm mt-1"><?= e($announcement['content']) ?></p>
+                    <p class="text-gray-600 text-sm mt-1"><?= e($announcement['body']) ?></p>
                     <p class="text-xs text-gray-400 mt-2"><?= e(time_ago($announcement['created_at'] ?? 'now')) ?></p>
                 </div>
                 <div class="flex space-x-2">
@@ -42,16 +42,16 @@
                 <input type="text" name="title" required class="w-full border border-gray-300 rounded-lg px-4 py-2">
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                <select name="type" class="w-full border border-gray-300 rounded-lg px-4 py-2">
-                    <option value="general">General</option>
-                    <option value="academic">Academic</option>
-                    <option value="event">Event</option>
-                    <option value="urgent">Urgent</option>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Audience</label>
+                <select name="audience" class="w-full border border-gray-300 rounded-lg px-4 py-2">
+                    <option value="all">All</option>
+                    <option value="students">Students</option>
+                    <option value="teachers">Teachers</option>
+                    <option value="guardians">Guardians</option>
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Content *</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Body *</label>
                 <textarea name="content" rows="4" required class="w-full border border-gray-300 rounded-lg px-4 py-2"></textarea>
             </div>
             <div class="flex justify-end space-x-3">

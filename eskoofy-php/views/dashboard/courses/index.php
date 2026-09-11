@@ -32,10 +32,8 @@
                     <tr class="border-b hover:bg-gray-50">
                         <td class="py-3 px-4 font-medium"><?= e($row['name'] ?? '') ?></td>
                         <td class="py-3 px-4 text-sm text-gray-500"><?= e($row['code'] ?? '') ?></td>
-                        <td class="py-3 px-4"><?= e($row['class_name'] ?? '-') ?></td>
-                        <td class="py-3 px-4 text-center"><?= e($row['subject_count'] ?? 0) ?></td>
-                        <td class="py-3 px-4 text-center">
-                            <span class="px-2 py-1 text-xs rounded-full <?= ($row['status'] ?? '') === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>"><?= e(ucfirst($row['status'] ?? 'active')) ?></span>
+                                                                        <td class="py-3 px-4 text-center">
+                            <span class="px-2 py-1 text-xs rounded-full <?= ($row['is_active'] ?? 0) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>"><?= e(($row['is_active'] ?? 0) ? 'Active' : 'Inactive') ?></span>
                         </td>
                         <td class="py-3 px-4">
                             <div class="flex space-x-2">
@@ -50,7 +48,7 @@
                     </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <tr><td colspan="6" class="py-8 text-center text-gray-500">No courses found.</td></tr>
+                    <tr><td colspan="5" class="py-8 text-center text-gray-500">No courses found.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
@@ -85,9 +83,9 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select name="status" class="w-full border border-gray-300 rounded-lg px-4 py-2">
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
+                <select name="is_active" class="w-full border border-gray-300 rounded-lg px-4 py-2">
+                    <option value="1">Active</option>
+                    <option value="0">Inactive</option>
                 </select>
             </div>
             <div class="flex justify-end space-x-3">
@@ -107,7 +105,7 @@ function editCourse(course) {
     form.querySelector('input[name=name]').value = course.name || '';
     form.querySelector('input[name=code]').value = course.code || '';
     form.querySelector('textarea[name=description]').value = course.description || '';
-    form.querySelector('select[name=status]').value = course.status || 'active';
+    form.querySelector('select[name=is_active]').value = course.is_active ? '1' : '0';
     document.getElementById('create-modal').classList.remove('hidden');
 }
 </script>

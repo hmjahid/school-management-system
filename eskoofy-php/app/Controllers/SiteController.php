@@ -459,7 +459,7 @@ class SiteController extends Controller
             echo '</url>';
         }
 
-        $news = $db->fetchAll("SELECT slug, updated_at FROM news WHERE status = 'published' AND slug IS NOT NULL");
+        $news = $db->fetchAll("SELECT slug, updated_at FROM news WHERE is_published = 1 AND slug IS NOT NULL");
         foreach ($news as $item) {
             echo '<url>';
             echo '<loc>' . htmlspecialchars($baseUrl . '/news/' . $item['slug']) . '</loc>';
@@ -651,7 +651,7 @@ class SiteController extends Controller
             $like = "%{$term}%";
             $results['news'] = $db->fetchAll(
                 "SELECT id, title, slug, content, created_at FROM news
-                 WHERE status = 'published' AND (title LIKE ? OR content LIKE ?)
+                 WHERE is_published = 1 AND (title LIKE ? OR content LIKE ?)
                  ORDER BY created_at DESC LIMIT 20",
                 [$like, $like]
             );

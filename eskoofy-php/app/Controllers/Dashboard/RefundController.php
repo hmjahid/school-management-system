@@ -6,11 +6,12 @@ namespace App\Controllers\Dashboard;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Database;
+use App\Core\DatabaseInterface;
 use App\Core\Session;
 
 class RefundController extends Controller
 {
-    private Database $db;
+    private DatabaseInterface $db;
 
     public function __construct()
     {
@@ -39,8 +40,7 @@ class RefundController extends Controller
         $rows = $this->db->fetchAll(
             "SELECT r.*, u.name as student_name, u2.name as processed_by_name
              FROM refunds r
-             LEFT JOIN students s ON r.student_id = s.id
-             LEFT JOIN users u ON s.user_id = u.id
+             LEFT JOIN users u ON r.user_id = u.id
              LEFT JOIN users u2 ON r.processed_by = u2.id
              WHERE {$where}
              ORDER BY r.created_at DESC

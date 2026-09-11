@@ -81,7 +81,7 @@ class TransportController extends Controller
 
         $total = $this->db->count('transport_assignments');
         $rows = $this->db->fetchAll(
-            "SELECT ta.*, u.name as student_name, s.admission_number, tr.name as route_name, tr.fare
+            "SELECT ta.*, u.name as student_name, st.admission_number, tr.name as route_name, tr.fare
              FROM transport_assignments ta
              LEFT JOIN students st ON ta.student_id = st.id
              LEFT JOIN users u ON st.user_id = u.id

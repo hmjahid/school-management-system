@@ -2388,7 +2388,7 @@ VALUES ('super_admin', 'web', NOW(), NOW())
 ON DUPLICATE KEY UPDATE `name` = `name`;
 
 INSERT INTO `users` (`name`, `email`, `password`, `role_id`, `email_verified_at`, `created_at`, `updated_at`)
-SELECT 'Admin', 'admin@eskoofy.com', '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+SELECT 'Admin', 'admin@eskoofy.com', '$2y$12$9sgoVuprourxGeRdklQvc.X.HARuJwW4OvSWnvQxn6iFVXIG8TN76',
        `id`, NOW(), NOW(), NOW()
 FROM `roles`
 WHERE `name` = 'super_admin'

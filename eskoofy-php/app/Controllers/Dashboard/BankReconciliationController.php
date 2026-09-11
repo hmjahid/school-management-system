@@ -16,19 +16,22 @@ class BankReconciliationController extends Controller
         $db = Database::getInstance();
 
         $bankEntries = $db->fetchAll(
-            "SELECT * FROM journal_entries
-             WHERE (account_name LIKE '%Bank%' OR account_name LIKE '%bKash%')
-             ORDER BY entry_date DESC LIMIT 100"
+            "SELECT le.*, le.date as entry_date, coa.name_en as account_name FROM ledger_entries le
+             JOIN chart_of_accounts coa ON le.chart_of_account_id = coa.id
+             WHERE (coa.name_en LIKE '%Bank%' OR coa.name_en LIKE '%bKash%')
+             ORDER BY le.date DESC LIMIT 100"
         );
 
         $statementBalance = (float) ($db->fetch(
-            "SELECT COALESCE(SUM(credit) - SUM(debit), 0) as total FROM journal_entries
-             WHERE (account_name LIKE '%Bank%' OR account_name LIKE '%bKash%')"
+            "SELECT COALESCE(SUM(le.credit) - SUM(le.debit), 0) as total FROM ledger_entries le
+             JOIN chart_of_accounts coa ON le.chart_of_account_id = coa.id
+             WHERE (coa.name_en LIKE '%Bank%' OR coa.name_en LIKE '%bKash%')"
         )['total'] ?? 0);
 
         $bookBalance = (float) ($db->fetch(
-            "SELECT COALESCE(SUM(debit) - SUM(credit), 0) as total FROM journal_entries
-             WHERE (account_name LIKE '%Bank%' OR account_name LIKE '%bKash%')"
+            "SELECT COALESCE(SUM(le.debit) - SUM(le.credit), 0) as total FROM ledger_entries le
+             JOIN chart_of_accounts coa ON le.chart_of_account_id = coa.id
+             WHERE (coa.name_en LIKE '%Bank%' OR coa.name_en LIKE '%bKash%')"
         )['total'] ?? 0);
 
         $this->view('dashboard.bank_reconciliation.index', [

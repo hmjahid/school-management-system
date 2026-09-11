@@ -26,7 +26,7 @@ class RoutineController extends Controller
         $where = '1=1';
         $params = [];
         if ($classId > 0) {
-            $where .= ' AND r.class_id = ?';
+            $where .= ' AND r.school_class_id = ?';
             $params[] = $classId;
         }
         if ($sectionId > 0) {
@@ -38,7 +38,7 @@ class RoutineController extends Controller
             "SELECT r.*, c.name as class_name, sec.name as section_name, sub.name as subject_name,
                     t.name as teacher_name
              FROM routines r
-             LEFT JOIN school_classes c ON r.class_id = c.id
+             LEFT JOIN school_classes c ON r.school_class_id = c.id
              LEFT JOIN sections sec ON r.section_id = sec.id
              LEFT JOIN subjects sub ON r.subject_id = sub.id
              LEFT JOIN teachers te ON r.teacher_id = te.id

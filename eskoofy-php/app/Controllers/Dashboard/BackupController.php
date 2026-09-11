@@ -11,21 +11,42 @@ use App\Core\Session;
 class BackupController extends Controller
 {
     private Database $db;
+    private string $backupDir;
 
     public function __construct()
     {
         $this->db = Database::getInstance();
+        $this->backupDir = __DIR__ . '/../../../storage/backups';
+        if (!is_dir($this->backupDir)) {
+            mkdir($this->backupDir, 0755, true);
+        }
     }
 
     public function index(): void
     {
         Auth::requireAuth();
-        $rows = $this->db->fetchAll(
-            "SELECT * FROM backups ORDER BY id DESC"
-        );
+        $files = glob($this->backupDir . '/*.sql') ?: [];
+        rsort($files);
 
-        $this->view('dashboard.backups.index', [
-            'rows' => $rows,
+        $backups = array_map(function (string $path) {
+            return [
+                'name'       => basename($path),
+                'filename'   => basename($path),
+                'size'       => number_format(filesize($path)),
+                'bytes'      => filesize($path),
+                'type'       => 'Full',
+                'created_at' => date('M d, Y H:i', filemtime($path)),
+            ];
+        }, $files);
+
+        $totalBytes = array_sum(array_map('filesize', $files));
+
+        $this->view('dashboard.backup.index', [
+            'rows'        => $backups,
+            'backups'     => $backups,
+            'lastBackup'  => isset($backups[0]) ? $backups[0]['created_at'] : null,
+            'totalBackups' => count($backups),
+            'diskUsage'   => number_format($totalBytes / 1048576, 1) . ' MB',
         ]);
     }
 
@@ -34,11 +55,6 @@ class BackupController extends Controller
         Auth::requireAuth();
         $timestamp = date('Y-m-d_H-i-s');
         $filename = "backup_{$timestamp}.sql";
-        $backupDir = __DIR__ . '/../../../storage/backups';
-
-        if (!is_dir($backupDir)) {
-            mkdir($backupDir, 0755, true);
-        }
 
         $tables = $this->db->fetchAll(
             "SELECT TABLE_NAME AS `name` FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_TYPE = 'BASE TABLE' ORDER BY TABLE_NAME ASC"
@@ -72,18 +88,8 @@ class BackupController extends Controller
             $output .= "\n";
         }
 
-        $filepath = $backupDir . '/' . $filename;
+        $filepath = $this->backupDir . '/' . $filename;
         file_put_contents($filepath, $output);
-
-        $this->db->insert('backups', [
-            'filename'    => $filename,
-            'path'        => $filepath,
-            'size'        => filesize($filepath),
-            'created_by'  => Auth::id(),
-            'notes'       => 'Manual backup',
-            'created_at'  => date('Y-m-d H:i:s'),
-            'updated_at'  => date('Y-m-d H:i:s'),
-        ]);
 
         Session::getInstance()->flash('success', "Backup created: {$filename} (" . number_format(filesize($filepath)) . " bytes)");
         $this->redirect('/dashboard/backups');

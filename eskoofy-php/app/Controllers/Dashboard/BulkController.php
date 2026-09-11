@@ -136,6 +136,7 @@ class BulkController extends Controller
             'name'       => $data['name'] ?? '',
             'email'      => $email,
             'role'       => 'student',
+            'role_id'     => \App\Core\Auth::roleId('student'),
             'password'   => \App\Core\Auth::hashPassword('password'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),

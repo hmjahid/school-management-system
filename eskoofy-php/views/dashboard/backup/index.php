@@ -9,20 +9,8 @@
     <div class="bg-white rounded-xl shadow-sm p-6">
         <h2 class="text-lg font-bold mb-4">Create Backup</h2>
         <p class="text-gray-500 text-sm mb-4">Create a backup of your database and files. Backups are stored locally.</p>
-        <form action="/dashboard/backup/create" method="POST" class="space-y-4">
+        <form action="/dashboard/backup" method="POST" class="space-y-4">
             <?= csrf_field() ?>
-            <div>
-                <label class="flex items-center">
-                    <input type="checkbox" name="include_database" value="1" checked class="rounded border-gray-300 text-blue-600 mr-2">
-                    <span class="text-sm text-gray-700">Include Database</span>
-                </label>
-            </div>
-            <div>
-                <label class="flex items-center">
-                    <input type="checkbox" name="include_files" value="1" checked class="rounded border-gray-300 text-blue-600 mr-2">
-                    <span class="text-sm text-gray-700">Include Files (uploads, etc.)</span>
-                </label>
-            </div>
             <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Create Backup Now</button>
         </form>
     </div>
@@ -62,7 +50,6 @@
                     <th class="py-3 px-4 font-semibold border-b">Size</th>
                     <th class="py-3 px-4 font-semibold border-b">Type</th>
                     <th class="py-3 px-4 font-semibold border-b">Created</th>
-                    <th class="py-3 px-4 font-semibold border-b">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -73,20 +60,6 @@
                         <td class="py-3 px-4 text-sm"><?= e($backup['size'] ?? '') ?></td>
                         <td class="py-3 px-4 text-sm"><span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700"><?= e($backup['type'] ?? 'Full') ?></span></td>
                         <td class="py-3 px-4 text-sm text-gray-500"><?= e($backup['created_at'] ?? '') ?></td>
-                        <td class="py-3 px-4">
-                            <div class="flex space-x-2">
-                                <a href="/dashboard/backup/<?= e($backup['name'] ?? '') ?>/download" class="text-blue-600 hover:underline text-sm">Download</a>
-                                <form action="/dashboard/backup/<?= e($backup['name'] ?? '') ?>/restore" method="POST" onsubmit="return confirm('Restore this backup? Current data will be replaced!')">
-                                    <?= csrf_field() ?>
-                                    <button type="submit" class="text-yellow-600 hover:underline text-sm">Restore</button>
-                                </form>
-                                <form action="/dashboard/backup/<?= e($backup['name'] ?? '') ?>" method="POST" onsubmit="return confirm('Delete this backup?')">
-                                    <?= csrf_field() ?>
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="text-red-600 hover:underline text-sm">Delete</button>
-                                </form>
-                            </div>
-                        </td>
                     </tr>
                     <?php endforeach; ?>
                 <?php else: ?>

@@ -203,7 +203,7 @@ class LibraryController extends Controller
              LEFT JOIN teachers te ON bi.teacher_id = te.id
              LEFT JOIN users tu ON te.user_id = tu.id
              WHERE {$where}
-             ORDER BY bi.issued_at DESC
+             ORDER BY bi.issue_date DESC
              LIMIT {$perPage} OFFSET {$offset}",
             $params
         );
@@ -248,7 +248,7 @@ class LibraryController extends Controller
             'book_id'    => $data['book_id'],
             'student_id' => $data['student_id'],
             'issued_by'  => Auth::id(),
-            'issued_at'  => date('Y-m-d H:i:s'),
+            'issue_date' => date('Y-m-d'),
             'due_date'   => $data['due_date'],
             'notes'      => $data['notes'] ?? null,
             'status'     => 'issued',

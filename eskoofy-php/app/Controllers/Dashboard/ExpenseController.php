@@ -37,7 +37,7 @@ class ExpenseController extends Controller
             $params[] = $like;
         }
         if ($categoryId > 0) {
-            $where .= ' AND e.category_id = ?';
+            $where .= ' AND e.expense_category_id = ?';
             $params[] = $categoryId;
         }
         if ($dateFrom !== '') {
@@ -56,7 +56,7 @@ class ExpenseController extends Controller
         $rows = $this->db->fetchAll(
             "SELECT e.*, ec.name as category_name, u.name as creator_name
              FROM expenses e
-             LEFT JOIN expense_categories ec ON e.category_id = ec.id
+             LEFT JOIN expense_categories ec ON e.expense_category_id = ec.id
              LEFT JOIN users u ON e.created_by = u.id
              WHERE {$where}
              ORDER BY e.date DESC, e.id DESC

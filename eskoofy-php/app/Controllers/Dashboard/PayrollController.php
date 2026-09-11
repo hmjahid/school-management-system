@@ -6,11 +6,12 @@ namespace App\Controllers\Dashboard;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Database;
+use App\Core\DatabaseInterface;
 use App\Core\Session;
 
 class PayrollController extends Controller
 {
-    private Database $db;
+    private DatabaseInterface $db;
 
     public function __construct()
     {
@@ -21,7 +22,7 @@ class PayrollController extends Controller
     {
         Auth::requireAuth();
         $rows = $this->db->fetchAll(
-            "SELECT ss.*, u.name as employee_name, u.designation
+            "SELECT ss.*, u.name as employee_name, u.role
              FROM salary_structures ss
              LEFT JOIN teachers t ON ss.teacher_id = t.id
              LEFT JOIN users u ON t.user_id = u.id
@@ -90,7 +91,7 @@ class PayrollController extends Controller
         Auth::requireAuth();
         $month = $_GET['month'] ?? date('Y-m');
         $rows = $this->db->fetchAll(
-            "SELECT p.*, u.name as employee_name, u.designation
+            "SELECT p.*, u.name as employee_name, u.role
              FROM payslips p
              LEFT JOIN teachers t ON p.teacher_id = t.id
              LEFT JOIN users u ON t.user_id = u.id
@@ -161,7 +162,7 @@ class PayrollController extends Controller
     {
         Auth::requireAuth();
         $rows = $this->db->fetchAll(
-            "SELECT lr.*, u.name as employee_name, u.designation
+            "SELECT lr.*, u.name as employee_name, u.role
              FROM leave_requests lr
              LEFT JOIN teachers t ON lr.teacher_id = t.id
              LEFT JOIN users u ON t.user_id = u.id
@@ -201,7 +202,7 @@ class PayrollController extends Controller
         Auth::requireAuth();
         $date = $_GET['date'] ?? date('Y-m-d');
         $rows = $this->db->fetchAll(
-            "SELECT sa.*, u.name as employee_name, u.designation
+            "SELECT sa.*, u.name as employee_name, u.role
              FROM staff_attendances sa
              LEFT JOIN teachers t ON sa.teacher_id = t.id
              LEFT JOIN users u ON t.user_id = u.id
@@ -274,7 +275,7 @@ class PayrollController extends Controller
     {
         Auth::requireAuth();
         $rows = $this->db->fetchAll(
-            "SELECT * FROM leave_types ORDER BY name ASC"
+            "SELECT * FROM leave_types ORDER BY name_en ASC"
         );
 
         $this->view('dashboard.payroll.leave-types', ['leaveTypes' => $rows]);
@@ -290,9 +291,10 @@ class PayrollController extends Controller
         ]);
 
         $this->db->insert('leave_types', [
-            'name'         => $data['name'],
-            'days_allowed' => $data['days_allowed'],
-            'is_paid'      => isset($data['is_paid']) ? (int) $data['is_paid'] : 0,
+            'name_en'      => $data['name'],
+            'days_per_year'=> (int) $data['days_allowed'],
+            'is_paid'      => isset($data['is_paid']) ? (int) $data['is_paid'] : 1,
+            'is_active'    => 1,
             'created_at'   => date('Y-m-d H:i:s'),
             'updated_at'   => date('Y-m-d H:i:s'),
         ]);
@@ -318,9 +320,9 @@ class PayrollController extends Controller
         ]);
 
         $this->db->update('leave_types', [
-            'name'         => $data['name'],
-            'days_allowed' => $data['days_allowed'],
-            'is_paid'      => isset($data['is_paid']) ? (int) $data['is_paid'] : 0,
+            'name_en'      => $data['name'],
+            'days_per_year'=> (int) $data['days_allowed'],
+            'is_paid'      => isset($data['is_paid']) ? (int) $data['is_paid'] : 1,
             'updated_at'   => date('Y-m-d H:i:s'),
         ], 'id = ?', [$id]);
 
