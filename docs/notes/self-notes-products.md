@@ -57,21 +57,40 @@ strictly ensure that eskoofy-php ui same, frontend, backend all same of eskoofy-
 
 strictly ensure that eskoofy-php ui same, frontend, backend all same of eskoofy-app as they not become same fully. continue until finished. find the best way to make the app and php version mirror with same frontend, backend and functionality only laravel and raw php difference. or will start from begining to make the laravael app a copy an dthen convert that copy to raw php? which one will be better? tell me first
 
+the login page not working in php vesrion, fix the issue. bright students section, recent events, gallery section not showing in the homepage. ensure thaey are available in the php version. continue until finished
+
+also ensure the theme version all features and functionalities are same as the app version. continue until finished
+
+Explore PHP version structure & login page issue
+Fix login page in eskoofy-php
+Investigate homepage: bright students, recent events, gallery sections in eskoofy-php
+Ensure homepage sections exist & render in PHP version
+Audit theme version vs app version feature parity
+Implement missing features in theme version
+Verify (tests/lint) both versions
+
+do above tsks. continue until finished
+
+cannot login in php vesrion login page. make ensure that all 3 products are using the docs/demo-credentials.md files credentails
+
+php vesrion dashboard navbar/sidebar is broken. fix the issue. also language chnaing not working in the dashboard headre. fix it also
+
+in php version, mak ethe frontend language switcher and dashboard language switcher two different system so that one doen't effect another like the laravel app.
+
+in php version, some dashboard pages are showing like frontend page with frontend header and footer. fix the issue.
 
 
 
 
-the login page not working, fix the issue. also ensure that todo list is completed
+ensure that whole project/repo is fully and well documented and the every product and the website also fully and well documented
 
-also ensure the theme version all features and functionalities are same as the app version
+
 
 ensure proper payment method applied in this system app, php, theme and the website
 
 make this a smart school management system
 
-ensure that whole project/repo is fully and well documented and the every product and the website also fully and well documented
-
-create docker conatiner for checking the theme in wordpress. amke sure the theme chnages are applied automatically in the docker conatiner
+create docker conatiner for checking/testing the theme in wordpress. amke sure the theme chnages are applied automatically in the docker container
 
 
 

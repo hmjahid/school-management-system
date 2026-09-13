@@ -130,8 +130,22 @@ class Controller
 
     protected function back(): void
     {
+        $this->flashOldInput();
         $referer = $_SERVER['HTTP_REFERER'] ?? '/';
         $this->redirect($referer);
+    }
+
+    protected function flashOldInput(): void
+    {
+        $session = Session::getInstance();
+        foreach ($_POST as $key => $value) {
+            if ($key === '_token' || $key === '_method') {
+                continue;
+            }
+            if (is_string($value)) {
+                $session->set('_old_' . $key, $value);
+            }
+        }
     }
 
     protected function withSuccess(string $message): void

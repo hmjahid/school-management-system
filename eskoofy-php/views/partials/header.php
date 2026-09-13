@@ -25,6 +25,20 @@
                     </svg>
                 </button>
             </div>
+            <div class="hidden md:flex items-center space-x-2 text-sm">
+                <?php
+                $supportedLocales = config('school.supported_locales', ['en', 'bn']);
+                $currentLocale = \App\Core\Session::getInstance()->get('locale', config('app.locale', 'en'));
+                $localeLabels = ['en' => 'EN', 'bn' => 'বাং'];
+                foreach ($supportedLocales as $loc):
+                    $label = $localeLabels[$loc] ?? strtoupper($loc);
+                    $isActive = ($loc === $currentLocale);
+                ?>
+                    <a href="/locale/<?= e($loc) ?>" class="<?= $isActive ? 'text-blue-600 font-semibold' : 'text-gray-500 hover:text-blue-600' ?> px-2 py-1 rounded hover:bg-gray-100">
+                        <?= e($label) ?>
+                    </a>
+                <?php endforeach; ?>
+            </div>
         </div>
     </nav>
     <div id="mobile-menu" class="hidden md:hidden">

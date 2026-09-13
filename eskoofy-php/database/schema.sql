@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `password` VARCHAR(191) NOT NULL,
   `role_id` BIGINT UNSIGNED NOT NULL,
   `email_verified_at` TIMESTAMP NULL,
-  `role` ENUM('student','admin','teacher','guardian','super_admin') NULL DEFAULT NULL,
+  `role` ENUM('student','admin','teacher','guardian','super_admin','accountant','librarian') NULL DEFAULT NULL,
   `remember_token` VARCHAR(100) NULL,
   `created_at` TIMESTAMP NULL,
   `updated_at` TIMESTAMP NULL,
@@ -2440,7 +2440,7 @@ VALUES ('super_admin', 'web', NOW(), NOW())
 ON DUPLICATE KEY UPDATE `name` = `name`;
 
 INSERT INTO `users` (`name`, `email`, `password`, `role_id`, `email_verified_at`, `created_at`, `updated_at`)
-SELECT 'Admin', 'admin@eskoofy.com', '$2y$12$9sgoVuprourxGeRdklQvc.X.HARuJwW4OvSWnvQxn6iFVXIG8TN76',
+SELECT 'Admin', 'admin@eskoofy.com', '$2y$12$0wHhsGRIV2YKGXZZo2DOGetHWVHFlMYDHC3g8g.OPKD.gGWTNqCoK',
        `id`, NOW(), NOW(), NOW()
 FROM `roles`
 WHERE `name` = 'super_admin'

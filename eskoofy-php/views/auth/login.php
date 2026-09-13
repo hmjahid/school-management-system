@@ -34,7 +34,7 @@
                         <input type="checkbox" name="remember" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                         <span class="ml-2 text-sm text-gray-600">Remember me</span>
                     </label>
-                    <a href="/password/reset" class="text-sm text-blue-600 hover:underline">Forgot password?</a>
+                    <a href="/forgot-password" class="text-sm text-blue-600 hover:underline">Forgot password?</a>
                 </div>
 
                 <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">Sign In</button>
