@@ -59,6 +59,39 @@ function config(string $key, mixed $default = null): mixed
     return $value;
 }
 
+/**
+ * True when the current request targets the admin dashboard. Dashboard and
+ * public site keep separate locale session keys so switching one never
+ * affects the other.
+ */
+function is_dashboard_request(): bool
+{
+    $uri = (string) ($_SERVER['REQUEST_URI'] ?? '/');
+    $path = (string) parse_url($uri, PHP_URL_PATH);
+
+    return $path === '/dashboard'
+        || str_starts_with($path, '/dashboard/')
+        || $path === '/messages'
+        || str_starts_with($path, '/messages/');
+}
+
+/**
+ * Resolve the effective locale for the current request context.
+ *
+ * Public site reads `locale`; dashboard reads `dashboard_locale`. Neither
+ * falls back to the other — only the configured default is used when unset.
+ */
+function current_locale(): string
+{
+    if (is_dashboard_request()) {
+        $locale = $_SESSION['dashboard_locale'] ?? config('app.locale', 'en');
+    } else {
+        $locale = $_SESSION['locale'] ?? config('app.locale', 'en');
+    }
+
+    return (string) $locale;
+}
+
 function site_ui(string $key, mixed $default = null): mixed
 {
     static $strings = [];
@@ -275,7 +308,7 @@ function time_ago(string $datetime): string
 function dashboard_ui(string $key, mixed $default = null): mixed
 {
     static $strings = [];
-    $locale = $_SESSION['locale'] ?? config('app.locale', 'en');
+    $locale = current_locale();
     if (!isset($strings[$locale])) {
         $file = __DIR__ . '/../../lang/' . $locale . '/dashboard.php';
         if (!file_exists($file)) {
@@ -366,7 +399,7 @@ if (!function_exists('__')) {
         }
         static $files = null;
         if ($files === null) {
-            $locale = $_SESSION['locale'] ?? config('app.locale', 'en');
+            $locale = current_locale();
             $files = [];
             foreach (['messages', 'dashboard', 'site_frontend'] as $file) {
                 $path = __DIR__ . '/../../lang/' . $locale . '/' . $file . '.php';
@@ -482,8 +515,7 @@ if (!function_exists('app')) {
             $container = new class {
                 public function getLocale(): string
                 {
-                    $locale = $_SESSION['locale'] ?? config('app.locale', 'en');
-                    return str_replace('-', '_', $locale);
+                    return str_replace('-', '_', current_locale());
                 }
 
                 public function environment(...$environments): bool|string

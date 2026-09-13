@@ -86,7 +86,7 @@ return [
     'dashboard.backup.create' => '/dashboard/backup/create',
     'dashboard.backup.destroy' => '/dashboard/backup/{file}',
     'dashboard.backup.download' => '/dashboard/backup/download/{file}',
-    'dashboard.backup.index' => '/dashboard/backup',
+    'dashboard.backup.index' => '/dashboard/backups',
     'dashboard.backup.restore' => '/dashboard/backup/restore/{file}',
     'dashboard.bank-reconciliation.index' => '/dashboard/bank-reconciliation',
     'dashboard.bank-reconciliation.reconcile' => '/dashboard/bank-reconciliation/reconcile',

@@ -358,10 +358,17 @@ class Model implements \ArrayAccess, \JsonSerializable, \IteratorAggregate
         $foreignPivotKey = $foreignPivotKey ?? strtolower(class_basename(static::class)) . '_id';
         $relatedPivotKey = $relatedPivotKey ?? strtolower(class_basename($related)) . '_id';
         $pivot = $table ?? $this->guessPivotTable($related);
+        $params = [$this->getKey()];
         $sql = "SELECT related.* FROM {$instance->getTable()} related
                 JOIN {$pivot} pivot ON pivot.{$relatedPivotKey} = related.{$instance->getKeyName()}
                 WHERE pivot.{$foreignPivotKey} = ?";
-        $rows = static::db()->fetchAll($sql, [$this->getKey()]);
+        // Spatie-style morph pivots (model_has_roles / model_has_permissions)
+        // additionally scope rows by the owning model class.
+        if (str_starts_with($pivot, 'model_has_')) {
+            $sql .= ' AND pivot.model_type = ?';
+            $params[] = static::class;
+        }
+        $rows = static::db()->fetchAll($sql, $params);
         $models = array_map(static fn ($row) => $instance::newFromRow($row), $rows);
         return new Relation(null, 'many', $models);
     }

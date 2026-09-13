@@ -80,8 +80,11 @@ class View
         extract($data);
 
         $contentPath = self::resolve($template);
-        $layout = $data['layout'] ?? 'layouts.main';
-        $layoutPath = __DIR__ . '/../../views/' . str_replace(['.', '-'], ['/', '_'], $layout) . '.php';
+        $isDashboard = str_starts_with($template, 'dashboard.');
+        $layout = $data['layout'] ?? ($isDashboard ? false : 'layouts.main');
+        $layoutPath = $layout !== false
+            ? __DIR__ . '/../../views/' . str_replace(['.', '-'], ['/', '_'], $layout) . '.php'
+            : '';
 
         ob_start();
         if (file_exists($contentPath)) {
@@ -89,7 +92,7 @@ class View
         }
         $contentHtml = ob_get_clean();
 
-        if (file_exists($layoutPath)) {
+        if ($layout !== false && file_exists($layoutPath)) {
             require $layoutPath;
         } else {
             echo $contentHtml;
