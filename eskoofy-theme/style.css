@@ -340,3 +340,162 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
+
+/* =========================================================================
+   Bright Students
+   ========================================================================= */
+
+.esk-bright-students {
+    padding: 2rem 0;
+}
+
+.esk-bright-students h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.esk-student-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.esk-student-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: box-shadow 0.2s;
+}
+
+.esk-student-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.esk-student-avatar {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fbbf24, #f97316);
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.esk-student-card h4 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.esk-student-class {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.esk-student-achievement {
+    font-size: 0.8rem;
+    color: #ea580c;
+    margin-top: 0.5rem;
+}
+
+/* =========================================================================
+   Login Page
+   ========================================================================= */
+
+.eskoofy-login-page {
+    max-width: 480px;
+    margin: 3rem auto;
+    padding: 0 1rem;
+}
+
+.esk-login-wrapper {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 2rem;
+}
+
+.esk-login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.esk-login-header h1 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.esk-login-header p {
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+.esk-login-form h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.esk-login-form .esk-form-group {
+    margin-bottom: 1rem;
+}
+
+.esk-login-form label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.esk-login-form .esk-input {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.95rem;
+}
+
+.esk-login-form .esk-button {
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.esk-login-links {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.esk-login-links a {
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.esk-login-links a:hover {
+    text-decoration: underline;
+}
+
+/* =========================================================================
+   Front Page Blocks
+   ========================================================================= */
+
+.eskoofy-blocks {
+    display: grid;
+    gap: 2rem;
+}
+
+.eskoofy-block {
+    padding: 2rem 0;
+}
+
+.eskoofy-block h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #2563eb;
+}

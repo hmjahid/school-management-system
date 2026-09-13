@@ -39,6 +39,11 @@ get_header();
 	<?php endwhile; ?>
 
 	<div class="eskoofy-blocks">
+		<section class="eskoofy-block eskoofy-block-bright-students">
+			<h2><?php esc_html_e( 'Bright Students', 'eskoofy' ); ?></h2>
+			<?php echo do_shortcode( '[eskoofy_bright_students count="8"]' ); ?>
+		</section>
+
 		<section class="eskoofy-block eskoofy-block-news">
 			<h2><?php esc_html_e( 'Latest News', 'eskoofy' ); ?></h2>
 			<?php echo do_shortcode( '[eskoofy_news_list count="3"]' ); ?>

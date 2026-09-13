@@ -19,6 +19,8 @@ add_shortcode( 'eskoofy_events_list', 'esk_shortcode_events_list' );
 add_shortcode( 'eskoofy_gallery', 'esk_shortcode_gallery' );
 add_shortcode( 'eskoofy_contact_form', 'esk_shortcode_contact_form' );
 add_shortcode( 'eskoofy_payment_gateway', 'esk_shortcode_payment_gateway' );
+add_shortcode( 'eskoofy_bright_students', 'esk_shortcode_bright_students' );
+add_shortcode( 'eskoofy_login_form', 'esk_shortcode_login_form' );
 
 function esk_shortcode_results_lookup( $atts ): string {
 	$atts   = shortcode_atts( array(), $atts );
@@ -651,8 +653,102 @@ function esk_shortcode_payment_gateway( $atts ): string {
 						<span><?php echo esc_html( $gw->name ); ?></span>
 					</label>
 				<?php endforeach; ?>
+ 			</div>
+		<?php endif; ?>
+	</div>
+	<?php
+	return ob_get_clean();
+}
+
+function esk_shortcode_bright_students( $atts ): string {
+	$atts   = shortcode_atts( array( 'count' => 8 ), $atts, 'eskoofy_bright_students' );
+	$count  = absint( $atts['count'] );
+	$count  = $count < 1 ? 8 : $count;
+
+	global $wpdb;
+	$students = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT s.*, u.display_name, u.user_email, c.name AS class_name
+			FROM {$wpdb->prefix}esk_students s
+			JOIN {$wpdb->prefix}users u ON s.user_id = u.ID
+			LEFT JOIN {$wpdb->prefix}esk_classes c ON s.class_id = c.id
+			WHERE s.is_notable = 1 AND s.deleted_at IS NULL
+			ORDER BY s.id DESC LIMIT %d",
+			$count
+		)
+	);
+
+	ob_start();
+	?>
+	<div class="esk-bright-students">
+		<h3><?php esc_html_e( 'Bright Students', 'eskoofy' ); ?></h3>
+		<?php if ( empty( $students ) ) : ?>
+			<p><?php esc_html_e( 'No notable students to display yet.', 'eskoofy' ); ?></p>
+		<?php else : ?>
+			<div class="esk-student-grid">
+				<?php foreach ( $students as $student ) : ?>
+					<div class="esk-student-card">
+						<div class="esk-student-avatar">
+							<?php
+							$name = $student->display_name;
+							$initials = implode( '', array_map( fn( $w ) => strtoupper( substr( $w, 0, 1 ) ), explode( ' ', $name ) ) );
+							echo esc_html( $initials );
+							?>
+						</div>
+						<h4><?php echo esc_html( $name ); ?></h4>
+						<?php if ( $student->class_name ) : ?>
+							<p class="esk-student-class"><?php echo esc_html( $student->class_name ); ?></p>
+						<?php endif; ?>
+						<?php if ( $student->achievement ) : ?>
+							<p class="esk-student-achievement"><?php echo esc_html( $student->achievement ); ?></p>
+						<?php endif; ?>
+					</div>
+				<?php endforeach; ?>
 			</div>
 		<?php endif; ?>
+	</div>
+	<?php
+	return ob_get_clean();
+}
+
+function esk_shortcode_login_form( $atts ): string {
+	$atts = shortcode_atts( array(), $atts );
+
+	if ( is_user_logged_in() ) {
+		$current_user = wp_get_current_user();
+		ob_start();
+		?>
+		<div class="esk-login-form">
+			<p><?php echo esc_html( sprintf( __( 'Welcome, %s!', 'eskoofy' ), $current_user->display_name ) ); ?></p>
+			<p><a href="<?php echo esc_url( wp_logout_url( home_url() ) ); ?>" class="esk-button"><?php esc_html_e( 'Log Out', 'eskoofy' ); ?></a></p>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+	ob_start();
+	?>
+	<div class="esk-login-form">
+		<h3><?php esc_html_e( 'Sign In', 'eskoofy' ); ?></h3>
+		<form method="post" action="<?php echo esc_url( wp_login_url() ); ?>" class="esk-form">
+			<div class="esk-form-group">
+				<label for="esk-login-user"><?php esc_html_e( 'Username or Email', 'eskoofy' ); ?></label>
+				<input type="text" id="esk-login-user" name="log" class="esk-input" required>
+			</div>
+			<div class="esk-form-group">
+				<label for="esk-login-pass"><?php esc_html_e( 'Password', 'eskoofy' ); ?></label>
+				<input type="password" id="esk-login-pass" name="pwd" class="esk-input" required>
+			</div>
+			<div class="esk-form-group">
+				<label>
+					<input type="checkbox" name="rememberme" value="forever">
+					<?php esc_html_e( 'Remember Me', 'eskoofy' ); ?>
+				</label>
+			</div>
+			<?php wp_nonce_field( 'esk_login_nonce', 'esk_login_nonce' ); ?>
+			<button type="submit" class="esk-button esk-button-primary"><?php esc_html_e( 'Sign In', 'eskoofy' ); ?></button>
+		</form>
+		<p><a href="<?php echo esc_url( wp_lostpassword_url() ); ?>"><?php esc_html_e( 'Forgot password?', 'eskoofy' ); ?></a></p>
 	</div>
 	<?php
 	return ob_get_clean();

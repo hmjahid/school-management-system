@@ -133,14 +133,66 @@ function esk_admin_enqueue( string $hook ): void {
 }
 add_action( 'admin_enqueue_scripts', 'esk_admin_enqueue' );
 
-/* ─── Activation hook: create database tables ────────────────────────────── */
+/* ─── Activation hook: create database tables + demo users ────────────────── */
 
 function esk_theme_activation(): void {
 	if ( function_exists( 'esk_create_tables' ) ) {
 		esk_create_tables();
 	}
+	esk_create_demo_users();
 }
 add_action( 'after_switch_theme', 'esk_theme_activation' );
+
+/**
+ * Register custom WordPress roles matching the eskoofy-* user model.
+ */
+function esk_register_roles(): void {
+	add_role( 'teacher',     __( 'Teacher', 'eskoofy' ),     [ 'read' => true ] );
+	add_role( 'accountant',  __( 'Accountant', 'eskoofy' ),  [ 'read' => true ] );
+	add_role( 'librarian',   __( 'Librarian', 'eskoofy' ),   [ 'read' => true ] );
+}
+add_action( 'init', 'esk_register_roles' );
+
+/**
+ * Create WordPress users matching docs/DEMO-CREDENTIALS.md so all three
+ * products (app, php, theme) share the same demo accounts.
+ *
+ * Idempotent: skips users that already exists; updates password if changed.
+ */
+function esk_create_demo_users(): void {
+	if ( ! function_exists( 'wp_create_user' ) && ! function_exists( 'wp_insert_user' ) ) {
+		return;
+	}
+
+	$accounts = [
+		[ 'username' => 'admin',            'email' => 'admin@school.com',          'password' => 'ChangeMe!2026$Tr0ng', 'role' => 'administrator', 'display' => 'Super Administrator' ],
+		[ 'username' => 'principal',        'email' => 'principal@school.com',       'password' => 'principal123',       'role' => 'administrator', 'display' => 'School Principal' ],
+		[ 'username' => 'teacher.john',     'email' => 'teacher.john@school.com',   'password' => 'teach1234',         'role' => 'teacher',       'display' => 'John Smith' ],
+		[ 'username' => 'teacher.sarah',    'email' => 'teacher.sarah@school.com',  'password' => 'teach5678',         'role' => 'teacher',       'display' => 'Sarah Johnson' ],
+		[ 'username' => 'accountant',       'email' => 'accountant@school.com',      'password' => 'accountant123',     'role' => 'accountant',    'display' => 'Demo Accountant' ],
+		[ 'username' => 'librarian',        'email' => 'librarian@school.com',       'password' => 'librarian123',      'role' => 'librarian',     'display' => 'Demo Librarian' ],
+	];
+
+	foreach ( $accounts as $acct ) {
+		$existing = get_user_by( 'email', $acct['email'] );
+		if ( $existing ) {
+			wp_update_user( [
+				'ID'        => $existing->ID,
+				'user_pass' => $acct['password'],
+				'role'      => $acct['role'],
+			] );
+		} else {
+			$user_id = wp_create_user( $acct['username'], $acct['password'], $acct['email'] );
+			if ( ! is_wp_error( $user_id ) ) {
+				wp_update_user( [
+					'ID'           => $user_id,
+					'role'         => $acct['role'],
+					'display_name' => $acct['display'],
+				] );
+			}
+		}
+	}
+}
 
 /* ─── Handle public form submissions ─────────────────────────────────────── */
 
