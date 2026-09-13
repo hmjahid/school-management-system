@@ -21,9 +21,160 @@ class SettingController extends Controller
     public function index(): void
     {
         Auth::requireAuth();
-        $settings = $this->db->fetch("SELECT * FROM website_settings ORDER BY id DESC LIMIT 1");
+        $this->view('dashboard.settings.general', [
+            'settings' => \App\Models\WebsiteSetting::getSettings(),
+        ]);
+    }
 
-        $this->view('dashboard.settings.index', ['settings' => $settings]);
+    public function general(): void
+    {
+        Auth::requireAuth();
+        $this->view('dashboard.settings.index', [
+            'settings'        => \App\Models\WebsiteSetting::getSettings(),
+            'librarySettings' => \App\Models\LibrarySetting::getSettings(),
+            'timezones'       => \DateTimeZone::listIdentifiers(\DateTimeZone::ALL),
+            'mailPresets'     => $this->mailPresets(),
+        ]);
+    }
+
+    public function localization(): void
+    {
+        Auth::requireAuth();
+        $this->view('dashboard.settings.index', [
+            'settings'        => \App\Models\WebsiteSetting::getSettings(),
+            'librarySettings' => \App\Models\LibrarySetting::getSettings(),
+            'timezones'       => \DateTimeZone::listIdentifiers(\DateTimeZone::ALL),
+            'mailPresets'     => $this->mailPresets(),
+        ]);
+    }
+
+    public function cms(): void
+    {
+        Auth::requireAuth();
+        $this->view('dashboard.settings.cms', [
+            'settings' => \App\Models\WebsiteSetting::getSettings(),
+        ]);
+    }
+
+    public function updateGeneral(): void
+    {
+        Auth::requireAuth();
+        $this->saveGeneral();
+        Session::getInstance()->flash('success', 'Settings saved.');
+        $this->redirect('/dashboard/settings/general');
+    }
+
+    public function updateCms(): void
+    {
+        Auth::requireAuth();
+        $this->saveGeneral();
+        Session::getInstance()->flash('success', 'Settings saved.');
+        $this->redirect('/dashboard/settings/cms');
+    }
+
+    public function updateLocalization(): void
+    {
+        Auth::requireAuth();
+        $this->validate([
+            'timezone'       => 'max:64',
+            'date_format'    => 'max:20',
+            'time_format'    => 'max:20',
+            'default_locale' => 'in:en,bn',
+        ]);
+        $this->saveGeneral();
+        Session::getInstance()->flash('success', 'Localization settings saved.');
+        $this->redirect('/dashboard/settings/general?tab=localization');
+    }
+
+    /**
+     * Mirrors the Laravel MailSettingsService provider presets.
+     */
+    private function mailPresets(): array
+    {
+        return [
+            'mailtrap'  => ['host' => 'sandbox.smtp.mailtrap.io', 'port' => 2525, 'encryption' => 'tls'],
+            'gmail'     => ['host' => 'smtp.gmail.com', 'port' => 587, 'encryption' => 'tls'],
+            'mailgun'   => ['host' => 'smtp.mailgun.org', 'port' => 587, 'encryption' => 'tls'],
+            'ses'       => ['host' => 'email-smtp.us-east-1.amazonaws.com', 'port' => 587, 'encryption' => 'tls'],
+            'postmark'  => ['host' => 'smtp.postmarkapp.com', 'port' => 587, 'encryption' => 'tls'],
+            'sendgrid'  => ['host' => 'smtp.sendgrid.net', 'port' => 587, 'encryption' => 'tls'],
+        ];
+    }
+
+    /**
+     * Persist the general/academic/sms/localization setting fields (text,
+     * booleans and uploaded logo/favicon files) onto the single
+     * website_settings row, mirroring DashboardSettingController::updateGeneral.
+     */
+    private function saveGeneral(): void
+    {
+        try {
+            $this->saveGeneralSettings();
+        } catch (\Throwable $e) {
+            Session::getInstance()->flash('error', 'Could not save settings: ' . $e->getMessage());
+        }
+    }
+
+    private function saveGeneralSettings(): void
+    {
+        if (!\App\Core\Schema::hasTable('website_settings')) {
+            throw new \RuntimeException('website_settings table is not available.');
+        }
+
+        $fields = [
+            'school_name', 'school_name_bn', 'tagline', 'tagline_bn', 'email',
+            'phone', 'address', 'city', 'country', 'website', 'meta_title',
+            'meta_description', 'default_locale', 'timezone', 'date_format',
+            'time_format', 'established_year', 'website_url', 'footer_description',
+            'academic_start_month', 'facebook_url', 'twitter_url', 'instagram_url',
+            'linkedin_url', 'youtube_url', 'show_facebook', 'show_twitter',
+            'show_instagram', 'show_linkedin', 'show_youtube',
+            'send_absence_sms', 'absence_sms_template', 'sms_sender_id',
+            'twilio_sid', 'twilio_auth_token', 'twilio_from_number',
+        ];
+
+        $updateData = [];
+        foreach ($fields as $field) {
+            if (array_key_exists($field, $_POST)) {
+                $updateData[$field] = $_POST[$field];
+            }
+        }
+
+        $fileMap = [
+            'logo'             => 'logo_path',
+            'favicon'          => 'favicon_path',
+            'footer_logo'      => 'footer_logo_path',
+            'footer_logo_dark' => 'footer_logo_dark_path',
+        ];
+        foreach ($fileMap as $input => $column) {
+            if (!empty($_FILES[$input]['tmp_name']) && $_FILES[$input]['error'] === UPLOAD_ERR_OK) {
+                $updateData[$column] = $this->storeSettingFile($input);
+            }
+            if (!empty($_POST['remove_' . $input])) {
+                $updateData[$column] = null;
+            }
+        }
+
+        $updateData['updated_at'] = date('Y-m-d H:i:s');
+
+        $existing = $this->db->fetch("SELECT id FROM website_settings LIMIT 1");
+        if ($existing) {
+            $this->db->update('website_settings', $updateData, 'id = ?', [$existing['id']]);
+        } else {
+            $this->db->insert('website_settings', $updateData + ['created_at' => date('Y-m-d H:i:s')]);
+        }
+    }
+
+    private function storeSettingFile(string $input): string
+    {
+        $uploadDir = __DIR__ . '/../../public/uploads/website/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+        $filename = uniqid() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', basename($_FILES[$input]['name']));
+        move_uploaded_file($_FILES[$input]['tmp_name'], $uploadDir . $filename);
+
+        return 'uploads/website/' . $filename;
     }
 
     public function updateWebsite(): void

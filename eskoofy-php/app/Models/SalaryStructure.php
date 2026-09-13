@@ -27,4 +27,16 @@ class SalaryStructure extends Model
     {
         return $this->belongsTo(Teacher::class);
     }
+
+    public function totalAllowances(): float
+    {
+        $items = $this->allowances ?? [];
+        return array_sum(array_map('floatval', is_array($items) ? $items : []));
+    }
+
+    public function totalDeductions(): float
+    {
+        $items = $this->deductions ?? [];
+        return array_sum(array_map('floatval', is_array($items) ? $items : []));
+    }
 }

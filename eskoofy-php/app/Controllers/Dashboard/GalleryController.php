@@ -5,70 +5,65 @@ namespace App\Controllers\Dashboard;
 
 use App\Core\Auth;
 use App\Core\Controller;
-use App\Core\Database;
-use App\Core\DatabaseInterface;
 use App\Core\Session;
+use App\Models\Gallery;
 
 class GalleryController extends Controller
 {
-    private DatabaseInterface $db;
-
-    public function __construct()
-    {
-        $this->db = Database::getInstance();
-    }
+    private const UPLOAD_DIR = 'website/gallery';
 
     public function index(): void
     {
         Auth::requireAuth();
-        $page = max(1, (int) ($_GET['page'] ?? 1));
-        $perPage = 20;
-        $offset = ($page - 1) * $perPage;
 
         $where = '1=1';
         $params = [];
+
         if (!empty($_GET['category'])) {
-            $where .= ' AND g.category = ?';
-            $params[] = $_GET['category'];
+            $where .= ' AND category = ?';
+            $params[] = (string) $_GET['category'];
         }
 
-        $total = (int) ($this->db->fetch(
-            "SELECT COUNT(*) as cnt FROM galleries g WHERE {$where}", $params
-        )['cnt'] ?? 0);
+        $search = (string) ($_GET['q'] ?? '');
+        if ($search !== '') {
+            $like = '%' . $search . '%';
+            $where .= ' AND (title LIKE ? OR description LIKE ?)';
+            $params[] = $like;
+            $params[] = $like;
+        }
 
-        $albums = $this->db->fetchAll(
-            "SELECT g.* FROM galleries g
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+        $perPage = 24;
+        $total = (int) (\App\Core\Database::getInstance()->fetch(
+            "SELECT COUNT(*) as cnt FROM galleries WHERE {$where}", $params
+        )['cnt'] ?? 0);
+        $offset = ($page - 1) * $perPage;
+
+        $dbRows = \App\Core\Database::getInstance()->fetchAll(
+            "SELECT * FROM galleries
              WHERE {$where}
-             ORDER BY g.id DESC
+             ORDER BY id DESC
              LIMIT {$perPage} OFFSET {$offset}",
             $params
         );
 
-        $photos = array_map(function ($item) {
-            return [
-                'id'     => $item['id'],
-                'image'  => $item['image_path'],
-                'title'  => $item['title'],
-                'suffix' => $item['title'],
-            ];
-        }, $albums);
+        $rows = $this->paginateRows($dbRows, $total, $perPage, $page, Gallery::class);
+        $categoryRows = \App\Core\Database::getInstance()->fetchAll(
+            "SELECT DISTINCT category FROM galleries WHERE category IS NOT NULL AND category != '' ORDER BY category ASC"
+        );
+        $categories = array_column($categoryRows, 'category');
 
-        $categoryRows = $this->db->fetchAll("SELECT DISTINCT category FROM galleries WHERE category IS NOT NULL AND category != '' ORDER BY category ASC");
-        $cats = array_map(function ($c) {
-            return ['slug' => slugify($c['category']), 'name' => $c['category'], 'id' => $c['category']];
-        }, $categoryRows);
+        $this->view('dashboard.gallery.index', [
+            'rows'       => $rows,
+            'categories' => $categories,
+        ]);
+    }
 
-        $this->view('dashboard.galleries.index', [
-            'albums'        => $albums,
-            'images'        => $photos,
-            'photos'        => $photos,
-            'categories'    => $cats,
-            'categorySlug'  => $_GET['category'] ?? '',
-            'is_published'  => true,
-            'total'         => $total,
-            'page'          => $page,
-            'perPage'       => $perPage,
-            'lastPage'      => max(1, (int) ceil($total / $perPage)),
+    public function create(): void
+    {
+        Auth::requireAuth();
+        $this->view('dashboard.gallery.create', [
+            'gallery' => new Gallery(['is_published' => true]),
         ]);
     }
 
@@ -76,62 +71,142 @@ class GalleryController extends Controller
     {
         Auth::requireAuth();
         $data = $this->validate([
-            'title'        => 'required|max:255',
-            'category'     => 'max:191',
-            'description'  => 'max:2000',
+            'title'       => 'required|max:255',
+            'category'    => 'required|max:120',
+            'description' => 'max:2000',
         ]);
 
-        $uploadDir = __DIR__ . '/../../public/uploads/gallery/';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
+        $imagePath = $this->storeImage(required: true);
+        if ($imagePath === null) {
+            return;
         }
 
-        $uploaded = 0;
-        if (isset($_FILES['images'])) {
-            $files = $_FILES['images'];
-            $count = is_array($files['name']) ? count($files['name']) : 1;
+        $gallery = Gallery::create([
+            'title'        => $data['title'],
+            'description'  => $data['description'] ?? null,
+            'image_path'   => $imagePath,
+            'category'     => $data['category'],
+            'is_published' => isset($_POST['is_published']) ? 1 : 0,
+        ]);
+        $gallery->setAttribute('exists', true);
 
-            for ($i = 0; $i < $count; $i++) {
-                if (isset($files['error'][$i]) && $files['error'][$i] !== UPLOAD_ERR_OK) {
-                    continue;
-                }
-                if (is_string($files['name']) && $i === 0 && $files['error'] !== UPLOAD_ERR_OK) {
-                    continue;
-                }
-                $ext = pathinfo(is_array($files['name']) ? $files['name'][$i] : $files['name'], PATHINFO_EXTENSION);
-                $filename = 'gallery-' . time() . '-' . bin2hex(random_bytes(4)) . '.' . $ext;
-                move_uploaded_file(is_array($files['tmp_name']) ? $files['tmp_name'][$i] : $files['tmp_name'], $uploadDir . $filename);
+        Session::getInstance()->flash('success', __('Gallery item saved.'));
+        $this->redirect('/dashboard/gallery/' . $gallery->getKey() . '/edit');
+    }
 
-                $this->db->insert('galleries', [
-                    'title'        => $i === 0 ? $data['title'] : $data['title'] . ' (' . ($i + 1) . ')',
-                    'description'  => $data['description'] ?? null,
-                    'image_path'   => 'uploads/gallery/' . $filename,
-                    'category'     => $data['category'] ?? null,
-                    'is_published' => 1,
-                    'created_at'   => date('Y-m-d H:i:s'),
-                    'updated_at'   => date('Y-m-d H:i:s'),
-                ]);
-                $uploaded++;
-            }
+    public function edit(int $id): void
+    {
+        Auth::requireAuth();
+        $gallery = Gallery::find($id);
+        if (!$gallery) {
+            Session::getInstance()->flash('error', 'Gallery item not found.');
+            $this->redirect('/dashboard/gallery');
+            return;
+        }
+        $gallery->setAttribute('exists', true);
+        $this->view('dashboard.gallery.edit', ['gallery' => $gallery]);
+    }
+
+    public function update(int $id): void
+    {
+        Auth::requireAuth();
+        $gallery = Gallery::find($id);
+        if (!$gallery) {
+            Session::getInstance()->flash('error', 'Gallery item not found.');
+            $this->redirect('/dashboard/gallery');
+            return;
         }
 
-        Session::getInstance()->flash('success', "Uploaded {$uploaded} photo(s).");
-        $this->redirect('/dashboard/galleries');
+        $data = $this->validate([
+            'title'       => 'required|max:255',
+            'category'    => 'required|max:120',
+            'description' => 'max:2000',
+        ]);
+
+        $newPath = $this->storeImage(required: false);
+        if ($newPath !== null) {
+            $this->deleteImage($gallery->image_path);
+            $gallery->image_path = $newPath;
+        }
+
+        $gallery->title = $data['title'];
+        $gallery->category = $data['category'];
+        $gallery->description = $data['description'] ?? null;
+        $gallery->is_published = isset($_POST['is_published']) ? 1 : 0;
+        $gallery->save();
+
+        Session::getInstance()->flash('success', __('Gallery item updated.'));
+        $this->back();
     }
 
     public function destroy(int $id): void
     {
         Auth::requireAuth();
-        $image = $this->db->fetch("SELECT * FROM galleries WHERE id = ? LIMIT 1", [$id]);
-        if ($image && !empty($image['image_path'])) {
-            $fullPath = __DIR__ . '/../../public/' . $image['image_path'];
-            if (file_exists($fullPath)) {
-                unlink($fullPath);
-            }
+        $gallery = Gallery::find($id);
+        if (!$gallery) {
+            Session::getInstance()->flash('error', 'Gallery item not found.');
+            $this->redirect('/dashboard/gallery');
+            return;
         }
 
-        $this->db->delete('galleries', 'id = ?', [$id]);
-        Session::getInstance()->flash('success', 'Photo removed.');
-        $this->redirect('/dashboard/galleries');
+        $this->deleteImage($gallery->image_path);
+        $gallery->delete();
+
+        Session::getInstance()->flash('success', __('Gallery item deleted.'));
+        $this->redirect('/dashboard/gallery');
+    }
+
+    private function storeImage(bool $required): ?string
+    {
+        if (empty($_FILES['image']['tmp_name']) || ($_FILES['image']['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
+            if ($required) {
+                Session::getInstance()->flash('error', 'The image field is required.');
+                $this->back();
+                return null;
+            }
+            return null;
+        }
+
+        $file = $_FILES['image'];
+        $maxBytes = 6 * 1024 * 1024;
+        if ((int) $file['size'] > $maxBytes) {
+            Session::getInstance()->flash('error', 'The image must not exceed 6MB.');
+            $this->back();
+            return null;
+        }
+
+        if (isset($file['type']) && str_starts_with((string) $file['type'], 'image/') === false) {
+            Session::getInstance()->flash('error', 'The file must be an image.');
+            $this->back();
+            return null;
+        }
+
+        $dir = public_path('storage/' . self::UPLOAD_DIR);
+        if (!is_dir($dir) && !@mkdir($dir, 0775, true) && !is_dir($dir)) {
+            Session::getInstance()->flash('error', 'Unable to create upload directory.');
+            $this->back();
+            return null;
+        }
+
+        $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $filename = date('YmdHis') . '-' . bin2hex(random_bytes(4)) . '.' . $extension;
+
+        if (!@move_uploaded_file($file['tmp_name'], $dir . '/' . $filename)) {
+            Session::getInstance()->flash('error', 'Unable to store the uploaded file.');
+            $this->back();
+            return null;
+        }
+
+        return self::UPLOAD_DIR . '/' . $filename;
+    }
+
+    private function deleteImage(?string $path): void
+    {
+        if ($path && str_starts_with($path, self::UPLOAD_DIR . '/')) {
+            $fullPath = public_path('storage/' . $path);
+            if (file_exists($fullPath)) {
+                @unlink($fullPath);
+            }
+        }
     }
 }

@@ -22,14 +22,26 @@ class PayrollController extends Controller
     {
         Auth::requireAuth();
         $rows = $this->db->fetchAll(
-            "SELECT ss.*, u.name as employee_name, u.role
+            "SELECT ss.*
              FROM salary_structures ss
              LEFT JOIN teachers t ON ss.teacher_id = t.id
              LEFT JOIN users u ON t.user_id = u.id
+             WHERE ss.is_active = 1
              ORDER BY u.name ASC"
         );
 
-        $this->view('dashboard.payroll.salary-structures', ['rows' => $rows]);
+        $teachers = $this->db->fetchAll(
+            "SELECT t.*, u.name
+             FROM teachers t
+             LEFT JOIN users u ON t.user_id = u.id
+             ORDER BY u.name ASC
+             LIMIT 200"
+        );
+
+        $this->view('dashboard.payroll.structures', [
+            'rows'     => $this->paginateRows($rows, count($rows), 20, max(1, (int) ($_GET['page'] ?? 1)), \App\Models\SalaryStructure::class),
+            'teachers' => new \App\Core\Support\Collection(\App\Models\Teacher::hydrate($teachers)),
+        ]);
     }
 
     public function storeSalaryStructure(): void
@@ -352,9 +364,38 @@ Session::getInstance()->flash('success', 'Payslip saved.');
             $this->redirect('/dashboard/payslips');
             return;
         }
-        $payslip['details'] = isset($payslip['details']) && $payslip['details'] !== '' ? json_decode((string) $payslip['details'], true) : [];
+        $payslip['details'] = $this->normalizePayslipDetails($payslip['details'] ?? null);
 
-        $this->view('dashboard.payroll.payslip_show', ['payslip' => \App\Models\Payslip::newFromRow($payslip)]);
+        $this->view('dashboard.payroll.payslip-show', ['payslip' => \App\Models\Payslip::newFromRow($payslip)]);
+    }
+
+    /**
+     * Decode the payslip details JSON and normalise allowance/deduction items
+     * to the [['name' =>, 'amount' =>], ...] shape the ported Blade view
+     * iterates (legacy rows store them as name => amount objects).
+     */
+    private function normalizePayslipDetails(?string $raw): array
+    {
+        $details = ($raw !== null && $raw !== '') ? json_decode($raw, true) : [];
+        $details = is_array($details) ? $details : [];
+
+        foreach (['allowances', 'deductions'] as $key) {
+            $items = $details[$key] ?? [];
+            if (!is_array($items)) {
+                $items = [];
+            }
+            $normalized = [];
+            foreach ($items as $name => $amount) {
+                if (is_array($amount) && array_key_exists('name', $amount)) {
+                    $normalized[] = $amount;
+                    continue;
+                }
+                $normalized[] = ['name' => (string) $name, 'amount' => (float) $amount];
+            }
+            $details[$key] = $normalized;
+        }
+
+        return $details;
     }
 
     public function markPaid(int $id): void

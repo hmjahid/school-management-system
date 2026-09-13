@@ -17,4 +17,18 @@ class WebsiteMedia extends Model
     protected array $casts = [
         'file_size' => 'integer',
     ];
+
+    public function url(): ?string
+    {
+        if (!$this->file_path) {
+            return null;
+        }
+
+        return url('storage/' . ltrim($this->file_path, '/'));
+    }
+
+    public function isImage(): bool
+    {
+        return $this->mime_type !== null && str_starts_with($this->mime_type, 'image/');
+    }
 }

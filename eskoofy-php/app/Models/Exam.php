@@ -12,6 +12,15 @@ class Exam extends Model
     public const STATUS_SCHEDULED = 'scheduled';
     public const STATUS_COMPLETED = 'completed';
 
+    public const TYPE_QUIZ = 'quiz';
+    public const TYPE_MID_TERM = 'mid_term';
+    public const TYPE_FINAL = 'final';
+    public const TYPE_ASSIGNMENT = 'assignment';
+    public const TYPE_PROJECT = 'project';
+    public const TYPE_PRACTICAL = 'practical';
+    public const TYPE_ORAL = 'oral';
+    public const TYPE_OTHER = 'other';
+
     protected static string $table = 'exams';
     protected static string $primaryKey = 'id';
     protected static bool $softDeletes = true;

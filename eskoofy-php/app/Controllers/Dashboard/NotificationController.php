@@ -8,6 +8,7 @@ use App\Core\Controller;
 use App\Core\Database;
 use App\Core\DatabaseInterface;
 use App\Core\Session;
+use App\Models\NotificationPreference;
 
 class NotificationController extends Controller
 {
@@ -62,14 +63,39 @@ class NotificationController extends Controller
         Auth::requireAuth();
         $userId = Auth::id();
 
-        $prefs = $this->db->fetch(
-            "SELECT * FROM notification_preferences WHERE user_id = ? LIMIT 1",
-            [$userId]
-        );
-
         $this->view('dashboard.notifications.preferences', [
-            'prefs' => $prefs,
+            'preferences' => NotificationPreference::getUserPreferences($userId),
+            'types'       => NotificationPreference::getAvailableTypes(),
+            'channels'    => NotificationPreference::getAvailableChannels(),
         ]);
+    }
+
+    public function updatePreferences(): void
+    {
+        Auth::requireAuth();
+        $userId = Auth::id();
+
+        $raw = $_POST['preferences'] ?? null;
+        if (!is_array($raw)) {
+            Session::getInstance()->flash('error', 'No preferences submitted.');
+            $this->back();
+            return;
+        }
+
+        $parsed = [];
+        foreach ($raw as $type => $channels) {
+            if (!NotificationPreference::isValidType((string) $type) || !is_array($channels)) {
+                continue;
+            }
+            $parsed[$type] = array_map(
+                static fn ($v) => (bool) $v,
+                $channels
+            );
+        }
+
+        NotificationPreference::setUserPreferences($userId, $parsed);
+        Session::getInstance()->flash('success', __('Preferences saved.'));
+        $this->back();
     }
 
     public function markRead(int $id): void
@@ -84,6 +110,51 @@ class NotificationController extends Controller
         $this->redirect('/dashboard/notifications');
     }
 
+    public function list(): void
+    {
+        Auth::requireAuth();
+        $userId = Auth::id();
+        $notifiable = 'App\\Models\\User';
+
+        $rows = $this->db->fetchAll(
+            "SELECT * FROM notification_logs
+             WHERE notifiable_type = ? AND notifiable_id = ?
+             ORDER BY created_at DESC
+             LIMIT 15",
+            [$notifiable, $userId]
+        );
+
+        $items = [];
+        foreach ($rows as $n) {
+            $data = json_decode((string) ($n['metadata'] ?? '[]'), true) ?: [];
+            if ($data === [] && !empty($n['content'])) {
+                $data = ['message' => $n['content']];
+            }
+            $type = $n['type'] ?? 'Notification';
+            $items[] = [
+                'id'         => $n['id'],
+                'type'       => class_basename((string) $type),
+                'title'      => $data['title'] ?? class_basename((string) $type),
+                'message'    => $data['message'] ?? $data['body'] ?? '',
+                'url'        => $data['url'] ?? null,
+                'unread'     => ($n['opened_at'] ?? null) === null,
+                'created_at' => $n['created_at'] ?? null,
+            ];
+        }
+
+        $unreadCount = (int) ($this->db->fetch(
+            "SELECT COUNT(*) as cnt FROM notification_logs
+             WHERE notifiable_type = ? AND notifiable_id = ? AND opened_at IS NULL",
+            [$notifiable, $userId]
+        )['cnt'] ?? 0);
+
+        $this->json([
+            'items'        => $items,
+            'unread_count' => $unreadCount,
+            'csrf'         => $_SESSION['csrf_token'] ?? '',
+        ]);
+    }
+
     public function markAllRead(): void
     {
         Auth::requireAuth();
@@ -93,7 +164,6 @@ class NotificationController extends Controller
             'updated_at'  => date('Y-m-d H:i:s'),
         ], 'notifiable_type = ? AND notifiable_id = ? AND opened_at IS NULL', ['App\\Models\\User', Auth::id()]);
 
-        Session::getInstance()->flash('success', 'All notifications marked as read.');
-        $this->redirect('/dashboard/notifications');
+        $this->json(['ok' => true, 'unread_count' => 0]);
     }
 }

@@ -103,6 +103,28 @@ class BudgetController extends Controller
         $this->redirect('/dashboard/budgets');
     }
 
+    public function edit(int $id): void
+    {
+        Auth::requireAuth();
+        $row = $this->db->fetch("SELECT * FROM budgets WHERE id = ? LIMIT 1", [$id]);
+        if (!$row) {
+            Session::getInstance()->flash('error', 'Budget entry not found.');
+            $this->redirect('/dashboard/budgets');
+            return;
+        }
+        $budget = \App\Models\Budget::newFromRow($row);
+        $budget->setAttribute('exists', true);
+
+        $categories = \App\Models\ExpenseCategory::hydrate(
+            $this->db->fetchAll("SELECT id, name FROM expense_categories WHERE is_active = 1 ORDER BY name ASC")
+        );
+
+        $this->view('dashboard.budgets.edit', [
+            'budget'     => $budget,
+            'categories' => $categories,
+        ]);
+    }
+
     public function update(int $id): void
     {
         Auth::requireAuth();

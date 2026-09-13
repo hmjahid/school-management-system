@@ -35,7 +35,7 @@ class SeatPlanController extends Controller
 
         $exams = $this->paginateRows($examRows, $total, $perPage, $page, \App\Models\Exam::class);
 
-        $this->view('dashboard.seat_plans.index', ['exams' => $exams]);
+        $this->view('dashboard.seat-plans.index', ['exams' => $exams]);
     }
 
     public function generate(int $examId): void
@@ -49,30 +49,42 @@ class SeatPlanController extends Controller
             return;
         }
 
-        $students = $db->fetchAll(
-            "SELECT s.id, s.admission_number, u.name, c.name as class_name, sec.name as section_name, s.roll_number
-             FROM students s
-             LEFT JOIN users u ON s.user_id = u.id
-             LEFT JOIN school_classes c ON s.class_id = c.id
-             LEFT JOIN sections sec ON s.section_id = sec.id
-             WHERE s.status = 'active'
-             ORDER BY c.name, sec.name, s.roll_number, u.name ASC"
-        );
-
-        $seating = [];
-        $i = 1;
-        foreach ($students as $s) {
-            $seating[] = [
-                'room'    => 'Room ' . (1 + intdiv($i - 1, 30)),
-                'seat'    => (($i - 1) % 30) + 1,
-                'student' => $s,
-            ];
-            $i++;
+        $perRoom = (int) ($_GET['per_room'] ?? 30);
+        if ($perRoom < 1) {
+            $perRoom = 30;
         }
 
-        $this->view('dashboard.seat_plans.generate', [
-            'exam'    => $exam,
-            'seating' => $seating,
+        $where = 's.batch_id = ? AND s.status = ?';
+        $params = [$exam['batch_id'] ?? 0, 'active'];
+        if (!empty($exam['section_id'])) {
+            $where .= ' AND s.section_id = ?';
+            $params[] = $exam['section_id'];
+        }
+
+        $studentRows = $db->fetchAll(
+            "SELECT s.id, s.user_id, s.admission_number, s.roll_number, s.first_name, s.last_name
+             FROM students s
+             WHERE {$where}
+             ORDER BY s.roll_number ASC",
+            $params
+        );
+
+        $rooms = [];
+        $roomNumber = 1;
+        foreach (array_chunk($studentRows, $perRoom) as $chunk) {
+            $rooms['Room-' . $roomNumber] = new \App\Core\Support\Collection(\App\Models\Student::hydrate($chunk));
+            $roomNumber++;
+        }
+
+        $date = !empty($exam['start_date']) ? date('d M Y', strtotime((string) $exam['start_date'])) : 'N/A';
+
+        $this->view('dashboard.seat-plans.show', [
+            'exam'     => \App\Models\Exam::newFromRow($exam),
+            'rooms'    => $rooms,
+            'perRoom'  => $perRoom,
+            'settings' => \App\Models\WebsiteSetting::getSettings(),
+            'date'     => $date,
+            'preview'  => (bool) ($_GET['view'] ?? false),
         ]);
     }
 }

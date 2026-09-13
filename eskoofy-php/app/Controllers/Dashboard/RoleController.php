@@ -61,6 +61,69 @@ class RoleController extends Controller
         ]);
     }
 
+    public function create(): void
+    {
+        Auth::requireAuth();
+        $this->view('dashboard.roles.create', [
+            'permissions' => $this->groupedPermissions(),
+        ]);
+    }
+
+    public function edit(int $id): void
+    {
+        Auth::requireAuth();
+        $row = $this->db->fetch("SELECT * FROM roles WHERE id = ? LIMIT 1", [$id]);
+        if (!$row) {
+            Session::getInstance()->flash('error', 'Role not found.');
+            $this->redirect('/dashboard/roles');
+            return;
+        }
+        $role = \App\Models\Role::newFromRow($row);
+
+        $permissions = new \App\Core\Support\Collection();
+        try {
+            $permissions = new \App\Core\Support\Collection(\App\Models\Permission::hydrate(
+                $this->db->fetchAll(
+                    "SELECT p.* FROM permissions p
+                     INNER JOIN role_permissions rp ON rp.permission_id = p.id
+                     WHERE rp.role_id = ?
+                     ORDER BY p.name ASC",
+                    [$id]
+                )
+            ));
+        } catch (\Throwable) {
+            // Empty DB — no permissions yet.
+        }
+        $role->setRelation('permissions', $permissions);
+
+        $this->view('dashboard.roles.edit', [
+            'role'        => $role,
+            'permissions' => $this->groupedPermissions(),
+        ]);
+    }
+
+    /**
+     * Permissions grouped by their first underscore-delimited word (the
+     * module prefix), mirroring the Laravel app's groupBy for the roles forms.
+     */
+    private function groupedPermissions(): \App\Core\Support\Collection
+    {
+        $permissions = new \App\Core\Support\Collection();
+        try {
+            $permissions = new \App\Core\Support\Collection(
+                \App\Models\Permission::hydrate($this->db->fetchAll("SELECT * FROM permissions ORDER BY name ASC"))
+            );
+        } catch (\Throwable) {
+            // Empty DB — no permissions yet.
+        }
+
+        return $permissions->groupBy(function ($permission) {
+            $parts = explode('_', (string) $permission->name);
+
+            return count($parts) > 1 ? $parts[0] : 'general';
+        });
+    }
+
     public function store(): void
     {
         Auth::requireAuth();

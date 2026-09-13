@@ -42,17 +42,19 @@ class PasswordResetController extends Controller
         $this->redirect('/forgot-password');
     }
 
-    public function showReset(): void
+    public function showReset(?string $token = null): void
     {
-        $token = $_GET['token'] ?? '';
-        $this->view('auth.reset_password', ['token' => $token], 'layouts.main');
+        $token = $token ?? ($_GET['token'] ?? '');
+        $email = $_GET['email'] ?? '';
+        $this->view('auth.reset_password', ['token' => $token, 'email' => $email], 'layouts.main');
     }
 
     public function reset(): void
     {
         $data = $this->validate([
             'token'    => 'required',
-            'password' => 'required|min:8',
+            'email'    => 'required|email',
+            'password' => 'required|min:8|confirmed',
         ]);
 
         $db = Database::getInstance();
@@ -66,6 +68,16 @@ class PasswordResetController extends Controller
         if (!$record) {
             Session::getInstance()->flash('error', 'Invalid or expired token.');
             $this->redirect('/forgot-password');
+            return;
+        }
+
+        $user = $db->fetch(
+            "SELECT id, email FROM users WHERE id = ? AND deleted_at IS NULL LIMIT 1",
+            [$record['user_id']]
+        );
+        if (!$user || strcasecmp((string) $user['email'], (string) $data['email']) !== 0) {
+            Session::getInstance()->flash('error', 'The email does not match this reset link.');
+            $this->back();
             return;
         }
 

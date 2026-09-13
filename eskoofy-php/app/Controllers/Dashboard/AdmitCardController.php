@@ -76,14 +76,15 @@ class AdmitCardController extends Controller
         Auth::requireAuth();
         $exams = $this->db->fetchAll("SELECT id, name FROM exams ORDER BY id DESC LIMIT 50");
         $students = $this->db->fetchAll(
-            "SELECT s.id, s.admission_number, u.name
+            "SELECT s.id, s.user_id, s.admission_number
              FROM students s JOIN users u ON s.user_id = u.id
              ORDER BY s.id DESC LIMIT 500"
         );
 
         $this->view('dashboard.admit-cards.create', [
-            'exams'    => $exams,
-            'students' => $students,
+            'exams'        => new \App\Core\Support\Collection(\App\Models\Exam::hydrate($exams)),
+            'students'     => new \App\Core\Support\Collection(\App\Models\Student::hydrate($students)),
+            'siteSettings' => \App\Models\WebsiteSetting::getSettings(),
         ]);
     }
 
@@ -141,9 +142,10 @@ class AdmitCardController extends Controller
         $sections = $this->db->fetchAll("SELECT id, name FROM sections ORDER BY name ASC");
 
         $this->view('dashboard.admit-cards.batch', [
-            'exams'    => $exams,
-            'classes'  => $classes,
-            'sections' => $sections,
+            'exams'        => new \App\Core\Support\Collection(\App\Models\Exam::hydrate($exams)),
+            'classes'      => new \App\Core\Support\Collection(\App\Models\SchoolClass::hydrate($classes)),
+            'sections'     => new \App\Core\Support\Collection(\App\Models\Section::hydrate($sections)),
+            'siteSettings' => \App\Models\WebsiteSetting::getSettings(),
         ]);
     }
 
@@ -194,7 +196,10 @@ class AdmitCardController extends Controller
             return;
         }
 
-        $this->view('dashboard.admit-cards.show', ['card' => $card]);
+        $this->view('dashboard.admit-cards.show', [
+            'admitCard'    => \App\Models\AdmitCard::newFromRow($card),
+            'siteSettings' => \App\Models\WebsiteSetting::getSettings(),
+        ]);
     }
 
     public function edit(int $id): void
@@ -209,14 +214,15 @@ class AdmitCardController extends Controller
 
         $exams = $this->db->fetchAll("SELECT id, name FROM exams ORDER BY id DESC LIMIT 50");
         $students = $this->db->fetchAll(
-            "SELECT s.id, s.admission_number, u.name
+            "SELECT s.id, s.user_id, s.admission_number
              FROM students s JOIN users u ON s.user_id = u.id ORDER BY s.id DESC LIMIT 500"
         );
 
         $this->view('dashboard.admit-cards.edit', [
-            'card'     => $card,
-            'exams'    => $exams,
-            'students' => $students,
+            'admitCard'    => \App\Models\AdmitCard::newFromRow($card),
+            'exams'        => new \App\Core\Support\Collection(\App\Models\Exam::hydrate($exams)),
+            'students'     => new \App\Core\Support\Collection(\App\Models\Student::hydrate($students)),
+            'siteSettings' => \App\Models\WebsiteSetting::getSettings(),
         ]);
     }
 
@@ -273,12 +279,11 @@ class AdmitCardController extends Controller
             $this->redirect('/dashboard/admit-cards');
             return;
         }
-        $settings = $this->db->fetch("SELECT * FROM website_settings ORDER BY id DESC LIMIT 1");
         $preview = (bool) ($_GET['preview'] ?? false);
         $this->view('dashboard.admit-cards.print', [
-            'card'     => $card,
-            'settings' => $settings,
-            'preview'  => $preview,
+            'admitCard'    => \App\Models\AdmitCard::newFromRow($card),
+            'siteSettings' => \App\Models\WebsiteSetting::getSettings(),
+            'preview'      => $preview,
         ]);
     }
 
@@ -291,11 +296,10 @@ class AdmitCardController extends Controller
             $this->redirect('/dashboard/admit-cards');
             return;
         }
-        $settings = $this->db->fetch("SELECT * FROM website_settings ORDER BY id DESC LIMIT 1");
         $this->view('dashboard.admit-cards.print', [
-            'card'     => $card,
-            'settings' => $settings,
-            'preview'  => true,
+            'admitCard'    => \App\Models\AdmitCard::newFromRow($card),
+            'siteSettings' => \App\Models\WebsiteSetting::getSettings(),
+            'preview'      => true,
         ]);
     }
 

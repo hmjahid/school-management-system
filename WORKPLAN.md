@@ -90,6 +90,18 @@ Turn this single Laravel repo into a 3-product monorepo:
 | 6.5 | Full module port + bd/int profile + build-box integration | Dev | 6.4 | `build/` exports `eskoofy-php-{bd,int}` |
 | 6.6 | Ongoing mass: this is a **second permanent codebase** — verify budget/headcount before commit | PM | 0.2 | Sign-off |
 
+### Phase 6 status (eskoofy-php)
+
+- Architecture (6.2) landed: router + middleware (`AuthMiddleware`), auth/roles, 98-table schema port (`database/schema.sql`, imports clean on MySQL 8), queue-less SMS/push drivers with envoy stubs, PDF via FPDF.
+- Parity (6.3): **all dashboard + public + `/api/v1` routes registered and matched 1:1 with `eskoofy-app`** (route-gap checker: 0, route-target verifier: 0); 316/316 blade views byte-identical to the app.
+- API parity pass (this sprint): notifications API ported (`GET/notifications`, `unread-count`, `{id}/read`, `read-all`, `DELETE {id}`+`/notifications`, `notification-preferences` GET/PUT, `stream` — backed by `notification_logs`/`notification_preferences`, mirroring newer app life); payment method parity fixed (callback now POST, `{id}/status` now PUT, removed php-only `POST /payments`); removed phantom php-only `courses` dashboard routes + `CourseController` (app has no course routes; page rendered an empty shell).
+- Schema: `grades` (FK→`school_classes`) + `user_widget_preferences` added to `schema.sql` (were app migrations without schema parity); full import re-validated on MySQL 8 — 98 tables, 0 errors.
+- Smoke-verified against live MySQL 8 (throwaway container): public + dashboard reads render (200s) and write endpoints persist (gallery CRUD, admission-test schedule/update/delete, notification preferences, notifications mark-read/clear, widget preferences).
+- Local asset pipeline: `npm run build` → `public/build/manifest.json`, `Blade::vite()` reads the manifest (falls back to CDN Tailwind if no build).
+- `composer test`: 295 tests / 592 assertions green (PHP 8.3, in-memory FakeDatabase).
+- Live QoL/users writes verified on MySQL 8 (throwaway container): user create + duplicate-email guard, user update (role change), user soft-delete, profile update, profile password change (old-password verify, new bcrypt), dashboard-favorites toggle on/off + invalid-URL rejection.
+- Remaining for the release gate (6.2/6.3): real-host deployment trial (6.4).
+
 ## Phase 7 — eskoofy-theme (WordPress)
 
 | # | Task | Owner | Depends | Done when |

@@ -29,4 +29,13 @@ class CommitteeMember extends Model
     {
         return $query->orderBy('sort_order')->orderBy('id');
     }
+
+    public function getPhotoUrlAttribute(): ?string
+    {
+        $photo = $this->attributes['photo'] ?? null;
+        if (!$photo) {
+            return null;
+        }
+        return url((string) $photo);
+    }
 }

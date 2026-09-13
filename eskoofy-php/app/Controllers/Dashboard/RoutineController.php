@@ -77,35 +77,87 @@ class RoutineController extends Controller
         ]);
     }
 
+    public function create(): void
+    {
+        Auth::requireAuth();
+        $this->view('dashboard.routines.create', $this->routineFormData());
+    }
+
+    public function edit(int $id): void
+    {
+        Auth::requireAuth();
+        $routine = $this->db->fetch("SELECT * FROM routines WHERE id = ? LIMIT 1", [$id]);
+        if (!$routine) {
+            Session::getInstance()->flash('error', 'Routine entry not found.');
+            $this->redirect('/dashboard/routines');
+            return;
+        }
+
+        $this->view('dashboard.routines.edit', array_merge(
+            ['routine' => \App\Models\Routine::newFromRow($routine)],
+            $this->routineFormData()
+        ));
+    }
+
+    private function routineFormData(): array
+    {
+        $classes = $this->db->fetchAll("SELECT id, name FROM school_classes ORDER BY name ASC");
+        $sections = $this->db->fetchAll("SELECT id, name FROM sections ORDER BY name ASC");
+        $subjects = $this->db->fetchAll("SELECT id, name FROM subjects ORDER BY name ASC");
+        $teachers = $this->db->fetchAll(
+            "SELECT t.id, t.user_id FROM teachers t JOIN users u ON t.user_id = u.id WHERE t.status = 'active' ORDER BY u.name ASC LIMIT 200"
+        );
+        $batches = $this->db->fetchAll("SELECT id, name FROM batches ORDER BY id DESC LIMIT 100");
+        $sessions = $this->db->fetchAll("SELECT * FROM academic_sessions ORDER BY is_current DESC, start_date DESC");
+
+        return [
+            'classes'  => new \App\Core\Support\Collection(\App\Models\SchoolClass::hydrate($classes)),
+            'sections' => new \App\Core\Support\Collection(\App\Models\Section::hydrate($sections)),
+            'subjects' => new \App\Core\Support\Collection(\App\Models\Subject::hydrate($subjects)),
+            'teachers' => new \App\Core\Support\Collection(\App\Models\Teacher::hydrate($teachers)),
+            'batches'  => new \App\Core\Support\Collection(\App\Models\Batch::hydrate($batches)),
+            'sessions' => new \App\Core\Support\Collection(\App\Models\AcademicSession::hydrate($sessions)),
+            'days'     => \App\Models\Routine::DAYS,
+            'types'    => ['class' => 'Class', 'exam' => 'Exam'],
+        ];
+    }
+
     public function store(): void
     {
         Auth::requireAuth();
         $data = $this->validate([
-            'class_id'    => 'required|numeric',
-            'section_id'  => 'numeric',
-            'subject_id'  => 'required|numeric',
-            'teacher_id'  => 'numeric',
-            'day_of_week' => 'required|max:20',
-            'start_time'  => 'required|max:10',
-            'end_time'    => 'required|max:10',
-            'room'        => 'max:50',
+            'school_class_id'      => 'required|numeric',
+            'section_id'           => 'numeric',
+            'subject_id'           => 'required|numeric',
+            'teacher_id'           => 'required|numeric',
+            'batch_id'             => 'numeric',
+            'academic_session_id'  => 'numeric',
+            'type'                 => 'in:class,exam',
+            'day_of_week'          => 'required|numeric|min:1|max:7',
+            'start_time'           => 'required|max:10',
+            'end_time'             => 'required|max:10',
+            'room_number'          => 'max:50',
         ]);
 
         $this->db->insert('routines', [
-            'class_id'    => $data['class_id'],
-            'section_id'  => $data['section_id'] ?? null,
-            'subject_id'  => $data['subject_id'],
-            'teacher_id'  => $data['teacher_id'] ?? null,
-            'day_of_week' => $data['day_of_week'],
-            'start_time'  => $data['start_time'],
-            'end_time'    => $data['end_time'],
-            'room'        => $data['room'] ?? null,
-            'created_at'  => date('Y-m-d H:i:s'),
-            'updated_at'  => date('Y-m-d H:i:s'),
+            'school_class_id'     => $data['school_class_id'],
+            'section_id'          => $data['section_id'] ?? null,
+            'subject_id'          => $data['subject_id'],
+            'teacher_id'          => $data['teacher_id'],
+            'batch_id'            => $data['batch_id'] ?? null,
+            'academic_session_id' => $data['academic_session_id'] ?? null,
+            'type'                => $data['type'] ?? 'class',
+            'day_of_week'         => (int) $data['day_of_week'],
+            'start_time'          => $data['start_time'],
+            'end_time'            => $data['end_time'],
+            'room_number'         => $data['room_number'] ?? null,
+            'is_active'           => isset($_POST['is_active']) ? 1 : 0,
+            'created_at'          => date('Y-m-d H:i:s'),
+            'updated_at'          => date('Y-m-d H:i:s'),
         ]);
 
         Session::getInstance()->flash('success', 'Routine entry added.');
-        $this->redirect("/dashboard/routines?class_id={$data['class_id']}");
+        $this->redirect("/dashboard/routines?class_id={$data['school_class_id']}");
     }
 
     public function update(int $id): void
@@ -119,37 +171,44 @@ class RoutineController extends Controller
         }
 
         $data = $this->validate([
-            'class_id'    => 'required|numeric',
-            'section_id'  => 'numeric',
-            'subject_id'  => 'required|numeric',
-            'teacher_id'  => 'numeric',
-            'day_of_week' => 'required|max:20',
-            'start_time'  => 'required|max:10',
-            'end_time'    => 'required|max:10',
-            'room'        => 'max:50',
+            'school_class_id'      => 'required|numeric',
+            'section_id'           => 'numeric',
+            'subject_id'           => 'required|numeric',
+            'teacher_id'           => 'required|numeric',
+            'batch_id'             => 'numeric',
+            'academic_session_id'  => 'numeric',
+            'type'                 => 'in:class,exam',
+            'day_of_week'          => 'required|numeric|min:1|max:7',
+            'start_time'           => 'required|max:10',
+            'end_time'             => 'required|max:10',
+            'room_number'          => 'max:50',
         ]);
 
         $this->db->update('routines', [
-            'class_id'    => $data['class_id'],
-            'section_id'  => $data['section_id'] ?? null,
-            'subject_id'  => $data['subject_id'],
-            'teacher_id'  => $data['teacher_id'] ?? null,
-            'day_of_week' => $data['day_of_week'],
-            'start_time'  => $data['start_time'],
-            'end_time'    => $data['end_time'],
-            'room'        => $data['room'] ?? null,
-            'updated_at'  => date('Y-m-d H:i:s'),
+            'school_class_id'     => $data['school_class_id'],
+            'section_id'          => $data['section_id'] ?? null,
+            'subject_id'          => $data['subject_id'],
+            'teacher_id'          => $data['teacher_id'],
+            'batch_id'            => $data['batch_id'] ?? null,
+            'academic_session_id' => $data['academic_session_id'] ?? null,
+            'type'                => $data['type'] ?? 'class',
+            'day_of_week'         => (int) $data['day_of_week'],
+            'start_time'          => $data['start_time'],
+            'end_time'            => $data['end_time'],
+            'room_number'         => $data['room_number'] ?? null,
+            'is_active'           => isset($_POST['is_active']) ? 1 : 0,
+            'updated_at'          => date('Y-m-d H:i:s'),
         ], 'id = ?', [$id]);
 
         Session::getInstance()->flash('success', 'Routine entry updated.');
-        $this->redirect("/dashboard/routines?class_id={$data['class_id']}");
+        $this->redirect("/dashboard/routines?class_id={$data['school_class_id']}");
     }
 
     public function destroy(int $id): void
     {
         Auth::requireAuth();
         $routine = $this->db->fetch("SELECT * FROM routines WHERE id = ? LIMIT 1", [$id]);
-        $classId = $routine['class_id'] ?? 0;
+        $classId = $routine['school_class_id'] ?? 0;
 
         $this->db->delete('routines', 'id = ?', [$id]);
         Session::getInstance()->flash('success', 'Routine entry removed.');

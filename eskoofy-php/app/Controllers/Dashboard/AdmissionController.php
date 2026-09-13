@@ -358,4 +358,89 @@ class AdmissionController extends Controller
         Session::getInstance()->flash('success', 'Payment verified.');
         $this->redirect("/dashboard/admissions/{$id}");
     }
+
+    public function scheduleTest(int $admissionId): void
+    {
+        Auth::requireAuth();
+        $admission = $this->db->fetch("SELECT * FROM admissions WHERE id = ? LIMIT 1", [$admissionId]);
+        if (!$admission) {
+            Session::getInstance()->flash('error', 'Admission not found.');
+            $this->redirect('/dashboard/admissions');
+            return;
+        }
+
+        $data = $this->validate([
+            'scheduled_at' => 'required|date',
+            'venue'        => 'max:255',
+            'status'       => 'max:40',
+            'notes'        => 'max:2000',
+        ]);
+
+        $this->db->insert('admission_tests', [
+            'admission_id' => $admissionId,
+            'scheduled_at' => $data['scheduled_at'],
+            'venue'        => $data['venue'] ?? null,
+            'status'       => $data['status'] ?? 'scheduled',
+            'notes'        => $data['notes'] ?? null,
+            'created_by'   => Auth::id(),
+            'updated_by'   => Auth::id(),
+            'created_at'   => date('Y-m-d H:i:s'),
+            'updated_at'   => date('Y-m-d H:i:s'),
+        ]);
+
+        Session::getInstance()->flash('success', __('Test scheduled.'));
+        $this->redirect("/dashboard/admissions/{$admissionId}");
+    }
+
+    public function updateTest(int $admissionId, int $testId): void
+    {
+        Auth::requireAuth();
+        $test = $this->db->fetch(
+            "SELECT * FROM admission_tests WHERE id = ? AND admission_id = ? LIMIT 1",
+            [$testId, $admissionId]
+        );
+        if (!$test) {
+            Session::getInstance()->flash('error', 'Test not found.');
+            $this->redirect("/dashboard/admissions/{$admissionId}");
+            return;
+        }
+
+        $data = $this->validate([
+            'scheduled_at' => 'nullable|date',
+            'venue'        => 'max:255',
+            'status'       => 'max:40',
+            'notes'        => 'max:2000',
+        ]);
+
+        $this->db->update('admission_tests', [
+            'scheduled_at' => $data['scheduled_at'] ?? $test['scheduled_at'],
+            'venue'        => $data['venue'] ?? $test['venue'],
+            'status'       => $data['status'] ?? $test['status'],
+            'notes'        => $data['notes'] ?? $test['notes'],
+            'updated_by'   => Auth::id(),
+            'updated_at'   => date('Y-m-d H:i:s'),
+        ], 'id = ?', [$testId]);
+
+        Session::getInstance()->flash('success', __('Test updated.'));
+        $this->redirect("/dashboard/admissions/{$admissionId}");
+    }
+
+    public function deleteTest(int $admissionId, int $testId): void
+    {
+        Auth::requireAuth();
+        $test = $this->db->fetch(
+            "SELECT * FROM admission_tests WHERE id = ? AND admission_id = ? LIMIT 1",
+            [$testId, $admissionId]
+        );
+        if (!$test) {
+            Session::getInstance()->flash('error', 'Test not found.');
+            $this->redirect("/dashboard/admissions/{$admissionId}");
+            return;
+        }
+
+        $this->db->delete('admission_tests', 'id = ?', [$testId]);
+
+        Session::getInstance()->flash('success', __('Test removed.'));
+        $this->redirect("/dashboard/admissions/{$admissionId}");
+    }
 }

@@ -43,6 +43,31 @@ class AnnouncementController extends Controller
         ]);
     }
 
+    public function create(): void
+    {
+        Auth::requireAuth();
+        $announcement = new \App\Models\Announcement([
+            'is_published'   => true,
+            'audience'       => ['all'],
+            'display_target' => 'header',
+        ]);
+        $this->view('dashboard.announcements.create', ['announcement' => $announcement]);
+    }
+
+    public function edit(int $id): void
+    {
+        Auth::requireAuth();
+        $row = $this->db->fetch("SELECT * FROM announcements WHERE id = ? LIMIT 1", [$id]);
+        if (!$row) {
+            Session::getInstance()->flash('error', 'Announcement not found.');
+            $this->redirect('/dashboard/announcements');
+            return;
+        }
+        $announcement = \App\Models\Announcement::newFromRow($row);
+        $announcement->setAttribute('exists', true);
+        $this->view('dashboard.announcements.edit', ['announcement' => $announcement]);
+    }
+
     public function store(): void
     {
         Auth::requireAuth();

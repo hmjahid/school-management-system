@@ -21,25 +21,19 @@ class ExpenseController extends Controller
     public function index(): void
     {
         Auth::requireAuth();
-        $search = $_GET['search'] ?? '';
-        $categoryId = (int) ($_GET['category_id'] ?? 0);
-        $dateFrom = $_GET['date_from'] ?? '';
-        $dateTo = $_GET['date_to'] ?? '';
+        $category = $_GET['category'] ?? '';
+        $dateFrom = $_GET['from'] ?? '';
+        $dateTo = $_GET['to'] ?? '';
         $page = max(1, (int) ($_GET['page'] ?? 1));
         $perPage = 20;
         $offset = ($page - 1) * $perPage;
 
         $where = '1=1';
         $params = [];
-        if ($search !== '') {
-            $where .= " AND (e.title LIKE ? OR e.description LIKE ?)";
-            $like = "%{$search}%";
-            $params[] = $like;
-            $params[] = $like;
-        }
-        if ($categoryId > 0) {
-            $where .= ' AND e.expense_category_id = ?';
-            $params[] = $categoryId;
+        if ($category !== '') {
+            $where .= ' AND (ec.name = ? OR e.category = ?)';
+            $params[] = $category;
+            $params[] = $category;
         }
         if ($dateFrom !== '') {
             $where .= ' AND e.date >= ?';
@@ -51,7 +45,7 @@ class ExpenseController extends Controller
         }
 
         $total = (int) ($this->db->fetch(
-            "SELECT COUNT(*) as cnt FROM expenses e WHERE {$where}", $params
+            "SELECT COUNT(*) as cnt FROM expenses e LEFT JOIN expense_categories ec ON e.expense_category_id = ec.id WHERE {$where}", $params
         )['cnt'] ?? 0);
 
         $rows = $this->db->fetchAll(
@@ -65,9 +59,9 @@ class ExpenseController extends Controller
             $params
         );
 
-        $categories = $this->db->fetchAll("SELECT id, name FROM expense_categories ORDER BY name ASC");
+        $categories = $this->db->fetchAll("SELECT id, name FROM expense_categories WHERE is_active = 1 ORDER BY name ASC");
         $totalAmount = (float) ($this->db->fetch(
-            "SELECT COALESCE(SUM(amount), 0) as total FROM expenses e WHERE {$where}", $params
+            "SELECT COALESCE(SUM(e.amount), 0) as total FROM expenses e LEFT JOIN expense_categories ec ON e.expense_category_id = ec.id WHERE {$where}", $params
         )['total'] ?? 0);
 
         $now = new \App\Core\Support\Carbon();
@@ -107,8 +101,7 @@ class ExpenseController extends Controller
             'page'        => $page,
             'perPage'     => $perPage,
             'lastPage'    => max(1, (int) ceil($total / $perPage)),
-            'search'      => $search,
-            'categoryId'  => $categoryId,
+            'category'    => $category,
             'dateFrom'    => $dateFrom,
             'dateTo'      => $dateTo,
             'categories'  => new \App\Core\Support\Collection(\App\Models\ExpenseCategory::hydrate($categories)),
@@ -117,28 +110,65 @@ class ExpenseController extends Controller
         ]);
     }
 
+    public function create(): void
+    {
+        Auth::requireAuth();
+        $this->view('dashboard.expenses.create', [
+            'accounts'   => new \App\Core\Support\Collection(\App\Models\ChartOfAccount::hydrate(
+                $this->db->fetchAll("SELECT id, code, name_en FROM chart_of_accounts WHERE type = 'expense' AND is_active = 1 ORDER BY code ASC")
+            )),
+            'categories' => new \App\Core\Support\Collection(\App\Models\ExpenseCategory::hydrate(
+                $this->db->fetchAll("SELECT id, name FROM expense_categories WHERE is_active = 1 ORDER BY name ASC")
+            )),
+        ]);
+    }
+
+    public function edit(int $id): void
+    {
+        Auth::requireAuth();
+        $expense = $this->db->fetch("SELECT * FROM expenses WHERE id = ? LIMIT 1", [$id]);
+        if (!$expense) {
+            Session::getInstance()->flash('error', 'Expense not found.');
+            $this->redirect('/dashboard/expenses');
+            return;
+        }
+
+        $this->view('dashboard.expenses.edit', [
+            'expense'    => \App\Models\Expense::newFromRow($expense),
+            'accounts'   => new \App\Core\Support\Collection(\App\Models\ChartOfAccount::hydrate(
+                $this->db->fetchAll("SELECT id, code, name_en FROM chart_of_accounts WHERE type = 'expense' AND is_active = 1 ORDER BY code ASC")
+            )),
+            'categories' => new \App\Core\Support\Collection(\App\Models\ExpenseCategory::hydrate(
+                $this->db->fetchAll("SELECT id, name FROM expense_categories WHERE is_active = 1 ORDER BY name ASC")
+            )),
+        ]);
+    }
+
     public function store(): void
     {
         Auth::requireAuth();
         $data = $this->validate([
-            'title'       => 'required|max:255',
-            'amount'      => 'required|numeric',
-            'date'        => 'required',
-            'category_id' => 'numeric',
-            'description' => 'max:1000',
-            'payment_method' => 'max:50',
+            'amount'               => 'required|numeric',
+            'date'                 => 'required',
+            'expense_category_id'  => 'numeric',
+            'chart_of_account_id'  => 'numeric',
+            'vendor'               => 'max:191',
+            'payment_method'       => 'max:32',
+            'note'                 => 'max:2000',
         ]);
 
         $this->db->insert('expenses', [
-            'title'          => $data['title'],
-            'amount'         => $data['amount'],
-            'date'           => $data['date'],
-            'category_id'    => $data['category_id'] ?? null,
-            'description'    => $data['description'] ?? null,
-            'payment_method' => $data['payment_method'] ?? null,
-            'created_by'     => Auth::id(),
-            'created_at'     => date('Y-m-d H:i:s'),
-            'updated_at'     => date('Y-m-d H:i:s'),
+            'amount'              => $data['amount'],
+            'date'                => $data['date'],
+            'expense_category_id' => $data['expense_category_id'] ?? null,
+            'category'            => $this->categoryName((int) ($data['expense_category_id'] ?? 0)),
+            'chart_of_account_id' => $data['chart_of_account_id'] ?? null,
+            'vendor'              => $data['vendor'] ?? null,
+            'payment_method'      => $data['payment_method'] ?? null,
+            'note'                => $data['note'] ?? null,
+            'created_by'          => Auth::id(),
+            'created_at'          => date('Y-m-d H:i:s'),
+            'updated_at'          => date('Y-m-d H:i:s'),
         ]);
 
         Session::getInstance()->flash('success', 'Expense recorded.');
@@ -156,26 +186,76 @@ class ExpenseController extends Controller
         }
 
         $data = $this->validate([
-            'title'       => 'required|max:255',
-            'amount'      => 'required|numeric',
-            'date'        => 'required',
-            'category_id' => 'numeric',
-            'description' => 'max:1000',
-            'payment_method' => 'max:50',
+            'amount'               => 'required|numeric',
+            'date'                 => 'required',
+            'expense_category_id'  => 'numeric',
+            'chart_of_account_id'  => 'numeric',
+            'vendor'               => 'max:191',
+            'payment_method'       => 'max:32',
+            'note'                 => 'max:2000',
         ]);
 
         $this->db->update('expenses', [
-            'title'          => $data['title'],
-            'amount'         => $data['amount'],
-            'date'           => $data['date'],
-            'category_id'    => $data['category_id'] ?? null,
-            'description'    => $data['description'] ?? null,
-            'payment_method' => $data['payment_method'] ?? null,
-            'updated_at'     => date('Y-m-d H:i:s'),
+            'amount'              => $data['amount'],
+            'date'                => $data['date'],
+            'expense_category_id' => $data['expense_category_id'] ?? null,
+            'category'            => $this->categoryName((int) ($data['expense_category_id'] ?? 0)),
+            'chart_of_account_id' => $data['chart_of_account_id'] ?? null,
+            'vendor'              => $data['vendor'] ?? null,
+            'payment_method'      => $data['payment_method'] ?? null,
+            'note'                => $data['note'] ?? null,
+            'updated_at'          => date('Y-m-d H:i:s'),
         ], 'id = ?', [$id]);
 
         Session::getInstance()->flash('success', 'Expense updated.');
         $this->redirect('/dashboard/expenses');
+    }
+
+    public function export(): void
+    {
+        Auth::requireAuth();
+        $rows = $this->db->fetchAll(
+            "SELECT e.*, ec.name as category_name
+             FROM expenses e
+             LEFT JOIN expense_categories ec ON e.expense_category_id = ec.id
+             ORDER BY e.date DESC"
+        );
+
+        $filename = 'expenses_' . date('Ymd_His') . '.csv';
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        $out = fopen('php://output', 'w');
+        fputcsv($out, ['date', 'category', 'vendor', 'amount', 'payment_method', 'note']);
+        foreach ($rows as $e) {
+            fputcsv($out, [
+                $e['date'] ?? '',
+                $this->escapeCsv($e['category_name'] ?? ''),
+                $this->escapeCsv($e['vendor'] ?? ''),
+                number_format((float) ($e['amount'] ?? 0), 2, '.', ''),
+                $this->escapeCsv($e['payment_method'] ?? ''),
+                $this->escapeCsv($e['note'] ?? ''),
+            ]);
+        }
+        fclose($out);
+        exit;
+    }
+
+    protected function escapeCsv(?string $value): string
+    {
+        $value = (string) $value;
+        if (str_contains($value, ',') || str_contains($value, '"') || str_contains($value, "\n")) {
+            return '"' . str_replace('"', '""', $value) . '"';
+        }
+        return $value;
+    }
+
+    protected function categoryName(int $categoryId): string
+    {
+        if ($categoryId <= 0) {
+            return '';
+        }
+        $row = $this->db->fetch("SELECT name FROM expense_categories WHERE id = ? LIMIT 1", [$categoryId]);
+        return (string) ($row['name'] ?? '');
     }
 
     public function destroy(int $id): void

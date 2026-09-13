@@ -97,6 +97,7 @@ class FeeController extends Controller
         Auth::requireAuth();
         $data = $this->validate([
             'name'        => 'required|max:255',
+            'code'        => 'max:191',
             'fee_type'    => 'required|max:50',
             'amount'      => 'required|numeric',
             'frequency'   => 'max:50',
@@ -109,12 +110,15 @@ class FeeController extends Controller
 
         $this->db->insert('fees', [
             'name'        => $data['name'],
+            'code'        => $this->feeCode($data['code'] ?? null),
             'fee_type'    => $data['fee_type'],
             'amount'      => $data['amount'],
             'frequency'   => $data['frequency'] ?? null,
             'class_id'    => $data['class_id'] ?? null,
             'section_id'  => $data['section_id'] ?? null,
             'student_id'  => $data['student_id'] ?? null,
+            'start_date'  => $_POST['start_date'] ?? null,
+            'end_date'    => $_POST['end_date'] ?? null,
             'description' => $data['description'] ?? null,
             'status'      => $data['status'] ?? 'active',
             'created_by'  => Auth::id(),
@@ -124,6 +128,45 @@ class FeeController extends Controller
 
         Session::getInstance()->flash('success', 'Fee created successfully.');
         $this->redirect('/dashboard/fees');
+    }
+
+    public function edit(int $id): void
+    {
+        Auth::requireAuth();
+        $fee = $this->db->fetch("SELECT * FROM fees WHERE id = ? LIMIT 1", [$id]);
+        if (!$fee) {
+            Session::getInstance()->flash('error', 'Fee not found.');
+            $this->redirect('/dashboard/fees');
+            return;
+        }
+
+        $classes = $this->db->fetchAll("SELECT id, name FROM school_classes ORDER BY name ASC");
+        $sections = $this->db->fetchAll("SELECT id, name FROM sections ORDER BY name ASC");
+        $students = $this->db->fetchAll(
+            "SELECT s.id, s.user_id, s.admission_number FROM students s LEFT JOIN users u ON s.user_id = u.id WHERE s.status = 'active' ORDER BY u.name ASC LIMIT 200"
+        );
+
+        $this->view('dashboard.fees.edit', [
+            'fee'         => \App\Models\Fee::newFromRow($fee),
+            'classes'     => new \App\Core\Support\Collection(\App\Models\SchoolClass::hydrate($classes)),
+            'sections'    => new \App\Core\Support\Collection(\App\Models\Section::hydrate($sections)),
+            'students'    => new \App\Core\Support\Collection(\App\Models\Student::hydrate($students)),
+            'feeTypes'    => [
+                'tuition'     => 'Tuition',
+                'admission'   => 'Admission',
+                'exam'        => 'Exam',
+                'transport'   => 'Transport',
+                'library'     => 'Library',
+                'development' => 'Development',
+                'other'       => 'Other',
+            ],
+            'frequencies' => [
+                'monthly'  => 'Monthly',
+                'yearly'   => 'Yearly',
+                'quarterly'=> 'Quarterly',
+                'one_time' => 'One time',
+            ],
+        ]);
     }
 
     public function update(int $id): void
@@ -138,6 +181,7 @@ class FeeController extends Controller
 
         $data = $this->validate([
             'name'        => 'required|max:255',
+            'code'        => 'max:191',
             'fee_type'    => 'required|max:50',
             'amount'      => 'required|numeric',
             'frequency'   => 'max:50',
@@ -150,12 +194,15 @@ class FeeController extends Controller
 
         $this->db->update('fees', [
             'name'        => $data['name'],
+            'code'        => $this->feeCode($data['code'] ?? null),
             'fee_type'    => $data['fee_type'],
             'amount'      => $data['amount'],
             'frequency'   => $data['frequency'] ?? null,
             'class_id'    => $data['class_id'] ?? null,
             'section_id'  => $data['section_id'] ?? null,
             'student_id'  => $data['student_id'] ?? null,
+            'start_date'  => $_POST['start_date'] ?? null,
+            'end_date'    => $_POST['end_date'] ?? null,
             'description' => $data['description'] ?? null,
             'status'      => $data['status'] ?? 'active',
             'updated_at'  => date('Y-m-d H:i:s'),
@@ -178,5 +225,13 @@ class FeeController extends Controller
         $this->db->delete('fees', 'id = ?', [$id]);
         Session::getInstance()->flash('success', 'Fee removed.');
         $this->redirect('/dashboard/fees');
+    }
+
+    private function feeCode(?string $code): string
+    {
+        if ($code !== null && trim($code) !== '') {
+            return $code;
+        }
+        return 'FEE-' . strtoupper(substr(md5((string) microtime(true)), 0, 8));
     }
 }

@@ -42,9 +42,18 @@ class BackupController extends Controller
 
         $totalBytes = array_sum(array_map('filesize', $files));
 
+        $files = array_map(function (string $path) {
+            return [
+                'name'     => basename($path),
+                'size'     => filesize($path),
+                'modified' => filemtime($path),
+            ];
+        }, $files);
+
         $this->view('dashboard.backup.index', [
             'rows'        => $backups,
             'backups'     => $backups,
+            'files'       => $files,
             'lastBackup'  => isset($backups[0]) ? $backups[0]['created_at'] : null,
             'totalBackups' => count($backups),
             'diskUsage'   => number_format($totalBytes / 1048576, 1) . ' MB',
@@ -123,5 +132,45 @@ class BackupController extends Controller
 
         Session::getInstance()->flash('success', 'Backup deleted.');
         $this->redirect('/dashboard/backups');
+    }
+
+    public function restore(string $file): void
+    {
+        Auth::requireAuth();
+        $path = $this->backupDir . '/' . basename((string) $file);
+        if (!file_exists($path)) {
+            Session::getInstance()->flash('error', 'Backup file not found.');
+            $this->redirect('/dashboard/backups');
+            return;
+        }
+
+        try {
+            $sql = (string) file_get_contents($path);
+            foreach ($this->splitSqlStatements($sql) as $statement) {
+                if ($statement === '') {
+                    continue;
+                }
+                $this->db->query($statement);
+            }
+            Session::getInstance()->flash('success', 'Restore completed.');
+        } catch (\Throwable $e) {
+            Session::getInstance()->flash('error', 'Restore failed: ' . $e->getMessage());
+        }
+
+        $this->redirect('/dashboard/backups');
+    }
+
+    /**
+     * Split a SQL dump into individual statements on statement-ending
+     * semicolons followed by a newline (our dumps write one statement/line).
+     *
+     * @return list<string>
+     */
+    private function splitSqlStatements(string $sql): array
+    {
+        $parts = preg_split('/;\s*\r?\n/', $sql) ?: [];
+        $parts = array_map('trim', $parts);
+
+        return array_values(array_filter($parts, static fn ($s) => $s !== '' && !str_starts_with($s, '--')));
     }
 }

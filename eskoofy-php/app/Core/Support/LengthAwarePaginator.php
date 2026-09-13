@@ -7,7 +7,7 @@ namespace App\Core\Support;
  * Minimal LengthAwarePaginator so Blade views can render $paginator->links()
  * using the ported vendor/pagination views.
  */
-class LengthAwarePaginator
+class LengthAwarePaginator implements \IteratorAggregate
 {
     protected array $items;
     protected int $total;

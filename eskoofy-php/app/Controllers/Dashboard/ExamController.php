@@ -266,6 +266,79 @@ class ExamController extends Controller
         $this->redirect("/dashboard/exams/{$id}");
     }
 
+    public function unpublish(int $id): void
+    {
+        Auth::requireAuth();
+        $exam = $this->db->fetch("SELECT * FROM exams WHERE id = ? LIMIT 1", [$id]);
+        if (!$exam) {
+            Session::getInstance()->flash('error', 'Exam not found.');
+            $this->redirect('/dashboard/exams');
+            return;
+        }
+
+        $this->db->update('exam_results', [
+            'is_published' => 0,
+            'published_at' => null,
+            'published_by' => null,
+        ], 'exam_id = ?', [$id]);
+
+        Session::getInstance()->flash('success', 'Results unpublished.');
+        $this->redirect("/dashboard/exams/{$id}/results");
+    }
+
+    public function visibility(int $id): void
+    {
+        Auth::requireAuth();
+        $exam = $this->db->fetch("SELECT * FROM exams WHERE id = ? LIMIT 1", [$id]);
+        if (!$exam) {
+            Session::getInstance()->flash('error', 'Exam not found.');
+            $this->redirect('/dashboard/exams');
+            return;
+        }
+
+        if (!\App\Core\Schema::hasColumn('exams', 'is_published_to_public')) {
+            Session::getInstance()->flash('error', 'Public visibility is not supported on this install.');
+            $this->back();
+            return;
+        }
+
+        $newValue = empty($exam['is_published_to_public']) ? 1 : 0;
+        $this->db->update('exams', [
+            'is_published_to_public' => $newValue,
+            'updated_at'             => date('Y-m-d H:i:s'),
+        ], 'id = ?', [$id]);
+
+        Session::getInstance()->flash('success', $newValue ? 'Published to public site.' : 'Unpublished.');
+        $this->back();
+    }
+
+    public function marksheet(int $examId, int $resultId): void
+    {
+        Auth::requireAuth();
+        $examRow = $this->db->fetch("SELECT * FROM exams WHERE id = ? LIMIT 1", [$examId]);
+        if (!$examRow) {
+            Session::getInstance()->flash('error', 'Exam not found.');
+            $this->redirect('/dashboard/exams');
+            return;
+        }
+
+        $resultRow = $this->db->fetch(
+            "SELECT * FROM exam_results WHERE id = ? AND exam_id = ? LIMIT 1",
+            [$resultId, $examId]
+        );
+        if (!$resultRow) {
+            Session::getInstance()->flash('error', 'Result not found.');
+            $this->redirect("/dashboard/exams/{$examId}/results");
+            return;
+        }
+
+        $this->view('dashboard.exams.marksheet-pdf', [
+            'exam'     => \App\Models\Exam::newFromRow($examRow),
+            'result'   => \App\Models\ExamResult::newFromRow($resultRow),
+            'settings' => \App\Models\WebsiteSetting::getSettings(),
+        ]);
+    }
+
     public function results(int $id): void
     {
         Auth::requireAuth();

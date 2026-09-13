@@ -43,6 +43,12 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function about(): void
+    {
+        Auth::requireAuth();
+        $this->view('dashboard.software');
+    }
+
     protected function stats(): array
     {
         $defaults = [

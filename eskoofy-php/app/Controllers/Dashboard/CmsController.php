@@ -30,6 +30,33 @@ class CmsController extends Controller
         $this->view('dashboard.cms.index', ['pages' => $pages]);
     }
 
+    public function pages(): void
+    {
+        Auth::requireAuth();
+        $registry = [];
+        if (is_file(base_path('config/cms_pages.php'))) {
+            $registry = (array) require base_path('config/cms_pages.php');
+        }
+        $slugs = array_keys(array_filter($registry, fn ($def) => ($def['group'] ?? 'content') === 'content'));
+
+        $pages = new \App\Core\Support\Collection();
+        try {
+            if (\App\Core\Schema::hasTable('website_contents') && $slugs !== []) {
+                $pages = \App\Models\WebsiteContent::query()
+                    ->whereIn('page', $slugs)
+                    ->orderBy('page')
+                    ->get();
+            }
+        } catch (\Throwable) {
+            $pages = new \App\Core\Support\Collection();
+        }
+
+        $this->view('dashboard.cms.pages', [
+            'pages'    => $pages,
+            'registry' => $registry,
+        ]);
+    }
+
     public function edit(?string $page = ''): void
     {
         Auth::requireAuth();

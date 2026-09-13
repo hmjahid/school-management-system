@@ -69,6 +69,76 @@ class TeacherController extends Controller
         ]);
     }
 
+    public function staff(): void
+    {
+        Auth::requireAuth();
+        $search = trim((string) ($_GET['search'] ?? ''));
+        $roleFilter = trim((string) ($_GET['role'] ?? ''));
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+        $perPage = 20;
+        $offset = ($page - 1) * $perPage;
+
+        $rows = [];
+        $total = 0;
+        $roles = new \App\Core\Support\Collection();
+
+        try {
+            $roles = new \App\Core\Support\Collection(\App\Models\Role::hydrate(
+                $this->db->fetchAll("SELECT * FROM roles ORDER BY name ASC")
+            ));
+
+            $where = '1=1';
+            $params = [];
+            if ($search !== '') {
+                $where .= ' AND (u.name LIKE ? OR u.email LIKE ?)';
+                $like = "%{$search}%";
+                $params[] = $like;
+                $params[] = $like;
+            }
+
+            $join = '';
+            if ($roleFilter !== '') {
+                $join = " LEFT JOIN model_has_roles mr ON mr.model_id = u.id AND mr.model_type = 'App\\\\Models\\\\User'"
+                    . " LEFT JOIN roles r ON r.id = mr.role_id";
+                $where .= ' AND r.name = ?';
+                $params[] = $roleFilter;
+            }
+
+            $total = (int) ($this->db->fetch(
+                "SELECT COUNT(*) as cnt FROM users u{$join} WHERE {$where}", $params
+            )['cnt'] ?? 0);
+
+            $rows = $this->db->fetchAll(
+                "SELECT u.* FROM users u{$join} WHERE {$where} ORDER BY u.name ASC LIMIT {$perPage} OFFSET {$offset}",
+                $params
+            );
+        } catch (\Throwable) {
+            // Empty/partial DB — render empty staff list.
+        }
+
+        $staff = \App\Models\User::hydrate($rows);
+        foreach ($staff as $user) {
+            try {
+                $roleRows = $this->db->fetchAll(
+                    "SELECT r.* FROM roles r
+                     JOIN model_has_roles mr ON mr.role_id = r.id
+                     WHERE mr.model_id = ? AND mr.model_type = 'App\\\\Models\\\\User'",
+                    [(int) $user->id]
+                );
+                $user->setRelation('roles', new \App\Core\Support\Collection(\App\Models\Role::hydrate($roleRows)));
+            } catch (\Throwable) {
+                $user->setRelation('roles', new \App\Core\Support\Collection());
+            }
+        }
+
+        $this->view('dashboard.modules.staff', [
+            'staff'  => $this->paginateRows($staff, $total, $perPage, $page),
+            'roles'  => $roles,
+            'search' => $search,
+            'role'   => $roleFilter,
+        ]);
+    }
+
     public function create(): void
     {
         Auth::requireAuth();

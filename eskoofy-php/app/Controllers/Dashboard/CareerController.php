@@ -85,6 +85,24 @@ class CareerController extends Controller
         ]);
     }
 
+    public function show(int $id): void
+    {
+        Auth::requireAuth();
+        $row = $this->db->fetch("SELECT * FROM job_applications WHERE id = ? LIMIT 1", [$id]);
+        if (!$row) {
+            Session::getInstance()->flash('error', 'Application not found.');
+            $this->redirect('/dashboard/careers/applications');
+            return;
+        }
+        $application = \App\Models\JobApplication::newFromRow($row);
+        if ($application->created_at === null) {
+            $application->created_at = date('Y-m-d H:i:s');
+        }
+        $application->load('career');
+
+        $this->view('dashboard.careers.show', ['application' => $application]);
+    }
+
     public function updateApplicationStatus(int $id): void
     {
         Auth::requireAuth();

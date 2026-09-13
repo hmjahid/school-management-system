@@ -81,6 +81,67 @@ class AttendanceController extends Controller
         ]);
     }
 
+    public function create(): void
+    {
+        Auth::requireAuth();
+        $students = new \App\Core\Support\Collection();
+        $teachers = new \App\Core\Support\Collection();
+        $batches = new \App\Core\Support\Collection();
+        $sections = new \App\Core\Support\Collection();
+        $subjects = new \App\Core\Support\Collection();
+        $sessions = new \App\Core\Support\Collection();
+
+        try {
+            if (\App\Core\Schema::hasTable('students')) {
+                $students = new \App\Core\Support\Collection(\App\Models\Student::hydrate(
+                    $this->db->fetchAll("SELECT * FROM students ORDER BY id DESC LIMIT 400")
+                ));
+            }
+            if (\App\Core\Schema::hasTable('teachers')) {
+                $teachers = new \App\Core\Support\Collection(\App\Models\Teacher::hydrate(
+                    $this->db->fetchAll("SELECT * FROM teachers ORDER BY id ASC LIMIT 200")
+                ));
+            }
+            if (\App\Core\Schema::hasTable('batches')) {
+                $batches = new \App\Core\Support\Collection(\App\Models\Batch::hydrate(
+                    $this->db->fetchAll("SELECT * FROM batches ORDER BY id DESC LIMIT 80")
+                ));
+            }
+            if (\App\Core\Schema::hasTable('sections')) {
+                $sections = new \App\Core\Support\Collection(\App\Models\Section::hydrate(
+                    $this->db->fetchAll("SELECT * FROM sections ORDER BY name ASC LIMIT 200")
+                ));
+            }
+            if (\App\Core\Schema::hasTable('subjects')) {
+                $subjects = new \App\Core\Support\Collection(\App\Models\Subject::hydrate(
+                    $this->db->fetchAll("SELECT * FROM subjects ORDER BY name ASC LIMIT 200")
+                ));
+            }
+            if (\App\Core\Schema::hasTable('academic_sessions')) {
+                $sessions = new \App\Core\Support\Collection(\App\Models\AcademicSession::hydrate(
+                    $this->db->fetchAll("SELECT * FROM academic_sessions ORDER BY is_current DESC, start_date DESC")
+                ));
+            }
+        } catch (\Throwable) {
+            // Empty/partial DB — keep empty collections so the form renders.
+        }
+
+        $this->view('dashboard.attendance.create', [
+            'students' => $students,
+            'teachers' => $teachers,
+            'batches'  => $batches,
+            'sections' => $sections,
+            'subjects' => $subjects,
+            'sessions' => $sessions,
+            'statuses' => \App\Models\Attendance::getStatuses(),
+            'types'    => [
+                \App\Models\Attendance::TYPE_DAILY => 'Daily',
+                'subject_wise'  => 'Subject Wise',
+                'special_event' => 'Special Event',
+            ],
+        ]);
+    }
+
     public function mark(): void
     {
         Auth::requireAuth();

@@ -43,6 +43,11 @@ class Student extends Model
         return $this->belongsTo(SchoolClass::class, 'class_id');
     }
 
+    public function class()
+    {
+        return $this->schoolClass();
+    }
+
     public function section()
     {
         return $this->belongsTo(Section::class);
@@ -56,5 +61,25 @@ class Student extends Model
     public function guardian()
     {
         return $this->belongsTo(Guardian::class);
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    public function examResults()
+    {
+        return $this->hasMany(ExamResult::class);
+    }
+
+    public function feePayments()
+    {
+        return $this->hasMany(FeePayment::class);
+    }
+
+    public function certificates()
+    {
+        return $this->hasMany(Certificate::class);
     }
 }

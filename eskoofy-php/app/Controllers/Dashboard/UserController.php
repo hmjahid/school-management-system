@@ -116,6 +116,38 @@ class UserController extends Controller
         $this->redirect('/dashboard/users');
     }
 
+    public function edit(int $id): void
+    {
+        Auth::requireAuth();
+        $row = $this->db->fetch("SELECT * FROM users WHERE id = ? LIMIT 1", [$id]);
+        if (!$row) {
+            Session::getInstance()->flash('error', 'User not found.');
+            $this->redirect('/dashboard/users');
+            return;
+        }
+        $user = \App\Models\User::newFromRow($row);
+        $user->setAttribute('exists', true);
+
+        $roles = new \App\Core\Support\Collection();
+        $permissions = new \App\Core\Support\Collection();
+        try {
+            $roles = new \App\Core\Support\Collection(\App\Models\Role::hydrate(
+                $this->db->fetchAll("SELECT * FROM roles ORDER BY name ASC")
+            ));
+            $permissions = new \App\Core\Support\Collection(\App\Models\Permission::hydrate(
+                $this->db->fetchAll("SELECT * FROM permissions ORDER BY name ASC")
+            ));
+        } catch (\Throwable) {
+            // Empty DB — render form with empty selectors.
+        }
+
+        $this->view('dashboard.users.edit', [
+            'user'        => $user,
+            'roles'       => $roles,
+            'permissions' => $permissions,
+        ]);
+    }
+
     public function update(int $id): void
     {
         Auth::requireAuth();

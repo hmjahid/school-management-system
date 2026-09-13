@@ -85,8 +85,11 @@ function esc(string $value): string
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
-function e(?string $value): string
+function e(mixed $value): string
 {
+    if ($value instanceof \App\Core\Contracts\Htmlable) {
+        return $value->toHtml();
+    }
     return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 }
 
@@ -118,7 +121,16 @@ function url(?string $path = null): mixed
 
 function asset(string $path): string
 {
-    return url($path);
+    $path = (string) $path;
+    if (
+        str_starts_with($path, 'http://')
+        || str_starts_with($path, 'https://')
+        || str_starts_with($path, '//')
+    ) {
+        return $path;
+    }
+    $path = ltrim($path, '/');
+    return $path === '' ? '/' : '/' . $path;
 }
 
 function redirect(string $url): void
@@ -391,6 +403,27 @@ if (!function_exists('trans')) {
     }
 }
 
+if (!function_exists('trans_choice')) {
+    function trans_choice(string $key, int|float $number, array $replace = [], ?string $locale = null): string
+    {
+        $segments = explode('|', $key);
+        $line = count($segments) > 1
+            ? $segments[$number === 1 ? 0 : count($segments) - 1]
+            : $segments[0];
+
+        $line = preg_replace('/^(\{[0-9.,]+\}|\[[0-9.,]+\]|\\?)/', '', (string) $line);
+
+        if (str_contains($line, ':')) {
+            $replace['count'] = (string) $number;
+            foreach ($replace as $placeholder => $value) {
+                $line = str_replace(":{$placeholder}", (string) $value, $line);
+            }
+        }
+
+        return $line;
+    }
+}
+
 if (!function_exists('method_field')) {
     function method_field(string $method): string
     {
@@ -457,6 +490,11 @@ if (!function_exists('app')) {
                 {
                     $env = $_ENV['APP_ENV'] ?? 'production';
                     return $environments === [] ? $env : in_array($env, $environments, true);
+                }
+
+                public function version(): string
+                {
+                    return '12.68.0';
                 }
 
                 public function make(string $abstract = null): mixed

@@ -60,20 +60,49 @@ class NoticeController extends Controller
         ]);
     }
 
+    public function create(): void
+    {
+        Auth::requireAuth();
+        $notice = new \App\Models\Notice([
+            'pinned'   => false,
+            'audience' => ['all'],
+        ]);
+        $this->view('dashboard.notices.create', ['notice' => $notice]);
+    }
+
+    public function edit(int $id): void
+    {
+        Auth::requireAuth();
+        $row = $this->db->fetch("SELECT * FROM notices WHERE id = ? LIMIT 1", [$id]);
+        if (!$row) {
+            Session::getInstance()->flash('error', 'Notice not found.');
+            $this->redirect('/dashboard/notices');
+            return;
+        }
+        $notice = \App\Models\Notice::newFromRow($row);
+        $notice->setAttribute('exists', true);
+
+        $this->view('dashboard.notices.edit', ['notice' => $notice]);
+    }
+
     public function store(): void
     {
         Auth::requireAuth();
         $data = $this->validate([
-            'title'    => 'required|max:255',
-            'content'  => 'required',
-            'pinned'   => 'numeric',
-            'audience' => 'max:50',
+            'title'     => 'required|max:255',
+            'content'   => 'required',
+            'title_bn'  => 'max:255',
+            'content_bn'=> 'max:20000',
+            'pinned'    => 'numeric',
+            'audience'  => 'max:50',
         ]);
 
         $this->db->insert('notices', [
             'title'      => $data['title'],
             'content'    => $data['content'],
-            'pinned'     => $data['pinned'] ?? 0,
+            'title_bn'   => $data['title_bn'] ?? null,
+            'content_bn' => $data['content_bn'] ?? null,
+            'pinned'     => isset($_POST['pinned']) ? 1 : 0,
             'audience'   => $data['audience'] ?? 'all',
             'created_by' => Auth::id(),
             'created_at' => date('Y-m-d H:i:s'),
@@ -95,16 +124,20 @@ class NoticeController extends Controller
         }
 
         $data = $this->validate([
-            'title'    => 'required|max:255',
-            'content'  => 'required',
-            'pinned'   => 'numeric',
-            'audience' => 'max:50',
+            'title'     => 'required|max:255',
+            'content'   => 'required',
+            'title_bn'  => 'max:255',
+            'content_bn'=> 'max:20000',
+            'pinned'    => 'numeric',
+            'audience'  => 'max:50',
         ]);
 
         $this->db->update('notices', [
             'title'      => $data['title'],
             'content'    => $data['content'],
-            'pinned'     => $data['pinned'] ?? 0,
+            'title_bn'   => $data['title_bn'] ?? null,
+            'content_bn' => $data['content_bn'] ?? null,
+            'pinned'     => isset($_POST['pinned']) ? 1 : 0,
             'audience'   => $data['audience'] ?? 'all',
             'updated_at' => date('Y-m-d H:i:s'),
         ], 'id = ?', [$id]);

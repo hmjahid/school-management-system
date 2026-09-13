@@ -29,4 +29,56 @@ class AdmissionSetting extends Model
             return new static();
         }
     }
+
+    public function getPaymentInstructionsAttribute(): string
+    {
+        $locale = app()->getLocale();
+        if ($locale === 'bn') {
+            $bn = trim((string) ($this->attributes['payment_instructions_bn'] ?? ''));
+            if ($bn !== '') {
+                return $bn;
+            }
+        }
+
+        $en = trim((string) ($this->attributes['payment_instructions_en'] ?? ''));
+
+        return $en !== '' ? $en : ($locale === 'bn'
+            ? 'নির্ধারিত পেমেন্ট নম্বরে টাকা পাঠিয়ে ট্রানজেকশন আইডি সংরক্ষণ করুন।'
+            : 'Send the fee to the configured payment number and keep your transaction ID.');
+    }
+
+    public function getClosedMessageAttribute(): string
+    {
+        $locale = app()->getLocale();
+
+        if ($locale === 'bn') {
+            $bn = trim((string) ($this->attributes['closed_message_bn'] ?? ''));
+            if ($bn !== '') {
+                return $bn;
+            }
+        }
+
+        $en = trim((string) ($this->attributes['closed_message_en'] ?? ''));
+        if ($en !== '') {
+            return $en;
+        }
+
+        return $locale === 'bn'
+            ? 'বর্তমানে ভর্তি কার্যক্রম বন্ধ আছে। অনুগ্রহ করে পরে আবার দেখুন।'
+            : 'Admissions are not currently open. Please check back later.';
+    }
+
+    public function getNoticeAttribute(): string
+    {
+        $locale = app()->getLocale();
+
+        if ($locale === 'bn') {
+            $bn = trim((string) ($this->attributes['notice_bn'] ?? ''));
+            if ($bn !== '') {
+                return $bn;
+            }
+        }
+
+        return trim((string) ($this->attributes['notice_en'] ?? ''));
+    }
 }

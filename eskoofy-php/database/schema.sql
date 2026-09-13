@@ -1053,6 +1053,58 @@ CREATE TABLE IF NOT EXISTS `admission_settings` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `admission_tests` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `admission_id` BIGINT UNSIGNED NOT NULL,
+  `scheduled_at` TIMESTAMP NULL,
+  `venue` VARCHAR(191) NULL,
+  `status` VARCHAR(191) NOT NULL DEFAULT 'scheduled',
+  `notes` TEXT NULL,
+  `created_by` BIGINT UNSIGNED NULL,
+  `updated_by` BIGINT UNSIGNED NULL,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`),
+  KEY `admission_tests_admission_id_scheduled_at_status_index` (`admission_id`, `scheduled_at`, `status`),
+  CONSTRAINT `admission_tests_admission_id_foreign` FOREIGN KEY (`admission_id`) REFERENCES `admissions` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `admission_tests_created_by_foreign` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `admission_tests_updated_by_foreign` FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `grades` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `student_id` BIGINT UNSIGNED NOT NULL,
+  `class_id` BIGINT UNSIGNED NOT NULL,
+  `subject_id` BIGINT UNSIGNED NOT NULL,
+  `exam_id` BIGINT UNSIGNED NULL,
+  `marks_obtained` DECIMAL(8, 2) NOT NULL,
+  `total_marks` DECIMAL(8, 2) NOT NULL,
+  `grade` VARCHAR(191) NOT NULL,
+  `remarks` TEXT NULL,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `grades_student_id_class_id_subject_id_exam_id_unique` (`student_id`, `class_id`, `subject_id`, `exam_id`),
+  CONSTRAINT `grades_student_id_foreign` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `grades_class_id_foreign` FOREIGN KEY (`class_id`) REFERENCES `school_classes` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `grades_subject_id_foreign` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `grades_exam_id_foreign` FOREIGN KEY (`exam_id`) REFERENCES `exams` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `user_widget_preferences` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT UNSIGNED NOT NULL,
+  `widget_id` VARCHAR(191) NOT NULL,
+  `enabled` TINYINT(1) NOT NULL DEFAULT 1,
+  `position` INT NOT NULL DEFAULT 0,
+  `settings` JSON NULL,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_widget_preferences_user_id_widget_id_unique` (`user_id`, `widget_id`),
+  CONSTRAINT `user_widget_preferences_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ============================================================
 -- 29. WEBSITE SETTINGS
 -- ============================================================

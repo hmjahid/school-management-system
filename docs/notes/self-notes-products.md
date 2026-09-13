@@ -55,8 +55,26 @@ modify the root readme,md file as per latest chnage in the codebase
 
 strictly ensure that eskoofy-php ui same, frontend, backend all same of eskoofy-app. continue until finished
 
+strictly ensure that eskoofy-php ui same, frontend, backend all same of eskoofy-app as they not become same fully. continue until finished. find the best way to make the app and php version mirror with same frontend, backend and functionality only laravel and raw php difference. or will start from begining to make the laravael app a copy an dthen convert that copy to raw php? which one will be better? tell me first
 
+
+
+
+
+the login page not working, fix the issue. also ensure that todo list is completed
+
+also ensure the theme version all features and functionalities are same as the app version
+
+ensure proper payment method applied in this system app, php, theme and the website
+
+make this a smart school management system
 
 ensure that whole project/repo is fully and well documented and the every product and the website also fully and well documented
 
+create docker conatiner for checking the theme in wordpress. amke sure the theme chnages are applied automatically in the docker conatiner
+
+
+
 how to make this app/php-version/theme eligible for selling in theme forest or other similiar marketplaces?
+
+now write a commit message for the chnage safter the last commit and commit that

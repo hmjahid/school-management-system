@@ -73,13 +73,14 @@ class CertificateController extends Controller
     {
         Auth::requireAuth();
         $students = $this->db->fetchAll(
-            "SELECT s.id, s.admission_number, u.name
+            "SELECT s.id, s.user_id, s.admission_number
              FROM students s JOIN users u ON s.user_id = u.id ORDER BY s.id DESC LIMIT 500"
         );
 
         $this->view('dashboard.certificates.create', [
-            'students' => $students,
-            'types'    => self::TYPES,
+            'students'     => new \App\Core\Support\Collection(\App\Models\Student::hydrate($students)),
+            'types'        => self::TYPES,
+            'siteSettings' => \App\Models\WebsiteSetting::getSettings(),
         ]);
     }
 
@@ -153,7 +154,10 @@ class CertificateController extends Controller
             $this->redirect('/dashboard/certificates');
             return;
         }
-        $this->view('dashboard.certificates.show', ['cert' => $cert]);
+        $this->view('dashboard.certificates.show', [
+            'certificate'  => \App\Models\Certificate::newFromRow($cert),
+            'siteSettings' => \App\Models\WebsiteSetting::getSettings(),
+        ]);
     }
 
     public function edit(int $id): void
@@ -166,13 +170,14 @@ class CertificateController extends Controller
             return;
         }
         $students = $this->db->fetchAll(
-            "SELECT s.id, s.admission_number, u.name
+            "SELECT s.id, s.user_id, s.admission_number
              FROM students s JOIN users u ON s.user_id = u.id ORDER BY s.id DESC LIMIT 500"
         );
         $this->view('dashboard.certificates.edit', [
-            'cert'     => $cert,
-            'students' => $students,
-            'types'    => self::TYPES,
+            'certificate'  => \App\Models\Certificate::newFromRow($cert),
+            'students'     => new \App\Core\Support\Collection(\App\Models\Student::hydrate($students)),
+            'types'        => self::TYPES,
+            'siteSettings' => \App\Models\WebsiteSetting::getSettings(),
         ]);
     }
 
@@ -225,10 +230,9 @@ class CertificateController extends Controller
             $this->redirect('/dashboard/certificates');
             return;
         }
-        $settings = $this->db->fetch("SELECT * FROM website_settings ORDER BY id DESC LIMIT 1");
         $this->view('dashboard.certificates.print', [
-            'cert'     => $cert,
-            'settings' => $settings,
+            'certificate'  => \App\Models\Certificate::newFromRow($cert),
+            'siteSettings' => \App\Models\WebsiteSetting::getSettings(),
         ]);
     }
 

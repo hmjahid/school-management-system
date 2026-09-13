@@ -77,13 +77,14 @@ class TestimonialController extends Controller
     {
         Auth::requireAuth();
         $students = $this->db->fetchAll(
-            "SELECT s.id, s.admission_number, u.name
+            "SELECT s.id, s.user_id, s.admission_number
              FROM students s JOIN users u ON s.user_id = u.id ORDER BY s.id DESC LIMIT 500"
         );
 
         $this->view('dashboard.testimonials.create', [
-            'students' => $students,
-            'types'    => self::TYPES,
+            'students'     => new \App\Core\Support\Collection(\App\Models\Student::hydrate($students)),
+            'types'        => self::TYPES,
+            'siteSettings' => \App\Models\WebsiteSetting::getSettings(),
         ]);
     }
 
@@ -154,7 +155,10 @@ class TestimonialController extends Controller
             $this->redirect('/dashboard/testimonials');
             return;
         }
-        $this->view('dashboard.testimonials.show', ['testimonial' => $testimonial]);
+        $this->view('dashboard.testimonials.show', [
+            'testimonial'  => \App\Models\Testimonial::newFromRow($testimonial),
+            'siteSettings' => \App\Models\WebsiteSetting::getSettings(),
+        ]);
     }
 
     public function edit(int $id): void
@@ -167,13 +171,14 @@ class TestimonialController extends Controller
             return;
         }
         $students = $this->db->fetchAll(
-            "SELECT s.id, s.admission_number, u.name
+            "SELECT s.id, s.user_id, s.admission_number
              FROM students s JOIN users u ON s.user_id = u.id ORDER BY s.id DESC LIMIT 500"
         );
         $this->view('dashboard.testimonials.edit', [
-            'testimonial' => $testimonial,
-            'students'    => $students,
-            'types'       => self::TYPES,
+            'testimonial'  => \App\Models\Testimonial::newFromRow($testimonial),
+            'students'     => new \App\Core\Support\Collection(\App\Models\Student::hydrate($students)),
+            'types'        => self::TYPES,
+            'siteSettings' => \App\Models\WebsiteSetting::getSettings(),
         ]);
     }
 
@@ -234,10 +239,9 @@ class TestimonialController extends Controller
             $this->redirect('/dashboard/testimonials');
             return;
         }
-        $settings = $this->db->fetch("SELECT * FROM website_settings ORDER BY id DESC LIMIT 1");
         $this->view('dashboard.testimonials.print', [
-            'testimonial' => $testimonial,
-            'settings'    => $settings,
+            'testimonial'  => \App\Models\Testimonial::newFromRow($testimonial),
+            'siteSettings' => \App\Models\WebsiteSetting::getSettings(),
         ]);
     }
 

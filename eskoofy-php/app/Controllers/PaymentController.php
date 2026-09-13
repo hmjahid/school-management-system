@@ -3,13 +3,206 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Database;
 use App\Core\Session;
 use App\Gateways\GatewayFactory;
+use App\Models\Guardian;
+use App\Models\Student;
+use App\Models\User;
 
 class PaymentController extends Controller
 {
+    public function initiate(): void
+    {
+        if (!Auth::check()) {
+            Session::getInstance()->flash('error', __('Please login to continue.'));
+            $this->redirect('/login');
+        }
+
+        $user = Auth::user();
+        $studentIds = $this->studentIdsForUser($user);
+
+        if ($studentIds === []) {
+            Session::getInstance()->flash('error', __('No student account is linked to your profile.'));
+            $this->redirect('/payments');
+        }
+
+        $data = $this->validate([
+            'student_id' => 'required|numeric',
+            'fee_id'     => 'required|numeric',
+            'gateway'    => 'required',
+            'amount'     => 'required|numeric|min:1',
+        ]);
+
+        $studentId = (int) $data['student_id'];
+        if (!in_array($studentId, $studentIds, true)) {
+            Session::getInstance()->flash('error', __('Invalid student selection.'));
+            $this->redirect('/payments');
+        }
+
+        $db = Database::getInstance();
+
+        $fee = $db->fetch("SELECT * FROM fees WHERE id = ? AND deleted_at IS NULL LIMIT 1", [$data['fee_id']]);
+        if (!$fee) {
+            Session::getInstance()->flash('error', __('Fee not found.'));
+            $this->redirect('/payments');
+        }
+
+        $gateway = $db->fetch(
+            "SELECT * FROM payment_gateways WHERE code = ? AND is_active = 1 LIMIT 1",
+            [$data['gateway']]
+        );
+        if (!$gateway) {
+            Session::getInstance()->flash('error', __('Payment gateway is not available.'));
+            $this->redirect('/payments');
+        }
+
+        $amount = (float) $data['amount'];
+
+        $feePaymentId = $db->insert('fee_payments', [
+            'student_id'     => $studentId,
+            'fee_id'         => (int) $fee['id'],
+            'amount'         => $amount,
+            'paid_amount'    => 0,
+            'discount_amount'=> 0,
+            'fine_amount'    => 0,
+            'balance'        => $amount,
+            'payment_date'   => date('Y-m-d'),
+            'payment_method' => 'online_payment',
+            'status'         => 'pending',
+            'metadata'       => json_encode(['gateway' => $gateway['code']]),
+            'created_by'     => Auth::id(),
+            'created_at'     => date('Y-m-d H:i:s'),
+            'updated_at'     => date('Y-m-d H:i:s'),
+        ]);
+
+        $paymentId = $db->insert('payments', [
+            'paymentable_type' => 'tuition',
+            'paymentable_id'   => $feePaymentId,
+            'amount'           => $amount,
+            'paid_amount'      => 0,
+            'due_amount'       => $amount,
+            'discount_amount'  => 0,
+            'fine_amount'      => 0,
+            'tax_amount'       => 0,
+            'total_amount'     => $amount,
+            'payment_method'   => $gateway['code'],
+            'payment_status'   => 'pending',
+            'payment_details'  => json_encode([
+                'description' => 'Fee payment: ' . ($fee['name'] ?? 'Fee'),
+                'return_url'  => '/payments/status/' . $paymentId,
+                'cancel_url'  => '/payments/status/' . $paymentId,
+            ]),
+            'metadata'         => json_encode([
+                'fee_payment_id' => $feePaymentId,
+                'student_id'     => $studentId,
+                'fee_id'         => (int) $fee['id'],
+            ]),
+            'created_by'       => Auth::id(),
+            'updated_by'       => Auth::id(),
+            'created_at'       => date('Y-m-d H:i:s'),
+            'updated_at'       => date('Y-m-d H:i:s'),
+        ]);
+
+        $description = 'Fee payment: ' . ($fee['name'] ?? 'Fee');
+        $db->update('payments', [
+            'payment_details' => json_encode([
+                'description' => $description,
+                'return_url'  => '/payments/status/' . $paymentId,
+                'cancel_url'  => '/payments/status/' . $paymentId,
+            ]),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ], 'id = ?', [$paymentId]);
+
+        if ($gateway['type'] === 'online') {
+            try {
+                $adapter = GatewayFactory::makeFromPaymentRecord([
+                    'payment_method' => $gateway['code'],
+                    'amount'         => $amount,
+                ], $gateway);
+
+                $init = $adapter->initialize([
+                    'amount'      => $amount,
+                    'invoice_id'  => 'INV-' . str_pad((string) $paymentId, 8, '0', STR_PAD_LEFT),
+                    'payment_id'  => $paymentId,
+                    'student_id'  => $studentId,
+                    'currency'    => config('payment.currency', 'BDT'),
+                    'description' => $description,
+                ]);
+
+                if (!$init['success']) {
+                    Session::getInstance()->flash('error', $init['message'] ?? 'Payment initiation failed.');
+                    $this->redirect('/payments');
+                }
+
+                $redirectUrl = $init['data']['payment_url'] ?? ($init['data']['client_secret'] ?? '');
+
+                $details = [
+                    'description' => $description,
+                    'return_url'  => '/payments/status/' . $paymentId,
+                    'cancel_url'  => '/payments/status/' . $paymentId,
+                ];
+                foreach (($init['data'] ?? []) as $k => $v) {
+                    $details[$k] = $v;
+                }
+                $db->update('payments', [
+                    'reference_number' => $init['data']['payment_id'] ?? null,
+                    'payment_details'  => json_encode($details),
+                    'updated_at'       => date('Y-m-d H:i:s'),
+                ], 'id = ?', [$paymentId]);
+
+                if ($redirectUrl !== '') {
+                    $this->redirect($redirectUrl);
+                }
+            } catch (\Throwable $e) {
+                error_log('Payment init failed: ' . $e->getMessage());
+                Session::getInstance()->flash('error', 'Payment gateway error: ' . $e->getMessage());
+                $this->redirect('/payments');
+            }
+        }
+
+        Session::getInstance()->flash('success', __('Payment initiated. Please complete the payment as instructed.'));
+        $this->redirect('/payments/status/' . $paymentId);
+    }
+
+    /**
+     * Map the current user to the student record(s) they can pay for
+     * (mirrors PaymentsWebController::studentIdsForUser).
+     *
+     * @return list<int>
+     */
+    private function studentIdsForUser(?User $user): array
+    {
+        if ($user === null) {
+            return [];
+        }
+
+        if (Auth::hasRole('student')) {
+            try {
+                $id = (int) Student::query()->where('user_id', $user->id)->value('id');
+                return $id > 0 ? [$id] : [];
+            } catch (\Throwable) {
+                return [];
+            }
+        }
+
+        if (Auth::hasRole('parent')) {
+            try {
+                $guardian = Guardian::query()->where('user_id', $user->id)->first();
+                if (!$guardian) {
+                    return [];
+                }
+                return array_values(array_filter(Student::query()->where('guardian_id', $guardian->id)->pluck('id'), fn ($v) => $v !== null));
+            } catch (\Throwable) {
+                return [];
+            }
+        }
+
+        return [];
+    }
+
     public function admissionPay(): void
     {
         $data = $this->validate([

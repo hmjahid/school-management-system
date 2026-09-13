@@ -6,6 +6,32 @@ use App\Core\Model;
 
 class Payment extends Model
 {
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_PROCESSING = 'processing';
+    public const STATUS_COMPLETED = 'completed';
+    public const STATUS_FAILED = 'failed';
+    public const STATUS_REFUNDED = 'refunded';
+    public const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_EXPIRED = 'expired';
+
+    public const METHOD_CASH = 'cash';
+    public const METHOD_BANK_TRANSFER = 'bank_transfer';
+    public const METHOD_CHEQUE = 'cheque';
+    public const METHOD_BKASH = 'bkash';
+    public const METHOD_NAGAD = 'nagad';
+    public const METHOD_ROCKET = 'rocket';
+    public const METHOD_STRIPE = 'stripe';
+    public const METHOD_PAYPAL = 'paypal';
+    public const METHOD_OTHER = 'other';
+
+    public const PURPOSE_ADMISSION = 'admission';
+    public const PURPOSE_TUITION = 'tuition';
+    public const PURPOSE_EXAM = 'exam';
+    public const PURPOSE_LIBRARY = 'library';
+    public const PURPOSE_TRANSPORT = 'transport';
+    public const PURPOSE_HOSTEL = 'hostel';
+    public const PURPOSE_OTHER = 'other';
+
     protected static string $table = 'payments';
     protected static string $primaryKey = 'id';
     protected static bool $softDeletes = false;
@@ -41,5 +67,37 @@ class Payment extends Model
     public function refunds()
     {
         return $this->hasMany(Refund::class);
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        $statuses = [
+            self::STATUS_PENDING    => 'Pending',
+            self::STATUS_PROCESSING => 'Processing',
+            self::STATUS_COMPLETED  => 'Completed',
+            self::STATUS_FAILED     => 'Failed',
+            self::STATUS_REFUNDED   => 'Refunded',
+            self::STATUS_CANCELLED  => 'Cancelled',
+            self::STATUS_EXPIRED    => 'Expired',
+        ];
+
+        return $statuses[$this->attributes['payment_status'] ?? ''] ?? 'Unknown';
+    }
+
+    public function getMethodLabelAttribute(): string
+    {
+        $methods = [
+            self::METHOD_CASH          => 'Cash',
+            self::METHOD_BANK_TRANSFER => 'Bank Transfer',
+            self::METHOD_CHEQUE        => 'Cheque',
+            self::METHOD_BKASH         => 'bKash',
+            self::METHOD_NAGAD         => 'Nagad',
+            self::METHOD_ROCKET        => 'Rocket',
+            self::METHOD_STRIPE        => 'Stripe',
+            self::METHOD_PAYPAL        => 'PayPal',
+            self::METHOD_OTHER         => 'Other',
+        ];
+
+        return $methods[$this->attributes['payment_method'] ?? ''] ?? 'Unknown';
     }
 }

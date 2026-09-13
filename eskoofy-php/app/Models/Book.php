@@ -3,12 +3,15 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Core\Model;
+use App\Core\Relation;
 
 class Book extends Model
 {
     protected static string $table = 'books';
     protected static string $primaryKey = 'id';
     protected static bool $softDeletes = true;
+
+    protected array $appends = ['cover_url'];
 
     protected array $fillable = [
         'title', 'author', 'publisher', 'isbn', 'category_id',
@@ -22,6 +25,8 @@ class Book extends Model
         'quantity' => 'integer',
         'available_quantity' => 'integer',
         'status' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     public function category()
@@ -37,5 +42,29 @@ class Book extends Model
     public function issues()
     {
         return $this->hasMany(BookIssue::class);
+    }
+
+    public function currentIssues()
+    {
+        return new Relation(
+            BookIssue::query()
+                ->where('book_id', $this->getKey())
+                ->where('status', BookIssue::STATUS_ISSUED),
+            'many'
+        );
+    }
+
+    public function getCoverUrlAttribute(): ?string
+    {
+        $image = $this->getAttribute('cover_image');
+        if (empty($image)) {
+            return null;
+        }
+        return url('storage/' . ltrim((string) $image, '/'));
+    }
+
+    public function isAvailable(): bool
+    {
+        return $this->getAttribute('status') && (int) $this->getAttribute('available_quantity') > 0;
     }
 }

@@ -330,11 +330,11 @@ class Blade
         $this->currentComponent = $frame;
 
         $data = $frame['data'];
-        $data['slot'] = $slot;
+        $data['slot'] = new \App\Core\Support\ComponentSlot($slot);
         $data['attributes'] = new ComponentAttributeBag($frame['attributes']);
         $data['__componentAttributes'] = $frame['attributes'];
         foreach ($frame['slots'] as $name => $content) {
-            $data[$name] = $content;
+            $data[$name] = new \App\Core\Support\ComponentSlot($content);
         }
 
         $result = self::render($frame['view'], $data, $this, true);
@@ -407,7 +407,53 @@ class Blade
 
     public function vite(array $deps): string
     {
-        return '';
+        $manifestPath = public_path('build/manifest.json');
+        if (!is_file($manifestPath)) {
+            return '';
+        }
+        $manifest = json_decode((string) file_get_contents($manifestPath), true);
+        if (!is_array($manifest)) {
+            return '';
+        }
+
+        $html = '';
+        $cssDone = [];
+        $jsDone = [];
+
+        foreach ($deps as $dep) {
+            $entry = $manifest[$dep] ?? null;
+            if (!is_array($entry)) {
+                continue;
+            }
+
+            $cssFiles = !empty($entry['css']) ? (array) $entry['css'] : [];
+            foreach ($entry['imports'] ?? [] as $import) {
+                $impEntry = $manifest[$import] ?? null;
+                if (is_array($impEntry) && !empty($impEntry['css'])) {
+                    $cssFiles = array_merge($cssFiles, (array) $impEntry['css']);
+                }
+            }
+
+            foreach ($cssFiles as $css) {
+                if (!isset($cssDone[$css])) {
+                    $html .= '<link rel="stylesheet" href="' . asset('build/' . $css) . '">' . PHP_EOL;
+                    $cssDone[$css] = true;
+                }
+            }
+
+            $file = $entry['file'] ?? null;
+            if (is_string($file) && str_ends_with($file, '.css') && !isset($cssDone[$file])) {
+                $html .= '<link rel="stylesheet" href="' . asset('build/' . $file) . '">' . PHP_EOL;
+                $cssDone[$file] = true;
+            }
+
+            if (is_string($file) && str_ends_with($file, '.js') && !isset($jsDone[$file])) {
+                $html .= '<script type="module" src="' . asset('build/' . $file) . '"></script>' . PHP_EOL;
+                $jsDone[$file] = true;
+            }
+        }
+
+        return $html;
     }
 
     public function getData(): array

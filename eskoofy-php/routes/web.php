@@ -229,9 +229,12 @@ $router->group('/dashboard', function (Router $r) {
     $r->put('/announcements/{id}', 'App\\Controllers\\Dashboard\\AnnouncementController', 'update');
     $r->delete('/announcements/{id}', 'App\\Controllers\\Dashboard\\AnnouncementController', 'destroy');
     $r->post('/announcements/bulk', 'App\\Controllers\\Dashboard\\AnnouncementController', 'bulk');
-    $r->get('/galleries', 'App\\Controllers\\Dashboard\\GalleryController', 'index');
-    $r->post('/galleries', 'App\\Controllers\\Dashboard\\GalleryController', 'store');
-    $r->delete('/galleries/{id}', 'App\\Controllers\\Dashboard\\GalleryController', 'destroy');
+    $r->get('/gallery', 'App\\Controllers\\Dashboard\\GalleryController', 'index');
+    $r->get('/gallery/create', 'App\\Controllers\\Dashboard\\GalleryController', 'create');
+    $r->post('/gallery', 'App\\Controllers\\Dashboard\\GalleryController', 'store');
+    $r->get('/gallery/{id}/edit', 'App\\Controllers\\Dashboard\\GalleryController', 'edit');
+    $r->put('/gallery/{id}', 'App\\Controllers\\Dashboard\\GalleryController', 'update');
+    $r->delete('/gallery/{id}', 'App\\Controllers\\Dashboard\\GalleryController', 'destroy');
 
     // Expenses
     $r->get('/expenses', 'App\\Controllers\\Dashboard\\ExpenseController', 'index');
@@ -397,12 +400,6 @@ $router->group('/dashboard', function (Router $r) {
     $r->get('/backups/download/{file}', 'App\\Controllers\\Dashboard\\BackupController', 'download');
     $r->delete('/backups/{file}', 'App\\Controllers\\Dashboard\\BackupController', 'destroy');
 
-    // Courses
-    $r->get('/courses', 'App\\Controllers\\Dashboard\\CourseController', 'index');
-    $r->post('/courses', 'App\\Controllers\\Dashboard\\CourseController', 'store');
-    $r->put('/courses/{id}', 'App\\Controllers\\Dashboard\\CourseController', 'update');
-    $r->delete('/courses/{id}', 'App\\Controllers\\Dashboard\\CourseController', 'destroy');
-
     // Messages
     $r->get('/messages', 'App\\Controllers\\Dashboard\\MessageController', 'index');
     $r->get('/messages/sent', 'App\\Controllers\\Dashboard\\MessageController', 'sent');
@@ -434,8 +431,6 @@ $router->group('/dashboard', function (Router $r) {
 
     // Visitor logs
     $r->get('/visitor-logs', 'App\\Controllers\\Dashboard\\VisitorLogController', 'index');
-    $r->post('/visitor-logs', 'App\\Controllers\\Dashboard\\VisitorLogController', 'store');
-    $r->delete('/visitor-logs/{id}', 'App\\Controllers\\Dashboard\\VisitorLogController', 'destroy');
 
     // Activity log
     $r->get('/activity', 'App\\Controllers\\Dashboard\\ActivityController', 'index');
@@ -449,6 +444,7 @@ $router->group('/dashboard', function (Router $r) {
     // Notifications
     $r->get('/notifications', 'App\\Controllers\\Dashboard\\NotificationController', 'index');
     $r->get('/notifications/preferences', 'App\\Controllers\\Dashboard\\NotificationController', 'preferences');
+    $r->post('/notifications/preferences', 'App\\Controllers\\Dashboard\\NotificationController', 'updatePreferences');
     $r->post('/notifications/{id}/read', 'App\\Controllers\\Dashboard\\NotificationController', 'markRead');
     $r->post('/notifications/mark-all-read', 'App\\Controllers\\Dashboard\\NotificationController', 'markAllRead');
 
@@ -495,9 +491,6 @@ $router->group('/dashboard', function (Router $r) {
 
     // Permissions
     $r->get('/permissions', 'App\\Controllers\\Dashboard\\PermissionController', 'index');
-
-    // Favorites (AJAX)
-    $r->post('/favorites/toggle/{module}', 'App\\Controllers\\Dashboard\\FavoriteController', 'toggle');
 
     // Bank Reconciliation
     $r->get('/bank-reconciliation', 'App\\Controllers\\Dashboard\\BankReconciliationController', 'index');
@@ -547,4 +540,300 @@ $router->group('/dashboard', function (Router $r) {
     $r->get('/staff-attendance', 'App\\Controllers\\Dashboard\\StaffAttendanceController', 'index');
     $r->post('/staff-attendance', 'App\\Controllers\\Dashboard\\StaffAttendanceController', 'store');
     $r->get('/staff-attendance/report', 'App\\Controllers\\Dashboard\\StaffAttendanceController', 'report');
+
+    // About page
+    $r->get('/about', 'App\\Controllers\\Dashboard\\DashboardController', 'about');
+
+    // Staff list
+    $r->get('/staff', 'App\\Controllers\\Dashboard\\TeacherController', 'staff');
+
+    // Announcements (create/edit)
+    $r->get('/announcements/create', 'App\\Controllers\\Dashboard\\AnnouncementController', 'create');
+    $r->get('/announcements/{id}/edit', 'App\\Controllers\\Dashboard\\AnnouncementController', 'edit');
+
+    // Attendance create
+    $r->get('/attendance/create', 'App\\Controllers\\Dashboard\\AttendanceController', 'create');
+
+    // Backup (singular path)
+    $r->post('/backup/create', 'App\\Controllers\\Dashboard\\BackupController', 'create');
+    $r->get('/backup/download/{file}', 'App\\Controllers\\Dashboard\\BackupController', 'download');
+    $r->post('/backup/restore/{file}', 'App\\Controllers\\Dashboard\\BackupController', 'restore');
+    $r->delete('/backup/{file}', 'App\\Controllers\\Dashboard\\BackupController', 'destroy');
+
+    // Budgets edit
+    $r->get('/budgets/{id}/edit', 'App\\Controllers\\Dashboard\\BudgetController', 'edit');
+
+    // Careers show + status
+    $r->get('/careers/{id}', 'App\\Controllers\\Dashboard\\CareerController', 'show');
+    $r->post('/careers/{id}/status', 'App\\Controllers\\Dashboard\\CareerController', 'updateApplicationStatus');
+
+    // CMS pages/edit
+    $r->get('/cms/pages', 'App\\Controllers\\Dashboard\\CmsController', 'pages');
+    $r->get('/cms/edit/{page}', 'App\\Controllers\\Dashboard\\CmsController', 'edit');
+    $r->put('/cms/edit/{page}', 'App\\Controllers\\Dashboard\\CmsController', 'update');
+
+    // Committee create/edit
+    $r->get('/committee/create', 'App\\Controllers\\Dashboard\\CommitteeController', 'create');
+    $r->get('/committee/{id}/edit', 'App\\Controllers\\Dashboard\\CommitteeController', 'edit');
+
+    // Documents edit/update
+    $r->get('/documents/{id}/edit', 'App\\Controllers\\Dashboard\\DocumentController', 'edit');
+    $r->put('/documents/{id}', 'App\\Controllers\\Dashboard\\DocumentController', 'update');
+
+    // Favorites toggle (no module)
+    $r->post('/favorites/toggle', 'App\\Controllers\\Dashboard\\FavoriteController', 'toggle');
+
+    // Notices create/edit
+    $r->get('/notices/create', 'App\\Controllers\\Dashboard\\NoticeController', 'create');
+    $r->get('/notices/{id}/edit', 'App\\Controllers\\Dashboard\\NoticeController', 'edit');
+
+    // Notifications list/mark-all
+    $r->get('/notifications/list', 'App\\Controllers\\Dashboard\\NotificationController', 'list');
+    $r->post('/notifications/mark-all', 'App\\Controllers\\Dashboard\\NotificationController', 'markAllRead');
+
+    // Roles create/edit
+    $r->get('/roles/create', 'App\\Controllers\\Dashboard\\RoleController', 'create');
+    $r->get('/roles/{id}/edit', 'App\\Controllers\\Dashboard\\RoleController', 'edit');
+
+    // Users edit
+    $r->get('/users/{id}/edit', 'App\\Controllers\\Dashboard\\UserController', 'edit');
+
+    // Settings tabs (cms/general/localization)
+    $r->get('/settings/cms', 'App\\Controllers\\Dashboard\\SettingController', 'cms');
+    $r->put('/settings/cms', 'App\\Controllers\\Dashboard\\SettingController', 'updateCms');
+    $r->get('/settings/general', 'App\\Controllers\\Dashboard\\SettingController', 'general');
+    $r->put('/settings/general', 'App\\Controllers\\Dashboard\\SettingController', 'updateGeneral');
+    $r->get('/settings/localization', 'App\\Controllers\\Dashboard\\SettingController', 'localization');
+    $r->put('/settings/localization', 'App\\Controllers\\Dashboard\\SettingController', 'updateLocalization');
+
+    // Locale switch (dashboard)
+    $r->get('/locale/{locale}', 'App\\Controllers\\SiteController', 'dashboardSwitchLocale');
+
+    // Media download/destroy
+    $r->get('/media/{id}/download', 'App\\Controllers\\Dashboard\\MediaController', 'download');
+
+    // Library module
+    $r->get('/library/books', 'App\\Controllers\\Dashboard\\LibraryController', 'bookIndex');
+    $r->post('/library/books', 'App\\Controllers\\Dashboard\\LibraryController', 'bookStore');
+    $r->get('/library/books/create', 'App\\Controllers\\Dashboard\\LibraryController', 'bookCreate');
+    $r->get('/library/books/{id}', 'App\\Controllers\\Dashboard\\LibraryController', 'bookShow');
+    $r->get('/library/books/{id}/edit', 'App\\Controllers\\Dashboard\\LibraryController', 'bookEdit');
+    $r->put('/library/books/{id}', 'App\\Controllers\\Dashboard\\LibraryController', 'bookUpdate');
+    $r->delete('/library/books/{id}', 'App\\Controllers\\Dashboard\\LibraryController', 'bookDestroy');
+    $r->get('/library/categories', 'App\\Controllers\\Dashboard\\LibraryController', 'categories');
+    $r->post('/library/categories', 'App\\Controllers\\Dashboard\\LibraryController', 'categoryStore');
+    $r->put('/library/categories/{id}', 'App\\Controllers\\Dashboard\\LibraryController', 'categoryUpdate');
+    $r->delete('/library/categories/{id}', 'App\\Controllers\\Dashboard\\LibraryController', 'categoryDestroy');
+    $r->get('/library/issues', 'App\\Controllers\\Dashboard\\LibraryController', 'issueIndex');
+    $r->post('/library/issues', 'App\\Controllers\\Dashboard\\LibraryController', 'issueStore');
+    $r->get('/library/issues/create', 'App\\Controllers\\Dashboard\\LibraryController', 'issueCreate');
+    $r->get('/library/issues/{id}', 'App\\Controllers\\Dashboard\\LibraryController', 'issueShow');
+    $r->delete('/library/issues/{id}', 'App\\Controllers\\Dashboard\\LibraryController', 'issueDestroy');
+    $r->post('/library/issues/{id}/return', 'App\\Controllers\\Dashboard\\LibraryController', 'issueReturn');
+    $r->post('/library/issues/{id}/fine', 'App\\Controllers\\Dashboard\\LibraryController', 'issueFine');
+    $r->post('/library/issues/{id}/lost', 'App\\Controllers\\Dashboard\\LibraryController', 'issueLost');
+    $r->get('/library/reports', 'App\\Controllers\\Dashboard\\LibraryReportController', 'index');
+    $r->get('/library/reports/issued', 'App\\Controllers\\Dashboard\\LibraryReportController', 'issued');
+    $r->get('/library/reports/overdue', 'App\\Controllers\\Dashboard\\LibraryReportController', 'overdue');
+    $r->get('/library/reports/history', 'App\\Controllers\\Dashboard\\LibraryReportController', 'history');
+
+    // Transport module
+    $r->get('/transport/vehicles', 'App\\Controllers\\Dashboard\\TransportController', 'vehicles');
+    $r->post('/transport/vehicles', 'App\\Controllers\\Dashboard\\TransportController', 'vehiclesStore');
+    $r->get('/transport/vehicles/create', 'App\\Controllers\\Dashboard\\TransportController', 'vehiclesCreate');
+    $r->get('/transport/vehicles/{id}/edit', 'App\\Controllers\\Dashboard\\TransportController', 'vehiclesEdit');
+    $r->put('/transport/vehicles/{id}', 'App\\Controllers\\Dashboard\\TransportController', 'vehiclesUpdate');
+    $r->delete('/transport/vehicles/{id}', 'App\\Controllers\\Dashboard\\TransportController', 'vehiclesDestroy');
+    $r->get('/transport/routes', 'App\\Controllers\\Dashboard\\TransportController', 'transportRoutes');
+    $r->post('/transport/routes', 'App\\Controllers\\Dashboard\\TransportController', 'transportRoutesStore');
+    $r->get('/transport/routes/create', 'App\\Controllers\\Dashboard\\TransportController', 'transportRoutesCreate');
+    $r->get('/transport/routes/{id}/edit', 'App\\Controllers\\Dashboard\\TransportController', 'transportRoutesEdit');
+    $r->put('/transport/routes/{id}', 'App\\Controllers\\Dashboard\\TransportController', 'transportRoutesUpdate');
+    $r->delete('/transport/routes/{id}', 'App\\Controllers\\Dashboard\\TransportController', 'transportRoutesDestroy');
+    $r->get('/transport/assignments', 'App\\Controllers\\Dashboard\\TransportController', 'transportAssignments');
+    $r->post('/transport/assignments', 'App\\Controllers\\Dashboard\\TransportController', 'transportAssignmentsStore');
+    $r->delete('/transport/assignments/{id}', 'App\\Controllers\\Dashboard\\TransportController', 'transportAssignmentsDestroy');
+
+    // Hostels
+    $r->get('/hostels/create', 'App\\Controllers\\Dashboard\\HostelController', 'create');
+    $r->get('/hostels/{id}', 'App\\Controllers\\Dashboard\\HostelController', 'show');
+    $r->get('/hostels/{id}/edit', 'App\\Controllers\\Dashboard\\HostelController', 'edit');
+    $r->put('/hostels/{id}', 'App\\Controllers\\Dashboard\\HostelController', 'update');
+    $r->delete('/hostels/{id}', 'App\\Controllers\\Dashboard\\HostelController', 'destroy');
+    $r->post('/hostels/{id}/rooms', 'App\\Controllers\\Dashboard\\HostelController', 'storeRoomForHostel');
+    $r->put('/hostels/rooms/{id}', 'App\\Controllers\\Dashboard\\HostelController', 'updateRoom');
+    $r->delete('/hostels/rooms/{id}', 'App\\Controllers\\Dashboard\\HostelController', 'destroyRoom');
+    $r->post('/hostels/{id}/assignments', 'App\\Controllers\\Dashboard\\HostelController', 'storeAssignmentForHostel');
+    $r->delete('/hostels/assignments/{id}', 'App\\Controllers\\Dashboard\\HostelController', 'destroyAssignment');
+
+    // Student ID cards
+    $r->get('/student-id-cards', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'idCardIndex');
+    $r->post('/student-id-cards', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'idCardStore');
+    $r->get('/student-id-cards/create', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'idCardCreate');
+    $r->get('/student-id-cards/batch/create', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'idCardBatchCreate');
+    $r->post('/student-id-cards/batch', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'idCardBatchStore');
+    $r->get('/student-id-cards/{id}', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'idCardShow');
+    $r->get('/student-id-cards/{id}/edit', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'idCardEdit');
+    $r->put('/student-id-cards/{id}', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'idCardUpdate');
+    $r->delete('/student-id-cards/{id}', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'idCardDestroy');
+    $r->get('/student-id-cards/{id}/print', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'idCardPrint');
+    $r->get('/student-id-cards/{id}/preview', 'App\\Controllers\\Dashboard\\StudentIdCardController', 'idCardPreview');
+
+    // Parents (guardians)
+    $r->get('/parents', 'App\\Controllers\\Dashboard\\GuardianController', 'parents');
+    $r->post('/parents', 'App\\Controllers\\Dashboard\\GuardianController', 'parentsStore');
+    $r->get('/parents/create', 'App\\Controllers\\Dashboard\\GuardianController', 'parentsCreate');
+    $r->get('/parents/{id}', 'App\\Controllers\\Dashboard\\GuardianController', 'parentsShow');
+    $r->get('/parents/{id}/edit', 'App\\Controllers\\Dashboard\\GuardianController', 'parentsEdit');
+    $r->put('/parents/{id}', 'App\\Controllers\\Dashboard\\GuardianController', 'parentsUpdate');
+    $r->delete('/parents/{id}', 'App\\Controllers\\Dashboard\\GuardianController', 'parentsDestroy');
+
+    // Exams
+    $r->post('/exams/{id}/unpublish', 'App\\Controllers\\Dashboard\\ExamController', 'unpublish');
+    $r->post('/exams/{id}/visibility', 'App\\Controllers\\Dashboard\\ExamController', 'visibility');
+    $r->get('/exams/{id}/results/{resultId}/marksheet', 'App\\Controllers\\Dashboard\\ExamController', 'marksheet');
+
+    // Fees edit
+    $r->get('/fees/{id}/edit', 'App\\Controllers\\Dashboard\\FeeController', 'edit');
+
+    // Fee payments
+    $r->get('/fee-payments/{id}', 'App\\Controllers\\Dashboard\\FeePaymentController', 'show');
+    $r->post('/fee-payments/{id}/approve', 'App\\Controllers\\Dashboard\\FeePaymentController', 'approve');
+    $r->post('/fee-payments/{id}/cancel', 'App\\Controllers\\Dashboard\\FeePaymentController', 'cancel');
+
+    // Expenses
+    $r->get('/expenses/create', 'App\\Controllers\\Dashboard\\ExpenseController', 'create');
+    $r->get('/expenses/{id}/edit', 'App\\Controllers\\Dashboard\\ExpenseController', 'edit');
+    $r->get('/expenses-export', 'App\\Controllers\\Dashboard\\ExpenseController', 'export');
+
+    // Expense categories
+    $r->get('/expense-categories/create', 'App\\Controllers\\Dashboard\\ExpenseCategoryController', 'create');
+    $r->get('/expense-categories/{id}', 'App\\Controllers\\Dashboard\\ExpenseCategoryController', 'show');
+    $r->get('/expense-categories/{id}/edit', 'App\\Controllers\\Dashboard\\ExpenseCategoryController', 'edit');
+    $r->put('/expense-categories/{id}', 'App\\Controllers\\Dashboard\\ExpenseCategoryController', 'update');
+    $r->delete('/expense-categories/{id}', 'App\\Controllers\\Dashboard\\ExpenseCategoryController', 'destroy');
+
+    // Financial reports
+    $r->get('/reports/balance-sheet', 'App\\Controllers\\Dashboard\\LedgerController', 'balanceSheet');
+    $r->get('/reports/cash-flow', 'App\\Controllers\\Dashboard\\LedgerController', 'cashFlow');
+    $r->get('/reports/income-statement', 'App\\Controllers\\Dashboard\\LedgerController', 'incomeStatement');
+
+    // Payroll
+    $r->get('/payroll/payslips', 'App\\Controllers\\Dashboard\\PayrollController', 'payslips');
+    $r->get('/payroll/payslips/{id}', 'App\\Controllers\\Dashboard\\PayrollController', 'showPayslip');
+    $r->post('/payroll/payslips/{id}/paid', 'App\\Controllers\\Dashboard\\PayrollController', 'markPaid');
+    $r->get('/payroll/structures', 'App\\Controllers\\Dashboard\\PayrollController', 'salaryStructures');
+    $r->post('/payroll/structures', 'App\\Controllers\\Dashboard\\PayrollController', 'storeSalaryStructure');
+
+    // Certificates
+    $r->get('/certificates/{id}', 'App\\Controllers\\Dashboard\\CertificateController', 'show');
+    $r->get('/certificates/{id}/edit', 'App\\Controllers\\Dashboard\\CertificateController', 'edit');
+    $r->put('/certificates/{id}', 'App\\Controllers\\Dashboard\\CertificateController', 'update');
+    $r->delete('/certificates/{id}', 'App\\Controllers\\Dashboard\\CertificateController', 'destroy');
+    $r->get('/certificates/{id}/print', 'App\\Controllers\\Dashboard\\CertificateController', 'print');
+
+    // Admit cards
+    $r->get('/admit-cards/{id}', 'App\\Controllers\\Dashboard\\AdmitCardController', 'show');
+    $r->get('/admit-cards/{id}/edit', 'App\\Controllers\\Dashboard\\AdmitCardController', 'edit');
+    $r->put('/admit-cards/{id}', 'App\\Controllers\\Dashboard\\AdmitCardController', 'update');
+    $r->delete('/admit-cards/{id}', 'App\\Controllers\\Dashboard\\AdmitCardController', 'destroy');
+    $r->get('/admit-cards/{id}/print', 'App\\Controllers\\Dashboard\\AdmitCardController', 'print');
+    $r->get('/admit-cards/{id}/preview', 'App\\Controllers\\Dashboard\\AdmitCardController', 'preview');
+
+    // Testimonials
+    $r->get('/testimonials/{id}', 'App\\Controllers\\Dashboard\\TestimonialController', 'show');
+    $r->get('/testimonials/{id}/edit', 'App\\Controllers\\Dashboard\\TestimonialController', 'edit');
+    $r->put('/testimonials/{id}', 'App\\Controllers\\Dashboard\\TestimonialController', 'update');
+    $r->delete('/testimonials/{id}', 'App\\Controllers\\Dashboard\\TestimonialController', 'destroy');
+    $r->get('/testimonials/{id}/print', 'App\\Controllers\\Dashboard\\TestimonialController', 'print');
+
+    // Routines
+    $r->get('/routines/create', 'App\\Controllers\\Dashboard\\RoutineController', 'create');
+    $r->get('/routines/{id}/edit', 'App\\Controllers\\Dashboard\\RoutineController', 'edit');
+
+    // Seat plans
+    $r->get('/seat-plans/{examId}/generate', 'App\\Controllers\\Dashboard\\SeatPlanController', 'generate');
+
+    // Progress reports
+    $r->get('/progress-reports/{studentId}/generate', 'App\\Controllers\\Dashboard\\ProgressReportController', 'generate');
+
+    // Leaves
+    $r->get('/leaves/{id}', 'App\\Controllers\\Dashboard\\LeaveController', 'show');
+    $r->post('/leaves/{id}/approve', 'App\\Controllers\\Dashboard\\LeaveController', 'approve');
+    $r->post('/leaves/{id}/reject', 'App\\Controllers\\Dashboard\\LeaveController', 'reject');
+    $r->post('/leaves/{id}/cancel', 'App\\Controllers\\Dashboard\\LeaveController', 'cancel');
+
+    // Admissions tests
+    // URL params are named to match the controller signatures (dispatch maps
+    // named groups -> method arguments).
+    $r->post('/admissions/{admissionId}/tests', 'App\\Controllers\\Dashboard\\AdmissionController', 'scheduleTest');
+    $r->put('/admissions/{admissionId}/tests/{testId}', 'App\\Controllers\\Dashboard\\AdmissionController', 'updateTest');
+    $r->delete('/admissions/{admissionId}/tests/{testId}', 'App\\Controllers\\Dashboard\\AdmissionController', 'deleteTest');
 }, ['AuthMiddleware']);
+
+// ---------------------------------------------------------------------------
+// Public site additions (parity with eskoofy-app)
+// ---------------------------------------------------------------------------
+
+// Public admissions flow
+$router->get('/admissions', 'App\\Controllers\\SiteController', 'admissions');
+$router->get('/admissions/apply', 'App\\Controllers\\SiteController', 'apply');
+$router->post('/admissions/apply', 'App\\Controllers\\SiteController', 'applyStore');
+$router->post('/admissions/scholarship', 'App\\Controllers\\SiteController', 'submitScholarship');
+$router->get('/admissions/status', 'App\\Controllers\\SiteController', 'admissionStatus');
+$router->get('/admissions/{id}/approval-letter', 'App\\Controllers\\SiteController', 'admissionApprovalLetter');
+$router->get('/admissions/{id}/receipt', 'App\\Controllers\\SiteController', 'admissionReceipt');
+$router->post('/admissions/{id}/submit-payment', 'App\\Controllers\\SiteController', 'submitPayment');
+
+// Contact forms
+$router->post('/contact/complaint', 'App\\Controllers\\SiteController', 'submitComplaint');
+$router->post('/contact/feedback', 'App\\Controllers\\SiteController', 'submitFeedback');
+$router->post('/newsletter', 'App\\Controllers\\SiteController', 'newsletterStore');
+
+// Payments
+$router->get('/payments/initiate', 'App\\Controllers\\PaymentController', 'initiate');
+
+// Results download
+$router->get('/results/download', 'App\\Controllers\\SiteController', 'resultsDownload');
+
+// Students page
+$router->get('/students', 'App\\Controllers\\SiteController', 'students');
+
+// Portal
+$router->get('/portal/admission', 'App\\Controllers\\SiteController', 'portalAdmission');
+$router->get('/portal/progress', 'App\\Controllers\\SiteController', 'portalProgress');
+$router->post('/portal/message', 'App\\Controllers\\SiteController', 'messageTeacher');
+$router->get('/portal/register', 'App\\Controllers\\SiteController', 'portalRegister');
+
+// Student / Guardian dashboards
+$router->get('/student/dashboard', 'App\\Controllers\\Auth\\StudentGuardianAuthController', 'studentDashboard');
+$router->get('/guardian/dashboard', 'App\\Controllers\\Auth\\StudentGuardianAuthController', 'guardianDashboard');
+$router->post('/guardian/assignments/{submission}/notes', 'App\\Controllers\\Auth\\StudentGuardianAuthController', 'guardianNotes');
+
+// Profile
+$router->get('/profile', 'App\\Controllers\\SiteController', 'profileEdit');
+$router->post('/profile', 'App\\Controllers\\SiteController', 'profileUpdate');
+
+// Locale switch (site)
+$router->get('/locale/{locale}', 'App\\Controllers\\SiteController', 'switchLocale');
+
+// Messages (public inbox)
+$router->get('/messages', 'App\\Controllers\\Dashboard\\MessageController', 'index');
+$router->get('/messages/create', 'App\\Controllers\\Dashboard\\MessageController', 'create');
+$router->post('/messages', 'App\\Controllers\\Dashboard\\MessageController', 'store');
+$router->get('/messages/sent', 'App\\Controllers\\Dashboard\\MessageController', 'sent');
+$router->get('/messages/{id}', 'App\\Controllers\\Dashboard\\MessageController', 'show');
+$router->delete('/messages/{id}', 'App\\Controllers\\Dashboard\\MessageController', 'destroy');
+
+// Password reset with token in URL
+$router->get('/reset-password/{token}', 'App\\Controllers\\PasswordResetController', 'showReset');
+
+// Sanctum/storage stubs (raw-PHP equivalents; Laravel-only endpoints)
+$router->get('/sanctum/csrf-cookie', function () {
+    http_response_code(204);
+    exit;
+});
+$router->get('/storage/{path}', function () {
+    http_response_code(404);
+    exit;
+});

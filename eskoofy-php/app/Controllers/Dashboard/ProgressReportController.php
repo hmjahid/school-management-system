@@ -55,7 +55,7 @@ class ProgressReportController extends Controller
         $sections = \App\Models\Section::hydrate($db->fetchAll("SELECT id, name FROM sections ORDER BY name"));
         $batches = \App\Models\Batch::hydrate($db->fetchAll("SELECT id, name FROM batches ORDER BY name"));
 
-        $this->view('dashboard.progress_reports.index', [
+        $this->view('dashboard.progress-reports.index', [
             'students' => $students,
             'classes'  => new Collection($classes),
             'sections' => new Collection($sections),
@@ -69,11 +69,12 @@ class ProgressReportController extends Controller
         $db = Database::getInstance();
 
         $student = $db->fetch(
-            "SELECT s.*, u.name, c.name as class_name, sec.name as section_name
+            "SELECT s.*, u.name, c.name as class_name, sec.name as section_name, b.name as batch_name
              FROM students s
              LEFT JOIN users u ON s.user_id = u.id
              LEFT JOIN school_classes c ON s.class_id = c.id
              LEFT JOIN sections sec ON s.section_id = sec.id
+             LEFT JOIN batches b ON s.batch_id = b.id
              WHERE s.id = ?",
             [$studentId]
         );
@@ -85,7 +86,7 @@ class ProgressReportController extends Controller
         }
 
         $results = $db->fetchAll(
-            "SELECT er.*, e.name as exam_name, sub.name as subject_name
+            "SELECT er.*, e.name as exam_name, e.total_marks, sub.name as subject_name
              FROM exam_results er
              LEFT JOIN exams e ON er.exam_id = e.id
              LEFT JOIN subjects sub ON er.subject_id = sub.id
@@ -94,21 +95,100 @@ class ProgressReportController extends Controller
             [$studentId]
         );
 
-        $attendanceRate = $this->attendanceRate($studentId);
-        $totalMarks = 0;
-        $count = 0;
+        $rows = [];
+        $totalObtained = 0.0;
+        $totalPossible = 0.0;
         foreach ($results as $r) {
-            $totalMarks += (float) ($r['marks'] ?? 0);
-            $count++;
-        }
-        $average = $count > 0 ? round($totalMarks / $count, 1) : 0;
+            $obtained = (float) ($r['obtained_marks'] ?? 0);
+            $total = (float) ($r['total_marks'] ?? 0);
+            $percentage = $total > 0 ? round(($obtained / $total) * 100, 2) : 0;
+            $gradeInfo = $this->calculateGrade($percentage);
 
-        $this->view('dashboard.progress_reports.generate', [
-            'student'        => $student,
-            'results'        => $results,
-            'attendanceRate' => $attendanceRate,
-            'average'        => $average,
+            $totalObtained += $obtained;
+            $totalPossible += $total;
+
+            $rows[] = [
+                'exam_name'  => $r['exam_name'] ?? 'N/A',
+                'subject'    => $r['subject_name'] ?? 'N/A',
+                'obtained'   => $obtained,
+                'total'      => $total,
+                'percentage' => $percentage,
+                'grade'      => $gradeInfo['grade'],
+                'points'     => $gradeInfo['points'],
+                'remark'     => $gradeInfo['remark'],
+                'status'     => $r['status'] ?? '',
+            ];
+        }
+
+        $overallPercentage = $totalPossible > 0 ? round(($totalObtained / $totalPossible) * 100, 2) : 0;
+        $overall = $this->calculateGrade($overallPercentage);
+
+        $submissions = $db->fetchAll(
+            "SELECT asub.marks, a.title, a.total_marks as assignment_total, sub.name as subject_name
+             FROM assignment_submissions asub
+             LEFT JOIN assignments a ON asub.assignment_id = a.id
+             LEFT JOIN subjects sub ON a.subject_id = sub.id
+             WHERE asub.student_id = ? AND asub.marks IS NOT NULL",
+            [$studentId]
+        );
+
+        $assignmentRows = [];
+        $assignmentTotalPercentage = 0;
+        $assignmentCount = 0;
+        foreach ($submissions as $sub) {
+            $marks = (float) ($sub['marks'] ?? 0);
+            $total = (float) ($sub['assignment_total'] ?? 0);
+            $pct = $total > 0 ? round(($marks / $total) * 100, 2) : 0;
+
+            $assignmentTotalPercentage += $pct;
+            $assignmentCount++;
+
+            $assignmentRows[] = [
+                'title'      => $sub['title'] ?? 'Assignment',
+                'subject'    => $sub['subject_name'] ?? 'N/A',
+                'marks'      => $marks,
+                'total'      => $total,
+                'percentage' => $pct,
+            ];
+        }
+
+        $assignmentAverage = $assignmentCount > 0 ? round($assignmentTotalPercentage / $assignmentCount, 2) : null;
+
+        $this->view('dashboard.progress-reports.show', [
+            'student'            => \App\Models\Student::newFromRow($student),
+            'rows'               => $rows,
+            'overall'            => $overall,
+            'overallPercentage'  => $overallPercentage,
+            'assignmentRows'     => $assignmentRows,
+            'assignmentAverage'  => $assignmentAverage,
+            'settings'           => \App\Models\WebsiteSetting::getSettings(),
+            'generatedAt'        => new \App\Core\Support\Carbon(),
+            'attendanceRate'     => $this->attendanceRate($studentId),
         ]);
+    }
+
+    /**
+     * Mirrors the app's Exam::calculateGrade() default grading scale.
+     */
+    private function calculateGrade(float $score): array
+    {
+        $scale = [
+            [80, 100, 'A+', 4.0, 'Excellent'],
+            [70, 79, 'A', 3.7, 'Very Good'],
+            [65, 69, 'A-', 3.3, 'Good'],
+            [60, 64, 'B+', 3.0, 'Above Average'],
+            [55, 59, 'B', 2.7, 'Average'],
+            [50, 54, 'B-', 2.3, 'Satisfactory'],
+            [45, 49, 'C+', 2.0, 'Below Average'],
+            [40, 44, 'C', 1.7, 'Pass'],
+            [0, 39, 'F', 0.0, 'Fail'],
+        ];
+        foreach ($scale as [$min, $max, $grade, $points, $remark]) {
+            if ($score >= $min && $score <= $max) {
+                return ['grade' => $grade, 'points' => $points, 'remark' => $remark];
+            }
+        }
+        return ['grade' => 'F', 'points' => 0.0, 'remark' => 'Fail'];
     }
 
     private function attendanceRate(int $studentId): float

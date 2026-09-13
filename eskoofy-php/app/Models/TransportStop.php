@@ -16,6 +16,8 @@ class TransportStop extends Model
 
     protected array $casts = [
         'sort' => 'integer',
+        'pickup_time' => 'datetime',
+        'drop_time' => 'datetime',
     ];
 
     public function route()

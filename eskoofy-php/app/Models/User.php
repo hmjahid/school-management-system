@@ -19,6 +19,7 @@ class User extends Model
     protected array $hidden = ['password'];
 
     protected array $casts = [
+        'date_of_birth' => 'date',
         'email_verified_at' => 'datetime',
     ];
 
@@ -40,6 +41,29 @@ class User extends Model
     public function roles()
     {
         return $this->belongsToMany(Role::class);
+    }
+
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class, 'model_has_permissions', 'model_id', 'permission_id');
+    }
+
+    public function getPermissionNames(): \App\Core\Support\Collection
+    {
+        $names = [];
+        try {
+            $rows = static::db()->fetchAll(
+                "SELECT p.name FROM permissions p
+                 JOIN model_has_permissions mhp ON mhp.permission_id = p.id
+                 WHERE mhp.model_id = ? AND mhp.model_type = 'App\\\\Models\\\\User'
+                 ORDER BY p.name ASC",
+                [(int) $this->getKey()]
+            );
+            $names = array_column($rows, 'name');
+        } catch (\Throwable) {
+            // Permissions tables may not exist yet.
+        }
+        return new \App\Core\Support\Collection($names);
     }
 
     public function schoolRole()

@@ -53,3 +53,77 @@ $router->group('/api/v1', function (App\Core\Router $r) {
     $r->put('/admissions/{id}', 'App\\Controllers\\Api\\AdmissionController', 'update');
     $r->delete('/admissions/{id}', 'App\\Controllers\\Api\\AdmissionController', 'destroy');
 }, ['AuthMiddleware', 'ForceJsonMiddleware']);
+
+// ---------------------------------------------------------------------------
+// API v1 additions (parity with eskoofy-app)
+// ---------------------------------------------------------------------------
+
+$router->get('/api/v1/admission-filters', 'App\\Controllers\\Api\\AdmissionController', 'filterOptions');
+$router->get('/api/v1/export/admissions', 'App\\Controllers\\Api\\AdmissionController', 'export');
+$router->post('/api/v1/import/admissions', 'App\\Controllers\\Api\\AdmissionController', 'import');
+$router->get('/api/v1/admissions/status/{reference}', 'App\\Controllers\\Api\\AdmissionController', 'status');
+
+$router->group('/api/v1', function (App\Core\Router $r) {
+    $r->post('/admissions/{id}/approve', 'App\\Controllers\\Api\\AdmissionController', 'approve');
+    $r->post('/admissions/{id}/reject', 'App\\Controllers\\Api\\AdmissionController', 'reject');
+    $r->post('/admissions/{id}/enroll', 'App\\Controllers\\Api\\AdmissionController', 'enroll');
+    $r->post('/admissions/{id}/submit', 'App\\Controllers\\Api\\AdmissionController', 'submit');
+    $r->post('/admissions/{id}/documents', 'App\\Controllers\\Api\\AdmissionController', 'uploadDocument');
+    $r->get('/admissions/{id}/documents/{documentId}', 'App\\Controllers\\Api\\AdmissionController', 'viewDocument');
+    $r->delete('/admissions/{id}/documents/{documentId}', 'App\\Controllers\\Api\\AdmissionController', 'deleteDocument');
+}, ['AuthMiddleware', 'ForceJsonMiddleware']);
+
+// Payments (public + protected)
+$router->get('/api/v1/payments/gateways', 'App\\Controllers\\Api\\PaymentController', 'gateways');
+$router->post('/api/v1/payments/webhook/{gateway}', 'App\\Controllers\\Api\\PaymentController', 'webhook');
+$router->post('/api/v1/payments/callback/{gateway}', 'App\\Controllers\\Api\\PaymentController', 'callback');
+
+$router->group('/api/v1', function (App\Core\Router $r) {
+    $r->get('/payments', 'App\\Controllers\\Api\\PaymentController', 'index');
+    $r->post('/payments/initiate', 'App\\Controllers\\Api\\PaymentController', 'initiate');
+    $r->post('/payments/record-offline', 'App\\Controllers\\Api\\PaymentController', 'recordOffline');
+    $r->get('/payments/export', 'App\\Controllers\\Api\\PaymentController', 'export');
+    $r->get('/payments/{id}', 'App\\Controllers\\Api\\PaymentController', 'show');
+    $r->get('/payments/status/{id}', 'App\\Controllers\\Api\\PaymentController', 'status');
+    $r->put('/payments/{id}/status', 'App\\Controllers\\Api\\PaymentController', 'updateStatus');
+    $r->post('/payments/{id}/refunds', 'App\\Controllers\\Api\\RefundController', 'store');
+}, ['AuthMiddleware', 'ForceJsonMiddleware']);
+
+// Refunds
+$router->group('/api/v1', function (App\Core\Router $r) {
+    $r->get('/refunds', 'App\\Controllers\\Api\\RefundController', 'index');
+    $r->get('/refunds/statistics', 'App\\Controllers\\Api\\RefundController', 'statistics');
+    $r->get('/refunds/{id}', 'App\\Controllers\\Api\\RefundController', 'show');
+    $r->post('/refunds/{id}/process', 'App\\Controllers\\Api\\RefundController', 'process');
+    $r->post('/refunds/{id}/cancel', 'App\\Controllers\\Api\\RefundController', 'cancel');
+}, ['AuthMiddleware', 'ForceJsonMiddleware']);
+
+// Payment gateways
+$router->group('/api/v1', function (App\Core\Router $r) {
+    $r->get('/payment-gateways', 'App\\Controllers\\Api\\PaymentGatewayController', 'index');
+    $r->post('/payment-gateways', 'App\\Controllers\\Api\\PaymentGatewayController', 'store');
+    $r->get('/payment-gateways/{id}', 'App\\Controllers\\Api\\PaymentGatewayController', 'show');
+    $r->put('/payment-gateways/{id}', 'App\\Controllers\\Api\\PaymentGatewayController', 'update');
+    $r->delete('/payment-gateways/{id}', 'App\\Controllers\\Api\\PaymentGatewayController', 'destroy');
+}, ['AuthMiddleware', 'ForceJsonMiddleware']);
+
+// Students API (extended)
+$router->group('/api/v1', function (App\Core\Router $r) {
+    $r->get('/students/{id}/edit', 'App\\Controllers\\Api\\StudentController', 'edit');
+    $r->get('/students/{id}/attendance', 'App\\Controllers\\Api\\StudentController', 'attendance');
+    $r->get('/students/{id}/fees', 'App\\Controllers\\Api\\StudentController', 'fees');
+    $r->get('/students/{id}/results', 'App\\Controllers\\Api\\StudentController', 'results');
+}, ['AuthMiddleware', 'ForceJsonMiddleware']);
+
+// Notifications API (parity with eskoofy-app routes/notifications.php)
+$router->group('/api/v1', function (App\Core\Router $r) {
+    $r->get('/notifications', 'App\\Controllers\\Api\\NotificationApiController', 'index');
+    $r->get('/notifications/unread-count', 'App\\Controllers\\Api\\NotificationApiController', 'unreadCount');
+    $r->post('/notifications/{id}/read', 'App\\Controllers\\Api\\NotificationApiController', 'markAsRead');
+    $r->post('/notifications/read-all', 'App\\Controllers\\Api\\NotificationApiController', 'markAllAsRead');
+    $r->delete('/notifications/{id}', 'App\\Controllers\\Api\\NotificationApiController', 'destroy');
+    $r->delete('/notifications', 'App\\Controllers\\Api\\NotificationApiController', 'clearAll');
+    $r->get('/notification-preferences', 'App\\Controllers\\Api\\NotificationApiController', 'getPreferences');
+    $r->put('/notification-preferences', 'App\\Controllers\\Api\\NotificationApiController', 'updatePreferences');
+    $r->get('/notifications/stream', 'App\\Controllers\\Api\\NotificationApiController', 'stream');
+}, ['AuthMiddleware', 'ForceJsonMiddleware']);

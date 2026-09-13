@@ -72,6 +72,40 @@ class Carbon implements \Stringable
         return $this->dt->format('c');
     }
 
+    public function toIso8601String(): string
+    {
+        return $this->dt->format(\DateTimeInterface::ATOM);
+    }
+
+    /**
+     * Simple human-readable relative time ("5 minutes ago"), mirroring the
+     * subset of Carbon's diffForHumans used by the ported Blade views.
+     */
+    public function diffForHumans(mixed $other = null): string
+    {
+        $otherTs = $other === null ? time() : (new static($other))->timestamp();
+        $diff = $this->timestamp() - $otherTs;
+        $abs = abs($diff);
+        $suffix = $diff <= 0 ? 'ago' : 'from now';
+
+        if ($abs < 60) {
+            return $abs . ' seconds ' . $suffix;
+        }
+        if ($abs < 3600) {
+            return (int) floor($abs / 60) . ' minutes ' . $suffix;
+        }
+        if ($abs < 86400) {
+            return (int) floor($abs / 3600) . ' hours ' . $suffix;
+        }
+        if ($abs < 2592000) {
+            return (int) floor($abs / 86400) . ' days ' . $suffix;
+        }
+        if ($abs < 31536000) {
+            return (int) floor($abs / 2592000) . ' months ' . $suffix;
+        }
+        return (int) floor($abs / 31536000) . ' years ' . $suffix;
+    }
+
     public function startOfMonth(): static
     {
         return new static($this->dt->format('Y-m-01 00:00:00'));

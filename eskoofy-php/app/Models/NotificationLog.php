@@ -20,6 +20,8 @@ class NotificationLog extends Model
         'sent_at' => 'datetime',
         'delivered_at' => 'datetime',
         'opened_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
         'metadata' => 'json',
     ];
 

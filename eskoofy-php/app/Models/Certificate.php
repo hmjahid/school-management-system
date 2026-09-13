@@ -22,6 +22,9 @@ class Certificate extends Model
         'template' => 'json',
         'issue_date' => 'date',
         'body' => 'json',
+        'details' => 'json',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     public function student()

@@ -20,6 +20,8 @@ class Announcement extends Model
         'is_published' => 'boolean',
         'starts_at' => 'datetime',
         'ends_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     public function scopePublished($query)

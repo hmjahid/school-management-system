@@ -150,6 +150,61 @@ class FeePaymentController extends Controller
         $this->redirect('/dashboard/fee-payments');
     }
 
+    public function show(int $id): void
+    {
+        Auth::requireAuth();
+        $payment = $this->db->fetch("SELECT * FROM fee_payments WHERE id = ? LIMIT 1", [$id]);
+        if (!$payment) {
+            Session::getInstance()->flash('error', 'Payment not found.');
+            $this->redirect('/dashboard/fee-payments');
+            return;
+        }
+
+        $this->view('dashboard.fee-payments.show', [
+            'payment' => \App\Models\FeePayment::newFromRow($payment),
+        ]);
+    }
+
+    public function approve(int $id): void
+    {
+        Auth::requireAuth();
+        $payment = $this->db->fetch("SELECT id FROM fee_payments WHERE id = ? LIMIT 1", [$id]);
+        if (!$payment) {
+            Session::getInstance()->flash('error', 'Payment not found.');
+            $this->redirect('/dashboard/fee-payments');
+            return;
+        }
+
+        $this->db->update('fee_payments', [
+            'status'      => 'paid',
+            'approved_by' => Auth::id(),
+            'approved_at' => date('Y-m-d H:i:s'),
+            'updated_at'  => date('Y-m-d H:i:s'),
+        ], 'id = ?', [$id]);
+
+        Session::getInstance()->flash('success', 'Payment approved.');
+        $this->back();
+    }
+
+    public function cancel(int $id): void
+    {
+        Auth::requireAuth();
+        $payment = $this->db->fetch("SELECT id FROM fee_payments WHERE id = ? LIMIT 1", [$id]);
+        if (!$payment) {
+            Session::getInstance()->flash('error', 'Payment not found.');
+            $this->redirect('/dashboard/fee-payments');
+            return;
+        }
+
+        $this->db->update('fee_payments', [
+            'status'     => 'cancelled',
+            'updated_at' => date('Y-m-d H:i:s'),
+        ], 'id = ?', [$id]);
+
+        Session::getInstance()->flash('success', 'Payment cancelled.');
+        $this->back();
+    }
+
     public function receipt(int $id): void
     {
         Auth::requireAuth();

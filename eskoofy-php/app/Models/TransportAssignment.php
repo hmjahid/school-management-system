@@ -33,4 +33,18 @@ class TransportAssignment extends Model
     {
         return $this->belongsTo(TransportStop::class, 'stop_id');
     }
+
+    public function isActive(): bool
+    {
+        $today = date('Y-m-d');
+        $from = $this->effective_from;
+        if ($from instanceof \App\Core\Support\Carbon && $from->gt($today)) {
+            return false;
+        }
+        $to = $this->effective_to;
+        if ($to instanceof \App\Core\Support\Carbon && $to->lt($today)) {
+            return false;
+        }
+        return true;
+    }
 }
