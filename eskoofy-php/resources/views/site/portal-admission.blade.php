@@ -14,7 +14,7 @@
 
         @if(! $admission)
             <div class="mt-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                <p class="text-gray-700">{{ str_replace(':email', auth()->user()->email, site_ui('portal_admission.no_app')) }}</p>
+                <p class="text-gray-700">{{ str_replace(':email', auth()->user()?->email, site_ui('portal_admission.no_app')) }}</p>
                 <p class="mt-2 text-sm text-gray-600">{{ site_ui('portal_admission.no_app_hint') }}</p>
                 <a href="{{ route('admissions.status') }}" class="mt-4 inline-block text-sm font-semibold text-blue-700 hover:underline">{{ site_ui('portal_admission.track_status') }}</a>
             </div>

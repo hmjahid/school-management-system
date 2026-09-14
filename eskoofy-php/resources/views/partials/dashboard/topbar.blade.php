@@ -130,8 +130,8 @@ document.addEventListener('DOMContentLoaded', function() {
     {{-- User avatar dropdown --}}
     <div class="relative" data-user-menu-root>
         <button type="button" data-user-menu-toggle class="flex items-center gap-2 rounded-lg p-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700" aria-expanded="false">
-            <img src="{{ $user->profile_photo_url }}" alt="" class="h-7 w-7 rounded-full object-cover ring-2 ring-slate-200 dark:ring-slate-600">
-            <span class="hidden md:inline">{{ $user->name }}</span>
+            <img src="{{ $user->profile_photo_url ?? '' }}" alt="" class="h-7 w-7 rounded-full object-cover ring-2 ring-slate-200 dark:ring-slate-600">
+            <span class="hidden md:inline">{{ $user->name ?? '' }}</span>
             <svg class="hidden h-4 w-4 text-slate-400 md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
         </button>
         <div data-user-menu-panel class="absolute right-0 top-full z-50 mt-2 hidden w-56 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg dark:border-slate-700 dark:bg-slate-800" role="menu">

@@ -18,7 +18,7 @@
     <div class="mb-6 flex items-center justify-between">
         <div>
             <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{{ __('Dashboard') }}</h1>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ __('Welcome back,') }} {{ auth()->user()->name }}!</p>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ __('Welcome back,') }} {{ auth()->user()?->name }}!</p>
         </div>
         <div class="flex gap-2">
             <a href="{{ route('dashboard.bulk') }}" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600">

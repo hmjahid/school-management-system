@@ -17,7 +17,7 @@
         @include('dashboard.partials.form-errors')
         <form method="post" action="{{ route('dashboard.leaves.store') }}" class="space-y-5">
             @csrf
-            @if(auth()->user()->hasAnyRole(['admin','staff']))
+            @if(auth()->user()?->hasAnyRole(['admin','staff']))
                 <div>
                     <label class="mb-1 block text-sm font-medium text-slate-700">{{ __('Teacher') }}</label>
                     <select name="teacher_id" required class="admin-select">
