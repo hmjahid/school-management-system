@@ -146,18 +146,33 @@ if ( ! function_exists( 'esk_date_format' ) ) {
 
 if ( ! function_exists( 'esk_site_ui' ) ) {
 	/**
-	 * Get a translation string from the site UI language file.
+	 * Get a translation string (or array) from the site UI language file.
+	 *
+	 * Looks for languages/{locale}/site_ui.php, then falls back to the
+	 * base language code (e.g. `bn` -> `bn_BD`) and finally `en_US`,
+	 * mirroring the app's deep-merge i18n behaviour.
+	 *
+	 * @param  string $key     Dot-notation key, e.g. "home.hero_headline".
+	 * @param  mixed  $default Value to return when the key is missing.
+	 * @return mixed
 	 */
-	function esk_site_ui( string $key, string $default = '' ): string {
+	function esk_site_ui( string $key, $default = null ) {
 		static $strings = null;
 		if ( null === $strings ) {
-			$locale    = get_locale();
-			$file_path = ESK_PATH . '/languages/' . $locale . '/site_ui.php';
-			if ( ! file_exists( $file_path ) ) {
-				$file_path = ESK_PATH . '/languages/en/site_ui.php';
+			$locale = (string) get_option( 'esk_locale', '' );
+			if ( '' === $locale ) {
+				$locale = get_locale();
 			}
-			if ( file_exists( $file_path ) ) {
-				$strings = include $file_path;
+			$base    = strtolower( (string) strtok( $locale, '_' ) );
+			$paths   = array_map(
+				static fn( string $lang ) => ESK_PATH . '/languages/' . $lang . '/site_ui.php',
+				array_unique( array( $locale, $base, 'en_US' ) )
+			);
+			foreach ( $paths as $candidate ) {
+				if ( file_exists( $candidate ) ) {
+					$strings = include $candidate;
+					break;
+				}
 			}
 			if ( ! is_array( $strings ) ) {
 				$strings = array();
@@ -169,10 +184,10 @@ if ( ! function_exists( 'esk_site_ui' ) ) {
 			if ( is_array( $value ) && isset( $value[ $part ] ) ) {
 				$value = $value[ $part ];
 			} else {
-				return $default !== '' ? $default : $key;
+				return $default;
 			}
 		}
-		return is_string( $value ) ? $value : $key;
+		return $value;
 	}
 }
 
@@ -182,6 +197,114 @@ if ( ! function_exists( 'esk_get_option' ) ) {
 	 */
 	function esk_get_option( string $key, string $default = '' ): string {
 		return get_option( 'esk_' . $key, $default );
+	}
+}
+
+if ( ! function_exists( 'esk_theme_primary' ) ) {
+	/**
+	 * Resolve the primary accent color.
+	 *
+	 * Single source of truth so the customizer theme mod, the admin Settings
+	 * option and the stylesheet default can never disagree: theme mod first,
+	 * then option, then the app default (#2563eb = blue-600).
+	 */
+	function esk_theme_primary(): string {
+		$mod = get_theme_mod( 'esk_color_primary', '' );
+		if ( is_string( $mod ) && '' !== trim( $mod ) ) {
+			return sanitize_hex_color( trim( $mod ) ) ?: '#2563eb';
+		}
+		$option = (string) esk_get_option( 'theme_color', '' );
+		if ( '' !== $option ) {
+			return sanitize_hex_color( $option ) ?: '#2563eb';
+		}
+		return '#2563eb';
+	}
+}
+
+if ( ! function_exists( 'esk_theme_secondary' ) ) {
+	/**
+	 * Resolve the secondary/warm accent color.
+	 *
+	 * Mirrors the app's orange secondary (#f97316 = orange-500): theme mod
+	 * first, then option, then the app default.
+	 */
+	function esk_theme_secondary(): string {
+		$mod = get_theme_mod( 'esk_color_accent', '' );
+		if ( is_string( $mod ) && '' !== trim( $mod ) ) {
+			return sanitize_hex_color( trim( $mod ) ) ?: '#f97316';
+		}
+		$option = (string) esk_get_option( 'theme_secondary_color', '' );
+		if ( '' !== $option ) {
+			return sanitize_hex_color( $option ) ?: '#f97316';
+		}
+		return '#f97316';
+	}
+}
+
+if ( ! function_exists( 'esk_school' ) ) {
+	/**
+	 * Resolve a school setting: WP option first, then customizer theme mod,
+	 * then fallback. Mirrors the app's merged settings lookup.
+	 */
+	function esk_school( string $key, string $default = '' ): string {
+		$option = get_option( 'esk_' . $key, '' );
+		if ( '' !== $option ) {
+			return (string) $option;
+		}
+		$mod = get_theme_mod( 'esk_' . $key, '' );
+		return '' !== $mod ? (string) $mod : $default;
+	}
+}
+
+if ( ! function_exists( 'esk_home_section' ) ) {
+	/**
+	 * Fetch a row from esk_website_contents for the homepage (page='home').
+	 *
+	 * @return object|null Row object or null when missing / table absent.
+	 */
+	function esk_home_section( string $section ) {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'esk_website_contents';
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+			return null;
+		}
+
+		return $wpdb->get_row( $wpdb->prepare(
+			"SELECT * FROM {$table} WHERE page = 'home' AND section = %s LIMIT 1",
+			$section
+		) );
+	}
+}
+
+if ( ! function_exists( 'esk_admissions_open' ) ) {
+	/**
+	 * Whether the admissions round is currently open.
+	 */
+	function esk_admissions_open(): bool {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'esk_admission_settings';
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+			return false;
+		}
+
+		return (bool) $wpdb->get_var( "SELECT is_open FROM {$table} ORDER BY id DESC LIMIT 1" );
+	}
+}
+
+if ( ! function_exists( 'esk_initials' ) ) {
+	/**
+	 * Uppercase initials for the first words of a name.
+	 */
+	function esk_initials( string $name ): string {
+		$parts = preg_split( '/\s+/', trim( $name ) );
+		$parts = array_slice( (array) $parts, 0, 2 );
+		$initials = '';
+		foreach ( $parts as $part ) {
+			$initials .= strtoupper( mb_substr( (string) $part, 0, 1 ) );
+		}
+		return $initials !== '' ? $initials : '?';
 	}
 }
 
@@ -205,3 +328,72 @@ if ( ! function_exists( 'esk_verify_nonce' ) ) {
 		return true;
 	}
 }
+
+/**
+ * Fetch website-contents rows for a given page slug, guarded against missing table.
+ */
+if ( ! function_exists( 'esk_page_rows' ) ) {
+	function esk_page_rows( string $page ): array {
+		global $wpdb;
+		$table = $wpdb->prefix . 'esk_website_contents';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$table_exists = (string) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
+		if ( '' === $table_exists ) {
+			return array();
+		}
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		return (array) $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE page = %s ORDER BY sort_order, section", $page ) );
+	}
+}
+
+/**
+ * Render sections from esk_website_contents for a page.
+ */
+if ( ! function_exists( 'esk_render_page_content' ) ) {
+	function esk_render_page_content( string $page, string $fallback_option = '' ): void {
+		$rows = esk_page_rows( $page );
+		if ( ! empty( $rows ) ) {
+			foreach ( $rows as $row ) {
+				if ( empty( $row->title ) && empty( $row->content ) ) {
+					continue;
+				}
+				echo '<section class="esk-page-section reveal">';
+				if ( ! empty( $row->title ) ) {
+					echo '<h2 class="esk-page-section-title">' . esc_html( $row->title ) . '</h2>';
+				}
+				if ( ! empty( $row->image ) ) {
+					echo '<img class="esk-page-section-image" src="' . esc_url( $row->image ) . '" alt="' . esc_attr( $row->title ?? '' ) . '">';
+				}
+				if ( ! empty( $row->content ) ) {
+					echo '<div class="esk-page-section-content">' . wp_kses_post( $row->content ) . '</div>';
+				}
+				echo '</section>';
+			}
+		} elseif ( $fallback_option !== '' ) {
+			$fallback = get_option( $fallback_option, '' );
+			if ( '' !== $fallback ) {
+				echo '<section class="esk-page-section"><div class="esk-page-section-content">' . wp_kses_post( $fallback ) . '</div></section>';
+			}
+		}
+	}
+}
+
+/**
+ * Fetch first title from esk_website_contents for a page slug.
+ */
+if ( ! function_exists( 'esk_page_title' ) ) {
+	function esk_page_title( string $page, string $fallback = '' ): string {
+		global $wpdb;
+		$table = $wpdb->prefix . 'esk_website_contents';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$table_exists = (string) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
+		if ( '' === $table_exists ) {
+			return $fallback;
+		}
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT title FROM {$table} WHERE page = %s AND title != '' ORDER BY sort_order LIMIT 1", $page ) );
+		return $row && ! empty( $row->title ) ? $row->title : $fallback;
+	}
+}
+
+/* Contact form handling lives in functions.php init hook (esk_post_contact). */

@@ -73,4 +73,76 @@
     $(this).closest('.esk-modal').removeClass('esk-modal-active');
   });
 
+  // App-style confirm modal: replaces native `confirm()` used by the
+  // views' inline `onclick="return confirm('...')"` handlers.
+  (function () {
+    var modalRoot = document.getElementById('esk-confirm-modal');
+    if (!modalRoot) { return; }
+    var confirmBtn = document.getElementById('esk-confirm-ok');
+    var cancelBtn = document.getElementById('esk-confirm-cancel');
+    var msgEl = document.getElementById('esk-confirm-message');
+    var pending = null;
+
+    function closeModal() {
+      modalRoot.classList.remove('is-open');
+      pending = null;
+    }
+
+    document.addEventListener('click', function (e) {
+      var target = e.target;
+      if (!(target instanceof Element)) { return; }
+      var el = target.closest('a, button, input[type="submit"], input[type="button"]');
+      if (!el) { return; }
+      var oc = el.getAttribute && (el.getAttribute('onclick') || '');
+      if (oc.indexOf('confirm(') === -1) { return; }
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      var m = oc.match(/confirm\(\s*['"]([^'"]*)['"]\s*\)/);
+      msgEl.textContent = m && m[1] ? m[1] : 'Are you sure?';
+      modalRoot.classList.add('is-open');
+      pending = el;
+    }, true);
+
+    document.addEventListener('submit', function (e) {
+      var form = e.target;
+      if (!(form instanceof HTMLFormElement)) { return; }
+      var os = form.getAttribute && (form.getAttribute('onsubmit') || '');
+      if (os.indexOf('confirm(') === -1) { return; }
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      var m = os.match(/confirm\(\s*['"]([^'"]*)['"]\s*\)/);
+      msgEl.textContent = m && m[1] ? m[1] : 'Are you sure?';
+      modalRoot.classList.add('is-open');
+      pending = form;
+    }, true);
+
+    if (confirmBtn) {
+      confirmBtn.addEventListener('click', function () {
+        var action = pending;
+        closeModal();
+        if (action instanceof HTMLFormElement) {
+          action.submit();
+          return;
+        }
+        if (!action) { return; }
+        var tag = action.tagName.toLowerCase();
+        if (tag === 'a') {
+          var href = action.getAttribute('href');
+          if (href) { window.location.href = href; }
+        } else {
+          var form = action.form;
+          if (form) { form.submit(); }
+        }
+      });
+    }
+    if (cancelBtn) { cancelBtn.addEventListener('click', closeModal); }
+    modalRoot.addEventListener('click', function (e) {
+      if (e.target === modalRoot) { closeModal(); }
+    });
+  })();
+
 })(jQuery);

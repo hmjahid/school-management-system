@@ -588,9 +588,28 @@ function esk_register_admin_menus(): void {
 		'esk_library_reports_page'
 	);
 }
-add_action( 'admin_menu', 'esk_register_admin_menus' );
+// The management dashboard is served on the frontend at /dashboard/…
+// (inc/front-dashboard.php), NOT inside the WordPress admin. Set
+// ESK_ENABLE_WPADMIN_MENU=true in wp-config to re-register the legacy
+// wp-admin menu (the callback functions above are still used by the
+// frontend router either way).
+if ( defined( 'ESK_ENABLE_WPADMIN_MENU' ) && ESK_ENABLE_WPADMIN_MENU ) {
+	add_action( 'admin_menu', 'esk_register_admin_menus' );
+}
 
 /* ─── Page renderers ───────────────────────────────────────────── */
+
+function esk_events_page(): void {
+	esk_render_admin_view( 'events' );
+}
+
+function esk_news_page(): void {
+	esk_render_admin_view( 'news' );
+}
+
+function esk_gallery_page(): void {
+	esk_render_admin_view( 'gallery' );
+}
 
 function esk_dashboard_page(): void {
 	esk_render_admin_view( 'dashboard' );

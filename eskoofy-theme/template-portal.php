@@ -2,7 +2,7 @@
 /**
  * Template Name: Portal Info
  *
- * Public info about student/parent portal — login URL etc.
+ * Public info about the student/parent portal.
  *
  * @package Eskoofy
  */
@@ -10,26 +10,28 @@
 declare(strict_types=1);
 
 get_header();
+
+get_template_part(
+	'template-parts/inner-hero',
+	null,
+	array(
+		'title'    => (string) esk_site_ui( 'pages.portal_heading', __( 'Parent / Student portal', 'eskoofy' ) ),
+		'subtitle' => (string) esk_site_ui( 'pages.portal_intro', '' ),
+	)
+);
 ?>
-<div class="eskoofy-container">
-	<h1><?php esc_html_e( 'Student & Parent Portal', 'eskoofy' ); ?></h1>
-	<p><?php esc_html_e( 'The portal gives students and parents access to results, attendance, fee status, and notices.', 'eskoofy' ); ?></p>
-
-	<h2><?php esc_html_e( 'Public Tools', 'eskoofy' ); ?></h2>
-	<ul>
-		<li><?php esc_html_e( 'Results lookup — by admission number', 'eskoofy' ); ?></li>
-		<li><?php esc_html_e( 'Fee status — by admission number', 'eskoofy' ); ?></li>
-		<li><?php esc_html_e( 'Admission application', 'eskoofy' ); ?></li>
-	</ul>
-
-	<h2><?php esc_html_e( 'Account Login', 'eskoofy' ); ?></h2>
-	<p>
-		<a class="esk-button esk-button-primary" href="<?php echo esc_url( wp_login_url() ); ?>">
-			<?php esc_html_e( 'Sign In', 'eskoofy' ); ?>
-		</a>
-	</p>
-
-	<h2><?php esc_html_e( 'First Time?', 'eskoofy' ); ?></h2>
-	<p><?php esc_html_e( 'Parents and students receive an account from the school office after admission. If you need help, please contact the office.', 'eskoofy' ); ?></p>
+<div class="esk-page-sections">
+	<div class="esk-container">
+		<div class="esk-panel-grid">
+			<div class="esk-panel-card esk-card">
+				<span class="esk-panel-icon" aria-hidden="true">&#128274;</span>
+				<h2 class="esk-card-title"><?php echo esc_html( esk_site_ui( 'pages.login', __( 'Login', 'eskoofy' ) ) ); ?></h2>
+				<p class="esk-card-text"><?php echo esc_html( esk_site_ui( 'pages.portal_intro', '' ) ); ?></p>
+				<a class="esk-btn" href="<?php echo esc_url( home_url( '/login/' ) ); ?>"><?php echo esc_html( esk_site_ui( 'pages.login', '' ) ); ?></a>
+			</div>
+		</div>
+	</div>
 </div>
-<?php get_footer();
+<?php
+get_template_part( 'template-parts/page-sections', null, array( 'page' => 'portal', 'fallback_option' => '' ) );
+get_footer();

@@ -46,7 +46,7 @@ $flash    = esk_get_flash( 'success' );
 				<div class="esk-form-group">
 					<label><?php esc_html_e( 'Page', 'eskoofy' ); ?> *</label>
 					<select name="page" required>
-						<?php foreach ( array( 'about', 'academics', 'admissions', 'students-life', 'faculty', 'transport', 'committee', 'terms', 'privacy', 'portal' ) as $p ) : ?>
+						<?php foreach ( array( 'home', 'about', 'academics', 'admissions', 'students-life', 'faculty', 'transport', 'committee', 'terms', 'privacy', 'portal' ) as $p ) : ?>
 							<option value="<?php echo esc_attr( $p ); ?>"><?php echo esc_html( $p ); ?></option>
 						<?php endforeach; ?>
 					</select>

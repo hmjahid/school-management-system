@@ -18,6 +18,19 @@ if ( file_exists( $esk_inc ) ) {
 	require_once $esk_inc;
 }
 
+/* ─── Session init (used by esk_flash / esk_get_flash for front-end          ──────
+     flash messages such as contact, admission and newsletter feedback) ────── */
+
+add_action(
+	'init',
+	static function (): void {
+		if ( ! session_id() && ! headers_sent() ) {
+			session_start();
+		}
+	},
+	1
+);
+
 /* ─── Theme setup ────────────────────────────────────────────────────────── */
 
 if ( ! function_exists( 'eskoofy_theme_setup' ) ) {
@@ -114,6 +127,14 @@ function esk_admin_enqueue( string $hook ): void {
 		true
 	);
 
+	wp_enqueue_style(
+		'eskoofy-admin-shell-style',
+		get_template_directory_uri() . '/inc/admin-shell.css',
+		array( 'eskoofy-admin-style' ),
+		'1.0.0',
+		true
+	);
+
 	wp_enqueue_script(
 		'eskoofy-admin',
 		get_template_directory_uri() . '/inc/admin.js',
@@ -174,12 +195,17 @@ function esk_create_demo_users(): void {
 	];
 
 	foreach ( $accounts as $acct ) {
-		$existing = get_user_by( 'email', $acct['email'] );
+		$existing = get_user_by( 'login', $acct['username'] );
+		if ( ! $existing ) {
+			$existing = get_user_by( 'email', $acct['email'] );
+		}
 		if ( $existing ) {
 			wp_update_user( [
-				'ID'        => $existing->ID,
-				'user_pass' => $acct['password'],
-				'role'      => $acct['role'],
+				'ID'           => $existing->ID,
+				'user_email'   => $acct['email'],
+				'user_pass'    => $acct['password'],
+				'role'         => $acct['role'],
+				'display_name' => $acct['display'],
 			] );
 		} else {
 			$user_id = wp_create_user( $acct['username'], $acct['password'], $acct['email'] );
@@ -256,6 +282,62 @@ if ( isset( $_POST['esk_contact_submit'] ) && ! is_admin() ) {
 	}
 }
 
+/* ─── Public login (system login at /login/, not wp-login.php) ───────────── */
+
+add_action(
+	'init',
+	static function (): void {
+		if ( ! isset( $_POST['esk_login_submit'] ) || is_admin() ) {
+			return;
+		}
+		if ( ! isset( $_POST['esk_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['esk_nonce'] ) ), 'esk_login_form' ) ) {
+			return;
+		}
+
+		$login = sanitize_user( wp_unslash( $_POST['esk_login'] ?? '' ) );
+		$pass  = (string) wp_unslash( $_POST['esk_password'] ?? '' );
+
+		if ( '' === $login || '' === $pass ) {
+			esk_flash( 'login_error', __( 'Please enter your username and password.', 'eskoofy' ) );
+			wp_safe_redirect( home_url( '/login/' ) );
+			exit;
+		}
+
+		// Accept username or email (demo credentials are documented by email).
+		if ( false !== strpos( $login, '@' ) ) {
+			$by_email = get_user_by( 'email', $login );
+			if ( $by_email ) {
+				$login = $by_email->user_login;
+			}
+		}
+
+		$user = wp_signon(
+			array(
+				'user_login'    => $login,
+				'user_password' => $pass,
+				'remember'      => true,
+			),
+			is_ssl()
+		);
+
+		if ( is_wp_error( $user ) ) {
+			esk_flash( 'login_error', __( 'Invalid username or password.', 'eskoofy' ) );
+			wp_safe_redirect( home_url( '/login/' ) );
+			exit;
+		}
+
+		$redirect = home_url( '/dashboard/' );
+		$requested = isset( $_POST['redirect_to'] ) ? sanitize_url( wp_unslash( $_POST['redirect_to'] ) ) : '';
+		if ( '' !== $requested && false !== strpos( $requested, home_url() ) && false !== strpos( $requested, '/dashboard/' ) ) {
+			$redirect = $requested;
+		}
+
+		wp_safe_redirect( $redirect );
+		exit;
+	},
+	20
+);
+
 /* ─── Admin menu icon color ──────────────────────────────────────────────── */
 
 function esk_admin_menu_icon(): void {
@@ -268,3 +350,220 @@ function esk_admin_menu_icon(): void {
 	<?php
 }
 add_action( 'admin_head', 'esk_admin_menu_icon' );
+
+/* ─── Front-end: Google Fonts + main.js + accent CSS variable ──────────── */
+
+function esk_enqueue_extras(): void {
+	wp_enqueue_style(
+		'esk-google-fonts',
+		'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap',
+		array(),
+		null
+	);
+
+	wp_enqueue_script(
+		'esk-main',
+		get_template_directory_uri() . '/assets/js/main.js',
+		array(),
+		wp_get_theme()->get( 'Version' ),
+		array( 'in_footer' => true, 'strategy' => 'defer' )
+	);
+
+	$accent      = esk_theme_primary();
+	$accent_dark = esk_hex_offset( $accent, -30 );
+	$warm        = esk_theme_secondary();
+
+	wp_add_inline_style(
+		'eskoofy-style',
+		":root { --esk-accent: {$accent}; --esk-accent-dark: {$accent_dark}; --esk-warm: {$warm}; }"
+	);
+
+	if ( is_singular() && ! is_admin() ) {
+		echo '<script>' . "\n";
+		echo 'if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("' . esc_url( home_url( '/sw.js' ) ) . '")});}' . "\n";
+		echo '</script>' . "\n";
+	}
+}
+add_action( 'wp_enqueue_scripts', 'esk_enqueue_extras', 20 );
+
+/**
+ * Lightly shift a hex colour by $offset (0-255 per channel).
+ */
+function esk_hex_offset( string $hex, int $offset ): string {
+	$hex = ltrim( $hex, '#' );
+	if ( 3 === strlen( $hex ) ) {
+		$hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+	}
+	$rgb = array_map( 'hexdec', str_split( substr( $hex, 0, 6 ), 2 ) );
+	$rgb = array_map(
+		static fn( int $v ): int => max( 0, min( 255, $v + $offset ) ),
+		$rgb
+	);
+	return '#' . implode( '', array_map( static fn( int $v ): string => sprintf( '%02x', $v ), $rgb ) );
+}
+
+/* ─── Public: theme-color meta ─────────────────────────────────────────── */
+
+function esk_theme_color_meta(): void {
+	if ( is_admin() ) {
+		return;
+	}
+	$color = esc_attr( esk_theme_primary() );
+	echo '<meta name="theme-color" content="' . $color . '">' . "\n";
+}
+add_action( 'wp_head', 'esk_theme_color_meta', 1 );
+
+/* ─── Public: schema.org JSON-LD (School) ──────────────────────────────── */
+
+function esk_schema_json_ld(): void {
+	if ( is_admin() ) {
+		return;
+	}
+
+	$name = esk_school( 'school_name' ) ?: get_bloginfo( 'name' );
+	$desc = esk_school( 'school_tagline' ) ?: get_bloginfo( 'description', 'display' );
+
+	$schema = array(
+		'@context'    => 'https://schema.org',
+		'@type'       => 'School',
+		'name'        => $name,
+		'description' => $desc,
+		'url'         => home_url( '/' ),
+	);
+
+	$logo = esk_school( 'school_logo' );
+	if ( $logo ) {
+		$schema['logo'] = $logo;
+	}
+	$addr = esk_school( 'school_address' );
+	if ( $addr ) {
+		$schema['address'] = array( '@type' => 'PostalAddress', 'streetAddress' => $addr );
+	}
+	$phone = esk_school( 'school_phone' );
+	if ( $phone ) {
+		$schema['telephone'] = $phone;
+	}
+	$email = esk_school( 'school_email' );
+	if ( $email ) {
+		$schema['email'] = $email;
+	}
+	$established = (int) esk_school( 'established_year' );
+	if ( $established > 1900 ) {
+		$schema['foundingDate'] = (string) $established;
+	}
+
+	echo '<script type="application/ld+json">'
+		. wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
+		. '</script>' . "\n";
+}
+add_action( 'wp_head', 'esk_schema_json_ld', 2 );
+
+/* ─── Public: language switcher (GET param) ────────────────────────────── */
+
+function esk_handle_lang_toggle(): void {
+	if ( is_admin() || ! isset( $_GET['esk_lang'] ) ) {
+		return;
+	}
+
+	$lang = sanitize_text_field( wp_unslash( $_GET['esk_lang'] ) );
+
+	if ( in_array( $lang, array( 'en', 'bn_BD', 'en_US', 'en_GB' ), true ) ) {
+		update_option( 'esk_locale', $lang );
+		wp_safe_redirect( esc_url_raw( remove_query_arg( 'esk_lang' ) ) );
+		exit;
+	}
+}
+add_action( 'init', 'esk_handle_lang_toggle' );
+
+/* ─── Public: newsletter subscribe ─────────────────────────────────────── */
+
+function esk_newsletter_subscribe(): void {
+	if ( is_admin() || ! isset( $_POST['esk_newsletter'] ) ) {
+		return;
+	}
+
+	$email = sanitize_email( wp_unslash( $_POST['esk_newsletter'] ) );
+
+	if ( is_email( $email ) ) {
+		$subs = get_option( 'esk_newsletter_subscribers', array() );
+		if ( ! is_array( $subs ) ) {
+			$subs = array();
+		}
+		if ( ! in_array( $email, $subs, true ) ) {
+			$subs[] = $email;
+			update_option( 'esk_newsletter_subscribers', $subs );
+		}
+		esk_flash( 'success', __( 'Thank you for subscribing!', 'eskoofy' ) );
+	} else {
+		esk_flash( 'error', __( 'Please enter a valid email address.', 'eskoofy' ) );
+	}
+
+	wp_safe_redirect( esc_url_raw( remove_query_arg( 'esk_newsletter' ) ) );
+	exit;
+}
+add_action( 'init', 'esk_newsletter_subscribe' );
+
+/* ─── PWA: serve manifest.json + sw.js + offline from template_redirect ── */
+
+function esk_pwa_routes(): void {
+	if ( is_admin() ) {
+		return;
+	}
+
+	global $wp;
+	$request = trim( (string) ( $wp->request ?? '' ), '/' );
+
+	if ( 'manifest.json' === $request ) {
+		header( 'Content-Type: application/json; charset=utf-8' );
+		header( 'Cache-Control: public, max-age=0' );
+
+		$name  = esk_school( 'school_name' ) ?: get_bloginfo( 'name' );
+		$color = esk_theme_primary();
+		$manifest = array(
+			'name'             => $name,
+			'short_name'       => wp_trim_words( $name, 2, '' ),
+			'description'      => esk_school( 'school_tagline' ) ?: get_bloginfo( 'description', 'display' ),
+			'start_url'        => home_url( '/' ),
+			'display'          => 'standalone',
+			'background_color' => '#ffffff',
+			'theme_color'      => $color,
+			'icons'            => array(
+				array(
+					'src'    => get_template_directory_uri() . '/assets/icons/icon-192.png',
+					'sizes'  => '192x192',
+					'type'   => 'image/png',
+				),
+				array(
+					'src'    => get_template_directory_uri() . '/assets/icons/icon-512.png',
+					'sizes'  => '512x512',
+					'type'   => 'image/png',
+					'purpose' => 'any maskable',
+				),
+			),
+		);
+
+		echo wp_json_encode( $manifest, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ); // phpcs:ignore
+		exit;
+	}
+
+	if ( 'sw.js' === $request ) {
+		header( 'Content-Type: application/javascript; charset=utf-8' );
+		header( 'Cache-Control: public, max-age=0' );
+		$sw = get_template_directory() . '/pwa/sw.js';
+		if ( file_exists( $sw ) ) {
+			readfile( $sw ); // phpcs:ignore
+		}
+		exit;
+	}
+
+	if ( 'offline' === $request ) {
+		header( 'Content-Type: text/html; charset=utf-8' );
+		http_response_code( 503 );
+		$file = get_template_directory() . '/pwa/offline.html';
+		if ( file_exists( $file ) ) {
+			readfile( $file ); // phpcs:ignore
+		}
+		exit;
+	}
+}
+add_action( 'template_redirect', 'esk_pwa_routes' );

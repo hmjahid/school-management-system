@@ -79,20 +79,44 @@ in php version, mak ethe frontend language switcher and dashboard language switc
 
 in php version, some dashboard pages are showing like frontend page with frontend header and footer. fix the issue.
 
+create docker conatiner for checking/testing the theme in wordpress. make sure the theme chnages are applied automatically in the docker container
 
+make sure that the theme vesrion ui ux, styles layout, frontend backend all are similiar/mirror of app version.
+
+the design not became same as app version. aalso layout not became same. do it strictly.
+
+why I cannot login in wp-admin? give me username and password.
+
+the management sytem own login in theme vesrion not working. fix the issue
+
+for login of the sytem, should use url/login of the systems own login system, not wp login system. wp login will be sued for the wordpress user only. aslo cannot login using the demo credentails. fix it also.
+
+why home page showing url/client? fix it. aslo will not the theme vesrion dahboard show like php and app version? tell me
+
+the app style dashboard will be enterd from fontend like php and app vesrion. th edahboard will not be linke dwith wordpress own dashboard. isnot it possible?
+
+remove events, news, galleries, testimonials, comitee ememebers from wordpress dashboard to theme own seperate dahboard
+
+make sure that the theme own dashbard is mirror of the app version dahboard (ui ux, layout, styles, contnets everything)
+
+the ui ux, layout, styles not became same yet, find better ways to mak ethem same
+
+
+
+
+notices are showing in the wordpress dashboard yet. remove th edashboard menu item
 
 
 ensure that whole project/repo is fully and well documented and the every product and the website also fully and well documented
 
-
+research international school management software websites for how they showcasing thier product, pricing plan and other. we will implement in our branding site them.
 
 ensure proper payment method applied in this system app, php, theme and the website
 
 make this a smart school management system
 
-create docker conatiner for checking/testing the theme in wordpress. amke sure the theme chnages are applied automatically in the docker container
 
-
+make a system that i I wnat to add/modify any feature in eskoofy, it will be applied to all 3 products unless I specify. but ask fo rconfirmation before implementation
 
 how to make this app/php-version/theme eligible for selling in theme forest or other similiar marketplaces?
 

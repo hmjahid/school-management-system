@@ -111,7 +111,7 @@ function esk_shortcode_results_lookup( $atts ): string {
 	<div class="esk-results-lookup">
 		<h3><?php esc_html_e( 'Check Your Results', 'eskoofy' ); ?></h3>
 		<form method="post" class="esk-form">
-			<?php wp_nonce_field( 'esk_results_lookup' ); ?>
+			<?php esk_csrf_field( 'esk_results_lookup' ); ?>
 			<div class="esk-form-group">
 				<label for="esk-admission-number"><?php esc_html_e( 'Admission Number', 'eskoofy' ); ?></label>
 				<input type="text" id="esk-admission-number" name="admission_number" class="esk-input" required>
@@ -145,9 +145,12 @@ function esk_shortcode_admission_form( $atts ): string {
 	?>
 	<div class="esk-admission-form">
 		<h3><?php esc_html_e( 'Apply for Admission', 'eskoofy' ); ?></h3>
-		<?php if ( isset( $_POST['esk_admission_submit'] ) ) : ?>
+		<?php
+		$flash_success = esk_get_flash( 'success' );
+		if ( '' !== $flash_success ) :
+			?>
 			<div class="esk-notice esk-notice-success">
-				<?php esc_html_e( 'Your admission application has been submitted successfully. We will contact you soon.', 'eskoofy' ); ?>
+				<?php echo esc_html( $flash_success ); ?>
 			</div>
 		<?php else : ?>
 			<form method="post" enctype="multipart/form-data" class="esk-form">
@@ -331,7 +334,7 @@ function esk_shortcode_fees_payment( $atts ): string {
 	<div class="esk-fees-payment">
 		<h3><?php esc_html_e( 'Fee Payment Status', 'eskoofy' ); ?></h3>
 		<form method="post" class="esk-form">
-			<?php wp_nonce_field( 'esk_fees_lookup' ); ?>
+			<?php esk_csrf_field( 'esk_fees_lookup' ); ?>
 			<div class="esk-form-group">
 				<label><?php esc_html_e( 'Admission Number', 'eskoofy' ); ?></label>
 				<input type="text" name="admission_number" class="esk-input" required>
@@ -730,14 +733,15 @@ function esk_shortcode_login_form( $atts ): string {
 	?>
 	<div class="esk-login-form">
 		<h3><?php esc_html_e( 'Sign In', 'eskoofy' ); ?></h3>
-		<form method="post" action="<?php echo esc_url( wp_login_url() ); ?>" class="esk-form">
+		<form method="post" action="<?php echo esc_url( home_url( '/login/' ) ); ?>" class="esk-form">
+			<?php esk_csrf_field( 'esk_login_form' ); ?>
 			<div class="esk-form-group">
 				<label for="esk-login-user"><?php esc_html_e( 'Username or Email', 'eskoofy' ); ?></label>
-				<input type="text" id="esk-login-user" name="log" class="esk-input" required>
+				<input type="text" id="esk-login-user" name="esk_login" class="esk-input" required>
 			</div>
 			<div class="esk-form-group">
 				<label for="esk-login-pass"><?php esc_html_e( 'Password', 'eskoofy' ); ?></label>
-				<input type="password" id="esk-login-pass" name="pwd" class="esk-input" required>
+				<input type="password" id="esk-login-pass" name="esk_password" class="esk-input" required>
 			</div>
 			<div class="esk-form-group">
 				<label>
@@ -745,8 +749,7 @@ function esk_shortcode_login_form( $atts ): string {
 					<?php esc_html_e( 'Remember Me', 'eskoofy' ); ?>
 				</label>
 			</div>
-			<?php wp_nonce_field( 'esk_login_nonce', 'esk_login_nonce' ); ?>
-			<button type="submit" class="esk-button esk-button-primary"><?php esc_html_e( 'Sign In', 'eskoofy' ); ?></button>
+			<button type="submit" name="esk_login_submit" class="esk-button esk-button-primary"><?php esc_html_e( 'Sign In', 'eskoofy' ); ?></button>
 		</form>
 		<p><a href="<?php echo esc_url( wp_lostpassword_url() ); ?>"><?php esc_html_e( 'Forgot password?', 'eskoofy' ); ?></a></p>
 	</div>

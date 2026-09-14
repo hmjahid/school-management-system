@@ -1,0 +1,85 @@
+name: eskoofy-theme-test
+
+services:
+  db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpass}
+      MARIADB_DATABASE: ${DB_NAME:-wordpress}
+      MARIADB_USER: ${DB_USER:-wpuser}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-wppass}
+    volumes:
+      - esk_db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+
+  wp:
+    image: wordpress:php8.2-apache
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${WP_PORT:-8080}:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: ${DB_USER:-wpuser}
+      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD:-wppass}
+      WORDPRESS_DB_NAME: ${DB_NAME:-wordpress}
+      WORDPRESS_DEBUG: ${WP_DEBUG:-1}
+      WORDPRESS_TITLE: ${WP_TITLE:-Eskoofy Theme Test}
+      WORDPRESS_ADMIN_USER: ${WP_ADMIN_USER:-admin}
+      WORDPRESS_ADMIN_PASSWORD: ${WP_ADMIN_PASSWORD:-admin}
+      WORDPRESS_ADMIN_EMAIL: ${WP_ADMIN_EMAIL:-admin@example.test}
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_DEBUG_LOG', true);
+        define('WP_DEBUG_DISPLAY', true);
+        define('FS_METHOD', 'direct');
+        // Resolve the site URL from the request host so login cookies work
+        // whether the site is opened via localhost, 127.0.0.1, or a LAN IP.
+        // Only defined for web requests; WP-CLI (no HTTP_HOST) falls back to
+        // the siteurl/home options written by the setup script.
+        if (!empty($$_SERVER['HTTP_HOST'])) {
+            define('WP_HOME', 'http://' . $$_SERVER['HTTP_HOST']);
+            define('WP_SITEURL', 'http://' . $$_SERVER['HTTP_HOST']);
+        }
+    volumes:
+      # Bind-mount the theme so code changes apply instantly (no rebuild).
+      - ../../eskoofy-theme:/var/www/html/wp-content/themes/eskoofy:cached
+      - esk_wp:/var/www/html
+      - esk_uploads:/var/www/html/wp-content/uploads
+
+  setup:
+    image: wordpress:cli-php8.2
+    restart: "no"
+    depends_on:
+      wp:
+        condition: service_started
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: ${DB_USER:-wpuser}
+      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD:-wppass}
+      WORDPRESS_DB_NAME: ${DB_NAME:-wordpress}
+      WORDPRESS_DEBUG: ${WP_DEBUG:-1}
+      WP_URL: "http://localhost:${WP_PORT:-8080}"
+      WP_TITLE: ${WP_TITLE:-Eskoofy Theme Test}
+      WP_ADMIN_USER: ${WP_ADMIN_USER:-admin}
+      WP_ADMIN_PASSWORD: ${WP_ADMIN_PASSWORD:-admin}
+      WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL:-admin@example.test}
+    volumes:
+      - ../../eskoofy-theme:/var/www/html/wp-content/themes/eskoofy:cached
+      - esk_wp:/var/www/html
+      - esk_uploads:/var/www/html/wp-content/uploads
+      - ./setup-theme.sh:/wptest/setup-theme.sh:ro
+      - ./seed-demo.php:/wptest/seed-demo.php:ro
+    entrypoint: ["sh", "/wptest/setup-theme.sh"]
+
+volumes:
+  esk_db:
+  esk_wp:
+  esk_uploads:
