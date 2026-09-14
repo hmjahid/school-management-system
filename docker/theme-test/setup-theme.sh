@@ -65,7 +65,7 @@ page_id() {
 
 for slug in \
   about academics admission admissions committee contact events faculty \
-  fees gallery login news portal privacy results students terms transport; do
+  fees gallery login news notices portal privacy results students terms transport; do
   id=$(page_id "$slug")
   $CLI post meta update "$id" _wp_page_template "template-${slug}.php" >/dev/null 2>&1
   printf '    /%s/ -> template-%s.php\n' "$slug" "$slug"

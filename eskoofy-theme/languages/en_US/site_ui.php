@@ -226,6 +226,8 @@ return array(
 		'events_empty'              => 'No events scheduled at the moment.',
 		'news_heading'              => 'News & events',
 		'news_empty'                => 'No news published yet.',
+		'notices_heading'           => 'Notices',
+		'notices_empty'             => 'No notices published yet.',
 		'committee_heading'         => 'School committee',
 		'committee_empty'           => 'Committee members will appear here once added.',
 		'admissions_heading'        => 'Admissions',

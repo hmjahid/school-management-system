@@ -56,6 +56,7 @@ function esk_admin_shell_groups(): array {
 		'Attendance'  => array( 'esk-attendance', 'esk-attendance-mark', 'esk-staff-attendance' ),
 		'Finance'     => array( 'esk-fees', 'esk-fee-payments', 'esk-expenses', 'esk-refunds', 'esk-income-statement', 'esk-balance-sheet', 'esk-cash-flow', 'esk-bank-reconciliation', 'esk-payroll', 'esk-payslips', 'esk-salary-structures' ),
 		'HR'          => array( 'esk-leave-types', 'esk-leave-requests' ),
+		'Communications' => array( 'esk-notices', 'esk-announcements', 'esk-sms', 'esk-messages' ),
 		'Facilities'  => array( 'esk-transport', 'esk-hostels', 'esk-library', 'esk-library-reports' ),
 		'Content'     => array( 'esk-cms', 'esk-careers', 'esk-committee', 'esk-testimonials', 'esk-events', 'esk-news', 'esk-gallery', 'esk-documents', 'esk-media', 'esk-contact-submissions' ),
 		'System'      => array( 'esk-search', 'esk-activity', 'esk-visitor-logs', 'esk-notifications', 'esk-reports', 'esk-reports-builder', 'esk-analytics', 'esk-bulk' ),

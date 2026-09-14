@@ -66,9 +66,10 @@ versions). After logging in at `/login/` you land on `/dashboard/`.
 * `/dashboard/students/`, `/dashboard/fees/`, `/dashboard/settings/`, … —
   one route per module (the sidebar links to these)
 * `/dashboard/events/`, `/dashboard/news/`, `/dashboard/gallery/`,
-  `/dashboard/testimonials/`, `/dashboard/committee/` — the content modules
-  are managed here (frontend), **not** in the WordPress admin. News/Events/
-  Galleries/Testimonials/Committee custom post types are hidden from wp-admin.
+  `/dashboard/testimonials/`, `/dashboard/committee/`, `/dashboard/notices/` —
+  the content modules are managed here (frontend), **not** in the WordPress
+  admin. News/Events/Galleries/Testimonials/Committee/Notices custom post
+  types are hidden from wp-admin.
 * Anonymous visitors are redirected to `/login/`.
 * Non-admin accounts (teachers/accountant/librarian) get an "Access denied"
   page; administrators and the principal have full access.
