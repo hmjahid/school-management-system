@@ -145,8 +145,8 @@
                         @foreach([0, 50, 100, 150, 200] as $y)
                             <line x1="0" y1="{{ $y }}" x2="600" y2="{{ $y }}" stroke="oklch(0.9 0 0 / 0.3)" stroke-width="0.5"/>
                         @endforeach
-                        <path d="M{{ implode(' ', array_map(function($i, $v) use ($revenueData) { $x = ($i + 0.5) * 600 / 12; $y = 200 - ($v / 120000 * 200); return $i === 0 ? 'M' . $x . ' ' . $y : 'L' . $x . ' ' . $y; }, array_keys($revenueData), $revenueData)) }} L600 200 L0 200 Z" fill="oklch(0.65 0.18 160 / 0.15)" stroke="oklch(0.55 0.18 160)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-                        <path d="M{{ implode(' ', array_map(function($i, $v) use ($expenseData) { $x = ($i + 0.5) * 600 / 12; $y = 200 - ($v / 120000 * 200); return $i === 0 ? 'M' . $x . ' ' . $y : 'L' . $x . ' ' . $y; }, array_keys($expenseData), $expenseData)) }} L600 200 L0 200 Z" fill="oklch(0.65 0.18 25 / 0.15)" stroke="oklch(0.55 0.18 25)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+                        <path d="{{ implode(' ', array_map(function($i, $v) use ($revenueData) { $x = ($i + 0.5) * 600 / 12; $y = 200 - ($v / 120000 * 200); return $i === 0 ? 'M' . $x . ' ' . $y : 'L' . $x . ' ' . $y; }, array_keys($revenueData), $revenueData)) }} L600 200 L0 200 Z" fill="oklch(0.65 0.18 160 / 0.15)" stroke="oklch(0.55 0.18 160)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+                        <path d="{{ implode(' ', array_map(function($i, $v) use ($expenseData) { $x = ($i + 0.5) * 600 / 12; $y = 200 - ($v / 120000 * 200); return $i === 0 ? 'M' . $x . ' ' . $y : 'L' . $x . ' ' . $y; }, array_keys($expenseData), $expenseData)) }} L600 200 L0 200 Z" fill="oklch(0.65 0.18 25 / 0.15)" stroke="oklch(0.55 0.18 25)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
                     </svg>
                     <div class="mt-1 flex justify-between text-[0.6rem] text-slate-400 dark:text-slate-500">
                         @foreach($months as $m)

@@ -15,7 +15,7 @@ class StudentGuardianMiddleware
             return redirect()->route('login')->with('error', __('Please log in to continue.'));
         }
 
-        if (! Auth::user()->hasAnyRole(['student', 'guardian'])) {
+        if (! Auth::user()->hasAnyRole(['student', 'guardian', 'parent'])) {
             Auth::logout();
 
             return redirect()->route('login')->with('error', __('You do not have permission to access this area.'));

@@ -7,7 +7,7 @@ namespace App\Core;
  * Stand-in for Laravel's ComponentAttributeBag so component views can use
  * {{ $attributes }}, $attributes->merge([...]), ->class([...]), ->get(), etc.
  */
-class ComponentAttributeBag implements \ArrayAccess, \IteratorAggregate, \Countable, \Stringable
+class ComponentAttributeBag implements \ArrayAccess, \IteratorAggregate, \Countable, \Stringable, \App\Core\Contracts\Htmlable
 {
     /** @var array<string,mixed> */
     protected array $attributes = [];
@@ -92,6 +92,16 @@ class ComponentAttributeBag implements \ArrayAccess, \IteratorAggregate, \Counta
     }
 
     public function __toString(): string
+    {
+        return $this->toString();
+    }
+
+    /**
+     * Htmlable support so `e($attributes)` (used by {{ $attributes }} in
+     * component templates) renders the attribute string WITHOUT double-encoding
+     * the quote characters (mirrors Laravel's ComponentAttributeBag).
+     */
+    public function toHtml(): string
     {
         return $this->toString();
     }

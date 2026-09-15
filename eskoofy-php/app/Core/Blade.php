@@ -830,7 +830,7 @@ class Blade
 
     protected static function compileProps(?string $e): string
     {
-        return "<?php \$__props = \$__env->componentProps({$e}); extract(\$__props, EXTR_SKIP); \$attributes = new \\App\\Core\\ComponentAttributeBag(\$__env->currentComponentAttributes()); ?>";
+        return "<?php \$__props = \$__env->componentProps({$e}); extract(\$__props, EXTR_OVERWRITE); \$attributes = new \\App\\Core\\ComponentAttributeBag(\$__env->currentComponentAttributes()); ?>";
     }
 
     protected static function compileInclude(?string $e): string

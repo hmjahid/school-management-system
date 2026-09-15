@@ -107,10 +107,21 @@ make sure that the php version and theme version own dashbard & frontend is mirr
 
 ensure php version and theme version frontend is aslo mirror/totally same of the app version frontend (ui ux, layout, styles, contnets everything)
 
+now up the wordpress docker conatiner that we already have cretae so that i can chekc the theme vesrion in browser
+
+why the theme vesrion dshboard broken? aslo not same styled an dlooking as the app version. also th ephp version login page not working. fix all these issues and more if have.
+
+why demo cerdentails are not working for both laravel and php version?
+
+app an dphp version login not working. theme version dahboard not same like app version dahboard. fix all these issues.
+
+now investigate and fix why app and php version login not working.
 
 
 
+laravel app version showing schoolease until now. show eskoofy instead.
 
+the theme vesrion frontend is far from the app vesrion frontend. aslo theme vesrion dahboard items and sidebar items groups items are mismatched to the app vesrion
 
 
 ensure that whole project/repo is fully and well documented and the every product and the website also fully and well documented

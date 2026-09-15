@@ -33,48 +33,48 @@ class StudentGuardianAuthController extends Controller
     public function studentLogin(): void
     {
         $data = $this->validate([
-            'admission_number' => 'required',
-            'password'         => 'required',
+            'email'    => 'required|email',
+            'password' => 'required',
         ]);
 
         $db = Database::getInstance();
 
-        $student = $db->fetch(
-            "SELECT s.*, u.password as user_password, u.name
-             FROM students s
-             LEFT JOIN users u ON s.user_id = u.id
-             WHERE s.admission_number = ? LIMIT 1",
-            [$data['admission_number']]
+        $user = $db->fetch(
+            "SELECT u.* FROM users u WHERE u.email = ? LIMIT 1",
+            [$data['email']]
         );
 
-        if (!$student) {
-            Session::getInstance()->flash('error', 'Invalid admission number or password.');
-            $this->back();
-            return;
-        }
-
         $passwordOk = false;
-        if (!empty($student['user_password']) && password_verify($data['password'], $student['user_password'])) {
+        if ($user && !empty($user['password']) && password_verify($data['password'], $user['password'])) {
             $passwordOk = true;
         }
-        if (!$passwordOk && !empty($student['password_hash']) && password_verify($data['password'], $student['password_hash'])) {
-            $passwordOk = true;
-        }
-        if (!$passwordOk && isset($student['date_of_birth']) && $data['password'] === $student['date_of_birth']) {
+        if (!$passwordOk && $user && !empty($user['date_of_birth']) && $data['password'] === $user['date_of_birth']) {
             $passwordOk = true;
         }
 
-        if (!$passwordOk) {
-            Session::getInstance()->flash('error', 'Invalid admission number or password.');
+        if (!$user || !$passwordOk) {
+            Session::getInstance()->flash('error', 'Invalid email or password.');
             $this->back();
             return;
         }
 
-        Session::getInstance()->set('student_id', $student['id']);
-        Session::getInstance()->set('student_user_id', $student['user_id']);
+        // The account must belong to the student role (app parity).
+        if ((int) $user['role_id'] !== \App\Core\Auth::roleId('student') && (string) $user['role'] !== 'student') {
+            Session::getInstance()->flash('error', 'You do not have permission to access this portal.');
+            $this->back();
+            return;
+        }
+
+        $student = $db->fetch(
+            "SELECT id FROM students WHERE user_id = ? LIMIT 1",
+            [(int) $user['id']]
+        );
+
+        Session::getInstance()->set('student_id', $student ? (int) $student['id'] : null);
+        Session::getInstance()->set('student_user_id', (int) $user['id']);
         Session::getInstance()->regenerate();
-        Session::getInstance()->flash('success', 'Welcome ' . $student['name']);
-        $this->redirect('/portal');
+        Session::getInstance()->flash('success', 'Welcome ' . $user['name']);
+        $this->redirect('/student/dashboard');
     }
 
     public function studentLogout(): void
@@ -103,25 +103,34 @@ class StudentGuardianAuthController extends Controller
 
         $db = Database::getInstance();
 
-        $guardian = $db->fetch(
-            "SELECT g.*, u.password as user_password, u.name
-             FROM guardians g
-             LEFT JOIN users u ON g.user_id = u.id
-             WHERE u.email = ? LIMIT 1",
+        $user = $db->fetch(
+            "SELECT u.* FROM users u WHERE u.email = ? LIMIT 1",
             [$data['email']]
         );
 
-        if (!$guardian || empty($guardian['user_password']) || !password_verify($data['password'], $guardian['user_password'])) {
+        if (!$user || empty($user['password']) || !password_verify($data['password'], $user['password'])) {
             Session::getInstance()->flash('error', 'Invalid email or password.');
             $this->back();
             return;
         }
 
-        Session::getInstance()->set('guardian_id', $guardian['id']);
-        Session::getInstance()->set('guardian_user_id', $guardian['user_id']);
+        // The account must belong to the guardian role (app parity).
+        if ((int) $user['role_id'] !== \App\Core\Auth::roleId('guardian') && (string) $user['role'] !== 'guardian') {
+            Session::getInstance()->flash('error', 'You do not have permission to access this portal.');
+            $this->back();
+            return;
+        }
+
+        $guardian = $db->fetch(
+            "SELECT id FROM guardians WHERE user_id = ? LIMIT 1",
+            [(int) $user['id']]
+        );
+
+        Session::getInstance()->set('guardian_id', $guardian ? (int) $guardian['id'] : null);
+        Session::getInstance()->set('guardian_user_id', (int) $user['id']);
         Session::getInstance()->regenerate();
-        Session::getInstance()->flash('success', 'Welcome ' . $guardian['name']);
-        $this->redirect('/portal');
+        Session::getInstance()->flash('success', 'Welcome ' . $user['name']);
+        $this->redirect('/guardian/dashboard');
     }
 
     public function guardianLogout(): void
@@ -135,7 +144,7 @@ class StudentGuardianAuthController extends Controller
     public function studentDashboard(): void
     {
         $session = Session::getInstance();
-        if (!$session->has('student_id')) {
+        if (!$session->has('student_user_id')) {
             $this->redirect('/student/login');
             return;
         }
@@ -218,7 +227,7 @@ class StudentGuardianAuthController extends Controller
     public function guardianDashboard(): void
     {
         $session = Session::getInstance();
-        if (!$session->has('guardian_id')) {
+        if (!$session->has('guardian_user_id')) {
             $this->redirect('/guardian/login');
             return;
         }

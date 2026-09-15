@@ -55,7 +55,11 @@ class StudentGuardianLoginController extends Controller
 
         $user = Auth::user();
 
-        if (! $user->hasRole($role)) {
+        // The app's guardian portal is served by the "parent" role (there is no
+        // separate "guardian" role); accept either for backwards compatibility.
+        $requiredRole = $role === 'guardian' ? 'parent' : $role;
+
+        if (! $user->hasRole($requiredRole) && ! $user->hasRole($role)) {
             Auth::logout();
 
             return back()

@@ -102,7 +102,7 @@ Route::middleware('auth')->group(function () {
                 $stats['fee_paid'] = $student->feePayments()->where('status', 'completed')->count();
                 $stats['certificate_count'] = $student->certificates()->count();
             }
-            $recentResults = $student ? $student->examResults()->with('exam', 'subject')->latest()->limit(5)->get() : collect();
+            $recentResults = $student ? $student->examResults()->with('exam.subject')->latest()->limit(5)->get() : collect();
 
             return view('student/dashboard', compact('user', 'stats', 'recentResults'));
         })->name('student.dashboard');

@@ -248,6 +248,11 @@ add_action(
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="noindex, nofollow">
+	<?php
+	$page_titles = esk_dashboard_page_titles();
+	$dash_title  = $page_titles[ $slug ] ?? ucfirst( (string) preg_replace( '/^esk-/', '', (string) $slug ) );
+	?>
+	<title><?php echo esc_html( $dash_title . ' — ' . get_bloginfo( 'name' ) ); ?></title>
 	<link rel="manifest" href="<?php echo esc_url( home_url( '/manifest.json' ) ); ?>">
 	<meta name="theme-color" content="<?php echo esc_attr( esk_theme_primary() ); ?>">
 	<meta name="apple-mobile-web-app-capable" content="yes">

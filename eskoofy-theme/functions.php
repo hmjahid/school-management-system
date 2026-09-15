@@ -603,6 +603,7 @@ function esk_pwa_routes(): void {
 	$request = trim( (string) ( $wp->request ?? '' ), '/' );
 
 	if ( 'manifest.json' === $request ) {
+		status_header( 200 );
 		header( 'Content-Type: application/json; charset=utf-8' );
 		header( 'Cache-Control: public, max-age=0' );
 
@@ -636,6 +637,7 @@ function esk_pwa_routes(): void {
 	}
 
 	if ( 'sw.js' === $request ) {
+		status_header( 200 );
 		header( 'Content-Type: application/javascript; charset=utf-8' );
 		header( 'Cache-Control: public, max-age=0' );
 		$sw = get_template_directory() . '/pwa/sw.js';

@@ -81,13 +81,29 @@ composer test   # PHPUnit 11 (dev-only). 287 tests / 553 assertions.
 ```bash
 cp .env.example .env      # set DB_HOST / DB_DATABASE / DB_USERNAME / DB_PASSWORD
 mysql -u root -p < database/schema.sql
-php -S localhost:8000 -t public
+php database/seed_demo.php            # optional demo accounts (idempotent)
+php -S localhost:8051 -t public
 ```
+
+The PHP port is `8051` so it does not clash with the Laravel app (`eskoofy-app`
+defaults to `8000`). Update `APP_URL` in `.env` if you run on a different port.
 
 Internet-facing setup: point the document root at `public/`; `.htaccess` routes all
 requests through `index.php`.
 
-Seeded admin login: `admin@eskoofy.com` / `password`.
+## Demo credentials
+
+| Role | Email | Password |
+|---|---|---|
+| Super Admin | `admin@eskoofy.com` | `password` |
+| Administrator | `admin@school.com` | `ChangeMe!2026$Tr0ng` |
+| School Principal | `principal@school.com` | `principal123` |
+| Teachers | `teacher.john@school.com` / `teacher.sarah@school.com` | `teach1234` / `teach5678` |
+| Accountant | `accountant@school.com` | `accountant123` |
+| Librarian | `librarian@school.com` | `librarian123` |
+| Bulk teachers / students / parents | `teacher1..30@school.com` / `student1..5@school.com` / `parent1..10@school.com` | `password` |
+
+Student and parent portals use `/student/login` and `/guardian/login`.
 
 ## Variants
 

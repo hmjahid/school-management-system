@@ -17,6 +17,15 @@ Domain Path:   /languages
 *::before,
 *::after {
     box-sizing: border-box;
+}
+
+/* Margin/padding reset for the public front-end only. The admin dashboard
+   (Tailwind-based, body.esk-admin-shell) relies on its own spacing, so the
+   reset must not reach it. :where() keeps specificity at 0 so utility classes
+   (e.g. .p-4) still win on the public site. */
+:where(body:not(.esk-admin-shell)) *,
+:where(body:not(.esk-admin-shell)) *::before,
+:where(body:not(.esk-admin-shell)) *::after {
     margin: 0;
     padding: 0;
 }

@@ -83,8 +83,8 @@ Route::middleware('guest')->group(function () {
     Route::get('/reset-password/{token}', [PasswordResetController::class, 'edit'])->name('password.reset');
     Route::post('/reset-password', [PasswordResetController::class, 'update'])->name('password.update');
 
-    Route::get('/student/login', [StudentGuardianLoginController::class, 'showLoginForm'])->name('student.login');
-    Route::post('/student/login', [StudentGuardianLoginController::class, 'login'])->name('student.login.post');
-    Route::get('/guardian/login', [StudentGuardianLoginController::class, 'showLoginForm'])->name('guardian.login');
-    Route::post('/guardian/login', [StudentGuardianLoginController::class, 'login'])->name('guardian.login.post');
+    Route::get('/student/login', [StudentGuardianLoginController::class, 'showLoginForm'])->name('student.login')->defaults('role', 'student');
+    Route::post('/student/login', [StudentGuardianLoginController::class, 'login'])->name('student.login.post')->defaults('role', 'student');
+    Route::get('/guardian/login', [StudentGuardianLoginController::class, 'showLoginForm'])->name('guardian.login')->defaults('role', 'guardian');
+    Route::post('/guardian/login', [StudentGuardianLoginController::class, 'login'])->name('guardian.login.post')->defaults('role', 'guardian');
 });

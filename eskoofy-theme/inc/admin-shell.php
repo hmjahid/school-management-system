@@ -82,7 +82,6 @@ function esk_admin_sidebar_sections(): array {
 		$link( 'esk-dashboard' ),
 		$link( 'esk-messages' ),
 		$link( 'esk-sms' ),
-		$link( 'esk-notifications' ),
 
 		$label( 'Academic' ),
 		$details( 'People', 'dashicons-groups', array( 'esk-students', 'esk-student-add', 'esk-teachers', 'esk-teacher-add', 'esk-guardians', 'esk-users' ) ),
@@ -101,16 +100,21 @@ function esk_admin_sidebar_sections(): array {
 		$link( 'esk-activity' ),
 		$link( 'esk-visitor-logs' ),
 		$link( 'esk-backup' ),
+
+		$label( 'Website' ),
 		$details( 'Website CMS', 'dashicons-admin-site-alt3', array( 'esk-cms', 'esk-news', 'esk-gallery', 'esk-announcements', 'esk-notices', 'esk-documents', 'esk-media', 'esk-contact-submissions', 'esk-careers' ) ),
-		$link( 'esk-settings' ),
-		$link( 'esk-onboarding' ),
 
 		$label( 'Administration' ),
-		$link( 'esk-search' ),
+		$details( 'Users & Roles', 'dashicons-admin-users', array( 'esk-users' ) ),
+
+		$label( 'Configuration' ),
+		$link( 'esk-settings' ),
 		$link( 'esk-reports' ),
 		$link( 'esk-reports-builder' ),
 		$link( 'esk-analytics' ),
 		$link( 'esk-bulk' ),
+		$link( 'esk-search' ),
+		$link( 'esk-onboarding' ),
 
 		$label( 'Help' ),
 		$link( 'esk-software' ),
@@ -165,9 +169,9 @@ function esk_dashboard_page_titles(): array {
 		'esk-guardians'            => 'Guardians',
 		'esk-admissions'           => 'Admissions',
 		'esk-transport'            => 'Transport',
-		'esk-hostels'              => 'Hostels',
+		'esk-hostels'              => 'Hostel Management',
 		'esk-library'              => 'Library',
-		'esk-sms'                  => 'SMS',
+		'esk-sms'                  => 'Bulk SMS',
 		'esk-notices'              => 'Notices',
 		'esk-announcements'        => 'Announcements',
 		'esk-certificates'         => 'Certificates',
@@ -546,7 +550,7 @@ function esk_render_admin_shell_open( string $current = '' ): void {
 				<span class="dashicons dashicons-lightbulb"></span>
 				<?php esc_html_e( 'Dark mode', 'eskoofy' ); ?>
 			</button>
-			<a href="<?php echo esc_url( wp_logout_url( home_url( '/login/' ) ) ); ?>" class="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20">
+			<a href="<?php echo esc_url( wp_logout_url( home_url( '/login/' ) ) ); ?>" class="flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-2 py-2 text-sm font-medium text-white transition hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700">
 				<span class="dashicons dashicons-exit"></span>
 				<?php esc_html_e( 'Log out', 'eskoofy' ); ?>
 			</a>
