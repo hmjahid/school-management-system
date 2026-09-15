@@ -82,5 +82,5 @@ PWA icons live in `public/icons/`. To regenerate, run `./public/icons/generate.s
 ## Tests
 
 ```bash
-composer test        # 77 tests, DB-free via tests/FakeDatabase.php
+composer test        # 79 tests, DB-free via tests/FakeDatabase.php
 ```

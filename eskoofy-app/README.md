@@ -5,14 +5,17 @@
 [![Blade](https://img.shields.io/badge/UI-Laravel_Blade-FF2D20?logo=laravel&logoColor=white)](https://laravel.com/docs/blade)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.x-06B6D4?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-A School Management System built with **Laravel Blade** (repo root = the app): session
-auth, SchoolEase-style indigo sidebar, live-stat dashboard, full admin modules
-(students, fees, exams/results, admissions, attendance, library, SMS, documents),
-a public website with CMS, and a JSON API under `/api/v1` (payments, refunds,
-admissions, notifications). The legacy React SPA is preserved in `archive/frontend/`
-for reference only.
+A School Management System built with **Laravel Blade** (this folder is the Laravel product
+inside the **Eskoofy monorepo** — see the root `README.md` and `AGENTS.md` for the repo-wide
+layout and BD/INT variant strategy): session auth, SchoolEase-style indigo sidebar,
+live-stat dashboard, full admin modules (students, fees, exams/results, admissions,
+attendance, library, SMS, documents), a public website with CMS, and a JSON API under
+`/api/v1` (payments, refunds, admissions, notifications). The legacy React SPA is preserved
+in `archive/frontend/` for reference only.
 
-![School Management System Dashboard Preview](https://via.placeholder.com/1200x600/4F46E5/FFFFFF?text=School+Management+System+Dashboard)
+> **Sibling products** (same UI, same feature set, different stack):
+> `eskoofy-php/` (raw PHP, shared hosting) and `eskoofy-theme/` (WordPress). Keep the
+> shared Blade templates and the CSS/JS in sync across all three.
 
 ## 🌟 Features
 
@@ -59,7 +62,7 @@ for reference only.
 - **API**: RESTful JSON under `/api/v1` with a standard `{success, message, data}` envelope
 - **Authentication**: Laravel Sanctum (web login via session routes)
 - **Database**: SQLite (default dev) / MySQL 8 / PostgreSQL
-- **Payments**: bKash, Nagad, Rocket adapters + offline/bank transfers, refunds
+- **Payments**: bKash, Nagad, Rocket (BD) + Stripe, PayPal, Paddle (INT) + offline/bank transfers, refunds
 - **Caching/Queues**: database (default) or Redis
 - **Search**: DB-native (public + dashboard search)
 
@@ -81,13 +84,7 @@ for reference only.
 
 ### Quick Start
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/school-management-system.git
-   cd school-management-system
-   ```
-
-2. **Install Dependencies**
+1. **Install Dependencies**
    ```bash
    composer install
    cp .env.example .env
@@ -95,26 +92,29 @@ for reference only.
    npm install
    ```
 
-3. **Run Migrations & Seeders** (SQLite by default — no DB server required)
+2. **Run Migrations & Seeders** (SQLite by default — no DB server required)
    ```bash
    php artisan migrate:fresh --seed
    ```
 
-4. **Start development** (app, queue, Vite HMR and log tail all at once)
+3. **Start development** (app, queue, Vite HMR and log tail all at once)
    ```bash
    composer dev
    ```
 
-   Open **http://127.0.0.1:8000** — `/login`, then `/dashboard`. Admin credentials come from `ADMIN_EMAIL`/`ADMIN_PASSWORD` in `.env` (see `.env.example`).
+   Open **http://127.0.0.1:8000** — `/login`, then `/dashboard`. Admin credentials come from
+   `ADMIN_EMAIL`/`ADMIN_PASSWORD` in `.env` (default `admin@school.com` /
+   `ChangeMe!2026$Tr0ng` in this repo's `.env`). Student and guardian portals use
+   `/student/login` and `/guardian/login`.
 
 ## 🚀 Deployment
 
 Production deployment and operations guidance:
 
-- Production security checklist: `docs/PRODUCTION-CHECKLIST.md`
-- Runbooks (deploy, rollback, credential rotation, incidents): `docs/RUNBOOKS.md`
-- Backup & restore: `docs/BACKUP-RESTORE.md`
-- Payments deployment notes: `docs/PAYMENT-DEPLOYMENT.md`
+- Production security checklist: `../docs/PRODUCTION-CHECKLIST.md`
+- Runbooks (deploy, rollback, credential rotation, incidents): `../docs/RUNBOOKS.md`
+- Backup & restore: `../docs/BACKUP-RESTORE.md`
+- Payments deployment notes: `../docs/PAYMENT-DEPLOYMENT.md`
 
 ### Docker (production-like stack)
 ```bash
@@ -125,33 +125,20 @@ Access at: **http://localhost:8080** (nginx → Laravel `public/`)
 
 ## 📚 Documentation
 
-- [API — Payments & Refunds](docs/API-PAYMENTS.md)
-- [Admissions](docs/ADMISSIONS.md)
-- [Dashboard troubleshooting](docs/DASHBOARD_TROUBLESHOOTING.md)
-- [Production checklist](docs/PRODUCTION-CHECKLIST.md)
-- [Runbooks](docs/RUNBOOKS.md)
-- [Backup & Restore](docs/BACKUP-RESTORE.md)
+- [API — Payments & Refunds](../docs/API-PAYMENTS.md)
+- [Admissions](../docs/ADMISSIONS.md)
+- [Dashboard troubleshooting](../docs/DASHBOARD_TROUBLESHOOTING.md)
+- [Production checklist](../docs/PRODUCTION-CHECKLIST.md)
+- [Runbooks](../docs/RUNBOOKS.md)
+- [Backup & Restore](../docs/BACKUP-RESTORE.md)
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please read our [contributing guidelines](CONTRIBUTING.md) to get started.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+This is a private monorepo product folder. Work happens through the repo-level plan
+(`WORKPLAN.md`) and the per-product `AGENTS.md` conventions. Before editing shared Blade
+templates or the app's CSS/JS, remember they are mirrored by `eskoofy-php/` and
+`eskoofy-theme/`.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📧 Contact
-
-For any inquiries, please contact [your-email@example.com](mailto:your-email@example.com)
-
----
-
-<div align="center">
-  Made with ❤️ using Laravel Blade & Tailwind CSS
-</div>
+MIT — see the repo root for the project overview.

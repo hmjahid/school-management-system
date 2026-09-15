@@ -19,10 +19,10 @@ codebase, sharing one BD/INT variant strategy.
 
 | Folder | Product | Stack | Status |
 |--------|---------|-------|--------|
-| `eskoofy-app/` | Full management software | Laravel 12, Blade, Tailwind CSS | Active — most work happens here |
-| `eskoofy-php/` | Raw PHP version (no framework) | Native PHP + PDO/MySQL | Complete — for shared hosting without Composer |
-| `eskoofy-theme/` | WordPress theme | WP hooks, shortcodes, REST, CPTs | Complete — plugin-theme hybrid |
-| `eskoofy-website/` | Marketing site + license server | Raw PHP (app Core), en/bn i18n, PWA | Complete — int-only, USD pricing |
+| `eskoofy-app/` | Full management software | Laravel 12, Blade, Tailwind CSS | Active — most work happens here ([`AGENTS.md`](eskoofy-app/AGENTS.md)) |
+| `eskoofy-php/` | Raw PHP version (no framework) | Native PHP + PDO/MySQL | Complete — for shared hosting without Composer ([`AGENTS.md`](eskoofy-php/AGENTS.md)) |
+| `eskoofy-theme/` | WordPress theme | WP hooks, shortcodes, REST, CPTs | Complete — plugin-theme hybrid ([`AGENTS.md`](eskoofy-theme/AGENTS.md)) |
+| `eskoofy-website/` | Marketing site + license server | Raw PHP (app Core), en/bn i18n, PWA | Complete — int-only, USD pricing ([`AGENTS.md`](eskoofy-website/AGENTS.md)) |
 
 ## Features
 
@@ -83,13 +83,15 @@ Requires PHP 8.2+ and MySQL. No Composer needed at runtime.
 cd eskoofy-php
 cp .env.example .env        # set DB_* credentials
 mysql -u root -p < database/schema.sql
-php -S localhost:8000 -t public
+php database/seed_demo.php  # optional demo accounts (idempotent)
+php -S localhost:8051 -t public
 ```
 
-Point the document root at `public/` on the shared host.
+The PHP port is `8051` so it does not clash with the Laravel app (`eskoofy-app` defaults to
+`8000`). Point the document root at `public/` on the shared host.
 
 ```bash
-cd eskoofy-php && composer test     # dev-only PHPUnit suite (255 tests / 463 assertions)
+cd eskoofy-php && composer test     # dev-only PHPUnit suite (299 tests / 604 assertions)
 ```
 
 ### eskoofy-website (marketing + license server)
@@ -98,7 +100,7 @@ cd eskoofy-php && composer test     # dev-only PHPUnit suite (255 tests / 463 as
 cd eskoofy-website
 cp .env.example .env        # set DB_* for the licensing DB
 mysql -u root -p < database/schema.sql
-php -S localhost:8001 -t public
+php -S localhost:8011 -t public
 ```
 
 Single international (int) site: USD pricing, en/bn language switcher, PWA shell,
@@ -128,8 +130,8 @@ cd build
 
 | Product | Command |
 |---------|---------|
-| Laravel | `cd eskoofy-app && composer test` (PHPUnit, 900+ tests) + `./vendor/bin/pint --test` |
-| Raw PHP | `cd eskoofy-php && composer test` (PHPUnit, 255 tests / 463 assertions) |
+| Laravel | `cd eskoofy-app && composer test` (PHPUnit, 923 tests) + `./vendor/bin/pint --test` |
+| Raw PHP | `cd eskoofy-php && composer test` (PHPUnit, 299 tests / 604 assertions) |
 | WordPress theme | `cd eskoofy-theme && composer run lint` (PHPCS) |
 | Website | `cd eskoofy-website && composer test` (PHPUnit, 79 tests / 214 assertions) |
 
