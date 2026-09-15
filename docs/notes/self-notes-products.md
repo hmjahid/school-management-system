@@ -117,6 +117,9 @@ app an dphp version login not working. theme version dahboard not same like app 
 
 now investigate and fix why app and php version login not working.
 
+homepage redirecting to url/client wehn going to homepagein theme version. .fix the issue
+
+
 
 
 laravel app version showing schoolease until now. show eskoofy instead.

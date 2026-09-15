@@ -1,13 +1,27 @@
 /* Eskoofy theme — service worker.
  * Network-first for navigation with an offline fallback, stale-while-revalidate
- * for page resources, cache-first for same-origin static assets. */
+ * for page resources, cache-first for same-origin static assets.
+ *
+ * Only OK (2xx) responses are cached; redirects and error responses are never
+ * stored or served from cache, so a stale/redirected entry can never hijack a
+ * navigation.
+ */
 
-const CACHE_NAME = 'eskoofy-theme-v1';
+const CACHE_NAME = 'eskoofy-theme-v2';
 const OFFLINE_URL = '/offline';
+
+function isCacheable(response) {
+    return response && response.ok && !response.redirected;
+}
 
 self.addEventListener('install', (event) => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => cache.addAll(['/', OFFLINE_URL]))
+        caches.open(CACHE_NAME)
+            .then((cache) => Promise.all([
+                cache.add('/'),
+                cache.add(OFFLINE_URL),
+            ]))
+            .catch(() => self.skipWaiting())
     );
     self.skipWaiting();
 });
@@ -39,14 +53,17 @@ self.addEventListener('fetch', (event) => {
         event.respondWith(
             fetch(request)
                 .then((response) => {
-                    const copy = response.clone();
-                    caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+                    if (isCacheable(response)) {
+                        const copy = response.clone();
+                        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+                    }
                     return response;
                 })
                 .catch(() =>
                     caches.match(request)
+                        .then((cached) => (cached && isCacheable(cached) ? cached : null))
                         .then((cached) => cached || caches.match('/'))
-                        .then((root) => root || caches.match(OFFLINE_URL))
+                        .then((root) => (root && isCacheable(root) ? root : caches.match(OFFLINE_URL)))
                 )
         );
         return;
@@ -56,7 +73,7 @@ self.addEventListener('fetch', (event) => {
         event.respondWith(
             caches.match(request).then((cached) => {
                 const network = fetch(request).then((response) => {
-                    if (response && response.ok) {
+                    if (isCacheable(response)) {
                         const copy = response.clone();
                         caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
                     }

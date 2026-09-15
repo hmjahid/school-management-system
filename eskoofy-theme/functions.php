@@ -648,8 +648,9 @@ function esk_pwa_routes(): void {
 	}
 
 	if ( 'offline' === $request ) {
+		status_header( 200 );
 		header( 'Content-Type: text/html; charset=utf-8' );
-		http_response_code( 503 );
+		header( 'Cache-Control: public, max-age=0' );
 		$file = get_template_directory() . '/pwa/offline.html';
 		if ( file_exists( $file ) ) {
 			readfile( $file ); // phpcs:ignore
