@@ -232,7 +232,7 @@
             @auth
                 @php
                     $navStaffRoles = ['admin', 'teacher', 'accountant', 'staff', 'librarian'];
-                    $navIsStaff = auth()->user()->hasAnyRole($navStaffRoles);
+                    $navIsStaff = auth()->user()?->hasAnyRole($navStaffRoles);
                 @endphp
                 @if($navIsStaff)
                     <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard*') ? $btnPrimary : $btnOutline }}">{{ site_ui('nav.dashboard') }}</a>
@@ -426,7 +426,7 @@
             @auth
                 @php
                     $navStaffRoles = ['admin', 'teacher', 'accountant', 'staff', 'librarian'];
-                    $navIsStaff = auth()->user()->hasAnyRole($navStaffRoles);
+                    $navIsStaff = auth()->user()?->hasAnyRole($navStaffRoles);
                 @endphp
                 <div class="flex items-center gap-3">
                     <a data-site-nav-link href="{{ $navIsStaff ? route('dashboard') : route('portal') }}"

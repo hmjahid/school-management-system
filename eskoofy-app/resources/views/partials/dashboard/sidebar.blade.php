@@ -271,7 +271,7 @@
                 <svg class="h-4 w-4 shrink-0 text-slate-400 transition group-open:rotate-90 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </summary>
             <div class="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3 dark:border-slate-700">
-                @if(auth()->user()->hasAnyRole(['admin','staff','teacher']))
+                @if(auth()->user()?->hasAnyRole(['admin','staff','teacher']))
                     <a href="{{ route('dashboard.leaves.index') }}" class="block rounded-lg py-2 pl-2 text-sm {{ request()->routeIs('dashboard.leaves*') ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400' }}">
                         <span class="inline-flex w-full items-center justify-between gap-2">
                             <span>{{ __('dashboard.leaves') }}</span>

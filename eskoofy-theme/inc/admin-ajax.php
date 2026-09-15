@@ -13,6 +13,7 @@ add_action( 'wp_ajax_esk_search_students', 'esk_ajax_search_students' );
 add_action( 'wp_ajax_esk_mark_attendance', 'esk_ajax_mark_attendance' );
 add_action( 'wp_ajax_esk_save_results', 'esk_ajax_save_results' );
 add_action( 'wp_ajax_esk_get_students_by_class', 'esk_ajax_get_students_by_class' );
+add_action( 'wp_ajax_esk_toggle_favorite', 'esk_ajax_toggle_favorite' );
 
 /**
  * Live search students.
@@ -211,4 +212,68 @@ function esk_ajax_get_students_by_class(): void {
 	);
 
 	wp_send_json_success( array( 'students' => $results ) );
+}
+
+/**
+ * Toggle a dashboard favorite (pinned page) for the current user.
+ *
+ * Mirrors the app's DashboardFavoriteController::toggle.
+ */
+function esk_ajax_toggle_favorite(): void {
+	check_ajax_referer( 'esk_ajax_nonce', 'nonce' );
+
+	if ( ! is_user_logged_in() ) {
+		wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
+	}
+
+	$user_id = (int) get_current_user_id();
+	$url     = isset( $_POST['url'] ) ? esc_url_raw( wp_unslash( $_POST['url'] ) ) : '';
+	$label   = isset( $_POST['label'] ) ? sanitize_text_field( wp_unslash( $_POST['label'] ) ) : '';
+
+	if ( '' === $url ) {
+		wp_send_json_error( array( 'message' => 'Invalid payload' ), 422 );
+	}
+
+	// Only allow relative paths or same-site absolute URLs (app parity).
+	$site_url = home_url( '/' );
+	if ( ! str_starts_with( $url, '/' ) && ! str_starts_with( $url, $site_url ) ) {
+		wp_send_json_error( array( 'message' => 'Invalid URL' ), 422 );
+	}
+
+	global $wpdb;
+	$table = $wpdb->prefix . 'esk_dashboard_favorites';
+
+	if ( $wpdb->get_var( "SHOW TABLES LIKE '{$table}'" ) !== $table ) {
+		wp_send_json_error( array( 'message' => 'Unavailable' ), 500 );
+	}
+
+	$existing = $wpdb->get_row(
+		$wpdb->prepare( "SELECT id FROM {$table} WHERE user_id = %d AND url = %s LIMIT 1", $user_id, $url )
+	);
+
+	if ( $existing ) {
+		$wpdb->delete( $table, array( 'id' => (int) $existing->id ) );
+		wp_send_json_success( array( 'favorite' => false ) );
+		return;
+	}
+
+	// Prune to 12 (app parity: max 12 pinned pages).
+	$ids = $wpdb->get_col(
+		$wpdb->prepare( "SELECT id FROM {$table} WHERE user_id = %d ORDER BY updated_at DESC, id DESC", $user_id )
+	);
+	if ( count( $ids ) > 12 ) {
+		$overflow = array_map( 'intval', array_slice( $ids, 12 ) );
+		$wpdb->query( 'DELETE FROM ' . $table . ' WHERE id IN (' . implode( ',', $overflow ) . ')' );
+	}
+
+	$wpdb->insert(
+		$table,
+		array(
+			'user_id' => $user_id,
+			'url'     => $url,
+			'label'   => mb_substr( $label, 0, 120 ),
+		)
+	);
+
+	wp_send_json_success( array( 'favorite' => true ) );
 }

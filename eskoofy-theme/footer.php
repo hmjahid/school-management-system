@@ -47,13 +47,20 @@ $esc = static fn( string $svg ): string => wp_kses_post( $svg );
 ?>
 </main>
 
-<footer id="colophon" class="esk-footer" role="contentinfo">
+<footer id="colophon" class="esk-footer no-print" role="contentinfo">
 	<div class="esk-container">
 		<div class="esk-footer-grid">
 			<div class="esk-footer-col esk-footer-about">
 				<h3 class="esk-footer-head"><?php echo esc_html( (string) esk_site_ui( 'footer.about_title', '' ) ); ?></h3>
 				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="esk-brand">
-					<span class="esk-brand-logo" aria-hidden="true"><?php echo esc_html( esk_initials( $school_name ) ); ?></span>
+					<?php
+					$footer_logo = esk_school( 'footer_logo_url' ) ?: esk_school( 'logo_url' );
+					if ( $footer_logo ) :
+						?>
+						<img class="esk-brand-logo-img" src="<?php echo esc_url( $footer_logo ); ?>" alt="<?php echo esc_attr( $school_name ); ?>">
+					<?php else : ?>
+						<span class="esk-brand-logo" aria-hidden="true"><?php echo esc_html( esk_initials( $school_name ) ); ?></span>
+					<?php endif; ?>
 					<span class="esk-brand-name"><?php echo esc_html( $school_name ); ?></span>
 				</a>
 				<p><?php echo esc_html( $about_text ); ?></p>
@@ -97,9 +104,6 @@ $esc = static fn( string $svg ): string => wp_kses_post( $svg );
 					<li><a href="https://www.moedu.gov.bd" target="_blank" rel="noopener noreferrer"><?php echo esc_html( (string) esk_site_ui( 'footer.link_ministry_education_ministry', '' ) ); ?></a></li>
 					<li><a href="<?php echo esc_url( home_url( '/transport/' ) ); ?>"><?php echo esc_html( (string) esk_site_ui( 'nav.transport', '' ) ); ?></a></li>
 				<?php endif; ?>
-			</ul>
-			<ul class="esk-footer-links esk-footer-extra">
-				<li><a href="<?php echo esc_url( home_url( '/transport/' ) ); ?>"><?php echo esc_html( (string) esk_site_ui( 'nav.transport', '' ) ); ?></a></li>
 			</ul>
 			</div>
 
@@ -184,6 +188,18 @@ $esk_flash_info    = esk_get_flash( 'notice' );
 		</div>
 	</div>
 </div>
+
+<?php if ( is_user_logged_in() ) : ?>
+	<script>
+		window.eskAdmin = window.eskAdmin || <?php echo wp_json_encode(
+			array(
+				'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
+				'nonce'     => wp_create_nonce( 'esk_ajax_nonce' ),
+				'restNonce' => wp_create_nonce( 'wp_rest' ),
+			)
+		); ?>;
+	</script>
+<?php endif; ?>
 
 <?php wp_footer(); ?>
 </body>

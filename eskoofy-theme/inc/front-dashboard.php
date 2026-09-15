@@ -171,8 +171,9 @@ add_action(
 			'eskoofy-admin',
 			'eskAdmin',
 			array(
-				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'nonce'   => wp_create_nonce( 'esk_ajax_nonce' ),
+				'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
+				'nonce'     => wp_create_nonce( 'esk_ajax_nonce' ),
+				'restNonce' => wp_create_nonce( 'wp_rest' ),
 			)
 		);
 	},

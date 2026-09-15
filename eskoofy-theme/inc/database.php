@@ -1207,6 +1207,19 @@ function esk_create_tables(): void {
 		KEY idx_user_read (user_id, read_at)
 	) {$charset_collate}";
 
+	// ─── Dashboard Favorites ────────────────────────────────────────
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_dashboard_favorites (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		user_id BIGINT UNSIGNED NOT NULL,
+		url VARCHAR(255) NOT NULL,
+		label VARCHAR(120) DEFAULT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		KEY idx_user_url (user_id, url),
+		KEY idx_user_updated (user_id, updated_at)
+	) {$charset_collate}";
+
 	// ─── Ledger Entries ─────────────────────────────────────────
 	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_ledger_entries (
 		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,

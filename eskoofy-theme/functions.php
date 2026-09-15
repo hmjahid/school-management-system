@@ -147,8 +147,9 @@ function esk_admin_enqueue( string $hook ): void {
 		'eskoofy-admin',
 		'eskAdmin',
 		array(
-			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-			'nonce'   => wp_create_nonce( 'esk_ajax_nonce' ),
+			'ajaxUrl'   => admin_url( 'admin-ajax.php' ),
+			'nonce'     => wp_create_nonce( 'esk_ajax_nonce' ),
+			'restNonce' => wp_create_nonce( 'wp_rest' ),
 		)
 	);
 }
@@ -369,14 +370,7 @@ function esk_enqueue_extras(): void {
 		array( 'in_footer' => true, 'strategy' => 'defer' )
 	);
 
-	$accent      = esk_theme_primary();
-	$accent_dark = esk_hex_offset( $accent, -30 );
-	$warm        = esk_theme_secondary();
-
-	wp_add_inline_style(
-		'eskoofy-style',
-		":root { --esk-accent: {$accent}; --esk-accent-dark: {$accent_dark}; --esk-warm: {$warm}; }"
-	);
+	wp_add_inline_style( 'eskoofy-style', esk_theme_inline_css() );
 
 	if ( is_singular() && ! is_admin() ) {
 		echo '<script>' . "\n";
@@ -401,6 +395,101 @@ function esk_hex_offset( string $hex, int $offset ): string {
 	);
 	return '#' . implode( '', array_map( static fn( int $v ): string => sprintf( '%02x', $v ), $rgb ) );
 }
+
+/**
+ * Build the dynamic :root theme variables from DB settings, mirroring the
+ * app's layouts/app.blade.php <style> block (brand shades + theme presets).
+ */
+function esk_theme_inline_css(): string {
+	$primary   = esk_theme_primary();
+	$secondary = esk_theme_secondary();
+	$dark      = esk_hex_offset( $primary, -30 );
+
+	$font    = trim( esk_school( 'theme_font' ) ) ?: 'Inter';
+	$radius  = trim( esk_school( 'theme_radius' ) ) ?: '16px';
+	$spacing = trim( esk_school( 'theme_section_spacing' ) ) ?: 'default';
+	$style   = trim( esk_school( 'theme_style' ) ) ?: 'default';
+
+	$font_stack = "'" . $font . "', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif";
+
+	$css  = ':root {';
+	$css .= '--esk-accent: ' . $primary . ';';
+	$css .= '--esk-accent-dark: ' . $dark . ';';
+	$css .= '--esk-warm: ' . $secondary . ';';
+	$css .= '--esk-radius: ' . $radius . ';';
+	$css .= '--esk-font-h: ' . $font_stack . ';';
+	$css .= '--esk-font-body: ' . $font_stack . ';';
+	$css .= '--brand-50: color-mix(in srgb, ' . $primary . ' 10%, white);';
+	$css .= '--brand-100: color-mix(in srgb, ' . $primary . ' 20%, white);';
+	$css .= '--brand-400: color-mix(in srgb, ' . $primary . ' 70%, white);';
+	$css .= '--brand-500: ' . $primary . ';';
+	$css .= '--brand-600: color-mix(in srgb, ' . $primary . ' 80%, black);';
+	$css .= '--brand-700: color-mix(in srgb, ' . $primary . ' 65%, black);';
+	$css .= '--brand-800: color-mix(in srgb, ' . $primary . ' 50%, black);';
+	$css .= '--brand-900: color-mix(in srgb, ' . $primary . ' 35%, black);';
+	$css .= '--accent-500: ' . $secondary . ';';
+	$css .= '--accent-600: color-mix(in srgb, ' . $secondary . ' 80%, black);';
+	$css .= '}';
+
+	/* Section spacing preset (mirrors app theme_section_spacing). */
+	if ( 'compact' === $spacing ) {
+		$css .= '.esk-section { padding-top: 3rem; padding-bottom: 3rem; }';
+	} elseif ( 'spacious' === $spacing ) {
+		$css .= '.esk-section { padding-top: 7rem; padding-bottom: 7rem; }';
+	}
+
+	/* Style presets (mirrors app theme_style). */
+	if ( 'classic' === $style ) {
+		$css .= 'body.theme-style-classic { --esk-font-h: Georgia, "Times New Roman", serif; --esk-radius: 0.5rem; }';
+		$css .= 'body.theme-style-classic .esk-btn-accent { background-image: none !important; }';
+		$css .= 'body.theme-style-classic .esk-section { padding-top: 5rem; padding-bottom: 5rem; }';
+	} elseif ( 'modern' === $style ) {
+		$css .= 'body.theme-style-modern { --esk-radius: 1rem; }';
+		$css .= 'body.theme-style-modern .esk-card { box-shadow: 0 8px 30px rgba(0,0,0,0.08); }';
+		$css .= 'body.theme-style-modern .esk-btn-accent { background-image: linear-gradient(135deg, var(--esk-accent), var(--esk-warm)); }';
+		$css .= 'body.theme-style-modern .esk-section { padding-top: 6rem; padding-bottom: 6rem; }';
+	} elseif ( 'minimal' === $style ) {
+		$css .= 'body.theme-style-minimal { --esk-radius: 0.25rem; --esk-shadow: none; }';
+		$css .= 'body.theme-style-minimal .esk-btn-accent { background-image: none !important; }';
+		$css .= 'body.theme-style-minimal .esk-section { padding-top: 7rem; padding-bottom: 7rem; }';
+	}
+
+	return $css;
+}
+
+/**
+ * Add the active theme-style preset class to <body> (mirrors app).
+ */
+function esk_body_theme_classes( array $classes ): array {
+	$style = trim( esk_school( 'theme_style' ) ) ?: 'default';
+	$classes[] = 'theme-style-' . sanitize_html_class( $style );
+	return $classes;
+}
+add_filter( 'body_class', 'esk_body_theme_classes' );
+
+/* ─── Public: canonical + robots (mirrors app) ─────────────────────────── */
+
+remove_action( 'wp_head', 'rel_canonical' );
+
+function esk_canonical_tag(): void {
+	if ( is_admin() ) {
+		return;
+	}
+	$url = ( is_singular() && get_permalink() ) ? (string) get_permalink() : home_url( '/' );
+	echo '<link rel="canonical" href="' . esc_url( $url ) . '">' . "\n";
+}
+add_action( 'wp_head', 'esk_canonical_tag', 1 );
+
+function esk_robots( array $robots ): array {
+	if ( is_admin() ) {
+		return $robots;
+	}
+	return array(
+		'index'  => true,
+		'follow' => true,
+	);
+}
+add_filter( 'wp_robots', 'esk_robots' );
 
 /* ─── Public: theme-color meta ─────────────────────────────────────────── */
 

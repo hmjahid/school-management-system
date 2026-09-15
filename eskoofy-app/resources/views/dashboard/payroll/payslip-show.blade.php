@@ -12,7 +12,7 @@
             ]" />
         </x-slot:breadcrumbs>
         <x-slot:actions>
-            @if($payslip->status === 'draft' && auth()->user()->can('manage_teacher_salaries'))
+            @if($payslip->status === 'draft' && auth()->user()?->can('manage_teacher_salaries'))
                 <form method="post" action="{{ route('dashboard.payroll.payslips.markPaid', $payslip) }}" data-confirm="{{ __('Mark as paid and post to ledger?') }}">
                     @csrf
                     <x-button type="submit">{{ __('Mark paid') }}</x-button>

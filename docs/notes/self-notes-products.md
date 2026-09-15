@@ -105,9 +105,10 @@ notices are showing in the wordpress dashboard yet. remove th edashboard menu it
 
 make sure that the php version and theme version own dashbard & frontend is mirror/totally same of the app version dashboard and frontend (ui ux, layout, styles, contnets everything) and functionalities. continue until finished
 
-
-
 ensure php version and theme version frontend is aslo mirror/totally same of the app version frontend (ui ux, layout, styles, contnets everything)
+
+
+
 
 
 

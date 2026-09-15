@@ -142,7 +142,7 @@
                 </div>
                 <p class="mt-3 text-xs text-gray-500">{{ site_ui('payments.history_footer') }}</p>
             </section>
-        @elseif(auth()->user()->hasAnyRole(['parent', 'student']))
+        @elseif(auth()->user()?->hasAnyRole(['parent', 'student']))
             <p class="mt-8 text-sm text-gray-600">{{ site_ui('payments.no_payments_linked') }}</p>
         @endif
     @else

@@ -217,6 +217,30 @@ function esk_register_rest_routes(): void {
 			'permission_callback' => '__return_true',
 		)
 	);
+
+	register_rest_route(
+		'esk/v1',
+		'/notifications',
+		array(
+			'methods'             => 'GET',
+			'callback'            => 'esk_rest_get_notifications',
+			'permission_callback' => static function () {
+				return is_user_logged_in();
+			},
+		)
+	);
+
+	register_rest_route(
+		'esk/v1',
+		'/notifications/mark-all',
+		array(
+			'methods'             => 'POST',
+			'callback'            => 'esk_rest_mark_notifications_read',
+			'permission_callback' => static function () {
+				return is_user_logged_in();
+			},
+		)
+	);
 }
 add_action( 'rest_api_init', 'esk_register_rest_routes' );
 
@@ -590,5 +614,82 @@ function esk_rest_lookup_results( WP_REST_Request $request ): WP_REST_Response {
 			'roll_number'       => $student->roll_number,
 		),
 		'results'  => $results,
+	), 200 );
+}
+
+/**
+ * GET /esk/v1/notifications — current user's recent notifications.
+ */
+function esk_rest_get_notifications( WP_REST_Request $request ): WP_REST_Response {
+	global $wpdb;
+
+	$table  = $wpdb->prefix . 'esk_notifications';
+	$user_id = (int) get_current_user_id();
+
+	if ( $wpdb->get_var( "SHOW TABLES LIKE '{$table}'" ) !== $table ) {
+		return new WP_REST_Response( array( 'items' => array(), 'unread_count' => 0 ), 200 );
+	}
+
+	$items = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT id, type, title, message, link, read_at, created_at
+			FROM {$table}
+			WHERE user_id = %d
+			ORDER BY created_at DESC
+			LIMIT 20",
+			$user_id
+		)
+	);
+
+	$unread = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM {$table} WHERE user_id = %d AND read_at IS NULL",
+			$user_id
+		)
+	);
+
+	$items = array_map(
+		static function ( $n ) {
+			return array(
+				'id'         => (int) $n->id,
+				'type'       => (string) $n->type,
+				'title'      => (string) $n->title,
+				'message'    => (string) $n->message,
+				'link'       => (string) $n->link,
+				'created_at' => (string) $n->created_at,
+				'unread'     => null === $n->read_at,
+			);
+		},
+		is_array( $items ) ? $items : array()
+	);
+
+	return new WP_REST_Response( array(
+		'items'        => $items,
+		'unread_count' => $unread,
+	), 200 );
+}
+
+/**
+ * POST /esk/v1/notifications/mark-all — mark all notifications read.
+ */
+function esk_rest_mark_notifications_read( WP_REST_Request $request ): WP_REST_Response {
+	global $wpdb;
+
+	$table   = $wpdb->prefix . 'esk_notifications';
+	$user_id = (int) get_current_user_id();
+
+	if ( $wpdb->get_var( "SHOW TABLES LIKE '{$table}'" ) === $table ) {
+		$wpdb->query(
+			$wpdb->prepare(
+				"UPDATE {$table} SET read_at = %s WHERE user_id = %d AND read_at IS NULL",
+				current_time( 'mysql' ),
+				$user_id
+			)
+		);
+	}
+
+	return new WP_REST_Response( array(
+		'success'      => true,
+		'unread_count' => 0,
 	), 200 );
 }
