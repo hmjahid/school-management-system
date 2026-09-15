@@ -28,7 +28,11 @@ $address   = esk_school( 'school_address' );
 $target_locale    = $is_bn ? 'en' : 'bn_BD';
 $target_label     = $is_bn ? 'English' : 'বাংলা';
 $portal_url       = home_url( '/portal/' );
+$stock_url        = esc_url( (string) esk_school( 'stock_photo' ) );
 $is_logged_in     = is_user_logged_in();
+$socials          = esk_social_profiles();
+
+$og_description = sk_tagline_trim( $school_tagline );
 
 $svgs = array(
 	'phone'  => '<svg class="esk-icon" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>',
@@ -142,6 +146,20 @@ $esc = static fn( string $svg ): string => wp_kses_post( $svg );
 	<link rel="icon" type="image/svg+xml" href="<?php echo esc_url( get_template_directory_uri() . '/assets/favicon.svg' ); ?>">
 	<link rel="apple-touch-icon" href="<?php echo esc_url( get_template_directory_uri() . '/assets/icons/apple-touch-icon.png' ); ?>">
 	<link rel="manifest" href="<?php echo esc_url( home_url( '/manifest.json' ) ); ?>">
+	<meta name="theme-color" content="<?php echo esc_attr( (string) esk_school( 'theme_primary' ) ); ?>">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="default">
+	<meta name="apple-mobile-web-app-title" content="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
+	<meta property="og:site_name" content="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
+	<meta property="og:title" content="<?php echo esc_attr( wp_get_document_title() ); ?>">
+	<meta property="og:description" content="<?php echo esc_attr( $og_description ); ?>">
+	<meta property="og:type" content="website">
+	<meta property="og:url" content="<?php echo esc_url( is_singular() ? get_permalink() : home_url( '/' ) ); ?>">
+	<meta property="og:image" content="<?php echo esc_url( (string) ( $stock_url ?: get_template_directory_uri() . '/assets/img/og-default.png' ) ); ?>">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="<?php echo esc_attr( wp_get_document_title() ); ?>">
+	<meta name="twitter:description" content="<?php echo esc_attr( $og_description ); ?>">
+	<meta name="twitter:image" content="<?php echo esc_url( (string) ( $stock_url ?: get_template_directory_uri() . '/assets/img/og-default.png' ) ); ?>">
 	<?php wp_head(); ?>
 	<script>
 		/* Restore dark mode before first paint to avoid a flash. */
@@ -161,6 +179,8 @@ $esc = static fn( string $svg ): string => wp_kses_post( $svg );
 	<?php echo esc_html( (string) esk_site_ui( 'nav.skip_to_content', '' ) ?: esc_html__( 'Skip to content', 'eskoofy' ) ); ?>
 </a>
 
+<div class="esk-loading-bar" id="esk-loading-bar" aria-hidden="true" data-esk-loading-bar></div>
+
 <?php if ( $phone || $email || $address ) : ?>
 	<div class="esk-topbar">
 		<div class="esk-container esk-topbar-inner">
@@ -176,6 +196,13 @@ $esc = static fn( string $svg ): string => wp_kses_post( $svg );
 				<?php endif; ?>
 			</div>
 			<div class="esk-topbar-meta">
+				<?php if ( $socials ) : ?>
+					<span class="esk-topbar-socials">
+						<?php foreach ( $socials as $social ) : ?>
+							<a href="<?php echo esc_url( $social['url'] ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php echo esc_attr( $social['label'] ); ?>"><?php echo $esc( $social['svg'] ); // phpcs:ignore ?></a>
+						<?php endforeach; ?>
+					</span>
+				<?php endif; ?>
 				<a href="<?php echo esc_url( $portal_url ); ?>"><?php echo $esc( $svgs['user'] ); // phpcs:ignore ?> <?php echo esc_html( (string) esk_site_ui( 'nav.portal', '' ) ); ?></a>
 				<?php if ( $is_logged_in ) : ?>
 					<a href="<?php echo esc_url( wp_logout_url( home_url( '/' ) ) ); ?>"><?php echo esc_html( (string) esk_site_ui( 'nav.logout', '' ) ); ?></a>
@@ -301,7 +328,34 @@ $esc = static fn( string $svg ): string => wp_kses_post( $svg );
 		echo '</ul>';
 	}
 	?>
+	<div class="esk-panel-search">
+		<form role="search" method="get" class="esk-search-box" action="<?php echo esc_url( home_url( '/' ) ); ?>">
+			<label class="screen-reader-text" for="esk-mobile-search"><?php echo esc_html( (string) esk_site_ui( 'nav.search_label', '' ) ); ?></label>
+			<input id="esk-mobile-search" type="search" class="esk-search-input" name="s" placeholder="<?php echo esc_attr( (string) esk_site_ui( 'nav.search_placeholder', '' ) ); ?>" autocomplete="off">
+			<button type="submit" class="esk-search-submit" aria-label="<?php echo esc_attr( (string) esk_site_ui( 'nav.search_label', '' ) ); ?>">
+				<?php echo $esc( $svgs['search'] ); // phpcs:ignore ?>
+			</button>
+		</form>
+	</div>
+	<?php if ( $phone || $email || $address ) : ?>
+		<div class="esk-panel-contact">
+			<?php if ( $phone ) : ?>
+				<a href="<?php echo esc_url( 'tel:' . preg_replace( '/[^0-9+]/', '', $phone ) ); ?>"><?php echo $esc( $svgs['phone'] ); // phpcs:ignore ?> <?php echo esc_html( $phone ); ?></a>
+			<?php endif; ?>
+			<?php if ( $email ) : ?>
+				<a href="<?php echo esc_url( 'mailto:' . $email ); ?>"><?php echo $esc( $svgs['mail'] ); // phpcs:ignore ?> <?php echo esc_html( $email ); ?></a>
+			<?php endif; ?>
+			<?php if ( $address ) : ?>
+				<span><?php echo $esc( $svgs['pin'] ); // phpcs:ignore ?> <?php echo esc_html( $address ); ?></span>
+			<?php endif; ?>
+		</div>
+	<?php endif; ?>
 	<div class="esk-panel-actions">
+		<?php if ( $is_logged_in ) : ?>
+			<a href="<?php echo esc_url( wp_logout_url( home_url( '/' ) ) ); ?>" class="esk-btn esk-btn-plain"><?php echo esc_html( (string) esk_site_ui( 'nav.logout', '' ) ); ?></a>
+		<?php else : ?>
+			<a href="<?php echo esc_url( home_url( '/login/' ) ); ?>" class="esk-btn esk-btn-plain"><?php echo esc_html( (string) esk_site_ui( 'nav.login', '' ) ); ?></a>
+		<?php endif; ?>
 		<a href="<?php echo esc_url( $portal_url ); ?>" class="esk-btn esk-btn-accent"><?php echo esc_html( (string) esk_site_ui( 'nav.portal', '' ) ); ?></a>
 		<a href="<?php echo esc_url( add_query_arg( 'esk_lang', $target_locale ) ); ?>" class="esk-btn esk-btn-plain"><?php echo esc_html( $target_label ); ?></a>
 	</div>

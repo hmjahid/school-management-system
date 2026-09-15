@@ -84,6 +84,10 @@ function esk_front_dashboard_pages(): array {
 		'esk-progress-reports'     => 'esk_progress_reports_page',
 		'esk-seat-plans'           => 'esk_seat_plans_page',
 		'esk-library-reports'      => 'esk_library_reports_page',
+		'esk-profile'              => 'esk_profile_page',
+		'esk-help'                 => 'esk_help_page',
+		'esk-backup'               => 'esk_backup_page',
+		'esk-software'             => 'esk_software_page',
 	);
 }
 
@@ -243,6 +247,62 @@ add_action(
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="noindex, nofollow">
+	<link rel="manifest" href="<?php echo esc_url( home_url( '/manifest.json' ) ); ?>">
+	<meta name="theme-color" content="<?php echo esc_attr( esk_theme_primary() ); ?>">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
+	<link rel="apple-touch-icon" href="<?php echo esc_url( get_template_directory_uri() . '/assets/icons/apple-touch-icon.png' ); ?>">
+	<style>
+		:root {
+			--brand-50: color-mix(in srgb, <?php echo esc_attr( esk_theme_primary() ); ?> 10%, white);
+			--brand-100: color-mix(in srgb, <?php echo esc_attr( esk_theme_primary() ); ?> 20%, white);
+			--brand-500: <?php echo esc_attr( esk_theme_primary() ); ?>;
+			--brand-600: color-mix(in srgb, <?php echo esc_attr( esk_theme_primary() ); ?> 80%, black);
+			--brand-700: color-mix(in srgb, <?php echo esc_attr( esk_theme_primary() ); ?> 65%, black);
+			--accent-500: <?php echo esc_attr( esk_theme_secondary() ); ?>;
+			--accent-600: color-mix(in srgb, <?php echo esc_attr( esk_theme_secondary() ); ?> 80%, black);
+			--theme-radius: 0.75rem;
+			--theme-card-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+			--theme-heading-weight: 600;
+			--theme-accent: var(--brand-500);
+		}
+		body.theme-modern {
+			--theme-radius: 1rem;
+			--theme-card-shadow: 0 12px 32px -12px rgb(0 0 0 / 0.22);
+			--theme-heading-weight: 700;
+			--theme-accent: var(--accent-500);
+		}
+		body.theme-classic {
+			--theme-radius: 0.375rem;
+			--theme-card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.12);
+			--theme-heading-weight: 600;
+			--theme-accent: var(--brand-700);
+		}
+		body.theme-minimal {
+			--theme-radius: 0.5rem;
+			--theme-card-shadow: none;
+			--theme-heading-weight: 500;
+			--theme-accent: var(--brand-500);
+		}
+		body.theme-modern .rounded-xl,
+		body.theme-classic .rounded-xl,
+		body.theme-minimal .rounded-xl {
+			border-radius: var(--theme-radius) !important;
+			box-shadow: var(--theme-card-shadow) !important;
+		}
+		body.theme-modern h1,
+		body.theme-modern h2,
+		body.theme-modern h3,
+		body.theme-classic h1,
+		body.theme-classic h2,
+		body.theme-classic h3,
+		body.theme-minimal h1,
+		body.theme-minimal h2,
+		body.theme-minimal h3 {
+			font-weight: var(--theme-heading-weight) !important;
+		}
+	</style>
 	<?php wp_head(); ?>
 </head>
 <body class="bg-slate-50 font-sans text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-100 esk-admin-shell esk-front-dashboard">

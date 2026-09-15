@@ -587,6 +587,42 @@ function esk_register_admin_menus(): void {
 		'esk-library-reports',
 		'esk_library_reports_page'
 	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'My Profile', 'eskoofy' ),
+		esc_html__( 'My Profile', 'eskoofy' ),
+		'read',
+		'esk-profile',
+		'esk_profile_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Help & Documentation', 'eskoofy' ),
+		esc_html__( 'Help & Documentation', 'eskoofy' ),
+		'read',
+		'esk-help',
+		'esk_help_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Backups', 'eskoofy' ),
+		esc_html__( 'Backups', 'eskoofy' ),
+		'manage_options',
+		'esk-backup',
+		'esk_backup_page'
+	);
+
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'About & Software', 'eskoofy' ),
+		esc_html__( 'About & Software', 'eskoofy' ),
+		'read',
+		'esk-software',
+		'esk_software_page'
+	);
 }
 // The management dashboard is served on the frontend at /dashboard/…
 // (inc/front-dashboard.php), NOT inside the WordPress admin. Set
@@ -795,6 +831,10 @@ function esk_routines_page(): void                { esk_render_admin_view( 'rout
 function esk_progress_reports_page(): void        { esk_render_admin_view( 'progress-reports' ); }
 function esk_seat_plans_page(): void              { esk_render_admin_view( 'seat-plans' ); }
 function esk_library_reports_page(): void         { esk_render_admin_view( 'library-reports' ); }
+function esk_profile_page(): void                 { esk_render_admin_view( 'profile' ); }
+function esk_help_page(): void                    { esk_render_admin_view( 'help' ); }
+function esk_backup_page(): void                  { esk_render_admin_view( 'backup' ); }
+function esk_software_page(): void                { esk_render_admin_view( 'software' ); }
 
 /**
  * Render an admin view template.

@@ -132,6 +132,7 @@ return array(
 		'payments'        => 'Payments',
 		'committee'       => 'Managing Committee',
 		'portal'          => 'Portal',
+		'transport'       => 'Transport',
 		'dashboard'       => 'Dashboard',
 		'profile'         => 'Profile',
 		'logout'          => 'Log out',

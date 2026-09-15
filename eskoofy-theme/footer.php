@@ -16,20 +16,9 @@ $is_bn       = 'bn_BD' === get_option( 'esk_locale', 'en' ) || 0 === strpos( get
 
 $about_text = esk_school( 'school_about' ) ?: (string) esk_site_ui( 'footer.about_fallback', '' );
 
-$socials = array(
-	'facebook' => esk_school( 'social_facebook' ),
-	'twitter'  => esk_school( 'social_twitter' ),
-	'youtube'  => esk_school( 'social_youtube' ),
-	'instagram' => esk_school( 'social_instagram' ),
-);
-$socials = array_filter( $socials );
+$socials = esk_social_profiles();
 
-$social_svgs = array(
-	'facebook' => '<svg class="esk-icon" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 22v-8h2.7l.4-3H13V9.2c0-.9.3-1.5 1.6-1.5H16V5c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4v2H7v3h2.8v8H13z"/></svg>',
-	'twitter'  => '<svg class="esk-icon" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.2 2h3.3l-7.3 8.3L22.8 22h-6.7l-5.3-6.9L4.8 22H1.5l7.8-8.9L1.5 2h6.9l4.8 6.3L18.2 2zm-1.2 18h1.9L6.9 3.8H4.9L17 20z"/></svg>',
-	'youtube'  => '<svg class="esk-icon" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M23 12s0-3.9-.5-5.6c-.3-1-1-1.8-2-2C18.8 4 12 4 12 4s-6.8 0-8.5.4c-1 .2-1.7 1-2 2C1 8.1 1 12 1 12s0 3.9.5 5.6c.3 1 1 1.8 2 2 1.7.4 8.5.4 8.5.4s6.8 0 8.5-.4c1-.2 1.7-1 2-2 .5-1.7.5-5.6.5-5.6zM10 15.5v-7l6 3.5-6 3.5z"/></svg>',
-	'instagram' => '<svg class="esk-icon" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c2.7 0 3 0 4.1.1 1.1.1 1.8.2 2.4.4.7.3 1.2.6 1.7 1.1.5.5.9 1 1.1 1.7.2.6.4 1.3.4 2.4.1 1.1.1 1.3.1 4.1s0 3-.1 4.1c-.1 1.1-.2 1.8-.4 2.4-.3.7-.6 1.2-1.1 1.7-.5.5-1 .9-1.7 1.1-.6.2-1.3.4-2.4.4-1.1.1-1.3.1-4.1.1s-3 0-4.1-.1c-1.1-.1-1.8-.2-2.4-.4-.7-.3-1.2-.6-1.7-1.1-.5-.5-.9-1-1.1-1.7-.2-.6-.4-1.3-.4-2.4-.1-1.1-.1-1.3-.1-4.1s0-3 .1-4.1c.1-1.1.2-1.8.4-2.4.3-.7.6-1.2 1.1-1.7.5-.5 1-.9 1.7-1.1.6-.2 1.3-.4 2.4-.4C9 2 9.3 2 12 2zm0 3.6a6.4 6.4 0 100 12.8A6.4 6.4 0 0012 5.6zm0 10.6a4.2 4.2 0 110-8.4 4.2 4.2 0 010 8.4zM19.6 5.2a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/></svg>',
-);
+$social_svgs = esk_social_icons();
 
 $quick_links = array(
 	'link_about_school'  => home_url( '/about/' ),
@@ -70,9 +59,9 @@ $esc = static fn( string $svg ): string => wp_kses_post( $svg );
 				<p><?php echo esc_html( $about_text ); ?></p>
 				<?php if ( ! empty( $socials ) ) : ?>
 					<div class="esk-footer-social">
-						<?php foreach ( $socials as $key => $url ) : ?>
-							<a href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php echo esc_attr( ucfirst( $key ) ); ?>">
-								<?php echo $esc( $social_svgs[ $key ] ?? $social_svgs['facebook'] ); // phpcs:ignore ?>
+						<?php foreach ( $socials as $social ) : ?>
+							<a href="<?php echo esc_url( $social['url'] ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php echo esc_attr( $social['label'] ); ?>">
+								<?php echo $esc( $social['svg'] ); // phpcs:ignore ?>
 							</a>
 						<?php endforeach; ?>
 					</div>
@@ -94,6 +83,7 @@ $esc = static fn( string $svg ): string => wp_kses_post( $svg );
 			<div class="esk-footer-col">
 				<h3 class="esk-footer-head"><?php echo esc_html( (string) esk_site_ui( 'footer.important_title', '' ) ); ?></h3>
 				<ul class="esk-footer-links">
+				<?php if ( ! empty( $ministry_links ) ) : ?>
 					<?php foreach ( $ministry_links as $entry ) : ?>
 						<?php
 						$parts = explode( '|', (string) $entry );
@@ -103,7 +93,14 @@ $esc = static fn( string $svg ): string => wp_kses_post( $svg );
 						?>
 						<li><a href="<?php echo esc_url( $parts[1] ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( $parts[0] ); ?></a></li>
 					<?php endforeach; ?>
-				</ul>
+				<?php else : ?>
+					<li><a href="https://www.moedu.gov.bd" target="_blank" rel="noopener noreferrer"><?php echo esc_html( (string) esk_site_ui( 'footer.link_ministry_education_ministry', '' ) ); ?></a></li>
+					<li><a href="<?php echo esc_url( home_url( '/transport/' ) ); ?>"><?php echo esc_html( (string) esk_site_ui( 'nav.transport', '' ) ); ?></a></li>
+				<?php endif; ?>
+			</ul>
+			<ul class="esk-footer-links esk-footer-extra">
+				<li><a href="<?php echo esc_url( home_url( '/transport/' ) ); ?>"><?php echo esc_html( (string) esk_site_ui( 'nav.transport', '' ) ); ?></a></li>
+			</ul>
 			</div>
 
 			<div class="esk-footer-col">
@@ -164,6 +161,29 @@ $esc = static fn( string $svg ): string => wp_kses_post( $svg );
 		</div>
 	</div>
 </footer>
+
+<?php
+$esk_flash_success = esk_get_flash( 'success' );
+$esk_flash_error   = esk_get_flash( 'error' );
+$esk_flash_info    = esk_get_flash( 'notice' );
+?>
+<?php if ( '' !== $esk_flash_success || '' !== $esk_flash_error || '' !== $esk_flash_info ) : ?>
+	<div data-esk-flash-toast data-message="<?php echo esc_attr( '' !== $esk_flash_success ? $esk_flash_success : ( '' !== $esk_flash_error ? $esk_flash_error : $esk_flash_info ) ); ?>" data-type="<?php echo esc_attr( '' !== $esk_flash_success ? 'success' : ( '' !== $esk_flash_error ? 'error' : 'info' ) ); ?>"></div>
+<?php endif; ?>
+
+<div class="esk-toast-root" id="esk-toast-root" aria-live="polite" aria-atomic="true"></div>
+
+<div class="esk-confirm-modal" id="esk-confirm-modal" aria-hidden="true">
+	<div class="esk-confirm-backdrop" data-confirm-backdrop></div>
+	<div class="esk-confirm-panel" role="alertdialog" aria-labelledby="esk-confirm-title" aria-describedby="esk-confirm-message">
+		<h3 id="esk-confirm-title" data-confirm-title><?php esc_html_e( 'Are you sure?', 'eskoofy' ); ?></h3>
+		<p id="esk-confirm-message" data-confirm-message><?php esc_html_e( 'This action cannot be undone.', 'eskoofy' ); ?></p>
+		<div class="esk-confirm-actions">
+			<button type="button" class="esk-btn esk-btn-plain" data-confirm-cancel><?php esc_html_e( 'Cancel', 'eskoofy' ); ?></button>
+			<button type="button" class="esk-btn esk-btn-accent" data-confirm-ok><?php esc_html_e( 'Confirm', 'eskoofy' ); ?></button>
+		</div>
+	</div>
+</div>
 
 <?php wp_footer(); ?>
 </body>

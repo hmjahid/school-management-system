@@ -101,15 +101,22 @@ make sure that the theme own dashbard is mirror of the app version dahboard (ui 
 
 the ui ux, layout, styles not became same yet, find better ways to mak ethem same
 
-
-
-
 notices are showing in the wordpress dashboard yet. remove th edashboard menu item
+
+make sure that the php version and theme version own dashbard & frontend is mirror/totally same of the app version dashboard and frontend (ui ux, layout, styles, contnets everything) and functionalities. continue until finished
+
+
+
+ensure php version and theme version frontend is aslo mirror/totally same of the app version frontend (ui ux, layout, styles, contnets everything)
+
+
 
 
 ensure that whole project/repo is fully and well documented and the every product and the website also fully and well documented
 
 research international school management software websites for how they showcasing thier product, pricing plan and other. we will implement in our branding site them.
+
+suggest me a payment/subscription model for these products in the branding website
 
 ensure proper payment method applied in this system app, php, theme and the website
 
@@ -121,3 +128,13 @@ make a system that i I wnat to add/modify any feature in eskoofy, it will be app
 how to make this app/php-version/theme eligible for selling in theme forest or other similiar marketplaces?
 
 now write a commit message for the chnage safter the last commit and commit that
+
+---
+working session (frontend + dashboard parity, theme):
+- Topbar socials wired via new esk_social_profiles()/esk_social_icons() helpers (facebook, instagram, twitter, youtube, linkedin) honoring social_show_* toggles; used in header.php topbar and footer.php.
+- header.php: OG/Twitter/theme-color/apple PWA meta; mobile panel got search + contact + login/logout auth buttons.
+- footer.php: socials via helper (+LinkedIn), ministry fallback column (moedu.gov.bd), extra Transport link, flash-toast div + #esk-toast-root + #esk-confirm-modal.
+- New admin pages fully implemented: views/admin/profile.php (real WP user update incl. password reset + re-auth), help.php (accordion + search + feedback, mirror of app help page), backup.php (create JSON export of esk_* tables, download, restore with confirm, delete), software.php (WP/PHP/DB/Eskoofy info blocks). Slugs registered in front-dashboard.php map, page callbacks + legacy wp-admin submenus in admin-pages.php, sidebar titles/icons/groups in admin-shell.php (Settings group += esk-backup; new Help group += esk-software/esk-help/esk-profile; user dropdown "My Profile" now links to /dashboard/profile/).
+- Verified front-page parity: app computes $quickLinks (site_ui home.quick_links) but never renders it — theme correctly omits quick-links section. Transport is a full page template-transport.php (app has separate transport page, not a homepage section). Slider tracks already present (data-teachers-track, data-committee-track, data-slider-track) so new auto-scroll JS fires.
+- All changed theme files php -l clean. eskoofy-php suite re-run: OK (299 tests, 604 assertions).
+- Decision (unchanged): do NOT sync eskoofy-php null-safe guards into the Laravel app; keep the app as-is. Theme customizer only exposes social settings esk_social_facebook/esk_social_youtube; social editing UI in admin settings tabs not expanded (display parity only).

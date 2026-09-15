@@ -540,3 +540,87 @@ html.dark .esk-modal-cancel:hover { background: #334155; }
 @media (max-width: 1100px) {
     .esk-shell-action-label { display: none; }
 }
+/* ── Palette ESC kbd ────────────────────────────────────────────────── */
+.esk-palette-esc {
+    display: inline-block; padding: 0.1rem 0.4rem; border: 1px solid #e2e8f0;
+    background: #f8fafc; border-radius: 5px;
+    font: 600 0.65rem/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: #94a3b8;
+}
+html.dark .esk-palette-esc { background: #334155; border-color: #475569; color: #cbd5e1; }
+
+/* ── Contextual help modal ──────────────────────────────────────────── */
+.esk-help-panel { max-width: 42rem; width: 100%; max-height: 85vh; overflow-y: auto; }
+.esk-help-head {
+    display: flex; align-items: flex-start; gap: 0.875rem;
+    padding: 1.25rem 1.5rem; border-bottom: 1px solid #f1f5f9;
+}
+.esk-help-head-icon {
+    width: 2.5rem; height: 2.5rem; border-radius: 10px; flex-shrink: 0;
+    background: #eff6ff; color: #2563eb;
+    display: flex; align-items: center; justify-content: center;
+}
+.esk-help-head-icon .dashicons { font-size: 1.25rem; width: 1.25rem; height: 1.25rem; }
+.esk-help-subtitle { margin: 0.15rem 0 0; font-size: 0.8125rem; color: #64748b; }
+.esk-help-close {
+    margin-left: auto; border: 0; background: transparent; cursor: pointer;
+    font-size: 1.25rem; color: #94a3b8;
+}
+.esk-help-steps { list-style: none; margin: 0; padding: 1.25rem 1.5rem; }
+.esk-help-step { display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.4rem 0; }
+.esk-help-step-num {
+    width: 1.5rem; height: 1.5rem; border-radius: 9999px; flex-shrink: 0;
+    background: #eff6ff; color: #2563eb;
+    font-size: 0.75rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+}
+.esk-help-topics { padding: 1rem 1.5rem 1.5rem; border-top: 1px solid #f1f5f9; }
+.esk-help-topics-label {
+    margin: 0 0 0.75rem; font-size: 0.625rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8;
+}
+.esk-help-topics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.5rem; }
+.esk-help-topic {
+    display: flex; align-items: center; gap: 0.5rem; text-align: left;
+    padding: 0.55rem 0.75rem; border: 0; border-radius: 8px; cursor: pointer;
+    background: transparent; color: #475569; font-size: 0.8125rem; transition: background-color .15s ease;
+}
+.esk-help-topic .dashicons { font-size: 1rem; width: 1rem; height: 1rem; }
+.esk-help-topic:hover { background: #f8fafc; }
+.esk-help-topic.is-active { background: #eff6ff; color: #2563eb; font-weight: 600; }
+html.dark .esk-help-head { border-color: #334155; }
+html.dark .esk-help-head-icon { background: rgba(37, 99, 235, 0.2); color: #60a5fa; }
+html.dark .esk-help-step-num { background: rgba(37, 99, 235, 0.2); color: #60a5fa; }
+html.dark .esk-help-topics { border-color: #334155; }
+html.dark .esk-help-topic { color: #cbd5e1; }
+html.dark .esk-help-topic:hover { background: #334155; }
+html.dark .esk-help-topic.is-active { background: #1e3a8a; color: #bfdbfe; }
+
+/* ── Document preview modal ─────────────────────────────────────────── */
+.esk-doc-modal .esk-doc-panel {
+    width: 100%; max-width: 56rem; height: 85vh;
+    background: #fff; border-radius: 16px; overflow: hidden;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+    display: flex; flex-direction: column;
+}
+.esk-doc-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 0.75rem; padding: 0.75rem 1rem; border-bottom: 1px solid #f1f5f9;
+}
+.esk-doc-head h2 { margin: 0; font-size: 1rem; font-weight: 600; color: #0f172a; }
+.esk-doc-body { flex: 1; background: #f1f5f9; overflow: hidden; }
+.esk-doc-body iframe { width: 100%; height: 100%; border: 0; }
+.esk-doc-close {
+    border: 0; background: transparent; cursor: pointer;
+    font-size: 1.25rem; color: #94a3b8;
+}
+.esk-doc-close:hover { color: #475569; }
+html.dark .esk-doc-panel { background: #1e293b; border-color: #334155; }
+html.dark .esk-doc-head { border-color: #334155; }
+html.dark .esk-doc-head h2 { color: #f1f5f9; }
+
+/* ── Admin brand logo ───────────────────────────────────────────────── */
+.admin-shell #sidebar img.esk-admin-logo,
+.admin-shell #sidebar .admin-brand img {
+    border-radius: 8px;
+}

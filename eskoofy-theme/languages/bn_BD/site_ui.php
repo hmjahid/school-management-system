@@ -132,6 +132,7 @@ return array(
 		'contact'           => 'যোগাযোগ',
 		'payments'          => 'পেমেন্ট',
 		'committee'         => 'পরিচালনা পরিষদ',
+		'transport'         => 'পরিবহন',
 		'portal'            => 'পোর্টাল',
 		'dashboard'         => 'ড্যাশবোর্ড',
 		'profile'           => 'প্রোফাইল',

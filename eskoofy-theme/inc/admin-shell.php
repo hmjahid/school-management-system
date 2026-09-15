@@ -60,7 +60,8 @@ function esk_admin_shell_groups(): array {
 		'Facilities'  => array( 'esk-transport', 'esk-hostels', 'esk-library', 'esk-library-reports' ),
 		'Content'     => array( 'esk-cms', 'esk-careers', 'esk-committee', 'esk-testimonials', 'esk-events', 'esk-news', 'esk-gallery', 'esk-documents', 'esk-media', 'esk-contact-submissions' ),
 		'System'      => array( 'esk-search', 'esk-activity', 'esk-visitor-logs', 'esk-notifications', 'esk-reports', 'esk-reports-builder', 'esk-analytics', 'esk-bulk' ),
-		'Settings'    => array( 'esk-settings', 'esk-onboarding' ),
+		'Settings'    => array( 'esk-settings', 'esk-backup', 'esk-onboarding' ),
+		'Help'        => array( 'esk-software', 'esk-help', 'esk-profile' ),
 	);
 }
 
@@ -136,6 +137,10 @@ function esk_dashboard_page_titles(): array {
 		'esk-progress-reports'     => 'Progress Reports',
 		'esk-seat-plans'           => 'Seat Plans',
 		'esk-library-reports'      => 'Library Reports',
+		'esk-profile'              => 'My Profile',
+		'esk-help'                 => 'Help & Documentation',
+		'esk-backup'               => 'Backups',
+		'esk-software'             => 'About & Software',
 	);
 }
 
@@ -206,8 +211,113 @@ function esk_admin_shell_icon( string $slug ): string {
 		'esk-bulk'               => 'dashicons-upload',
 		'esk-settings'           => 'dashicons-admin-generic',
 		'esk-onboarding'         => 'dashicons-megaphone',
+		'esk-profile'            => 'dashicons-admin-users',
+		'esk-help'               => 'dashicons-editor-help',
+		'esk-backup'             => 'dashicons-media-text',
+		'esk-software'           => 'dashicons-info-outline',
 	);
 	return isset( $icons[ $slug ] ) ? $icons[ $slug ] : 'dashicons-admin-generic';
+}
+
+/**
+ * Breadcrumbs for the current page.
+ *
+ * Pages can set `$GLOBALS['esk_breadcrumbs']` to an array of
+ * [ 'label' => ..., 'url' => ... ] entries (last entry may omit 'url').
+ * Defaults to Dashboard / current page title.
+ */
+function esk_admin_shell_breadcrumbs( string $current = '' ): array {
+	if ( ! empty( $GLOBALS['esk_breadcrumbs'] ) && is_array( $GLOBALS['esk_breadcrumbs'] ) ) {
+		return $GLOBALS['esk_breadcrumbs'];
+	}
+	$titles = esk_dashboard_page_titles();
+	$current = '' !== $current ? $current : 'esk-dashboard';
+	return array(
+		array( 'label' => __( 'Dashboard', 'eskoofy' ), 'url' => esk_dashboard_url( 'esk-dashboard' ) ),
+		array( 'label' => isset( $titles[ $current ] ) ? $titles[ $current ] : __( 'Page', 'eskoofy' ) ),
+	);
+}
+
+/**
+ * Render the breadcrumb nav inside <main> (mirrors the app layout).
+ */
+function esk_render_admin_shell_breadcrumbs( string $current = '' ): void {
+	$crumbs = esk_admin_shell_breadcrumbs( $current );
+	if ( empty( $crumbs ) ) {
+		return;
+	}
+	?>
+	<nav class="mb-4 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400" aria-label="<?php echo esc_attr__( 'Breadcrumb', 'eskoofy' ); ?>">
+		<?php
+		$count = count( $crumbs );
+		foreach ( $crumbs as $i => $crumb ) :
+			$last = ( $i === $count - 1 );
+			if ( $last || empty( $crumb['url'] ) ) :
+				?>
+				<span class="font-medium text-slate-900 dark:text-slate-100"><?php echo esc_html( $crumb['label'] ); ?></span>
+			<?php else : ?>
+				<a href="<?php echo esc_url( $crumb['url'] ); ?>" class="transition-colors hover:text-slate-700 dark:hover:text-slate-200"><?php echo esc_html( $crumb['label'] ); ?></a>
+				<svg class="h-4 w-4 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+			<?php endif; ?>
+		<?php endforeach; ?>
+	</nav>
+	<?php
+}
+
+/**
+ * Resolve the school logo URL for the sidebar brand (mirrors the app layout).
+ */
+function esk_admin_shell_logo_url(): string {
+	$logo = (string) esk_get_option( 'logo_url', '' );
+	if ( '' === $logo ) {
+		$logo = (string) get_theme_mod( 'esk_custom_logo', '' );
+	}
+	return '' !== $logo ? esc_url( $logo ) : '';
+}
+
+/**
+ * Sidebar badge counts (mirrors the app's sidebar pending counts).
+ */
+function esk_admin_shell_badge_counts(): array {
+	global $wpdb;
+	$counts = array(
+		'messages'   => 0,
+		'admissions' => 0,
+		'leaves'     => 0,
+		'payments'   => 0,
+	);
+	$user = wp_get_current_user();
+
+	$messages = $wpdb->prefix . 'esk_messages';
+	if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $messages ) ) === $messages ) {
+		$counts['messages'] = (int) $wpdb->get_var( $wpdb->prepare(
+			"SELECT COUNT(*) FROM {$messages} WHERE receiver_id = %d AND read_at IS NULL",
+			(int) $user->ID
+		) );
+	}
+
+	$admissions = $wpdb->prefix . 'esk_admissions';
+	if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $admissions ) ) === $admissions ) {
+		$counts['admissions'] = (int) $wpdb->get_var(
+			"SELECT COUNT(*) FROM {$admissions} WHERE status IN ('pending','submitted') AND deleted_at IS NULL"
+		);
+	}
+
+	$leaves = $wpdb->prefix . 'esk_leave_requests';
+	if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $leaves ) ) === $leaves ) {
+		$counts['leaves'] = (int) $wpdb->get_var(
+			"SELECT COUNT(*) FROM {$leaves} WHERE status IN ('pending','submitted')"
+		);
+	}
+
+	$payments = $wpdb->prefix . 'esk_fee_payments';
+	if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $payments ) ) === $payments ) {
+		$counts['payments'] = (int) $wpdb->get_var(
+			"SELECT COUNT(*) FROM {$payments} WHERE status = 'pending'"
+		);
+	}
+
+	return $counts;
 }
 
 /**
@@ -245,6 +355,14 @@ function esk_render_admin_shell_open( string $current = '' ): void {
 	$user     = wp_get_current_user();
 	$is_bn    = 'bn_BD' === get_option( 'esk_locale', 'en' ) || 0 === strpos( get_locale(), 'bn' );
 
+	$logo_url  = esk_admin_shell_logo_url();
+	$badges    = esk_admin_shell_badge_counts();
+	$timezone  = (string) esk_get_option( 'timezone', '' );
+	if ( '' === $timezone ) {
+		$timezone = function_exists( 'wp_timezone_string' ) ? wp_timezone_string() : 'UTC';
+	}
+	$avatar = get_avatar_url( $user->ID, array( 'size' => 32 ) );
+
 	$notif_count = 0;
 	$notif_table = $GLOBALS['wpdb']->prefix . 'esk_notifications';
 	if ( $GLOBALS['wpdb']->get_var( "SHOW TABLES LIKE '{$notif_table}'" ) === $notif_table ) {
@@ -260,16 +378,26 @@ function esk_render_admin_shell_open( string $current = '' ): void {
 		$palette[] = array( 'label' => $title, 'url' => esk_dashboard_url( $slug ), 'group' => $group );
 	}
 	?>
+<a href="#main-content" class="skip-link"><?php esc_html_e( 'Skip to content', 'eskoofy' ); ?></a>
+<div id="esk-loading-bar" class="fixed left-0 top-0 z-[200] h-1 bg-brand-600 transition-all duration-300 ease-out" style="width:0;opacity:0;"></div>
 <div class="admin-shell flex h-screen overflow-hidden">
 
 	<aside id="sidebar" class="no-print flex w-64 flex-shrink-0 flex-col border-r border-slate-200/80 bg-white dark:border-slate-700/80 dark:bg-slate-800">
 
 		<div class="flex h-[4.25rem] flex-shrink-0 items-center gap-2.5 border-b border-slate-100 px-4 dark:border-slate-700">
-			<span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white"><?php echo esc_html( $initials ); ?></span>
-			<div class="min-w-0">
-				<p class="truncate text-sm font-bold text-slate-900 dark:text-white"><?php echo esc_html( $school ); ?></p>
-				<p class="text-[0.65rem] text-slate-400"><?php esc_html_e( 'Management System', 'eskoofy' ); ?></p>
-			</div>
+			<a href="<?php echo esc_url( esk_dashboard_url( 'esk-dashboard' ) ); ?>" class="flex min-w-0 items-center gap-2.5">
+				<?php if ( '' !== $logo_url ) : ?>
+					<img src="<?php echo esc_url( $logo_url ); ?>" alt="<?php echo esc_attr( $school ); ?>" class="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-slate-200 dark:ring-slate-600">
+				<?php else : ?>
+					<span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white"><?php echo esc_html( $initials ); ?></span>
+				<?php endif; ?>
+				<div class="min-w-0">
+					<?php if ( '' === $logo_url ) : ?>
+						<p class="truncate text-sm font-bold text-slate-900 dark:text-white"><?php echo esc_html( $school ); ?></p>
+					<?php endif; ?>
+					<p class="text-[0.65rem] text-slate-400"><?php esc_html_e( 'Management System', 'eskoofy' ); ?></p>
+				</div>
+			</a>
 		</div>
 
 		<div class="p-3">
@@ -289,10 +417,25 @@ function esk_render_admin_shell_open( string $current = '' ): void {
 				<p class="mb-2 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 esk-group-label"><?php echo esc_html( $group ); ?></p>
 				<ul class="mb-4 space-y-0.5 esk-group-menu">
 					<?php foreach ( $links as $slug => $title ) : ?>
+						<?php
+						$badge = 0;
+						if ( 'esk-messages' === $slug ) {
+							$badge = $badges['messages'];
+						} elseif ( 'esk-admissions' === $slug ) {
+							$badge = $badges['admissions'];
+						} elseif ( 'esk-leave-requests' === $slug ) {
+							$badge = $badges['leaves'];
+						} elseif ( 'esk-fee-payments' === $slug ) {
+							$badge = $badges['payments'];
+						}
+						?>
 						<li>
 							<a href="<?php echo esc_url( esk_dashboard_url( $slug ) ); ?>" data-esk-nav="<?php echo esc_attr( $slug ); ?>" class="admin-nav-link <?php echo $current === $slug ? 'admin-nav-link--active' : ''; ?>">
 								<span class="flex h-5 w-5 shrink-0 items-center justify-center opacity-80"><span class="dashicons <?php echo esc_attr( esk_admin_shell_icon( $slug ) ); ?>" style="font-size:1.1rem;width:1.1rem;height:1.1rem;"></span></span>
 								<span class="flex-1"><?php echo esc_html( $title ); ?></span>
+								<?php if ( $badge > 0 ) : ?>
+									<span class="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white"><?php echo esc_html( (string) $badge ); ?></span>
+								<?php endif; ?>
 							</a>
 						</li>
 					<?php endforeach; ?>
@@ -301,6 +444,10 @@ function esk_render_admin_shell_open( string $current = '' ): void {
 		</nav>
 
 		<div class="flex flex-col gap-1 border-t border-slate-100 p-3 dark:border-slate-700">
+			<button type="button" id="esk-pwa-install" class="hidden items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700">
+				<span class="dashicons dashicons-download"></span>
+				<?php esc_html_e( 'Install App', 'eskoofy' ); ?>
+			</button>
 			<button type="button" id="esk-dark-toggle-foot" class="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700">
 				<span class="dashicons dashicons-lightbulb"></span>
 				<?php esc_html_e( 'Dark mode', 'eskoofy' ); ?>
@@ -318,7 +465,7 @@ function esk_render_admin_shell_open( string $current = '' ): void {
 				<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
 			</button>
 
-			<div class="hidden items-center gap-2 text-xs text-slate-500 md:flex">
+			<div class="hidden items-center gap-2 text-xs text-slate-500 md:flex" id="esk-shell-clock-container" data-timezone="<?php echo esc_attr( $timezone ); ?>">
 				<span class="dashicons dashicons-clock"></span>
 				<span id="esk-shell-clock"></span>
 			</div>
@@ -344,6 +491,10 @@ function esk_render_admin_shell_open( string $current = '' ): void {
 					<span class="dashicons dashicons-star-filled" id="esk-fav-star"></span>
 				</button>
 
+				<button type="button" data-help-modal-open class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200" aria-label="<?php esc_attr_e( 'Help', 'eskoofy' ); ?>" title="<?php esc_attr_e( 'Help', 'eskoofy' ); ?>">
+					<span class="dashicons dashicons-editor-help"></span>
+				</button>
+
 				<a href="<?php echo esc_url( esk_dashboard_url( 'esk-notifications' ) ); ?>" class="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200" aria-label="<?php esc_attr_e( 'Notifications', 'eskoofy' ); ?>">
 					<span class="dashicons dashicons-bell"></span>
 					<?php if ( $notif_count > 0 ) : ?><span class="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[0.6rem] font-bold text-white"><?php echo esc_html( (string) $notif_count ); ?></span><?php endif; ?>
@@ -355,13 +506,18 @@ function esk_render_admin_shell_open( string $current = '' ): void {
 
 				<div class="relative" id="esk-user-menu">
 					<button type="button" class="flex items-center gap-2 rounded-lg p-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700" aria-expanded="false">
-						<span class="flex h-7 w-7 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white ring-2 ring-slate-200 dark:ring-slate-600"><?php echo esc_html( $initials ); ?></span>
+						<?php if ( $avatar ) : ?>
+							<img src="<?php echo esc_url( $avatar ); ?>" alt="" class="h-7 w-7 rounded-full object-cover ring-2 ring-slate-200 dark:ring-slate-600">
+						<?php else : ?>
+							<span class="flex h-7 w-7 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white ring-2 ring-slate-200 dark:ring-slate-600"><?php echo esc_html( $initials ); ?></span>
+						<?php endif; ?>
 						<span class="hidden md:inline"><?php echo esc_html( $user->display_name ); ?></span>
 						<svg class="hidden h-4 w-4 text-slate-400 md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
 					</button>
 					<div class="absolute right-0 top-full z-50 mt-2 hidden w-56 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg dark:border-slate-700 dark:bg-slate-800 esk-user-dropdown">
 						<a href="<?php echo esc_url( esk_dashboard_url( 'esk-dashboard' ) ); ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"><span class="dashicons dashicons-dashboard"></span><?php esc_html_e( 'Dashboard', 'eskoofy' ); ?></a>
-						<a href="<?php echo esc_url( admin_url( 'profile.php' ) ); ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"><span class="dashicons dashicons-admin-users"></span><?php esc_html_e( 'My Profile', 'eskoofy' ); ?></a>
+						<a href="<?php echo esc_url( esk_dashboard_url( 'esk-onboarding' ) ); ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"><span class="dashicons dashicons-megaphone"></span><?php esc_html_e( 'Setup & Onboarding', 'eskoofy' ); ?></a>
+						<a href="<?php echo esc_url( esk_dashboard_url( 'esk-profile' ) ); ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"><span class="dashicons dashicons-admin-users"></span><?php esc_html_e( 'My Profile', 'eskoofy' ); ?></a>
 						<a href="<?php echo esc_url( esk_dashboard_url( 'esk-settings' ) ); ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"><span class="dashicons dashicons-admin-generic"></span><?php esc_html_e( 'School Settings', 'eskoofy' ); ?></a>
 						<hr class="my-1 border-slate-100 dark:border-slate-700">
 						<a href="<?php echo esc_url( wp_logout_url( home_url( '/login/' ) ) ); ?>" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"><span class="dashicons dashicons-exit"></span><?php esc_html_e( 'Log out', 'eskoofy' ); ?></a>
@@ -370,7 +526,16 @@ function esk_render_admin_shell_open( string $current = '' ): void {
 			</div>
 		</header>
 
-		<main id="main-content" class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+		<main id="main-content" tabindex="-1" class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+	<?php esk_render_admin_shell_breadcrumbs( $current ); ?>
+	<?php
+	$flash_status = esk_get_flash( 'status' );
+	$flash_error  = esk_get_flash( 'error' );
+	$flash_info   = esk_get_flash( 'info' );
+	?>
+	<?php if ( '' !== $flash_status ) : ?><div data-flash-toast data-type="success" data-message="<?php echo esc_attr( $flash_status ); ?>"></div><?php endif; ?>
+	<?php if ( '' !== $flash_error ) : ?><div data-flash-toast data-type="error" data-message="<?php echo esc_attr( $flash_error ); ?>"></div><?php endif; ?>
+	<?php if ( '' !== $flash_info ) : ?><div data-flash-toast data-type="info" data-message="<?php echo esc_attr( $flash_info ); ?>"></div><?php endif; ?>
 	<?php
 }
 
@@ -402,15 +567,108 @@ function esk_render_admin_shell_close(): void {
 		<div class="esk-palette-input">
 			<span class="dashicons dashicons-search"></span>
 			<input type="text" id="esk-palette-q" placeholder="<?php esc_attr_e( 'Type to search pages or students…', 'eskoofy' ); ?>" autocomplete="off">
+			<kbd class="esk-palette-esc">ESC</kbd>
 			<button type="button" id="esk-palette-close" aria-label="<?php esc_attr_e( 'Close', 'eskoofy' ); ?>">&times;</button>
 		</div>
 		<ul id="esk-palette-results" class="esk-palette-results"></ul>
 	</div>
 </div>
 
+<div id="esk-help-modal" class="esk-modal-backdrop esk-help-modal" role="dialog" aria-modal="true" aria-labelledby="esk-help-title">
+	<div class="esk-modal-panel esk-help-panel">
+		<div class="esk-help-head">
+			<div class="esk-help-head-icon"><span class="dashicons dashicons-editor-help"></span></div>
+			<div>
+				<p class="esk-modal-title" id="esk-help-title"><?php esc_html_e( 'Getting started', 'eskoofy' ); ?></p>
+				<p class="esk-help-subtitle" id="esk-help-subtitle"><?php esc_html_e( 'A few steps to get your school up and running.', 'eskoofy' ); ?></p>
+			</div>
+			<button type="button" id="esk-help-close" class="esk-help-close" aria-label="<?php esc_attr_e( 'Close', 'eskoofy' ); ?>">&times;</button>
+		</div>
+		<ol class="esk-help-steps" id="esk-help-steps"></ol>
+		<div class="esk-help-topics">
+			<p class="esk-help-topics-label"><?php esc_html_e( 'Jump to a topic', 'eskoofy' ); ?></p>
+			<div class="esk-help-topics-grid" id="esk-help-topics"></div>
+		</div>
+	</div>
+</div>
+<script type="application/json" id="esk-help-data"><?php echo wp_json_encode( esk_render_help_sections() ); ?></script>
+
+<div id="esk-document-preview-modal" class="esk-modal-backdrop esk-doc-modal" role="dialog" aria-modal="true" aria-labelledby="esk-doc-title">
+	<div class="esk-doc-panel">
+		<div class="esk-doc-head">
+			<h2 id="esk-doc-title"><?php esc_html_e( 'Document preview', 'eskoofy' ); ?></h2>
+			<div class="flex items-center gap-2">
+				<a href="#" target="_blank" rel="noopener noreferrer" id="esk-doc-print" class="esk-btn esk-btn-primary"><?php esc_html_e( 'Print / Download', 'eskoofy' ); ?></a>
+				<button type="button" id="esk-doc-close" class="esk-doc-close" aria-label="<?php esc_attr_e( 'Close', 'eskoofy' ); ?>">&times;</button>
+			</div>
+		</div>
+		<div class="esk-doc-body"><iframe id="esk-doc-frame" title="<?php esc_attr_e( 'Document preview', 'eskoofy' ); ?>"></iframe></div>
+	</div>
+</div>
+
 <script type="application/json" id="esk-palette-data"><?php echo wp_json_encode( esk_render_palette_data() ); ?></script>
 <span id="esk-current-slug" hidden><?php echo esc_html( $GLOBALS['esk_front_dash_slug'] ?? 'esk-dashboard' ); ?></span>
 	<?php
+}
+
+/**
+ * Contextual help sections (mirrors the app dashboard help modal).
+ */
+function esk_render_help_sections(): array {
+	return array(
+		'getting_started' => array(
+			'title'       => __( 'Getting started', 'eskoofy' ),
+			'description' => __( 'A few steps to get your school up and running.', 'eskoofy' ),
+			'steps'       => array(
+				__( 'Open School Settings and fill in your school name, address, and contact details.', 'eskoofy' ),
+				__( 'Create Academic Sessions, Classes, Sections, and Subjects.', 'eskoofy' ),
+				__( 'Add Teachers and Students, then assign them to classes and sections.', 'eskoofy' ),
+				__( 'Set up Fees, then collect and manage payments.', 'eskoofy' ),
+			),
+		),
+		'students' => array(
+			'title'       => __( 'Students', 'eskoofy' ),
+			'description' => __( 'Manage student records and enrollment.', 'eskoofy' ),
+			'steps'       => array(
+				__( 'Add a student under People → Students.', 'eskoofy' ),
+				__( 'Assign class, section, batch, and student ID.', 'eskoofy' ),
+				__( 'Optionally upload a photo and guardian details.', 'eskoofy' ),
+			),
+		),
+		'fees' => array(
+			'title'       => __( 'Fees & payments', 'eskoofy' ),
+			'description' => __( 'Set up fees and track payments.', 'eskoofy' ),
+			'steps'       => array(
+				__( 'Create fee structures under Finance → Fees.', 'eskoofy' ),
+				__( 'Record payments, view receipts, and approve pending payments.', 'eskoofy' ),
+				__( 'Track expenses and view financial reports.', 'eskoofy' ),
+			),
+		),
+		'attendance' => array(
+			'title'       => __( 'Attendance', 'eskoofy' ),
+			'description' => __( 'Take and review student attendance.', 'eskoofy' ),
+			'steps'       => array(
+				__( 'Open Attendance, pick a class and section.', 'eskoofy' ),
+				__( 'Mark present/absent and save the day\'s attendance.', 'eskoofy' ),
+			),
+		),
+		'exams' => array(
+			'title'       => __( 'Exams & results', 'eskoofy' ),
+			'description' => __( 'Create exams and publish results.', 'eskoofy' ),
+			'steps'       => array(
+				__( 'Add an exam under Academics → Exams.', 'eskoofy' ),
+				__( 'Enter marks per student, then publish when ready.', 'eskoofy' ),
+			),
+		),
+		'payroll' => array(
+			'title'       => __( 'Payroll & HR', 'eskoofy' ),
+			'description' => __( 'Salary structures, leaves, and payslips.', 'eskoofy' ),
+			'steps'       => array(
+				__( 'Define salary structures under HR.', 'eskoofy' ),
+				__( 'Generate payslips and approve leave requests.', 'eskoofy' ),
+			),
+		),
+	);
 }
 
 /**
@@ -463,6 +721,13 @@ function esk_admin_shell_footer_scripts(): void {
 			eskToast(msg, type);
 			n.remove();
 		});
+
+		document.querySelectorAll('[data-flash-toast]').forEach(function (el) {
+			var msg = el.getAttribute('data-message');
+			if (!msg) { return; }
+			eskToast(msg, el.getAttribute('data-type') || 'success');
+			el.remove();
+		});
 	});
 
 	/* Dark mode. */
@@ -487,10 +752,25 @@ function esk_admin_shell_footer_scripts(): void {
 
 	/* Live clock. */
 	var clock = document.getElementById('esk-shell-clock');
+	var clockWrap = document.getElementById('esk-shell-clock-container');
 	if (clock) {
+		var timezone = (clockWrap && clockWrap.getAttribute('data-timezone')) || 'UTC';
 		function tick() {
-			var now = new Date();
-			clock.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+			try {
+				var now = new Date();
+				var options = {
+					timeZone: timezone,
+					weekday: 'long', year: 'numeric', month: 'short', day: 'numeric',
+					hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+				};
+				var parts = new Intl.DateTimeFormat('en-US', options).formatToParts(now);
+				var map = {};
+				parts.forEach(function (p) { map[p.type] = p.value; });
+				var tzName = timezone.split('/').pop().replace(/_/g, ' ');
+				clock.textContent = map.weekday + ', ' + map.day + ' ' + map.month + ' ' + map.year + ', ' + map.hour + ':' + map.minute + ':' + map.second + ' ' + map.dayPeriod + ' ' + tzName;
+			} catch (e) {
+				clock.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+			}
 		}
 		tick();
 		setInterval(tick, 1000);
@@ -626,7 +906,12 @@ function esk_admin_shell_footer_scripts(): void {
 	}
 	document.addEventListener('keydown', function (e) {
 		if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openPalette(); }
-		if (e.key === 'Escape') { closePalette(); }
+		if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+			var tag = e.target && e.target.tagName ? e.target.tagName.toLowerCase() : '';
+			var editable = e.target && (e.target.isContentEditable || ['input', 'textarea', 'select'].indexOf(tag) !== -1);
+			if (!editable) { e.preventDefault(); openPalette(); }
+		}
+		if (e.key === 'Escape') { closePalette(); closeHelp(); closeDocPreview(); }
 	});
 	if (paletteQ) {
 		paletteQ.addEventListener('input', function () {
@@ -640,6 +925,132 @@ function esk_admin_shell_footer_scripts(): void {
 					.then(function (res) { if (res && res.success) { renderPalette(pages, res.data.students); } })
 					.catch(function () {});
 			}
+		});
+	}
+
+	/* Contextual help modal. */
+	var helpModal = document.getElementById('esk-help-modal');
+	var helpSteps = document.getElementById('esk-help-steps');
+	var helpTopics = document.getElementById('esk-help-topics');
+	var helpData = [];
+	try { helpData = JSON.parse(document.getElementById('esk-help-data').textContent || '[]'); } catch (e) {}
+	var ESC = function (s) {
+		var d = document.createElement('div');
+		d.textContent = s || '';
+		return d.innerHTML;
+	};
+	function renderHelp() {
+		if (!helpSteps || !helpTopics) { return; }
+		var first = helpData['getting_started'] || Object.values(helpData)[0] || null;
+		var stepsHtml = '<li class="esk-help-step">' + ESC(first.title) + '</li>';
+		if (first) {
+			stepsHtml = (first.steps || []).map(function (s, i) {
+				return '<li class="esk-help-step"><span class="esk-help-step-num">' + (i + 1) + '</span><span>' + ESC(s) + '</span></li>';
+			}).join('');
+		}
+		helpSteps.innerHTML = stepsHtml;
+		helpTopics.innerHTML = Object.keys(helpData).map(function (key) {
+			var s = helpData[key];
+			return '<button type="button" data-help-topic="' + key + '" class="esk-help-topic"><span class="dashicons dashicons-editor-help"></span>' + ESC(s.title) + '</button>';
+		}).join('');
+	}
+	function openHelp() {
+		if (!helpModal) { return; }
+		renderHelp();
+		helpModal.classList.add('is-open');
+	}
+	function closeHelp() { if (helpModal) { helpModal.classList.remove('is-open'); } }
+	document.querySelectorAll('[data-help-modal-open]').forEach(function (btn) {
+		btn.addEventListener('click', openHelp);
+	});
+	var helpClose = document.getElementById('esk-help-close');
+	if (helpClose) { helpClose.addEventListener('click', closeHelp); }
+	if (helpModal) {
+		helpModal.addEventListener('click', function (e) { if (e.target === helpModal) { closeHelp(); } });
+		helpModal.addEventListener('click', function (e) {
+			var topic = e.target.closest('[data-help-topic]');
+			if (!topic) { return; }
+			var s = helpData[topic.getAttribute('data-help-topic')];
+			if (!s) { return; }
+			document.getElementById('esk-help-title').textContent = s.title;
+			document.getElementById('esk-help-subtitle').textContent = s.description || '';
+			helpSteps.innerHTML = (s.steps || []).map(function (step, i) {
+				return '<li class="esk-help-step"><span class="esk-help-step-num">' + (i + 1) + '</span><span>' + ESC(step) + '</span></li>';
+			}).join('');
+			helpTopics.querySelectorAll('[data-help-topic]').forEach(function (b) { b.classList.remove('is-active'); });
+			topic.classList.add('is-active');
+		});
+	}
+
+	/* Document preview modal. */
+	var docModal = document.getElementById('esk-document-preview-modal');
+	var docFrame = document.getElementById('esk-doc-frame');
+	var docPrint = document.getElementById('esk-doc-print');
+	function openDocPreview(url) {
+		if (!docModal || !docFrame || !url) { return; }
+		docFrame.src = url;
+		if (docPrint) { docPrint.href = url.replace('/preview', '/print'); }
+		docModal.classList.add('is-open');
+	}
+	function closeDocPreview() {
+		if (!docModal) { return; }
+		docModal.classList.remove('is-open');
+		if (docFrame) { docFrame.src = 'about:blank'; }
+	}
+	document.addEventListener('click', function (e) {
+		var btn = e.target.closest('[data-preview-url]');
+		if (btn) {
+			e.preventDefault();
+			openDocPreview(btn.getAttribute('data-preview-url'));
+		}
+	});
+	var docClose = document.getElementById('esk-doc-close');
+	if (docClose) { docClose.addEventListener('click', closeDocPreview); }
+	if (docModal) {
+		docModal.addEventListener('click', function (e) { if (e.target === docModal) { closeDocPreview(); } });
+	}
+
+	/* Top loading bar (mirrors the app layout). */
+	var loadingBar = document.getElementById('esk-loading-bar');
+	if (loadingBar) {
+		var barTimer = null;
+		document.addEventListener('click', function (e) {
+			var link = e.target.closest('a:not([target="_blank"]):not([href^="#"]):not([href^="javascript"]):not([data-no-loading])');
+			if (link && link.href && link.href.indexOf(window.location.origin) === 0 && link.href !== window.location.href) {
+				loadingBar.style.opacity = '1';
+				loadingBar.style.width = '10%';
+				barTimer = setInterval(function () {
+					var width = parseFloat(loadingBar.style.width) || 0;
+					if (width >= 90) { clearInterval(barTimer); return; }
+					loadingBar.style.width = (width + 5) + '%';
+				}, 100);
+			}
+		});
+		window.addEventListener('load', function () {
+			if (barTimer) { clearInterval(barTimer); }
+			if (loadingBar) {
+				loadingBar.style.width = '100%';
+				setTimeout(function () { loadingBar.style.opacity = '0'; loadingBar.style.width = '0'; }, 300);
+			}
+		});
+	}
+
+	/* PWA install button. */
+	var pwaBtn = document.getElementById('esk-pwa-install');
+	if (pwaBtn && window.matchMedia('(display-mode: standalone)').matches) {
+		pwaBtn.parentElement && pwaBtn.parentElement.classList.add('hidden');
+	}
+	if (pwaBtn) {
+		var deferredPrompt = null;
+		window.addEventListener('beforeinstallprompt', function (e) {
+			e.preventDefault();
+			deferredPrompt = e;
+			pwaBtn.classList.remove('hidden');
+		});
+		pwaBtn.addEventListener('click', function () {
+			if (!deferredPrompt) { return; }
+			deferredPrompt.prompt();
+			deferredPrompt.userChoice.then(function () { deferredPrompt = null; pwaBtn.classList.add('hidden'); });
 		});
 	}
 
