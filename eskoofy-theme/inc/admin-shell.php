@@ -66,6 +66,79 @@ function esk_admin_shell_groups(): array {
 }
 
 /**
+ * Ordered sidebar structure — section headings, flat links and collapsible
+ * `<details>` groups, mirroring the Laravel app's sidebar (partials/dashboard/
+ * sidebar.blade.php). Every registered esk-* slug appears exactly once.
+ *
+ * @return array[]
+ */
+function esk_admin_sidebar_sections(): array {
+	$label   = static fn( string $text ): array => array( 'type' => 'label', 'label' => $text );
+	$link    = static fn( string $slug ): array => array( 'type' => 'link', 'slug' => $slug );
+	$details = static fn( string $text, string $icon, array $slugs ): array => array( 'type' => 'details', 'label' => $text, 'icon' => $icon, 'slugs' => $slugs );
+
+	return array(
+		$label( 'Main' ),
+		$link( 'esk-dashboard' ),
+		$link( 'esk-messages' ),
+		$link( 'esk-sms' ),
+		$link( 'esk-notifications' ),
+
+		$label( 'Academic' ),
+		$details( 'People', 'dashicons-groups', array( 'esk-students', 'esk-student-add', 'esk-teachers', 'esk-teacher-add', 'esk-guardians', 'esk-users' ) ),
+		$details( 'Academics', 'dashicons-book-alt', array( 'esk-classes', 'esk-sections', 'esk-subjects', 'esk-batches', 'esk-academic-sessions', 'esk-exams', 'esk-results', 'esk-assignments', 'esk-routines', 'esk-progress-reports', 'esk-seat-plans' ) ),
+		$link( 'esk-admissions' ),
+		$details( 'Daily', 'dashicons-calendar-alt', array( 'esk-attendance', 'esk-attendance-mark', 'esk-staff-attendance' ) ),
+		$details( 'Finance', 'dashicons-money-alt', array( 'esk-fees', 'esk-fee-payments', 'esk-expenses', 'esk-refunds', 'esk-income-statement', 'esk-balance-sheet', 'esk-cash-flow', 'esk-bank-reconciliation', 'esk-payroll', 'esk-payslips', 'esk-salary-structures' ) ),
+		$details( 'HR', 'dashicons-businessperson', array( 'esk-leave-types', 'esk-leave-requests' ) ),
+		$details( 'Documents', 'dashicons-media-document', array( 'esk-admit-cards', 'esk-certificates', 'esk-id-cards', 'esk-testimonials', 'esk-committee' ) ),
+		$details( 'Library', 'dashicons-book', array( 'esk-library', 'esk-library-reports' ) ),
+		$link( 'esk-events' ),
+		$link( 'esk-transport' ),
+		$link( 'esk-hostels' ),
+
+		$label( 'System' ),
+		$link( 'esk-activity' ),
+		$link( 'esk-visitor-logs' ),
+		$link( 'esk-backup' ),
+		$details( 'Website CMS', 'dashicons-admin-site-alt3', array( 'esk-cms', 'esk-news', 'esk-gallery', 'esk-announcements', 'esk-notices', 'esk-documents', 'esk-media', 'esk-contact-submissions', 'esk-careers' ) ),
+		$link( 'esk-settings' ),
+		$link( 'esk-onboarding' ),
+
+		$label( 'Administration' ),
+		$link( 'esk-search' ),
+		$link( 'esk-reports' ),
+		$link( 'esk-reports-builder' ),
+		$link( 'esk-analytics' ),
+		$link( 'esk-bulk' ),
+
+		$label( 'Help' ),
+		$link( 'esk-software' ),
+		$link( 'esk-help' ),
+		$link( 'esk-profile' ),
+	);
+}
+
+/**
+ * Pending-count badge for a sidebar nav item, or 0 when none applies.
+ */
+function esk_admin_shell_nav_badge( string $slug, array $badges ): int {
+	if ( 'esk-messages' === $slug ) {
+		return (int) ( $badges['messages'] ?? 0 );
+	}
+	if ( 'esk-admissions' === $slug ) {
+		return (int) ( $badges['admissions'] ?? 0 );
+	}
+	if ( 'esk-leave-requests' === $slug ) {
+		return (int) ( $badges['leaves'] ?? 0 );
+	}
+	if ( 'esk-fee-payments' === $slug ) {
+		return (int) ( $badges['payments'] ?? 0 );
+	}
+	return 0;
+}
+
+/**
  * All esk-* page titles keyed by slug (used by the shell sidebar on the
  * frontend, where the wp-admin submenu structure is not available).
  */
@@ -411,35 +484,56 @@ function esk_render_admin_shell_open( string $current = '' ): void {
 			<p class="mb-2 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 esk-fav-group" id="esk-fav-group" hidden><?php esc_html_e( 'Favorites', 'eskoofy' ); ?></p>
 			<ul class="mb-4 space-y-0.5" id="esk-fav-list"></ul>
 
-			<?php foreach ( esk_admin_shell_groups() as $group => $slugs ) : ?>
-				<?php $links = array(); foreach ( $slugs as $slug ) { if ( isset( $titles[ $slug ] ) ) { $links[ $slug ] = $titles[ $slug ]; } } ?>
-				<?php if ( empty( $links ) ) { continue; } ?>
-				<p class="mb-2 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 esk-group-label"><?php echo esc_html( $group ); ?></p>
-				<ul class="mb-4 space-y-0.5 esk-group-menu">
-					<?php foreach ( $links as $slug => $title ) : ?>
-						<?php
-						$badge = 0;
-						if ( 'esk-messages' === $slug ) {
-							$badge = $badges['messages'];
-						} elseif ( 'esk-admissions' === $slug ) {
-							$badge = $badges['admissions'];
-						} elseif ( 'esk-leave-requests' === $slug ) {
-							$badge = $badges['leaves'];
-						} elseif ( 'esk-fee-payments' === $slug ) {
-							$badge = $badges['payments'];
-						}
-						?>
-						<li>
-							<a href="<?php echo esc_url( esk_dashboard_url( $slug ) ); ?>" data-esk-nav="<?php echo esc_attr( $slug ); ?>" class="admin-nav-link <?php echo $current === $slug ? 'admin-nav-link--active' : ''; ?>">
-								<span class="flex h-5 w-5 shrink-0 items-center justify-center opacity-80"><span class="dashicons <?php echo esc_attr( esk_admin_shell_icon( $slug ) ); ?>" style="font-size:1.1rem;width:1.1rem;height:1.1rem;"></span></span>
-								<span class="flex-1"><?php echo esc_html( $title ); ?></span>
-								<?php if ( $badge > 0 ) : ?>
-									<span class="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white"><?php echo esc_html( (string) $badge ); ?></span>
-								<?php endif; ?>
-							</a>
-						</li>
-					<?php endforeach; ?>
-				</ul>
+			<?php foreach ( esk_admin_sidebar_sections() as $esk_item ) : ?>
+				<?php if ( 'label' === $esk_item['type'] ) : ?>
+					<p class="mb-2 mt-5 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 esk-group-label"><?php echo esc_html( $esk_item['label'] ); ?></p>
+				<?php elseif ( 'link' === $esk_item['type'] ) : ?>
+					<?php
+					$esk_slug  = $esk_item['slug'];
+					if ( ! isset( $titles[ $esk_slug ] ) ) { continue; }
+					$esk_badge = esk_admin_shell_nav_badge( $esk_slug, $badges );
+					?>
+					<div class="space-y-0.5 esk-nav-block">
+						<a href="<?php echo esc_url( esk_dashboard_url( $esk_slug ) ); ?>" data-esk-nav="<?php echo esc_attr( $esk_slug ); ?>" class="admin-nav-link <?php echo $current === $esk_slug ? 'admin-nav-link--active' : ''; ?>">
+							<span class="flex h-5 w-5 shrink-0 items-center justify-center opacity-80"><span class="dashicons <?php echo esc_attr( esk_admin_shell_icon( $esk_slug ) ); ?>" style="font-size:1.1rem;width:1.1rem;height:1.1rem;"></span></span>
+							<span class="flex-1 truncate"><?php echo esc_html( $titles[ $esk_slug ] ); ?></span>
+							<?php if ( $esk_badge > 0 ) : ?>
+								<span class="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white"><?php echo esc_html( (string) $esk_badge ); ?></span>
+							<?php endif; ?>
+						</a>
+					</div>
+				<?php else : ?>
+					<?php
+					$esk_links = array();
+					foreach ( $esk_item['slugs'] as $esk_sub_slug ) {
+						if ( isset( $titles[ $esk_sub_slug ] ) ) { $esk_links[ $esk_sub_slug ] = $titles[ $esk_sub_slug ]; }
+					}
+					if ( empty( $esk_links ) ) { continue; }
+					$esk_open = in_array( $current, array_keys( $esk_links ), true );
+					?>
+					<details class="group esk-nav-block"<?php echo $esk_open ? ' open' : ''; ?>>
+						<summary class="admin-nav-link cursor-pointer list-none esk-nav-summary <?php echo $esk_open ? 'admin-nav-link--active' : ''; ?>">
+							<span class="flex h-5 w-5 shrink-0 items-center justify-center opacity-80"><span class="dashicons <?php echo esc_attr( $esk_item['icon'] ); ?>" style="font-size:1.1rem;width:1.1rem;height:1.1rem;"></span></span>
+							<span class="flex-1 truncate"><?php echo esc_html( $esk_item['label'] ); ?></span>
+							<svg class="h-4 w-4 shrink-0 text-slate-400 transition group-open:rotate-90 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+						</summary>
+						<div class="ml-4 mt-1 space-y-0.5 border-l border-slate-200 pl-3 dark:border-slate-700">
+							<?php foreach ( $esk_links as $esk_sub_slug => $esk_sub_title ) : ?>
+								<?php $esk_sub_badge = esk_admin_shell_nav_badge( $esk_sub_slug, $badges ); ?>
+								<a href="<?php echo esc_url( esk_dashboard_url( $esk_sub_slug ) ); ?>" data-esk-nav="<?php echo esc_attr( $esk_sub_slug ); ?>" class="block rounded-lg py-2 pl-2 text-sm <?php echo $current === $esk_sub_slug ? 'font-semibold text-brand-700 dark:text-brand-400' : 'text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400'; ?>">
+									<?php if ( $esk_sub_badge > 0 ) : ?>
+										<span class="inline-flex w-full items-center justify-between gap-2">
+											<span><?php echo esc_html( $esk_sub_title ); ?></span>
+											<span class="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white"><?php echo esc_html( (string) $esk_sub_badge ); ?></span>
+										</span>
+									<?php else : ?>
+										<?php echo esc_html( $esk_sub_title ); ?>
+									<?php endif; ?>
+								</a>
+							<?php endforeach; ?>
+						</div>
+					</details>
+				<?php endif; ?>
 			<?php endforeach; ?>
 		</nav>
 
@@ -790,22 +884,39 @@ function esk_admin_shell_footer_scripts(): void {
 		});
 	}
 
-	/* Sidebar filter. */
+	/* Sidebar filter (matches nav links, auto-opens matching accordion groups). */
 	var filter = document.getElementById('esk-shell-filter');
 	if (filter) {
 		filter.addEventListener('input', function () {
 			var q = filter.value.trim().toLowerCase();
-			document.querySelectorAll('.esk-group-menu').forEach(function (ul) {
-				var any = false;
-				ul.querySelectorAll('li').forEach(function (li) {
-					var match = !q || li.textContent.toLowerCase().indexOf(q) !== -1;
-					li.style.display = match ? '' : 'none';
-					if (match) { any = true; }
+			var nav = document.querySelector('.admin-sidebar-nav');
+			if (!nav) { return; }
+			var links = nav.querySelectorAll('a[data-esk-nav]');
+			links.forEach(function (a) {
+				a.style.display = !q || a.textContent.toLowerCase().indexOf(q) !== -1 ? '' : 'none';
+			});
+			nav.querySelectorAll('details.group').forEach(function (d) {
+				var hasMatch = false;
+				d.querySelectorAll('a[data-esk-nav]').forEach(function (a) {
+					if (a.style.display !== 'none') { hasMatch = true; }
 				});
-				var label = ul.previousElementSibling;
-				if (label && label.classList.contains('esk-group-label')) {
-					label.style.display = any ? '' : 'none';
+				if (!q) {
+					d.style.display = '';
+				} else if (hasMatch) {
+					d.style.display = '';
+					d.open = true;
+				} else {
+					d.style.display = 'none';
 				}
+			});
+			nav.querySelectorAll('p.esk-group-label').forEach(function (h) {
+				var sibling = h.nextElementSibling;
+				var anyVisible = false;
+				while (sibling && !sibling.classList.contains('esk-group-label')) {
+					if (sibling.style.display !== 'none') { anyVisible = true; }
+					sibling = sibling.nextElementSibling;
+				}
+				h.style.display = anyVisible ? '' : 'none';
 			});
 		});
 	}

@@ -180,6 +180,10 @@ body.esk-admin-shell {
 }
 .esk-shell-logout:hover { background: #fef2f2; }
 
+/* ── Accordion groups (app-style <details>/<summary> sidebar) ───────── */
+.esk-nav-summary { list-style: none; }
+.esk-nav-summary::-webkit-details-marker { display: none; }
+
 /* ── Page content ────────────────────────────────────────────────────── */
 body.esk-admin-shell .wrap.esk-admin-wrap {
     max-width: 1400px;
