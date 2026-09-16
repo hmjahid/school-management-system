@@ -102,7 +102,7 @@ The School Management System is a **mature, feature-rich Laravel 12 application*
 
 ### 3.1 Previously Critical Issues — VERIFIED FIXED
 
-The following issues from earlier audits (`codebase-audit.md`, `docs/system-architecture-review.md`) have been **verified as fixed** through direct code inspection:
+The following issues from earlier audits (`codebase-audit.md`, `docs/planning/system-architecture-review.md`) have been **verified as fixed** through direct code inspection:
 
 | Issue | Previous Status | Current Status | Evidence |
 |---|---|---|---|
@@ -439,5 +439,5 @@ Duration: 35.54s
 
 **Report Generated:** 2026-09-04
 **Review Method:** Full execution of `docs/REVIEW-PROMPT.md` (5-step methodology)
-**Previous Audits Referenced:** `codebase-audit.md` (2026-08-25), `docs/system-architecture-review.md`
+**Previous Audits Referenced:** `codebase-audit.md` (2026-08-25), `docs/planning/system-architecture-review.md`
 **Test Suite:** 867 passed, 2160 assertions, 0 failures, 35.54s

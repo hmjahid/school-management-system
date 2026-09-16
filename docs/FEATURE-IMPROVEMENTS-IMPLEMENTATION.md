@@ -47,7 +47,7 @@ performs no assertions; it is pre-existing and unrelated to this pass.
 
 | # | Item | Status | Verification |
 |---|------|--------|--------------|
-| 6.1 | Update/archive `docs/plan-build-incomplete-features.md` | **[done]** | Header marked ARCHIVED/SUPERSEDED; stale "out of scope" list annotated with implementation pointers. |
+| 6.1 | Update/archive `docs/planning/plan-build-incomplete-features.md` | **[done]** | Header marked ARCHIVED/SUPERSEDED; stale "out of scope" list annotated with implementation pointers. |
 | 6.2 | Sync `docs/IMPLEMENTATION-PLAN.md` deferred list with priorities | **[done]** | Deferred list updated: H6 (ClassModel consolidation) retained as data-migration ticket; H7/H8/M4 noted partial (refund execution landed, admin UIs still feature work); H3/H4 + L1/L2 tracked separately. |
 
 ## Deferred (recorded, not attempted)

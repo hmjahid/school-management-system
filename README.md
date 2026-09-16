@@ -57,7 +57,8 @@ codebase, sharing one BD/INT variant strategy.
 ├── eskoofy-theme/        WordPress theme — plugin-theme hybrid
 ├── eskoofy-website/      Marketing site + license server, license/lookup API, PWA, en/bn i18n
 ├── build/                Export box: profiles + zip the app/theme/php/website variants
-├── docs/                 Design/review/runbook docs
+├── docker/               Dev tooling (theme-test WordPress stack)
+├── docs/                 Design/review/runbook docs (map: docs/README.md)
 ├── WORKPLAN.md           Multi-product plan (phases, gates, milestones)
 └── workplan-implementation-plan.md   Per-task implementation tracker
 ```

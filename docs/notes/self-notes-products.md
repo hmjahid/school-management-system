@@ -139,6 +139,11 @@ isnot possible to develop only using nodejs and its frontend framework and singl
 
 i want to make this a smart school management system. create an implementation file for this
 
+now arrange all fils and folder of this project/repo. ask me for confirmation nefore any move or deletion
+
+
+
+now update the root readme file according to the lastest chnage sand modifications
 
 
 

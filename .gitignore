@@ -22,5 +22,12 @@ eskoofy-theme/uploads/
 # Generated backups
 eskoofy-php/storage/
 
-# Local-only notes
-docs/notes/
+# AI / tool agent configs (local-only, never commit)
+.commandcode/
+.getaibd/
+.mimocode/
+.zed/
+
+# Test caches
+.phpunit.cache/
+.phpunit.result.cache

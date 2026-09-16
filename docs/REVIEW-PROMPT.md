@@ -279,6 +279,6 @@ The final report should follow this structure:
 
 - This prompt is designed for a **read-only audit** — no code changes during review
 - All findings must cite **exact file paths and line numbers**
-- Previous audits exist in `codebase-audit.md` and `docs/system-architecture-review.md` — cross-reference but do not blindly trust (code may have been fixed since)
+- Previous audits exist in `codebase-audit.md` and `docs/planning/system-architecture-review.md` — cross-reference but do not blindly trust (code may have been fixed since)
 - The `archive/` directory is legacy and should be excluded from review
 - Test findings should be verified by running `composer test`

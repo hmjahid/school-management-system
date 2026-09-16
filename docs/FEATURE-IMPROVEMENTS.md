@@ -192,7 +192,7 @@ Ordered by (business impact / effort):
 
 ## 6. Doc debt
 
-- **`docs/plan-build-incomplete-features.md` is stale** — it lists library/transport/hostel/SMS/timetable
+- **`docs/planning/plan-build-incomplete-features.md` is stale** — it lists library/transport/hostel/SMS/timetable
   as out-of-scope, yet all are implemented. Update or archive it.
 - Wire the "legacy" `ClassModel`/`Grade` consolidation into a real ticket (AGENTS.md already calls it out) and
   schedule the data migration; do not leave it as an indefinite debt note.

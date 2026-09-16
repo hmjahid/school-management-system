@@ -8,9 +8,9 @@ records, organized into the folders below so the root stays clean.
 | Folder | Purpose |
 |---|---|
 | `./` (this folder) | Operational guides: deployment, payments API, admission flow, backups, runbooks, production checklist, performance baseline, troubleshooting. Also holds the senior-PM review artifacts. |
-| `planning/` | Historical plans, audits, and reviews (implementation plans, codebase audit, product-design review, system workflow, server requirements, WordPress conversion). |
-| `prompts/` | Feature-implementation prompt files (`features-impl-prompt-*.md`) used to drive prior build sessions. |
-| `notes/` | Scratch notes: `self-notes.md` (working log) and `name-suggetions.md` (branding ideas). |
+| `planning/` | Historical plans, audits, and reviews (implementation plans, codebase/job/system architecture reviews, product-design review, system workflow, server requirements, WordPress conversion). |
+| `prompts/` | Feature-implementation prompt files (`features-impl-prompt-*.md`) plus `master/` legacy master prompt files used to drive prior build sessions. |
+| `notes/` | Scratch notes (tracked): `self-notes.md` (working log), `self-notes-products.md` (per-product log), `Journal.md`, and `name-suggetions.md` (branding ideas). |
 
 ## Operational guides (this folder)
 
@@ -30,8 +30,6 @@ records, organized into the folders below so the root stays clean.
 - `IMPLEMENTATION-PLAN.md` — current in-flight implementation plan (review fixes / SMTP)
 - `REVIEW-PROMPT.md` — methodology used for the senior-PM review
 - `SENIOR-PM-REVIEW-REPORT.md` — findings from the senior-PM review
-- `system-architecture-review.md` — architecture review
-- `plan-build-incomplete-features.md` — plan for incomplete features
 - `COMPETITIVE-ANALYSIS.md` — research on international school-management software sites
   (homepage/pricing/social-proof patterns + recommendations for the branding site)
 - `PAYMENT-MODEL.md` — suggested freemium + tiered subscription/pricing model for all
@@ -49,8 +47,10 @@ records, organized into the folders below so the root stays clean.
 - `codebase-audit.md`
 - `implementation-plan-24-08-2026.md`
 - `improvement-suggestion-24-08-2026.md`
+- `plan-build-incomplete-features.md`
 - `product-design-review-24-08-2026.md`
 - `server-requirements.md`
+- `system-architecture-review.md`
 - `system-workflow.md`
 - `unified-implementation-plan-24-08-2026.md`
 - `wordpress-theme-conversion.md`
@@ -60,10 +60,13 @@ records, organized into the folders below so the root stays clean.
 - `features-impl-prompt-2.md`
 - `features-impl-prompt-4.md` … `features-impl-prompt-16.md`
 - `product-polish-and-docs-prompt.md` — rebrand, sidebar parity, documentation and feature-propagation implementation session
+- `master/` — legacy master prompt files (controller-vs-schema audit, INT messaging/branding site, website PWA/geo/language/posts)
 
 ## Notes (`notes/`)
 
 - `self-notes.md`
+- `self-notes-products.md`
+- `Journal.md`
 - `name-suggetions.md`
 
 ## Build & CI
