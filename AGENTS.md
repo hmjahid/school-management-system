@@ -1,6 +1,9 @@
 # AGENTS.md — Eskoofy Monorepo
 
-Eskoofy is a 3-product monorepo. Each product lives in its own folder with its own `AGENTS.md`.
+Eskoofy is a **3-product** monorepo. Each product lives in its own folder with its own
+`AGENTS.md`. The `eskoofy-website/` folder is **NOT a product** — it is the **branding
+website + license server** that markets and sells the products (see `docs/NODEJS-VARIANT.md`
+for the "product vs website" terminology and a proposed 4th Node product).
 
 ## Layout
 

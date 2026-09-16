@@ -38,6 +38,8 @@ records, organized into the folders below so the root stays clean.
   Eskoofy products (community/school/district/enterprise tiers, gateways, trial, roadmap)
 - `FEATURE-PROPAGATION.md` — cross-product feature-consistency rule + runner
   (`build/propagate/propagate-feature.sh`) + per-product propagation maps
+- `NODEJS-VARIANT.md` — feasibility + stack recommendation for a proposed 4th product
+  (`eskoofy-node`, NestJS + Next.js) and the "website is branding, not a product" framing
 
 ## Planning / reviews (`planning/`)
 
