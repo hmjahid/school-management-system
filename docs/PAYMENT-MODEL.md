@@ -1,241 +1,99 @@
 # Payment & Subscription Model — Eskoofy Products
 
-> Purpose: Define pricing strategy for Eskoofy products on the branding/website
-> Date: September 2026
+> Purpose: Define the pricing strategy for Eskoofy products on the branding/website
+> Date: September 2026 (revised — supersedes the earlier freemium draft)
+> Decision: **Subscription-only. No freemium/community tier. No one-time/lifetime.**
 
 ---
 
-## Product Overview
+## Model (confirmed)
 
-Eskoofy has 3 products, each with distinct deployment models:
+- **Flat subscription per product** — one price per billing period, regardless of
+  school size (no student/staff bands).
+- **Billing periods:** Monthly and Yearly (yearly ≈ 2 months free).
+- **Products:** `app` (Laravel), `theme` (WordPress), `php` (raw PHP) — all three
+  subscription-only.
+- **No free tier**, no community plan, no lifetime license. Every installation
+  requires an active subscription.
 
-| Product | Deployment | Target | Variant |
-|---------|-----------|--------|---------|
-| `eskoofy-app` | Self-hosted Laravel | Schools wanting full control | BD + INT |
-| `eskoofy-theme` | WordPress plugin-theme hybrid | Schools already on WordPress | INT primary |
-| `eskoofy-php` | Self-hosted raw PHP | Low-resource hosting environments | INT primary |
+## Pricing (canonical USD; BDT derived)
 
----
+- Plans store a canonical **USD** price (`plans.currency = 'USD'`).
+- **BD customers** are charged in **BDT**, derived at checkout via
+  `GATEWAY_BDT_RATE` (USD→BDT). The rate is env-configured and adjustable.
+- **International customers** are charged in USD.
+- Pricing page shows the correct currency by customer country/locale.
 
-## Recommended Pricing Strategy
+### Suggested prices (tune before launch)
 
-### Model: **Freemium + Tiered SaaS** (Hybrid)
+| Product | Monthly | Yearly |
+|---------|--------:|-------:|
+| `app`   | $12 | $120 |
+| `theme` | $9  | $90  |
+| `php`   | $9  | $90  |
 
-This combines the strengths of openSIS (public tiers), Fedena (flat-rate), and Gibbon (free tier) models.
+## Payment methods by variant
 
-### Why This Model
+### BD (Bangladesh) — local gateways (manual renewal)
 
-1. **Free tier** eliminates adoption friction (like Gibbon)
-2. **Public pricing** builds trust (like openSIS/Fedena)
-3. **Self-hosted option** appeals to schools wanting data control
-4. **Cloud-hosted option** generates recurring revenue
-5. **Feature gating** allows upsell without locking out small schools
+| Method | Type | Renewal |
+|--------|------|---------|
+| bKash  | Mobile financial service | Manual (re-purchase each period) |
+| Rocket | Mobile financial service | Manual |
+| Nagad  | Mobile financial service | Manual |
+| Bank transfer | Manual verification | Manual |
 
----
+BD renewals are **manual** — the subscription is a term license; the school
+re-purchases each period (bKash/Rocket/Nagad are one-time charge APIs).
 
-## Pricing Tiers
+### INT (International) — gateways with auto-renewal
 
-### Tier 1: **Community** (Free)
+| Method | Type | Renewal |
+|--------|------|---------|
+| Stripe | Card payment intents | Auto-renew via gateway subscription + webhook |
+| PayPal | Orders | Auto-renew via gateway subscription + webhook |
+| Paddle | Checkout/subscriptions | Auto-renew via gateway subscription + webhook |
+| Bank transfer | Manual verification | Manual |
 
-| Feature | Included |
-|---------|----------|
-| Students | Up to 100 |
-| Teachers | Up to 20 |
-| Classes | Up to 10 |
-| Core modules | Student management, attendance, basic exams, fees |
-| Support | Community forums only |
-| Updates | Manual (self-hosted) |
-| Deployment | Self-hosted only |
-| Branding | "Powered by Eskoofy" footer badge |
+INT subscriptions auto-renew through the gateway; webhooks update
+`subscriptions.status` and extend `licenses.expires_at`.
 
-**Purpose:** Adoption, market penetration, word-of-mouth growth
+## License ↔ subscription model
 
----
+- A **license** is the activation entitlement (`licenses` row, key-based,
+  `license_activations`). It carries `expires_at` = current subscription period end.
+- A **subscription** (`subscriptions`) links customer → license → plan and tracks
+  `current_period_start/end`, `renews_at`, gateway id.
+- On payment success: issue license (if new) → create/extend subscription →
+  set `licenses.expires_at` to the period end.
+- **License validation** (`/api/v1/licenses/*`) rejects a license whose
+  subscription is `past_due`/`cancelled`/`expired` or whose `expires_at` passed.
 
-### Tier 2: **School** ($29/month or $290/year)
+## Subscription management
 
-| Feature | Included |
-|---------|----------|
-| Students | Up to 500 |
-| Teachers | Up to 50 |
-| Classes | Unlimited |
-| Core modules | Everything in Community |
-| Advanced modules | HR & payroll, transport, hostel, library, SMS gateway |
-| Support | Email support (48h response) |
-| Updates | Auto-updates (cloud) / notification (self-hosted) |
-| Deployment | Cloud or self-hosted |
-| Branding | No "Powered by" badge |
-| Reports | Advanced analytics & report builder |
-| API | Read-only API access |
+- Customer dashboard: current plan, renewal date, payment history, renew action.
+- Admin: plan CRUD (variant/currency), subscription list + status override,
+  payment log, MRR/ARR dashboard.
+- Dunning: INT gateways handle retries; BD manual renewals send reminder copy.
 
-**Purpose:** Revenue from small-medium schools
+## Free trial
 
----
+- **None** (subscription-only). No trial tier by default; sales-led demo/onboarding
+  via contact. Revisit only if a paid-trial (card-on-file) is ever added.
 
-### Tier 3: **District** ($79/month or $790/year)
+## Implementation roadmap
 
-| Feature | Included |
-|---------|----------|
-| Students | Up to 2,000 |
-| Teachers | Unlimited |
-| Classes | Unlimited |
-| Core modules | Everything in School |
-| Premium modules | Custom certificates, bulk SMS campaigns, payment gateway integration, multi-campus |
-| Support | Priority email + chat support (24h response) |
-| Updates | Auto-updates |
-| Deployment | Cloud or self-hosted |
-| Branding | White-label ready |
-| Reports | Report builder + export + scheduled reports |
-| API | Full API access |
-| Multi-campus | Up to 3 campuses |
+1. Data model: `plans` (monthly/yearly, USD canonical) + `payments.variant` +
+   `GATEWAY_BDT_RATE` config.
+2. Gateways: bKash/Rocket/Nagad (BD) + Stripe/PayPal/Paddle (INT) via `.env`,
+   sandbox first; `GatewayFactory` routes by customer country/locale.
+3. Checkout + subscription lifecycle + webhooks + license-expiry coupling.
+4. Pricing/account/admin UI + website copy (en/bn) + tests.
 
-**Purpose:** Revenue from medium-large schools
+## Key decisions (recorded)
 
----
-
-### Tier 4: **Enterprise** (Custom pricing)
-
-| Feature | Included |
-|---------|----------|
-| Students | Unlimited |
-| Teachers | Unlimited |
-| Classes | Unlimited |
-| Core modules | Everything in District |
-| Premium modules | All modules + custom development |
-| Support | Dedicated account manager + phone support (4h response) |
-| Updates | Priority updates + custom features |
-| Deployment | Cloud, self-hosted, or on-premise |
-| Branding | Full white-label |
-| Reports | Custom report builder + BI integration |
-| API | Full API + webhooks + custom integrations |
-| Multi-campus | Unlimited campuses |
-| SLA | 99.9% uptime guarantee |
-| Training | On-site training included |
-
-**Purpose:** Revenue from large districts and international school networks
-
----
-
-## Payment Methods by Variant
-
-### BD (Bangladesh) Variant
-
-| Method | Details |
-|--------|---------|
-| bKash | Primary mobile payment |
-| Rocket | Secondary mobile payment |
-| Nagad | Tertiary mobile payment |
-| Bank Transfer | Manual verification |
-| Cash | In-person payment at school |
-
-### INT (International) Variant
-
-| Method | Details |
-|--------|---------|
-| Stripe | Credit/debit cards (primary) |
-| PayPal | Alternative for schools without card access |
-| Paddle | Subscription billing with tax handling |
-| Bank Transfer | Wire transfer for Enterprise |
-
----
-
-## Subscription Management Features
-
-### For Schools (Customers)
-
-1. **Dashboard:** View current plan, usage, billing history
-2. **Upgrade/Downgrade:** Instant tier change with prorated billing
-3. **Payment History:** Download invoices and receipts
-4. **License Keys:** Activate/deactivate per installation
-5. **Auto-renewal:** Toggle on/off, reminders before renewal
-6. **Cancellation:** Self-service with retention offer
-
-### For Eskoofy (Admin)
-
-1. **License Server:** `eskoofy-website` already has `/api/v1/licenses/*` endpoints
-2. **Customer Management:** Admin panel for customers, licenses, payments
-3. **Usage Tracking:** Monitor student/teacher counts per license
-4. **Revenue Dashboard:** MRR, ARR, churn rate, LTV
-5. **Dunning:** Automated retry for failed payments
-
----
-
-## Free Trial Strategy
-
-| Aspect | Recommendation |
-|--------|---------------|
-| Duration | 14 days (like Fedena) |
-| Tier | Full District tier features |
-| Credit card required? | No (reduce friction) |
-| Post-trial | Downgrade to Community tier, data preserved |
-| Reminder emails | Day 3, Day 7, Day 13, Day 14 |
-| Extension | Allow 7-day extension on request |
-
----
-
-## Revenue Projections (Conservative)
-
-### Year 1 Targets
-
-| Tier | Schools | Monthly Revenue | Annual Revenue |
-|------|---------|----------------|----------------|
-| Community | 500 | $0 | $0 |
-| School | 50 | $1,450 | $17,400 |
-| District | 10 | $790 | $9,480 |
-| Enterprise | 2 | Custom ($150 avg) | $3,600 |
-| **Total** | **562** | **$2,240+** | **$30,480+** |
-
-### Growth Assumptions
-- 500 free tier schools in Year 1 (viral/organic)
-- 10% free-to-paid conversion rate
-- Average revenue per paid school: $50/month
-- Enterprise pricing starts at $150/month average
-
----
-
-## Implementation Roadmap
-
-### Phase 1: Foundation (Month 1-2)
-- [ ] Set up Stripe integration in `eskoofy-website`
-- [ ] Implement license activation/validation flow
-- [ ] Create pricing page on branding site
-- [ ] Add plan management in customer dashboard
-
-### Phase 2: Launch (Month 3)
-- [ ] Launch with Community + School tiers
-- [ ] 14-day free trial for School tier
-- [ ] Payment method integration (Stripe + bKash for BD)
-
-### Phase 3: Growth (Month 4-6)
-- [ ] Add District tier
-- [ ] Implement usage tracking
-- [ ] Add Paddle for international schools
-- [ ] Launch referral program
-
-### Phase 4: Enterprise (Month 7+)
-- [ ] Add Enterprise tier
-- [ ] Custom invoicing
-- [ ] On-premise licensing
-- [ ] SLA management
-
----
-
-## Key Decisions Needed
-
-1. **Staff-based vs Student-based pricing?**
-   - Recommendation: Student-based (more intuitive for schools)
-   - openSIS uses staff-based as differentiator, but most competitors use student-based
-
-2. **Self-hosted pricing?**
-   - Option A: Same price as cloud (simpler)
-   - Option B: Discount for self-hosted (reduced infrastructure cost)
-   - Recommendation: Same price (Option A) — value is in the software, not hosting
-
-3. **BD variant pricing?**
-   - Option A: Same USD pricing
-   - Option B: BDT equivalent at market rate
-   - Recommendation: BDT pricing at market rate (localize for BD market)
-
-4. **Open-source components?**
-   - Community tier is effectively open-source
-   - Source code included in Enterprise tier only (like Fedena)
+1. **No freemium** — subscription-only (owner decision, overrides earlier draft).
+2. **No student/staff bands** — flat per-product subscription.
+3. **BD manual renewal; INT auto-renew** (owner decision).
+4. **BDT derived from USD at rate** (`GATEWAY_BDT_RATE`), not a separate price list.
+5. Credentials via `.env`, sandbox first; live keys added later.

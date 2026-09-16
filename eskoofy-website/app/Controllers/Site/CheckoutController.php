@@ -12,6 +12,13 @@ use App\Services\LicenseManager;
 
 class CheckoutController extends Controller
 {
+    private function countryOfCustomer(array $customer): ?string
+    {
+        return isset($customer['country']) && $customer['country'] !== ''
+            ? (string) $customer['country']
+            : null;
+    }
+
     public function index(): void
     {
         $planId = (int) ($_GET['plan'] ?? 0);
@@ -27,10 +34,22 @@ class CheckoutController extends Controller
             $this->redirect('/login?redirect=/checkout?plan=' . $planId);
         }
 
+        $customer = Auth::user();
+        $country  = $this->countryOfCustomer($customer);
+        $isBd     = GatewayFactory::isBdCountry($country);
+        $gateways = GatewayFactory::gatewaysForCountry($country);
+        $usd      = (float) $plan['price'];
+        $display  = $isBd ? GatewayFactory::toBdt($usd) : $usd;
+        $currency = $isBd ? 'BDT' : 'USD';
+
         $this->view('site.checkout', [
-            'plan'     => $plan,
-            'customer' => Auth::user(),
-            'gateway'  => GatewayFactory::defaultCode(),
+            'plan'      => $plan,
+            'customer'  => $customer,
+            'gateways'  => $gateways,
+            'is_bd'     => $isBd,
+            'display'   => $display,
+            'currency'  => $currency,
+            'usd'       => $usd,
         ]);
     }
 
@@ -48,15 +67,28 @@ class CheckoutController extends Controller
         }
 
         $customer = Auth::user();
-        $gateway = GatewayFactory::defaultCode();
+        $country  = $this->countryOfCustomer($customer);
+        $isBd     = GatewayFactory::isBdCountry($country);
+        $gateway  = (string) ($_POST['gateway'] ?? '');
+
+        $allowed = GatewayFactory::gatewaysForCountry($country);
+        if (!in_array($gateway, $allowed, true)) {
+            $this->error('Selected payment method is not available for your region.', 400);
+        }
+
+        $usd       = (float) $plan['price'];
+        $currency  = $isBd ? 'BDT' : 'USD';
+        $amount    = $isBd ? GatewayFactory::toBdt($usd) : $usd;
+        $reference = 'ORD-' . strtoupper(bin2hex(random_bytes(4)));
 
         $paymentId = Database::getInstance()->insert('payments', [
             'customer_id' => (int) $customer['id'],
             'plan_id'     => $planId,
             'gateway'     => $gateway,
-            'reference'   => 'ORD-' . strtoupper(bin2hex(random_bytes(4))),
-            'amount'      => $plan['price'],
-            'currency'    => $plan['currency'] ?? 'USD',
+            'reference'   => $reference,
+            'amount'      => $amount,
+            'currency'    => $currency,
+            'variant'     => $isBd ? 'bd' : 'int',
             'status'      => 'pending',
             'created_at'  => date('Y-m-d H:i:s'),
             'updated_at'  => date('Y-m-d H:i:s'),
@@ -64,17 +96,50 @@ class CheckoutController extends Controller
 
         $payment = Database::getInstance()->fetch("SELECT * FROM payments WHERE id = ?", [$paymentId]);
         $gatewayService = GatewayFactory::make($gateway);
-        $result = $gatewayService->process(['plan' => $plan, 'customer' => $customer], $payment);
 
-        $manager = new LicenseManager();
-        $issued = $manager->issue(
-            (int) $customer['id'],
-            $planId,
-            (string) $plan['product'],
-            ['payment' => $paymentId, 'metadata' => ['gateway' => $gateway]]
-        );
+        $returnUrl = (string) ($_ENV['APP_URL'] ?? 'http://localhost:8001') . '/checkout/status/' . $reference;
+        $order = [
+            'plan'      => $plan,
+            'customer'  => $customer,
+            'amount'    => $amount,
+            'currency'  => $currency,
+            'reference' => $reference,
+            'return_url' => $returnUrl,
+            'cancel_url' => $returnUrl . '?status=cancelled',
+        ];
 
-        $this->withSuccess('Payment received. Your license key has been issued.');
-        $this->redirect('/account/licenses/' . $issued['license']['id']);
+        $result = $gatewayService->process($order, $payment);
+
+        // Online gateways redirect to their hosted checkout.
+        if (($result['success'] ?? false) && !empty($result['redirect_url'])) {
+            // Record the gateway transaction id (payment intent / order id) on
+            // the pending payment so the callback can verify it.
+            if (!empty($result['transaction_id'])) {
+                Database::getInstance()->update('payments', [
+                    'transaction_id' => $result['transaction_id'],
+                    'updated_at'     => date('Y-m-d H:i:s'),
+                ], 'id = ?', [$paymentId]);
+            }
+            $this->redirect((string) $result['redirect_url']);
+        }
+
+        // Manual / offline / immediate gateways: mark paid and issue.
+        if (($result['success'] ?? false)) {
+            $manager = new LicenseManager();
+            $issued = $manager->issue(
+                (int) $customer['id'],
+                $planId,
+                (string) $plan['product'],
+                ['payment' => $paymentId, 'metadata' => ['gateway' => $gateway]]
+            );
+            $licenseId = (int) $issued['license']['id'];
+            $manager->createSubscription($licenseId, $planId, $gateway, ['customer_id' => (int) $customer['id']]);
+
+            $this->withSuccess('Payment received. Your subscription is active and your license key has been issued.');
+            $this->redirect('/account/licenses/' . $licenseId);
+        }
+
+        $this->withError($result['message'] ?? 'Payment failed. Please try again.');
+        $this->redirect('/checkout?plan=' . $planId);
     }
 }

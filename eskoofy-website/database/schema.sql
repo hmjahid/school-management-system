@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `plans` (
   `description` TEXT NULL,
   `price` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `currency` VARCHAR(8) NOT NULL DEFAULT 'USD',
-  `period` VARCHAR(16) NOT NULL DEFAULT 'one-time',
+  `period` VARCHAR(16) NOT NULL DEFAULT 'monthly',
   `max_activations` INT NOT NULL DEFAULT 3,
   `features` JSON NULL,
   `sort_order` INT NOT NULL DEFAULT 0,
@@ -102,6 +102,7 @@ CREATE TABLE IF NOT EXISTS `payments` (
   `reference` VARCHAR(191) NULL,
   `amount` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `currency` VARCHAR(8) NOT NULL DEFAULT 'USD',
+  `variant` VARCHAR(8) NOT NULL DEFAULT 'int',
   `status` VARCHAR(16) NOT NULL DEFAULT 'pending',
   `paid_at` DATETIME NULL,
   `raw` JSON NULL,
@@ -112,6 +113,7 @@ CREATE TABLE IF NOT EXISTS `payments` (
   KEY `payments_license_id_index` (`license_id`),
   KEY `payments_plan_id_index` (`plan_id`),
   KEY `payments_status_index` (`status`),
+  KEY `payments_variant_index` (`variant`),
   CONSTRAINT `payments_customer_id_foreign` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE CASCADE,
   CONSTRAINT `payments_license_id_foreign` FOREIGN KEY (`license_id`) REFERENCES `licenses` (`id`) ON DELETE SET NULL,
   CONSTRAINT `payments_plan_id_foreign` FOREIGN KEY (`plan_id`) REFERENCES `plans` (`id`) ON DELETE SET NULL
@@ -219,12 +221,15 @@ SET FOREIGN_KEY_CHECKS = 1;
 INSERT IGNORE INTO `customers` (`id`, `name`, `email`, `password`, `role`, `status`, `locale`, `created_at`, `updated_at`)
 VALUES (1, 'Eskoofy Admin', 'admin@eskoofy.com', '$2y$12$V0siFMqG1/FSwS/hqKypNOWY5GY8eOV/QQlMKaknHkWPxY5CyVS9K', 'admin', 'active', 'en', NOW(), NOW());
 
--- Default plans (all amounts in USD — international standard).
+-- Subscription-only plans (no freemium, no one-time). Prices in USD (canonical);
+-- BDT is derived at checkout via the USD→BDT rate. Monthly + yearly per product.
 INSERT IGNORE INTO `plans` (`id`, `product`, `name`, `slug`, `description`, `price`, `currency`, `period`, `max_activations`, `features`, `sort_order`, `active`, `created_at`, `updated_at`) VALUES
-(1, 'app',     'Monthly',    'monthly',    'School management app — monthly license', 9.00,  'USD', 'monthly', 3, '["One school", "All modules", "Email support"]', 1, 1, NOW(), NOW()),
-(2, 'app',     'Yearly',     'yearly',     'School management app — yearly license',  90.00, 'USD', 'yearly',  3, '["One school", "All modules", "Priority support"]', 2, 1, NOW(), NOW()),
-(3, 'theme',   'Lifetime',   'lifetime',   'WordPress theme — lifetime license',      59.00, 'USD', 'one-time', 1, '["Unlimited sites", "Lifetime updates", "Support for 1 year"]', 1, 1, NOW(), NOW()),
-(4, 'php',     'Lifetime',   'lifetime',   'School management system (raw PHP) — lifetime license', 149.00, 'USD', 'one-time', 1, '["One school", "All modules", "Self-hosted raw PHP", "Shared-hosting ready", "Lifetime updates"]', 1, 1, NOW(), NOW());
+(1, 'app',     'Monthly',  'monthly',  'School management app — monthly subscription (one school, all modules)', 12.00,  'USD', 'monthly', 3, '["One school", "All modules", "Online fee payments", "Student & parent portal", "Email support"]', 1, 1, NOW(), NOW()),
+(2, 'app',     'Yearly',   'yearly',   'School management app — yearly subscription (one school, all modules)',    120.00, 'USD', 'yearly',  3, '["One school", "All modules", "Online fee payments", "Student & parent portal", "Priority support"]', 2, 1, NOW(), NOW()),
+(3, 'theme',   'Monthly',  'monthly',  'WordPress theme — monthly subscription (one school, all modules)',        9.00,  'USD', 'monthly', 3, '["One school", "All modules", "Online fee payments", "Roles & permissions", "Email support"]', 1, 1, NOW(), NOW()),
+(4, 'theme',   'Yearly',   'yearly',   'WordPress theme — yearly subscription (one school, all modules)',         90.00, 'USD', 'yearly',  3, '["One school", "All modules", "Online fee payments", "Roles & permissions", "Priority support"]', 2, 1, NOW(), NOW()),
+(5, 'php',     'Monthly',  'monthly',  'School system (raw PHP) — monthly subscription (one school, all modules)',  9.00, 'USD', 'monthly', 3, '["One school", "All modules", "Self-hosted raw PHP", "Shared-hosting ready", "Email support"]', 1, 1, NOW(), NOW()),
+(6, 'php',     'Yearly',   'yearly',   'School system (raw PHP) — yearly subscription (one school, all modules)',   90.00, 'USD', 'yearly',  3, '["One school", "All modules", "Self-hosted raw PHP", "Shared-hosting ready", "Priority support"]', 2, 1, NOW(), NOW());
 
 -- Blog categories (marketing).
 INSERT IGNORE INTO `post_categories` (`id`, `name`, `slug`, `description`, `sort_order`, `active`, `created_at`, `updated_at`) VALUES

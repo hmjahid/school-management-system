@@ -1,5 +1,18 @@
 <?php $title = 'License detail'; $siteTitle = $title; ?>
 
+<?php
+$gatewayNames = [
+    'bkash'  => 'bKash', 'rocket' => 'Rocket', 'nagad' => 'Nagad',
+    'stripe' => 'Stripe', 'paypal' => 'PayPal', 'paddle' => 'Paddle',
+    'manual' => 'Manual / Bank Transfer',
+];
+$isBd = !empty($is_bd);
+$sym  = $isBd ? '৳' : '$';
+$renewPrice = $isBd
+    ? number_format(\App\Gateways\GatewayFactory::toBdt((float) ($license['plan_price'] ?? 0)), 0)
+    : number_format((float) ($license['plan_price'] ?? 0), 2);
+?>
+
 <section class="max-w-5xl mx-auto px-4 py-12">
     <p><a href="/account/licenses" class="text-sm text-blue-600 hover:underline">← Back to licenses</a></p>
     <h1 class="text-3xl font-extrabold mt-2 mb-1"><?= htmlspecialchars((string) ($license['plan_name'] ?? $license['product'])) ?></h1>
@@ -11,6 +24,12 @@
             <dl class="text-sm space-y-2">
                 <div class="flex justify-between"><dt class="text-slate-400">Status</dt><dd><?= htmlspecialchars($license['status']) ?></dd></div>
                 <div class="flex justify-between"><dt class="text-slate-400">Product</dt><dd><?= htmlspecialchars((string) ($license['product'] ?? '—')) ?></dd></div>
+                <div class="flex justify-between"><dt class="text-slate-400">Plan</dt><dd><?= htmlspecialchars((string) ($license['plan_name'] ?? '—')) ?> (<?= htmlspecialchars((string) ($license['plan_period'] ?? '—')) ?>)</dd></div>
+                <?php if (!empty($subscription)): ?>
+                    <div class="flex justify-between"><dt class="text-slate-400">Subscription</dt><dd><span class="text-green-600 font-semibold">Active</span> · <?= htmlspecialchars(ucfirst($subscription['gateway'])) ?></dd></div>
+                    <div class="flex justify-between"><dt class="text-slate-400">Period</dt><dd><?= htmlspecialchars((string) ($subscription['current_period_start'] ?? '')) ?> → <?= htmlspecialchars((string) ($subscription['current_period_end'] ?? '')) ?></dd></div>
+                    <div class="flex justify-between"><dt class="text-slate-400">Renews</dt><dd><?= htmlspecialchars((string) ($subscription['renews_at'] ?? '—')) ?></dd></div>
+                <?php endif; ?>
                 <div class="flex justify-between"><dt class="text-slate-400">Starts</dt><dd><?= htmlspecialchars((string) ($license['starts_at'] ?? '—')) ?></dd></div>
                 <div class="flex justify-between"><dt class="text-slate-400">Expires</dt><dd class="<?= !empty($expired) ? 'text-red-600 font-semibold' : '' ?>"><?= $license['expires_at'] ? htmlspecialchars($license['expires_at']) : 'Never (lifetime)' ?><?= !empty($expired) ? ' — expired' : '' ?></dd></div>
                 <div class="flex justify-between"><dt class="text-slate-400">Max activations</dt><dd><?= (int) $license['max_activations'] ?></dd></div>
@@ -18,14 +37,26 @@
             </dl>
 
             <h2 class="font-bold mt-6 mb-3">Renew</h2>
-            <form method="post" action="/account/licenses/<?= (int) $license['id'] ?>/renew" class="flex gap-2">
+            <form method="post" action="/account/licenses/<?= (int) $license['id'] ?>/renew" class="flex flex-wrap gap-2 items-end">
                 <?= csrf_field() ?>
                 <input type="hidden" name="plan_id" value="<?= (int) $license['plan_id'] ?>">
-                <input type="hidden" name="gateway" value="manual">
+                <div class="flex-1 min-w-40">
+                    <label class="block text-xs text-slate-400 mb-1">Payment method</label>
+                    <select name="gateway" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                        <?php foreach ($gateways as $code): ?>
+                            <option value="<?= htmlspecialchars($code) ?>"><?= htmlspecialchars($gatewayNames[$code] ?? ucfirst($code)) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
                 <button class="bg-slate-900 hover:bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold">
-                    Renew 1 period — $<?= number_format((float) ($license['plan_price'] ?? 0), 2) ?> (manual)
+                    Renew 1 period — <?= $sym ?><?= $renewPrice ?> (<?= $isBd ? 'BDT' : 'USD' ?>)
                 </button>
             </form>
+            <?php if ($isBd): ?>
+                <p class="text-xs text-slate-400 mt-2">BD renewals are manual — you'll complete the payment and your period is extended.</p>
+            <?php else: ?>
+                <p class="text-xs text-slate-400 mt-2">International renewals auto-renew through your selected gateway.</p>
+            <?php endif; ?>
         </div>
 
         <div class="bg-white rounded-xl border border-slate-200 p-6">

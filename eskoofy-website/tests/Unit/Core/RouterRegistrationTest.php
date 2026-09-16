@@ -121,4 +121,39 @@ class RouterRegistrationTest extends TestCase
             $this->assertFileExists($base . $view . '.php', "Missing admin view: {$view}");
         }
     }
+
+    public function test_checkout_status_and_webhook_routes_registered(): void
+    {
+        $router = new Router();
+        require dirname(__DIR__, 3) . '/routes/web.php';
+
+        $paths = array_map(fn ($r) => $r['path'], $router->getRoutes());
+
+        $this->assertContains('/checkout/status/{reference}', $paths);
+        $this->assertContains('/webhooks/{gateway}', $paths);
+    }
+
+    public function test_payment_status_view_exists(): void
+    {
+        $this->assertFileExists(dirname(__DIR__, 3) . '/views/site/payment-status.php');
+    }
+
+    public function test_admin_subscriptions_view_and_route_exist(): void
+    {
+        $router = new Router();
+        require dirname(__DIR__, 3) . '/routes/web.php';
+
+        $paths = array_map(fn ($r) => $r['path'], $router->getRoutes());
+        $this->assertContains('/admin/subscriptions', $paths);
+
+        $this->assertFileExists(dirname(__DIR__, 3) . '/views/admin/subscriptions.php');
+    }
+
+    public function test_subscription_pricing_keys_present(): void
+    {
+        $en = (string) file_get_contents(dirname(__DIR__, 3) . '/lang/en.php');
+        foreach (['pricing.monthly_label', 'pricing.yearly_badge', 'pricing.most_popular', 'checkout.method_note_bd', 'checkout.status_paid'] as $key) {
+            $this->assertStringContainsString("'{$key}'", $en, "missing subscription copy key: {$key}");
+        }
+    }
 }

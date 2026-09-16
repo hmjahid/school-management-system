@@ -50,9 +50,11 @@ spl_autoload_register(function (string $class) use ($appRoot) {
 });
 
 // CSRF verification for state-changing non-API requests.
-// The license-server API is exempt: products call it programmatically.
+// The license-server API and gateway webhooks are exempt: they are called
+// programmatically (products / gateways) and carry their own signatures.
 $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 if (!str_starts_with($requestPath, '/api/')
+    && !str_starts_with($requestPath, '/webhooks/')
     && in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['POST', 'PUT', 'PATCH', 'DELETE'])) {
     $token = $_POST['_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
     if ($token !== ($_SESSION['csrf_token'] ?? '')) {

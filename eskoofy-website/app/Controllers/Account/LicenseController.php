@@ -55,12 +55,28 @@ class LicenseController extends Controller
         $manager = new LicenseManager();
         $activations = $manager->activations((int) $license['id']);
 
+        $subscription = $db->fetch(
+            "SELECT * FROM subscriptions WHERE license_id = ? AND status = 'active' ORDER BY id DESC LIMIT 1",
+            [(int) $license['id']]
+        );
+
+        $customer = Auth::user();
+        $gateways = \App\Gateways\GatewayFactory::gatewaysForCountry(
+            isset($customer['country']) && $customer['country'] !== '' ? (string) $customer['country'] : null
+        );
+        $isBd = \App\Gateways\GatewayFactory::isBdCountry(
+            isset($customer['country']) && $customer['country'] !== '' ? (string) $customer['country'] : null
+        );
+
         $this->view('account.license-detail', [
-            'customer'    => Auth::user(),
+            'customer'    => $customer,
             'license'     => $license,
             'activations' => $activations,
             'activeCount' => $manager->activeActivationCount((int) $license['id']),
             'expired'     => $manager->isExpired($license),
+            'subscription' => $subscription,
+            'gateways'    => $gateways,
+            'is_bd'       => $isBd,
         ]);
     }
 

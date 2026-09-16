@@ -14,7 +14,7 @@
             <div>
                 <label class="block text-sm font-semibold mb-1">Period</label>
                 <select name="period" class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm">
-                    <?php foreach (['monthly', 'yearly', 'one-time'] as $period): ?>
+                    <?php foreach (['monthly', 'yearly'] as $period): ?>
                         <option value="<?= $period ?>" <?= ($plan['period'] ?? '') === $period ? 'selected' : '' ?>><?= $period ?></option>
                     <?php endforeach; ?>
                 </select>

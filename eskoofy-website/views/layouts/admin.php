@@ -27,6 +27,7 @@
             <a href="/admin/licenses" class="block px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white">Licenses</a>
             <a href="/admin/plans" class="block px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white">Plans</a>
             <a href="/admin/payments" class="block px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white">Payments</a>
+            <a href="/admin/subscriptions" class="block px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white">Subscriptions</a>
             <a href="/admin/posts" class="block px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white">Posts</a>
             <a href="/admin/post-categories" class="block px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white">Post categories</a>
             <a href="/admin/messages" class="block px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white">Messages</a>

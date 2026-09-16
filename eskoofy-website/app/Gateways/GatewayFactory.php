@@ -25,9 +25,14 @@ class GatewayFactory
         $config = $config ?? self::loadConfig();
 
         $service = match ($code) {
-            'manual' => new ManualGateway($db),
-            'paddle' => throw new \RuntimeException('Paddle gateway is not yet available. It will be added as a drop-in gateway later.'),
-            default  => throw new \InvalidArgumentException("Unsupported payment gateway: {$code}"),
+            'manual'  => new ManualGateway($db),
+            'bkash'   => new BkashGateway($db),
+            'rocket'  => new RocketGateway($db),
+            'nagad'   => new NagadGateway($db),
+            'stripe'  => new StripeGateway($db),
+            'paypal'  => new PaypalGateway($db),
+            'paddle'  => new PaddleGateway($db),
+            default   => throw new \InvalidArgumentException("Unsupported payment gateway: {$code}"),
         };
 
         return self::$instances[$code] = $service;
@@ -41,6 +46,80 @@ class GatewayFactory
         $config = $config ?? self::loadConfig();
 
         return (string) ($config['default'] ?? 'manual');
+    }
+
+    /**
+     * USD → BDT rate for deriving BDT prices for BD customers.
+     */
+    public static function bdtRate(?array $config = null): float
+    {
+        $config = $config ?? self::loadConfig();
+
+        return (float) ($config['bdt_rate'] ?? 110);
+    }
+
+    /**
+     * Convert a USD amount to BDT at the configured rate.
+     */
+    public static function toBdt(float $usd, ?array $config = null): float
+    {
+        return round($usd * self::bdtRate($config), 2);
+    }
+
+    /**
+     * Whether a customer country should use BD local gateways.
+     */
+    public static function isBdCountry(?string $country): bool
+    {
+        if ($country === null || $country === '') {
+            return false;
+        }
+        $c = strtoupper(trim($country));
+
+        return in_array($c, ['BD', 'BANGLADESH', 'BDG'], true);
+    }
+
+    /**
+     * BD gateway codes (local payment methods).
+     *
+     * @return string[]
+     */
+    public static function bdGateways(): array
+    {
+        return ['bkash', 'rocket', 'nagad'];
+    }
+
+    /**
+     * International gateway codes.
+     *
+     * @return string[]
+     */
+    public static function intGateways(): array
+    {
+        return ['stripe', 'paypal', 'paddle'];
+    }
+
+    /**
+     * Ordered gateway codes for a customer country, falling back to manual.
+     *
+     * @return string[]
+     */
+    public static function gatewaysForCountry(?string $country): array
+    {
+        $codes = self::isBdCountry($country) ? self::bdGateways() : self::intGateways();
+
+        // Only keep configured gateways; always keep manual as fallback.
+        $available = [];
+        foreach ($codes as $code) {
+            $gw = self::make($code);
+            if (method_exists($gw, 'isConfigured') && !$gw->isConfigured()) {
+                continue;
+            }
+            $available[] = $code;
+        }
+        $available[] = 'manual';
+
+        return $available;
     }
 
     /**

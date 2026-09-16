@@ -1,10 +1,22 @@
 <?php $title = __('pricing.title'); $siteTitle = $title; ?>
 
+<?php
+// Currency display: BD visitors get BDT (derived at rate); others get USD.
+$isBd = \App\Gateways\GatewayFactory::isBdCountry(\App\Core\Auth::user()['country'] ?? null);
+$rate = \App\Gateways\GatewayFactory::bdtRate();
+$sym  = $isBd ? '৳' : '$';
+$cur  = $isBd ? 'BDT' : 'USD';
+$fmt  = function (float $usd) use ($isBd): float {
+    return $isBd ? \App\Gateways\GatewayFactory::toBdt($usd) : $usd;
+};
+?>
+
 <section class="esk-hero text-white">
     <div class="relative z-10 max-w-7xl mx-auto px-4 py-16 text-center">
         <span class="inline-block text-xs uppercase tracking-widest bg-blue-500/20 text-blue-200 px-3 py-1 rounded-full border border-blue-400/30 mb-6"><?= __('pricing.badge') ?></span>
         <h1 class="text-4xl md:text-5xl font-extrabold"><?= __('pricing.title') ?></h1>
         <p class="mt-4 text-slate-300 text-lg max-w-3xl mx-auto"><?= __('pricing.sub') ?></p>
+        <p class="mt-3 text-sm text-blue-200"><?= $isBd ? __('pricing.bd_currency_note') . ' (1 USD = ' . $rate . ' BDT)' : __('pricing.int_currency_note') ?></p>
     </div>
 </section>
 
@@ -28,17 +40,23 @@
                     <span class="text-xs font-semibold bg-blue-600 text-white px-3 py-1 rounded-full"><?= htmlspecialchars($sec['badge']) ?></span>
                 <?php endif; ?>
             </div>
-            <div class="grid md:grid-cols-3 gap-6">
+            <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
                 <?php foreach ($sec['plans'] as $plan): ?>
-                    <div class="bg-white rounded-3xl p-8 border border-slate-200 esk-card-hover flex flex-col">
-                        <div class="text-xs text-blue-600 font-semibold uppercase tracking-wide"><?= htmlspecialchars($plan['period']) ?> <?= __('product.license') ?></div>
-                        <h3 class="text-xl font-bold mt-2"><?= htmlspecialchars($plan['name']) ?></h3>
-                        <p class="text-slate-500 mt-2 text-sm flex-1"><?= htmlspecialchars((string) ($plan['description'] ?? '')) ?></p>
+                    <?php
+                    $isYearly = ($plan['period'] ?? '') === 'yearly';
+                    $price    = $fmt((float) $plan['price']);
+                    ?>
+                    <div class="bg-white rounded-3xl p-8 border <?= $isYearly ? 'border-2 border-blue-600 shadow-xl shadow-blue-600/10' : 'border-slate-200' ?> esk-card-hover flex flex-col relative">
+                        <?php if ($isYearly): ?>
+                            <span class="absolute -top-3 left-8 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full"><?= __('pricing.most_popular') ?></span>
+                        <?php endif; ?>
+                        <div class="text-xs text-blue-600 font-semibold uppercase tracking-wide"><?= htmlspecialchars($plan['name']) ?> <?= __('product.license') ?></div>
+                        <h3 class="text-xl font-bold mt-2"><?= htmlspecialchars($plan['description']) ?></h3>
                         <div class="mt-5">
-                            <span class="text-4xl font-extrabold text-blue-700">$<?= number_format((float) $plan['price'], 2) ?></span>
-                            <span class="text-xs text-slate-400 uppercase"> <?= __('pricing.one_time_label') ?></span>
+                            <span class="text-4xl font-extrabold text-blue-700"><?= $sym ?><?= number_format($price, $isBd ? 0 : 2) ?></span>
+                            <span class="text-xs text-slate-400 uppercase"> / <?= __('pricing.per') ?> <?= htmlspecialchars($plan['period']) ?></span>
                         </div>
-                        <div class="text-xs text-slate-400 uppercase tracking-wide mt-1"><?= __('pricing.per') ?> <?= htmlspecialchars($plan['period']) ?> · USD</div>
+                        <div class="text-xs text-slate-400 uppercase tracking-wide mt-1"><?= $cur ?> · <?= $isYearly ? __('pricing.yearly_badge') : __('pricing.monthly_label') ?></div>
 
                         <?php $features = $plan['features'] ?? null; ?>
                         <?php if (is_string($features) && $features !== ''): $featList = json_decode((string) $features, true); ?>
@@ -51,7 +69,7 @@
                             </ul>
                         <?php endif; ?>
 
-                        <a href="/checkout?plan=<?= (int) $plan['id'] ?>" class="mt-7 block bg-slate-900 hover:bg-blue-600 text-white py-3 rounded-xl text-center font-semibold"><?= __('pricing.buy') ?></a>
+                        <a href="/checkout?plan=<?= (int) $plan['id'] ?>" class="mt-7 block <?= $isYearly ? 'bg-blue-600 hover:bg-blue-500' : 'bg-slate-900 hover:bg-blue-600' ?> text-white py-3 rounded-xl text-center font-semibold"><?= __('pricing.buy') ?></a>
                     </div>
                 <?php endforeach; ?>
             </div>

@@ -30,11 +30,11 @@ class PlanController extends Controller
     public function store(): void
     {
         $data = $this->validate([
-            'product' => 'required|in:app,theme',
+            'product' => 'required|in:app,theme,php',
             'name'    => 'required|max:191',
             'slug'    => 'required|max:191',
             'price'   => 'required|numeric',
-            'period'  => 'required|in:one-time,monthly,yearly',
+            'period'  => 'required|in:monthly,yearly',
         ]);
 
         Database::getInstance()->insert('plans', [
@@ -78,10 +78,10 @@ class PlanController extends Controller
         }
 
         $data = $this->validate([
-            'product' => 'required|in:app,theme',
+            'product' => 'required|in:app,theme,php',
             'name'    => 'required|max:191',
             'price'   => 'required|numeric',
-            'period'  => 'required|in:one-time,monthly,yearly',
+            'period'  => 'required|in:monthly,yearly',
         ]);
 
         Database::getInstance()->update('plans', [

@@ -220,4 +220,50 @@ class LicenseManagerTest extends TestCase
         $this->assertSame('error', $result['status']);
         $this->assertSame('license_not_found', $result['code']);
     }
+
+    public function test_create_subscription_extends_license_and_creates_subscription(): void
+    {
+        $planId = $this->seedPlan(); // yearly
+        $manager = $this->manager();
+        $license = $manager->issue(10, $planId, 'app')['license'];
+
+        $result = $manager->createSubscription((int) $license['id'], $planId, 'stripe', [
+            'customer_id' => 10,
+            'gateway_subscription_id' => 'sub_123',
+        ]);
+
+        $this->assertGreaterThan(0, $result['subscription_id']);
+        $this->assertSame(
+            date('Y-m-d', strtotime('+1 year')),
+            date('Y-m-d', strtotime((string) $result['expires_at']))
+        );
+
+        $sub = $this->db->fetch('SELECT * FROM subscriptions WHERE id = ?', [$result['subscription_id']]);
+        $this->assertSame('stripe', $sub['gateway']);
+        $this->assertSame('sub_123', $sub['gateway_subscription_id']);
+        $this->assertSame('active', $sub['status']);
+
+        $updated = $this->db->fetch('SELECT * FROM licenses WHERE id = ?', [(int) $license['id']]);
+        $this->assertSame($result['expires_at'], $updated['expires_at']);
+    }
+
+    public function test_create_subscription_stacks_periods_on_existing_expiry(): void
+    {
+        $planId = $this->seedPlan(); // yearly
+        $manager = $this->manager();
+        $license = $manager->issue(11, $planId, 'app')['license'];
+
+        // First subscription sets expiry ~ +1y from now.
+        $first = $manager->createSubscription((int) $license['id'], $planId, 'stripe', ['customer_id' => 11]);
+        // Second call should extend from the first expiry (stacking), not from now.
+        $second = $manager->createSubscription((int) $license['id'], $planId, 'stripe', ['customer_id' => 11]);
+
+        $this->assertSame(
+            date('Y-m-d', strtotime('+2 years')),
+            date('Y-m-d', strtotime((string) $second['expires_at']))
+        );
+        // Same active subscription row should be reused, not duplicated.
+        $this->assertSame(1, $this->db->count('subscriptions', 'license_id = ? AND plan_id = ?', [(int) $license['id'], $planId]));
+        $this->assertSame($first['subscription_id'], $second['subscription_id']);
+    }
 }

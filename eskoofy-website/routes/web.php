@@ -43,6 +43,7 @@ $router->get('/language/{locale}', LanguageController::class, 'switch');
 // ─── Checkout / purchase ─────────────────────────────────────
 $router->get('/checkout', CheckoutController::class, 'index');
 $router->post('/checkout', CheckoutController::class, 'process');
+$router->get('/checkout/status/{reference}', \App\Controllers\Site\PaymentStatusController::class, 'show');
 
 // ─── Auth ────────────────────────────────────────────────────
 $router->get('/register', RegisterController::class, 'show');
@@ -86,6 +87,8 @@ $router->group('/admin', function (App\Core\Router $router): void {
     $router->get('/payments', AdminPayment::class, 'index');
     $router->post('/payments/{id}', AdminPayment::class, 'updateStatus');
 
+    $router->get('/subscriptions', \App\Controllers\Admin\SubscriptionController::class, 'index');
+
     $router->get('/posts', PostController::class, 'index');
     $router->get('/posts/create', PostController::class, 'create');
     $router->post('/posts', PostController::class, 'store');
@@ -105,3 +108,5 @@ $router->group('/admin', function (App\Core\Router $router): void {
 
     $router->get('/activities', ActivityController::class, 'index');
 }, ['AdminMiddleware']);
+// Gateway webhooks (public, signature-verified; CSRF-exempt via bootstrap).
+$router->post('/webhooks/{gateway}', \App\Controllers\Api\WebhookController::class, 'handle');

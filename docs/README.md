@@ -40,6 +40,9 @@ records, organized into the folders below so the root stays clean.
 - `SENIOR-PM-REVIEW-REPORT.md` — findings from the senior-PM review
 - `COMPETITIVE-ANALYSIS.md` — research on international school-management software sites
   (homepage/pricing/social-proof patterns + recommendations for the branding site)
+- `BRANDING-SITE-IMPROVEMENTS.md` — actionable implementation suggestions for
+  `eskoofy-website/` (2026 benchmark: pricing toggles, role-based feature showcase,
+  trust/comparison pages, conversion CTAs) mapped to the existing pages
 - `PAYMENT-MODEL.md` — suggested freemium + tiered subscription/pricing model for all
   Eskoofy products (community/school/district/enterprise tiers, gateways, trial, roadmap)
 - `FEATURE-PROPAGATION.md` — cross-product feature-consistency rule + runner

@@ -427,6 +427,85 @@ class LicenseManager
     }
 
     /**
+     * Create (or extend) a subscription for a license and plan, and sync the
+     * license expiry. Used by new purchase, manual renewal, and auto-renewal
+     * webhooks.
+     *
+     * @return array{subscription_id: int, expires_at: ?string, period_start: string, period_end: ?string}
+     */
+    public function createSubscription(int $licenseId, int $planId, string $gateway, array $opts = []): array
+    {
+        $license = $this->byId($licenseId);
+        if (!$license) {
+            throw new \InvalidArgumentException('License not found.');
+        }
+        $plan = $this->db()->fetch("SELECT * FROM plans WHERE id = ? AND active = 1", [$planId]) ?: $this->db()->fetch("SELECT * FROM plans WHERE id = ?", [$planId]);
+        if (!$plan) {
+            throw new \InvalidArgumentException('Plan not found.');
+        }
+
+        $customerId = (int) ($license['customer_id'] ?? $opts['customer_id'] ?? 0);
+
+        // Look for an existing active subscription to extend (renewal / webhook).
+        $existing = $this->db()->fetch(
+            "SELECT id FROM subscriptions WHERE license_id = ? AND plan_id = ? AND status = 'active' ORDER BY id DESC LIMIT 1",
+            [$licenseId, $planId]
+        );
+
+        if ($existing) {
+            // Stack: extend from the later of now / current expiry.
+            $base = $license['expires_at'];
+            if (!$base || strtotime($base) < time()) {
+                $base = date('Y-m-d H:i:s');
+            }
+            $periodStart = $base;
+            $periodEnd   = $this->expiryFor($plan, $base) ?? $base;
+
+            $this->db()->update('subscriptions', [
+                'status'                 => 'active',
+                'current_period_start'   => $periodStart,
+                'current_period_end'     => $periodEnd,
+                'renews_at'              => $periodEnd,
+                'gateway'                => $gateway,
+                'gateway_subscription_id' => $opts['gateway_subscription_id'] ?? null,
+                'updated_at'             => date('Y-m-d H:i:s'),
+            ], 'id = ?', [(int) $existing['id']]);
+            $subscriptionId = (int) $existing['id'];
+        } else {
+            // First subscription: the license expiry was already set by issue()
+            // (period from now). Reuse it — do not double-extend.
+            $periodStart = $license['starts_at'] ?? date('Y-m-d H:i:s');
+            $periodEnd   = $license['expires_at'] ?? $this->expiryFor($plan, date('Y-m-d H:i:s')) ?? date('Y-m-d H:i:s');
+
+            $subscriptionId = (int) $this->db()->insert('subscriptions', [
+                'customer_id'            => $customerId,
+                'license_id'             => $licenseId,
+                'plan_id'                => (int) $plan['id'],
+                'status'                 => 'active',
+                'current_period_start'   => $periodStart,
+                'current_period_end'     => $periodEnd,
+                'renews_at'              => $periodEnd,
+                'gateway'                => $gateway,
+                'gateway_subscription_id' => $opts['gateway_subscription_id'] ?? null,
+                'created_at'             => date('Y-m-d H:i:s'),
+                'updated_at'             => date('Y-m-d H:i:s'),
+            ]);
+        }
+
+        $this->db()->update('licenses', [
+            'expires_at' => $periodEnd,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ], 'id = ?', [$licenseId]);
+
+        return [
+            'subscription_id' => $subscriptionId,
+            'expires_at'      => $periodEnd,
+            'period_start'    => $periodStart,
+            'period_end'      => $periodEnd,
+        ];
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function fail(string $message, string $code): array
