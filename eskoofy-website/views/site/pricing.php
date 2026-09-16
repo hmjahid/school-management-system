@@ -89,11 +89,14 @@ $fmt  = function (float $usd) use ($isBd): float {
     <div class="mt-16 max-w-3xl mx-auto">
         <h3 class="text-2xl font-bold text-center"><?= __('pricing.faq_heading') ?></h3>
         <p class="text-slate-500 text-center mt-1 mb-8"><?= __('pricing.faq_sub') ?></p>
-        <div class="space-y-4">
+        <div class="space-y-3">
             <?php for ($i = 1; $i <= 5; $i++): ?>
-                <div class="bg-white rounded-2xl border border-slate-200 p-6">
-                    <div class="font-semibold"><?= __('pricing.faq.' . $i . 'q') ?></div>
-                    <p class="text-sm text-slate-600 mt-2 leading-relaxed"><?= __('pricing.faq.' . $i . 'a') ?></p>
+                <div class="bg-white rounded-2xl border border-slate-200" data-faq-item data-faq-open="<?= $i === 1 ? '1' : '0' ?>">
+                    <button type="button" data-faq-toggle class="w-full flex items-center justify-between px-6 py-4 text-left font-semibold">
+                        <span><?= __('pricing.faq.' . $i . 'q') ?></span>
+                        <span class="text-slate-400" data-faq-caret><?= $i === 1 ? '▴' : '▾' ?></span>
+                    </button>
+                    <div data-faq-body class="<?= $i === 1 ? '' : 'hidden' ?> px-6 pb-4 text-sm text-slate-600 leading-relaxed"><?= __('pricing.faq.' . $i . 'a') ?></div>
                 </div>
             <?php endfor; ?>
         </div>

@@ -55,6 +55,25 @@ $fmt  = fn (float $usd): float => $isBd ? \App\Gateways\GatewayFactory::toBdt($u
 </section>
 
 <section class="max-w-7xl mx-auto px-4 pb-16">
+    <div class="bg-white rounded-3xl border border-slate-200 p-8">
+        <h2 class="text-2xl font-bold mb-2"><?= __('features.modules_heading') ?></h2>
+        <p class="text-slate-500 text-sm mb-8"><?= __('features.modules_sub') ?></p>
+        <div class="grid md:grid-cols-4 gap-6">
+            <?php foreach (['main', 'academic', 'daily', 'finance', 'hr', 'documents', 'library', 'system'] as $g): ?>
+                <div>
+                    <div class="font-bold text-slate-900 mb-3"><?= __('features.group.' . $g) ?></div>
+                    <ul class="space-y-2 text-sm text-slate-600">
+                        <?php foreach (['a', 'b', 'c', 'd'] as $i): ?>
+                            <li class="esk-check"><?= __('features.group.' . $g . '.' . $i) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+
+<section class="max-w-7xl mx-auto px-4 pb-16">
     <div class="rounded-3xl bg-slate-50 border border-slate-200 p-8 md:p-10">
         <h2 class="text-2xl font-bold mb-6"><?= __('product.faq_heading') ?></h2>
         <div class="space-y-4">

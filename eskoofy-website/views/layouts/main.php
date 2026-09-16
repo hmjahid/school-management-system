@@ -45,6 +45,7 @@
             <a href="/blog" class="hover:text-white"><?= __('nav.blog') ?></a>
             <a href="/about" class="hover:text-white"><?= __('nav.about') ?></a>
             <a href="/contact" class="hover:text-white"><?= __('nav.contact') ?></a>
+            <a href="/compare" class="hover:text-white"><?= __('nav.compare') ?></a>
         </div>
         <div class="flex items-center gap-3 text-sm">
             <?php if (\App\Core\Auth::check()): ?>
@@ -55,6 +56,7 @@
                 <a href="/logout" class="text-slate-300 hover:text-white px-2"><?= __('nav.logout') ?></a>
             <?php else: ?>
                 <a href="/login" class="hover:text-white hidden sm:inline"><?= __('nav.login') ?></a>
+                <a href="/contact" class="border border-blue-400/50 hover:border-blue-300 px-4 py-2 rounded-lg font-semibold text-blue-200 hover:text-white"><?= __('nav.get_demo') ?></a>
                 <a href="/register" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-semibold"><?= __('nav.register') ?></a>
             <?php endif; ?>
             <span class="relative inline-flex">
@@ -81,6 +83,7 @@
                 <a href="/blog" class="hover:text-white"><?= __('nav.blog') ?></a>
                 <a href="/about" class="hover:text-white"><?= __('nav.about') ?></a>
                 <a href="/contact" class="hover:text-white"><?= __('nav.contact') ?></a>
+                <a href="/compare" class="hover:text-white"><?= __('nav.compare') ?></a>
             </div>
         </details>
     </nav>
@@ -165,5 +168,6 @@ window.addEventListener('load', function () {
 <?php endif; ?>
 
 <script src="/js/register-sw.js" defer></script>
+<script src="/js/site.js" defer></script>
 </body>
 </html>

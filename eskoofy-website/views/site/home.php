@@ -10,30 +10,61 @@
             <div class="mt-8 flex flex-wrap gap-3">
                 <a href="/pricing" class="esk-btn-primary bg-blue-600 hover:bg-blue-500 px-7 py-3.5 rounded-xl font-semibold"><?= __('home.cta_pricing') ?></a>
                 <a href="/register" class="border border-white/30 hover:border-white/60 bg-white/5 backdrop-blur px-7 py-3.5 rounded-xl font-semibold"><?= __('home.cta_register') ?></a>
+                <a href="/compare" class="border border-white/30 hover:border-white/60 bg-white/5 backdrop-blur px-7 py-3.5 rounded-xl font-semibold"><?= __('nav.compare') ?></a>
             </div>
-            <ul class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-300">
-                <li>▲ <?= __('home.trust.1') ?></li>
-                <li>⚡ <?= __('home.trust.2') ?></li>
-                <li>✓ <?= __('home.trust.3') ?></li>
-            </ul>
         </div>
 
-        <div class="mt-12 lg:mt-0 bg-white/10 border border-white/15 rounded-2xl p-8 text-slate-100 backdrop-blur">
-            <div class="flex items-center justify-between mb-6">
-                <div class="font-bold text-white text-lg"><?= __('home.why_title') ?></div>
-                <span class="text-xs text-blue-200 bg-blue-500/20 px-2.5 py-1 rounded-full"><?= __('home.why_pro_head') ?></span>
+        <div class="mt-12 lg:mt-0 relative">
+            <!-- Dashboard mockup -->
+            <div class="bg-white/10 border border-white/15 rounded-2xl overflow-hidden backdrop-blur shadow-2xl shadow-blue-900/30">
+                <div class="flex items-center gap-2 border-b border-white/10 px-5 py-3">
+                    <span class="h-2.5 w-2.5 rounded-full bg-rose-400"></span>
+                    <span class="h-2.5 w-2.5 rounded-full bg-amber-400"></span>
+                    <span class="h-2.5 w-2.5 rounded-full bg-green-400"></span>
+                    <span class="ml-3 text-xs text-slate-300"><?= __('home.mock_browser') ?></span>
+                </div>
+                <div class="grid grid-cols-3 gap-3 p-5">
+                    <div class="col-span-2 space-y-3">
+                        <div class="h-5 w-2/3 rounded bg-white/15"></div>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="rounded-lg bg-white/10 p-3"><div class="text-xl font-extrabold text-white">1,240</div><div class="text-[10px] text-slate-300"><?= __('home.mock_students') ?></div></div>
+                            <div class="rounded-lg bg-white/10 p-3"><div class="text-xl font-extrabold text-white">98%</div><div class="text-[10px] text-slate-300"><?= __('home.mock_attendance') ?></div></div>
+                            <div class="rounded-lg bg-white/10 p-3"><div class="text-xl font-extrabold text-white">$18k</div><div class="text-[10px] text-slate-300"><?= __('home.mock_fees') ?></div></div>
+                        </div>
+                        <div class="rounded-lg bg-white/10 p-4">
+                            <div class="h-2 w-full rounded bg-white/15"></div>
+                            <div class="mt-2 h-2 w-5/6 rounded bg-white/15"></div>
+                            <div class="mt-2 h-2 w-4/6 rounded bg-white/15"></div>
+                            <div class="mt-3 flex gap-2">
+                                <span class="rounded bg-blue-500/40 px-2 py-0.5 text-[10px] text-blue-100"><?= __('home.mock_online') ?></span>
+                                <span class="rounded bg-emerald-500/30 px-2 py-0.5 text-[10px] text-emerald-100"><?= __('home.mock_portal') ?></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="rounded-lg bg-white/10 p-3"><div class="text-[10px] text-slate-300"><?= __('home.mock_attendance_today') ?></div><div class="mt-1 h-2 w-4/5 rounded bg-white/15"></div><div class="mt-1 h-2 w-3/5 rounded bg-white/15"></div></div>
+                        <div class="rounded-lg bg-white/10 p-3"><div class="text-[10px] text-slate-300"><?= __('home.mock_events') ?></div><div class="mt-1 h-2 w-4/5 rounded bg-white/15"></div><div class="mt-1 h-2 w-3/5 rounded bg-white/15"></div></div>
+                        <div class="rounded-lg bg-white/10 p-3"><div class="text-[10px] text-slate-300"><?= __('home.mock_messages') ?></div><div class="mt-1 h-2 w-4/5 rounded bg-white/15"></div><div class="mt-1 h-2 w-3/5 rounded bg-white/15"></div></div>
+                    </div>
+                </div>
             </div>
-            <ul class="space-y-4 text-sm">
-                <?php foreach (['1','2','3','4','5'] as $i): ?>
-                    <li class="flex gap-3"><span class="text-blue-300 shrink-0 mt-0.5">✓</span><span><?= __('home.why.' . $i) ?></span></li>
-                <?php endforeach; ?>
-            </ul>
-            <div class="mt-8 grid grid-cols-3 gap-4 border-t border-white/10 pt-6 text-center">
-                <div><div class="text-3xl font-extrabold text-white">50+</div><div class="text-xs text-slate-300 mt-1"><?= __('home.stats.1') ?></div></div>
-                <div><div class="text-3xl font-extrabold text-white">3-in-1</div><div class="text-xs text-slate-300 mt-1"><?= __('home.stats.2') ?></div></div>
-                <div><div class="text-3xl font-extrabold text-white">24/7</div><div class="text-xs text-slate-300 mt-1"><?= __('home.stats.3') ?></div></div>
+            <!-- Stats counters -->
+            <div class="mt-5 grid grid-cols-3 gap-4 text-center">
+                <div><div class="text-3xl font-extrabold text-white"><span class="esk-count" data-count="50" data-suffix="+">0</span></div><div class="text-xs text-slate-300 mt-1"><?= __('home.stats.1') ?></div></div>
+                <div><div class="text-3xl font-extrabold text-white"><span class="esk-count" data-count="3" data-suffix="-in-1">0</span></div><div class="text-xs text-slate-300 mt-1"><?= __('home.stats.2') ?></div></div>
+                <div><div class="text-3xl font-extrabold text-white"><span class="esk-count" data-count="24" data-suffix="/7">0</span></div><div class="text-xs text-slate-300 mt-1"><?= __('home.stats.3') ?></div></div>
             </div>
         </div>
+    </div>
+</section>
+
+<!-- Trust strip -->
+<section class="border-b border-slate-200 bg-white">
+    <div class="max-w-7xl mx-auto px-4 py-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-sm text-slate-500">
+        <span class="inline-flex items-center gap-2"><span class="text-green-600 font-bold">✓</span> <?= __('home.trust.1') ?></span>
+        <span class="inline-flex items-center gap-2"><span class="text-green-600 font-bold">✓</span> <?= __('home.trust.2') ?></span>
+        <span class="inline-flex items-center gap-2"><span class="text-green-600 font-bold">✓</span> <?= __('home.trust.3') ?></span>
+        <span class="inline-flex items-center gap-2"><span class="text-green-600 font-bold">✓</span> <?= __('home.trust.4') ?></span>
     </div>
 </section>
 
@@ -162,17 +193,26 @@
             <div class="bg-white/5 border border-white/10 rounded-2xl p-7">
                 <div class="text-blue-300">★★★★★</div>
                 <p class="mt-4 text-slate-200 leading-relaxed">"<?= __('home.testi.1') ?>"</p>
-                <div class="mt-5 text-sm text-slate-400">— <?= __('home.testi.1a') ?></div>
+                <div class="mt-5 text-sm text-slate-400">
+                    <div class="text-white font-semibold"><?= __('home.testi.1a') ?></div>
+                    <div class="text-xs text-slate-500 mt-0.5"><?= __('home.testi.1role') ?></div>
+                </div>
             </div>
             <div class="bg-white/5 border border-white/10 rounded-2xl p-7">
                 <div class="text-blue-300">★★★★★</div>
                 <p class="mt-4 text-slate-200 leading-relaxed">"<?= __('home.testi.2') ?>"</p>
-                <div class="mt-5 text-sm text-slate-400">— <?= __('home.testi.2a') ?></div>
+                <div class="mt-5 text-sm text-slate-400">
+                    <div class="text-white font-semibold"><?= __('home.testi.2a') ?></div>
+                    <div class="text-xs text-slate-500 mt-0.5"><?= __('home.testi.2role') ?></div>
+                </div>
             </div>
             <div class="bg-white/5 border border-white/10 rounded-2xl p-7">
                 <div class="text-blue-300">★★★★★</div>
                 <p class="mt-4 text-slate-200 leading-relaxed">"<?= __('home.testi.3') ?>"</p>
-                <div class="mt-5 text-sm text-slate-400">— <?= __('home.testi.3a') ?></div>
+                <div class="mt-5 text-sm text-slate-400">
+                    <div class="text-white font-semibold"><?= __('home.testi.3a') ?></div>
+                    <div class="text-xs text-slate-500 mt-0.5"><?= __('home.testi.3role') ?></div>
+                </div>
             </div>
         </div>
     </div>

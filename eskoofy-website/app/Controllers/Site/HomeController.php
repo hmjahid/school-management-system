@@ -47,6 +47,11 @@ class HomeController extends Controller
         $this->view('site.features');
     }
 
+    public function compare(): void
+    {
+        $this->view('site.compare');
+    }
+
     public function about(): void
     {
         $this->view('site.about');

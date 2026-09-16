@@ -153,6 +153,8 @@ is all 3 qa file implemented?
 
 we will not follow freemium or community based model. we will sell subsbsribstions direction how much their students and staff no matter. nake sure that bd clinets can buy using local payemnt methods and internation clients can buy uisng international methods. now build the system fully. follow the docs whose are applicable on thse conditions. better ask my confirmation befor every implementations.
 
+build the website frontned according to the docs now. but ask me for confirmation befor execution
+
 
 
 

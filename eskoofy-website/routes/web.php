@@ -27,6 +27,7 @@ $router->get('/', HomeController::class, 'index');
 $router->get('/products/{slug}', HomeController::class, 'product');
 $router->get('/pricing', HomeController::class, 'pricing');
 $router->get('/features', HomeController::class, 'features');
+$router->get('/compare', HomeController::class, 'compare');
 $router->get('/about', HomeController::class, 'about');
 $router->get('/contact', HomeController::class, 'contact');
 $router->post('/contact', HomeController::class, 'storeMessage');

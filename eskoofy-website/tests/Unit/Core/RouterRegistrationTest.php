@@ -156,4 +156,25 @@ class RouterRegistrationTest extends TestCase
             $this->assertStringContainsString("'{$key}'", $en, "missing subscription copy key: {$key}");
         }
     }
+
+    public function test_compare_route_and_view_exist(): void
+    {
+        $router = new Router();
+        require dirname(__DIR__, 3) . '/routes/web.php';
+
+        $paths = array_map(fn ($r) => $r['path'], $router->getRoutes());
+        $this->assertContains('/compare', $paths);
+
+        $this->assertFileExists(dirname(__DIR__, 3) . '/views/site/compare.php');
+    }
+
+    public function test_site_js_and_role_tab_markup_exist(): void
+    {
+        $this->assertFileExists(dirname(__DIR__, 3) . '/public/js/site.js');
+
+        $features = (string) file_get_contents(dirname(__DIR__, 3) . '/views/site/features.php');
+        $this->assertStringContainsString('data-role-tabs', $features);
+        $this->assertStringContainsString('data-role-panel="teacher"', $features);
+        $this->assertStringContainsString('data-role-panel="parent"', $features);
+    }
 }
