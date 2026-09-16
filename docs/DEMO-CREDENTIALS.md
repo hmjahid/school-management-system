@@ -9,6 +9,19 @@ All accounts are created by `DatabaseSeeder` (`admin@school.com` comes from
 > Never use these default credentials in production — the seeder refuses to run
 > with weak passwords when `APP_ENV=production`.
 
+## Branding site (eskoofy-website)
+
+Seeded by `eskoofy-website/database/schema.sql` (login at `/login`, admin panel
+at `/admin`).
+
+| Name | Email | Password | Role |
+|---|---|---|---|
+| Eskoofy Admin | `admin@eskoofy.com` | `admin123` | `admin` |
+
+- Change this password before any production use (the schema contains a warning
+  comment to that effect).
+- The branding site is subscription-only; customers self-register at `/register`.
+
 ## Admin
 
 | Name | Email | Password | Role |

@@ -155,6 +155,9 @@ we will not follow freemium or community based model. we will sell subsbsribstio
 
 build the website frontned according to the docs now. but ask me for confirmation befor execution
 
+cerate a docker conatiner and do yourself
+
+give me demo credentails to login in the website as admin
 
 
 
