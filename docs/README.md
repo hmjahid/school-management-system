@@ -40,6 +40,9 @@ records, organized into the folders below so the root stays clean.
   (`build/propagate/propagate-feature.sh`) + per-product propagation maps
 - `NODEJS-VARIANT.md` — feasibility + stack recommendation for a proposed 4th product
   (`eskoofy-node`, NestJS + Next.js) and the "website is branding, not a product" framing
+- `SMART-SCHOOL-IMPLEMENTATION.md` — implementation plan for the "smart" layer
+  (Tier 1 automation engines, Tier 2 analytics/prediction, Tier 3 opt-in AI assistant);
+  config-driven BD/INT, parity + confirmation gates per `FEATURE-PROPAGATION.md`
 
 ## Planning / reviews (`planning/`)
 
