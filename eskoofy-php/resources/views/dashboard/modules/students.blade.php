@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', __('Students') . ' — ' . config('app.name', 'SchoolEase'))
+@section('title', __('Students') . ' — ' . config('app.name', 'Eskoofy'))
 
 @section('content')
     <x-page-header :title="__('Students')" :description="__('Manage enrolled students, classes, and records.')">

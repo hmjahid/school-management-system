@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', __('Generate ID cards') . ' — ' . config('app.name', 'SchoolEase'))
+@section('title', __('Generate ID cards') . ' — ' . config('app.name', 'Eskoofy'))
 
 @section('content')
     <x-page-header :title="__('Generate ID cards')" :description="__('Create ID cards for every student in a class or section.')">

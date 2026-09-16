@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', __('School settings') . ' — ' . config('app.name', 'SchoolEase'))
+@section('title', __('School settings') . ' — ' . config('app.name', 'Eskoofy'))
 
 @section('content')
     <h1 class="text-2xl font-bold text-gray-900">{{ __('School settings') }}</h1>

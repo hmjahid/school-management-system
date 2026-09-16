@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', __('About Page') . ' — ' . config('app.name', 'SchoolEase'))
+@section('title', __('About Page') . ' — ' . config('app.name', 'Eskoofy'))
 
 @section('content')
     <div class="mb-6">

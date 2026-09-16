@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', __('dashboard.report_builder') . ' — ' . config('app.name', 'SchoolEase'))
+@section('title', __('dashboard.report_builder') . ' — ' . config('app.name', 'Eskoofy'))
 
 @section('content')
     <x-page-header :title="__('dashboard.report_builder')" description="{{ __('Choose a dataset, fields, and filters, then export to CSV.') }}">

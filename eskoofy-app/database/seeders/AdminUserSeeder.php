@@ -51,7 +51,7 @@ class AdminUserSeeder extends Seeder
                 'id' => \Illuminate\Support\Str::uuid()->toString(),
                 'type' => 'App\\Notifications\\WelcomeNotification',
                 'data' => [
-                    'title' => __('Welcome to :school', ['school' => config('app.name', 'SchoolEase')]),
+                    'title' => __('Welcome to :school', ['school' => config('app.name', 'Eskoofy')]),
                     'message' => __('Your admin account is ready. Explore the dashboard, manage students, fees, and more.'),
                     'url' => route('dashboard'),
                 ],

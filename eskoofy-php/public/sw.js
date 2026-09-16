@@ -1,4 +1,4 @@
-const CACHE_NAME = 'schoolease-v1';
+const CACHE_NAME = 'eskoofy-v1';
 const OFFLINE_URL = '/offline.html';
 
 const PRECACHE_ASSETS = [

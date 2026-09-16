@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', __('Parents & guardians') . ' — ' . config('app.name', 'SchoolEase'))
+@section('title', __('Parents & guardians') . ' — ' . config('app.name', 'Eskoofy'))
 
 @section('content')
     <x-page-header :title="__('Parents & guardians')" :description="__('Link parents to students so families can follow progress and fees.')">

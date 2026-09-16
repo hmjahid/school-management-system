@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', __('Generate admit cards') . ' — ' . config('app.name', 'SchoolEase'))
+@section('title', __('Generate admit cards') . ' — ' . config('app.name', 'Eskoofy'))
 
 @section('content')
     <x-page-header :title="__('Generate admit cards')" :description="__('Create admit cards for every student in a class or section for an exam.')">

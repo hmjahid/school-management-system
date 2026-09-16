@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', __('Dashboard') . ' — ' . config('app.name', 'SchoolEase'))
+@section('title', __('Dashboard') . ' — ' . config('app.name', 'Eskoofy'))
 
 @section('content')
     @php

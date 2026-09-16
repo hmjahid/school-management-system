@@ -17,7 +17,7 @@ class WelcomeNotification extends Notification
     public function toArray($notifiable): array
     {
         return [
-            'title' => __('Welcome to :school', ['school' => config('app.name', 'SchoolEase')]),
+            'title' => __('Welcome to :school', ['school' => config('app.name', 'Eskoofy')]),
             'message' => __('Your admin account is ready. Explore the dashboard, manage students, fees, and more.'),
             'url' => route('dashboard'),
         ];

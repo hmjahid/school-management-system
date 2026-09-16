@@ -20,7 +20,7 @@
     })();
     </script>
 
-    <title>@yield('title', $siteSettings->site_name ?? config('app.name', 'SchoolEase'))</title>
+    <title>@yield('title', $siteSettings->site_name ?? config('app.name', 'Eskoofy'))</title>
 
     {{-- SEO Meta --}}
     <meta name="description" content="@yield('meta_description', $siteSettings->meta_description ?? '')">
@@ -33,7 +33,7 @@
     <meta name="theme-color" content="{{ $siteSettings->theme_primary_color ?? '#2563eb' }}">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="{{ $siteSettings->school_name ?? config('app.name', 'SchoolEase') }}">
+    <meta name="apple-mobile-web-app-title" content="{{ $siteSettings->school_name ?? config('app.name', 'Eskoofy') }}">
     <link rel="apple-touch-icon" href="{{ optional($siteSettings)->logo_url ?: asset('favicon.ico') }}">
 
     {{-- Open Graph --}}

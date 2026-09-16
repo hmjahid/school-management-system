@@ -7,7 +7,7 @@
 
 A School Management System built with **Laravel Blade** (this folder is the Laravel product
 inside the **Eskoofy monorepo** — see the root `README.md` and `AGENTS.md` for the repo-wide
-layout and BD/INT variant strategy): session auth, SchoolEase-style indigo sidebar,
+layout and BD/INT variant strategy): session auth, Eskoofy-style indigo sidebar,
 live-stat dashboard, full admin modules (students, fees, exams/results, admissions,
 attendance, library, SMS, documents), a public website with CMS, and a JSON API under
 `/api/v1` (payments, refunds, admissions, notifications). The legacy React SPA is preserved

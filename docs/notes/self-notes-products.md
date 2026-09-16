@@ -119,26 +119,31 @@ now investigate and fix why app and php version login not working.
 
 homepage redirecting to url/client wehn going to homepagein theme version. .fix the issue
 
-
-
+ensure that whole project/repo is fully and well documented and the every product and the website also fully and well documented
 
 laravel app version showing schoolease until now. show eskoofy instead.
 
 the theme vesrion frontend is far from the app vesrion frontend. aslo theme vesrion dahboard items and sidebar items groups items are mismatched to the app vesrion
 
+research international school management software websites for how they showcasing thier product, pricing plan and other. we will implement in our branding site them. add your suggetion in a file now.
 
-ensure that whole project/repo is fully and well documented and the every product and the website also fully and well documented
+suggest me a payment/subscription model for these products in the branding website. add in a file now
 
-research international school management software websites for how they showcasing thier product, pricing plan and other. we will implement in our branding site them.
+make a system that if I wnat to add/modify any feature in eskoofy, it will be applied to all 3 products unless I specify. but ask for confirmation before implementation
 
-suggest me a payment/subscription model for these products in the branding website
+create a prompt file fo rimplementing the baove tasks and execute the prompt file. continue until finished
+
+
+
+
+
 
 ensure proper payment method applied in this system app, php, theme and the website
 
 make this a smart school management system
 
 
-make a system that i I wnat to add/modify any feature in eskoofy, it will be applied to all 3 products unless I specify. but ask fo rconfirmation before implementation
+
 
 how to make this app/php-version/theme eligible for selling in theme forest or other similiar marketplaces?
 

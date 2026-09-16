@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', __('CMS settings') . ' — ' . config('app.name', 'SchoolEase'))
+@section('title', __('CMS settings') . ' — ' . config('app.name', 'Eskoofy'))
 
 @section('content')
     <x-page-header :title="__('CMS settings')" :description="__('Toggle visibility of homepage sections and sub-pages.')">

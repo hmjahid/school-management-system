@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', __('Analytics') . ' — ' . config('app.name', 'SchoolEase'))
+@section('title', __('Analytics') . ' — ' . config('app.name', 'Eskoofy'))
 
 @section('content')
     <x-page-header :title="__('dashboard.analytics')" description="{{ __('dashboard.insights') }}">

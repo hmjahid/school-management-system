@@ -32,6 +32,12 @@ records, organized into the folders below so the root stays clean.
 - `SENIOR-PM-REVIEW-REPORT.md` — findings from the senior-PM review
 - `system-architecture-review.md` — architecture review
 - `plan-build-incomplete-features.md` — plan for incomplete features
+- `COMPETITIVE-ANALYSIS.md` — research on international school-management software sites
+  (homepage/pricing/social-proof patterns + recommendations for the branding site)
+- `PAYMENT-MODEL.md` — suggested freemium + tiered subscription/pricing model for all
+  Eskoofy products (community/school/district/enterprise tiers, gateways, trial, roadmap)
+- `FEATURE-PROPAGATION.md` — cross-product feature-consistency rule + runner
+  (`build/propagate/propagate-feature.sh`) + per-product propagation maps
 
 ## Planning / reviews (`planning/`)
 
@@ -48,6 +54,7 @@ records, organized into the folders below so the root stays clean.
 
 - `features-impl-prompt-2.md`
 - `features-impl-prompt-4.md` … `features-impl-prompt-16.md`
+- `product-polish-and-docs-prompt.md` — rebrand, sidebar parity, documentation and feature-propagation implementation session
 
 ## Notes (`notes/`)
 
@@ -59,6 +66,7 @@ records, organized into the folders below so the root stays clean.
 - `.github/workflows/ci.yml` — GitHub Actions: runs tests + lint, exports both BD/INT variants, smoke-tests artifacts, uploads zips.
 - `build/export.sh` — local export script (same logic as CI).
 - `build/profiles/profiles.php` — single source of truth for BD/INT variant differences.
+- `build/propagate/propagate-feature.sh` — cross-product feature propagation gate (plan → confirmation → hand-off). See `FEATURE-PROPAGATION.md`.
 - Tagging convention: see `docs/RUNBOOKS.md` §7.
 
 ## Agent instructions

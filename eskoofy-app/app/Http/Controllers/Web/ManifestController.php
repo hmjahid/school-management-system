@@ -10,7 +10,7 @@ class ManifestController
     public function __invoke(): JsonResponse
     {
         $settings = WebsiteSetting::getSettings();
-        $name = $settings->school_name ?: config('app.name', 'SchoolEase');
+        $name = $settings->school_name ?: config('app.name', 'Eskoofy');
         $shortName = \Illuminate\Support\Str::limit($name, 12, '');
         $themeColor = $settings->theme_primary_color ?? '#2563eb';
 

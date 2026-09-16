@@ -93,10 +93,10 @@ class MailSettingsService
      */
     public function sendTest(string $to): void
     {
-        $content = '<p>This is a test email from '.e(config('app.name', 'SchoolEase')).'. Your SMTP settings are working correctly.</p>';
+        $content = '<p>This is a test email from '.e(config('app.name', 'Eskoofy')).'. Your SMTP settings are working correctly.</p>';
 
         $mailable = (new \Illuminate\Mail\Mailable)
-            ->subject('SMTP Test — '.config('app.name', 'SchoolEase'))
+            ->subject('SMTP Test — '.config('app.name', 'Eskoofy'))
             ->html($content);
 
         Mail::to($to)->send($mailable);

@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', __('Global Labels') . ' — ' . config('app.name', 'SchoolEase'))
+@section('title', __('Global Labels') . ' — ' . config('app.name', 'Eskoofy'))
 
 @php
     $sections = collect($flattened)->groupBy('section');

@@ -1,5 +1,5 @@
 @php
-    $schoolName = $siteSettings?->localized_school_name ?? config('app.name', 'SchoolEase');
+    $schoolName = $siteSettings?->localized_school_name ?? config('app.name', 'Eskoofy');
     $schoolTagline = $siteSettings?->localized_tagline ?? __('dashboard.admin_panel');
     $logoUrl = $siteSettings?->logo_url;
 @endphp

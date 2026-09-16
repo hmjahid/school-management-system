@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @php $dashSettings = \App\Models\WebsiteSetting::getSettings(); @endphp
-    <title>@yield('title', __('Dashboard') . ' — ' . ($dashSettings->school_name ?? config('app.name', 'SchoolEase')))</title>
+    <title>@yield('title', __('Dashboard') . ' — ' . ($dashSettings->school_name ?? config('app.name', 'Eskoofy')))</title>
     {{-- Restore dark mode immediately to prevent flash on page load / language switch --}}
     <script>
     (function(){var k='school-dark-mode',v=localStorage.getItem(k);if(v==='1'||(v===null&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')})();
@@ -26,7 +26,7 @@
     <meta name="theme-color" content="{{ $dashSettings->theme_primary_color ?? '#2563eb' }}">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="{{ $dashSettings->school_name ?? config('app.name', 'SchoolEase') }}">
+    <meta name="apple-mobile-web-app-title" content="{{ $dashSettings->school_name ?? config('app.name', 'Eskoofy') }}">
     <link rel="apple-touch-icon" href="{{ $dashSettings->logo_url ?: asset('favicon.ico') }}">
     <style>
         :root {

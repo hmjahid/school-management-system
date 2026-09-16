@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', __('Classes') . ' — ' . config('app.name', 'SchoolEase'))
+@section('title', __('Classes') . ' — ' . config('app.name', 'Eskoofy'))
 
 @section('content')
     <x-page-header :title="__('Classes')" :description="__('Classes and sections organise students and routines.')">
