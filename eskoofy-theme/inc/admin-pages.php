@@ -815,6 +815,18 @@ function esk_users_page(): void {
 	esk_render_admin_view( 'users' );
 }
 
+function esk_staff_directory_page(): void {
+	esk_render_admin_view( 'staff-directory' );
+}
+
+function esk_notification_templates_page(): void {
+	esk_render_admin_view( 'notification-templates' );
+}
+
+function esk_notification_preferences_page(): void {
+	esk_render_admin_view( 'notification-preferences' );
+}
+
 function esk_roles_page(): void {
 	esk_render_admin_view( 'roles' );
 }

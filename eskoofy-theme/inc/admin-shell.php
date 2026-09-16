@@ -89,7 +89,7 @@ function esk_admin_sidebar_sections(): array {
 		$link( 'esk-sms' ),
 
 		$label( 'Academic' ),
-		$details( 'People', 'dashicons-groups', array( 'esk-students', 'esk-teachers', 'esk-guardians', 'esk-users' ) ),
+		$details( 'People', 'dashicons-groups', array( 'esk-students', 'esk-teachers', 'esk-guardians', 'esk-staff-directory', 'esk-users' ) ),
 		$details( 'Academics', 'dashicons-book-alt', array( 'esk-classes', 'esk-exams', 'esk-results', 'esk-assignments', 'esk-routines' ) ),
 		$link( 'esk-admissions' ),
 		$details( 'Daily', 'dashicons-calendar-alt', array( 'esk-attendance', 'esk-attendance-mark', 'esk-staff-attendance' ) ),
@@ -106,6 +106,8 @@ function esk_admin_sidebar_sections(): array {
 		$link( 'esk-activity' ),
 		$link( 'esk-visitor-logs' ),
 		$link( 'esk-backup' ),
+		$link( 'esk-notification-templates' ),
+		$link( 'esk-notification-preferences' ),
 
 		$label( 'Website' ),
 		$details( 'Website CMS', 'dashicons-admin-site-alt3', array( 'esk-cms', 'esk-news', 'esk-gallery', 'esk-announcements', 'esk-notices', 'esk-documents', 'esk-media', 'esk-contact-submissions', 'esk-careers' ) ),
@@ -191,6 +193,7 @@ function esk_dashboard_page_titles(): array {
 		'esk-careers'              => 'Careers',
 		'esk-reports'              => 'Reports',
 		'esk-users'                => 'Users',
+		'esk-staff-directory'      => 'Staff Directory',
 		'esk-roles'                => 'Roles & Permissions',
 		'esk-settings'             => 'Settings',
 		'esk-onboarding'           => 'Onboarding',
@@ -224,6 +227,8 @@ function esk_dashboard_page_titles(): array {
 		'esk-profile'              => 'My Profile',
 		'esk-help'                 => 'Help & Documentation',
 		'esk-backup'               => 'Backups',
+		'esk-notification-templates' => 'Notification Templates',
+		'esk-notification-preferences' => 'Notification Preferences',
 		'esk-software'             => 'About',
 	);
 }
@@ -240,6 +245,7 @@ function esk_admin_shell_icon( string $slug ): string {
 		'esk-teacher-add'        => 'dashicons-welcome-learn-more',
 		'esk-guardians'          => 'dashicons-universal-access',
 		'esk-users'              => 'dashicons-admin-users',
+		'esk-staff-directory'    => 'dashicons-groups',
 		'esk-roles'              => 'dashicons-admin-network',
 		'esk-classes'            => 'dashicons-editor-ul',
 		'esk-sections'           => 'dashicons-editor-ul',
@@ -303,6 +309,8 @@ function esk_admin_shell_icon( string $slug ): string {
 		'esk-profile'            => 'dashicons-admin-users',
 		'esk-help'               => 'dashicons-editor-help',
 		'esk-backup'             => 'dashicons-media-text',
+		'esk-notification-templates' => 'dashicons-email-alt',
+		'esk-notification-preferences' => 'dashicons-admin-settings',
 		'esk-software'           => 'dashicons-info-outline',
 	);
 	return isset( $icons[ $slug ] ) ? $icons[ $slug ] : 'dashicons-admin-generic';

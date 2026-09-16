@@ -4,12 +4,13 @@
 
 **Progress snapshot (2026-09-17 session):**
 - ✅ Phases 0, 1, 2, 3, 4 complete (report corrections; app bug fixes + php byte-mirror;
-  theme front-end parity; sidebar alignment + label drifts; UI lib).
+  theme front-end parity; sidebar alignment + label drifts; UI lib incl. page-header sweep).
 - ✅ Phase 5 complete — 5.1-5.12 all implemented (online payments, certificates single,
-  RBAC, multistep admission, portal + the earlier module-depth items).
-- ✅ Phase 6 — 6.1 (row actions/edits), 6.2 (ledger/budgets/chart-of-accounts),
-  6.3 (expense-categories, events calendar, library categories), 6.6 (archived 19
-  orphaned php views; php suite 299 green).
+  RBAC, multistep admission, portal + the module-depth items).
+- ✅ Phase 6 complete — 6.1-6.6 (row actions/edits, ledger/budgets/chart-of-accounts,
+  staff-directory/expense-categories/events-calendar/library-categories/admission-tests/
+  notification-templates+preferences, device_tokens + scroll/page-header sweep, archived
+  19 orphaned php views).
 - ✅ Phase 7 — eskoofy-php expansion implemented (token auth, 60 API paths ported,
   scheduler + push, 3 models, service classes). php suite 311 green.
 - ✅ Phase 8 — website sales copy updated (en + bn).
@@ -69,28 +70,26 @@ All items executed (2.1 nav order, 2.2 footer links, 2.3 topbar order, 2.4 mobil
 | # | Report | Finding | Fix | Status |
 |---|---|---|---|---|
 | 3.1 | SB-1 / P-U11 | 15 slugs registered in `groups()` have no sidebar entry; most have built views (sections, subjects, batches, academic-sessions, progress-reports, seat-plans, refunds, notifications, search, onboarding, reports-builder, analytics, bank-reconciliation) | **No change — parity holds.** The app sidebar also omits these (palette-only in both). See Phase 0.4. | ✅ |
-| 3.2 | SB-3 | App-only: Favorites group, School Info flat link, Calendar flat link, Staff Directory (People+HR) | **Favorites already present** (`esk-fav-group`/`esk-fav-list`). School Info ≈ theme `esk-settings` (Configuration). Calendar + Staff Directory require new theme pages → moved to Phase 6 (feature). | 🟡 |
+| 3.2 | SB-3 | App-only: Favorites group, School Info flat link, Calendar flat link, Staff Directory (People+HR) | **Favorites already present** (`esk-fav-group`/`esk-fav-list`). School Info ≈ theme `esk-settings` (Configuration). Calendar added as `esk-events-calendar` flat link (Phase 6.3). Staff Directory added as `esk-staff-directory` under People (Phase 6.3). | ✅ |
 | 3.3 | SB-4 / P-U12 | Theme-only sidebar items expose features app nests deeper (Income/Balance/Cash-Flow, Leave Types, Payslips, Salary Structures, Profile) | Keep — they are real theme pages; document as intentional depth. No change (P3). | ✅ |
 | 3.4 | SB-2 / P-U10 | System/Website/Administration/Configuration + SMS rendered for all users (app admin-only) | **Not a leak** — theme gates the whole dashboard behind `manage_options` (`front-dashboard.php:220`). Per-group role gating (to match app's multi-role UX) is Phase 5.10. See Phase 0.4. | ✅ |
 | 3.5 | SB-6 | Label drifts (Guardians, Results, Routines, ID Cards, Fee Payments, Contact Submissions, Bulk, Software) | Renamed in `inc/admin-shell.php` titles(): `Parents`, `My Results`, `Class Routine`, `Student ID Cards`, `Payments`, `Form Submissions`, `About`. | ✅ |
 
-## Phase 4 — Theme dashboard UI lib parity (P2) 🟡 partial
+## Phase 4 — Theme dashboard UI lib parity (P2) ✅ done
 
 | # | Report | Finding | Fix | Status |
 |---|---|---|---|---|
-| 4.1 | P-U15 | Legacy WP chrome (`h1.wp-heading-inline`, `.page-title-action`, `.notice`) | Added shared `.esk-empty-state` + `.esk-table-scroll` styles (`inc/admin-style.css`) and applied to `fees.php`/`exams.php` as exemplars; full sweep of the remaining 70+ views tracked as follow-up. | 🟡 |
+| 4.1 | P-U15 | Legacy WP chrome (`h1.wp-heading-inline`, `.page-title-action`, `.notice`) | Added shared page-header styling (title typography + action button + divider, dark-mode aware) via `.wp-heading-inline`/`.page-title-action`/`.wp-header-end` rules in `inc/admin-style.css`, applied across all legacy views (parity with app `<x-page-header>`); `.esk-empty-state` + `.esk-table-scroll` applied to exemplars + global mobile scroll rule. | ✅ |
 | 4.2 | P-U16 | Toasts text-only, not dismissible, 3.2s (app: dismissible, 5s, top-center/mobile) | `inc/admin-shell.php` — added `×` dismiss button + 5s duration (matches app `showToast`); CSS `.esk-toast-dismiss`/`.esk-toast-text` + row flex. | ✅ |
 | 4.3 | P-U16 | Confirm modal always brand-OK, inline `confirm()` interception (app: danger variant) | Added `confirm('msg', 'brand')` support → `.esk-modal-brand` (blue OK + blue icon); default stays red/danger. Applied to non-destructive calls (exams publish, fee-payment refund). | ✅ |
 | 4.4 | P-U16 | Fees/exams lists unpaginated (app paginates) | Added `LIMIT/OFFSET` + `paginate_links()` pagination to `views/admin/fees.php` + `views/admin/exams.php`. | ✅ |
 
-## Phase 5 — Theme functionality depth (P1/P2) 🟡 partial
+## Phase 5 — Theme functionality depth (P1/P2) ✅ done
 
 Feature-level work. Per `FEATURE-PROPAGATION.md`, present per-product file plan and obtain
 owner confirmation before implementing. Listed as prioritized backlog.
 
-Implemented this session (5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8 — see statuses below). Remaining
-⬜ items (5.1 online payments, 5.9 certificates single, 5.10 RBAC, 5.11 multistep admission,
-5.12 portal) are the large builds, each a dedicated task.
+All items (5.1-5.12) implemented — see statuses below.
 
 | # | Report | Gap | Scope sketch | Status |
 |---|---|---|---|---|
@@ -107,15 +106,15 @@ Implemented this session (5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8 — see statuses bel
 | 5.11 | P-U6 | Admission apply single-page vs app 6-step multistep | Converted to 6-step wizard (student, contact, academic session/batch, guardian, documents incl. T.C. + birth cert, review) with wizard JS + CSS; save handler persists new fields + uploads | ✅ |
 | 5.12 | P-U1 | No student/parent portal (app `/portal` tabs) | Rebuilt `template-portal.php` as authenticated tabbed portal (Profile/Attendance/Exams/Fees/Routine/Announcements/Events) for students + guardians; auth-gated; tab JS + CSS | ✅ |
 
-## Phase 6 — Theme module/table depth (P1/P2) 🟡 partial
+## Phase 6 — Theme module/table depth (P1/P2) ✅ done
 
 | # | Report | Finding | Scope sketch | Status |
 |---|---|---|---|---|
 | 6.1 | P-B4 | Students list no row actions; teachers add-only; expenses no edit/budget/export; testimonials no edit | Students: View/Edit/Delete actions; teachers: edit form (prefilled) + Delete; expenses: edit + prefilled form; testimonials: edit + prefilled form | ✅ |
 | 6.2 | P-B1 | Finance subsystem absent (budgets, ledger, invoices, recurring, chart-of-accounts) | Added `esk_chart_of_accounts` + `esk_budgets` tables; `views/admin/ledger.php` (Journal + Chart of Accounts tabs, entry recording, account CRUD); `views/admin/budgets.php` (CRUD vs expense categories); routes/titles/icons/sidebar wired | ✅ |
-| 6.3 | P-B3 | communications, staff directory, expense-categories, events calendar, library categories, admissions tests, notification templates/preferences pages absent | `esk-expense-categories` page (CRUD) + route/sidebar; `esk-events-calendar` month view + route/sidebar (Events→Calendar flat links match app); library book categories CRUD added to `library.php` | 🟡 |
+| 6.3 | P-B3 | communications, staff directory, expense-categories, events calendar, library categories, admissions tests, notification templates/preferences pages absent | communications = `esk-messages` (compose/inbox/sent, already wired Main→Messages); `esk-expense-categories` page (CRUD); `esk-events-calendar` month view + flat link; library book categories CRUD in `library.php`; `esk-staff-directory` page (Users by staff/accountant/librarian role) under People; admission tests: `esk_admission_tests` table + schedule/update UI in `admission-detail.php`; `esk-notification-templates` + `esk-notification-preferences` pages + tables under System | ✅ |
 | 6.4 | P-B5 | Name drifts: guardians↔parents, id-cards↔student-id-cards, software↔about | Renamed labels/routes to app naming | ✅ |
-| 6.5 | P-B6 | WP list-table vs Tailwind; PWA `device_tokens` absent | Incremental chrome alignment (table-scroll wrappers on new pages); device_tokens table tracked separately | 🟡 |
+| 6.5 | P-B6 | WP list-table vs Tailwind; PWA `device_tokens` absent | Added `esk_device_tokens` table; global mobile horizontal-scroll rule for legacy tables + shared page-header styling (4.1) | ✅ |
 | 6.6 | P-A1 | ~34 legacy snake_case php views orphaned | View-unreferenced scan (view()/render + Blade includes) → **19 confirmed orphaned** archived to `eskoofy-php/archive/dashboard/`; php suite 299 tests green | ✅ |
 
 ## Phase 7 — eskoofy-php expansion — ✅ done (php resume gate passed)

@@ -12,6 +12,54 @@
 	margin-bottom: 1rem;
 }
 
+/* ─── Shared page header (parity with app <x-page-header>) ─────────────── */
+
+.esk-admin-wrap .wp-heading-inline {
+	display: inline-block;
+	font-size: 1.5rem;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	line-height: 1.25;
+	color: #0f172a;
+	margin: 0 0 0.5rem;
+	padding: 0;
+	border: 0;
+}
+.esk-admin-wrap .page-title-action {
+	margin-left: 0.75rem;
+	padding: 0.4rem 0.9rem;
+	border-radius: 8px;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	line-height: 1.5;
+	text-decoration: none;
+	background: #fff;
+	border: 1px solid #e2e8f0;
+	color: #334155;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+	vertical-align: middle;
+}
+.esk-admin-wrap .page-title-action:hover {
+	background: #f8fafc;
+	border-color: #cbd5e1;
+	color: #0f172a;
+}
+.esk-admin-wrap .wp-header-end {
+	margin: 0.75rem 0 1.5rem;
+	border-top: 1px solid #e2e8f0;
+}
+html.dark .esk-admin-wrap .wp-heading-inline { color: #f1f5f9; }
+html.dark .esk-admin-wrap .page-title-action {
+	background: #1e293b;
+	border-color: #334155;
+	color: #cbd5e1;
+}
+html.dark .esk-admin-wrap .page-title-action:hover {
+	background: #334155;
+	color: #f1f5f9;
+}
+html.dark .esk-admin-wrap .wp-header-end { border-top-color: #334155; }
+
 /* ─── Stats Grid ─────────────────────────────────────────────────────────── */
 
 .esk-stats-grid {
@@ -408,6 +456,19 @@ html.dark .esk-empty-state-message { color: #94a3b8; }
 	-webkit-overflow-scrolling: touch;
 }
 .esk-table-scroll .wp-list-table { min-width: 44rem; }
+
+/*
+ * Legacy views render `<table class="wp-list-table">` directly inside the
+ * admin wrap without a scroll wrapper. Allow the main content column to
+ * scroll horizontally on small screens so those tables never overflow the
+ * viewport (parity with .esk-table-scroll wrappers).
+ */
+@media (max-width: 1100px) {
+	#main-content {
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch;
+	}
+}
 
 /* ─── Events calendar ────────────────────────────────────────────────── */
 

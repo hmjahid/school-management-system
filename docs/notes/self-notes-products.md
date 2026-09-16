@@ -149,6 +149,9 @@ compare dashboard (sidebar items order, inside all accordion items sub-items, ui
 
 now create a implementation plan file for impelmenting these two qa-reports files and execute the implementation plan file
 
+is all 3 qa file implemented?
+
+
 
 
 

@@ -506,6 +506,24 @@ function esk_create_tables(): void {
 		KEY idx_phone (phone)
 	) {$charset_collate}";
 
+	// ─── Admission Tests ───────────────────────────────────────
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_admission_tests (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		admission_id BIGINT UNSIGNED NOT NULL,
+		scheduled_at DATETIME DEFAULT NULL,
+		venue VARCHAR(191) DEFAULT NULL,
+		status VARCHAR(20) DEFAULT 'scheduled',
+		notes TEXT DEFAULT NULL,
+		created_by BIGINT UNSIGNED DEFAULT NULL,
+		updated_by BIGINT UNSIGNED DEFAULT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		KEY idx_admission_id (admission_id),
+		KEY idx_scheduled_at (scheduled_at),
+		KEY idx_status (status)
+	) {$charset_collate}";
+
 	// ─── Admission Documents ────────────────────────────────────
 	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_admission_documents (
 		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -1213,6 +1231,21 @@ function esk_create_tables(): void {
 		KEY idx_status (status)
 	) {$charset_collate}";
 
+	// ─── Device Tokens (PWA push) ───────────────────────────────
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_device_tokens (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		user_id BIGINT UNSIGNED NOT NULL,
+		token VARCHAR(500) NOT NULL,
+		platform VARCHAR(30) DEFAULT NULL,
+		device_name VARCHAR(190) DEFAULT NULL,
+		app_version VARCHAR(30) DEFAULT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		UNIQUE KEY uk_token (token(191)),
+		KEY idx_user_id (user_id)
+	) {$charset_collate}";
+
 	// ─── Notifications ──────────────────────────────────────────
 	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_notifications (
 		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -1225,6 +1258,38 @@ function esk_create_tables(): void {
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		PRIMARY KEY (id),
 		KEY idx_user_read (user_id, read_at)
+	) {$charset_collate}";
+
+	// ─── Notification Templates ─────────────────────────────────
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_notification_templates (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		name VARCHAR(191) NOT NULL,
+		`key` VARCHAR(191) NOT NULL,
+		subject VARCHAR(191) DEFAULT NULL,
+		content LONGTEXT DEFAULT NULL,
+		sms_content LONGTEXT DEFAULT NULL,
+		in_app_content LONGTEXT DEFAULT NULL,
+		variables TEXT DEFAULT NULL,
+		is_active TINYINT(1) DEFAULT 1,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		UNIQUE KEY uk_key (`key`)
+	) {$charset_collate}";
+
+	// ─── Notification Preferences ──────────────────────────────
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_notification_preferences (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		user_id BIGINT UNSIGNED NOT NULL,
+		notification_type VARCHAR(50) NOT NULL,
+		email TINYINT(1) DEFAULT 1,
+		sms TINYINT(1) DEFAULT 0,
+		push TINYINT(1) DEFAULT 1,
+		in_app TINYINT(1) DEFAULT 1,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		UNIQUE KEY uk_user_type (user_id, notification_type)
 	) {$charset_collate}";
 
 	// ─── Dashboard Favorites ────────────────────────────────────────
