@@ -6,9 +6,11 @@
 [![WordPress](https://img.shields.io/badge/WordPress-6.x-3E5881?logo=wordpress&logoColor=white)](https://wordpress.org/)
 
 Eskoofy is a full-featured school management software delivered as a **3-product
-monorepo**: a Laravel 12 application, a framework-free raw PHP version for shared
-hosting, and a WordPress theme. Each product is a feature-equivalent port of the same
-codebase, sharing one BD/INT variant strategy.
+monorepo**: a Laravel 12 application (`eskoofy-app`), a framework-free raw PHP version
+(`eskoofy-php`) and a WordPress theme (`eskoofy-theme`). Each product is a
+feature-equivalent port of the same codebase, sharing one BD/INT build-time variant strategy.
+The **branding website + license server** (`eskoofy-website`) markets and sells the
+products — it is **not a product** itself.
 
 > **BD vs INT**: `bd` is the current Bangladeshi version (Bengali + English, ministry
 > links, bKash/Rocket/Nagad). `int` is the international English-only version
@@ -19,10 +21,19 @@ codebase, sharing one BD/INT variant strategy.
 
 | Folder | Product | Stack | Status |
 |--------|---------|-------|--------|
-| `eskoofy-app/` | Full management software | Laravel 12, Blade, Tailwind CSS | Active — most work happens here ([`AGENTS.md`](eskoofy-app/AGENTS.md)) |
-| `eskoofy-php/` | Raw PHP version (no framework) | Native PHP + PDO/MySQL | Complete — for shared hosting without Composer ([`AGENTS.md`](eskoofy-php/AGENTS.md)) |
-| `eskoofy-theme/` | WordPress theme | WP hooks, shortcodes, REST, CPTs | Complete — plugin-theme hybrid ([`AGENTS.md`](eskoofy-theme/AGENTS.md)) |
-| `eskoofy-website/` | Marketing site + license server | Raw PHP (app Core), en/bn i18n, PWA | Complete — int-only, USD pricing ([`AGENTS.md`](eskoofy-website/AGENTS.md)) |
+| `eskoofy-app/` | School management software | Laravel 12, Blade, Tailwind CSS | Active — most work happens here ([`AGENTS.md`](eskoofy-app/AGENTS.md)) |
+| `eskoofy-php/` | Raw PHP port (no framework) | Native PHP + PDO/MySQL | Deferred — completed port on hold (`WORKPLAN.md` Phase 6, gate 0.2) ([`AGENTS.md`](eskoofy-php/AGENTS.md)) |
+| `eskoofy-theme/` | WordPress theme | WP hooks, shortcodes, REST, CPTs | Complete — active sync with app ([`AGENTS.md`](eskoofy-theme/AGENTS.md)) |
+
+### Branding website (not a product)
+
+| Folder | Purpose | Stack | Status |
+|--------|---------|-------|--------|
+| `eskoofy-website/` | Marketing/branding site + **license server** — sells the products | Raw PHP (app Core), en/bn, PWA | Complete — int-only, USD pricing ([`AGENTS.md`](eskoofy-website/AGENTS.md)) |
+
+> **Feature consistency:** all 3 products ship the **same feature set** (+ sales copy on
+> the branding website). Default scope for any feature change = **all products**,
+> confirmed before implementing — see [`docs/FEATURE-PROPAGATION.md`](docs/FEATURE-PROPAGATION.md).
 
 ## Features
 
@@ -52,11 +63,12 @@ codebase, sharing one BD/INT variant strategy.
 ## Repository layout
 
 ```
+├── AGENTS.md             Agent conventions (root-level — read first)
 ├── eskoofy-app/          Laravel 12 app (bd/int profiles via config/eskoolfy.php)
-├── eskoofy-php/          Raw PHP app — no Composer at runtime, runs on shared hosting
+├── eskoofy-php/          Raw PHP port — no Composer at runtime, shared hosting
 ├── eskoofy-theme/        WordPress theme — plugin-theme hybrid
-├── eskoofy-website/      Marketing site + license server, license/lookup API, PWA, en/bn i18n
-├── build/                Export box: profiles + zip the app/theme/php/website variants
+├── eskoofy-website/      Branding site + license server (NOT a product) — int-only
+├── build/                BD/INT export box + feature-propagation gate (export.sh, propagate/)
 ├── docker/               Dev tooling (theme-test WordPress stack)
 ├── docs/                 Design/review/runbook docs (map: docs/README.md)
 ├── WORKPLAN.md           Multi-product plan (phases, gates, milestones)
@@ -142,9 +154,23 @@ variants on every push/PR.
 
 ## Documentation
 
-- `WORKPLAN.md` — phase plan (0–8) and BD/INT variant rules
+Start at [`docs/README.md`](docs/README.md) — map + index of the whole `docs/` tree.
+
+- `docs/FEATURE-PROPAGATION.md` — cross-product feature-consistency rule + runner
+  (`build/propagate/propagate-feature.sh`)
+- `docs/SMART-SCHOOL-IMPLEMENTATION.md` — planned "smart" layer (automation engines,
+  analytics/prediction, opt-in AI) across all products
+- `docs/NODEJS-VARIANT.md` — proposal for a **4th product** built on Node.js
+  (single-architecture Nest/Next/Adonis)
+- `docs/COMPETITIVE-ANALYSIS.md`, `docs/PAYMENT-MODEL.md` — competitor research and the
+  freemium/tiered pricing model for the branding website
+- `docs/DEMO-CREDENTIALS.md` — seeded demo accounts (all products)
 - `docs/RUNBOOKS.md` — deployment runbooks + semver tagging convention (`app/v*`, `theme/v*`, `v*`)
-- `docs/` — ADMISSIONS, API-PAYMENTS, BACKUP-RESTORE, DEMO-CREDENTIALS, PAYMENT-DEPLOYMENT, and more
+- `docs/planning/` — historical plans, audits and reviews
+- `docs/prompts/` + `docs/prompts/master/` — feature-implementation prompt files
+- `docs/notes/` — working notes / journal (tracked)
+- `AGENTS.md` — agent conventions for this monorepo (read first)
+- `WORKPLAN.md` — phase plan (0–8) and BD/INT variant rules
 
 ## License
 
