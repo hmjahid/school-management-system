@@ -50,7 +50,9 @@ spl_autoload_register(function (string $class) use ($appRoot) {
 });
 
 // CSRF verification for state-changing requests
-if (in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['POST', 'PUT', 'PATCH', 'DELETE'])) {
+// API requests (Bearer-token auth) are exempt — they carry their own credentials.
+$isApiRequest = str_starts_with($_SERVER['REQUEST_URI'] ?? '', '/api/');
+if (!$isApiRequest && in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['POST', 'PUT', 'PATCH', 'DELETE'])) {
     $token = $_POST['_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
     if ($token !== ($_SESSION['csrf_token'] ?? '')) {
         http_response_code(403);

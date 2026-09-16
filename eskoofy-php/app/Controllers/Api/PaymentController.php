@@ -631,6 +631,39 @@ class PaymentController extends Controller
         }
     }
 
+    /**
+     * Refund webhook (app routes/webhooks.php parity) — gateways post here
+     * directly to signal a completed refund.
+     */
+    public function refundWebhook(string $gateway): void
+    {
+        $raw = file_get_contents('php://input');
+        $payload = json_decode((string) $raw, true) ?: ($_POST ?: []);
+
+        $refundId = (int) ($payload['refund_id'] ?? $payload['payment_id'] ?? 0);
+        $paymentId = (int) ($payload['payment_id'] ?? $payload['original_payment_id'] ?? 0);
+
+        if ($paymentId > 0) {
+            $this->db->update('payments', [
+                'payment_status' => 'refunded',
+                'refund_status'  => 'refunded',
+                'updated_at'     => date('Y-m-d H:i:s'),
+            ], 'id = ?', [$paymentId]);
+        }
+        if ($refundId > 0) {
+            $this->db->update('refunds', [
+                'status'     => 'completed',
+                'completed_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ], 'id = ?', [$refundId]);
+        }
+
+        http_response_code(200);
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'message' => 'Refund webhook processed']);
+        exit;
+    }
+
     // ------------------------------------------------------------------
     // Helpers
     // ------------------------------------------------------------------

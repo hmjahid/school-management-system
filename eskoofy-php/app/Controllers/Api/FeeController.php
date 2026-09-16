@@ -102,4 +102,40 @@ class FeeController extends Controller
         $this->db->delete('fees', 'id = ?', [$id]);
         $this->success(['id' => $id], 'Fee deleted');
     }
+
+    public function getFeeTypes(): void
+    {
+        $rows = $this->db->fetchAll(
+            "SELECT DISTINCT fee_type FROM fees WHERE fee_type IS NOT NULL AND fee_type != '' ORDER BY fee_type"
+        );
+        $this->success(array_map(static fn (array $r) => $r['fee_type'], $rows), 'Fee types retrieved');
+    }
+
+    public function getStatistics(): void
+    {
+        $totalFees      = (float) $this->db->fetch("SELECT COALESCE(SUM(amount),0) AS t FROM fees")['t'];
+        $collected      = (float) $this->db->fetch("SELECT COALESCE(SUM(paid_amount),0) AS t FROM fee_payments WHERE status = 'completed'")['t'];
+        $pendingPayments = (int) $this->db->count('fee_payments', "status = 'pending'");
+
+        $this->success([
+            'total_fees'       => $totalFees,
+            'total_collected'  => $collected,
+            'pending_payments' => $pendingPayments,
+        ], 'Fee statistics retrieved');
+    }
+
+    public function feePayments(int $feeId): void
+    {
+        $rows = $this->db->fetchAll(
+            "SELECT fp.id, fp.student_id, u.name AS student_name, fp.amount, fp.paid_amount,
+                    fp.balance, fp.payment_date, fp.status, fp.transaction_id
+             FROM fee_payments fp
+             LEFT JOIN students s ON s.id = fp.student_id
+             LEFT JOIN users u ON u.id = s.user_id
+             WHERE fp.fee_id = ?
+             ORDER BY fp.payment_date DESC",
+            [$feeId]
+        );
+        $this->success($rows, 'Fee payments retrieved');
+    }
 }

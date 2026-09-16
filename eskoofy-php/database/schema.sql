@@ -2364,6 +2364,24 @@ CREATE TABLE IF NOT EXISTS `refresh_tokens` (
   CONSTRAINT `refresh_tokens_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `personal_access_tokens` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `tokenable_type` VARCHAR(191) NOT NULL DEFAULT 'App\\Models\\User',
+  `tokenable_id` BIGINT UNSIGNED NOT NULL,
+  `name` TEXT NULL,
+  `token` VARCHAR(64) NOT NULL,
+  `abilities` TEXT NULL,
+  `last_used_at` TIMESTAMP NULL,
+  `expires_at` TIMESTAMP NULL,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `personal_access_tokens_token_unique` (`token`),
+  KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`, `tokenable_id`),
+  KEY `personal_access_tokens_expires_at_index` (`expires_at`),
+  CONSTRAINT `personal_access_tokens_tokenable_id_foreign` FOREIGN KEY (`tokenable_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ============================================================
 -- 82. DEVICE TOKENS
 -- ============================================================

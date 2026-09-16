@@ -28,4 +28,20 @@ class EventController extends Controller
 
         $this->success($rows, 'Events list retrieved');
     }
+
+    public function show(int $id): void
+    {
+        $db  = Database::getInstance();
+        $row = $db->fetch(
+            "SELECT e.id, e.title, e.description, e.location, e.start_date, e.end_date,
+                    e.is_virtual, e.meeting_url, e.registration_deadline, e.max_attendees, e.created_at
+             FROM events e
+             WHERE e.id = ?",
+            [$id]
+        );
+        if (! $row) {
+            $this->error('Event not found.', 404);
+        }
+        $this->success($row, 'Event retrieved');
+    }
 }

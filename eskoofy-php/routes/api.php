@@ -13,6 +13,125 @@ $router->get('/api/v1/news', 'App\\Controllers\\Api\\NewsController', 'index');
 $router->get('/api/v1/notices', 'App\\Controllers\\Api\\NoticeController', 'index');
 $router->get('/api/v1/events', 'App\\Controllers\\Api\\EventController', 'index');
 
+// Auth (public issue/refresh, protected me/logout)
+$router->post('/api/v1/auth/login', 'App\\Controllers\\Api\\AuthController', 'login');
+$router->post('/api/v1/auth/register', 'App\\Controllers\\Api\\AuthController', 'register');
+$router->post('/api/v1/auth/refresh-token', 'App\\Controllers\\Api\\AuthController', 'refreshToken');
+$router->group('/api/v1/auth', function (App\Core\Router $r) {
+    $r->post('/logout', 'App\\Controllers\\Api\\AuthController', 'logout');
+}, ['ApiTokenMiddleware', 'ForceJsonMiddleware']);
+$router->group('/api/v1', function (App\Core\Router $r) {
+    $r->get('/user', 'App\\Controllers\\Api\\AuthController', 'me');
+    $r->get('/me', 'App\\Controllers\\Api\\AuthController', 'me');
+}, ['ApiTokenMiddleware', 'ForceJsonMiddleware']);
+
+// Public academic & content routes (parity with app routes/api.php)
+$router->get('/api/v1/academics/curriculum', 'App\\Controllers\\Api\\AcademicController', 'getCurriculum');
+$router->get('/api/v1/academics/programs', 'App\\Controllers\\Api\\AcademicController', 'getPrograms');
+$router->get('/api/v1/academics/faculty', 'App\\Controllers\\Api\\AcademicController', 'getFaculty');
+$router->get('/api/v1/academics/results/filters', 'App\\Controllers\\Api\\AcademicController', 'resultFilters');
+$router->get('/api/v1/academics/results/lookup', 'App\\Controllers\\Api\\ResultsController', 'lookup');
+
+$router->get('/api/v1/news/categories', 'App\\Controllers\\Api\\NewsController', 'categories');
+$router->get('/api/v1/news/upcoming-events', 'App\\Controllers\\Api\\NewsController', 'upcomingEvents');
+$router->get('/api/v1/news/{id}', 'App\\Controllers\\Api\\NewsController', 'show');
+
+$router->get('/api/v1/website-content/pages', 'App\\Controllers\\Api\\WebsiteContentController', 'getActivePages');
+$router->get('/api/v1/website-content/{page}', 'App\\Controllers\\Api\\WebsiteContentController', 'getPageContent');
+$router->get('/api/v1/website/gallery', 'App\\Controllers\\Api\\GalleryController', 'index');
+$router->get('/api/v1/website/gallery/categories', 'App\\Controllers\\Api\\GalleryController', 'categories');
+
+$router->get('/api/v1/careers', 'App\\Controllers\\Api\\CareerController', 'index');
+$router->get('/api/v1/careers/{id}', 'App\\Controllers\\Api\\CareerController', 'show');
+$router->post('/api/v1/careers/apply', 'App\\Controllers\\Api\\CareerController', 'apply');
+
+$router->get('/api/v1/terms', 'App\\Controllers\\Api\\LegalController', 'getTerms');
+$router->get('/api/v1/privacy', 'App\\Controllers\\Api\\LegalController', 'getPrivacy');
+$router->get('/api/v1/sitemap', 'App\\Controllers\\Api\\LegalController', 'getSitemap');
+$router->get('/api/v1/home', 'App\\Controllers\\Api\\LegalController', 'getHome');
+
+$router->get('/api/v1/events/{id}', 'App\\Controllers\\Api\\EventController', 'show');
+
+// Teacher portal (token auth)
+$router->group('/api/v1/teacher', function (App\Core\Router $r) {
+    $r->get('/classes', 'App\\Controllers\\Api\\TeacherController', 'getTeacherClasses');
+    $r->get('/classes/{classId}/students', 'App\\Controllers\\Api\\TeacherController', 'getClassStudents');
+    $r->get('/classes/{classId}/grades', 'App\\Controllers\\Api\\TeacherController', 'getClassGrades');
+}, ['ApiTokenMiddleware', 'ForceJsonMiddleware']);
+
+// Search (token auth)
+$router->group('/api/v1/search', function (App\Core\Router $r) {
+    $r->get('/', 'App\\Controllers\\Api\\SearchController', 'search');
+    $r->get('/{resource}', 'App\\Controllers\\Api\\SearchController', 'searchResource');
+}, ['ApiTokenMiddleware', 'ForceJsonMiddleware']);
+
+// Fee + fee-payments sub-routes (token auth; admin writes gated in controller)
+$router->group('/api/v1/fees', function (App\Core\Router $r) {
+    $r->get('/types', 'App\\Controllers\\Api\\FeeController', 'getFeeTypes');
+    $r->get('/statistics', 'App\\Controllers\\Api\\FeeController', 'getStatistics');
+    $r->get('/{fee}/payments', 'App\\Controllers\\Api\\FeeController', 'feePayments');
+    $r->post('/{fee}/payments', 'App\\Controllers\\Api\\FeePaymentController', 'store');
+}, ['ApiTokenMiddleware', 'ForceJsonMiddleware']);
+$router->group('/api/v1/fees/payments', function (App\Core\Router $r) {
+    $r->get('/statuses', 'App\\Controllers\\Api\\FeePaymentController', 'getStatuses');
+    $r->get('/methods', 'App\\Controllers\\Api\\FeePaymentController', 'getPaymentMethods');
+    $r->get('/{payment}', 'App\\Controllers\\Api\\FeePaymentController', 'show');
+    $r->put('/{payment}', 'App\\Controllers\\Api\\FeePaymentController', 'update');
+    $r->post('/{payment}/approve', 'App\\Controllers\\Api\\FeePaymentController', 'approve');
+    $r->post('/{payment}/cancel', 'App\\Controllers\\Api\\FeePaymentController', 'cancel');
+}, ['ApiTokenMiddleware', 'ForceJsonMiddleware']);
+
+// Website settings (public)
+$router->get('/api/v1/website-settings', 'App\\Controllers\\Api\\WebsiteSettingController', 'publicSettings');
+
+// Admin API (token auth + role gate in controller)
+$router->group('/api/v1/admin', function (App\Core\Router $r) {
+    $r->get('/dashboard', 'App\\Controllers\\Api\\AdminController', 'dashboard');
+    $r->get('/analytics/overview', 'App\\Controllers\\Api\\AdminController', 'analyticsOverview');
+    $r->get('/activity', 'App\\Controllers\\Api\\AdminController', 'activity');
+    $r->post('/quick-actions', 'App\\Controllers\\Api\\AdminController', 'quickAction');
+
+    $r->get('/cms/pages', 'App\\Controllers\\Api\\CmsController', 'pages');
+    $r->post('/cms/pages', 'App\\Controllers\\Api\\CmsController', 'storePage');
+    $r->get('/cms/pages/{page}', 'App\\Controllers\\Api\\CmsController', 'showPage');
+    $r->put('/cms/pages/{page}', 'App\\Controllers\\Api\\CmsController', 'updatePage');
+    $r->delete('/cms/pages/{page}', 'App\\Controllers\\Api\\CmsController', 'destroyPage');
+
+    $r->get('/cms/media', 'App\\Controllers\\Api\\CmsController', 'media');
+    $r->post('/cms/media', 'App\\Controllers\\Api\\CmsController', 'uploadMedia');
+    $r->delete('/cms/media/{media}', 'App\\Controllers\\Api\\CmsController', 'destroyMedia');
+
+    $r->get('/cms/menus', 'App\\Controllers\\Api\\CmsController', 'menus');
+    $r->put('/cms/menus', 'App\\Controllers\\Api\\CmsController', 'updateMenus');
+
+    $r->get('/cms/settings', 'App\\Controllers\\Api\\CmsController', 'settings');
+    $r->put('/cms/settings', 'App\\Controllers\\Api\\CmsController', 'updateSettings');
+
+    $r->get('/cms/header', 'App\\Controllers\\Api\\CmsController', 'header');
+    $r->put('/cms/header', 'App\\Controllers\\Api\\CmsController', 'updateHeader');
+    $r->get('/cms/footer', 'App\\Controllers\\Api\\CmsController', 'footer');
+    $r->put('/cms/footer', 'App\\Controllers\\Api\\CmsController', 'updateFooter');
+
+    $r->get('/cms/blocks', 'App\\Controllers\\Api\\CmsController', 'contentBlocks');
+    $r->post('/cms/blocks', 'App\\Controllers\\Api\\CmsController', 'storeContentBlock');
+    $r->get('/cms/blocks/{block}', 'App\\Controllers\\Api\\CmsController', 'showContentBlock');
+    $r->put('/cms/blocks/{block}', 'App\\Controllers\\Api\\CmsController', 'updateContentBlock');
+    $r->delete('/cms/blocks/{block}', 'App\\Controllers\\Api\\CmsController', 'destroyContentBlock');
+
+    $r->put('/website-content/{page}', 'App\\Controllers\\Api\\WebsiteContentController', 'updatePageContent');
+    $r->post('/website-content/{page}/upload-image', 'App\\Controllers\\Api\\WebsiteContentController', 'uploadImage');
+
+    $r->get('/widgets', 'App\\Controllers\\Api\\AdminController', 'getWidgetConfig');
+    $r->post('/widgets', 'App\\Controllers\\Api\\AdminController', 'saveWidgetConfig');
+    $r->post('/widgets/reset', 'App\\Controllers\\Api\\AdminController', 'resetWidgetConfig');
+
+    $r->get('/website-settings', 'App\\Controllers\\Api\\WebsiteSettingController', 'index');
+    $r->post('/website-settings', 'App\\Controllers\\Api\\WebsiteSettingController', 'update');
+}, ['ApiTokenMiddleware', 'ForceJsonMiddleware']);
+
+// Public refund webhook (outside v1 — gateways post here directly)
+$router->post('/api/webhooks/{gateway}/refund', 'App\\Controllers\\Api\\PaymentController', 'refundWebhook');
+
 // Protected API routes
 $router->group('/api/v1', function (App\Core\Router $r) {
     $r->get('/dashboard', 'App\\Controllers\\Api\\DashboardController', 'index');

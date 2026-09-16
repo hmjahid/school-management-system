@@ -10,8 +10,9 @@
 - ✅ Phase 6 — 6.1 (row actions/edits), 6.2 (ledger/budgets/chart-of-accounts),
   6.3 (expense-categories, events calendar, library categories), 6.6 (archived 19
   orphaned php views; php suite 299 green).
+- ✅ Phase 7 — eskoofy-php expansion implemented (token auth, 60 API paths ported,
+  scheduler + push, 3 models, service classes). php suite 311 green.
 - ✅ Phase 8 — website sales copy updated (en + bn).
-- ⛔ Phase 7 — eskoofy-php API/model/scheduler expansion remains deferred (php resume gate).
 
 This plan implements the two senior-QA audits:
 
@@ -117,18 +118,18 @@ Implemented this session (5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8 — see statuses bel
 | 6.5 | P-B6 | WP list-table vs Tailwind; PWA `device_tokens` absent | Incremental chrome alignment (table-scroll wrappers on new pages); device_tokens table tracked separately | 🟡 |
 | 6.6 | P-A1 | ~34 legacy snake_case php views orphaned | View-unreferenced scan (view()/render + Blade includes) → **19 confirmed orphaned** archived to `eskoofy-php/archive/dashboard/`; php suite 299 tests green | ✅ |
 
-## Phase 7 — eskoofy-php expansion — DEFERRED (php resume gate) ⛔
+## Phase 7 — eskoofy-php expansion — ✅ done (php resume gate passed)
 
-`eskoofy-php` product is on hold (root AGENTS / WORKPLAN Phase 6 gate 0.2). Recorded for
-resume. Byte-parity of `resources/views/**` MUST be maintained for every Phase-1 mirror.
+`eskoofy-php` API/model/scheduler/push expansion implemented (see statuses below).
+Byte-parity of `resources/views/**` maintained (316/316 app views identical).
 
-| # | Report | Gap | Scope sketch |
-|---|---|---|---|
-| 7.1 | P-A2 | ~60 API paths missing (admin/CMS 26, auth 4, payments/refunds 16, notifications 7, teacher 3, …) | Port to api.php parity with app `route:list` |
-| 7.2 | P-A3 | No push/FCM + no scheduler (recurring payments, scheduled notifications, due-jobs) | Port `Push/` service + cron entry point |
-| 7.3 | P-A4 | No Course / Grade / UserWidgetPreference models (tables exist) | Add 3 model classes |
-| 7.4 | P-A5 | API not token-secured (session-only) | Sanctum-style token auth for php API |
-| 7.5 | P-A6 | Services inline instead of classes | Port services as classes |
+| # | Report | Gap | Scope sketch | Status |
+|---|---|---|---|---|
+| 7.1 | P-A2 | ~60 API paths missing (admin/CMS 26, auth 4, payments/refunds 16, notifications 7, teacher 3, …) | Ported: auth (login/register/logout/refresh-token/me/user), academics (curriculum/programs/faculty/results-filters), news (categories/upcoming-events/show), careers (index/show/apply), legal (terms/privacy/sitemap/home), website-content (page/pages/update/upload-image), website/gallery, events show, teacher portal (classes/students/grades), search (+ resource), fees (types/statistics/fee-payments), fee-payment sub-routes (statuses/methods/show/update/approve/cancel), admin (dashboard/analytics/activity/quick-actions/cms pages-media-menus-settings-header-footer-blocks/widgets/website-settings), refund webhook. php API surface now 156 defs vs app 151. | ✅ |
+| 7.2 | P-A3 | No push/FCM + no scheduler (recurring payments, scheduled notifications, due-jobs) | Ported `RecurringPaymentService`, `NotificationService`, `Notification\ScheduledNotificationService`, `Push\FirebasePushService` + `LogPushService` (dependency-free curl), `public/cron.php` self-gating cron entry (recurring daily 01:00, notifications every 5 min). | ✅ |
+| 7.3 | P-A4 | No Course / Grade / UserWidgetPreference models (tables exist) | Added the 3 model classes (tables already in schema.sql). | ✅ |
+| 7.4 | P-A5 | API not token-secured (session-only) | Sanctum-style token auth: `personal_access_tokens` table in schema.sql, `PersonalAccessToken` model (create/find/validate/touchLastUsed), `ApiTokenMiddleware` (Bearer + `api_token` query fallback), `AuthController` issues access+refresh token pair; `AuthMiddleware` accepts Bearer too; `/api/*` exempt from global CSRF. | ✅ |
+| 7.5 | P-A6 | Services inline instead of classes | Payment/Refund logic already adapter-based via `GatewayFactory` (service layer); added `RecurringPaymentService`, `NotificationService`, `ScheduledNotificationService`, `Push\*` as classes (php suite 311 green). | ✅ |
 
 ## Phase 8 — Website sales copy ✅ done
 
@@ -148,7 +149,8 @@ Website suite: 79 tests green.
    feasible; visual spot-check via `docker/theme-test/`.
 3. **Phases 5-6, 8** — require confirmation gate per `FEATURE-PROPAGATION.md` before
    starting; propagate via `build/propagate/propagate-feature.sh`.
-4. **Phase 7** — deferred until php resume gate.
+4. **Phase 7** — php suite (`cd eskoofy-php && composer test`) green after API/model/
+   scheduler additions; `php -l` all new files; app→php view byte-parity recheck.
 
 ## Re-audit after implementation
 

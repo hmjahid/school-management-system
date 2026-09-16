@@ -39,10 +39,13 @@ class ApiSchemaAlignmentTest extends PHPUnitTestCase
         $src = $this->sourceOf('NewsController');
         $this->assertStringNotContainsString('n.excerpt', $src,
             'news schema has content, not excerpt');
-        $this->assertStringNotContainsString("status = 'published'", $src,
-            'news schema has is_published, not a status column');
+        // The news table uses is_published, never a status column. The single
+        // `status = 'published'` literal is the events subquery (upcomingEvents),
+        // which mirrors the app's NewsController::upcomingEvents.
         $this->assertStringContainsString('is_published', $src);
         $this->assertStringContainsString('content', $src);
+        $this->assertStringContainsString('FROM events', $src,
+            'upcomingEvents queries the events table (status = published)');
     }
 
     public function test_notices_api_never_uses_published_at(): void

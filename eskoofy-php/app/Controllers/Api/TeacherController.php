@@ -125,4 +125,93 @@ class TeacherController extends Controller
 
         $this->success(['id' => $id], 'Teacher deleted');
     }
+
+    // ── Teacher portal (parity with app Api\TeacherController) ──────────
+
+    public function getTeacherClasses(): void
+    {
+        $user = \App\Core\Auth::user();
+        if (! $user) {
+            $this->error('Unauthenticated.', 401);
+        }
+        $teacher = $this->db->fetch(
+            "SELECT id FROM teachers WHERE user_id = ? LIMIT 1",
+            [(int) $user->getKey()]
+        );
+        if (! $teacher) {
+            $this->error('No teacher record linked to this account.', 404);
+        }
+        $teacherId = (int) $teacher['id'];
+
+        // Classes where the teacher is the class teacher, plus classes from
+        // the class_teacher join table.
+        $rows = $this->db->fetchAll(
+            "SELECT DISTINCT c.id, c.name, c.code, c.shift
+             FROM school_classes c
+             LEFT JOIN class_teacher ct ON ct.class_id = c.id AND ct.teacher_id = ?
+             WHERE c.is_active = 1 AND c.deleted_at IS NULL
+               AND (c.class_teacher_id = ? OR ct.id IS NOT NULL)
+             ORDER BY c.name",
+            [$teacherId, $teacherId]
+        );
+        $this->success($rows, 'Teacher classes retrieved');
+    }
+
+    public function getClassStudents(int $classId): void
+    {
+        $this->assertTeacherHasClass($classId);
+        $rows = $this->db->fetchAll(
+            "SELECT s.id, u.name, s.roll_number
+             FROM students s
+             JOIN users u ON u.id = s.user_id
+             WHERE s.class_id = ? AND s.deleted_at IS NULL
+             ORDER BY s.roll_number ASC",
+            [$classId]
+        );
+        $this->success($rows, 'Class students retrieved');
+    }
+
+    public function getClassGrades(int $classId): void
+    {
+        $this->assertTeacherHasClass($classId);
+        $rows = $this->db->fetchAll(
+            "SELECT g.id, g.student_id, u.name AS student_name, g.subject_id, sub.name AS subject_name,
+                    g.exam_id, e.name AS exam_name, g.marks_obtained, g.total_marks, g.grade, g.remarks
+             FROM grades g
+             LEFT JOIN students s ON s.id = g.student_id
+             LEFT JOIN users u ON u.id = s.user_id
+             LEFT JOIN subjects sub ON sub.id = g.subject_id
+             LEFT JOIN exams e ON e.id = g.exam_id
+             WHERE g.class_id = ?
+             ORDER BY g.exam_id, u.name",
+            [$classId]
+        );
+        $this->success($rows, 'Class grades retrieved');
+    }
+
+    private function assertTeacherHasClass(int $classId): void
+    {
+        $user = \App\Core\Auth::user();
+        if (! $user) {
+            $this->error('Unauthenticated.', 401);
+        }
+        $teacher = $this->db->fetch(
+            "SELECT id FROM teachers WHERE user_id = ? LIMIT 1",
+            [(int) $user->getKey()]
+        );
+        if (! $teacher) {
+            $this->error('No teacher record linked to this account.', 404);
+        }
+        $teacherId = (int) $teacher['id'];
+        $row = $this->db->fetch(
+            "SELECT c.id FROM school_classes c
+             LEFT JOIN class_teacher ct ON ct.class_id = c.id AND ct.teacher_id = ?
+             WHERE c.id = ? AND c.is_active = 1 AND c.deleted_at IS NULL
+               AND (c.class_teacher_id = ? OR ct.id IS NOT NULL) LIMIT 1",
+            [$teacherId, $classId, $teacherId]
+        );
+        if (! $row) {
+            $this->error('This class is not assigned to you.', 403);
+        }
+    }
 }
