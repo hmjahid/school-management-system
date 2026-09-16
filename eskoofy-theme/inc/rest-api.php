@@ -241,8 +241,88 @@ function esk_register_rest_routes(): void {
 			},
 		)
 	);
+
+	register_rest_route(
+		'esk/v1',
+		'/payments/callback/(?P<gateway>[a-z_]+)',
+		array(
+			'methods'             => 'GET',
+			'callback'            => 'esk_rest_payment_callback',
+			'permission_callback' => '__return_true',
+		)
+	);
 }
 add_action( 'rest_api_init', 'esk_register_rest_routes' );
+
+/* ─── Payment callback ─────────────────────────────────────────── */
+
+function esk_rest_payment_callback( WP_REST_Request $request ): WP_REST_Response {
+	global $wpdb;
+	$gateway = sanitize_text_field( $request['gateway'] );
+	$gw      = esk_get_payment_gateway( $gateway );
+
+	if ( ! $gw ) {
+		return new WP_REST_Response( array( 'success' => false, 'message' => 'Unknown gateway.' ), 404 );
+	}
+
+	$params  = $request->get_params();
+	$status  = $params['status'] ?? '';
+	$order_id = sanitize_text_field( $params['order_id'] ?? $params['payment_intent'] ?? '' );
+
+	// Find the fee payment by invoice.
+	$payment = $order_id
+		? $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}esk_payments WHERE invoice_number = %s", $order_id ) )
+		: null;
+
+	if ( ! $payment ) {
+		return new WP_REST_Response( array( 'success' => false, 'message' => 'Payment not found.', 'order_id' => $order_id ), 404 );
+	}
+
+	$verified = false;
+	if ( 'failed' === $status || 'cancel' === $status ) {
+		$verified = false;
+	} else {
+		$result = $gw->verify_payment( $params );
+		$verified = ! empty( $result['verified'] );
+	}
+
+	if ( $verified ) {
+		$fee_payment_id = null;
+		$meta = json_decode( (string) $payment->metadata, true );
+		if ( is_array( $meta ) && ! empty( $meta['fee_payment_id'] ) ) {
+			$fee_payment_id = (int) $meta['fee_payment_id'];
+		}
+
+		$wpdb->update( $wpdb->prefix . 'esk_payments', array(
+			'payment_status' => 'completed',
+			'transaction_id' => (string) ( $result['transaction'] ?? $order_id ),
+			'paid_amount'    => (float) ( $result['amount'] ?? $payment->total_amount ),
+			'payment_date'   => gmdate( 'Y-m-d' ),
+		), array( 'id' => $payment->id ) );
+
+		if ( $fee_payment_id ) {
+			$wpdb->update( $wpdb->prefix . 'esk_fee_payments', array(
+				'status'         => 'completed',
+				'paid_amount'    => (float) $payment->total_amount,
+				'balance'        => 0,
+				'transaction_id' => (string) ( $result['transaction'] ?? $order_id ),
+			), array( 'id' => $fee_payment_id ) );
+		}
+
+		return new WP_REST_Response( array(
+			'success' => true,
+			'message' => 'Payment verified.',
+			'redirect' => home_url( '/fees/?payment=success' ),
+		), 200 );
+	}
+
+	$wpdb->update( $wpdb->prefix . 'esk_payments', array( 'payment_status' => 'failed' ), array( 'id' => $payment->id ) );
+	return new WP_REST_Response( array(
+		'success' => false,
+		'message' => 'Payment not completed.',
+		'redirect' => home_url( '/fees/?payment=failed' ),
+	), 200 );
+}
 
 /* ─── Callbacks ────────────────────────────────────────────────── */
 

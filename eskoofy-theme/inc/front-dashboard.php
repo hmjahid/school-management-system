@@ -35,6 +35,9 @@ function esk_front_dashboard_pages(): array {
 		'esk-fees'                 => 'esk_fees_page',
 		'esk-fee-payments'         => 'esk_fee_payments_page',
 		'esk-expenses'             => 'esk_expenses_page',
+		'esk-expense-categories'   => 'esk_expense_categories_page',
+		'esk-ledger'               => 'esk_ledger_page',
+		'esk-budgets'              => 'esk_budgets_page',
 		'esk-payroll'              => 'esk_payroll_page',
 		'esk-guardians'            => 'esk_guardians_page',
 		'esk-admissions'           => 'esk_admissions_page',
@@ -48,6 +51,7 @@ function esk_front_dashboard_pages(): array {
 		'esk-admit-cards'          => 'esk_admit_cards_page',
 		'esk-id-cards'             => 'esk_id_cards_page',
 		'esk-events'               => 'esk_events_page',
+		'esk-events-calendar'      => 'esk_events_calendar_page',
 		'esk-news'                 => 'esk_news_page',
 		'esk-gallery'              => 'esk_gallery_page',
 		'esk-testimonials'         => 'esk_testimonials_page',
@@ -55,6 +59,7 @@ function esk_front_dashboard_pages(): array {
 		'esk-careers'              => 'esk_careers_page',
 		'esk-reports'              => 'esk_reports_page',
 		'esk-users'                => 'esk_users_page',
+		'esk-roles'                => 'esk_roles_page',
 		'esk-settings'             => 'esk_settings_page',
 		'esk-onboarding'           => 'esk_onboarding_page',
 		'esk-documents'            => 'esk_documents_page',
@@ -216,8 +221,9 @@ add_action(
 		$GLOBALS['esk_front_dashboard'] = true;
 		$GLOBALS['esk_front_dash_slug'] = $slug;
 
-		// Capability gate: every esk page requires manage_options (admins/principal).
-		if ( ! current_user_can( 'manage_options' ) ) {
+		// Capability gate: admins always pass; other roles require a granted
+		// capability in the esk_role_caps map (see Roles & Permissions page).
+		if ( ! esk_can_access_dashboard() ) {
 			status_header( 403 );
 			nocache_headers();
 			?>

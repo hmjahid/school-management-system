@@ -2596,3 +2596,73 @@ body.esk-dark [data-filter-tabs] button[data-filter] { background: var(--esk-sur
 body.esk-dark .esk-command-item:hover, body.esk-dark .esk-command-item:focus { background: rgba(37, 99, 235, 0.2); }
 body.esk-dark .esk-countdown-item { background: var(--esk-surface-alt, #1e293b); }
 body.esk-dark .esk-notification { background: var(--esk-surface-alt, #1e293b); }
+
+/* ─── Admission wizard ───────────────────────────────────────────────── */
+
+.esk-wizard { margin-top: 1.5rem; }
+.esk-wizard-steps {
+	list-style: none; margin: 0 0 1.5rem; padding: 0;
+	display: flex; flex-wrap: wrap; gap: 0.5rem;
+}
+.esk-wizard-steps li {
+	display: inline-flex; align-items: center; gap: 0.4rem;
+	padding: 0.35rem 0.75rem; border-radius: 999px;
+	background: var(--esk-surface-alt, #f1f5f9); color: var(--esk-subtle, #64748b);
+	font-size: 0.8rem; font-weight: 600;
+}
+.esk-wizard-steps li span {
+	display: inline-flex; align-items: center; justify-content: center;
+	width: 1.35rem; height: 1.35rem; border-radius: 9999px;
+	background: #e2e8f0; color: #475569; font-size: 0.72rem;
+}
+.esk-wizard-steps li.is-active { background: #eff6ff; color: #1d4ed8; }
+.esk-wizard-steps li.is-active span { background: #2563eb; color: #fff; }
+.esk-wizard-steps li.is-complete { background: #ecfdf5; color: #047857; }
+.esk-wizard-steps li.is-complete span { background: #10b981; color: #fff; }
+.esk-wizard fieldset { border: 0; padding: 0; margin: 0; }
+.esk-wizard-actions { display: flex; gap: 0.75rem; margin-top: 1rem; }
+.esk-wizard-review {
+	margin-top: 1rem; padding: 1rem 1.25rem;
+	border: 1px solid var(--esk-border, #e2e8f0); border-radius: 12px;
+	background: var(--esk-surface, #fff);
+}
+.esk-wizard-review-group { margin-bottom: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px dashed var(--esk-border, #e2e8f0); }
+.esk-wizard-review-group:last-child { border-bottom: 0; margin-bottom: 0; padding-bottom: 0; }
+.esk-wizard-review-group p { margin: 0.15rem 0; font-size: 0.85rem; color: var(--esk-muted, #475569); }
+.esk-wizard-review-group strong { color: var(--esk-ink, #0f172a); }
+.esk-fees-payment-wrap { margin-top: 2rem; }
+
+/* ─── Portal ────────────────────────────────────────────────────────── */
+
+.esk-portal { margin-top: 1.5rem; }
+.esk-portal-header { margin-bottom: 1.25rem; }
+.esk-portal-header h2 { margin: 0; font-size: 1.5rem; color: var(--esk-ink, #0f172a); }
+.esk-portal-subtitle { margin: 0.25rem 0 0; color: var(--esk-muted, #64748b); font-size: 0.9rem; }
+.esk-portal-stats { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem; }
+.esk-portal-stat {
+	flex: 1 1 10rem; padding: 1rem; border-radius: 12px;
+	background: var(--esk-surface, #fff); border: 1px solid var(--esk-border, #e2e8f0);
+	display: flex; flex-direction: column; gap: 0.25rem;
+}
+.esk-portal-stat-num { font-size: 1.5rem; font-weight: 800; color: var(--esk-accent, #2563eb); }
+.esk-portal-stat-label { font-size: 0.8rem; color: var(--esk-muted, #64748b); }
+.esk-portal-tabs {
+	display: flex; flex-wrap: wrap; gap: 0.25rem;
+	border-bottom: 2px solid var(--esk-border, #e2e8f0); margin-bottom: 1.25rem;
+}
+.esk-portal-tabs button {
+	border: 0; background: none; cursor: pointer;
+	padding: 0.6rem 0.9rem; font-size: 0.85rem; font-weight: 600;
+	color: var(--esk-muted, #64748b);
+	border-bottom: 2px solid transparent; margin-bottom: -2px;
+}
+.esk-portal-tabs button:hover { color: var(--esk-ink, #0f172a); }
+.esk-portal-tabs button.is-active { color: var(--esk-accent, #2563eb); border-bottom-color: var(--esk-accent, #2563eb); }
+.esk-portal-panel { background: var(--esk-surface, #fff); border: 1px solid var(--esk-border, #e2e8f0); border-radius: 12px; padding: 1.25rem; }
+.esk-portal-panel.is-active { display: block; }
+.esk-portal-panel[hidden] { display: none; }
+.esk-portal-list { list-style: none; margin: 0; padding: 0; }
+.esk-portal-list-item { padding: 0.9rem 0; border-bottom: 1px solid var(--esk-border, #e2e8f0); }
+.esk-portal-list-item:last-child { border-bottom: 0; }
+.esk-portal-list-item p { margin: 0.25rem 0 0; color: var(--esk-muted, #64748b); font-size: 0.85rem; }
+.esk-portal-student-switch { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }

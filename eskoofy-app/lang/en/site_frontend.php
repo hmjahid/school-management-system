@@ -258,6 +258,7 @@ return [
 
     'news_show' => [
         'back' => 'Back to news',
+        'read_min' => ':min min read',
     ],
 
     'admissions_apply' => [

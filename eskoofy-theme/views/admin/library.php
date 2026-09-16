@@ -8,6 +8,25 @@
 defined('ABSPATH') || exit;
 global $wpdb;
 
+if ( isset( $_POST['esk_library_category_save'] ) ) {
+	check_admin_referer( 'esk_library_category_form' );
+	$wpdb->insert( $wpdb->prefix . 'esk_book_categories', array(
+		'name'        => sanitize_text_field( $_POST['name'] ?? '' ),
+		'description' => sanitize_textarea_field( $_POST['description'] ?? '' ),
+	) );
+	esk_flash( 'success', __( 'Book category added.', 'eskoofy' ) );
+	wp_safe_redirect( admin_url( 'admin.php?page=esk-library' ) );
+	exit;
+}
+
+if ( isset( $_POST['esk_library_category_delete'] ) ) {
+	check_admin_referer( 'esk_library_category_delete_' . absint( $_POST['cat_id'] ?? 0 ) );
+	$wpdb->delete( $wpdb->prefix . 'esk_book_categories', array( 'id' => absint( $_POST['cat_id'] ?? 0 ) ) );
+	esk_flash( 'success', __( 'Book category deleted.', 'eskoofy' ) );
+	wp_safe_redirect( admin_url( 'admin.php?page=esk-library' ) );
+	exit;
+}
+
 if ( isset( $_POST['esk_book_save'] ) ) {
 	check_admin_referer( 'esk_book_form' );
 	$wpdb->insert( $wpdb->prefix . 'esk_books', array(
@@ -59,10 +78,18 @@ if ( isset( $_POST['esk_book_return'] ) ) {
 	if ( $issue_id ) {
 		$issue = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}esk_book_issues WHERE id = %d", $issue_id ) );
 		if ( $issue ) {
-			$wpdb->update( $wpdb->prefix . 'esk_book_issues', array(
+			$update   = array(
 				'return_date' => gmdate( 'Y-m-d' ),
 				'status'      => 'returned',
-			), array( 'id' => $issue_id ) );
+			);
+			$due      = strtotime( (string) $issue->due_date );
+			$today    = strtotime( gmdate( 'Y-m-d' ) );
+			if ( $due && $today > $due ) {
+				$days_late      = (int) floor( ( $today - $due ) / DAY_IN_SECONDS );
+				$fine_per_day   = (float) get_option( 'esk_fine_per_day', 5 );
+				$update['late_fee'] = round( max( 0, $days_late * $fine_per_day ), 2 );
+			}
+			$wpdb->update( $wpdb->prefix . 'esk_book_issues', $update, array( 'id' => $issue_id ) );
 			$wpdb->query(
 				$wpdb->prepare(
 					"UPDATE {$wpdb->prefix}esk_books SET available_quantity = available_quantity + 1 WHERE id = %d",
@@ -76,7 +103,43 @@ if ( isset( $_POST['esk_book_return'] ) ) {
 	exit;
 }
 
+if ( isset( $_POST['esk_book_mark_lost'] ) ) {
+	check_admin_referer( 'esk_book_mark_lost_' . absint( $_POST['issue_id'] ?? 0 ) );
+	$issue_id = absint( $_POST['issue_id'] ?? 0 );
+	if ( $issue_id ) {
+		$issue = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}esk_book_issues WHERE id = %d", $issue_id ) );
+		if ( $issue ) {
+			$wpdb->update( $wpdb->prefix . 'esk_book_issues', array(
+				'status'   => 'lost',
+				'late_fee' => isset( $_POST['lost_fee'] ) ? round( max( 0, (float) $_POST['lost_fee'] ), 2 ) : $issue->late_fee,
+				'notes'    => sanitize_text_field( $_POST['notes'] ?? '' ),
+			), array( 'id' => $issue_id ) );
+			$wpdb->query(
+				$wpdb->prepare(
+					"UPDATE {$wpdb->prefix}esk_books SET available_quantity = available_quantity - 1 WHERE id = %d AND available_quantity > 0",
+					$issue->book_id
+				)
+			);
+		}
+	}
+	esk_flash( 'success', __( 'Book marked as lost.', 'eskoofy' ) );
+	wp_safe_redirect( admin_url( 'admin.php?page=esk-library' ) );
+	exit;
+}
+
+if ( isset( $_POST['esk_fine_paid'] ) ) {
+	check_admin_referer( 'esk_fine_paid_' . absint( $_POST['issue_id'] ?? 0 ) );
+	$issue_id = absint( $_POST['issue_id'] ?? 0 );
+	if ( $issue_id ) {
+		$wpdb->update( $wpdb->prefix . 'esk_book_issues', array( 'fine_paid' => 1 ), array( 'id' => $issue_id ) );
+	}
+	esk_flash( 'success', __( 'Fine marked as paid.', 'eskoofy' ) );
+	wp_safe_redirect( admin_url( 'admin.php?page=esk-library' ) );
+	exit;
+}
+
 $books   = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}esk_books WHERE deleted_at IS NULL ORDER BY title" );
+$categories = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}esk_book_categories ORDER BY name" );
 $issues  = $wpdb->get_results(
 	"SELECT i.*, b.title AS book_title, u.display_name AS student_name
 	FROM {$wpdb->prefix}esk_book_issues i
@@ -136,6 +199,40 @@ $flash = esk_get_flash( 'success' );
 					<?php endif; ?>
 				</tbody>
 			</table>
+
+			<div class="esk-card esk-form-card" style="margin-top:1.5rem;">
+				<h2><?php esc_html_e( 'Book Categories', 'eskoofy' ); ?></h2>
+				<form method="post" class="esk-form esk-form-horizontal" style="margin-bottom:1rem;">
+					<?php wp_nonce_field( 'esk_library_category_form' ); ?>
+					<div class="esk-form-row">
+						<div class="esk-form-group"><label><?php esc_html_e( 'Name', 'eskoofy' ); ?> *</label><input type="text" name="name" required></div>
+						<div class="esk-form-group"><label><?php esc_html_e( 'Description', 'eskoofy' ); ?></label><input type="text" name="description" class="regular-text"></div>
+						<button type="submit" name="esk_library_category_save" class="button button-primary"><?php esc_html_e( 'Add Category', 'eskoofy' ); ?></button>
+					</div>
+				</form>
+				<table class="wp-list-table widefat striped esk-table">
+					<thead><tr><th><?php esc_html_e( 'Name', 'eskoofy' ); ?></th><th><?php esc_html_e( 'Description', 'eskoofy' ); ?></th><th><?php esc_html_e( 'Actions', 'eskoofy' ); ?></th></tr></thead>
+					<tbody>
+						<?php if ( empty( $categories ) ) : ?>
+							<tr><td colspan="3"><?php esc_html_e( 'No categories yet.', 'eskoofy' ); ?></td></tr>
+						<?php else : ?>
+							<?php foreach ( $categories as $cat ) : ?>
+								<tr>
+									<td><strong><?php echo esc_html( $cat->name ); ?></strong></td>
+									<td><?php echo esc_html( $cat->description ); ?></td>
+									<td>
+										<form method="post" style="display:inline;" onsubmit="return confirm('<?php esc_attr_e( 'Delete this category?', 'eskoofy' ); ?>');">
+											<?php wp_nonce_field( 'esk_library_category_delete_' . $cat->id ); ?>
+											<input type="hidden" name="cat_id" value="<?php echo esc_attr( $cat->id ); ?>">
+											<button type="submit" name="esk_library_category_delete" class="button button-small"><?php esc_html_e( 'Delete', 'eskoofy' ); ?></button>
+										</form>
+									</td>
+								</tr>
+							<?php endforeach; ?>
+						<?php endif; ?>
+					</tbody>
+				</table>
+			</div>
 		</div>
 
 		<div class="esk-dashboard-column esk-col-narrow">
@@ -170,16 +267,38 @@ $flash = esk_get_flash( 'success' );
 			</div>
 
 			<table class="wp-list-table widefat striped esk-table">
-				<thead><tr><th><?php esc_html_e( 'Book', 'eskoofy' ); ?></th><th><?php esc_html_e( 'Student', 'eskoofy' ); ?></th><th><?php esc_html_e( 'Due', 'eskoofy' ); ?></th><th><?php esc_html_e( 'Status', 'eskoofy' ); ?></th><th><?php esc_html_e( '', 'eskoofy' ); ?></th></tr></thead>
+				<thead><tr><th><?php esc_html_e( 'Book', 'eskoofy' ); ?></th><th><?php esc_html_e( 'Student', 'eskoofy' ); ?></th><th><?php esc_html_e( 'Due', 'eskoofy' ); ?></th><th><?php esc_html_e( 'Fine', 'eskoofy' ); ?></th><th><?php esc_html_e( 'Status', 'eskoofy' ); ?></th><th><?php esc_html_e( 'Actions', 'eskoofy' ); ?></th></tr></thead>
 				<tbody>
 					<?php if ( empty( $issues ) ) : ?>
-						<tr><td colspan="5"><?php esc_html_e( 'No issues.', 'eskoofy' ); ?></td></tr>
+						<tr><td colspan="6">
+							<div class="esk-empty-state">
+								<div class="esk-empty-state-icon"><span class="dashicons dashicons-book-alt"></span></div>
+								<p class="esk-empty-state-title"><?php esc_html_e( 'No book issues', 'eskoofy' ); ?></p>
+								<p class="esk-empty-state-message"><?php esc_html_e( 'Issue a book to a student to start tracking.', 'eskoofy' ); ?></p>
+							</div>
+						</td></tr>
 					<?php else : ?>
 						<?php foreach ( $issues as $i ) : ?>
 							<tr>
 								<td><?php echo esc_html( $i->book_title ); ?></td>
 								<td><?php echo esc_html( $i->student_name ); ?></td>
 								<td><?php echo esc_html( esk_date_format( $i->due_date ) ); ?></td>
+								<td>
+									<?php if ( null !== $i->late_fee && (float) $i->late_fee > 0 ) : ?>
+										<?php echo esc_html( esk_format_currency( $i->late_fee ) ); ?>
+										<?php if ( ! $i->fine_paid ) : ?>
+											<form method="post" style="display:inline;" onsubmit="return confirm('<?php esc_attr_e( 'Mark this fine as paid?', 'eskoofy' ); ?>', 'brand')">
+												<?php wp_nonce_field( 'esk_fine_paid_' . $i->id ); ?>
+												<input type="hidden" name="issue_id" value="<?php echo esc_attr( $i->id ); ?>">
+												<button type="submit" name="esk_fine_paid" class="button button-small"><?php esc_html_e( 'Mark Paid', 'eskoofy' ); ?></button>
+											</form>
+										<?php else : ?>
+											<span class="esk-text-success"><?php esc_html_e( 'Paid', 'eskoofy' ); ?></span>
+										<?php endif; ?>
+									<?php else : ?>
+										&mdash;
+									<?php endif; ?>
+								</td>
 								<td><span class="esk-badge esk-badge-<?php echo esc_attr( $i->status ); ?>"><?php echo esc_html( ucfirst( $i->status ) ); ?></span></td>
 								<td>
 									<?php if ( 'issued' === $i->status ) : ?>
@@ -187,6 +306,12 @@ $flash = esk_get_flash( 'success' );
 											<?php wp_nonce_field( 'esk_book_return_' . $i->id ); ?>
 											<input type="hidden" name="issue_id" value="<?php echo esc_attr( $i->id ); ?>">
 											<button type="submit" name="esk_book_return" class="button button-small"><?php esc_html_e( 'Return', 'eskoofy' ); ?></button>
+										</form>
+										<form method="post" style="display:inline;" onsubmit="return confirm('<?php esc_attr_e( 'Mark this book as lost? A replacement fee can be recorded.', 'eskoofy' ); ?>')">
+											<?php wp_nonce_field( 'esk_book_mark_lost_' . $i->id ); ?>
+											<input type="hidden" name="issue_id" value="<?php echo esc_attr( $i->id ); ?>">
+											<input type="number" name="lost_fee" step="0.01" min="0" placeholder="<?php esc_attr_e( 'Lost fee', 'eskoofy' ); ?>" style="width:80px;">
+											<button type="submit" name="esk_book_mark_lost" class="button button-small"><?php esc_html_e( 'Mark Lost', 'eskoofy' ); ?></button>
 										</form>
 									<?php endif; ?>
 								</td>

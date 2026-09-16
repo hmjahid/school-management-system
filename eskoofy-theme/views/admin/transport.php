@@ -41,12 +41,31 @@ if ( isset( $_POST['esk_transport_delete'] ) ) {
 	check_admin_referer( 'esk_transport_delete_' . absint( $_POST['item_id'] ?? 0 ) . '_' . sanitize_text_field( $_POST['item_type'] ?? '' ) );
 	$item_type = sanitize_text_field( $_POST['item_type'] ?? '' );
 	$item_id   = absint( $_POST['item_id'] ?? 0 );
-	if ( $item_id && in_array( $item_type, array( 'vehicle', 'route' ), true ) ) {
-		$table = 'vehicle' === $item_type ? 'esk_vehicles' : 'esk_transport_routes';
+	if ( $item_id && in_array( $item_type, array( 'vehicle', 'route', 'assignment' ), true ) ) {
+		$table = 'vehicle' === $item_type ? 'esk_vehicles' : ( 'route' === $item_type ? 'esk_transport_routes' : 'esk_transport_assignments' );
 		$wpdb->delete( $wpdb->prefix . $table, array( 'id' => $item_id ) );
 	}
 	esk_flash( 'success', __( 'Item deleted.', 'eskoofy' ) );
 	wp_safe_redirect( admin_url( 'admin.php?page=esk-transport' ) );
+	exit;
+}
+
+if ( isset( $_POST['esk_assignment_save'] ) ) {
+	check_admin_referer( 'esk_assignment_form' );
+	$student_id    = absint( $_POST['student_id'] ?? 0 );
+	$route_id      = absint( $_POST['route_id'] ?? 0 );
+	$stop_id       = absint( $_POST['stop_id'] ?? 0 ) ?: null;
+	$effective_from = sanitize_text_field( $_POST['effective_from'] ?? gmdate( 'Y-m-d' ) );
+	if ( $student_id && $route_id ) {
+		$wpdb->insert( $wpdb->prefix . 'esk_transport_assignments', array(
+			'student_id'     => $student_id,
+			'route_id'       => $route_id,
+			'stop_id'        => $stop_id,
+			'effective_from' => $effective_from,
+		) );
+	}
+	esk_flash( 'success', __( 'Student assigned to route.', 'eskoofy' ) );
+	wp_safe_redirect( admin_url( 'admin.php?page=esk-transport&tab=assignments' ) );
 	exit;
 }
 
@@ -56,6 +75,19 @@ $routes   = $wpdb->get_results(
 	FROM {$wpdb->prefix}esk_transport_routes r
 	LEFT JOIN {$wpdb->prefix}esk_vehicles v ON r.vehicle_id = v.id
 	ORDER BY r.name"
+);
+$stops = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}esk_transport_stops ORDER BY name" );
+$students = $wpdb->get_results(
+	"SELECT s.id, u.display_name FROM {$wpdb->prefix}esk_students s JOIN {$wpdb->prefix}users u ON s.user_id = u.ID WHERE s.status = 'active' AND s.deleted_at IS NULL ORDER BY u.display_name"
+);
+$assignments = $wpdb->get_results(
+	"SELECT a.*, u.display_name AS student_name, r.name AS route_name, s.name AS stop_name
+	FROM {$wpdb->prefix}esk_transport_assignments a
+	LEFT JOIN {$wpdb->prefix}esk_students st ON a.student_id = st.id
+	LEFT JOIN {$wpdb->prefix}users u ON st.user_id = u.ID
+	LEFT JOIN {$wpdb->prefix}esk_transport_routes r ON a.route_id = r.id
+	LEFT JOIN {$wpdb->prefix}esk_transport_stops s ON a.stop_id = s.id
+	ORDER BY a.effective_from DESC"
 );
 $flash = esk_get_flash( 'success' );
 $tab   = sanitize_text_field( $_GET['tab'] ?? 'vehicles' );
@@ -70,9 +102,81 @@ $tab   = sanitize_text_field( $_GET['tab'] ?? 'vehicles' );
 	<nav class="nav-tab-wrapper esk-tabs">
 		<a href="<?php echo esc_url( admin_url( 'admin.php?page=esk-transport&tab=vehicles' ) ); ?>" class="nav-tab <?php echo 'vehicles' === $tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Vehicles', 'eskoofy' ); ?></a>
 		<a href="<?php echo esc_url( admin_url( 'admin.php?page=esk-transport&tab=routes' ) ); ?>" class="nav-tab <?php echo 'routes' === $tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Routes', 'eskoofy' ); ?></a>
+		<a href="<?php echo esc_url( admin_url( 'admin.php?page=esk-transport&tab=assignments' ) ); ?>" class="nav-tab <?php echo 'assignments' === $tab ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Assignments', 'eskoofy' ); ?></a>
 	</nav>
 
-	<?php if ( 'vehicles' === $tab ) : ?>
+	<?php if ( 'assignments' === $tab ) : ?>
+		<div class="esk-card esk-form-card" style="margin-bottom:1.5rem;">
+			<h2><?php esc_html_e( 'Assign Student to Route', 'eskoofy' ); ?></h2>
+			<form method="post" class="esk-form">
+				<?php wp_nonce_field( 'esk_assignment_form' ); ?>
+				<div class="esk-form-row">
+					<div class="esk-form-group">
+						<label><?php esc_html_e( 'Student', 'eskoofy' ); ?> *</label>
+						<select name="student_id" required>
+							<option value=""><?php esc_html_e( 'Select', 'eskoofy' ); ?></option>
+							<?php foreach ( $students as $st ) : ?>
+								<option value="<?php echo esc_attr( $st->id ); ?>"><?php echo esc_html( $st->display_name ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+					<div class="esk-form-group">
+						<label><?php esc_html_e( 'Route', 'eskoofy' ); ?> *</label>
+						<select name="route_id" required>
+							<option value=""><?php esc_html_e( 'Select', 'eskoofy' ); ?></option>
+							<?php foreach ( $routes as $r ) : ?>
+								<option value="<?php echo esc_attr( $r->id ); ?>"><?php echo esc_html( $r->name . ( $r->vehicle_number ? ' (' . $r->vehicle_number . ')' : '' ) ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+					<div class="esk-form-group">
+						<label><?php esc_html_e( 'Stop', 'eskoofy' ); ?></label>
+						<select name="stop_id">
+							<option value=""><?php esc_html_e( 'None', 'eskoofy' ); ?></option>
+							<?php foreach ( $stops as $sp ) : ?>
+								<option value="<?php echo esc_attr( $sp->id ); ?>"><?php echo esc_html( $sp->name ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+					<div class="esk-form-group"><label><?php esc_html_e( 'Effective From', 'eskoofy' ); ?></label><input type="date" name="effective_from" value="<?php echo esc_attr( gmdate( 'Y-m-d' ) ); ?>"></div>
+				</div>
+				<button type="submit" name="esk_assignment_save" class="button button-primary"><?php esc_html_e( 'Assign', 'eskoofy' ); ?></button>
+			</form>
+		</div>
+
+		<table class="wp-list-table widefat striped esk-table">
+			<thead><tr>
+				<th><?php esc_html_e( 'Student', 'eskoofy' ); ?></th>
+				<th><?php esc_html_e( 'Route', 'eskoofy' ); ?></th>
+				<th><?php esc_html_e( 'Stop', 'eskoofy' ); ?></th>
+				<th><?php esc_html_e( 'Effective From', 'eskoofy' ); ?></th>
+				<th><?php esc_html_e( 'Actions', 'eskoofy' ); ?></th>
+			</tr></thead>
+			<tbody>
+				<?php if ( empty( $assignments ) ) : ?>
+					<tr><td colspan="5"><?php esc_html_e( 'No assignments yet.', 'eskoofy' ); ?></td></tr>
+				<?php else : ?>
+					<?php foreach ( $assignments as $a ) : ?>
+						<tr>
+							<td><strong><?php echo esc_html( $a->student_name ); ?></strong></td>
+							<td><?php echo esc_html( $a->route_name ); ?></td>
+							<td><?php echo esc_html( $a->stop_name ?? '—' ); ?></td>
+							<td><?php echo esc_html( esk_date_format( $a->effective_from ) ); ?></td>
+							<td>
+								<form method="post" style="display:inline;" onsubmit="return confirm('<?php esc_attr_e( 'Remove this assignment?', 'eskoofy' ); ?>');">
+									<?php wp_nonce_field( 'esk_transport_delete_' . $a->id . '_assignment' ); ?>
+									<input type="hidden" name="item_id" value="<?php echo esc_attr( $a->id ); ?>">
+									<input type="hidden" name="item_type" value="assignment">
+									<button type="submit" name="esk_transport_delete" class="button button-small"><?php esc_html_e( 'Remove', 'eskoofy' ); ?></button>
+								</form>
+							</td>
+						</tr>
+					<?php endforeach; ?>
+				<?php endif; ?>
+			</tbody>
+		</table>
+
+	<?php elseif ( 'vehicles' === $tab ) : ?>
 		<div class="esk-card esk-form-card" style="margin-bottom:1.5rem;">
 			<h2><?php esc_html_e( 'Add Vehicle', 'eskoofy' ); ?></h2>
 			<form method="post" class="esk-form">

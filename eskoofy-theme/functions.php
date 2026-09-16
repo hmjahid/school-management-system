@@ -236,14 +236,32 @@ if ( isset( $_POST['esk_admission_submit'] ) && ! is_admin() ) {
 			}
 		}
 
+		$tc_path = '';
+		if ( ! empty( $_FILES['transfer_certificate']['tmp_name'] ) && is_uploaded_file( $_FILES['transfer_certificate']['tmp_name'] ) ) {
+			$upload = esk_upload_file( $_FILES['transfer_certificate'], 'eskoofy/admissions' );
+			if ( $upload ) {
+				$tc_path = $upload['url'];
+			}
+		}
+
+		$bc_path = '';
+		if ( ! empty( $_FILES['birth_certificate']['tmp_name'] ) && is_uploaded_file( $_FILES['birth_certificate']['tmp_name'] ) ) {
+			$upload = esk_upload_file( $_FILES['birth_certificate'], 'eskoofy/admissions' );
+			if ( $upload ) {
+				$bc_path = $upload['url'];
+			}
+		}
+
 		$wpdb->insert( $wpdb->prefix . 'esk_admissions', array(
 			'application_number'  => esk_generate_number( 'APP', 'admissions' ),
-			'academic_session_id' => 1,
-			'batch_id'            => 1,
+			'academic_session_id' => absint( $_POST['academic_session_id'] ?? 1 ) ?: 1,
+			'batch_id'            => absint( $_POST['batch_id'] ?? 1 ) ?: 1,
 			'first_name'          => sanitize_text_field( wp_unslash( $_POST['first_name'] ?? '' ) ),
 			'last_name'           => sanitize_text_field( wp_unslash( $_POST['last_name'] ?? '' ) ),
 			'gender'              => sanitize_text_field( wp_unslash( $_POST['gender'] ?? 'male' ) ),
 			'date_of_birth'       => sanitize_text_field( wp_unslash( $_POST['date_of_birth'] ?? '' ) ),
+			'blood_group'         => sanitize_text_field( wp_unslash( $_POST['blood_group'] ?? '' ) ) ?: null,
+			'religion'            => sanitize_text_field( wp_unslash( $_POST['religion'] ?? '' ) ) ?: null,
 			'photo'               => $photo_path,
 			'email'               => sanitize_email( wp_unslash( $_POST['email'] ?? '' ) ),
 			'phone'               => sanitize_text_field( wp_unslash( $_POST['phone'] ?? '' ) ),
@@ -252,8 +270,17 @@ if ( isset( $_POST['esk_admission_submit'] ) && ! is_admin() ) {
 			'postal_code'         => sanitize_text_field( wp_unslash( $_POST['postal_code'] ?? '' ) ),
 			'father_name'         => sanitize_text_field( wp_unslash( $_POST['father_name'] ?? '' ) ),
 			'father_phone'        => sanitize_text_field( wp_unslash( $_POST['father_phone'] ?? '' ) ),
+			'father_occupation'   => sanitize_text_field( wp_unslash( $_POST['father_occupation'] ?? '' ) ) ?: null,
 			'mother_name'         => sanitize_text_field( wp_unslash( $_POST['mother_name'] ?? '' ) ),
 			'mother_phone'        => sanitize_text_field( wp_unslash( $_POST['mother_phone'] ?? '' ) ),
+			'mother_occupation'   => sanitize_text_field( wp_unslash( $_POST['mother_occupation'] ?? '' ) ) ?: null,
+			'guardian_name'       => sanitize_text_field( wp_unslash( $_POST['guardian_name'] ?? '' ) ) ?: null,
+			'guardian_relation'   => sanitize_text_field( wp_unslash( $_POST['guardian_relation'] ?? '' ) ) ?: null,
+			'guardian_phone'      => sanitize_text_field( wp_unslash( $_POST['guardian_phone'] ?? '' ) ) ?: null,
+			'previous_school'     => sanitize_text_field( wp_unslash( $_POST['previous_school'] ?? '' ) ) ?: null,
+			'previous_class'      => sanitize_text_field( wp_unslash( $_POST['previous_class'] ?? '' ) ) ?: null,
+			'transfer_certificate' => $tc_path,
+			'birth_certificate'   => $bc_path,
 			'status'              => 'submitted',
 			'submitted_at'        => current_time( 'mysql' ),
 		) );

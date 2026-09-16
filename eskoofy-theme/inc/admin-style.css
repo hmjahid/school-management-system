@@ -350,3 +350,81 @@
 
 .esk-text-success { color: #065f46; }
 .esk-text-danger  { color: #991b1b; }
+
+/* ─── Empty state ────────────────────────────────────────────────────────── */
+
+.esk-empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	padding: 3rem 1.5rem;
+}
+.esk-empty-state-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 3rem;
+	height: 3rem;
+	border-radius: 9999px;
+	background: #f1f5f9;
+	color: #94a3b8;
+	margin-bottom: 0.75rem;
+}
+.esk-empty-state-title {
+	margin: 0 0 0.25rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: #0f172a;
+}
+.esk-empty-state-message {
+	margin: 0;
+	max-width: 24rem;
+	font-size: 0.875rem;
+	color: #64748b;
+}
+.esk-empty-state-cta {
+	display: inline-flex;
+	align-items: center;
+	margin-top: 1rem;
+	padding: 0.5rem 1rem;
+	border-radius: 8px;
+	background: #2563eb;
+	color: #fff;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	text-decoration: none;
+}
+.esk-empty-state-cta:hover { background: #1d4ed8; color: #fff; }
+html.dark .esk-empty-state-icon { background: #1e293b; color: #64748b; }
+html.dark .esk-empty-state-title { color: #f1f5f9; }
+html.dark .esk-empty-state-message { color: #94a3b8; }
+
+/* ─── Responsive table scroll ────────────────────────────────────────────── */
+
+.esk-table-scroll {
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+.esk-table-scroll .wp-list-table { min-width: 44rem; }
+
+/* ─── Events calendar ────────────────────────────────────────────────── */
+
+.esk-calendar { width: 100%; table-layout: fixed; }
+.esk-calendar th { text-align: center; font-size: 0.8rem; padding: 0.5rem; background: #f8fafc; }
+.esk-calendar-day {
+	height: 7rem; vertical-align: top; padding: 0.35rem;
+	border: 1px solid #e2e8f0;
+}
+.esk-calendar-blank { border: 1px solid #f1f5f9; }
+.esk-calendar-date { font-weight: 700; font-size: 0.85rem; color: #0f172a; margin-bottom: 0.25rem; }
+.esk-calendar-events { list-style: none; margin: 0; padding: 0; }
+.esk-calendar-events li { font-size: 0.72rem; line-height: 1.3; margin-bottom: 0.15rem; }
+.esk-calendar-events a { color: #1d4ed8; text-decoration: none; display: block; }
+.esk-calendar-events a:hover { text-decoration: underline; }
+.esk-calendar-time { color: #64748b; }
+html.dark .esk-calendar th { background: #1e293b; color: #e2e8f0; }
+html.dark .esk-calendar-day { border-color: #334155; }
+html.dark .esk-calendar-blank { border-color: #1e293b; }
+html.dark .esk-calendar-date { color: #f1f5f9; }

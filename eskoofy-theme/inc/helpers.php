@@ -453,3 +453,53 @@ if ( ! function_exists( 'esk_page_title' ) ) {
 }
 
 /* Contact form handling lives in functions.php init hook (esk_post_contact). */
+
+/* ─── RBAC helper ────────────────────────────────────────────────── */
+
+/**
+ * Whether the current user may perform an esk capability.
+ *
+ * Capability map is stored in the `esk_role_caps` option as
+ * role_slug => array of capability keys. Administrators always pass.
+ */
+if ( ! function_exists( 'esk_can' ) ) {
+	function esk_can( string $cap ): bool {
+		$user = wp_get_current_user();
+		if ( ! $user || ! $user->exists() ) {
+			return false;
+		}
+		if ( current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+		$map = (array) get_option( 'esk_role_caps', array() );
+		foreach ( (array) $user->roles as $role ) {
+			$caps = (array) ( $map[ $role ] ?? array() );
+			if ( in_array( $cap, $caps, true ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+}
+
+/**
+ * Whether the current user may access the management dashboard at all.
+ */
+if ( ! function_exists( 'esk_can_access_dashboard' ) ) {
+	function esk_can_access_dashboard(): bool {
+		if ( current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+		$user = wp_get_current_user();
+		if ( ! $user || ! $user->exists() ) {
+			return false;
+		}
+		$map = (array) get_option( 'esk_role_caps', array() );
+		foreach ( (array) $user->roles as $role ) {
+			if ( ! empty( $map[ $role ] ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+}

@@ -25,8 +25,10 @@ get_template_part(
 				<span class="esk-panel-icon" aria-hidden="true">&#128179;</span>
 				<h2 class="esk-card-title"><?php echo esc_html( esk_site_ui( 'pages.fees_heading', '' ) ); ?></h2>
 				<p class="esk-card-text"><?php echo esc_html( esk_site_ui( 'pages.fees_intro', '' ) ); ?></p>
-				<a class="esk-btn" href="<?php echo esc_url( wp_login_url() ); ?>"><?php echo esc_html( esk_site_ui( 'pages.login', __( 'Login to pay', 'eskoofy' ) ) ); ?></a>
 			</div>
+		</div>
+		<div class="esk-fees-payment-wrap">
+			<?php echo do_shortcode( '[eskoofy_fees_payment]' ); ?>
 		</div>
 	</div>
 </div>

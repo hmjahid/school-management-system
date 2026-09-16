@@ -99,7 +99,7 @@ $flash = esk_get_flash( 'success' );
 									<button type="submit" name="esk_payment_mark_paid" class="button button-small"><?php esc_html_e( 'Mark Paid', 'eskoofy' ); ?></button>
 								</form>
 							<?php endif; ?>
-							<form method="post" style="display:inline;" onsubmit="return confirm('Initiate refund?');">
+							<form method="post" style="display:inline;" onsubmit="return confirm('Initiate refund?', 'brand');">
 								<?php wp_nonce_field( 'esk_payment_form' ); ?>
 								<input type="hidden" name="payment_id" value="<?php echo esc_attr( $p->id ); ?>">
 								<input type="number" name="amount" step="0.01" max="<?php echo esc_attr( $p->total_amount - $refunded ); ?>" placeholder="<?php esc_attr_e( 'Amount', 'eskoofy' ); ?>" style="width:80px;">

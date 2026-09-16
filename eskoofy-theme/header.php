@@ -91,19 +91,19 @@ $nav_items = array(
 		),
 	),
 	array(
-		'label'    => 'nav.group.news',
-		'url'      => home_url( '/news/' ),
-		'children' => array(
-			array( 'label' => 'nav.news',    'url' => home_url( '/news/' ) ),
-			array( 'label' => 'nav.notices', 'url' => home_url( '/notices/' ) ),
-		),
-	),
-	array(
 		'label'    => 'nav.group.contact',
 		'url'      => home_url( '/contact/' ),
 		'children' => array(
 			array( 'label' => 'nav.contact',  'url' => home_url( '/contact/' ) ),
 			array( 'label' => 'nav.payments', 'url' => home_url( '/fees/' ) ),
+		),
+	),
+	array(
+		'label'    => 'nav.group.news',
+		'url'      => home_url( '/news/' ),
+		'children' => array(
+			array( 'label' => 'nav.news',    'url' => home_url( '/news/' ) ),
+			array( 'label' => 'nav.notices', 'url' => home_url( '/notices/' ) ),
 		),
 	),
 );

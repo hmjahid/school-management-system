@@ -258,6 +258,7 @@ return [
 
     'news_show' => [
         'back' => 'সংবাদে ফিরে যান',
+        'read_min' => ':min মিনিট পড়ুন',
     ],
 
     'admissions_apply' => [

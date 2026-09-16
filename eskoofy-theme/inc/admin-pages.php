@@ -639,6 +639,10 @@ function esk_events_page(): void {
 	esk_render_admin_view( 'events' );
 }
 
+function esk_events_calendar_page(): void {
+	esk_render_admin_view( 'events-calendar' );
+}
+
 function esk_news_page(): void {
 	esk_render_admin_view( 'news' );
 }
@@ -727,6 +731,18 @@ function esk_expenses_page(): void {
 	esk_render_admin_view( 'expenses' );
 }
 
+function esk_expense_categories_page(): void {
+	esk_render_admin_view( 'expense-categories' );
+}
+
+function esk_ledger_page(): void {
+	esk_render_admin_view( 'ledger' );
+}
+
+function esk_budgets_page(): void {
+	esk_render_admin_view( 'budgets' );
+}
+
 function esk_payroll_page(): void {
 	esk_render_admin_view( 'payroll' );
 }
@@ -797,6 +813,10 @@ function esk_reports_page(): void {
 
 function esk_users_page(): void {
 	esk_render_admin_view( 'users' );
+}
+
+function esk_roles_page(): void {
+	esk_render_admin_view( 'roles' );
 }
 
 function esk_settings_page(): void {

@@ -34,6 +34,9 @@
 @endpush
 
 @section('content')
+    @php
+        $readingMinutes = max(1, (int) ceil(str_word_count(strip_tags($article->content)) / 200));
+    @endphp
     <article class="bg-white">
         {{-- Featured image hero --}}
         @if($article->image_url)
@@ -78,7 +81,7 @@
                     @endif
                     <span class="flex items-center gap-1.5">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                        {{ __('5 min read') }}
+                        {{ str_replace(':min', $readingMinutes, site_ui('news_show.read_min')) }}
                     </span>
                     <span class="h-1 w-1 rounded-full bg-slate-300"></span>
                     <button onclick="window.print()" class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 transition-colors">
@@ -90,15 +93,9 @@
 
             {{-- Article content with dropcap --}}
             <div class="mt-10 max-w-none text-base leading-relaxed text-slate-700 lg:text-lg">
-                @php
-                    $content = e($article->content);
-                    $firstChar = \Illuminate\Support\Str::substr(strip_tags($article->content), 0, 1);
-                    $rest = \Illuminate\Support\Str::substr(strip_tags($article->content), 1);
-                @endphp
-                <p>
-                    <span class="float-left mr-3 mt-1 text-5xl font-bold leading-none text-blue-600">{{ $firstChar }}</span>
-                    {!! nl2br($rest) !!}
-                </p>
+                <div class="[&>p:first-of-type]:first-letter:float-left [&>p:first-of-type]:first-letter:mr-3 [&>p:first-of-type]:first-letter:mt-1 [&>p:first-of-type]:first-letter:text-5xl [&>p:first-of-type]:first-letter:font-bold [&>p:first-of-type]:first-letter:leading-none [&>p:first-of-type]:first-letter:text-blue-600">
+                    {!! $article->content !!}
+                </div>
             </div>
 
             {{-- Share buttons --}}

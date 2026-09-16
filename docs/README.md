@@ -26,6 +26,14 @@ records, organized into the folders below so the root stays clean.
 - `PAYMENT-DEPLOYMENT.md` — deploying payment configuration
 - `PERFORMANCE-BASELINE.md` — load-testing baseline
 - `PRODUCTION-CHECKLIST.md` — go-live checklist
+- `QA-PARITY-REPORT.md` — senior-QA audit: eskoofy-php & eskoofy-theme parity vs the
+  Laravel app (views byte-parity, routes, schema, services, theme page/sidebar/depth gaps)
+- `QA-UI-FRONTEND-REPORT.md` — senior-QA UI/frontend audit: theme vs app dashboard
+  (sidebar item order + accordion sub-items, shell UI/UX/styles/mobile) + public frontend
+  (nav/footer/per-page) + module & site functionality matrix
+- `QA-REMEDIATION-PLAN.md` — implementation plan + live status tracker for the two QA
+  reports (`QA-PARITY-REPORT.md` + `QA-UI-FRONTEND-REPORT.md`); phased, gates large
+  feature work behind `FEATURE-PROPAGATION.md`
 - `RUNBOOKS.md` — runbooks for common operations
 - `IMPLEMENTATION-PLAN.md` — current in-flight implementation plan (review fixes / SMTP)
 - `REVIEW-PROMPT.md` — methodology used for the senior-PM review

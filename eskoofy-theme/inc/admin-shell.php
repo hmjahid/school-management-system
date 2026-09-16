@@ -79,6 +79,9 @@ function esk_admin_sidebar_sections(): array {
 	$link    = static fn( string $slug ): array => array( 'type' => 'link', 'slug' => $slug );
 	$details = static fn( string $text, string $icon, array $slugs ): array => array( 'type' => 'details', 'label' => $text, 'icon' => $icon, 'slugs' => $slugs );
 
+	// Admin-only groups: shown when the user has the matching capability.
+	$can = static fn( string $cap ): bool => function_exists( 'esk_can' ) && esk_can( $cap );
+
 	return array(
 		$label( 'Main' ),
 		$link( 'esk-dashboard' ),
@@ -90,11 +93,12 @@ function esk_admin_sidebar_sections(): array {
 		$details( 'Academics', 'dashicons-book-alt', array( 'esk-classes', 'esk-exams', 'esk-results', 'esk-assignments', 'esk-routines' ) ),
 		$link( 'esk-admissions' ),
 		$details( 'Daily', 'dashicons-calendar-alt', array( 'esk-attendance', 'esk-attendance-mark', 'esk-staff-attendance' ) ),
-		$details( 'Finance', 'dashicons-money-alt', array( 'esk-fees', 'esk-fee-payments', 'esk-expenses', 'esk-income-statement', 'esk-balance-sheet', 'esk-cash-flow' ) ),
+		$details( 'Finance', 'dashicons-money-alt', array( 'esk-fees', 'esk-fee-payments', 'esk-expenses', 'esk-expense-categories', 'esk-ledger', 'esk-budgets', 'esk-income-statement', 'esk-balance-sheet', 'esk-cash-flow' ) ),
 		$details( 'HR', 'dashicons-businessperson', array( 'esk-leave-requests', 'esk-leave-types', 'esk-payroll', 'esk-payslips', 'esk-salary-structures' ) ),
 		$details( 'Documents', 'dashicons-media-document', array( 'esk-admit-cards', 'esk-id-cards', 'esk-certificates', 'esk-testimonials', 'esk-committee' ) ),
 		$details( 'Library', 'dashicons-book', array( 'esk-library', 'esk-library-reports' ) ),
 		$link( 'esk-events' ),
+		$link( 'esk-events-calendar' ),
 		$link( 'esk-transport' ),
 		$link( 'esk-hostels' ),
 
@@ -107,7 +111,7 @@ function esk_admin_sidebar_sections(): array {
 		$details( 'Website CMS', 'dashicons-admin-site-alt3', array( 'esk-cms', 'esk-news', 'esk-gallery', 'esk-announcements', 'esk-notices', 'esk-documents', 'esk-media', 'esk-contact-submissions', 'esk-careers' ) ),
 
 		$label( 'Administration' ),
-		$details( 'Users & Roles', 'dashicons-admin-users', array( 'esk-users' ) ),
+		$details( 'Users & Roles', 'dashicons-admin-users', array( 'esk-users', 'esk-roles' ) ),
 
 		$label( 'Configuration' ),
 		$link( 'esk-settings' ),
@@ -159,12 +163,15 @@ function esk_dashboard_page_titles(): array {
 		'esk-attendance'           => 'Attendance',
 		'esk-attendance-mark'      => 'Mark Attendance',
 		'esk-exams'                => 'Exams',
-		'esk-results'              => 'Results',
+		'esk-results'              => 'My Results',
 		'esk-fees'                 => 'Fees',
-		'esk-fee-payments'         => 'Fee Payments',
+		'esk-fee-payments'         => 'Payments',
 		'esk-expenses'             => 'Expenses',
+		'esk-expense-categories'   => 'Expense Categories',
+		'esk-ledger'               => 'Ledger',
+		'esk-budgets'              => 'Budgets',
 		'esk-payroll'              => 'Payroll',
-		'esk-guardians'            => 'Guardians',
+		'esk-guardians'            => 'Parents',
 		'esk-admissions'           => 'Admissions',
 		'esk-transport'            => 'Transport',
 		'esk-hostels'              => 'Hostel Management',
@@ -174,20 +181,22 @@ function esk_dashboard_page_titles(): array {
 		'esk-announcements'        => 'Announcements',
 		'esk-certificates'         => 'Certificates',
 		'esk-admit-cards'          => 'Admit Cards',
-		'esk-id-cards'             => 'ID Cards',
+		'esk-id-cards'             => 'Student ID Cards',
 		'esk-testimonials'         => 'Testimonials',
 		'esk-committee'            => 'Committee',
 		'esk-events'               => 'Events',
+		'esk-events-calendar'      => 'Calendar',
 		'esk-news'                 => 'News',
 		'esk-gallery'              => 'Gallery',
 		'esk-careers'              => 'Careers',
 		'esk-reports'              => 'Reports',
 		'esk-users'                => 'Users',
+		'esk-roles'                => 'Roles & Permissions',
 		'esk-settings'             => 'Settings',
 		'esk-onboarding'           => 'Onboarding',
 		'esk-documents'            => 'Documents',
 		'esk-media'                => 'Media Library',
-		'esk-contact-submissions'  => 'Contact Submissions',
+		'esk-contact-submissions'  => 'Form Submissions',
 		'esk-search'               => 'Search',
 		'esk-cms'                  => 'CMS Pages',
 		'esk-bulk'                 => 'Bulk Import/Export',
@@ -208,14 +217,14 @@ function esk_dashboard_page_titles(): array {
 		'esk-visitor-logs'         => 'Visitor Logs',
 		'esk-messages'             => 'Messages',
 		'esk-assignments'          => 'Assignments',
-		'esk-routines'             => 'Class Routines',
+		'esk-routines'             => 'Class Routine',
 		'esk-progress-reports'     => 'Progress Reports',
 		'esk-seat-plans'           => 'Seat Plans',
 		'esk-library-reports'      => 'Library Reports',
 		'esk-profile'              => 'My Profile',
 		'esk-help'                 => 'Help & Documentation',
 		'esk-backup'               => 'Backups',
-		'esk-software'             => 'About & Software',
+		'esk-software'             => 'About',
 	);
 }
 
@@ -231,6 +240,7 @@ function esk_admin_shell_icon( string $slug ): string {
 		'esk-teacher-add'        => 'dashicons-welcome-learn-more',
 		'esk-guardians'          => 'dashicons-universal-access',
 		'esk-users'              => 'dashicons-admin-users',
+		'esk-roles'              => 'dashicons-admin-network',
 		'esk-classes'            => 'dashicons-editor-ul',
 		'esk-sections'           => 'dashicons-editor-ul',
 		'esk-subjects'           => 'dashicons-book-alt',
@@ -252,6 +262,9 @@ function esk_admin_shell_icon( string $slug ): string {
 		'esk-fees'               => 'dashicons-money-alt',
 		'esk-fee-payments'       => 'dashicons-credit-card',
 		'esk-expenses'           => 'dashicons-chart-pie',
+		'esk-expense-categories' => 'dashicons-category',
+		'esk-ledger'             => 'dashicons-list-view',
+		'esk-budgets'            => 'dashicons-chart-area',
 		'esk-refunds'            => 'dashicons-undo',
 		'esk-income-statement'   => 'dashicons-chart-area',
 		'esk-balance-sheet'      => 'dashicons-chart-bar',
@@ -271,6 +284,7 @@ function esk_admin_shell_icon( string $slug ): string {
 		'esk-committee'          => 'dashicons-groups',
 		'esk-testimonials'       => 'dashicons-format-quote',
 		'esk-events'             => 'dashicons-calendar-alt',
+		'esk-events-calendar'    => 'dashicons-calendar',
 		'esk-news'               => 'dashicons-megaphone',
 		'esk-gallery'            => 'dashicons-format-gallery',
 		'esk-documents'          => 'dashicons-media-document',
@@ -486,7 +500,23 @@ function esk_render_admin_shell_open( string $current = '' ): void {
 			<p class="mb-2 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 esk-fav-group" id="esk-fav-group" hidden><?php esc_html_e( 'Favorites', 'eskoofy' ); ?></p>
 			<ul class="mb-4 space-y-0.5" id="esk-fav-list"></ul>
 
-			<?php foreach ( esk_admin_sidebar_sections() as $esk_item ) : ?>
+			<?php
+			$esk_is_admin  = current_user_can( 'manage_options' );
+			$esk_sections  = esk_admin_sidebar_sections();
+			$esk_admin_labels = array( 'System', 'Website', 'Administration', 'Configuration' );
+			if ( ! $esk_is_admin ) {
+				foreach ( $esk_sections as $esk_i => $esk_item ) {
+					if ( 'link' === $esk_item['type'] && 'esk-sms' === $esk_item['slug'] ) {
+						unset( $esk_sections[ $esk_i ] );
+					}
+					if ( 'label' === $esk_item['type'] && in_array( $esk_item['label'], $esk_admin_labels, true ) ) {
+						unset( $esk_sections[ $esk_i ] );
+					}
+				}
+				$esk_sections = array_values( $esk_sections );
+			}
+			?>
+			<?php foreach ( $esk_sections as $esk_item ) : ?>
 				<?php if ( 'label' === $esk_item['type'] ) : ?>
 					<p class="mb-2 mt-5 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 esk-group-label"><?php echo esc_html( $esk_item['label'] ); ?></p>
 				<?php elseif ( 'link' === $esk_item['type'] ) : ?>
@@ -555,6 +585,8 @@ function esk_render_admin_shell_open( string $current = '' ): void {
 		</div>
 	</aside>
 
+	<div class="no-print fixed inset-0 z-40 hidden bg-slate-900/50 backdrop-blur-sm lg:hidden" id="esk-sidebar-overlay"></div>
+
 	<div class="flex min-w-0 flex-1 flex-col">
 		<header class="no-print flex h-16 flex-shrink-0 items-center gap-4 border-b border-slate-200/80 bg-white/95 px-4 backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-800/95">
 			<button type="button" id="esk-shell-burger" class="-ml-2 rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 lg:hidden dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200" aria-label="<?php esc_attr_e( 'Toggle menu', 'eskoofy' ); ?>">
@@ -591,14 +623,14 @@ function esk_render_admin_shell_open( string $current = '' ): void {
 					<span class="dashicons dashicons-editor-help"></span>
 				</button>
 
+				<button type="button" id="esk-dark-toggle" class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200" aria-label="<?php esc_attr_e( 'Toggle dark mode', 'eskoofy' ); ?>">
+					<span class="dashicons dashicons-lightbulb"></span>
+				</button>
+
 				<a href="<?php echo esc_url( esk_dashboard_url( 'esk-notifications' ) ); ?>" class="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200" aria-label="<?php esc_attr_e( 'Notifications', 'eskoofy' ); ?>">
 					<span class="dashicons dashicons-bell"></span>
 					<?php if ( $notif_count > 0 ) : ?><span class="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 px-1 text-[0.6rem] font-bold text-white"><?php echo esc_html( (string) $notif_count ); ?></span><?php endif; ?>
 				</a>
-
-				<button type="button" id="esk-dark-toggle" class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200" aria-label="<?php esc_attr_e( 'Toggle dark mode', 'eskoofy' ); ?>">
-					<span class="dashicons dashicons-lightbulb"></span>
-				</button>
 
 				<div class="relative" id="esk-user-menu">
 					<button type="button" class="flex items-center gap-2 rounded-lg p-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700" aria-expanded="false">
@@ -799,13 +831,27 @@ function esk_admin_shell_footer_scripts(): void {
 (function () {
 	function eskToast(message, type) {
 		var root = document.getElementById('esk-toast-root');
-		if (!root) { return; }
+		if (!root || !message) { return; }
 		var t = document.createElement('div');
 		t.className = 'esk-toast esk-toast--' + (type || 'info');
-		t.textContent = message;
+		t.setAttribute('role', 'alert');
+		var msg = document.createElement('span');
+		msg.className = 'esk-toast-text';
+		msg.textContent = message;
+		var close = document.createElement('button');
+		close.type = 'button';
+		close.className = 'esk-toast-dismiss';
+		close.setAttribute('aria-label', 'Dismiss');
+		close.innerHTML = '&times;';
+		t.appendChild(msg);
+		t.appendChild(close);
 		root.appendChild(t);
-		setTimeout(function () { t.classList.add('esk-toast--leaving'); }, 3200);
-		setTimeout(function () { t.remove(); }, 3600);
+		function dismiss() {
+			t.classList.add('esk-toast--leaving');
+			setTimeout(function () { t.remove(); }, 250);
+		}
+		close.addEventListener('click', dismiss);
+		setTimeout(dismiss, 5000);
 	}
 	window.eskToast = eskToast;
 
@@ -840,11 +886,32 @@ function esk_admin_shell_footer_scripts(): void {
 
 	/* Mobile sidebar. */
 	var burger = document.getElementById('esk-shell-burger');
+	var shellOverlay = document.getElementById('esk-sidebar-overlay');
+	function eskShellNavOpen() {
+		document.body.classList.add('esk-shell-nav-open');
+		if (shellOverlay) { shellOverlay.classList.remove('hidden'); }
+	}
+	function eskShellNavClose() {
+		document.body.classList.remove('esk-shell-nav-open');
+		if (shellOverlay) { shellOverlay.classList.add('hidden'); }
+	}
 	if (burger) {
 		burger.addEventListener('click', function () {
-			document.body.classList.toggle('esk-shell-nav-open');
+			if (document.body.classList.contains('esk-shell-nav-open')) {
+				eskShellNavClose();
+			} else {
+				eskShellNavOpen();
+			}
 		});
 	}
+	if (shellOverlay) {
+		shellOverlay.addEventListener('click', eskShellNavClose);
+	}
+	document.addEventListener('keydown', function (e) {
+		if ('Escape' === e.key && document.body.classList.contains('esk-shell-nav-open')) {
+			eskShellNavClose();
+		}
+	});
 
 	/* Live clock. */
 	var clock = document.getElementById('esk-shell-clock');
@@ -942,7 +1009,9 @@ function esk_admin_shell_footer_scripts(): void {
 			e.preventDefault();
 			e.stopPropagation();
 			var m = oc.match(/confirm\(\s*['"]([^'"]*)['"]\s*\)/);
+			var brand = oc.indexOf("'brand'") !== -1 || oc.indexOf('"brand"') !== -1;
 			msgEl.textContent = m && m[1] ? m[1] : 'Are you sure?';
+			modalRoot.classList.toggle('esk-modal-brand', brand);
 			modalRoot.classList.add('is-open');
 			pending = el;
 		}, true);
@@ -955,7 +1024,9 @@ function esk_admin_shell_footer_scripts(): void {
 			e.preventDefault();
 			e.stopPropagation();
 			var m = os.match(/confirm\(\s*['"]([^'"]*)['"]\s*\)/);
+			var brand = os.indexOf("'brand'") !== -1 || os.indexOf('"brand"') !== -1;
 			msgEl.textContent = m && m[1] ? m[1] : 'Are you sure?';
+			modalRoot.classList.toggle('esk-modal-brand', brand);
 			modalRoot.classList.add('is-open');
 			pending = form;
 		}, true);

@@ -7,8 +7,8 @@
         <h2 class="mt-4 text-2xl font-bold text-slate-900">Page Not Found</h2>
         <p class="mt-2 text-slate-600">The page you're looking for doesn't exist or has been moved. Try searching or navigate to a different page.</p>
         <div class="mt-6">
-            <form action="{{ url('/news') }}" method="get" class="flex max-w-sm mx-auto gap-2">
-                <input type="text" name="q" placeholder="Search..." class="admin-input flex-1">
+            <form action="{{ route('site.search') }}" method="GET" class="flex max-w-sm mx-auto gap-2">
+                <input type="search" name="q" placeholder="{{ site_ui('nav.search_placeholder') }}" autofocus class="w-full flex-1 rounded-xl border-0 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-600/30 shadow-lg">
                 <button type="submit" class="btn-primary">Search</button>
             </form>
         </div>

@@ -141,9 +141,14 @@ i want to make this a smart school management system. create an implementation f
 
 now arrange all fils and folder of this project/repo. ask me for confirmation nefore any move or deletion
 
-
-
 now update the root readme file according to the lastest chnage sand modifications
+
+think that you are a senior QA tester with 10 years of experience. compare the php variant and theme variant with the laravel app version and write the mismatched and other results in a file.
+
+compare dashboard (sidebar items order, inside all accordion items sub-items, ui ux, layout, styles, contnets everything )and frontend (ui ux, layout, styles, contnets everything) and functionalities also. 
+
+now create a implementation plan file for impelmenting these two qa-reports files and execute the implementation plan file
+
 
 
 

@@ -21,16 +21,13 @@ $socials = esk_social_profiles();
 $social_svgs = esk_social_icons();
 
 $quick_links = array(
-	'link_about_school'  => home_url( '/about/' ),
-	'link_academics'     => home_url( '/academics/' ),
-	'link_admissions'    => home_url( '/admission/' ),
-	'link_apply_online'  => home_url( '/admission/' ),
-	'link_news'          => home_url( '/news/' ),
-	'link_gallery'       => home_url( '/gallery/' ),
-	'link_contact'       => home_url( '/contact/' ),
-	'link_payments'      => home_url( '/fees/' ),
-	'link_routine'       => home_url( '/routine/' ),
-	'link_certificates'  => home_url( '/certificates/' ),
+	'link_about_school' => home_url( '/about/' ),
+	'link_academics'    => home_url( '/academics/' ),
+	'link_admissions'   => home_url( '/admission/' ),
+	'link_faculty'      => home_url( '/faculty/' ),
+	'link_committee'    => home_url( '/committee/' ),
+	'link_news'         => home_url( '/news/' ),
+	'link_gallery'      => home_url( '/gallery/' ),
 );
 
 $ministry_links = (array) esk_site_ui( 'footer.ministry_links', array() );

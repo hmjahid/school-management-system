@@ -141,6 +141,10 @@ function esk_shortcode_results_lookup( $atts ): string {
 
 function esk_shortcode_admission_form( $atts ): string {
 	$atts   = shortcode_atts( array(), $atts );
+	global $wpdb;
+	$sessions = $wpdb->get_results( "SELECT id, name FROM {$wpdb->prefix}esk_academic_sessions WHERE deleted_at IS NULL ORDER BY name DESC" );
+	$batches  = $wpdb->get_results( "SELECT id, name FROM {$wpdb->prefix}esk_batches WHERE deleted_at IS NULL ORDER BY name" );
+
 	ob_start();
 	?>
 	<div class="esk-admission-form">
@@ -153,90 +157,143 @@ function esk_shortcode_admission_form( $atts ): string {
 				<?php echo esc_html( $flash_success ); ?>
 			</div>
 		<?php else : ?>
-			<form method="post" enctype="multipart/form-data" class="esk-form">
-				<?php esk_csrf_field( 'esk_admission_form' ); ?>
-				<h4><?php esc_html_e( 'Student Information', 'eskoofy' ); ?></h4>
-				<div class="esk-form-row">
-					<div class="esk-form-group">
-						<label><?php esc_html_e( 'First Name', 'eskoofy' ); ?> *</label>
-						<input type="text" name="first_name" class="esk-input" required>
-					</div>
-					<div class="esk-form-group">
-						<label><?php esc_html_e( 'Last Name', 'eskoofy' ); ?> *</label>
-						<input type="text" name="last_name" class="esk-input" required>
-					</div>
-				</div>
-				<div class="esk-form-row">
-					<div class="esk-form-group">
-						<label><?php esc_html_e( 'Gender', 'eskoofy' ); ?> *</label>
-						<select name="gender" class="esk-select" required>
-							<option value="male"><?php esc_html_e( 'Male', 'eskoofy' ); ?></option>
-							<option value="female"><?php esc_html_e( 'Female', 'eskoofy' ); ?></option>
-							<option value="other"><?php esc_html_e( 'Other', 'eskoofy' ); ?></option>
-						</select>
-					</div>
-					<div class="esk-form-group">
-						<label><?php esc_html_e( 'Date of Birth', 'eskoofy' ); ?> *</label>
-						<input type="date" name="date_of_birth" class="esk-input" required>
-					</div>
-				</div>
-				<div class="esk-form-row">
-					<div class="esk-form-group">
-						<label><?php esc_html_e( 'Email', 'eskoofy' ); ?> *</label>
-						<input type="email" name="email" class="esk-input" required>
-					</div>
-					<div class="esk-form-group">
-						<label><?php esc_html_e( 'Phone', 'eskoofy' ); ?> *</label>
-						<input type="tel" name="phone" class="esk-input" required>
-					</div>
-				</div>
-				<div class="esk-form-group">
-					<label><?php esc_html_e( 'Address', 'eskoofy' ); ?> *</label>
-					<textarea name="address" class="esk-textarea" required></textarea>
-				</div>
-				<div class="esk-form-row">
-					<div class="esk-form-group">
-						<label><?php esc_html_e( 'City', 'eskoofy' ); ?> *</label>
-						<input type="text" name="city" class="esk-input" required>
-					</div>
-					<div class="esk-form-group">
-						<label><?php esc_html_e( 'Postal Code', 'eskoofy' ); ?> *</label>
-						<input type="text" name="postal_code" class="esk-input" required>
-					</div>
-				</div>
+			<div class="esk-wizard" data-esk-wizard>
+				<ol class="esk-wizard-steps" data-esk-wizard-steps>
+					<li data-esk-wizard-step-dot="0" class="is-active"><span>1</span><?php esc_html_e( 'Student', 'eskoofy' ); ?></li>
+					<li data-esk-wizard-step-dot="1"><span>2</span><?php esc_html_e( 'Contact', 'eskoofy' ); ?></li>
+					<li data-esk-wizard-step-dot="2"><span>3</span><?php esc_html_e( 'Academic', 'eskoofy' ); ?></li>
+					<li data-esk-wizard-step-dot="3"><span>4</span><?php esc_html_e( 'Guardian', 'eskoofy' ); ?></li>
+					<li data-esk-wizard-step-dot="4"><span>5</span><?php esc_html_e( 'Documents', 'eskoofy' ); ?></li>
+					<li data-esk-wizard-step-dot="5"><span>6</span><?php esc_html_e( 'Review', 'eskoofy' ); ?></li>
+				</ol>
 
-				<h4><?php esc_html_e( "Parent/Guardian Information", 'eskoofy' ); ?></h4>
-				<div class="esk-form-row">
-					<div class="esk-form-group">
-						<label><?php esc_html_e( "Father's Name", 'eskoofy' ); ?> *</label>
-						<input type="text" name="father_name" class="esk-input" required>
-					</div>
-					<div class="esk-form-group">
-						<label><?php esc_html_e( "Father's Phone", 'eskoofy' ); ?> *</label>
-						<input type="tel" name="father_phone" class="esk-input" required>
-					</div>
-				</div>
-				<div class="esk-form-row">
-					<div class="esk-form-group">
-						<label><?php esc_html_e( "Mother's Name", 'eskoofy' ); ?> *</label>
-						<input type="text" name="mother_name" class="esk-input" required>
-					</div>
-					<div class="esk-form-group">
-						<label><?php esc_html_e( "Mother's Phone", 'eskoofy' ); ?> *</label>
-						<input type="tel" name="mother_phone" class="esk-input" required>
-					</div>
-				</div>
+				<form method="post" enctype="multipart/form-data" class="esk-form" data-esk-wizard-form>
+					<?php esk_csrf_field( 'esk_admission_form' ); ?>
 
-				<h4><?php esc_html_e( 'Documents', 'eskoofy' ); ?></h4>
-				<div class="esk-form-group">
-					<label><?php esc_html_e( 'Upload Photo', 'eskoofy' ); ?></label>
-					<input type="file" name="photo" class="esk-input" accept="image/*">
-				</div>
+					<fieldset data-esk-wizard-panel="0">
+						<h4><?php esc_html_e( 'Student Information', 'eskoofy' ); ?></h4>
+						<div class="esk-form-row">
+							<div class="esk-form-group"><label><?php esc_html_e( 'First Name', 'eskoofy' ); ?> *</label><input type="text" name="first_name" class="esk-input" required></div>
+							<div class="esk-form-group"><label><?php esc_html_e( 'Last Name', 'eskoofy' ); ?> *</label><input type="text" name="last_name" class="esk-input" required></div>
+						</div>
+						<div class="esk-form-row">
+							<div class="esk-form-group"><label><?php esc_html_e( 'Gender', 'eskoofy' ); ?> *</label>
+								<select name="gender" class="esk-select" required>
+									<option value="male"><?php esc_html_e( 'Male', 'eskoofy' ); ?></option>
+									<option value="female"><?php esc_html_e( 'Female', 'eskoofy' ); ?></option>
+									<option value="other"><?php esc_html_e( 'Other', 'eskoofy' ); ?></option>
+								</select>
+							</div>
+							<div class="esk-form-group"><label><?php esc_html_e( 'Date of Birth', 'eskoofy' ); ?> *</label><input type="date" name="date_of_birth" class="esk-input" required></div>
+						</div>
+						<div class="esk-form-row">
+							<div class="esk-form-group"><label><?php esc_html_e( 'Blood Group', 'eskoofy' ); ?></label><input type="text" name="blood_group" class="esk-input" placeholder="A+"></div>
+							<div class="esk-form-group"><label><?php esc_html_e( 'Religion', 'eskoofy' ); ?></label><input type="text" name="religion" class="esk-input"></div>
+						</div>
+						<button type="button" class="esk-button esk-button-primary" data-esk-wizard-next><?php esc_html_e( 'Continue', 'eskoofy' ); ?></button>
+					</fieldset>
 
-				<button type="submit" name="esk_admission_submit" class="esk-button esk-button-primary">
-					<?php esc_html_e( 'Submit Application', 'eskoofy' ); ?>
-				</button>
-			</form>
+					<fieldset data-esk-wizard-panel="1" hidden>
+						<h4><?php esc_html_e( 'Contact Information', 'eskoofy' ); ?></h4>
+						<div class="esk-form-row">
+							<div class="esk-form-group"><label><?php esc_html_e( 'Email', 'eskoofy' ); ?> *</label><input type="email" name="email" class="esk-input" required></div>
+							<div class="esk-form-group"><label><?php esc_html_e( 'Phone', 'eskoofy' ); ?> *</label><input type="tel" name="phone" class="esk-input" required></div>
+						</div>
+						<div class="esk-form-group"><label><?php esc_html_e( 'Address', 'eskoofy' ); ?> *</label><textarea name="address" class="esk-textarea" required></textarea></div>
+						<div class="esk-form-row">
+							<div class="esk-form-group"><label><?php esc_html_e( 'City', 'eskoofy' ); ?> *</label><input type="text" name="city" class="esk-input" required></div>
+							<div class="esk-form-group"><label><?php esc_html_e( 'Postal Code', 'eskoofy' ); ?> *</label><input type="text" name="postal_code" class="esk-input" required></div>
+						</div>
+						<div class="esk-wizard-actions">
+							<button type="button" class="esk-button" data-esk-wizard-back><?php esc_html_e( 'Back', 'eskoofy' ); ?></button>
+							<button type="button" class="esk-button esk-button-primary" data-esk-wizard-next><?php esc_html_e( 'Continue', 'eskoofy' ); ?></button>
+						</div>
+					</fieldset>
+
+					<fieldset data-esk-wizard-panel="2" hidden>
+						<h4><?php esc_html_e( 'Academic Information', 'eskoofy' ); ?></h4>
+						<div class="esk-form-group">
+							<label><?php esc_html_e( 'Academic Session', 'eskoofy' ); ?> *</label>
+							<select name="academic_session_id" class="esk-select" required>
+								<option value=""><?php esc_html_e( 'Select', 'eskoofy' ); ?></option>
+								<?php foreach ( $sessions as $s ) : ?>
+									<option value="<?php echo esc_attr( $s->id ); ?>"><?php echo esc_html( $s->name ); ?></option>
+								<?php endforeach; ?>
+							</select>
+						</div>
+						<div class="esk-form-group">
+							<label><?php esc_html_e( 'Class / Batch', 'eskoofy' ); ?> *</label>
+							<select name="batch_id" class="esk-select" required>
+								<option value=""><?php esc_html_e( 'Select', 'eskoofy' ); ?></option>
+								<?php foreach ( $batches as $b ) : ?>
+									<option value="<?php echo esc_attr( $b->id ); ?>"><?php echo esc_html( $b->name ); ?></option>
+								<?php endforeach; ?>
+							</select>
+						</div>
+						<div class="esk-form-row">
+							<div class="esk-form-group"><label><?php esc_html_e( 'Previous School', 'eskoofy' ); ?></label><input type="text" name="previous_school" class="esk-input"></div>
+							<div class="esk-form-group"><label><?php esc_html_e( 'Previous Class', 'eskoofy' ); ?></label><input type="text" name="previous_class" class="esk-input"></div>
+						</div>
+						<div class="esk-wizard-actions">
+							<button type="button" class="esk-button" data-esk-wizard-back><?php esc_html_e( 'Back', 'eskoofy' ); ?></button>
+							<button type="button" class="esk-button esk-button-primary" data-esk-wizard-next><?php esc_html_e( 'Continue', 'eskoofy' ); ?></button>
+						</div>
+					</fieldset>
+
+					<fieldset data-esk-wizard-panel="3" hidden>
+						<h4><?php esc_html_e( 'Guardian Information', 'eskoofy' ); ?></h4>
+						<div class="esk-form-row">
+							<div class="esk-form-group"><label><?php esc_html_e( "Father's Name", 'eskoofy' ); ?> *</label><input type="text" name="father_name" class="esk-input" required></div>
+							<div class="esk-form-group"><label><?php esc_html_e( "Father's Phone", 'eskoofy' ); ?> *</label><input type="tel" name="father_phone" class="esk-input" required></div>
+						</div>
+						<div class="esk-form-group"><label><?php esc_html_e( "Father's Occupation", 'eskoofy' ); ?></label><input type="text" name="father_occupation" class="esk-input"></div>
+						<div class="esk-form-row">
+							<div class="esk-form-group"><label><?php esc_html_e( "Mother's Name", 'eskoofy' ); ?> *</label><input type="text" name="mother_name" class="esk-input" required></div>
+							<div class="esk-form-group"><label><?php esc_html_e( "Mother's Phone", 'eskoofy' ); ?> *</label><input type="tel" name="mother_phone" class="esk-input" required></div>
+						</div>
+						<div class="esk-form-group"><label><?php esc_html_e( "Mother's Occupation", 'eskoofy' ); ?></label><input type="text" name="mother_occupation" class="esk-input"></div>
+						<div class="esk-form-row">
+							<div class="esk-form-group"><label><?php esc_html_e( 'Guardian Name (if different)', 'eskoofy' ); ?></label><input type="text" name="guardian_name" class="esk-input"></div>
+							<div class="esk-form-group"><label><?php esc_html_e( 'Relation', 'eskoofy' ); ?></label><input type="text" name="guardian_relation" class="esk-input"></div>
+						</div>
+						<div class="esk-form-group"><label><?php esc_html_e( 'Guardian Phone', 'eskoofy' ); ?></label><input type="tel" name="guardian_phone" class="esk-input"></div>
+						<div class="esk-wizard-actions">
+							<button type="button" class="esk-button" data-esk-wizard-back><?php esc_html_e( 'Back', 'eskoofy' ); ?></button>
+							<button type="button" class="esk-button esk-button-primary" data-esk-wizard-next><?php esc_html_e( 'Continue', 'eskoofy' ); ?></button>
+						</div>
+					</fieldset>
+
+					<fieldset data-esk-wizard-panel="4" hidden>
+						<h4><?php esc_html_e( 'Documents', 'eskoofy' ); ?></h4>
+						<div class="esk-form-group">
+							<label><?php esc_html_e( 'Student Photo', 'eskoofy' ); ?></label>
+							<input type="file" name="photo" class="esk-input" accept="image/*">
+						</div>
+						<div class="esk-form-group">
+							<label><?php esc_html_e( 'Transfer Certificate (T.C.)', 'eskoofy' ); ?></label>
+							<input type="file" name="transfer_certificate" accept=".pdf,.jpg,.png">
+						</div>
+						<div class="esk-form-group">
+							<label><?php esc_html_e( 'Birth Certificate', 'eskoofy' ); ?></label>
+							<input type="file" name="birth_certificate" accept=".pdf,.jpg,.png">
+						</div>
+						<div class="esk-wizard-actions">
+							<button type="button" class="esk-button" data-esk-wizard-back><?php esc_html_e( 'Back', 'eskoofy' ); ?></button>
+							<button type="button" class="esk-button esk-button-primary" data-esk-wizard-next><?php esc_html_e( 'Review', 'eskoofy' ); ?></button>
+						</div>
+					</fieldset>
+
+					<fieldset data-esk-wizard-panel="5" hidden>
+						<h4><?php esc_html_e( 'Review & Submit', 'eskoofy' ); ?></h4>
+						<div class="esk-notice esk-notice-info"><p><?php esc_html_e( 'Please review all information before submitting. You can go back to edit any section.', 'eskoofy' ); ?></p></div>
+						<div class="esk-wizard-review" data-esk-wizard-review></div>
+						<div class="esk-wizard-actions">
+							<button type="button" class="esk-button" data-esk-wizard-back><?php esc_html_e( 'Back', 'eskoofy' ); ?></button>
+							<button type="submit" name="esk_admission_submit" class="esk-button esk-button-primary"><?php esc_html_e( 'Submit Application', 'eskoofy' ); ?></button>
+						</div>
+					</fieldset>
+				</form>
+			</div>
 		<?php endif; ?>
 	</div>
 	<?php
@@ -246,6 +303,109 @@ function esk_shortcode_admission_form( $atts ): string {
 function esk_shortcode_fees_payment( $atts ): string {
 	$atts   = shortcode_atts( array(), $atts );
 	global $wpdb;
+
+	// Show result notice when returning from a gateway callback.
+	$payment_result = sanitize_text_field( $_GET['payment'] ?? '' );
+	if ( 'success' === $payment_result ) {
+		return '<div class="esk-notice esk-notice-success"><p>' . esc_html__( 'Payment completed successfully. Thank you!', 'eskoofy' ) . '</p></div>';
+	}
+	if ( 'failed' === $payment_result ) {
+		return '<div class="esk-notice esk-notice-error"><p>' . esc_html__( 'Payment was not completed. Please try again.', 'eskoofy' ) . '</p></div>';
+	}
+
+	// ── Online payment initiation ────────────────────────────────────────
+	if ( isset( $_POST['esk_fees_pay'] ) ) {
+		$nonce = isset( $_POST['esk_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['esk_nonce'] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'esk_fees_pay' ) ) {
+			return '<div class="esk-notice esk-notice-error"><p>' . esc_html__( 'Security check failed. Please reload and try again.', 'eskoofy' ) . '</p></div>';
+		}
+
+		$admission_number = sanitize_text_field( wp_unslash( $_POST['admission_number'] ?? '' ) );
+		$fee_id           = absint( $_POST['fee_id'] ?? 0 );
+		$gateway_code     = sanitize_text_field( wp_unslash( $_POST['payment_gateway'] ?? '' ) );
+		$amount           = (float) ( $_POST['amount'] ?? 0 );
+
+		$student = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT s.*, u.display_name, u.user_email, u.user_login FROM {$wpdb->prefix}esk_students s
+				JOIN {$wpdb->prefix}users u ON s.user_id = u.ID
+				WHERE s.admission_number = %s AND s.deleted_at IS NULL",
+				$admission_number
+			)
+		);
+		$fee     = $fee_id ? $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}esk_fees WHERE id = %d AND status = 'active' AND deleted_at IS NULL", $fee_id ) ) : null;
+
+		if ( ! $student || ! $fee ) {
+			return '<div class="esk-notice esk-notice-error"><p>' . esc_html__( 'Student or fee not found.', 'eskoofy' ) . '</p></div>';
+		}
+		if ( $amount <= 0 ) {
+			$amount = (float) $fee->amount;
+		}
+		$gateway = esk_get_payment_gateway( $gateway_code );
+		if ( ! $gateway || ! $gateway->is_online ) {
+			return '<div class="esk-notice esk-notice-error"><p>' . esc_html__( 'Selected payment method is unavailable. Please try again.', 'eskoofy' ) . '</p></div>';
+		}
+
+		// Create the pending fee payment + generic payment records (mirrors app).
+		$invoice = esk_generate_number( 'INV', 'fee_payments' );
+		$wpdb->insert( $wpdb->prefix . 'esk_fee_payments', array(
+			'invoice_number'  => $invoice,
+			'student_id'      => $student->id,
+			'fee_id'          => $fee->id,
+			'amount'          => $amount,
+			'paid_amount'     => 0,
+			'balance'         => $amount,
+			'payment_date'    => gmdate( 'Y-m-d' ),
+			'payment_method'  => $gateway_code,
+			'status'          => 'pending',
+			'metadata'        => wp_json_encode( array( 'gateway' => $gateway_code ) ),
+			'created_by'      => get_current_user_id() ?: $student->user_id,
+		) );
+		$fee_payment_id = (int) $wpdb->insert_id;
+
+		$wpdb->insert( $wpdb->prefix . 'esk_payments', array(
+			'paymentable_type' => 'App\\Models\\FeePayment',
+			'paymentable_id'   => $fee_payment_id,
+			'invoice_number'   => $invoice,
+			'amount'           => $amount,
+			'due_amount'       => $amount,
+			'total_amount'     => $amount,
+			'payment_method'   => $gateway_code,
+			'payment_status'   => 'pending',
+			'payment_details'  => wp_json_encode( array(
+				'description' => 'Fee payment: ' . $fee->name,
+			) ),
+			'metadata'         => wp_json_encode( array(
+				'fee_payment_id' => $fee_payment_id,
+				'student_id'     => $student->id,
+				'fee_id'         => $fee->id,
+			) ),
+			'created_by'       => get_current_user_id() ?: $student->user_id,
+		) );
+
+		$init = esk_process_payment(
+			$gateway_code,
+			$amount,
+			array(
+				'order_id'  => $invoice,
+				'customer'  => array(
+					'name'  => $student->display_name,
+					'email' => $student->user_email,
+					'phone' => isset( $student->phone ) ? $student->phone : '',
+				),
+				'description' => 'Fee payment: ' . $fee->name,
+			)
+		);
+
+		if ( ! empty( $init['redirect_url'] ) ) {
+			wp_safe_redirect( $init['redirect_url'] );
+			exit;
+		}
+
+		esk_flash( 'success', $init['message'] ?? __( 'Payment recorded. Please complete the transfer and submit proof to the office.', 'eskoofy' ) );
+		wp_safe_redirect( add_query_arg( 'admission_number', rawurlencode( $admission_number ), remove_query_arg( array( 'order_id', 'status' ) ) ) );
+		exit;
+	}
 
 	if ( isset( $_POST['esk_fees_lookup'] ) ) {
 		$nonce = isset( $_POST['esk_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['esk_nonce'] ) ) : '';
@@ -322,6 +482,54 @@ function esk_shortcode_fees_payment( $atts ): string {
 						<?php endforeach; ?>
 					</tbody>
 				</table>
+			<?php endif; ?>
+
+			<?php
+			// Offer online payment for active fees not fully paid.
+			$payable = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT f.id, f.name, f.amount,
+						COALESCE((SELECT SUM(fp.paid_amount) FROM {$wpdb->prefix}esk_fee_payments fp WHERE fp.fee_id = f.id AND fp.student_id = %d AND fp.status = 'completed'), 0) AS paid
+					FROM {$wpdb->prefix}esk_fees f
+					WHERE f.status = 'active' AND f.deleted_at IS NULL
+					HAVING paid < f.amount
+					ORDER BY f.name",
+					$student->id
+				)
+			);
+			$active_gateways = $wpdb->get_results(
+				"SELECT * FROM {$wpdb->prefix}esk_payment_gateways WHERE is_active = 1 AND is_online = 1 AND deleted_at IS NULL ORDER BY sort_order, name"
+			);
+			?>
+			<?php if ( ! empty( $payable ) && ! empty( $active_gateways ) ) : ?>
+				<div class="esk-card" style="margin-top:1.5rem;">
+					<h4><?php esc_html_e( 'Pay Online', 'eskoofy' ); ?></h4>
+					<form method="post" class="esk-form">
+						<?php esk_csrf_field( 'esk_fees_pay' ); ?>
+						<input type="hidden" name="admission_number" value="<?php echo esc_attr( $student->admission_number ); ?>">
+						<div class="esk-form-group">
+							<label><?php esc_html_e( 'Fee', 'eskoofy' ); ?></label>
+							<select name="fee_id" required>
+								<?php foreach ( $payable as $pf ) : ?>
+									<option value="<?php echo esc_attr( $pf->id ); ?>"><?php echo esc_html( $pf->name . ' - ' . esk_format_currency( $pf->amount ) ); ?></option>
+								<?php endforeach; ?>
+							</select>
+						</div>
+						<div class="esk-form-group">
+							<label><?php esc_html_e( 'Amount', 'eskoofy' ); ?></label>
+							<input type="number" name="amount" step="0.01" min="1" class="esk-input" required>
+						</div>
+						<div class="esk-form-group">
+							<label><?php esc_html_e( 'Payment Method', 'eskoofy' ); ?></label>
+							<select name="payment_gateway" required>
+								<?php foreach ( $active_gateways as $gw ) : ?>
+									<option value="<?php echo esc_attr( $gw->code ); ?>"><?php echo esc_html( $gw->name ); ?></option>
+								<?php endforeach; ?>
+							</select>
+						</div>
+						<button type="submit" name="esk_fees_pay" class="esk-button esk-button-primary"><?php esc_html_e( 'Pay Now', 'eskoofy' ); ?></button>
+					</form>
+				</div>
 			<?php endif; ?>
 			<p><a href="<?php echo esc_url( remove_query_arg() ); ?>" class="esk-button"><?php esc_html_e( 'Check Another', 'eskoofy' ); ?></a></p>
 		</div>

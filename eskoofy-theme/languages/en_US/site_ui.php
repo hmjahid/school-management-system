@@ -156,6 +156,8 @@ return array(
 		'link_about_school'            => 'About School',
 		'link_academics'               => 'Academics',
 		'link_admissions'              => 'Admissions',
+		'link_faculty'                 => 'Teachers',
+		'link_committee'               => 'Managing Committee',
 		'link_apply_online'            => 'Apply online',
 		'link_news'                    => 'News & Events',
 		'link_gallery'                 => 'Photo Gallery',

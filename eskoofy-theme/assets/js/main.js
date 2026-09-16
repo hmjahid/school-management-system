@@ -546,6 +546,108 @@
 		});
 	})();
 
+	/* ── Admission wizard (6-step, mirrors app) ───────────────────────── */
+	(function () {
+		var root = document.querySelector('[data-esk-wizard]');
+		if (!root) return;
+		var form = root.querySelector('[data-esk-wizard-form]');
+		var steps = root.querySelectorAll('[data-esk-wizard-panel]');
+		var dots = root.querySelectorAll('[data-esk-wizard-step-dot]');
+		var current = 0;
+
+		function go(target) {
+			if (target < 0 || target >= steps.length) return;
+			if (target > current) {
+				var panel = steps[current];
+				var inputs = panel.querySelectorAll('input, select, textarea');
+				var valid = true;
+				inputs.forEach(function (input) {
+					if (input.required && !String(input.value).trim()) {
+						valid = false;
+						input.classList.add('esk-input--error');
+						input.addEventListener('input', function fix() {
+							this.classList.remove('esk-input--error');
+							this.removeEventListener('input', fix);
+						}, { once: true });
+					}
+				});
+				if (!valid) return;
+			}
+			current = target;
+			steps.forEach(function (s, i) {
+				s.hidden = i !== current;
+			});
+			dots.forEach(function (d, i) {
+				d.classList.toggle('is-active', i === current);
+				d.classList.toggle('is-complete', i < current);
+			});
+			if (current === steps.length - 1) buildReview();
+			if (root.scrollIntoView) root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		}
+
+		function labelFor(name) {
+			var input = form.querySelector('[name="' + name + '"]');
+			if (!input) return '';
+			var label = input.closest('.esk-form-group') ? input.closest('.esk-form-group').querySelector('label') : null;
+			return label ? label.textContent.trim().replace(/\s*\*$/, '') : name;
+		}
+
+		function valueFor(name) {
+			var input = form.querySelector('[name="' + name + '"]');
+			if (!input) return '';
+			if (input.type === 'file') {
+				return input.files && input.files.length ? input.files[0].name : '—';
+			}
+			return String(input.value || '').trim() || '—';
+		}
+
+		function buildReview() {
+			var review = root.querySelector('[data-esk-wizard-review]');
+			if (!review) return;
+			var groups = [
+				['first_name', 'last_name', 'gender', 'date_of_birth'],
+				['email', 'phone', 'address', 'city', 'postal_code'],
+				['academic_session_id', 'batch_id', 'previous_school', 'previous_class'],
+				['father_name', 'father_phone', 'mother_name', 'mother_phone', 'guardian_name', 'guardian_relation', 'guardian_phone'],
+				['photo', 'transfer_certificate', 'birth_certificate'],
+			];
+			var html = '';
+			groups.forEach(function (names) {
+				html += '<div class="esk-wizard-review-group">';
+				names.forEach(function (name) {
+					html += '<p><strong>' + labelFor(name) + ':</strong> ' + valueFor(name) + '</p>';
+				});
+				html += '</div>';
+			});
+			review.innerHTML = html;
+		}
+
+		root.addEventListener('click', function (e) {
+			if (e.target.closest('[data-esk-wizard-next]')) { go(current + 1); }
+			else if (e.target.closest('[data-esk-wizard-back]')) { go(current - 1); }
+		});
+	})();
+
+	/* ── Portal tabs (mirrors app portal) ─────────────────────────────── */
+	(function () {
+		var tabs = document.querySelector('[data-esk-portal-tabs]');
+		if (!tabs) return;
+		var panels = document.querySelectorAll('[data-esk-portal-panel]');
+		function activate(name) {
+			tabs.querySelectorAll('[data-esk-portal-tab]').forEach(function (b) {
+				b.classList.toggle('is-active', b.getAttribute('data-esk-portal-tab') === name);
+			});
+			panels.forEach(function (p) {
+				p.classList.toggle('is-active', p.getAttribute('data-esk-portal-panel') === name);
+				p.hidden = p.getAttribute('data-esk-portal-panel') !== name;
+			});
+		}
+		tabs.addEventListener('click', function (e) {
+			var btn = e.target.closest('[data-esk-portal-tab]');
+			if (btn) activate(btn.getAttribute('data-esk-portal-tab'));
+		});
+	})();
+
 	/* ── Countdown timer (mirrors app createCountdown) ────────────────── */
 	window.createCountdown = function (element, targetDate) {
 		var target = new Date(targetDate).getTime();

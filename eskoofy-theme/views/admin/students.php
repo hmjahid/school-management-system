@@ -44,6 +44,15 @@ $students = $wpdb->get_results( $wpdb->prepare( $query, ...$params ) );
 
 $all_classes = $wpdb->get_results( "SELECT id, name FROM {$wpdb->prefix}esk_classes ORDER BY name" );
 $pages       = ceil( $total / $per_page );
+
+if ( isset( $_POST['esk_student_delete'] ) ) {
+	check_admin_referer( 'esk_student_delete_' . absint( $_POST['student_id'] ?? 0 ) );
+	$wpdb->update( $wpdb->prefix . 'esk_students', array( 'deleted_at' => current_time( 'mysql' ) ), array( 'id' => absint( $_POST['student_id'] ?? 0 ) ) );
+	esk_flash( 'success', __( 'Student removed.', 'eskoofy' ) );
+	wp_safe_redirect( admin_url( 'admin.php?page=esk-students' ) );
+	exit;
+}
+$flash = esk_get_flash( 'success' );
 ?>
 <div class="wrap esk-admin-wrap">
 	<h1 class="wp-heading-inline"><?php esc_html_e( 'Students', 'eskoofy' ); ?></h1>
@@ -67,6 +76,10 @@ $pages       = ceil( $total / $per_page );
 
 	<p class="esk-table-info"><?php printf( esc_html__( 'Total: %d students', 'eskoofy' ), $total ); ?></p>
 
+	<?php if ( $flash ) : ?>
+		<div class="notice notice-success is-dismissible"><p><?php echo esc_html( $flash ); ?></p></div>
+	<?php endif; ?>
+
 	<table class="wp-list-table widefat fixed striped esk-table">
 		<thead>
 			<tr>
@@ -76,11 +89,12 @@ $pages       = ceil( $total / $per_page );
 				<th><?php esc_html_e( 'Roll', 'eskoofy' ); ?></th>
 				<th><?php esc_html_e( 'Phone', 'eskoofy' ); ?></th>
 				<th><?php esc_html_e( 'Status', 'eskoofy' ); ?></th>
+				<th><?php esc_html_e( 'Actions', 'eskoofy' ); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 			<?php if ( empty( $students ) ) : ?>
-				<tr><td colspan="6"><?php esc_html_e( 'No students found.', 'eskoofy' ); ?></td></tr>
+				<tr><td colspan="7"><?php esc_html_e( 'No students found.', 'eskoofy' ); ?></td></tr>
 			<?php else : ?>
 				<?php foreach ( $students as $s ) : ?>
 					<tr>
@@ -90,6 +104,15 @@ $pages       = ceil( $total / $per_page );
 						<td><?php echo esc_html( $s->roll_number ); ?></td>
 						<td><?php echo esc_html( $s->phone_1 ); ?></td>
 						<td><span class="esk-badge esk-badge-<?php echo esc_attr( $s->status ); ?>"><?php echo esc_html( ucfirst( $s->status ) ); ?></span></td>
+						<td>
+							<a href="<?php echo esc_url( admin_url( 'admin.php?page=esk-students&action=view&id=' . $s->id ) ); ?>" class="button button-small"><?php esc_html_e( 'View', 'eskoofy' ); ?></a>
+							<a href="<?php echo esc_url( admin_url( 'admin.php?page=esk-student-add&id=' . $s->id ) ); ?>" class="button button-small"><?php esc_html_e( 'Edit', 'eskoofy' ); ?></a>
+							<form method="post" style="display:inline;" onsubmit="return confirm('<?php esc_attr_e( 'Delete this student?', 'eskoofy' ); ?>');">
+								<?php wp_nonce_field( 'esk_student_delete_' . $s->id ); ?>
+								<input type="hidden" name="student_id" value="<?php echo esc_attr( $s->id ); ?>">
+								<button type="submit" name="esk_student_delete" class="button button-small"><?php esc_html_e( 'Delete', 'eskoofy' ); ?></button>
+							</form>
+						</td>
 					</tr>
 				<?php endforeach; ?>
 			<?php endif; ?>

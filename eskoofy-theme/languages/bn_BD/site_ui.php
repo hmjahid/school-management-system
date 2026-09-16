@@ -157,6 +157,8 @@ return array(
 		'link_about_school'            => 'স্কুল সম্পর্কে',
 		'link_academics'               => 'একাডেমিক',
 		'link_admissions'              => 'ভর্তি',
+		'link_faculty'                 => 'শিক্ষকবৃন্দ',
+		'link_committee'               => 'পরিচালনা কমিটি',
 		'link_apply_online'            => 'অনলাইনে আবেদন',
 		'link_news'                    => 'সংবাদ ও অনুষ্ঠান',
 		'link_gallery'                 => 'ফটো গ্যালারি',

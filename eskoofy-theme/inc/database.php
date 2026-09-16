@@ -642,6 +642,26 @@ function esk_create_tables(): void {
 		PRIMARY KEY (id)
 	) {$charset_collate}";
 
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_student_certificates (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		certificate_number VARCHAR(50) NOT NULL,
+		student_id BIGINT UNSIGNED NOT NULL,
+		certificate_type VARCHAR(50) DEFAULT 'character',
+		issue_date DATE NOT NULL,
+		status VARCHAR(20) DEFAULT 'draft',
+		body TEXT DEFAULT NULL,
+		details TEXT DEFAULT NULL,
+		created_by BIGINT UNSIGNED NOT NULL,
+		generated_by BIGINT UNSIGNED DEFAULT NULL,
+		deleted_at DATETIME DEFAULT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		UNIQUE KEY uk_certificate_number (certificate_number),
+		KEY idx_student_id (student_id),
+		KEY idx_status (status)
+	) {$charset_collate}";
+
 	// ─── Admit Cards ────────────────────────────────────────────
 	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_admit_cards (
 		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -1236,6 +1256,37 @@ function esk_create_tables(): void {
 		PRIMARY KEY (id),
 		KEY idx_account_date (account, date),
 		KEY idx_type (type)
+	) {$charset_collate}";
+
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_chart_of_accounts (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		code VARCHAR(32) NOT NULL,
+		name VARCHAR(191) NOT NULL,
+		type VARCHAR(32) NOT NULL,
+		parent_id BIGINT UNSIGNED DEFAULT NULL,
+		is_active TINYINT(1) DEFAULT 1,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		UNIQUE KEY uk_code (code),
+		KEY idx_type (type),
+		KEY idx_parent (parent_id)
+	) {$charset_collate}";
+
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_budgets (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		expense_category_id BIGINT UNSIGNED DEFAULT NULL,
+		period_type VARCHAR(20) DEFAULT 'monthly',
+		period_start DATE NOT NULL,
+		period_end DATE NOT NULL,
+		amount DECIMAL(12,2) NOT NULL,
+		notes TEXT DEFAULT NULL,
+		created_by BIGINT UNSIGNED DEFAULT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		KEY idx_period (period_start, period_end),
+		KEY idx_category (expense_category_id)
 	) {$charset_collate}";
 
 	// ─── Bank Statements ────────────────────────────────────────
