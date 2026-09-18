@@ -16,3 +16,5 @@
         <p><a href="/contact" class="text-blue-600 font-semibold"><?= __('about.contact_cta') ?></a> <?= __('about.3') ?></p>
     </div>
 </section>
+
+<?php \App\Core\View::partial('site.partials.cta_band'); ?>

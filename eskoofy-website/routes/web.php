@@ -14,6 +14,7 @@ use App\Controllers\Admin\PaymentController as AdminPayment;
 use App\Controllers\Admin\PlanController;
 use App\Controllers\Admin\PostCategoryController;
 use App\Controllers\Admin\PostController;
+use App\Controllers\Admin\SettingsController;
 use App\Controllers\Auth\LoginController;
 use App\Controllers\Auth\LogoutController;
 use App\Controllers\Auth\RegisterController;
@@ -56,11 +57,17 @@ $router->get('/logout', LogoutController::class, 'logout');
 // ─── Customer account ────────────────────────────────────────
 $router->group('/account', function (App\Core\Router $router): void {
     $router->get('', AccountDashboard::class, 'index');
+    $router->post('/api-token/regenerate', AccountDashboard::class, 'regenerateApiToken');
+    $router->get('/payments/export', AccountDashboard::class, 'paymentsCsv');
     $router->get('/licenses', AccountLicense::class, 'index');
     $router->get('/licenses/{id}', AccountLicense::class, 'show');
     $router->post('/licenses/{id}/renew', RenewalController::class, 'renew');
     $router->post('/activations/revoke', AccountLicense::class, 'revoke');
     $router->get('/payments', AccountPayment::class, 'index');
+    $router->get('/settings', \App\Controllers\Account\SettingsController::class, 'index');
+    $router->post('/settings/profile', \App\Controllers\Account\SettingsController::class, 'updateProfile');
+    $router->post('/settings/preferences', \App\Controllers\Account\SettingsController::class, 'updatePreferences');
+    $router->post('/settings/password', \App\Controllers\Account\SettingsController::class, 'updatePassword');
 }, ['AuthMiddleware']);
 
 // ─── Admin backend ───────────────────────────────────────────
@@ -86,6 +93,7 @@ $router->group('/admin', function (App\Core\Router $router): void {
     $router->post('/licenses/{id}/extend', AdminLicense::class, 'extend');
 
     $router->get('/payments', AdminPayment::class, 'index');
+    $router->get('/payments/export', AdminPayment::class, 'exportCsv');
     $router->post('/payments/{id}', AdminPayment::class, 'updateStatus');
 
     $router->get('/subscriptions', \App\Controllers\Admin\SubscriptionController::class, 'index');
@@ -108,6 +116,13 @@ $router->group('/admin', function (App\Core\Router $router): void {
     $router->post('/messages/{id}/read', MessageController::class, 'markRead');
 
     $router->get('/activities', ActivityController::class, 'index');
+
+    $router->get('/settings', SettingsController::class, 'index');
+    $router->post('/settings', SettingsController::class, 'update');
+
+    $router->get('/account', \App\Controllers\Admin\AccountController::class, 'index');
+    $router->post('/account/profile', \App\Controllers\Admin\AccountController::class, 'updateProfile');
+    $router->post('/account/password', \App\Controllers\Admin\AccountController::class, 'updatePassword');
 }, ['AdminMiddleware']);
 // Gateway webhooks (public, signature-verified; CSRF-exempt via bootstrap).
 $router->post('/webhooks/{gateway}', \App\Controllers\Api\WebhookController::class, 'handle');

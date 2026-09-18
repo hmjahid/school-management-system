@@ -9,6 +9,7 @@
                 <select name="product" class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm">
                     <option value="app" <?= ($plan['product'] ?? '') === 'app' ? 'selected' : '' ?>>app</option>
                     <option value="theme" <?= ($plan['product'] ?? '') === 'theme' ? 'selected' : '' ?>>theme</option>
+                    <option value="php" <?= ($plan['product'] ?? '') === 'php' ? 'selected' : '' ?>>php</option>
                 </select>
             </div>
             <div>

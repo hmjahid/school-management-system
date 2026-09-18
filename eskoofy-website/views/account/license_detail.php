@@ -13,7 +13,9 @@ $renewPrice = $isBd
     : number_format((float) ($license['plan_price'] ?? 0), 2);
 ?>
 
-<section class="max-w-5xl mx-auto px-4 py-12">
+<?php \App\Core\View::partial('account.partials.account_header', ['accountPage' => $accountPage ?? 'licenses', 'customer' => $customer]); ?>
+
+<section class="max-w-6xl mx-auto px-4 pb-12">
     <p><a href="/account/licenses" class="text-sm text-blue-600 hover:underline">← Back to licenses</a></p>
     <h1 class="text-3xl font-extrabold mt-2 mb-1"><?= htmlspecialchars((string) ($license['plan_name'] ?? $license['product'])) ?></h1>
     <p class="text-slate-500 mb-6">License key: <code class="font-mono text-sm bg-slate-100 rounded px-2 py-0.5"><?= htmlspecialchars($license['license_key']) ?></code></p>

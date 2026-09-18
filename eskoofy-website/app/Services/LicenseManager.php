@@ -90,7 +90,53 @@ class LicenseManager
             'product'     => $product,
         ]);
 
+        $this->notifyIssued($customerId, $plan, $key, $expiresAt, (int) $licenseId, $paymentId);
+
         return ['license' => $this->byId($licenseId), 'payment_id' => $paymentId];
+    }
+
+    /**
+     * Best-effort (never throws) receipt emails: the license key itself, plus
+     * the payment receipt whenever a linked payment has already been marked
+     * paid (immediate/manual gateways and verified online checkouts).
+     *
+     * @param array<string, mixed> $plan
+     */
+    private function notifyIssued(int $customerId, array $plan, string $key, ?string $expiresAt, int $licenseId, ?int $paymentId): void
+    {
+        try {
+            $customer = $this->db()->fetch("SELECT id, name, email FROM customers WHERE id = ?", [$customerId]);
+            if (!$customer || empty($customer['email'])) {
+                return;
+            }
+
+            $base = (string) ($_ENV['APP_URL'] ?? 'http://localhost:8011');
+            $accountUrl = rtrim($base, '/') . '/account/licenses/' . $licenseId;
+
+            Mailer::sendView((string) $customer['email'], 'Your ' . $plan['name'] . ' license is ready', 'license_issued', [
+                'name'        => $customer['name'] ?: 'there',
+                'licenseKey'  => $key,
+                'product'     => $plan['name'] ?? '',
+                'expiresAt'   => $expiresAt,
+                'accountUrl'  => $accountUrl,
+            ]);
+
+            if ($paymentId !== null) {
+                $payment = $this->db()->fetch("SELECT * FROM payments WHERE id = ?", [$paymentId]);
+                if ($payment && ($payment['status'] ?? '') === 'paid') {
+                    Mailer::sendView((string) $customer['email'], 'Payment received', 'payment_received', [
+                        'name'       => $customer['name'] ?: 'there',
+                        'amount'     => $payment['amount'],
+                        'currency'   => $payment['currency'] ?? 'USD',
+                        'reference'  => $payment['reference'] ?? '',
+                        'gateway'    => $payment['gateway'] ?? '',
+                        'accountUrl' => $accountUrl,
+                    ]);
+                }
+            }
+        } catch (\Throwable) {
+            // Email must never block licensing; skip silently if it fails.
+        }
     }
 
     /**

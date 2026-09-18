@@ -7,6 +7,7 @@ use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Database;
 use App\Models\Customer;
+use App\Services\Mailer;
 
 class RegisterController extends Controller
 {
@@ -50,6 +51,17 @@ class RegisterController extends Controller
         \App\Services\ActivityLog::log('customer.registered', 'customer', $id, ['email' => $data['email']]);
 
         $this->withSuccess('Welcome to Eskoofy! Your account is ready.');
+
+        try {
+            $base = (string) ($_ENV['APP_URL'] ?? 'http://localhost:8011');
+            Mailer::sendView($data['email'], 'Welcome to Eskoofy', 'welcome', [
+                'name'       => $data['name'],
+                'accountUrl' => rtrim($base, '/') . '/account',
+            ]);
+        } catch (\Throwable) {
+            // Best-effort; a welcome email must never block registration.
+        }
+
         $this->redirect('/account');
     }
 }

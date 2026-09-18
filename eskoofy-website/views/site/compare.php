@@ -59,3 +59,5 @@
         </div>
     </div>
 </div>
+
+<?php \App\Core\View::partial('site.partials.cta_band'); ?>

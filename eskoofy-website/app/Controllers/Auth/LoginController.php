@@ -28,7 +28,17 @@ class LoginController extends Controller
             $this->redirect('/login');
         }
 
-        $redirect = $_GET['redirect'] ?? '/account';
+        $redirect = $_GET['redirect'] ?? '';
+        if ($redirect === '' || str_starts_with($redirect, '/') || str_contains($redirect, '://')) {
+            $redirect = $redirect !== '' && str_starts_with($redirect, '/') ? $redirect : '/account';
+        } else {
+            $redirect = '/account';
+        }
+
+        if (Auth::hasRole('admin') && $redirect === '/account') {
+            $redirect = '/admin';
+        }
+
         $this->redirect($redirect);
     }
 }

@@ -27,8 +27,9 @@ class PaymentController extends Controller
         );
 
         $this->view('account.payments', [
-            'customer' => Auth::user(),
-            'payments' => $rows,
+            'customer'    => Auth::user(),
+            'payments'    => $rows,
+            'accountPage' => 'payments',
         ]);
     }
 }

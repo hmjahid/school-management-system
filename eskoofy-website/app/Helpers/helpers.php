@@ -26,3 +26,15 @@ if (!function_exists('csrf_field')) {
         return '<input type="hidden" name="_token" value="' . htmlspecialchars(csrf_token(), ENT_QUOTES) . '">';
     }
 }
+
+if (!function_exists('old')) {
+    /**
+     * Re-populate a form field from the previous POST payload.
+     */
+    function old(string $key, string $default = ''): string
+    {
+        return isset($_POST[$key])
+            ? htmlspecialchars((string) $_POST[$key], ENT_QUOTES)
+            : $default;
+    }
+}

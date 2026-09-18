@@ -1,7 +1,12 @@
 <?php $title = 'Payments'; $siteTitle = $title; ?>
 
-<section class="max-w-5xl mx-auto px-4 py-12">
-    <h1 class="text-3xl font-extrabold mb-6">Payment history</h1>
+<?php \App\Core\View::partial('account.partials.account_header', ['accountPage' => $accountPage ?? 'payments', 'customer' => $customer]); ?>
+
+<section class="max-w-6xl mx-auto px-4 pb-12">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-extrabold">Payment history</h2>
+        <a href="/account/payments/export" class="esk-chip border border-slate-300 text-slate-700 hover:border-blue-400 hover:text-blue-600 px-5 py-2.5 rounded-xl text-sm font-semibold">Download CSV</a>
+    </div>
 
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <table class="w-full text-sm">

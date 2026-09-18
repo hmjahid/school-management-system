@@ -1,9 +1,11 @@
 <?php $title = 'My licenses'; $siteTitle = $title; ?>
 
-<section class="max-w-5xl mx-auto px-4 py-12">
+<?php \App\Core\View::partial('account.partials.account_header', ['accountPage' => $accountPage ?? 'licenses', 'customer' => $customer]); ?>
+
+<section class="max-w-6xl mx-auto px-4 pb-12">
     <div class="flex items-center justify-between mb-6">
         <div>
-            <h1 class="text-3xl font-extrabold">Your licenses</h1>
+            <h2 class="text-2xl font-extrabold">Your licenses</h2>
             <p class="text-slate-500 mt-1">Activate each license on your installation using the license key.</p>
         </div>
         <a href="/pricing" class="bg-slate-900 hover:bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold">Buy new license</a>

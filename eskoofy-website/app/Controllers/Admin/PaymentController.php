@@ -27,6 +27,38 @@ class PaymentController extends Controller
         $this->view('admin.payments', ['admin' => Auth::user(), 'payments' => $rows]);
     }
 
+    public function exportCsv(): void
+    {
+        $rows = Database::getInstance()->fetchAll(
+            "SELECT p.*, c.name AS customer_name, c.email AS customer_email
+             FROM payments p
+             LEFT JOIN customers c ON p.customer_id = c.id
+             ORDER BY p.id DESC"
+        );
+
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="payments-admin-' . date('Y-m-d') . '.csv"');
+
+        $out = fopen('php://output', 'w');
+        fputcsv($out, ['Reference', 'Customer', 'Email', 'Plan', 'Amount', 'Currency', 'Gateway', 'Status', 'Paid at', 'Created at']);
+        foreach ($rows as $p) {
+            fputcsv($out, [
+                $p['reference'],
+                $p['customer_name'] ?? '',
+                $p['customer_email'] ?? '',
+                $p['plan_id'] ?? '',
+                $p['amount'],
+                $p['currency'],
+                $p['gateway'],
+                $p['status'],
+                $p['paid_at'],
+                $p['created_at'],
+            ]);
+        }
+        fclose($out);
+        exit;
+    }
+
     public function updateStatus(int $id): void
     {
         $data = $this->validate(['status' => 'required|in:paid,failed,refunded']);

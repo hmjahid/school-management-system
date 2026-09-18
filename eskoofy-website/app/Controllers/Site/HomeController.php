@@ -6,6 +6,8 @@ namespace App\Controllers\Site;
 use App\Core\Controller;
 use App\Models\Plan;
 use App\Models\Post;
+use App\Models\Settings;
+use App\Services\Mailer;
 
 class HomeController extends Controller
 {
@@ -80,6 +82,21 @@ class HomeController extends Controller
         ]);
 
         $this->withSuccess(__('contact.success'));
+
+        try {
+            $owner = (string) Settings::get('site.contact_email', 'support@eskoofy.com');
+            if ($owner !== '') {
+                Mailer::sendView($owner, 'New message from the Eskoofy contact form', 'contact_message', [
+                    'name'    => $data['name'],
+                    'email'   => $data['email'],
+                    'subject' => $data['subject'] ?? '',
+                    'message' => $data['message'],
+                ]);
+            }
+        } catch (\Throwable) {
+            // Best-effort; the page still succeeds.
+        }
+
         $this->redirect('/contact');
     }
 }

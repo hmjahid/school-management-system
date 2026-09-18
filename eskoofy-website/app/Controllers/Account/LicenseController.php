@@ -31,8 +31,9 @@ class LicenseController extends Controller
         );
 
         $this->view('account.licenses', [
-            'customer' => Auth::user(),
-            'licenses' => $rows,
+            'customer'    => Auth::user(),
+            'licenses'    => $rows,
+            'accountPage' => 'licenses',
         ]);
     }
 
@@ -77,6 +78,7 @@ class LicenseController extends Controller
             'subscription' => $subscription,
             'gateways'    => $gateways,
             'is_bd'       => $isBd,
+            'accountPage' => 'licenses',
         ]);
     }
 

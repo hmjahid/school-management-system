@@ -8,7 +8,7 @@
   "scope": "/",
   "display": "standalone",
   "background_color": "#0f172a",
-  "theme_color": "#2563eb",
+  "theme_color": "#1e3a8a",
   "categories": ["education", "business"],
   "icons": [
     {

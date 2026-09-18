@@ -1,4 +1,4 @@
-<?php $title = __('blog.title'); $siteTitle = $title; ?>
+<?php $title = __('blog.title'); $siteTitle = $title; $eskBrandName = (string) (\App\Models\Settings::get('site.name') ?: __('brand.name')); ?>
 
 <section class="esk-hero text-white">
     <div class="relative z-10 max-w-7xl mx-auto px-4 py-16 text-center">
@@ -30,7 +30,7 @@
                     <?php if (!empty($post['featured_image'])): ?>
                         <img src="<?= htmlspecialchars($post['featured_image']) ?>" alt="" class="h-44 w-full object-cover">
                     <?php else: ?>
-                        <div class="h-44 bg-gradient-to-r from-slate-900 to-blue-700 flex items-center justify-center text-white font-extrabold text-xs uppercase tracking-widest"><?= __('brand.name') ?></div>
+                        <div class="h-44 bg-gradient-to-r from-slate-900 to-blue-700 flex items-center justify-center text-white font-extrabold text-xs uppercase tracking-widest"><?= $eskBrandName ?></div>
                     <?php endif; ?>
                     <div class="p-6 flex flex-col flex-1">
                         <div class="flex items-center gap-3 text-xs text-slate-500 mb-2">
@@ -62,3 +62,5 @@
         <?php endif; ?>
     <?php endif; ?>
 </section>
+
+<?php \App\Core\View::partial('site.partials.cta_band'); ?>

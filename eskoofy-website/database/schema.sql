@@ -211,6 +211,18 @@ CREATE TABLE IF NOT EXISTS `posts` (
   CONSTRAINT `posts_author_id_foreign` FOREIGN KEY (`author_id`) REFERENCES `customers` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 11. SETTINGS (site / appearance / email configuration)
+CREATE TABLE IF NOT EXISTS `settings` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `key` VARCHAR(191) NOT NULL,
+  `value` TEXT NULL,
+  `group` VARCHAR(32) NOT NULL DEFAULT 'general',
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `settings_key_unique` (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================================
@@ -230,6 +242,23 @@ INSERT IGNORE INTO `plans` (`id`, `product`, `name`, `slug`, `description`, `pri
 (4, 'theme',   'Yearly',   'yearly',   'WordPress theme — yearly subscription (one school, all modules)',         90.00, 'USD', 'yearly',  3, '["One school", "All modules", "Online fee payments", "Roles & permissions", "Priority support"]', 2, 1, NOW(), NOW()),
 (5, 'php',     'Monthly',  'monthly',  'School system (raw PHP) — monthly subscription (one school, all modules)',  9.00, 'USD', 'monthly', 3, '["One school", "All modules", "Self-hosted raw PHP", "Shared-hosting ready", "Email support"]', 1, 1, NOW(), NOW()),
 (6, 'php',     'Yearly',   'yearly',   'School system (raw PHP) — yearly subscription (one school, all modules)',   90.00, 'USD', 'yearly',  3, '["One school", "All modules", "Self-hosted raw PHP", "Shared-hosting ready", "Priority support"]', 2, 1, NOW(), NOW());
+
+-- Site-level settings (editable from Admin → Settings; falls back to defaults).
+INSERT IGNORE INTO `settings` (`key`, `value`, `group`, `created_at`, `updated_at`) VALUES
+('site.name',            'Eskoofy',            'site', NOW(), NOW()),
+('site.tagline',         'School management software & WordPress theme', 'site', NOW(), NOW()),
+('site.contact_email',   'support@eskoofy.com', 'site', NOW(), NOW()),
+('site.currency_label',  'USD',                'site', NOW(), NOW()),
+('appearance.brand_color', '#2563eb',          'appearance', NOW(), NOW()),
+('appearance.dark_default', '0',               'appearance', NOW(), NOW()),
+('email.driver',         'sendmail',           'email', NOW(), NOW()),
+('email.host',           '',                   'email', NOW(), NOW()),
+('email.port',           '587',                'email', NOW(), NOW()),
+('email.username',       '',                   'email', NOW(), NOW()),
+('email.password',       '',                   'email', NOW(), NOW()),
+('email.encryption',     'tls',                'email', NOW(), NOW()),
+('email.from_address',   '',                   'email', NOW(), NOW()),
+('email.from_name',      'Eskoofy',            'email', NOW(), NOW());
 
 -- Blog categories (marketing).
 INSERT IGNORE INTO `post_categories` (`id`, `name`, `slug`, `description`, `sort_order`, `active`, `created_at`, `updated_at`) VALUES

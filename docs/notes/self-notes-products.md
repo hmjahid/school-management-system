@@ -71,7 +71,7 @@ Verify (tests/lint) both versions
 
 do above tsks. continue until finished
 
-cannot login in php vesrion login page. make ensure that all 3 products are using the docs/operations/demo-credentials.md files credentails
+cannot login in php vesrion login page. make ensure that all 3 products are using the docs/demo-credentials.md files credentails
 
 php vesrion dashboard navbar/sidebar is broken. fix the issue. also language chnaing not working in the dashboard headre. fix it also
 
@@ -161,7 +161,24 @@ give me demo credentails to login in the website as admin
 
 arrange files and folder in docs folder. create a roper documenetation file for running the products and the website in the development server. add all the details and guides in the root readme file.
 
+is the website dockr run also added in the doc?
 
+have docker setup, check carefully
+
+have database docker conatiner and the theme docker setup
+
+have docker conatiner in the sytem, find that who is working with the website setup, then add in documentation
+
+make the website a enterprise grade website with enhanced ui ux, layout, craet unique logo and favicon $ us ethem, full enterprise grade admin and uer dashboard with grapgh, full repsoive pages, enterprise grade pricing, smtp setup option in dashboard, full enterprise grade licence management system, and more. make all details in non-technical and for gernral people to clearly understandable.
+create a proper prompt file for completing the above tasks and execute the prompt. continue untill finished
+
+complte the unfinished tasks. mak ethe forntend header menu items groups. product detils non-technical to general users, add more useful sections in homepage. make the all pages more userfriendly and professionsl. make the dadmin and user dahnoard more professional annd enterprise grade. add admin/ user setting page in the dahboard. follow enterprise grade applications dahboards. continue untill finished.
+
+group the sidebar items, add more items as much as possible to make the all operations more useful
+
+
+
+install app sidebar item not showing in the php version dashbaord. aslo the theme vesrion dahbsord header user dropdown not working and have no communications sidebard items like app and php version. fix all these issues.
 
 
 
