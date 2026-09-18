@@ -170,6 +170,12 @@ function esk_theme_activation(): void {
 	}
 	esk_create_demo_users();
 	esk_assign_homepage_and_blog();
+	if ( function_exists( 'esk_repair_site_url' ) ) {
+		esk_repair_site_url();
+	}
+	if ( function_exists( 'esk_install_demo_content' ) ) {
+		esk_install_demo_content();
+	}
 }
 add_action( 'after_switch_theme', 'esk_theme_activation' );
 

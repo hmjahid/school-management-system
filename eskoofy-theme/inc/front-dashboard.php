@@ -96,6 +96,7 @@ function esk_front_dashboard_pages(): array {
 		'esk-help'                 => 'esk_help_page',
 		'esk-backup'               => 'esk_backup_page',
 		'esk-cache'                => 'esk_cache_page',
+		'esk-tools'                => 'esk_tools_page',
 		'esk-software'             => 'esk_software_page',
 	);
 }

@@ -884,6 +884,27 @@ function esk_profile_page(): void                 { esk_render_admin_view( 'prof
 function esk_help_page(): void                    { esk_render_admin_view( 'help' ); }
 function esk_backup_page(): void                  { esk_render_admin_view( 'backup' ); }
 function esk_cache_page(): void                   { esk_render_admin_view( 'cache' ); }
+
+function esk_tools_page(): void {
+	$message = '';
+	$type    = 'success';
+
+	if ( isset( $_POST['esk_install_demo'] ) && current_user_can( 'manage_options' ) ) {
+		check_admin_referer( 'esk_tools_nonce' );
+		if ( function_exists( 'esk_install_demo_content' ) ) {
+			$result = esk_install_demo_content();
+			$message = (string) ( $result['message'] ?? '' );
+		}
+	} elseif ( isset( $_POST['esk_repair_url'] ) && current_user_can( 'manage_options' ) ) {
+		check_admin_referer( 'esk_tools_nonce' );
+		if ( function_exists( 'esk_repair_site_url' ) ) {
+			$result = esk_repair_site_url();
+			$message = (string) ( $result['message'] ?? '' );
+		}
+	}
+
+	esk_render_admin_view( 'tools', array( 'tools_message' => $message ) );
+}
 function esk_software_page(): void                { esk_render_admin_view( 'software' ); }
 
 /**
