@@ -39,6 +39,8 @@ return [
     'certificates' => 'Certificates',
     'bulk_sms' => 'Bulk SMS',
     'communications' => 'Communications',
+    'notification_templates' => 'Notification templates',
+    'notification_preferences' => 'Notification preferences',
     'events' => 'Events',
     'calendar' => 'Calendar',
     'transport' => 'Transport',

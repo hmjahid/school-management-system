@@ -166,4 +166,87 @@ class NotificationController extends Controller
 
         $this->json(['ok' => true, 'unread_count' => 0]);
     }
+
+    public function templates(): void
+    {
+        Auth::requireAuth();
+        $rows = $this->db->fetchAll("SELECT * FROM notification_templates ORDER BY name ASC");
+        $this->view('dashboard.notifications.templates', ['templates' => $rows]);
+    }
+
+    public function saveTemplate(): void
+    {
+        Auth::requireAuth();
+        $key = strtolower((string) preg_replace('/[^a-z0-9._-]/i', '-', trim((string) ($_POST['key'] ?? ''))));
+        $name = trim((string) ($_POST['name'] ?? ''));
+        if ($name === '' || $key === '') {
+            Session::getInstance()->flash('error', 'Name and key are required.');
+            $this->back();
+            return;
+        }
+
+        $exists = $this->db->fetch("SELECT id FROM notification_templates WHERE `key` = ?", [$key]);
+        if ($exists) {
+            Session::getInstance()->flash('error', 'A template with that key already exists.');
+            $this->back();
+            return;
+        }
+
+        $this->db->insert('notification_templates', [
+            'name'            => $name,
+            'key'             => $key,
+            'subject'         => trim((string) ($_POST['subject'] ?? '')),
+            'content'         => (string) ($_POST['content'] ?? ''),
+            'sms_content'     => (string) ($_POST['sms_content'] ?? ''),
+            'in_app_content'  => (string) ($_POST['in_app_content'] ?? ''),
+            'variables'       => '[]',
+            'is_active'       => isset($_POST['is_active']) ? 1 : 0,
+            'created_at'      => date('Y-m-d H:i:s'),
+            'updated_at'      => date('Y-m-d H:i:s'),
+        ]);
+
+        Session::getInstance()->flash('success', 'Notification template created.');
+        $this->back();
+    }
+
+    public function updateTemplate(int $id): void
+    {
+        Auth::requireAuth();
+        $key = strtolower((string) preg_replace('/[^a-z0-9._-]/i', '-', trim((string) ($_POST['key'] ?? ''))));
+        $name = trim((string) ($_POST['name'] ?? ''));
+        if ($name === '' || $key === '') {
+            Session::getInstance()->flash('error', 'Name and key are required.');
+            $this->back();
+            return;
+        }
+
+        $dupe = $this->db->fetch("SELECT id FROM notification_templates WHERE `key` = ? AND id != ?", [$key, $id]);
+        if ($dupe) {
+            Session::getInstance()->flash('error', 'A template with that key already exists.');
+            $this->back();
+            return;
+        }
+
+        $this->db->update('notification_templates', [
+            'name'            => $name,
+            'key'             => $key,
+            'subject'         => trim((string) ($_POST['subject'] ?? '')),
+            'content'         => (string) ($_POST['content'] ?? ''),
+            'sms_content'     => (string) ($_POST['sms_content'] ?? ''),
+            'in_app_content'  => (string) ($_POST['in_app_content'] ?? ''),
+            'is_active'       => isset($_POST['is_active']) ? 1 : 0,
+            'updated_at'      => date('Y-m-d H:i:s'),
+        ], 'id = ?', [$id]);
+
+        Session::getInstance()->flash('success', 'Notification template updated.');
+        $this->back();
+    }
+
+    public function deleteTemplate(int $id): void
+    {
+        Auth::requireAuth();
+        $this->db->delete('notification_templates', 'id = ?', [$id]);
+        Session::getInstance()->flash('success', 'Notification template deleted.');
+        $this->back();
+    }
 }

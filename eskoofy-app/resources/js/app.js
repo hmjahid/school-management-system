@@ -683,20 +683,23 @@ window.debounce = function(fn, delay = 300) {
 (function() {
     window.__deferredInstallPrompt = null;
 
+    // Always show the install action so the sidebar item is visible in every
+    // browser; it is hidden again only once the app has been installed.
+    document.querySelectorAll('[data-pwa-install]').forEach(btn => {
+        btn.classList.remove('hidden');
+        btn.classList.add('flex');
+    });
+
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         window.__deferredInstallPrompt = e;
-        document.querySelectorAll('[data-pwa-install]').forEach(btn => {
-            btn.classList.remove('hidden');
-            if (btn.dataset.pwaInline === 'true') btn.classList.add('inline-flex');
-            else btn.classList.add('flex');
-        });
     });
 
     document.addEventListener('click', async (e) => {
         const btn = e.target.closest('[data-pwa-install]');
-        if (!btn || !window.__deferredInstallPrompt) return;
+        if (!btn) return;
         e.preventDefault();
+        if (!window.__deferredInstallPrompt) return;
         window.__deferredInstallPrompt.prompt();
         const result = await window.__deferredInstallPrompt.userChoice;
         if (result.outcome === 'accepted') {

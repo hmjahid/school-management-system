@@ -9,9 +9,7 @@
         @if ($logoUrl)
             <img src="{{ $logoUrl }}" alt="{{ $schoolName }}" class="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-slate-200 dark:ring-slate-600">
         @else
-            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white shadow-sm">
-                {{ strtoupper(substr($schoolName, 0, 1)) }}
-            </span>
+            <img src="{{ asset('brand/eskofy-mark.svg') }}" alt="{{ $schoolName }}" class="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-slate-200 dark:ring-slate-600">
         @endif
         <div class="min-w-0">
             @if (! $logoUrl)
@@ -143,6 +141,9 @@
             <x-admin-nav-link :href="route('dashboard.communications')" route-is="dashboard.communications" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M2 5a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H9l-4 3v-3H4a2 2 0 01-2-2V5zm3 2a1 1 0 100 2h10a1 1 0 100-2H5zm0 4a1 1 0 100 2h6a1 1 0 100-2H5z\' clip-rule=\'evenodd\'/></svg>'">{{ __('dashboard.communications') }}</x-admin-nav-link>
             <x-admin-nav-link :href="route('dashboard.sms.index')" route-is="dashboard.sms*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0L9 8.586l4.293-4.293a1 1 0 111.414 1.414L10.414 10l4.293 4.293a1 1 0 01-1.414 1.414L9 11.414l-2.293 2.293a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414z\'/></svg>'">{{ __('dashboard.bulk_sms') }}</x-admin-nav-link>
         @endcan
+
+        <x-admin-nav-link :href="route('notifications.templates')" route-is="notifications.templates" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M7 4a1 1 0 100 2h10a1 1 0 100-2H7zm0 5a1 1 0 100 2h10a1 1 0 100-2H7zm0 5a1 1 0 100 2h7a1 1 0 100-2H7zM4 5a1 1 0 011 1v.01a1 1 0 11-2 0V6a1 1 0 011-1zm0 5a1 1 0 011 1v.01a1 1 0 11-2 0V11a1 1 0 011-1zm0 5a1 1 0 011 1v.01a1 1 0 11-2 0V16a1 1 0 011-1z\'/></svg>'">{{ __('dashboard.notification_templates') }}</x-admin-nav-link>
+        <x-admin-nav-link :href="route('notifications.preferences')" route-is="notifications.preferences" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z\' clip-rule=\'evenodd\'/></svg>'">{{ __('dashboard.notification_preferences') }}</x-admin-nav-link>
 
         @php
             $u = auth()->user();

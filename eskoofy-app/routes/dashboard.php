@@ -244,6 +244,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/dashboard/notifications/mark-all', [NotificationController::class, 'markAllRead'])->name('notifications.markAll');
     Route::get('/dashboard/notifications/preferences', [DashboardNotificationPreferencesController::class, 'show'])->name('notifications.preferences');
     Route::post('/dashboard/notifications/preferences', [DashboardNotificationPreferencesController::class, 'update'])->name('notifications.preferences.update');
+    Route::get('/dashboard/notifications/templates', [DashboardNotificationTemplateController::class, 'index'])->name('notifications.templates');
+    Route::post('/dashboard/notifications/templates', [DashboardNotificationTemplateController::class, 'store'])->name('notifications.templates.store');
+    Route::post('/dashboard/notifications/templates/{template}', [DashboardNotificationTemplateController::class, 'update'])->name('notifications.templates.update');
+    Route::post('/dashboard/notifications/templates/{template}/delete', [DashboardNotificationTemplateController::class, 'destroy'])->name('notifications.templates.destroy');
 
     Route::middleware('role:admin')->group(function () {
         Route::get('/dashboard/teachers/create', [DashboardTeacherController::class, 'create'])->name('dashboard.teachers.create');

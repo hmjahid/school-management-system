@@ -28,6 +28,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="{{ $dashSettings->school_name ?? config('app.name', 'Eskoofy') }}">
     <link rel="apple-touch-icon" href="{{ $dashSettings->logo_url ?: asset('favicon.ico') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
     <style>
         :root {
             --brand-50: color-mix(in srgb, {{ $dashSettings->theme_primary_color ?? '#2563eb' }} 10%, white);

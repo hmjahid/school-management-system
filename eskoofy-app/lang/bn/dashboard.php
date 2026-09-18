@@ -39,6 +39,8 @@ return [
     'certificates' => 'সনদপত্র',
     'bulk_sms' => 'বাল্ক এসএমএস',
     'communications' => 'যোগাযোগ',
+    'notification_templates' => 'নোটিফিকেশন টেমপ্লেট',
+    'notification_preferences' => 'নোটিফিকেশন পছন্দসমূহ',
     'events' => 'অনুষ্ঠান',
     'calendar' => 'বর্ষপঞ্জি',
     'transport' => 'পরিবহন',

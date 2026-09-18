@@ -443,6 +443,10 @@ $router->group('/dashboard', function (Router $r) {
 
     // Notifications
     $r->get('/notifications', 'App\\Controllers\\Dashboard\\NotificationController', 'index');
+    $r->get('/notifications/templates', 'App\\Controllers\\Dashboard\\NotificationController', 'templates');
+    $r->post('/notifications/templates', 'App\\Controllers\\Dashboard\\NotificationController', 'saveTemplate');
+    $r->post('/notifications/templates/{id}', 'App\\Controllers\\Dashboard\\NotificationController', 'updateTemplate');
+    $r->post('/notifications/templates/{id}/delete', 'App\\Controllers\\Dashboard\\NotificationController', 'deleteTemplate');
     $r->get('/notifications/preferences', 'App\\Controllers\\Dashboard\\NotificationController', 'preferences');
     $r->post('/notifications/preferences', 'App\\Controllers\\Dashboard\\NotificationController', 'updatePreferences');
     $r->post('/notifications/{id}/read', 'App\\Controllers\\Dashboard\\NotificationController', 'markRead');
