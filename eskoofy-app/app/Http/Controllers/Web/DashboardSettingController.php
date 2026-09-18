@@ -36,6 +36,20 @@ class DashboardSettingController extends Controller
         return view('dashboard.settings.index', compact('settings', 'librarySettings', 'timezones', 'mailPresets'));
     }
 
+    public function clearCache(): RedirectResponse
+    {
+        abort_unless(auth()->user()?->can('manage_school_settings'), 403);
+
+        \Illuminate\Support\Facades\Cache::flush();
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+        \Illuminate\Support\Facades\Artisan::call('config:clear');
+        \Illuminate\Support\Facades\Artisan::call('route:clear');
+        \Illuminate\Support\Facades\Artisan::call('event:clear');
+        \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+
+        return back()->with('status', __('Frontend cache cleared.'));
+    }
+
     public function cmsSettings(): View
     {
         abort_unless(auth()->user()?->can('manage_school_settings'), 403);

@@ -520,22 +520,48 @@ add_filter( 'wp_robots', 'esk_robots' );
 
 /* ─── Home URL normalisation ─────────────────────────────────────────────── */
 /*
- * Safeguard: a stray `/client` path in the WP `home`/`siteurl` options (or a
- * page named `client` promoted to the front page) makes every link on the
- * public site resolve to `http://<host>/client/`. Strip a trailing `/client`
+ * Safeguard: a stray `/client` path in the WP `home`/`siteurl` options, in the
+ * `WP_HOME`/`WP_SITEURL` constants, or a page named `client` promoted to the
+ * static front page makes every link on the public site resolve to
+ * `http://<host>/client/`. Normalise any `/client` that follows the scheme+host
  * so the theme's front page always resolves to the site root.
  */
-function esk_normalize_site_home_option( $value ) {
-	if ( is_string( $value ) ) {
-		$normalized = preg_replace( '#/client/?$#i', '', rtrim( $value, '/' ) );
+function esk_normalize_site_home( $url ) {
+	if ( is_string( $url ) && '' !== $url ) {
+		// http(s)://host/client[/anything] -> http(s)://host[/anything]
+		$normalized = preg_replace( '#^(https?://[^/]+)/client(?:/|$)#i', '$1/', $url );
 		if ( null !== $normalized && '' !== $normalized ) {
 			return $normalized;
 		}
 	}
-	return $value;
+	return $url;
 }
-add_filter( 'option_home', 'esk_normalize_site_home_option' );
-add_filter( 'option_siteurl', 'esk_normalize_site_home_option' );
+add_filter( 'home_url', 'esk_normalize_site_home', 1 );
+add_filter( 'site_url', 'esk_normalize_site_home', 1 );
+add_filter( 'option_home', 'esk_normalize_site_home', 1 );
+add_filter( 'option_siteurl', 'esk_normalize_site_home', 1 );
+add_filter( 'pre_option_home', 'esk_normalize_site_home', 1 );
+add_filter( 'pre_option_siteurl', 'esk_normalize_site_home', 1 );
+
+/*
+ * Self-heal: when the site is served from the web root (so WordPress is NOT
+ * physically installed under /client/), repair the stored `home`/`siteurl`
+ * options that contain a stray trailing `/client` so the front page permalink
+ * resolves to the root permanently.
+ */
+function esk_self_heal_home_option(): void {
+	$request_path = (string) parse_url( $_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH );
+	if ( '/client' === $request_path || str_starts_with( $request_path, '/client/' ) ) {
+		return; // WP really lives in a /client/ subdirectory — leave it alone.
+	}
+	foreach ( array( 'home', 'siteurl' ) as $option ) {
+		$value = get_option( $option );
+		if ( is_string( $value ) && preg_match( '#/client/?$#i', $value ) ) {
+			update_option( $option, preg_replace( '#/client/?$#i', '', $value ) );
+		}
+	}
+}
+add_action( 'init', 'esk_self_heal_home_option', 1 );
 
 function esk_fix_front_page_slug(): void {
 	// If a page named "client" was promoted to the static front page, revert

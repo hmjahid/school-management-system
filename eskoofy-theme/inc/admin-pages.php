@@ -866,6 +866,7 @@ function esk_library_reports_page(): void         { esk_render_admin_view( 'libr
 function esk_profile_page(): void                 { esk_render_admin_view( 'profile' ); }
 function esk_help_page(): void                    { esk_render_admin_view( 'help' ); }
 function esk_backup_page(): void                  { esk_render_admin_view( 'backup' ); }
+function esk_cache_page(): void                   { esk_render_admin_view( 'cache' ); }
 function esk_software_page(): void                { esk_render_admin_view( 'software' ); }
 
 /**

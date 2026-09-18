@@ -419,4 +419,29 @@ class SettingController extends Controller
             $this->db->insert('website_settings', $updateData + ['created_at' => date('Y-m-d H:i:s')]);
         }
     }
+
+    public function clearCache(): void
+    {
+        Auth::requireAuth();
+        $root = dirname(__DIR__, 3);
+        $cleared = 0;
+        foreach (['storage/framework/views', 'storage/cache', 'storage/framework/cache'] as $rel) {
+            $dir = $root . '/' . $rel;
+            if (!is_dir($dir)) {
+                continue;
+            }
+            foreach ((array) glob($dir . '/*') as $file) {
+                if (is_file($file)) {
+                    @unlink($file);
+                    $cleared++;
+                }
+            }
+        }
+        if (function_exists('opcache_reset')) {
+            opcache_reset();
+        }
+
+        Session::getInstance()->flash('success', "Frontend cache cleared ({$cleared} file(s)).");
+        $this->redirect('/dashboard/settings/general');
+    }
 }

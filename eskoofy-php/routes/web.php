@@ -607,6 +607,7 @@ $router->group('/dashboard', function (Router $r) {
     $r->put('/settings/cms', 'App\\Controllers\\Dashboard\\SettingController', 'updateCms');
     $r->get('/settings/general', 'App\\Controllers\\Dashboard\\SettingController', 'general');
     $r->put('/settings/general', 'App\\Controllers\\Dashboard\\SettingController', 'updateGeneral');
+    $r->post('/settings/clear-cache', 'App\\Controllers\\Dashboard\\SettingController', 'clearCache');
     $r->get('/settings/localization', 'App\\Controllers\\Dashboard\\SettingController', 'localization');
     $r->put('/settings/localization', 'App\\Controllers\\Dashboard\\SettingController', 'updateLocalization');
 
