@@ -91,6 +91,11 @@ php database/seed_demo.php            # optional demo accounts (idempotent)
 php -S localhost:8051 -t public
 ```
 
+> **Docker DB:** run MySQL/MariaDB in a container instead of installing one —
+> this machine already has one: `esk-mariadb` (host port `3307`, user
+> `esk`/`eskpw`) with the `eskoofy_php` schema pre-loaded — see
+> [Database via Docker](#database-via-docker-optional) below.
+
 Open `http://127.0.0.1:8051` and log in at `/login`. The document root is
 `public/` (`.` — `index.php` is the front controller, `.htaccess` routes
 everything through it on Apache).
@@ -108,6 +113,12 @@ cp .env.example .env                  # set DB_* for the licensing DB (eskoofy_w
 mysql -u root -p eskoofy_website < database/schema.sql
 php -S 127.0.0.1:8011 -t public
 ```
+
+> **Docker DB:** the site's MySQL database runs in a container
+> (`esk-mariadb`, host port `3307`, user `esk`/`eskpw`) with the
+> `eskoofy_website` schema already loaded — the `.env` above already points at
+> it. The site itself is served by `php -S` (plain PHP), there is no web
+> container. See [Database via Docker](#database-via-docker-optional) below.
 
 Open `http://127.0.0.1:8011`. Admin seed user:
 `admin@eskoofy.com` / `admin123` (change in production). The site is always
@@ -159,6 +170,53 @@ it in the WordPress admin, then **Settings → Eskoofy** to finish setup. Custom
 tables are created automatically on activation. Lint the theme with
 `cd eskoofy-theme && composer install && composer run lint`.
 
+## Database via Docker (optional)
+
+`eskoofy-php` and `eskoofy-website` require MySQL. Instead of installing a DB
+server locally, run one in a container and point the component's `.env` `DB_*`
+keys at it. **A ready-made container already exists on this machine** —
+`esk-mariadb` (mariadb 11, host port **3307**, user `esk` / `eskpw`) — holding
+both the `eskoofy_website` and `eskoofy_php` databases:
+
+```bash
+docker start esk-mariadb        # DB on 127.0.0.1:3307
+```
+
+The `eskoofy-website` and `eskoofy-php` `.env` files are already configured to
+use it. For a fresh container elsewhere:
+
+```bash
+# MariaDB 11.4 (same image family the theme harness uses)
+docker run -d --name eskoofy-mariadb -e MARIADB_ROOT_PASSWORD=root \
+  -e MARIADB_DATABASE=eskoofy_website -p 3306:3306 mariadb:11.4
+
+# or MySQL 8 (same engine the app's docker-compose uses)
+docker run -d --name eskoofy-mysql -e MYSQL_ROOT_PASSWORD=root \
+  -e MYSQL_DATABASE=eskoofy_website -p 3306:3306 mysql:8.0
+```
+
+Then import the schema into a DB and run the component (schemas/seeds create the
+remaining `eskoofy` / `esk_*` tables):
+
+```bash
+docker exec -i eskoofy-mariadb mariadb -uroot -proot -e \
+  "CREATE DATABASE IF NOT EXISTS eskoofy;"
+docker exec -i eskoofy-mariadb mariadb -uroot -proot eskoofy_website \
+  < eskoofy-website/database/schema.sql
+```
+
+Existing Docker setups in this repo + this machine:
+
+| Setup | Container | DB image | Host port | Databases |
+|---|---|---|---|---|
+| **Local dev DB (this machine)** | `esk-mariadb` | MariaDB 11 | `3307` | `eskoofy_website`, `eskoofy_php` (user `esk`/`eskpw`) |
+| `docker/theme-test/docker-compose.yml` | `db` (theme harness) | MariaDB 11.4 | internal (compose network) | `wordpress` |
+| `eskoofy-app/docker-compose.yml` | `db` (app prod-like) | MySQL 8.0 | `33061` | `school_db` |
+
+The app's compose (`cd eskoofy-app && docker compose up -d`) also gives you a
+ready MySQL 8 at `127.0.0.1:33061` for `eskoofy-php`/`eskoofy-website` —
+set `DB_PORT=33061` in their `.env`.
+
 ## Database summary
 
 | Component | Default DB | Create command |
@@ -167,7 +225,7 @@ tables are created automatically on activation. Lint the theme with
 | `eskoofy-app` (MySQL) | `eskoofy` (set `DB_*` in `.env`) | `php artisan migrate:fresh --seed` |
 | `eskoofy-php` | `eskoofy` | `mysql -u root -p < database/schema.sql` + `php database/seed_demo.php` |
 | `eskoofy-website` | `eskoofy_website` | `mysql -u root -p eskoofy_website < database/schema.sql` |
-| `eskoofy-theme` | MariaDB (Docker) | auto-created on theme activation |
+| `eskoofy-theme` | MariaDB (Docker) | auto-created on theme activation (`docker/theme-test`) |
 
 ## Running everything at once
 

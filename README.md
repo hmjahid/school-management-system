@@ -120,7 +120,9 @@ php -S localhost:8051 -t public
 ```
 
 Point the document root at `public/` on a shared host. `composer test` runs the
-dev-only PHPUnit suite.
+dev-only PHPUnit suite. Need a MySQL without installing it? Run it in a Docker
+container — see *Database via Docker* in
+[`docs/guides/DEVELOPMENT.md`](docs/guides/DEVELOPMENT.md).
 
 ### eskoofy-website (marketing + license server — port 8011)
 
@@ -130,6 +132,12 @@ cp .env.example .env        # set DB_* for the licensing DB
 mysql -u root -p eskoofy_website < database/schema.sql
 php -S 127.0.0.1:8011 -t public
 ```
+
+On this machine the site's MySQL already runs in the `esk-mariadb` Docker
+container (host port `3307`, includes the `eskoofy_website` schema):
+`docker start esk-mariadb`. The site itself is served by `php -S` — there is no
+web container. See the *Database via Docker* section in
+[`docs/guides/DEVELOPMENT.md`](docs/guides/DEVELOPMENT.md).
 
 Single international (int) site: USD pricing, en/bn language switcher, PWA shell,
 license management API at `/api/v1`. Admin seed: `admin@eskoofy.com` / `admin123`.
