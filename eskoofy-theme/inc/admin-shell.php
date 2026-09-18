@@ -49,7 +49,8 @@ function esk_dashboard_url( string $slug = 'esk-dashboard', string $query = '' )
  */
 function esk_admin_shell_groups(): array {
 	return array(
-		'Main'          => array( 'esk-dashboard', 'esk-messages', 'esk-sms' ),
+		'Main'          => array( 'esk-dashboard' ),
+		'Communications'=> array( 'esk-messages', 'esk-sms', 'esk-announcements', 'esk-notices', 'esk-notification-templates', 'esk-notification-preferences' ),
 		'People'        => array( 'esk-students', 'esk-student-add', 'esk-teachers', 'esk-teacher-add', 'esk-guardians', 'esk-users' ),
 		'Academics'     => array( 'esk-classes', 'esk-sections', 'esk-subjects', 'esk-batches', 'esk-academic-sessions', 'esk-exams', 'esk-results', 'esk-routines', 'esk-assignments', 'esk-progress-reports', 'esk-seat-plans' ),
 		'Admissions'    => array( 'esk-admissions' ),
@@ -58,7 +59,6 @@ function esk_admin_shell_groups(): array {
 		'HR'            => array( 'esk-payroll', 'esk-payslips', 'esk-salary-structures', 'esk-leave-types', 'esk-leave-requests' ),
 		'Documents'     => array( 'esk-admit-cards', 'esk-certificates', 'esk-id-cards', 'esk-testimonials', 'esk-committee' ),
 		'Facilities'    => array( 'esk-transport', 'esk-hostels', 'esk-library', 'esk-library-reports' ),
-		'Communications'=> array( 'esk-notices', 'esk-announcements' ),
 		'Website'       => array( 'esk-cms', 'esk-careers', 'esk-events', 'esk-news', 'esk-gallery', 'esk-documents', 'esk-media', 'esk-contact-submissions' ),
 		'System'        => array( 'esk-activity', 'esk-visitor-logs', 'esk-backup', 'esk-notifications', 'esk-search' ),
 		'Settings'      => array( 'esk-settings', 'esk-onboarding', 'esk-bulk' ),
@@ -85,8 +85,13 @@ function esk_admin_sidebar_sections(): array {
 	return array(
 		$label( 'Main' ),
 		$link( 'esk-dashboard' ),
+
+		$label( 'Communications' ),
 		$link( 'esk-messages' ),
 		$link( 'esk-sms' ),
+		$details( 'Outreach', 'dashicons-megaphone', array( 'esk-announcements', 'esk-notices' ) ),
+		$link( 'esk-notification-templates' ),
+		$link( 'esk-notification-preferences' ),
 
 		$label( 'Academic' ),
 		$details( 'People', 'dashicons-groups', array( 'esk-students', 'esk-teachers', 'esk-guardians', 'esk-staff-directory', 'esk-users' ) ),
@@ -106,11 +111,9 @@ function esk_admin_sidebar_sections(): array {
 		$link( 'esk-activity' ),
 		$link( 'esk-visitor-logs' ),
 		$link( 'esk-backup' ),
-		$link( 'esk-notification-templates' ),
-		$link( 'esk-notification-preferences' ),
 
 		$label( 'Website' ),
-		$details( 'Website CMS', 'dashicons-admin-site-alt3', array( 'esk-cms', 'esk-news', 'esk-gallery', 'esk-announcements', 'esk-notices', 'esk-documents', 'esk-media', 'esk-contact-submissions', 'esk-careers' ) ),
+		$details( 'Website CMS', 'dashicons-admin-site-alt3', array( 'esk-cms', 'esk-news', 'esk-gallery', 'esk-documents', 'esk-media', 'esk-contact-submissions', 'esk-careers' ) ),
 
 		$label( 'Administration' ),
 		$details( 'Users & Roles', 'dashicons-admin-users', array( 'esk-users', 'esk-roles' ) ),
@@ -368,6 +371,9 @@ function esk_admin_shell_logo_url(): string {
 	$logo = (string) esk_get_option( 'logo_url', '' );
 	if ( '' === $logo ) {
 		$logo = (string) get_theme_mod( 'esk_custom_logo', '' );
+	}
+	if ( '' === $logo ) {
+		$logo = (string) get_template_directory_uri() . '/assets/logo.svg';
 	}
 	return '' !== $logo ? esc_url( $logo ) : '';
 }
@@ -641,7 +647,7 @@ function esk_render_admin_shell_open( string $current = '' ): void {
 				</a>
 
 				<div class="relative" id="esk-user-menu">
-					<button type="button" class="flex items-center gap-2 rounded-lg p-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700" aria-expanded="false">
+					<button type="button" class="flex items-center gap-2 rounded-lg p-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700" aria-expanded="false" aria-haspopup="true">
 						<?php if ( $avatar ) : ?>
 							<img src="<?php echo esc_url( $avatar ); ?>" alt="" class="h-7 w-7 rounded-full object-cover ring-2 ring-slate-200 dark:ring-slate-600">
 						<?php else : ?>
@@ -950,14 +956,21 @@ function esk_admin_shell_footer_scripts(): void {
 	/* User dropdown. */
 	var userMenu = document.getElementById('esk-user-menu');
 	if (userMenu) {
+		var userBtn = userMenu.querySelector('button');
 		userMenu.addEventListener('click', function (e) {
 			e.stopPropagation();
 			var dd = userMenu.querySelector('.esk-user-dropdown');
-			if (dd) { dd.classList.toggle('hidden'); }
+			if (!dd) { return; }
+			var open = dd.classList.contains('hidden');
+			dd.classList.toggle('hidden', !open);
+			if (userBtn) { userBtn.setAttribute('aria-expanded', open ? 'true' : 'false'); }
 		});
 		document.addEventListener('click', function () {
 			var dd = userMenu.querySelector('.esk-user-dropdown');
-			if (dd) { dd.classList.add('hidden'); }
+			if (dd) {
+				dd.classList.add('hidden');
+				if (userBtn) { userBtn.setAttribute('aria-expanded', 'false'); }
+			}
 		});
 	}
 

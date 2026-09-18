@@ -518,6 +518,38 @@ function esk_robots( array $robots ): array {
 }
 add_filter( 'wp_robots', 'esk_robots' );
 
+/* ─── Home URL normalisation ─────────────────────────────────────────────── */
+/*
+ * Safeguard: a stray `/client` path in the WP `home`/`siteurl` options (or a
+ * page named `client` promoted to the front page) makes every link on the
+ * public site resolve to `http://<host>/client/`. Strip a trailing `/client`
+ * so the theme's front page always resolves to the site root.
+ */
+function esk_normalize_site_home_option( $value ) {
+	if ( is_string( $value ) ) {
+		$normalized = preg_replace( '#/client/?$#i', '', rtrim( $value, '/' ) );
+		if ( null !== $normalized && '' !== $normalized ) {
+			return $normalized;
+		}
+	}
+	return $value;
+}
+add_filter( 'option_home', 'esk_normalize_site_home_option' );
+add_filter( 'option_siteurl', 'esk_normalize_site_home_option' );
+
+function esk_fix_front_page_slug(): void {
+	// If a page named "client" was promoted to the static front page, revert
+	// to the default (latest posts) so the home page uses the site root.
+	if ( 'page' === get_option( 'show_on_front' ) ) {
+		$front = (int) get_option( 'page_on_front' );
+		if ( $front > 0 && 'client' === get_post_field( 'post_name', $front ) ) {
+			update_option( 'show_on_front', 'posts' );
+			update_option( 'page_on_front', 0 );
+		}
+	}
+}
+add_action( 'after_setup_theme', 'esk_fix_front_page_slug' );
+
 /* ─── Public: theme-color meta ─────────────────────────────────────────── */
 
 function esk_theme_color_meta(): void {

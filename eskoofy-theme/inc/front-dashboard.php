@@ -262,6 +262,7 @@ add_action(
 	$dash_title  = $page_titles[ $slug ] ?? ucfirst( (string) preg_replace( '/^esk-/', '', (string) $slug ) );
 	?>
 	<title><?php echo esc_html( $dash_title . ' — ' . get_bloginfo( 'name' ) ); ?></title>
+	<link rel="icon" type="image/svg+xml" href="<?php echo esc_url( get_template_directory_uri() . '/assets/favicon.svg' ); ?>">
 	<link rel="manifest" href="<?php echo esc_url( home_url( '/manifest.json' ) ); ?>">
 	<meta name="theme-color" content="<?php echo esc_attr( esk_theme_primary() ); ?>">
 	<meta name="apple-mobile-web-app-capable" content="yes">

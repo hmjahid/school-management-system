@@ -75,7 +75,7 @@ body.esk-admin-shell {
     position: absolute; top: calc(100% + 0.5rem); right: 0;
     min-width: 12rem; padding: 0.375rem; background: #fff;
     border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 16px 40px rgba(15, 23, 42, 0.14);
-    display: none; z-index: 120;
+    z-index: 120;
 }
 .esk-shell-user.is-open .esk-user-dropdown { display: block; }
 .esk-user-dropdown a { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.8125rem; font-weight: 500; color: #334155; text-decoration: none; }

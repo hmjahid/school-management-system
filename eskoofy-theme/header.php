@@ -253,7 +253,7 @@ $esc = static fn( string $svg ): string => wp_kses_post( $svg );
 			<?php if ( $has_logo ) : ?>
 				<img src="<?php echo esc_url( get_theme_mod( 'esk_custom_logo', '' ) ); ?>" alt="<?php echo esc_attr( $school_name ); ?>" class="esk-brand-logo-img">
 			<?php else : ?>
-				<span class="esk-brand-logo" aria-hidden="true"><?php echo esc_html( $initials ); ?></span>
+				<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/logo.svg' ); ?>" alt="<?php echo esc_attr( $school_name ); ?>" class="esk-brand-logo-img">
 			<?php endif; ?>
 			<span class="esk-brand-text">
 				<span class="esk-brand-name"><?php echo esc_html( $school_name ); ?></span>
