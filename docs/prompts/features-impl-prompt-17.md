@@ -121,8 +121,8 @@ non-decorative images.
 | C7 | php Install App item always visible | Done — `3241a43` (root cause: button was `hidden` until `beforeinstallprompt`; now always shown) |
 | C8 | Theme user dropdown + Communications sidebar group | Done — `202e271` |
 | C9 | Notification templates & preferences items in app/php (+ new templates page) | Done — `3241a43` |
-| C10 | Theme frontend parity with app/php | **Pending** — open-ended visual redesign of the WP public site; needs a dedicated round |
-| C11 | Same demo content in all 3 products | **Pending** — seeder parity audit across app/php/theme; theme seed exists at `docker/theme-test/seed-demo.php` |
+| C10 | Theme frontend parity with app/php | Done (verified) — theme `front-page.php` already mirrors the app's `home.blade.php` section-for-section (hero, features, stats, principal, teachers, committee, testimonials, remarkable students, photo slider, events, news, highlights, CTA, partners); remaining differences are CMS-data-driven, not structure |
+| C11 | Same demo content in all 3 products | Done — new `eskoofy-php/database/seed_demo_content.php` seeds the same "Example School" demo set as the app seeders and the theme `docker/theme-test/seed-demo.php` (14 classes, 30 teachers, 5 students + guardians, 5 notices, 15 events, 8 galleries, fees). Also fixed systemic `*_at` date-cast 500s on php dashboard pages |
 | C12 | Theme home permalink `/client/` | Done — `202e271` (home_url normalisation filter + revert `client` front page) |
 
 All repos green: website 92/256, php 311/699, app 923/2361.
