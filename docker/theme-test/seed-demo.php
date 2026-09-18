@@ -218,12 +218,20 @@ foreach ( $galleries as $g ) {
 	}
 }
 
-/* 7. Students + one class (2 notable = app's "Remarkable Students") */
+/* 7. Classes (app's full list) + students (2 notable = app's "Remarkable Students") */
 $classes_table = $prefix . 'esk_classes';
-if ( $wpdb->get_var( "SELECT id FROM {$classes_table} ORDER BY id LIMIT 1" ) === null ) {
-	$wpdb->insert( $classes_table, array( 'name' => 'One', 'code' => 'ONE', 'shift' => 'Morning' ) );
+$app_classes   = array(
+	'Play'    => 'PLAY', 'Nursery' => 'NUR', 'KG-1' => 'KG1', 'KG-2' => 'KG2',
+	'Class 1' => 'C1', 'Class 2' => 'C2', 'Class 3' => 'C3', 'Class 4' => 'C4',
+	'Class 5' => 'C5', 'Class 6' => 'C6', 'Class 7' => 'C7', 'Class 8' => 'C8',
+	'Class 9' => 'C9', 'Class 10' => 'C10',
+);
+foreach ( $app_classes as $cname => $ccode ) {
+	if ( ! $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$classes_table} WHERE name = %s", $cname ) ) ) {
+		$wpdb->insert( $classes_table, array( 'name' => $cname, 'code' => $ccode, 'shift' => 'Morning' ) );
+	}
 }
-$class_id = (int) $wpdb->get_var( "SELECT id FROM {$classes_table} ORDER BY id LIMIT 1" );
+$class_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$classes_table} WHERE name = %s", 'Class 1' ) );
 
 $students = array(
 	array( 'student1', 'Rahim Hossain', '2026-01-15', '1', 1 ),
@@ -262,6 +270,90 @@ foreach ( $students as $s ) {
 			'is_notable'       => (int) $notable,
 			'achievement'      => $notable ? 'Academic excellence' : null,
 		) );
+	}
+}
+
+/* 7b. Announcements (app demo) */
+$ann_table = $prefix . 'esk_announcements';
+if ( $wpdb->get_var( "SHOW TABLES LIKE '{$ann_table}'" ) === $ann_table ) {
+	$announcements = array(
+		'Welcome to the 2026 academic year',
+		'New online payment option now available',
+		'Annual prize giving ceremony announced',
+	);
+	foreach ( $announcements as $atitle ) {
+		if ( ! $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$ann_table} WHERE title = %s", $atitle ) ) ) {
+			$wpdb->insert( $ann_table, array(
+				'title'          => $atitle,
+				'body'           => 'Demo announcement: ' . $atitle,
+				'audience'       => 'all',
+				'is_published'   => 1,
+				'display_target' => 'all',
+				'starts_at'      => current_time( 'mysql' ),
+			) );
+		}
+	}
+}
+
+/* 7c. Fees for Class 1 (app demo fee types) */
+$fees_table = $prefix . 'esk_fees';
+if ( $wpdb->get_var( "SHOW TABLES LIKE '{$fees_table}'" ) === $fees_table ) {
+	$fee_types = array(
+		array( 'Tuition', 'TUITION', 1200 ), array( 'Transport', 'TRANSPORT', 500 ),
+		array( 'Library', 'LIBRARY', 100 ), array( 'Lab', 'LAB', 200 ),
+		array( 'Sports', 'SPORTS', 150 ), array( 'Activity', 'ACTIVITY', 100 ),
+	);
+	foreach ( $fee_types as $f ) {
+		if ( ! $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$fees_table} WHERE code = %s", $f[1] ) ) ) {
+			$wpdb->insert( $fees_table, array(
+				'name'       => $f[0],
+				'code'       => $f[1],
+				'class_id'   => $class_id,
+				'amount'     => $f[2],
+				'fee_type'   => strtolower( $f[0] ),
+				'frequency'  => 'monthly',
+				'fine_amount' => 0,
+				'fine_type'  => 'fixed',
+			) );
+		}
+	}
+}
+
+/* 7d. Subjects + exams for Class 1 (app demo exam types) */
+$subjects_table = $prefix . 'esk_subjects';
+$exams_table    = $prefix . 'esk_exams';
+if ( $wpdb->get_var( "SHOW TABLES LIKE '{$subjects_table}'" ) === $subjects_table ) {
+	$subjects = array( 'Bangla', 'English', 'Mathematics' );
+	$subject_ids = array();
+	foreach ( $subjects as $sname ) {
+		$sid = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$subjects_table} WHERE name = %s", $sname ) );
+		if ( ! $sid ) {
+			$wpdb->insert( $subjects_table, array( 'name' => $sname, 'code' => strtoupper( substr( $sname, 0, 3 ) ) ) );
+			$sid = (int) $wpdb->insert_id;
+		}
+		$subject_ids[ $sname ] = $sid;
+	}
+	if ( $wpdb->get_var( "SHOW TABLES LIKE '{$exams_table}'" ) === $exams_table ) {
+		$exam_types = array(
+			array( 'Midterm', 'MID', 50 ), array( 'Final', 'FINAL', 100 ), array( 'Pre-Test', 'PRETEST', 100 ),
+		);
+		foreach ( $exam_types as $e ) {
+			if ( ! $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$exams_table} WHERE code = %s", $e[1] ) ) ) {
+				$wpdb->insert( $exams_table, array(
+					'name'          => $e[0],
+					'code'          => $e[1],
+					'class_id'      => $class_id,
+					'subject_id'    => $subject_ids['Mathematics'],
+					'start_date'    => gmdate( 'Y-m-d' ),
+					'end_date'      => gmdate( 'Y-m-d', strtotime( '+2 days' ) ),
+					'start_time'    => '09:00:00',
+					'end_time'      => '11:00:00',
+					'total_marks'   => $e[2],
+					'passing_marks' => (int) ( $e[2] * 0.33 ),
+					'status'        => 'upcoming',
+				) );
+			}
+		}
 	}
 }
 
