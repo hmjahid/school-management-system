@@ -44,7 +44,7 @@ class ClientDocumentController extends Controller
             $this->redirect('/admin/client-documents');
         }
 
-        $dir = dirname(__DIR__, 2) . '/storage/documents';
+        $dir = dirname(__DIR__, 3) . '/storage/documents';
         $filename = 'doc-' . $kind . '-' . preg_replace('/[^a-zA-Z0-9._-]/', '-', $title) . '-' . date('Ymd-His') . '.' . strtolower(pathinfo((string) $file['name'], PATHINFO_EXTENSION));
         if (!is_dir($dir)) {
             mkdir($dir, 0775, true);
@@ -76,7 +76,7 @@ class ClientDocumentController extends Controller
         $db = Database::getInstance();
         $row = $db->fetch("SELECT * FROM client_documents WHERE id = ?", [$id]);
         if ($row) {
-            @unlink(dirname(__DIR__, 2) . '/storage/documents/' . $row['filename']);
+            @unlink(dirname(__DIR__, 3) . '/storage/documents/' . $row['filename']);
             $db->delete('client_documents', 'id = ?', [$id]);
             ActivityLog::log('document.deleted', 'admin', (int) Auth::id(), ['file' => $row['filename']]);
             $this->withSuccess('Document deleted.');
@@ -131,7 +131,7 @@ class ClientDocumentController extends Controller
     {
         $db = Database::getInstance();
         $row = $db->fetch("SELECT * FROM client_documents WHERE id = ?", [$id]);
-        $path = $row ? dirname(__DIR__, 2) . '/storage/documents/' . $row['filename'] : null;
+        $path = $row ? dirname(__DIR__, 3) . '/storage/documents/' . $row['filename'] : null;
         if (!$row || !is_file((string) $path)) {
             $this->withError('Document file not found.');
             $this->redirect('/admin/client-documents');

@@ -22,7 +22,7 @@ class CacheController extends Controller
 
     public function clear(): void
     {
-        $root = dirname(__DIR__, 2);
+        $root = dirname(__DIR__, 3);
 
         $dirs = [
             $root . '/storage/cache',

@@ -51,7 +51,7 @@ class PackageController extends Controller
             $this->redirect('/admin/packages');
         }
 
-        $dir = dirname(__DIR__, 2) . '/storage/packages';
+        $dir = dirname(__DIR__, 3) . '/storage/packages';
         $filename = 'package-' . $product . '-' . preg_replace('/[^a-zA-Z0-9._-]/', '-', $version) . '-' . date('Ymd-His') . '.zip';
         if (!is_dir($dir)) {
             mkdir($dir, 0775, true);
@@ -87,7 +87,7 @@ class PackageController extends Controller
         $db = Database::getInstance();
         $row = $db->fetch("SELECT * FROM packages WHERE id = ?", [$id]);
         if ($row) {
-            @unlink(dirname(__DIR__, 2) . '/storage/packages/' . $row['filename']);
+            @unlink(dirname(__DIR__, 3) . '/storage/packages/' . $row['filename']);
             $db->delete('packages', 'id = ?', [$id]);
             ActivityLog::log('package.deleted', 'admin', (int) Auth::id(), ['file' => $row['filename']]);
             $this->withSuccess('Package deleted.');
@@ -167,7 +167,7 @@ class PackageController extends Controller
     {
         $db = Database::getInstance();
         $row = $db->fetch("SELECT * FROM packages WHERE id = ?", [$id]);
-        $path = $row ? dirname(__DIR__, 2) . '/storage/packages/' . $row['filename'] : null;
+        $path = $row ? dirname(__DIR__, 3) . '/storage/packages/' . $row['filename'] : null;
         if (!$row || !is_file((string) $path)) {
             $this->withError('Package file not found.');
             $this->redirect('/admin/packages');

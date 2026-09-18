@@ -61,7 +61,7 @@ class DownloadController extends Controller
             $this->redirect('/account/downloads');
         }
 
-        $this->stream(dirname(__DIR__, 2) . '/storage/packages/' . $package['filename'], $package['filename'], 'application/zip');
+        $this->stream(dirname(__DIR__, 3) . '/storage/packages/' . $package['filename'], $package['filename'], 'application/zip');
     }
 
     public function document(int $id): void
@@ -74,7 +74,7 @@ class DownloadController extends Controller
             $this->redirect('/account/downloads');
         }
 
-        $this->stream(dirname(__DIR__, 2) . '/storage/documents/' . $doc['filename'], $doc['filename'], 'application/octet-stream');
+        $this->stream(dirname(__DIR__, 3) . '/storage/documents/' . $doc['filename'], $doc['filename'], 'application/octet-stream');
     }
 
     private function stream(string $path, string $filename, string $mime): void
