@@ -85,6 +85,10 @@ package, license key and client documents to the customer.
 | A2 | Theme sidebar: "Eskoofy / Admin Panel" (was "Management System") | Done `78d3cb6` |
 | B3 | Theme frontend parity with app | Done (verified) — identical section headings, nav items, footer columns, Inter font + Eskoofy brand colours; only the app's local DB blue shade differs |
 | B3b | Theme header + footer pixel parity (Tailwind port) | Done `796528a` — ported the app's Tailwind utility bar, sticky masthead (dropdowns + auth) and 4-column footer into the theme and load the app's compiled CSS; header/footer classes now match the app class-for-class |
+| B3c | Repair theme frontend (stale CSS build, dead toggles) | Done `798d249` — rebuilt theme-specific Tailwind from header/footer, fixed load order, wired esk-* toggle classes |
+| B3d | Theme demo content installer (app content) | Done `c9f875d` — `inc/demo-content.php` seeds the app's full demo set on activation + via Dashboard → System → Tools "Install demo content" |
+| B3e | One-click `/client` repair tool | Done `c9f875d` — Dashboard → System → Tools "Repair site URL" pins home/siteurl to root; runs on activation too |
+| B3f | `/client` WordPress-level fix | Done `4a24b43` — unconditional self-heal + `redirect_canonical` blocker; proven (home=/client still renders 200, zero /client) |
 | C4 | Refund Policy / Terms / Privacy pages | Done `a7d35cc` (routes, view, en/bn, footer, sitemap, SEO) |
 | C5 | Manual/bank-transfer approval flow (pending → admin approve → deliver) | Done `a7d35cc` (ManualGateway pending, checkout status page, admin Approve & deliver, test updated) |
 | C6 | 3-product dashboard header on website admin | Done `a7d35cc` (App/PHP/Theme links, configurable in Settings) |
