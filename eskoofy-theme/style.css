@@ -1470,6 +1470,24 @@ body.esk-scrolled .esk-header { box-shadow: var(--esk-shadow); }
 
 .esk-header-actions { display: flex; align-items: center; gap: 0.6rem; }
 
+.esk-header-auth-btn {
+    display: inline-flex; align-items: center;
+    padding: 0.5rem 0.9rem; border-radius: 12px;
+    font-size: 0.82rem; font-weight: 600; line-height: 1;
+    border: 1px solid var(--esk-border);
+    background: var(--esk-surface); color: var(--esk-ink);
+    text-decoration: none; white-space: nowrap;
+    transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+.esk-header-auth-btn--primary {
+    background: var(--esk-accent); border-color: var(--esk-accent); color: #fff;
+}
+.esk-header-auth-btn--primary:hover { opacity: 0.9; color: #fff; }
+.esk-header-auth-btn--ghost:hover { background: var(--esk-accent-soft, rgba(37, 99, 235, 0.1)); }
+@media (max-width: 992px) {
+    .esk-header-auth-btn { display: none; }
+}
+
 .esk-icon-btn {
     width: 42px; height: 42px;
     border-radius: 12px;

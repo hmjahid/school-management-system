@@ -283,6 +283,14 @@ $esc = static fn( string $svg ): string => wp_kses_post( $svg );
 		</nav>
 
 		<div class="esk-header-actions">
+			<?php if ( $is_logged_in ) : ?>
+				<a href="<?php echo esc_url( esk_dashboard_url( 'esk-dashboard' ) ); ?>" class="esk-header-auth-btn esk-header-auth-btn--primary"><?php echo esc_html( (string) esk_site_ui( 'nav.dashboard', __( 'Dashboard', 'eskoofy' ) ) ); ?></a>
+				<a href="<?php echo esc_url( $portal_url ); ?>" class="esk-header-auth-btn esk-header-auth-btn--ghost"><?php echo esc_html( (string) esk_site_ui( 'nav.portal', __( 'Portal', 'eskoofy' ) ) ); ?></a>
+				<a href="<?php echo esc_url( wp_logout_url( home_url( '/' ) ) ); ?>" class="esk-header-auth-btn esk-header-auth-btn--ghost"><?php echo esc_html( (string) esk_site_ui( 'nav.logout', __( 'Log out', 'eskoofy' ) ) ); ?></a>
+			<?php else : ?>
+				<a href="<?php echo esc_url( home_url( '/login/' ) ); ?>" class="esk-header-auth-btn esk-header-auth-btn--primary"><?php echo esc_html( (string) esk_site_ui( 'nav.login', __( 'Login', 'eskoofy' ) ) ); ?></a>
+				<a href="<?php echo esc_url( $portal_url ); ?>" class="esk-header-auth-btn esk-header-auth-btn--ghost"><?php echo esc_html( (string) esk_site_ui( 'nav.portal', __( 'Portal', 'eskoofy' ) ) ); ?></a>
+			<?php endif; ?>
 			<button type="button" class="esk-icon-btn esk-search-toggle" aria-label="<?php echo esc_attr( (string) esk_site_ui( 'nav.search_label', '' ) ); ?>" data-search-open>
 				<?php echo $esc( $svgs['search'] ); // phpcs:ignore ?>
 			</button>
