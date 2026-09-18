@@ -398,5 +398,37 @@ function esk_repair_site_url(): array {
 		update_option( $option, $base );
 	}
 
+	$notes = array();
+
+	// Repair a stray '.htaccess' RewriteBase /client/ (Apache-level cause).
+	if ( defined( 'ABSPATH' ) && is_writable( ABSPATH . '.htaccess' ) && is_readable( ABSPATH . '.htaccess' ) ) {
+		$htaccess = (string) file_get_contents( ABSPATH . '.htaccess' );
+		if ( preg_match( '#^RewriteBase\s+/client/?#mi', $htaccess ) ) {
+			$htaccess = preg_replace( '#^RewriteBase\s+/client/?#mi', 'RewriteBase /', $htaccess );
+			@file_put_contents( ABSPATH . '.htaccess', $htaccess );
+			$notes[] = __( 'Rewrote .htaccess RewriteBase /client/ to /.', 'eskoofy' );
+		}
+	}
+
+	// Report WP_HOME / WP_SITEURL constants that would shadow the options.
+	$config_path = ABSPATH . 'wp-config.php';
+	if ( is_readable( $config_path ) ) {
+		$config = (string) file_get_contents( $config_path );
+foreach ( array( 'WP_HOME', 'WP_SITEURL' ) as $const ) {
+		if ( preg_match( '/define\(\s*[\'"](?:' . $const . ')[\'"]\s*,\s*[\'"]([^\'"]*client[^\'"]*)[\'"]\s*\)/i', $config, $m ) ) {
+				$notes[] = sprintf(
+					/* translators: %s: constant name. */
+					__( '%s in wp-config.php still points to %s - remove the /client segment (or the constant) to fully clear it.', 'eskoofy' ),
+					$const,
+					$m[1]
+				);
+			}
+		}
+	}
+
+	if ( ! empty( $notes ) ) {
+		return array( 'ok' => true, 'message' => __( 'Site URL repaired to the site root.', 'eskoofy' ) . ' ' . implode( ' ', $notes ) );
+	}
+
 	return array( 'ok' => true, 'message' => __( 'Site URL repaired to the site root.', 'eskoofy' ) );
 }

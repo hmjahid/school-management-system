@@ -626,6 +626,29 @@ function esk_block_client_redirect( $redirect_url ) {
 }
 add_filter( 'redirect_canonical', 'esk_block_client_redirect', 1 );
 
+/*
+ * Never let a /client path resolve: redirect any request to '/client' or
+ * '/client/...' to the equivalent root path (301). This neutralises a stale
+ * cached 301 or a bookmarked http://host/client/ URL after the site URL is
+ * repaired, and it never fires when WordPress genuinely lives in a /client/
+ * subdirectory (those requests are served before the theme runs).
+ */
+function esk_redirect_client_path_to_root(): void {
+	if ( is_admin() ) {
+		return;
+	}
+	$path = (string) parse_url( $_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH );
+	if ( '/client' === $path || str_starts_with( $path, '/client/' ) ) {
+		$target = substr( $path, strlen( '/client' ) );
+		if ( '' === $target ) {
+			$target = '/';
+		}
+		wp_safe_redirect( home_url( $target ), 301 );
+		exit;
+	}
+}
+add_action( 'template_redirect', 'esk_redirect_client_path_to_root', 0 );
+
 function esk_fix_front_page_slug(): void {
 	// If a static front page's permalink contains '/client', revert to the
 	// default (latest posts) so the home page uses the site root.
