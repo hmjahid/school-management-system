@@ -181,39 +181,45 @@ $esc = static fn( string $svg ): string => wp_kses_post( $svg );
 
 <div class="esk-loading-bar" id="esk-loading-bar" aria-hidden="true" data-esk-loading-bar></div>
 
-<?php if ( $phone || $email || $address ) : ?>
-	<div class="esk-topbar">
-		<div class="esk-container esk-topbar-inner">
-			<div class="esk-topbar-contact">
-				<?php if ( $phone ) : ?>
-					<a href="<?php echo esc_url( 'tel:' . preg_replace( '/[^0-9+]/', '', $phone ) ); ?>"><?php echo $esc( $svgs['phone'] ); // phpcs:ignore ?> <?php echo esc_html( $phone ); ?></a>
-				<?php endif; ?>
-				<?php if ( $email ) : ?>
-					<a href="<?php echo esc_url( 'mailto:' . $email ); ?>"><?php echo $esc( $svgs['mail'] ); // phpcs:ignore ?> <?php echo esc_html( $email ); ?></a>
-				<?php endif; ?>
-				<?php if ( $address ) : ?>
-					<span class="esk-topbar-address"><?php echo $esc( $svgs['pin'] ); // phpcs:ignore ?> <?php echo esc_html( $address ); ?></span>
-				<?php endif; ?>
+<div class="hidden bg-blue-900 text-sm text-white sm:block">
+	<div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-2 lg:flex-row">
+		<div class="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 lg:justify-start">
+			<?php if ( $phone ) : ?>
+				<span class="inline-flex items-center gap-1.5">
+					<svg class="h-3.5 w-3.5 shrink-0 text-blue-300" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
+					<a href="<?php echo esc_url( 'tel:' . preg_replace( '/[^0-9+]/', '', $phone ) ); ?>" class="whitespace-nowrap font-medium hover:text-blue-100"><?php echo esc_html( $phone ); ?></a>
+				</span>
+			<?php endif; ?>
+			<?php if ( $email ) : ?>
+				<span class="inline-flex items-center gap-1.5">
+					<svg class="h-3.5 w-3.5 shrink-0 text-blue-300" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+					<a href="<?php echo esc_url( 'mailto:' . $email ); ?>" class="max-w-[16rem] truncate font-medium hover:text-blue-100 lg:max-w-none"><?php echo esc_html( $email ); ?></a>
+				</span>
+			<?php endif; ?>
+			<?php if ( $address ) : ?>
+				<span class="hidden items-start gap-1.5 xl:inline-flex">
+					<svg class="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-300" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+					<span class="text-blue-100"><?php echo esc_html( wp_trim_words( $address, 12, '…' ) ); ?></span>
+				</span>
+			<?php endif; ?>
+		</div>
+		<div class="flex flex-wrap items-center justify-center gap-3 lg:justify-end">
+			<a href="<?php echo esc_url( add_query_arg( 'esk_lang', $target_locale ) ); ?>" rel="nofollow" class="inline-flex min-w-[1.75rem] items-center justify-center rounded border border-blue-400/60 px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wide text-blue-200 transition hover:border-white hover:text-white"><?php echo esc_html( $target_label ); ?></a>
+			<span class="hidden h-4 w-px bg-blue-600 sm:block" aria-hidden="true"></span>
+			<div class="flex items-center gap-2 text-blue-200">
+				<?php foreach ( $socials as $social ) : ?>
+					<a href="<?php echo esc_url( $social['url'] ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php echo esc_attr( $social['label'] ); ?>" class="text-blue-200 transition hover:text-white"><?php echo $esc( $social['svg'] ); // phpcs:ignore ?></a>
+				<?php endforeach; ?>
 			</div>
-			<div class="esk-topbar-meta">
-				<?php if ( $socials ) : ?>
-					<span class="esk-topbar-socials">
-						<?php foreach ( $socials as $social ) : ?>
-							<a href="<?php echo esc_url( $social['url'] ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php echo esc_attr( $social['label'] ); ?>"><?php echo $esc( $social['svg'] ); // phpcs:ignore ?></a>
-						<?php endforeach; ?>
-					</span>
-				<?php endif; ?>
-				<a href="<?php echo esc_url( $portal_url ); ?>"><?php echo $esc( $svgs['user'] ); // phpcs:ignore ?> <?php echo esc_html( (string) esk_site_ui( 'nav.portal', '' ) ); ?></a>
-				<?php if ( $is_logged_in ) : ?>
-					<a href="<?php echo esc_url( wp_logout_url( home_url( '/' ) ) ); ?>"><?php echo esc_html( (string) esk_site_ui( 'nav.logout', '' ) ); ?></a>
-				<?php else : ?>
-					<a href="<?php echo esc_url( home_url( '/login/' ) ); ?>"><?php echo esc_html( (string) esk_site_ui( 'nav.login', '' ) ); ?></a>
-				<?php endif; ?>
-				<a class="esk-lang-toggle" href="<?php echo esc_url( add_query_arg( 'esk_lang', $target_locale ) ); ?>" rel="nofollow"><?php echo esc_html( $target_label ); ?></a>
-			</div>
+			<span class="hidden h-4 w-px bg-blue-600 sm:block" aria-hidden="true"></span>
+			<?php if ( $is_logged_in ) : ?>
+				<a href="<?php echo esc_url( wp_logout_url( home_url( '/' ) ) ); ?>" class="whitespace-nowrap font-medium text-blue-200 hover:text-white"><?php echo esc_html( (string) esk_site_ui( 'nav.logout', '' ) ); ?></a>
+			<?php else : ?>
+				<a href="<?php echo esc_url( home_url( '/login/' ) ); ?>" class="whitespace-nowrap font-medium text-blue-200 hover:text-white"><?php echo esc_html( (string) esk_site_ui( 'nav.login', '' ) ); ?></a>
+			<?php endif; ?>
 		</div>
 	</div>
-<?php endif; ?>
+</div>
 
 <?php if ( ! empty( $announcements ) ) : ?>
 	<div class="esk-ticker" role="region" aria-label="<?php echo esc_attr( (string) esk_site_ui( 'nav.announcements', '' ) ); ?>">
@@ -247,60 +253,70 @@ $esc = static fn( string $svg ): string => wp_kses_post( $svg );
 	</div>
 <?php endif; ?>
 
-<header id="masthead" class="esk-header" role="banner">
-	<div class="esk-container esk-header-inner">
-		<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="esk-brand" rel="home">
+<header class="site-header sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/95 backdrop-blur-md transition-shadow duration-300">
+	<div class="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-3 sm:py-4">
+		<?php
+		$brand_parts = preg_split( '/\s+/', trim( $school_name ), 2 );
+		$brand_first = $brand_parts[0] ?? $school_name;
+		$brand_rest  = $brand_parts[1] ?? '';
+		?>
+		<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="flex min-w-0 items-center gap-2 no-underline sm:gap-3">
 			<?php if ( $has_logo ) : ?>
-				<img src="<?php echo esc_url( get_theme_mod( 'esk_custom_logo', '' ) ); ?>" alt="<?php echo esc_attr( $school_name ); ?>" class="esk-brand-logo-img">
+				<img src="<?php echo esc_url( get_theme_mod( 'esk_custom_logo', '' ) ); ?>" alt="<?php echo esc_attr( $school_name ); ?>" width="120" height="48" class="h-9 w-auto max-h-10 max-w-[8rem] shrink-0 object-contain sm:h-10 sm:max-h-12 sm:max-w-[10rem] md:max-w-[12rem]">
 			<?php else : ?>
-				<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/logo.svg' ); ?>" alt="<?php echo esc_attr( $school_name ); ?>" class="esk-brand-logo-img">
+				<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/logo.svg' ); ?>" alt="<?php echo esc_attr( $school_name ); ?>" width="120" height="48" class="h-9 w-auto max-h-10 max-w-[8rem] shrink-0 object-contain sm:h-10 sm:max-h-12 sm:max-w-[10rem] md:max-w-[12rem]">
 			<?php endif; ?>
-			<span class="esk-brand-text">
-				<span class="esk-brand-name"><?php echo esc_html( $school_name ); ?></span>
-				<?php if ( $school_tagline ) : ?>
-					<span class="esk-brand-tagline"><?php echo esc_html( $school_tagline ); ?></span>
-				<?php endif; ?>
+			<span class="truncate text-lg font-bold leading-tight text-blue-700 sm:text-2xl md:text-3xl">
+				<?php echo esc_html( $brand_first ); ?><?php if ( $brand_rest ) : ?><span class="text-orange-500"><?php echo esc_html( ' ' . $brand_rest ); ?></span><?php endif; ?>
 			</span>
 		</a>
 
-		<nav class="esk-nav" role="navigation" aria-label="<?php echo esc_attr( (string) esk_site_ui( 'nav.menu', '' ) ); ?>">
-			<?php
-			if ( has_nav_menu( 'primary' ) ) {
-				wp_nav_menu(
-					array(
-						'theme_location' => 'primary',
-						'container'      => false,
-						'menu_class'     => 'esk-nav-menu',
-						'fallback_cb'    => false,
-					)
-				);
-			} else {
-				echo '<ul class="esk-nav-menu">';
-				$render_nav( $nav_items );
-				echo '</ul>';
-			}
-			?>
-		</nav>
-
-		<div class="esk-header-actions">
-			<?php if ( $is_logged_in ) : ?>
-				<a href="<?php echo esc_url( esk_dashboard_url( 'esk-dashboard' ) ); ?>" class="esk-header-auth-btn esk-header-auth-btn--primary"><?php echo esc_html( (string) esk_site_ui( 'nav.dashboard', __( 'Dashboard', 'eskoofy' ) ) ); ?></a>
-				<a href="<?php echo esc_url( $portal_url ); ?>" class="esk-header-auth-btn esk-header-auth-btn--ghost"><?php echo esc_html( (string) esk_site_ui( 'nav.portal', __( 'Portal', 'eskoofy' ) ) ); ?></a>
-				<a href="<?php echo esc_url( wp_logout_url( home_url( '/' ) ) ); ?>" class="esk-header-auth-btn esk-header-auth-btn--ghost"><?php echo esc_html( (string) esk_site_ui( 'nav.logout', __( 'Log out', 'eskoofy' ) ) ); ?></a>
-			<?php else : ?>
-				<a href="<?php echo esc_url( home_url( '/login/' ) ); ?>" class="esk-header-auth-btn esk-header-auth-btn--primary"><?php echo esc_html( (string) esk_site_ui( 'nav.login', __( 'Login', 'eskoofy' ) ) ); ?></a>
-				<a href="<?php echo esc_url( $portal_url ); ?>" class="esk-header-auth-btn esk-header-auth-btn--ghost"><?php echo esc_html( (string) esk_site_ui( 'nav.portal', __( 'Portal', 'eskoofy' ) ) ); ?></a>
-			<?php endif; ?>
-			<button type="button" class="esk-icon-btn esk-search-toggle" aria-label="<?php echo esc_attr( (string) esk_site_ui( 'nav.search_label', '' ) ); ?>" data-search-open>
-				<?php echo $esc( $svgs['search'] ); // phpcs:ignore ?>
+		<div class="flex items-center gap-1">
+			<button type="button" data-search-open aria-label="Search" class="inline-flex items-center justify-center rounded-md border border-gray-200 bg-white p-2 text-gray-500 transition hover:bg-blue-50 hover:text-blue-700 min-[1367px]:hidden">
+				<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
 			</button>
-			<button type="button" class="esk-icon-btn esk-dark-toggle" aria-label="<?php echo esc_attr__( 'Toggle dark mode', 'eskoofy' ); ?>">
-				<?php echo $esc( $svgs['moon'] ); // phpcs:ignore ?>
-			</button>
-			<button type="button" class="esk-icon-btn esk-hamburger" aria-label="<?php echo esc_attr( (string) esk_site_ui( 'nav.menu', '' ) ); ?>" aria-expanded="false" data-menu-open>
-				<span></span><span></span><span></span>
+			<button type="button" data-menu-open aria-controls="site-nav-panel" aria-expanded="false" aria-label="<?php echo esc_attr( (string) esk_site_ui( 'nav.menu', '' ) ); ?>" class="inline-flex items-center justify-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 min-[1367px]:hidden">
+				<svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/></svg>
+				<span class="hidden sm:inline"><?php echo esc_html( (string) esk_site_ui( 'nav.menu', '' ) ); ?></span>
 			</button>
 		</div>
+
+		<nav class="hidden items-center gap-1 min-[1367px]:flex" aria-label="<?php echo esc_attr( (string) esk_site_ui( 'nav.menu', '' ) ); ?>">
+			<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="rounded-md px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap <?php echo is_front_page() ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>"><?php echo esc_html( (string) esk_site_ui( 'nav.home', '' ) ); ?></a>
+
+			<?php foreach ( $nav_items as $nav_item ) : if ( empty( $nav_item['children'] ) ) { continue; } ?>
+				<div class="relative" data-site-nav-dropdown>
+					<button type="button" data-site-nav-dropdown-trigger aria-haspopup="true" aria-expanded="false" class="inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap text-gray-700 hover:bg-blue-50 hover:text-blue-700">
+						<span><?php echo esc_html( (string) esk_site_ui( $nav_item['label'], '' ) ); ?></span>
+						<svg class="h-3.5 w-3.5 transition-transform duration-200" data-site-nav-caret fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+					</button>
+					<div data-site-nav-dropdown-panel class="invisible absolute right-0 top-full z-50 mt-1 min-w-[14rem] origin-top-right translate-y-1 rounded-lg border border-gray-100 bg-white p-2 opacity-0 shadow-lg ring-1 ring-black/5 transition-all duration-150 data-[open=true]:visible data-[open=true]:translate-y-0 data-[open=true]:opacity-100" role="menu" aria-label="<?php echo esc_attr( (string) esk_site_ui( $nav_item['label'], '' ) ); ?>">
+						<ul class="space-y-0.5">
+							<?php foreach ( $nav_item['children'] as $child ) : ?>
+								<li role="none">
+									<a href="<?php echo esc_url( $child['url'] ); ?>" role="menuitem" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition text-gray-700 hover:bg-blue-50 hover:text-blue-700">
+										<svg class="h-4 w-4 shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+										<span class="flex-1"><?php echo esc_html( (string) esk_site_ui( $child['label'], '' ) ); ?></span>
+									</a>
+								</li>
+							<?php endforeach; ?>
+						</ul>
+					</div>
+				</div>
+			<?php endforeach; ?>
+
+			<button type="button" data-search-open aria-label="Search" class="rounded-md p-2 text-gray-500 transition hover:bg-blue-50 hover:text-blue-700">
+				<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+			</button>
+
+			<?php if ( $is_logged_in ) : ?>
+				<a href="<?php echo esc_url( current_user_can( 'manage_options' ) ? esk_dashboard_url( 'esk-dashboard' ) : $portal_url ); ?>" class="ml-1 inline-flex items-center justify-center rounded-md border-2 border-blue-600 bg-white px-3 py-2 text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-50 whitespace-nowrap"><?php echo esc_html( (string) esk_site_ui( 'nav.dashboard', __( 'Dashboard', 'eskoofy' ) ) ); ?></a>
+				<a href="<?php echo esc_url( wp_logout_url( home_url( '/' ) ) ); ?>" class="ml-1 inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-800 shadow-sm transition hover:bg-gray-50 whitespace-nowrap"><?php echo esc_html( (string) esk_site_ui( 'nav.logout', __( 'Log out', 'eskoofy' ) ) ); ?></a>
+			<?php else : ?>
+				<a href="<?php echo esc_url( home_url( '/login/' ) ); ?>" class="ml-1 inline-flex items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 whitespace-nowrap"><?php echo esc_html( (string) esk_site_ui( 'nav.login', __( 'Login', 'eskoofy' ) ) ); ?></a>
+				<a href="<?php echo esc_url( $portal_url ); ?>" class="ml-1 inline-flex items-center justify-center rounded-md border-2 border-blue-600 bg-white px-3 py-2 text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-50 whitespace-nowrap"><?php echo esc_html( (string) esk_site_ui( 'nav.portal', __( 'Portal', 'eskoofy' ) ) ); ?></a>
+			<?php endif; ?>
+		</nav>
 	</div>
 </header>
 

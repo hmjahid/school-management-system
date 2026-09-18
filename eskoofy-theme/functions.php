@@ -103,6 +103,13 @@ if ( ! function_exists( 'eskoofy_scripts' ) ) {
 		);
 
 		wp_enqueue_style(
+			'eskoofy-app-public',
+			get_template_directory_uri() . '/assets/app-public.css',
+			array(),
+			'1.0.0'
+		);
+
+		wp_enqueue_style(
 			'eskoofy-admin-style',
 			get_template_directory_uri() . '/inc/admin-style.css',
 			array(),

@@ -44,27 +44,27 @@ $esc = static fn( string $svg ): string => wp_kses_post( $svg );
 ?>
 </main>
 
-<footer id="colophon" class="esk-footer no-print" role="contentinfo">
-	<div class="esk-container">
-		<div class="esk-footer-grid">
-			<div class="esk-footer-col esk-footer-about">
-				<h3 class="esk-footer-head"><?php echo esc_html( (string) esk_site_ui( 'footer.about_title', '' ) ); ?></h3>
-				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="esk-brand">
-					<?php
-					$footer_logo = esk_school( 'footer_logo_url' ) ?: esk_school( 'logo_url' );
-					if ( $footer_logo ) :
-						?>
-						<img class="esk-brand-logo-img" src="<?php echo esc_url( $footer_logo ); ?>" alt="<?php echo esc_attr( $school_name ); ?>">
+<footer class="no-print border-t border-slate-200 bg-slate-900 text-slate-300">
+	<div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+		<div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+			<?php $footer_logo = esk_school( 'footer_logo_url' ) ?: esk_school( 'logo_url' ); ?>
+			<div>
+				<div class="flex items-center gap-3">
+					<?php if ( $footer_logo ) : ?>
+						<img src="<?php echo esc_url( $footer_logo ); ?>" alt="<?php echo esc_attr( $school_name ); ?>" class="h-10 w-10 rounded-lg object-contain ring-1 ring-white/10">
 					<?php else : ?>
-						<span class="esk-brand-logo" aria-hidden="true"><?php echo esc_html( esk_initials( $school_name ) ); ?></span>
+						<span class="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-600 text-lg font-bold text-white"><?php echo esc_html( mb_substr( $school_name, 0, 1 ) ); ?></span>
 					<?php endif; ?>
-					<span class="esk-brand-name"><?php echo esc_html( $school_name ); ?></span>
-				</a>
-				<p><?php echo esc_html( $about_text ); ?></p>
+					<div>
+						<p class="text-base font-bold text-white"><?php echo esc_html( $school_name ); ?></p>
+						<p class="text-xs text-slate-400"><?php echo esc_html( (string) esk_site_ui( 'footer.tagline', __( 'Excellence in Education', 'eskoofy' ) ) ); ?></p>
+					</div>
+				</div>
+				<p class="mt-4 text-sm leading-relaxed text-slate-400"><?php echo esc_html( $about_text ); ?></p>
 				<?php if ( ! empty( $socials ) ) : ?>
-					<div class="esk-footer-social">
+					<div class="mt-5 flex gap-3">
 						<?php foreach ( $socials as $social ) : ?>
-							<a href="<?php echo esc_url( $social['url'] ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php echo esc_attr( $social['label'] ); ?>">
+							<a href="<?php echo esc_url( $social['url'] ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php echo esc_attr( $social['label'] ); ?>" class="flex h-9 w-9 items-center justify-center rounded-full bg-slate-800 text-slate-300 ring-1 ring-slate-700 transition hover:bg-brand-600 hover:text-white">
 								<?php echo $esc( $social['svg'] ); // phpcs:ignore ?>
 							</a>
 						<?php endforeach; ?>
@@ -72,92 +72,64 @@ $esc = static fn( string $svg ): string => wp_kses_post( $svg );
 				<?php endif; ?>
 			</div>
 
-			<div class="esk-footer-col">
-				<h3 class="esk-footer-head"><?php echo esc_html( (string) esk_site_ui( 'footer.quick_links_title', '' ) ); ?></h3>
-				<ul class="esk-footer-links">
-					<?php foreach ( $quick_links as $key => $url ) : ?>
-						<?php $label = esk_site_ui( 'footer.' . $key, '' ); ?>
-						<?php if ( $label ) : ?>
-							<li><a href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( (string) $label ); ?></a></li>
-						<?php endif; ?>
-					<?php endforeach; ?>
+			<div>
+				<h3 class="text-sm font-semibold uppercase tracking-wider text-white"><?php echo esc_html( (string) esk_site_ui( 'footer.quick_links_title', '' ) ); ?></h3>
+				<ul class="mt-4 space-y-2.5">
+					<?php foreach ( $quick_links as $key => $url ) : $label = esk_site_ui( 'footer.' . $key, '' ); if ( $label ) : ?>
+						<li><a href="<?php echo esc_url( $url ); ?>" class="text-sm text-slate-400 transition-colors hover:text-white"><?php echo esc_html( (string) $label ); ?></a></li>
+					<?php endif; endforeach; ?>
 				</ul>
 			</div>
 
-			<div class="esk-footer-col">
-				<h3 class="esk-footer-head"><?php echo esc_html( (string) esk_site_ui( 'footer.important_title', '' ) ); ?></h3>
-				<ul class="esk-footer-links">
-				<?php if ( ! empty( $ministry_links ) ) : ?>
-					<?php foreach ( $ministry_links as $entry ) : ?>
-						<?php
-						$parts = explode( '|', (string) $entry );
-						if ( count( $parts ) < 2 || ! $parts[0] ) {
-							continue;
-						}
-						?>
-						<li><a href="<?php echo esc_url( $parts[1] ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( $parts[0] ); ?></a></li>
-					<?php endforeach; ?>
-				<?php else : ?>
-					<li><a href="https://www.moedu.gov.bd" target="_blank" rel="noopener noreferrer"><?php echo esc_html( (string) esk_site_ui( 'footer.link_ministry_education_ministry', '' ) ); ?></a></li>
-					<li><a href="<?php echo esc_url( home_url( '/transport/' ) ); ?>"><?php echo esc_html( (string) esk_site_ui( 'nav.transport', '' ) ); ?></a></li>
-				<?php endif; ?>
-			</ul>
+			<div>
+				<h3 class="text-sm font-semibold uppercase tracking-wider text-white"><?php echo esc_html( (string) esk_site_ui( 'footer.important_title', '' ) ); ?></h3>
+				<ul class="mt-4 space-y-2.5">
+					<?php if ( ! empty( $ministry_links ) ) : foreach ( $ministry_links as $entry ) : $parts = explode( '|', (string) $entry ); if ( count( $parts ) < 2 || ! $parts[0] ) { continue; } ?>
+						<li><a href="<?php echo esc_url( $parts[1] ); ?>" target="_blank" rel="noopener noreferrer" class="text-sm text-slate-400 transition-colors hover:text-white"><?php echo esc_html( $parts[0] ); ?></a></li>
+					<?php endforeach; else : ?>
+						<li><a href="https://www.moedu.gov.bd" target="_blank" rel="noopener noreferrer" class="text-sm text-slate-400 transition-colors hover:text-white"><?php echo esc_html( (string) esk_site_ui( 'footer.link_ministry_education_ministry', '' ) ); ?></a></li>
+						<li><a href="<?php echo esc_url( home_url( '/transport/' ) ); ?>" class="text-sm text-slate-400 transition-colors hover:text-white"><?php echo esc_html( (string) esk_site_ui( 'nav.transport', '' ) ); ?></a></li>
+					<?php endif; ?>
+				</ul>
 			</div>
 
-			<div class="esk-footer-col">
-				<h3 class="esk-footer-head"><?php echo esc_html( (string) esk_site_ui( 'footer.contact_title', '' ) ); ?></h3>
-				<ul class="esk-footer-links esk-footer-contact">
+			<div>
+				<h3 class="text-sm font-semibold uppercase tracking-wider text-white"><?php echo esc_html( (string) esk_site_ui( 'footer.contact_title', '' ) ); ?></h3>
+				<ul class="mt-4 space-y-3">
 					<?php foreach ( $contact_rows as $key => $value ) : ?>
-						<li>
-							<?php
-							if ( 'phone' === $key ) {
-								echo $esc( '<svg class="esk-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>' ); // phpcs:ignore
-							} elseif ( 'email' === $key ) {
-								echo $esc( '<svg class="esk-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>' ); // phpcs:ignore
-							} else {
-								echo $esc( '<svg class="esk-icon" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a2 2 0 002 2h10a2 2 0 002-2v-5a2 2 0 00-2-2V7a5 5 0 00-5-5zm3 7V7a3 3 0 00-6 0v2h6z"/></svg>' ); // phpcs:ignore
-							}
-							?>
-							<?php if ( 'email' === $key ) : ?>
-								<a href="<?php echo esc_url( 'mailto:' . $value ); ?>"><?php echo esc_html( $value ); ?></a>
-							<?php elseif ( 'phone' === $key ) : ?>
-								<a href="<?php echo esc_url( 'tel:' . preg_replace( '/[^0-9+]/', '', $value ) ); ?>"><?php echo esc_html( $value ); ?></a>
+						<li class="flex items-center gap-2">
+							<?php if ( 'phone' === $key ) : ?>
+								<a href="<?php echo esc_url( 'tel:' . preg_replace( '/[^0-9+]/', '', $value ) ); ?>" class="text-sm text-slate-400 hover:text-white"><?php echo esc_html( $value ); ?></a>
+							<?php elseif ( 'email' === $key ) : ?>
+								<a href="<?php echo esc_url( 'mailto:' . $value ); ?>" class="text-sm text-slate-400 hover:text-white"><?php echo esc_html( $value ); ?></a>
 							<?php else : ?>
-								<span><?php echo esc_html( $value ); ?></span>
+								<span class="text-sm text-slate-400"><?php echo esc_html( $value ); ?></span>
 							<?php endif; ?>
 						</li>
 					<?php endforeach; ?>
 				</ul>
 
-				<h3 class="esk-footer-head esk-footer-newsletter-head"><?php echo esc_html( (string) esk_site_ui( 'footer.newsletter_title', '' ) ); ?></h3>
-				<p><?php echo esc_html( (string) esk_site_ui( 'footer.newsletter_intro', '' ) ); ?></p>
-				<form class="esk-newsletter-form" action="<?php echo esc_url( home_url( '/' ) ); ?>" method="post" novalidate>
-					<label class="screen-reader-text" for="esk-newsletter-email"><?php echo esc_html( (string) esk_site_ui( 'footer.newsletter_email_label', '' ) ); ?></label>
-					<input id="esk-newsletter-email" type="email" name="esk_newsletter" placeholder="<?php echo esc_attr( (string) esk_site_ui( 'footer.newsletter_placeholder', '' ) ); ?>" required>
-					<button type="submit"><?php echo esc_html( (string) esk_site_ui( 'footer.newsletter_button', '' ) ); ?></button>
-				</form>
-				<?php
-				$newsletter_msg = esk_get_flash( 'success' );
-				if ( '' !== $newsletter_msg ) {
-					echo '<p class="esk-newsletter-msg">' . esc_html( $newsletter_msg ) . '</p>';
-				}
-				$newsletter_err = esk_get_flash( 'error' );
-				if ( '' !== $newsletter_err ) {
-					echo '<p class="esk-newsletter-msg esk-newsletter-msg-error">' . esc_html( $newsletter_err ) . '</p>';
-				}
-				?>
+				<div class="mt-6">
+					<h4 class="text-sm font-semibold text-white"><?php echo esc_html( (string) esk_site_ui( 'footer.newsletter_title', '' ) ); ?></h4>
+					<form action="<?php echo esc_url( home_url( '/' ) ); ?>" method="post" class="mt-2 flex gap-2" novalidate>
+						<label class="screen-reader-text" for="esk-newsletter-email"><?php echo esc_html( (string) esk_site_ui( 'footer.newsletter_email_label', '' ) ); ?></label>
+						<input id="esk-newsletter-email" type="email" name="esk_newsletter" required placeholder="<?php echo esc_attr( (string) esk_site_ui( 'footer.newsletter_placeholder', '' ) ); ?>" aria-label="<?php echo esc_attr( (string) esk_site_ui( 'footer.newsletter_email_label', '' ) ); ?>" class="min-w-0 flex-1 rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30">
+						<button type="submit" class="rounded-lg bg-brand-600 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-700" aria-label="<?php echo esc_attr( (string) esk_site_ui( 'footer.newsletter_button', '' ) ); ?>">
+							<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+						</button>
+					</form>
+				</div>
 			</div>
 		</div>
+	</div>
 
-		<div class="esk-footer-bottom">
-			<p class="esk-copyright">
-				&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php echo esc_html( $school_name ); ?>.
-				<?php echo esc_html( (string) esk_site_ui( 'footer.copyright_suffix', '' ) ); ?>
-			</p>
-			<div class="esk-footer-bottom-links">
-				<a href="<?php echo esc_url( home_url( '/privacy/' ) ); ?>"><?php echo esc_html( (string) esk_site_ui( 'footer.link_privacy', '' ) ); ?></a>
-				<a href="<?php echo esc_url( home_url( '/terms/' ) ); ?>"><?php echo esc_html( (string) esk_site_ui( 'footer.link_terms', '' ) ); ?></a>
-				<a href="<?php echo esc_url( home_url( '/sitemap.xml' ) ); ?>"><?php echo esc_html( (string) esk_site_ui( 'footer.link_sitemap', '' ) ); ?></a>
+	<div class="border-t border-slate-800">
+		<div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-4 sm:flex-row sm:px-6 lg:px-8">
+			<p class="text-xs text-slate-500">&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php echo esc_html( $school_name ); ?>. <?php echo esc_html( (string) esk_site_ui( 'footer.copyright_suffix', '' ) ); ?></p>
+			<div class="flex gap-4">
+				<a href="<?php echo esc_url( home_url( '/privacy/' ) ); ?>" class="text-xs text-slate-500 transition-colors hover:text-slate-300"><?php echo esc_html( (string) esk_site_ui( 'footer.link_privacy', '' ) ); ?></a>
+				<a href="<?php echo esc_url( home_url( '/terms/' ) ); ?>" class="text-xs text-slate-500 transition-colors hover:text-slate-300"><?php echo esc_html( (string) esk_site_ui( 'footer.link_terms', '' ) ); ?></a>
+				<a href="<?php echo esc_url( home_url( '/sitemap.xml' ) ); ?>" class="text-xs text-slate-500 transition-colors hover:text-slate-300"><?php echo esc_html( (string) esk_site_ui( 'footer.link_sitemap', '' ) ); ?></a>
 			</div>
 		</div>
 	</div>
