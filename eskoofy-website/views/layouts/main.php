@@ -19,7 +19,7 @@ if (!preg_match('/^#[0-9a-fA-F]{6}$/', $eskColour)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($title ?? ($siteTitle ?? $eskBrandName)) ?> — <?= htmlspecialchars($eskBrandName) ?></title>
-    <meta name="description" content="Eskoofy is an all-in-one school management system — admissions, attendance, fees, exams, results, transport, hostels, payroll and reporting. Deploy as a cloud or self-hosted app, a raw PHP system, or a WordPress theme.">
+    <meta name="description" content="Eskoofy is an all-in-one school management system — admissions, attendance, fees, exams, results, transport, hostels, payroll and reporting. Runs on your own server as a full app, a raw PHP system, or a WordPress theme.">
     <meta name="theme-color" content="<?= $eskColour ?>" data-light-theme="<?= $eskColour ?>">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">

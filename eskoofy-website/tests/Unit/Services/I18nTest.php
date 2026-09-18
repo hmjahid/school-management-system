@@ -21,12 +21,12 @@ class I18nTest extends TestCase
 
     public function test_english_translation_resolves(): void
     {
-        $this->assertSame('School management made simple — SaaS or self-hosted', I18n::t('home.badge', [], 'en'));
+        $this->assertSame('School management made simple — runs on your own server', I18n::t('home.badge', [], 'en'));
     }
 
     public function test_bangla_translation_resolves(): void
     {
-        $this->assertSame('স্কুল ম্যানেজমেন্ট এখন সিম্পল — সাস অথবা স্ব-হোস্টেড', I18n::t('home.badge', [], 'bn'));
+        $this->assertSame('স্কুল ম্যানেজমেন্ট এখন সিম্পল — আপনার নিজের সার্ভারেই চলে', I18n::t('home.badge', [], 'bn'));
     }
 
     public function test_unknown_key_falls_back_to_key(): void

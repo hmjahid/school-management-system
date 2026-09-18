@@ -109,6 +109,10 @@ $features = function (array $plan): array {
         </div>
     </div>
 
+    <div class="mt-16">
+        <?php \App\Core\View::partial('site.partials.services_addon'); ?>
+    </div>
+
     <div class="mt-16 max-w-3xl mx-auto">
         <h3 class="text-2xl font-bold text-center"><?= __('pricing.faq_heading') ?></h3>
         <p class="text-slate-500 text-center mt-1 mb-8"><?= __('pricing.faq_sub') ?></p>

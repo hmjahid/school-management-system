@@ -106,7 +106,7 @@ $fmt  = fn (float $usd): float => $isBd ? \App\Gateways\GatewayFactory::toBdt($u
     <div class="rounded-3xl bg-slate-50 border border-slate-200 p-8 md:p-10">
         <h2 class="text-2xl font-bold mb-6"><?= __('product.faq_heading') ?></h2>
         <div class="space-y-4">
-            <?php for ($i = 1; $i <= 4; $i++): ?>
+            <?php for ($i = 1; $i <= 5; $i++): ?>
                 <div class="bg-white rounded-2xl border border-slate-200 p-6">
                     <div class="font-semibold"><?= __('product.faq.' . $i . 'q') ?></div>
                     <p class="text-sm text-slate-600 mt-2 leading-relaxed"><?= __('product.faq.' . $i . 'a') ?></p>
@@ -115,5 +115,7 @@ $fmt  = fn (float $usd): float => $isBd ? \App\Gateways\GatewayFactory::toBdt($u
         </div>
     </div>
 </section>
+
+<?php \App\Core\View::partial('site.partials.services_addon'); ?>
 
 <?php \App\Core\View::partial('site.partials.cta-band'); ?>

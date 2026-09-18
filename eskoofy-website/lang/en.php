@@ -8,7 +8,7 @@ return [
     // Brand / shared
     'brand.name'        => 'Eskoofy',
     'brand.tagline'     => 'School management software & WordPress theme',
-    'brand.tagline_full' => 'The school management system for every school — cloud app, raw PHP, or WordPress theme. Licensed in USD.',
+    'brand.tagline_full' => 'School management software that runs on your own server — as a full app, raw PHP system, or WordPress theme. Licensed in USD.',
     'greeting.hello'    => 'Hello :name!',
 
     // Navigation
@@ -31,7 +31,7 @@ return [
     'nav.resources'     => 'Resources',
     'nav.company'       => 'Company',
     'nav.explore'       => 'Explore',
-    'nav.products_app_desc'    => 'Full application — cloud or your own server',
+    'nav.products_app_desc'    => 'Full application — runs on your own server',
     'nav.products_php_desc'    => 'Runs beautifully on budget shared hosting',
     'nav.products_theme_desc'  => 'Turn your WordPress into a school portal',
     'nav.products_compare_desc' => 'which deployment fits your school',
@@ -40,9 +40,9 @@ return [
     'nav.resources_contact_desc' => 'Get a demo or ask a question',
 
     // Hero / home
-    'home.badge'            => 'School management made simple — SaaS or self-hosted',
+    'home.badge'            => 'School management made simple — runs on your own server',
     'home.title'            => 'One school management system for everything your school does.',
-    'home.subtitle'         => 'Eskoofy brings admissions, attendance, fees, exams, results and more into one simple system — delivered as a cloud or self-hosted app, a raw PHP system, or a WordPress theme. Pick the option that fits your school best.',
+    'home.subtitle'         => 'Eskoofy brings admissions, attendance, fees, exams, results and more into one simple system — licensed software that runs on your own server as a full app, a raw PHP system, or a WordPress theme. Pick the option that fits your school best.',
     'home.cta_pricing'      => 'View Pricing',
     'home.cta_register'     => 'Get Started Free',
     'home.trust.1'          => '40+ modules, one platform',
@@ -69,9 +69,9 @@ return [
     'home.products_heading' => 'Three products, one mission',
     'home.products_sub'     => 'Three ways to run the same proven system — pick the one that fits your school, your budget and your hosting.',
     'home.products.recommended' => 'Best for shared hosting',
-    'home.products.app_tag' => 'Cloud or self-hosted app',
+    'home.products.app_tag' => 'Self-hosted app',
     'home.products.app_name' => 'Eskoofy School App',
-    'home.products.app_desc' => 'Full-featured Laravel application — run it yourself, or let us host it. Everything a school needs, in one codebase.',
+    'home.products.app_desc' => 'Full-featured application you install on your own server — or have us deploy & maintain it for you as an optional add-on. Everything a school needs, in one codebase.',
     'home.products.app_cta' => 'Learn more',
     'home.products.theme_tag' => 'WordPress theme',
     'home.products.theme_name' => 'Eskoofy WP Theme',
@@ -150,9 +150,9 @@ return [
     'product.recommended'   => 'Most popular',
     'product.cta_manage'    => 'Manage',
     'product.app_title'     => 'Eskoofy School App',
-    'product.app_sub'       => 'Eskoofy’s complete school management application. Host it on your own server, or let us run and maintain it for you — with reliable uptime and daily backups.',
+    'product.app_sub'       => 'Eskoofy’s complete school management application. Host it on your own server — or have our team deploy and maintain it for you as an optional add-on.',
     'product.app_deploy_1'  => 'Self-host on your own server',
-    'product.app_deploy_2'  => 'Or let us host & handle upgrades',
+    'product.app_deploy_2'  => 'Or add our deployment & maintenance service',
     'product.app_features'  => 'What’s inside the app',
     'product.app_f1'        => 'Student & staff management',
     'product.app_f2'        => 'Attendance & leaves',
@@ -193,6 +193,8 @@ return [
     'product.faq.3a'        => 'For self-hosted options your data always remains on your server. Renewals only cover updates and support; you keep full access to your data.',
     'product.faq.4q'        => 'Is training available?',
     'product.faq.4a'        => 'Yes. Documentation is included, and optional one-to-one onboarding sessions are available for new schools. Contact us and we’ll schedule one.',
+    'product.faq.5q'        => 'Can you deploy and maintain the system for us?',
+    'product.faq.5a'        => 'Yes. Deployment and maintenance are available as an optional add-on, quoted per client based on your setup and hosting. Send a request through the contact page and we’ll confirm the exact cost before you commit.',
 
     // Shared page CTA band
     'page.cta_title'        => 'Ready to bring your school onto one platform?',
@@ -202,10 +204,23 @@ return [
     'page.benefits_tag'     => 'Benefits',
     'page.run_tag'          => 'How it works',
 
+    // Deployment & maintenance add-on
+    'services.tag'              => 'Optional add-on',
+    'services.section_heading'  => 'Deployment & maintenance',
+    'services.intro'            => 'Every license runs on your own server. If you’d rather not handle the setup or day-to-day upkeep yourself, our team can deploy and maintain the system for you — quoted per client.',
+    'services.dep_t'            => 'Assisted deployment',
+    'services.dep_d'            => 'We install, configure and test your system on your hosting, then hand it over ready to use. You just log in.',
+    'services.dep_price'        => 'One-time, indicative: App $250 · PHP & Theme $150',
+    'services.care_t'           => 'Monthly care & maintenance',
+    'services.care_d'           => 'Updates, security patches, backup checks and priority fixes, so your system stays healthy.',
+    'services.care_price'       => 'From $29/month — start, pause or cancel anytime',
+    'services.bill_note'        => 'Indicative prices in USD. Services are quoted and invoiced separately — they never change your license or plan.',
+    'services.cta'              => 'Request a quote',
+
     // School App — landing page
-    'app_page.title'        => 'The complete school application — run by us or hosted by you',
+    'app_page.title'        => 'The complete school application — hosted on your own server',
     'app_page.sub'          => 'Everything your school does every day — students, teachers, fees, attendance, exams, timetables — handled by one clean application. No extra software to install, and your staff pick it up quickly.',
-    'app_page.audience'     => 'Best for schools that want a ready-to-use platform with a polished dashboard, without building or maintaining it themselves.',
+    'app_page.audience'     => 'Best for schools that want a ready-to-use platform with a polished dashboard — running on their own server, with optional deployment & maintenance from us.',
     'app_page.benefits_title' => 'What you can do',
     'app_page.b1'           => 'Manage students, staff and parents in one place',
     'app_page.b2'           => 'Collect fees online and keep clean, audit-ready records',
@@ -215,13 +230,13 @@ return [
     'app_page.b6'           => 'Get clear, simple reports for confident decisions',
     'app_page.run_title'    => 'How it runs',
     'app_page.run_sub'      => 'Two supported options — you choose the one you prefer.',
-    'app_page.run_1t'       => 'We host it for you',
-    'app_page.run_1d'       => 'You get a ready-to-use instance. Our team handles daily backups and updates.',
+    'app_page.run_1t'       => 'Optional: we deploy & maintain it',
+    'app_page.run_1d'       => 'Our team installs and maintains your system on your own hosting — updates, backup checks and support included. An add-on, quoted for you.',
     'app_page.run_2t'       => 'You host it yourself',
     'app_page.run_2d'       => 'Install on your own server with our step-by-step guide. Your data stays yours.',
     'app_page.start_title'  => 'Getting started',
     'app_page.start_1'      => 'Choose a plan',
-    'app_page.start_2'      => 'Decide who hosts it — us or you',
+    'app_page.start_2'      => 'Run it on your own server — or add our deployment service',
     'app_page.start_3'      => 'Log in, import your data, and invite your staff',
 
     // Raw PHP — landing page
@@ -271,9 +286,9 @@ return [
     // Pricing
     'pricing.title'         => 'Pricing',
     'pricing.badge'         => 'Simple, transparent subscription',
-    'pricing.sub'           => 'Flat monthly or yearly subscriptions — no student or staff limits, no hidden fees. International customers pay in USD; Bangladeshi customers pay in BDT.',
+    'pricing.sub'           => 'Flat monthly or yearly subscriptions — no student or staff limits, no hidden fees. International customers pay in USD; Bangladeshi customers pay in BDT. Every product runs on your own server; optional deployment & maintenance is quoted per client.',
     'pricing.app_section'   => 'School App',
-    'pricing.app_note'      => 'The full Laravel application — monthly or yearly subscription. Host it yourself or let us host it.',
+    'pricing.app_note'      => 'The full application — a flat subscription you run on your own server. Add our optional deployment & maintenance service if you like.',
     'pricing.app_badge'     => 'Subscription',
     'pricing.theme_section' => 'WordPress Theme',
     'pricing.theme_note'    => 'Turn any WordPress install into a school management portal. Flat subscription, own your data.',
