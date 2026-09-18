@@ -105,3 +105,24 @@ non-decorative images.
 - Run `composer test` in `eskoofy-app`, `eskoofy-php`, and `eskoofy-website`; `php -l` touched
   files; boot-check the dashboard routes of each product.
 - Commit each product's changes with clear messages.
+
+---
+
+## Status
+
+| # | Task | Status |
+|---|------|--------|
+| A1 | Issue license to unregistered users by email | Done — `7b5a5c1` |
+| A2 | Optional add-on on issue-license page | Done — `7b5a5c1` |
+| A3 | Blog detail 500 (ambiguous `slug`) | Done — `7b5a5c1` |
+| A4 | Checkout blank (missing `payments.variant` in live DB) | Done — `2d90cc8` |
+| B5 | Full-site SEO (Seo service, meta/OG/JSON-LD, sitemap, robots, noindex) | Done — `7b5a5c1` |
+| C6 | Eskoofy logo/favicon/brand in all 3 dashboards | Done — `202e271` (theme), `3241a43` (app/php) |
+| C7 | php Install App item always visible | Done — `3241a43` (root cause: button was `hidden` until `beforeinstallprompt`; now always shown) |
+| C8 | Theme user dropdown + Communications sidebar group | Done — `202e271` |
+| C9 | Notification templates & preferences items in app/php (+ new templates page) | Done — `3241a43` |
+| C10 | Theme frontend parity with app/php | **Pending** — open-ended visual redesign of the WP public site; needs a dedicated round |
+| C11 | Same demo content in all 3 products | **Pending** — seeder parity audit across app/php/theme; theme seed exists at `docker/theme-test/seed-demo.php` |
+| C12 | Theme home permalink `/client/` | Done — `202e271` (home_url normalisation filter + revert `client` front page) |
+
+All repos green: website 92/256, php 311/699, app 923/2361.
