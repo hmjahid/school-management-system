@@ -41,6 +41,7 @@ use App\Http\Controllers\Web\DashboardModulesController;
 use App\Http\Controllers\Web\DashboardNewsController;
 use App\Http\Controllers\Web\DashboardNoticeController;
 use App\Http\Controllers\Web\DashboardNotificationPreferencesController;
+use App\Http\Controllers\Web\DashboardNotificationTemplateController;
 use App\Http\Controllers\Web\DashboardOnboardingController;
 use App\Http\Controllers\Web\DashboardPayrollController;
 use App\Http\Controllers\Web\DashboardPermissionController;

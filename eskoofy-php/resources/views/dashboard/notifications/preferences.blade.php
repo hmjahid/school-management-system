@@ -13,7 +13,7 @@
         </x-slot:breadcrumbs>
     </x-page-header>
 
-    <form method="post" action="{{ route('dashboard.notifications.preferences.update') }}">
+    <form method="post" action="{{ route('notifications.preferences.update') }}">
         @csrf
         <x-card :padding="false">
             <table class="min-w-full divide-y divide-slate-200 text-sm">

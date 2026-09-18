@@ -1,21 +1,20 @@
 @php
-    $schoolName = $siteSettings?->localized_school_name ?? config('app.name', 'Eskoofy');
-    $schoolTagline = $siteSettings?->localized_tagline ?? __('dashboard.admin_panel');
+    $productName = config('app.name', 'Eskoofy');
+    $schoolName = $siteSettings?->localized_school_name ?? $productName;
+    $schoolTagline = ($schoolName !== $productName) ? $schoolName : (string) ($siteSettings?->localized_tagline ?? __('dashboard.admin_panel'));
     $logoUrl = $siteSettings?->logo_url;
 @endphp
 
 <div class="flex h-[4.25rem] flex-shrink-0 items-center gap-3 border-b border-slate-200/80 px-4 dark:border-slate-700/80">
     <a href="{{ route('dashboard') }}" class="flex min-w-0 items-center gap-3">
         @if ($logoUrl)
-            <img src="{{ $logoUrl }}" alt="{{ $schoolName }}" class="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-slate-200 dark:ring-slate-600">
+            <img src="{{ $logoUrl }}" alt="{{ $productName }}" class="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-slate-200 dark:ring-slate-600">
         @else
-            <img src="{{ asset('brand/eskofy-mark.svg') }}" alt="{{ $schoolName }}" class="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-slate-200 dark:ring-slate-600">
+            <img src="{{ asset('brand/eskofy-mark.svg') }}" alt="{{ $productName }}" class="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-slate-200 dark:ring-slate-600">
         @endif
         <div class="min-w-0">
-            @if (! $logoUrl)
-                <p class="truncate text-sm font-bold text-slate-900 dark:text-slate-100">{{ $schoolName }}</p>
-            @endif
-            <p class="truncate text-[0.65rem] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ __('dashboard.admin_panel') }}</p>
+            <p class="truncate text-sm font-bold text-slate-900 dark:text-slate-100">{{ $productName }}</p>
+            <p class="truncate text-[0.65rem] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ $schoolTagline }}</p>
         </div>
     </a>
 </div>
