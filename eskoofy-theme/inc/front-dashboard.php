@@ -57,6 +57,7 @@ function esk_front_dashboard_pages(): array {
 		'esk-testimonials'         => 'esk_testimonials_page',
 		'esk-committee'            => 'esk_committee_page',
 		'esk-careers'              => 'esk_careers_page',
+		'esk-careers-applications' => 'esk_careers_applications_page',
 		'esk-reports'              => 'esk_reports_page',
 		'esk-users'                => 'esk_users_page',
 		'esk-staff-directory'      => 'esk_staff_directory_page',

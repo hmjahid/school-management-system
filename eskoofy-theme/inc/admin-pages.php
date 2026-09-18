@@ -798,6 +798,10 @@ function esk_careers_page(): void {
 	esk_render_admin_view( 'careers' );
 }
 
+function esk_careers_applications_page(): void {
+	esk_render_admin_view( 'career-applications' );
+}
+
 function esk_reports_page(): void {
 	esk_render_admin_view( 'reports' );
 }

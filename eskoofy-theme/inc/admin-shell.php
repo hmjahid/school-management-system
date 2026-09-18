@@ -59,7 +59,7 @@ function esk_admin_shell_groups(): array {
 		'HR'            => array( 'esk-payroll', 'esk-payslips', 'esk-salary-structures', 'esk-leave-types', 'esk-leave-requests' ),
 		'Documents'     => array( 'esk-admit-cards', 'esk-certificates', 'esk-id-cards', 'esk-testimonials', 'esk-committee' ),
 		'Facilities'    => array( 'esk-transport', 'esk-hostels', 'esk-library', 'esk-library-reports' ),
-		'Website'       => array( 'esk-cms', 'esk-careers', 'esk-events', 'esk-news', 'esk-gallery', 'esk-documents', 'esk-media', 'esk-contact-submissions' ),
+		'Website'       => array( 'esk-cms', 'esk-careers', 'esk-careers-applications', 'esk-events', 'esk-news', 'esk-gallery', 'esk-documents', 'esk-media', 'esk-contact-submissions' ),
 		'System'        => array( 'esk-activity', 'esk-visitor-logs', 'esk-backup', 'esk-cache', 'esk-tools', 'esk-notifications', 'esk-search' ),
 		'Settings'      => array( 'esk-settings', 'esk-onboarding', 'esk-bulk' ),
 		'Reports'       => array( 'esk-reports', 'esk-reports-builder', 'esk-analytics' ),
@@ -115,7 +115,7 @@ function esk_admin_sidebar_sections(): array {
 		$link( 'esk-tools' ),
 
 		$label( 'Website' ),
-		$details( 'Website CMS', 'dashicons-admin-site-alt3', array( 'esk-cms', 'esk-news', 'esk-gallery', 'esk-documents', 'esk-media', 'esk-contact-submissions', 'esk-careers' ) ),
+		$details( 'Website CMS', 'dashicons-admin-site-alt3', array( 'esk-cms', 'esk-news', 'esk-gallery', 'esk-documents', 'esk-media', 'esk-contact-submissions', 'esk-careers', 'esk-careers-applications' ) ),
 
 		$label( 'Administration' ),
 		$details( 'Users & Roles', 'dashicons-admin-users', array( 'esk-users', 'esk-roles' ) ),
@@ -205,6 +205,7 @@ function esk_dashboard_page_titles(): array {
 		'esk-media'                => 'Media Library',
 		'esk-contact-submissions'  => 'Form Submissions',
 		'esk-careers'              => 'Careers',
+		'esk-careers-applications' => 'Job applications',
 		'esk-search'               => 'Search',
 		'esk-cms'                  => 'CMS Pages',
 		'esk-bulk'                 => 'Bulk Import/Export',
@@ -303,6 +304,7 @@ function esk_admin_shell_icon( string $slug ): string {
 		'esk-media'              => 'dashicons-admin-media',
 		'esk-contact-submissions'=> 'dashicons-email-alt',
 		'esk-careers'            => 'dashicons-businessperson',
+		'esk-careers-applications' => 'dashicons-id',
 		'esk-search'             => 'dashicons-search',
 		'esk-activity'           => 'dashicons-clock',
 		'esk-visitor-logs'       => 'dashicons-visibility',

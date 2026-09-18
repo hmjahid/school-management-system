@@ -1,11 +1,11 @@
 <?php
 /**
- * Careers management — job listings and applications.
+ * Careers — job postings (list + add).
  *
  * @package Eskoofy
  */
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 global $wpdb;
 
 if ( isset( $_POST['esk_career_save'] ) ) {
@@ -34,15 +34,8 @@ if ( isset( $_POST['esk_career_delete'] ) ) {
 	exit;
 }
 
-$careers      = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}esk_careers ORDER BY id DESC" );
-$applications = $wpdb->get_results(
-	"SELECT ja.*, c.title AS career_title
-	FROM {$wpdb->prefix}esk_job_applications ja
-	JOIN {$wpdb->prefix}esk_careers c ON ja.career_id = c.id
-	ORDER BY ja.id DESC
-	LIMIT 50"
-);
-$flash = esk_get_flash( 'success' );
+$careers = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}esk_careers ORDER BY id DESC" );
+$flash   = esk_get_flash( 'success' );
 ?>
 <div class="wrap esk-admin-wrap">
 	<h1 class="wp-heading-inline"><?php esc_html_e( 'Careers', 'eskoofy' ); ?></h1>
@@ -108,32 +101,6 @@ $flash = esk_get_flash( 'success' );
 								<button type="submit" name="esk_career_delete" class="button button-small"><?php esc_html_e( 'Delete', 'eskoofy' ); ?></button>
 							</form>
 						</td>
-					</tr>
-				<?php endforeach; ?>
-			<?php endif; ?>
-		</tbody>
-	</table>
-
-	<h2 style="margin-top:1.5rem;"><?php esc_html_e( 'Recent Applications', 'eskoofy' ); ?></h2>
-	<table class="wp-list-table widefat striped esk-table">
-		<thead><tr>
-			<th><?php esc_html_e( 'Name', 'eskoofy' ); ?></th>
-			<th><?php esc_html_e( 'Email', 'eskoofy' ); ?></th>
-			<th><?php esc_html_e( 'Job', 'eskoofy' ); ?></th>
-			<th><?php esc_html_e( 'Status', 'eskoofy' ); ?></th>
-			<th><?php esc_html_e( 'Date', 'eskoofy' ); ?></th>
-		</tr></thead>
-		<tbody>
-			<?php if ( empty( $applications ) ) : ?>
-				<tr><td colspan="5"><?php esc_html_e( 'No applications.', 'eskoofy' ); ?></td></tr>
-			<?php else : ?>
-				<?php foreach ( $applications as $app ) : ?>
-					<tr>
-						<td><strong><?php echo esc_html( $app->name ); ?></strong></td>
-						<td><?php echo esc_html( $app->email ); ?></td>
-						<td><?php echo esc_html( $app->career_title ); ?></td>
-						<td><span class="esk-badge esk-badge-<?php echo esc_attr( $app->status ); ?>"><?php echo esc_html( ucfirst( $app->status ) ); ?></span></td>
-						<td><?php echo esc_html( esk_date_format( $app->created_at ) ); ?></td>
 					</tr>
 				<?php endforeach; ?>
 			<?php endif; ?>
