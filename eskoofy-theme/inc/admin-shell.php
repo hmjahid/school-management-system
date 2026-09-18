@@ -495,13 +495,11 @@ function esk_render_admin_shell_open( string $current = '' ): void {
 				<?php if ( '' !== $logo_url ) : ?>
 					<img src="<?php echo esc_url( $logo_url ); ?>" alt="<?php echo esc_attr( $school ); ?>" class="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-slate-200 dark:ring-slate-600">
 				<?php else : ?>
-					<span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white"><?php echo esc_html( $initials ); ?></span>
+					<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/logo.svg' ); ?>" alt="Eskoofy" class="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-slate-200 dark:ring-slate-600">
 				<?php endif; ?>
 				<div class="min-w-0">
-					<?php if ( '' === $logo_url ) : ?>
-						<p class="truncate text-sm font-bold text-slate-900 dark:text-white"><?php echo esc_html( $school ); ?></p>
-					<?php endif; ?>
-					<p class="text-[0.65rem] text-slate-400"><?php esc_html_e( 'Management System', 'eskoofy' ); ?></p>
+					<p class="truncate text-sm font-bold text-slate-900 dark:text-white">Eskoofy</p>
+					<p class="truncate text-[0.65rem] uppercase tracking-wide text-slate-400"><?php esc_html_e( 'Admin Panel', 'eskoofy' ); ?></p>
 				</div>
 			</a>
 		</div>

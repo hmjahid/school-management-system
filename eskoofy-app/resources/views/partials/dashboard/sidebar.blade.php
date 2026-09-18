@@ -1,7 +1,5 @@
 @php
     $productName = config('app.name', 'Eskoofy');
-    $schoolName = $siteSettings?->localized_school_name ?? $productName;
-    $schoolTagline = ($schoolName !== $productName) ? $schoolName : (string) ($siteSettings?->localized_tagline ?? __('dashboard.admin_panel'));
     $logoUrl = $siteSettings?->logo_url;
 @endphp
 
@@ -14,7 +12,7 @@
         @endif
         <div class="min-w-0">
             <p class="truncate text-sm font-bold text-slate-900 dark:text-slate-100">{{ $productName }}</p>
-            <p class="truncate text-[0.65rem] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ $schoolTagline }}</p>
+            <p class="truncate text-[0.65rem] font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ __('dashboard.admin_panel') }}</p>
         </div>
     </a>
 </div>
