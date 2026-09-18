@@ -598,10 +598,6 @@ add_filter( 'pre_option_siteurl', 'esk_normalize_site_home', 1 );
  * resolves to the root permanently.
  */
 function esk_self_heal_home_option(): void {
-	$request_path = (string) parse_url( $_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH );
-	if ( '/client' === $request_path || str_starts_with( $request_path, '/client/' ) ) {
-		return; // WP really lives in a /client/ subdirectory — leave it alone.
-	}
 	foreach ( array( 'home', 'siteurl' ) as $option ) {
 		$value = get_option( $option );
 		if ( is_string( $value ) && preg_match( '#/client/?$#i', $value ) ) {
@@ -610,6 +606,19 @@ function esk_self_heal_home_option(): void {
 	}
 }
 add_action( 'init', 'esk_self_heal_home_option', 1 );
+
+/*
+ * Never canonical-redirect to a /client URL (belt-and-suspenders on top of the
+ * home_url normalisation): a stray /client in the site URL must not cause
+ * WordPress to 301 the root (or any path) over to /client/.
+ */
+function esk_block_client_redirect( $redirect_url ) {
+	if ( is_string( $redirect_url ) && preg_match( '#/client(?:/|$)#i', (string) parse_url( $redirect_url, PHP_URL_PATH ) ?: '' ) ) {
+		return false;
+	}
+	return $redirect_url;
+}
+add_filter( 'redirect_canonical', 'esk_block_client_redirect', 1 );
 
 function esk_fix_front_page_slug(): void {
 	// If a static front page's permalink contains '/client', revert to the
