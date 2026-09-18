@@ -34,29 +34,30 @@ class ManualGateway implements PaymentGatewayInterface
     {
         $transaction = 'MAN-' . strtoupper(bin2hex(random_bytes(6)));
 
+        // Manual / bank transfer payments await admin confirmation before the
+        // license is issued and the product package is delivered.
         $this->db->update(
             'payments',
             [
                 'transaction_id' => $transaction,
-                'status'         => 'paid',
-                'paid_at'        => date('Y-m-d H:i:s'),
+                'status'         => 'pending',
                 'updated_at'     => date('Y-m-d H:i:s'),
             ],
             'id = ?',
             [(int) $payment['id']]
         );
 
-        ActivityLog::log('payment.processed', 'system', null, [
+        ActivityLog::log('payment.pending', 'system', null, [
             'payment_id'    => (int) $payment['id'],
             'gateway'       => 'manual',
             'transaction_id' => $transaction,
         ]);
 
         return [
-            'success'        => true,
+            'success'        => false,
             'transaction_id' => $transaction,
-            'status'         => 'paid',
-            'message'        => 'Payment recorded.',
+            'status'         => 'pending',
+            'message'        => 'Your payment is awaiting confirmation. We will email you once it is approved.',
             'raw'            => null,
         ];
     }

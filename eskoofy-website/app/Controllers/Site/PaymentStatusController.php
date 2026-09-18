@@ -35,9 +35,11 @@ class PaymentStatusController extends Controller
         }
 
         $cancelled = ($_GET['status'] ?? '') === 'cancelled';
+        $pending = ($_GET['status'] ?? '') === 'pending' || ($payment['status'] ?? '') === 'pending';
 
         // If not already paid, verify with the gateway (idempotent).
-        if (($payment['status'] ?? '') !== 'paid' && !$cancelled) {
+        // Manual/bank-transfer payments stay pending until an admin approves them.
+        if (($payment['status'] ?? '') !== 'paid' && !$cancelled && !$pending) {
             $gatewayService = GatewayFactory::make((string) $payment['gateway']);
             $result = $gatewayService->verify($payment, $_GET);
             if (($result['success'] ?? false)) {
@@ -67,9 +69,10 @@ class PaymentStatusController extends Controller
         }
 
         $this->view('site.payment-status', [
-            'payment'  => $payment,
-            'paid'     => $paid,
+            'payment'   => $payment,
+            'paid'      => $paid,
             'cancelled' => $cancelled,
+            'pending'   => $pending,
         ]);
     }
 }

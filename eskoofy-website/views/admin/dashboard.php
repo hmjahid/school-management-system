@@ -80,6 +80,22 @@ foreach ($licenseByProduct as $row) {
 }
 ?>
 
+<div class="mb-6 bg-white rounded-xl border border-slate-200 p-4 flex flex-wrap items-center gap-3">
+    <span class="text-xs uppercase tracking-wide text-slate-400 mr-2">Product dashboards</span>
+    <?php
+    $productDashboards = \App\Models\Settings::all();
+    $productLinks = [
+        ['app', 'App', (string) ($productDashboards['products.dashboards.app'] ?? 'http://localhost:8000/dashboard')],
+        ['php', 'PHP', (string) ($productDashboards['products.dashboards.php'] ?? 'http://localhost:8051/dashboard')],
+        ['theme', 'Theme', (string) ($productDashboards['products.dashboards.theme'] ?? 'http://localhost:8080/dashboard')],
+    ];
+    foreach ($productLinks as [$code, $label, $url]):
+    ?>
+        <a href="<?= htmlspecialchars($url) ?>" target="_blank" rel="noopener" class="text-sm bg-slate-900 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold"><?= htmlspecialchars($label) ?> dashboard →</a>
+    <?php endforeach; ?>
+    <span class="text-xs text-slate-400 ml-auto">Set the dashboard URLs in Settings → Site.</span>
+</div>
+
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
     <div class="bg-white rounded-xl border border-slate-200 p-5 flex items-center justify-between">
         <div>

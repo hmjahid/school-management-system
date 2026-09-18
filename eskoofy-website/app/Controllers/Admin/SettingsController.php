@@ -30,6 +30,9 @@ class SettingsController extends Controller
             'site.tagline'          => trim((string) ($_POST['site_tagline'] ?? '')),
             'site.contact_email'    => trim((string) ($_POST['site_contact_email'] ?? '')),
             'site.currency_label'   => trim((string) ($_POST['site_currency_label'] ?? 'USD')),
+            'products.dashboards.app'   => trim((string) ($_POST['products_dashboards_app'] ?? '')),
+            'products.dashboards.php'   => trim((string) ($_POST['products_dashboards_php'] ?? '')),
+            'products.dashboards.theme' => trim((string) ($_POST['products_dashboards_theme'] ?? '')),
             'appearance.brand_color' => preg_match('/^#[0-9a-fA-F]{6}$/', (string) ($_POST['appearance_brand_color'] ?? ''))
                 ? (string) $_POST['appearance_brand_color']
                 : '#2563eb',

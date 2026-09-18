@@ -13,6 +13,12 @@
                 <td class="px-4 py-3"><?= htmlspecialchars($p['gateway']) ?></td>
                 <td class="px-4 py-3 text-right"><?= htmlspecialchars($p['currency']) ?> <?= number_format((float) $p['amount'], 2) ?></td>
                 <td class="px-4 py-3">
+                    <?php if ($p['gateway'] === 'manual' && $p['status'] === 'pending'): ?>
+                        <form method="post" action="/admin/payments/<?= (int) $p['id'] ?>/approve" class="mb-1" onsubmit="return confirm('Approve this manual payment? This issues the license and emails the package to the client.')">
+                            <?= csrf_field() ?>
+                            <button class="bg-green-600 hover:bg-green-500 text-white text-xs font-semibold px-2.5 py-1 rounded-lg">✓ Approve & deliver</button>
+                        </form>
+                    <?php endif; ?>
                     <form method="post" action="/admin/payments/<?= (int) $p['id'] ?>" class="flex gap-1 items-center">
                         <?= csrf_field() ?>
                         <select name="status" class="border border-slate-300 rounded-lg px-2 py-1 text-xs">

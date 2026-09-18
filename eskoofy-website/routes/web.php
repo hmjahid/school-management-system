@@ -30,6 +30,9 @@ $router->get('/pricing', HomeController::class, 'pricing');
 $router->get('/features', HomeController::class, 'features');
 $router->get('/compare', HomeController::class, 'compare');
 $router->get('/about', HomeController::class, 'about');
+$router->get('/refund-policy', \App\Controllers\Site\LegalController::class, 'refundPolicy');
+$router->get('/terms', \App\Controllers\Site\LegalController::class, 'terms');
+$router->get('/privacy', \App\Controllers\Site\LegalController::class, 'privacy');
 $router->get('/contact', HomeController::class, 'contact');
 $router->post('/contact', HomeController::class, 'storeMessage');
 
@@ -99,6 +102,7 @@ $router->group('/admin', function (App\Core\Router $router): void {
     $router->get('/payments', AdminPayment::class, 'index');
     $router->get('/payments/export', AdminPayment::class, 'exportCsv');
     $router->post('/payments/{id}', AdminPayment::class, 'updateStatus');
+    $router->post('/payments/{id}/approve', AdminPayment::class, 'approveManual');
 
     $router->get('/subscriptions', \App\Controllers\Admin\SubscriptionController::class, 'index');
 

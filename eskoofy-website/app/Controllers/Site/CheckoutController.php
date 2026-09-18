@@ -123,7 +123,14 @@ class CheckoutController extends Controller
             $this->redirect((string) $result['redirect_url']);
         }
 
-        // Manual / offline / immediate gateways: mark paid and issue.
+        // Manual / bank transfer payments: record as pending until an admin
+        // confirms the transfer, then send the license + package.
+        if (($result['status'] ?? '') === 'pending') {
+            $this->withSuccess($result['message'] ?? 'Your payment is awaiting confirmation.');
+            $this->redirect('/checkout/status/' . $reference . '?status=pending');
+        }
+
+        // Immediate/offline gateways: mark paid and issue.
         if (($result['success'] ?? false)) {
             $manager = new LicenseManager();
             $issued = $manager->issue(

@@ -9,7 +9,7 @@ use Tests\TestCase;
 
 class ManualGatewayTest extends TestCase
 {
-    public function test_process_marks_payment_paid(): void
+    public function test_process_marks_payment_pending_until_approved(): void
     {
         $db = new FakeDatabase();
         $db->tables['payments'] = [['id' => 10, 'status' => 'pending']];
@@ -17,10 +17,10 @@ class ManualGatewayTest extends TestCase
         $gateway = new ManualGateway($db);
         $result = $gateway->process(['plan' => ['id' => 1]], ['id' => 10]);
 
-        $this->assertTrue($result['success']);
-        $this->assertSame('paid', $result['status']);
+        $this->assertFalse($result['success']);
+        $this->assertSame('pending', $result['status']);
         $this->assertStringStartsWith('MAN-', $result['transaction_id']);
-        $this->assertSame('paid', $db->rows('payments')[0]['status']);
+        $this->assertSame('pending', $db->rows('payments')[0]['status']);
         $this->assertSame($result['transaction_id'], $db->rows('payments')[0]['transaction_id']);
     }
 

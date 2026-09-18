@@ -7,6 +7,8 @@ use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Database;
 use App\Services\ActivityLog;
+use App\Services\LicenseManager;
+use App\Services\Mailer;
 
 class PaymentController extends Controller
 {
@@ -83,6 +85,67 @@ class PaymentController extends Controller
         ]);
 
         $this->withSuccess('Payment marked as ' . $data['status'] . '.');
+        $this->redirect('/admin/payments');
+    }
+
+    /**
+     * Approve a pending manual / bank-transfer payment: mark it paid, issue the
+     * license + subscription, and email the customer the package + documents.
+     */
+    public function approveManual(int $id): void
+    {
+        $db = Database::getInstance();
+        $payment = $db->fetch("SELECT * FROM payments WHERE id = ?", [$id]);
+
+        if (!$payment || $payment['gateway'] !== 'manual' || $payment['status'] !== 'pending') {
+            $this->withError('Payment not found or not awaiting approval.');
+            $this->redirect('/admin/payments');
+        }
+
+        $db->update('payments', [
+            'status'     => 'paid',
+            'paid_at'    => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ], 'id = ?', [$id]);
+
+        $licenseId = (int) ($payment['license_id'] ?? 0);
+        $manager = new LicenseManager();
+        $plan = $db->fetch("SELECT * FROM plans WHERE id = ?", [(int) $payment['plan_id']]);
+
+        if ($licenseId <= 0 && $plan) {
+            $issued = $manager->issue(
+                (int) $payment['customer_id'],
+                (int) $plan['id'],
+                (string) $plan['product'],
+                ['payment' => (int) $payment['id'], 'metadata' => ['gateway' => 'manual']]
+            );
+            $licenseId = (int) $issued['license']['id'];
+            $manager->createSubscription($licenseId, (int) $plan['id'], 'manual', [
+                'customer_id' => (int) $payment['customer_id'],
+            ]);
+        }
+
+        $customer = $db->fetch("SELECT id, name, email FROM customers WHERE id = ?", [(int) $payment['customer_id']]);
+        if ($customer && !empty($customer['email'])) {
+            Mailer::sendView(
+                (string) $customer['email'],
+                'Your Eskoofy payment is approved — download your package',
+                'package_available',
+                [
+                    'name'    => $customer['name'] ?: 'there',
+                    'product' => ucfirst((string) ($plan['product'] ?? '')),
+                    'version' => (string) ($plan['name'] ?? ''),
+                    'notes'   => 'Your manual payment has been approved. Your license key has been issued and your product package and documents are ready to download from your account.',
+                ]
+            );
+        }
+
+        ActivityLog::log('payment.approved', 'admin', (int) Auth::id(), [
+            'payment_id' => (int) $payment['id'],
+            'license_id' => $licenseId,
+        ]);
+
+        $this->withSuccess('Payment approved. License issued and delivery email sent to the client.');
         $this->redirect('/admin/payments');
     }
 }

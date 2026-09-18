@@ -15,6 +15,16 @@
             <input type="email" name="site_contact_email" value="<?= htmlspecialchars((string) ($settings['site.contact_email'] ?? '')) ?>" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm mb-3">
             <label class="block text-sm font-semibold mb-1">Currency label</label>
             <input name="site_currency_label" value="<?= htmlspecialchars((string) ($settings['site.currency_label'] ?? 'USD')) ?>" maxlength="8" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+            <div class="mt-4 pt-4 border-t border-slate-100">
+                <label class="block text-sm font-semibold mb-1">Product dashboard URLs</label>
+                <p class="text-xs text-slate-400 mb-2">Used by the "Product dashboards" links on the admin dashboard.</p>
+                <label class="block text-xs font-medium mb-0.5">App</label>
+                <input name="products_dashboards_app" value="<?= htmlspecialchars((string) ($settings['products.dashboards.app'] ?? '')) ?>" placeholder="http://localhost:8000/dashboard" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm mb-2">
+                <label class="block text-xs font-medium mb-0.5">Raw PHP</label>
+                <input name="products_dashboards_php" value="<?= htmlspecialchars((string) ($settings['products.dashboards.php'] ?? '')) ?>" placeholder="http://localhost:8051/dashboard" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm mb-2">
+                <label class="block text-xs font-medium mb-0.5">WordPress theme</label>
+                <input name="products_dashboards_theme" value="<?= htmlspecialchars((string) ($settings['products.dashboards.theme'] ?? '')) ?>" placeholder="http://localhost:8080/dashboard" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+            </div>
         </div>
 
         <div class="bg-white rounded-xl border border-slate-200 p-6">

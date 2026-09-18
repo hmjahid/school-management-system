@@ -275,6 +275,9 @@ foreach (['success', 'error', 'info'] as $fType) {
                 <li><a href="/account" class="hover:text-white"><?= __('footer.license_portal') ?></a></li>
                 <li><a href="/register" class="hover:text-white"><?= __('footer.create_account') ?></a></li>
                 <li><a href="/login" class="hover:text-white"><?= __('footer.sign_in') ?></a></li>
+                <li class="pt-2"><a href="/refund-policy" class="hover:text-white"><?= __('legal.refund.title') ?></a></li>
+                <li><a href="/terms" class="hover:text-white"><?= __('legal.terms.title') ?></a></li>
+                <li><a href="/privacy" class="hover:text-white"><?= __('legal.privacy.title') ?></a></li>
             </ul>
             <div class="mt-4 text-xs text-slate-500"><?= __('footer.currency_note') ?></div>
         </div>
