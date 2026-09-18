@@ -7,6 +7,10 @@
             <div class="flex justify-between"><dt class="text-slate-400">License key</dt><dd class="font-mono text-xs"><?= htmlspecialchars($license['license_key']) ?></dd></div>
             <div class="flex justify-between"><dt class="text-slate-400">Product</dt><dd><?= htmlspecialchars((string) ($license['product'] ?? '—')) ?></dd></div>
             <div class="flex justify-between"><dt class="text-slate-400">Status</dt><dd><?= $license['status'] ?></dd></div>
+            <?php $licenseAddons = json_decode((string) ($license['metadata'] ?? ''), true)['addons'] ?? ''; ?>
+            <?php if ($licenseAddons !== ''): ?>
+                <div class="flex justify-between"><dt class="text-slate-400">Add-on package</dt><dd class="font-semibold text-blue-600"><?= htmlspecialchars(ucwords(str_replace('_', ' + ', (string) $licenseAddons))) ?></dd></div>
+            <?php endif; ?>
             <div class="flex justify-between"><dt class="text-slate-400">Starts</dt><dd><?= htmlspecialchars((string) ($license['starts_at'] ?? '—')) ?></dd></div>
             <div class="flex justify-between"><dt class="text-slate-400">Expires</dt><dd><?= $license['expires_at'] ? htmlspecialchars($license['expires_at']) : 'Never (lifetime)' ?></dd></div>
             <div class="flex justify-between"><dt class="text-slate-400">Max activations</dt><dd><?= (int) $license['max_activations'] ?></dd></div>

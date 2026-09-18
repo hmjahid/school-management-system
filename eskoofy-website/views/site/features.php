@@ -1,4 +1,4 @@
-<?php $title = __('features.title'); $siteTitle = $title; ?>
+<?php $title = __('features.title'); $siteTitle = $title; $seo = ['title' => __('features.title'), 'description' => __('features.sub'), 'canonical' => '/features']; ?>
 
 <section class="esk-hero text-white">
     <div class="relative z-10 max-w-7xl mx-auto px-4 py-16 text-center">

@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /account
+Disallow: /admin
+Disallow: /login
+Disallow: /register
+Disallow: /checkout
+Disallow: /language/
+Disallow: /api/
+Disallow: /webhooks/
+
+Sitemap: https://eskoofy.com/sitemap.xml

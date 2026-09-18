@@ -69,6 +69,7 @@ $eskNavGroups = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($adminTitle ?? $eskBrandName . ' Admin') ?> — <?= $eskBrandName ?> Admin</title>
     <meta name="theme-color" content="<?= $eskColour ?>">
+    <meta name="robots" content="noindex, nofollow">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">

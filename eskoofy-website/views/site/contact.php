@@ -1,4 +1,4 @@
-<?php $title = __('nav.contact'); $siteTitle = $title; ?>
+<?php $title = __('nav.contact'); $siteTitle = $title; $seo = ['title' => __('nav.contact'), 'description' => __('contact.sub'), 'canonical' => '/contact']; ?>
 
 <section class="esk-hero text-white">
     <div class="relative z-10 max-w-7xl mx-auto px-4 py-16 text-center">

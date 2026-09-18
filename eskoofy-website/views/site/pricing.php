@@ -39,6 +39,18 @@ $features = function (array $plan): array {
     }
     return is_array($features) ? $features : [];
 };
+
+$faqItems = [];
+for ($i = 1; $i <= 5; $i++) {
+    $faqItems[] = ['q' => __('pricing.faq.' . $i . 'q'), 'a' => __('pricing.faq.' . $i . 'a')];
+}
+$seo = [
+    'title'       => __('pricing.title'),
+    'description' => __('pricing.sub'),
+    'canonical'   => '/pricing',
+    'type'        => 'website',
+    'schema'      => [\App\Services\Seo::faq($faqItems)],
+];
 ?>
 
 <section class="esk-hero text-white">

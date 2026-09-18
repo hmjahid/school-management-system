@@ -1,4 +1,4 @@
-<?php $title = __('blog.title'); $siteTitle = $title; $eskBrandName = (string) (\App\Models\Settings::get('site.name') ?: __('brand.name')); ?>
+<?php $title = __('blog.title'); $siteTitle = $title; $eskBrandName = (string) (\App\Models\Settings::get('site.name') ?: __('brand.name')); $seo = ['title' => __('blog.title'), 'description' => __('blog.sub'), 'canonical' => '/blog']; ?>
 
 <section class="esk-hero text-white">
     <div class="relative z-10 max-w-7xl mx-auto px-4 py-16 text-center">

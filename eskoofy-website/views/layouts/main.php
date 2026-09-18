@@ -19,7 +19,16 @@ if (!preg_match('/^#[0-9a-fA-F]{6}$/', $eskColour)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($title ?? ($siteTitle ?? $eskBrandName)) ?> — <?= htmlspecialchars($eskBrandName) ?></title>
-    <meta name="description" content="Eskoofy is an all-in-one school management system — admissions, attendance, fees, exams, results, transport, hostels, payroll and reporting. Runs on your own server as a full app, a raw PHP system, or a WordPress theme.">
+    <?php
+    $seo = $seo ?? [];
+    $seoPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+    if (str_starts_with($seoPath, '/account') || str_starts_with($seoPath, '/login')
+        || str_starts_with($seoPath, '/register') || str_starts_with($seoPath, '/checkout')
+        || str_starts_with($seoPath, '/admin')) {
+        $seo['noindex'] = true;
+    }
+    \App\Services\Seo::render($seo);
+    ?>
     <meta name="theme-color" content="<?= $eskColour ?>" data-light-theme="<?= $eskColour ?>">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">

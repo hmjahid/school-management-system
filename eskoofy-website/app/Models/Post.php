@@ -39,7 +39,7 @@ class Post extends Model
             "SELECT p.*, c.name AS category_name, c.slug AS category_slug
              FROM posts p
              LEFT JOIN post_categories c ON c.id = p.category_id
-             WHERE slug = ? AND deleted_at IS NULL LIMIT 1",
+             WHERE p.slug = ? AND p.deleted_at IS NULL LIMIT 1",
             [$slug]
         );
 

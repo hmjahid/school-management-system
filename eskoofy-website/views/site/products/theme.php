@@ -5,6 +5,25 @@ $isBd = \App\Gateways\GatewayFactory::isBdCountry(\App\Core\Auth::user()['countr
 $sym  = $isBd ? '৳' : '$';
 $cur  = $isBd ? 'BDT' : 'USD';
 $fmt  = fn (float $usd): float => $isBd ? \App\Gateways\GatewayFactory::toBdt($usd) : $usd;
+$minPrice = 0.0;
+foreach ($plans as $p) {
+    $minPrice = $minPrice === 0.0 || (float) $p['price'] < $minPrice ? (float) $p['price'] : $minPrice;
+}
+$faqItems = [];
+for ($i = 1; $i <= 5; $i++) {
+    $faqItems[] = ['q' => __('product.faq.' . $i . 'q'), 'a' => __('product.faq.' . $i . 'a')];
+}
+$seo = [
+    'title'       => __('theme_page.title'),
+    'description' => __('theme_page.sub'),
+    'canonical'   => '/products/theme',
+    'type'        => 'product',
+    'schema'      => [
+        \App\Services\Seo::product(['name' => __('product.theme_title'), 'description' => __('product.theme_sub'), 'url' => '/products/theme', 'price' => number_format($minPrice, 2), 'currency' => 'USD']),
+        \App\Services\Seo::faq($faqItems),
+    ],
+    'breadcrumbs' => [['name' => __('nav.home'), 'url' => '/'], ['name' => __('product.theme_title'), 'url' => '/products/theme']],
+];
 ?>
 
 <!-- Hero -->

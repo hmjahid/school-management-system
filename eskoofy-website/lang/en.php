@@ -15,6 +15,7 @@ return [
     'nav.school_app'    => 'School App',
     'nav.wp_theme'      => 'WP Theme',
     'nav.raw_php'       => 'Raw PHP',
+    'nav.home'          => 'Home',
     'nav.pricing'       => 'Pricing',
     'nav.features'      => 'Features',
     'nav.blog'          => 'Blog',
@@ -484,6 +485,7 @@ return [
 
     // About
     'about.title'           => 'About Eskoofy',
+    'about.intro'           => 'Eskoofy builds one school management system that runs everywhere — as an app, a raw PHP system, or a WordPress theme on your own server.',
     'about.badge'           => 'Who we are',
     'about.p0'              => 'We build one school management system that runs everywhere — as an app, a raw PHP system, or a WordPress theme.',
     'about.1'               => 'Eskoofy builds school management software for schools everywhere. We started with a Bangladeshi-focused application and have internationalized it into an English-only, USD-priced product used by schools around the world.',

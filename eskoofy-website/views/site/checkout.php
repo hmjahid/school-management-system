@@ -1,4 +1,4 @@
-<?php $title = __('checkout.title'); $siteTitle = $title; ?>
+<?php $title = __('checkout.title'); $siteTitle = $title; $seo = ['title' => __('checkout.title'), 'description' => __('checkout.title') . ' — Eskoofy', 'canonical' => '/checkout', 'noindex' => true]; ?>
 
 <?php
 $gatewayNames = [

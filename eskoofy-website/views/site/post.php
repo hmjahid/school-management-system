@@ -1,4 +1,4 @@
-<?php $title = $post['title']; $siteTitle = $title; ?>
+<?php $title = $post['title']; $siteTitle = $title; $seo = ['title' => $post['title'], 'description' => (string) ($post['excerpt'] ?? ''), 'canonical' => '/blog/' . urlencode((string) $post['slug']), 'type' => 'article', 'schema' => [\App\Services\Seo::blogPosting($post)]]; ?>
 
 <section class="max-w-3xl mx-auto px-4 py-16">
     <a href="/blog" class="text-sm text-blue-600 hover:underline">← <?= __('blog.back') ?></a>

@@ -84,27 +84,75 @@ class LicenseController extends Controller
     public function store(): void
     {
         $data = $this->validate([
-            'customer_id' => 'required|numeric',
-            'plan_id'     => 'required|numeric',
+            'plan_id' => 'required|numeric',
         ]);
 
-        $plan = Database::getInstance()->fetch("SELECT * FROM plans WHERE id = ?", [(int) $data['plan_id']]);
+        $db = Database::getInstance();
+        $plan = $db->fetch("SELECT * FROM plans WHERE id = ?", [(int) $data['plan_id']]);
         if (!$plan) {
             $this->withError('Plan not found.');
             $this->redirect('/admin/licenses/create');
         }
 
+        $customerId = (int) ($_POST['customer_id'] ?? 0);
+        $newEmail = strtolower(trim((string) ($_POST['new_customer_email'] ?? '')));
+
+        if ($customerId <= 0 && $newEmail === '') {
+            $this->withError('Select a customer or enter a new customer email.');
+            $this->redirect('/admin/licenses/create');
+        }
+        if ($newEmail !== '' && !filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
+            $this->withError('The new customer email is not valid.');
+            $this->redirect('/admin/licenses/create');
+        }
+
+        if ($customerId > 0) {
+            $customer = $db->fetch("SELECT * FROM customers WHERE id = ? AND deleted_at IS NULL", [$customerId]);
+            if (!$customer) {
+                $this->withError('Customer not found.');
+                $this->redirect('/admin/licenses/create');
+            }
+        } else {
+            $customer = $db->fetch("SELECT * FROM customers WHERE email = ? AND deleted_at IS NULL", [$newEmail]);
+            if (!$customer) {
+                $customerId = (int) $db->insert('customers', [
+                    'name'       => ucwords(str_replace(['.', '_', '+'], ' ', strstr($newEmail, '@', true) ?: $newEmail)),
+                    'email'      => $newEmail,
+                    'password'   => password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT),
+                    'role'       => 'customer',
+                    'status'     => 'active',
+                    'locale'     => 'en',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
+                $customer = $db->fetch("SELECT * FROM customers WHERE id = ?", [$customerId]);
+                ActivityLog::log('admin.created_customer', 'admin', (int) Auth::id(), [
+                    'customer_id' => $customerId,
+                    'email'       => $newEmail,
+                ]);
+            } else {
+                $customerId = (int) $customer['id'];
+            }
+        }
+
+        $addon = (string) ($_POST['addon'] ?? '');
+        $addon = in_array($addon, ['deployment', 'care', 'deployment_care'], true) ? $addon : '';
+
         $licenseKey = $_POST['license_key'] ?? '';
         $issued = (new LicenseManager())->issue(
-            (int) $data['customer_id'],
+            $customerId,
             (int) $plan['id'],
             (string) $plan['product'],
-            ['license_key' => $licenseKey !== '' ? strtoupper($licenseKey) : null]
+            [
+                'license_key' => $licenseKey !== '' ? strtoupper($licenseKey) : null,
+                'metadata'    => array_filter(['addons' => $addon]),
+            ]
         );
 
         ActivityLog::log('admin.issued_license', 'admin', (int) Auth::id(), [
-            'customer_id' => (int) $data['customer_id'],
+            'customer_id' => $customerId,
             'license_key' => $issued['license']['license_key'],
+            'addons'      => $addon,
         ]);
 
         $this->withSuccess('License issued: ' . $issued['license']['license_key']);

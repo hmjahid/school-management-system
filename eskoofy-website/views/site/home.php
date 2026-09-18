@@ -5,6 +5,12 @@ $eskTag = (string) ($eskSettings['site.tagline'] ?? '');
 $eskName = ($eskName === '' || $eskName === 'Eskoofy') ? __('brand.name') : $eskName;
 $eskTag = ($eskTag === '' || $eskTag === 'School management software & WordPress theme') ? __('brand.tagline') : $eskTag;
 $siteTitle = $eskName . ' — ' . $eskTag;
+$seo = [
+    'title'       => __('home.title'),
+    'description' => __('home.subtitle'),
+    'type'        => 'website',
+    'canonical'   => '/',
+];
 ?>
 
 <!-- Hero -->
