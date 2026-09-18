@@ -820,11 +820,28 @@ function esk_staff_directory_page(): void {
 }
 
 function esk_notification_templates_page(): void {
+	esk_ensure_notification_tables();
 	esk_render_admin_view( 'notification-templates' );
 }
 
 function esk_notification_preferences_page(): void {
+	esk_ensure_notification_tables();
 	esk_render_admin_view( 'notification-preferences' );
+}
+
+/**
+ * Self-heal: create the notification tables if they are missing (e.g. the
+ * theme was activated before these tables were added to the schema).
+ */
+function esk_ensure_notification_tables(): void {
+	global $wpdb;
+	$templates = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->prefix . 'esk_notification_templates' ) );
+	$prefs     = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->prefix . 'esk_notification_preferences' ) );
+	if ( ! $templates || ! $prefs ) {
+		if ( function_exists( 'esk_create_tables' ) ) {
+			esk_create_tables();
+		}
+	}
 }
 
 function esk_roles_page(): void {
