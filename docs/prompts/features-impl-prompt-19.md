@@ -84,6 +84,7 @@ package, license key and client documents to the customer.
 | A1 | App/php sidebar: "Eskoofy / Admin Panel" (no school-name tagline) | Done `78d3cb6` |
 | A2 | Theme sidebar: "Eskoofy / Admin Panel" (was "Management System") | Done `78d3cb6` |
 | B3 | Theme frontend parity with app | Done (verified) — identical section headings, nav items, footer columns, Inter font + Eskoofy brand colours; only the app's local DB blue shade differs |
+| B3b | Theme header + footer pixel parity (Tailwind port) | Done `796528a` — ported the app's Tailwind utility bar, sticky masthead (dropdowns + auth) and 4-column footer into the theme and load the app's compiled CSS; header/footer classes now match the app class-for-class |
 | C4 | Refund Policy / Terms / Privacy pages | Done `a7d35cc` (routes, view, en/bn, footer, sitemap, SEO) |
 | C5 | Manual/bank-transfer approval flow (pending → admin approve → deliver) | Done `a7d35cc` (ManualGateway pending, checkout status page, admin Approve & deliver, test updated) |
 | C6 | 3-product dashboard header on website admin | Done `a7d35cc` (App/PHP/Theme links, configurable in Settings) |
