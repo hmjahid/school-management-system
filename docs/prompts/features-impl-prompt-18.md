@@ -102,3 +102,24 @@ PayPal, Paddle) from the admin instead of .env.
 - Update `database/schema.sql` whenever a website table changes; ALTER the live DB.
 - Run `composer test` in all repos; `php -l` touched files; boot-check each new page.
 - Commit per product with clear messages.
+
+---
+
+## Status
+
+| # | Task | Status |
+|---|------|--------|
+| A1 | Product packages (ZIP) + send to licensed clients + `/account/downloads` | Done `24513f1` (+ path fix `033f6aa`) |
+| A2 | Email templates admin + Mailer DB overrides | Done `24513f1` (verified override render) |
+| A3 | Client documents (user manual / setup guide) + send | Done `24513f1` |
+| A4 | Push notifications admin + account notifications + read receipts | Done `24513f1` |
+| B5 | Payment gateway admin (intl + local), settings-driven overrides | Done `24513f1` (verified at checkout) |
+| B6 | Demo featured images on demo posts (DB + schema seed) | Done `24513f1` |
+| C7 | Website admin clear-cache | Done `24513f1` |
+| C8 | eskoofy-app clear-cache | Done `7c666ce` |
+| C9 | eskoofy-php clear-cache | Done `7c666ce` |
+| C10 | eskoofy-theme clear-cache page | Done `7c666ce` |
+| D | php favicon (missing favicon.svg) | Done `7c666ce` |
+| — | Theme `/client/` home permalink (hardened filters + self-heal + front-page revert) | Done `202e271` + `7c666ce`; docker env verified clean |
+
+All repos green: website 92/256, php 311/699, app 923/2361.
