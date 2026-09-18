@@ -251,6 +251,9 @@ class Model implements \ArrayAccess, \JsonSerializable, \IteratorAggregate
     protected function castAttribute(string $key, mixed $value): mixed
     {
         $type = $this->casts[$key] ?? null;
+        if ($type === null && str_ends_with($key, '_at')) {
+            $type = 'datetime';
+        }
         if ($value === null || $type === null) {
             return $value;
         }

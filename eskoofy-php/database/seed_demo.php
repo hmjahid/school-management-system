@@ -147,3 +147,6 @@ echo "Roles: " . count($roles) . "\n";
 
 $userCount = (int) $db->fetch("SELECT COUNT(*) AS c FROM users WHERE deleted_at IS NULL")['c'];
 echo "Users: {$userCount}\n";
+echo "\nNext: run `php database/seed_demo_content.php` to seed the demo school content\n";
+echo "(classes, teachers, students, guardians, notices, events, galleries, fees) — the same\n";
+echo "demo data as the Laravel app and the WordPress theme.\n";
