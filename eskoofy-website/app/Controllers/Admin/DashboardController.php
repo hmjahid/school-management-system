@@ -32,7 +32,13 @@ class DashboardController extends Controller
                 (SELECT COUNT(*) FROM licenses WHERE deleted_at IS NULL AND expires_at IS NOT NULL AND expires_at BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 30 DAY)) AS expiring_soon,
                 (SELECT COUNT(*) FROM contact_messages WHERE read_at IS NULL) AS unread_messages,
                 (SELECT COALESCE(SUM(amount),0) FROM payments WHERE status = 'paid' AND paid_at >= DATE_FORMAT(NOW(), '%Y-%m-01')) AS revenue_this_month,
-                (SELECT COALESCE(SUM(amount),0) FROM payments WHERE status = 'paid' AND paid_at >= DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 MONTH), '%Y-%m-01') AND paid_at < DATE_FORMAT(NOW(), '%Y-%m-01')) AS revenue_prev_month"
+                (SELECT COALESCE(SUM(amount),0) FROM payments WHERE status = 'paid' AND paid_at >= DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 MONTH), '%Y-%m-01') AND paid_at < DATE_FORMAT(NOW(), '%Y-%m-01')) AS revenue_prev_month,
+                (SELECT COUNT(*) FROM licenses l JOIN plans pl ON l.plan_id = pl.id WHERE l.deleted_at IS NULL AND pl.period = 'monthly') AS monthly_licenses,
+                (SELECT COUNT(*) FROM licenses l JOIN plans pl ON l.plan_id = pl.id WHERE l.deleted_at IS NULL AND pl.period IN ('yearly', 'annual')) AS yearly_licenses,
+                (SELECT COUNT(*) FROM subscriptions WHERE status = 'active') AS active_subscriptions,
+                (SELECT COALESCE(SUM(CASE WHEN pl.period IN ('yearly', 'annual') THEN pl.price / 12 ELSE pl.price END), 0) FROM subscriptions s JOIN plans pl ON s.plan_id = pl.id WHERE s.status = 'active') AS mrr,
+                (SELECT COALESCE(SUM(CASE WHEN pl.period IN ('yearly', 'annual') THEN pl.price ELSE pl.price * 12 END), 0) FROM subscriptions s JOIN plans pl ON s.plan_id = pl.id WHERE s.status = 'active') AS arr,
+                (SELECT COALESCE(SUM(amount),0) FROM payments WHERE status = 'pending') AS revenue_pending"
         );
 
         $monthlyRows = $db->fetchAll(

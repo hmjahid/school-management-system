@@ -123,6 +123,14 @@ $router->group('/admin', function (App\Core\Router $router): void {
     $router->get('/account', \App\Controllers\Admin\AccountController::class, 'index');
     $router->post('/account/profile', \App\Controllers\Admin\AccountController::class, 'updateProfile');
     $router->post('/account/password', \App\Controllers\Admin\AccountController::class, 'updatePassword');
+
+    $router->get('/services', \App\Controllers\Admin\ServiceController::class, 'index');
+    $router->post('/services', \App\Controllers\Admin\ServiceController::class, 'update');
+
+    $router->get('/backup', \App\Controllers\Admin\BackupController::class, 'index');
+    $router->post('/backup/create/{type}', \App\Controllers\Admin\BackupController::class, 'create');
+    $router->get('/backup/download', \App\Controllers\Admin\BackupController::class, 'download');
+    $router->post('/backup/delete', \App\Controllers\Admin\BackupController::class, 'delete');
 }, ['AdminMiddleware']);
 // Gateway webhooks (public, signature-verified; CSRF-exempt via bootstrap).
 $router->post('/webhooks/{gateway}', \App\Controllers\Api\WebhookController::class, 'handle');

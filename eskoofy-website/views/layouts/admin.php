@@ -30,6 +30,8 @@ $eskIcons = [
     'activity' => '<svg viewBox="0 0 24 24" width="20" height="20" class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
     'sliders' => '<svg viewBox="0 0 24 24" width="20" height="20" class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>',
     'user' => '<svg viewBox="0 0 24 24" width="20" height="20" class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>',
+    'tool' => '<svg viewBox="0 0 24 24" width="20" height="20" class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76Z"/></svg>',
+    'archive' => '<svg viewBox="0 0 24 24" width="20" height="20" class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8M10 12h4"/></svg>',
     'plus' => '<svg viewBox="0 0 24 24" width="14" height="14" class="h-3.5 w-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
     'globe' => '<svg viewBox="0 0 24 24" width="20" height="20" class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z"/></svg>',
     'logout' => '<svg viewBox="0 0 24 24" width="20" height="20" class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>',
@@ -43,6 +45,7 @@ $eskNavGroups = [
         ['label' => 'Plans', 'href' => '/admin/plans', 'icon' => 'layers', 'active' => $eskActive(['/admin/plans'])],
         ['label' => 'Payments', 'href' => '/admin/payments', 'icon' => 'card', 'active' => $eskActive(['/admin/payments'])],
         ['label' => 'Subscriptions', 'href' => '/admin/subscriptions', 'icon' => 'repeat', 'active' => $eskActive(['/admin/subscriptions'])],
+        ['label' => 'Deployment & maintenance', 'href' => '/admin/services', 'icon' => 'tool', 'active' => $eskActive(['/admin/services'])],
     ],
     'Customers' => [
         ['label' => 'All customers', 'href' => '/admin/customers', 'icon' => 'users', 'active' => $eskActive(['/admin/customers'])],
@@ -54,6 +57,7 @@ $eskNavGroups = [
     ],
     'System' => [
         ['label' => 'Activity log', 'href' => '/admin/activities', 'icon' => 'activity', 'active' => $eskActive(['/admin/activities'])],
+        ['label' => 'Backups', 'href' => '/admin/backup', 'icon' => 'archive', 'active' => $eskActive(['/admin/backup'])],
         ['label' => 'Settings', 'href' => '/admin/settings', 'icon' => 'sliders', 'active' => $eskActive(['/admin/settings'])],
         ['label' => 'My account', 'href' => '/admin/account', 'icon' => 'user', 'active' => $eskActive(['/admin/account'])],
     ],

@@ -116,11 +116,77 @@ foreach ($licenseByProduct as $row) {
     </div>
 </div>
 
+<div class="grid lg:grid-cols-3 gap-6 mb-6">
+    <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="font-bold">Monthly vs yearly licenses</h2>
+            <a href="/admin/subscriptions" class="text-sm font-semibold text-blue-600 hover:underline">Subscriptions →</a>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="rounded-xl border border-slate-200 p-4">
+                <div class="text-xs uppercase tracking-wide text-slate-400">Monthly</div>
+                <div class="text-2xl font-extrabold mt-1 text-blue-700"><?= (int) $stats['monthly_licenses'] ?></div>
+                <div class="text-xs text-slate-400 mt-1">licenses</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 p-4">
+                <div class="text-xs uppercase tracking-wide text-slate-400">Yearly</div>
+                <div class="text-2xl font-extrabold mt-1 text-indigo-700"><?= (int) $stats['yearly_licenses'] ?></div>
+                <div class="text-xs text-slate-400 mt-1">licenses</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 p-4">
+                <div class="text-xs uppercase tracking-wide text-slate-400">Active subs</div>
+                <div class="text-2xl font-extrabold mt-1"><?= (int) $stats['active_subscriptions'] ?></div>
+                <div class="text-xs text-slate-400 mt-1">subscriptions</div>
+            </div>
+            <div class="rounded-xl border border-slate-200 p-4">
+                <div class="text-xs uppercase tracking-wide text-slate-400">MRR</div>
+                <div class="text-2xl font-extrabold mt-1 text-green-700">$<?= number_format((float) $stats['mrr'], 0) ?></div>
+                <div class="text-xs text-slate-400 mt-1">ARR $<?= number_format((float) $stats['arr'], 0) ?></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-slate-200 p-6">
+        <h2 class="font-bold mb-4">Revenue summary</h2>
+        <?php
+        $revNow = (float) $stats['revenue_this_month'];
+        $revPrev = (float) $stats['revenue_prev_month'];
+        $revDelta = $revPrev > 0 ? round(($revNow - $revPrev) / $revPrev * 100) : null;
+        ?>
+        <dl class="space-y-3 text-sm">
+            <div class="flex items-center justify-between">
+                <dt class="text-slate-500">Collected (all time)</dt>
+                <dd class="font-semibold">$<?= number_format((float) $stats['revenue'], 0) ?></dd>
+            </div>
+            <div class="flex items-center justify-between">
+                <dt class="text-slate-500">This month</dt>
+                <dd class="font-semibold">$<?= number_format($revNow, 0) ?></dd>
+            </div>
+            <div class="flex items-center justify-between">
+                <dt class="text-slate-500">Last month</dt>
+                <dd class="font-semibold">$<?= number_format($revPrev, 0) ?></dd>
+            </div>
+            <?php if ($revDelta !== null): ?>
+                <div class="flex items-center justify-between">
+                    <dt class="text-slate-500">vs last month</dt>
+                    <dd class="font-semibold <?= $revDelta >= 0 ? 'text-green-600' : 'text-red-500' ?>"><?= $revDelta >= 0 ? '▲' : '▼' ?> <?= abs($revDelta) ?>%</dd>
+                </div>
+            <?php endif; ?>
+            <div class="flex items-center justify-between">
+                <dt class="text-slate-500">Pending payments</dt>
+                <dd class="font-semibold <?= (float) $stats['revenue_pending'] > 0 ? 'text-amber-600' : '' ?>">$<?= number_format((float) $stats['revenue_pending'], 0) ?></dd>
+            </div>
+        </dl>
+        <a href="/admin/payments" class="mt-4 inline-block text-sm font-semibold text-blue-600 hover:underline">View payments →</a>
+    </div>
+</div>
+
 <div class="mb-6 bg-slate-900 rounded-xl p-4 flex flex-wrap items-center gap-3">
     <span class="text-xs uppercase tracking-wide text-slate-400 mr-2">Quick actions</span>
     <a href="/admin/licenses/create" class="text-sm bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold">+ Issue license</a>
     <a href="/admin/plans/create" class="text-sm bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg font-medium">+ New plan</a>
     <a href="/admin/messages" class="text-sm bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg font-medium">Messages</a>
+    <a href="/admin/backup" class="text-sm bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg font-medium">⬇ Backups</a>
     <a href="/admin/settings" class="text-sm bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg font-medium">Email settings</a>
     <a href="/admin/payments/export" class="text-sm bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg font-medium">↓ Export payments</a>
     <a href="/admin/account" class="text-sm ml-auto bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg font-medium">⚙ Account</a>
