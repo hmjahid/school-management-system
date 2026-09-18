@@ -169,7 +169,7 @@ count-up stats, lightbox, bilingual). Recommended polish:
   - spacing/radius/transition tokens already exist — use `radius-card`, `transition-default` in the new views.
   - semantic status tokens: `--color-success-*`, `--color-warning-*`, `--color-danger-*` and map the
     hand-rolled `emerald/amber/red` pills to them.
-- **Document the system**: a `docs/UIUX-GUIDELINES.md` (or in the README) listing tokens, components,
+- **Document the system**: a `docs/features/UIUX-GUIDELINES.md` (or in the README) listing tokens, components,
   the "new era" checklist, and Figma/mirroring notes so future design work is consistent.
 
 ---

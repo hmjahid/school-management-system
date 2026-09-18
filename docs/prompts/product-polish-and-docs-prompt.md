@@ -30,7 +30,7 @@ pages, software/dev-credits page, READMEs, `.env` files). Tests pass (173 Featur
 **Verify:**
 - Run: `rg -i 'schoolease|school.ease' --glob '!archive/**' --glob '!storage/**' --glob '!docs/planning/**' --glob '!docs/UIUX-*' --glob '!docs/FEATURE-IMPROVEMENTS*' eskoofy-app eskoofy-php eskoofy-theme eskoofy-website`
 - Only historical planning docs (`docs/planning/wordpress-theme-conversion.md`,
-  `docs/UIUX-IMPROVEMENTS.md`, `docs/FEATURE-IMPROVEMENTS.md`) and `archive/` keep the old
+  `docs/features/UIUX-IMPROVEMENTS.md`, `docs/features/FEATURE-IMPROVEMENTS.md`) and `archive/` keep the old
   name as historical record — leave those.
 - Re-check `eskoofy-app/archive/frontend/src/components/dashboard/Sidebar.jsx` — read-only
   legacy, leave as-is.
@@ -93,7 +93,7 @@ gallery, notices, admissions, contact) for section order and content.
 **Status:** 🟡 Root README + product READMEs exist and are strong. Finish by:
 1. `docs/README.md` — add `COMPETITIVE-ANALYSIS.md`, `PAYMENT-MODEL.md`,
    `FEATURE-PROPAGATION.md` to the map.  ✅ (add new rows)
-2. New `docs/FEATURE-PROPAGATION.md` — cross-product feature consistency system
+2. New `docs/design/FEATURE-PROPAGATION.md` — cross-product feature consistency system
    (Task 5).
 3. Make sure each product `README.md` links to its `AGENTS.md` + relevant `docs/`.
 
@@ -105,7 +105,7 @@ Design (no execution of actual feature changes without confirmation):
    in `eskoofy-app`, the SAME behaviour must land in `eskoofy-php` + `eskoofy-theme`
    (and sale copy in `eskoofy-website`), unless the task explicitly scopes to one product.
 2. **Feature-defined patterns:** every feature change ships with
-   `docs/FEATURE-PROPAGATION.md` instructions that specify file paths per product
+   `docs/design/FEATURE-PROPAGATION.md` instructions that specify file paths per product
    (app → php view parity, app → theme template parity, app → website copy).
 3. **Runner script** `build/propagate/propagate-feature.php` (or `.sh`) that reads a
    feature request, and BEFORE making any change prints the per-product file plan and PAUSES
@@ -115,17 +115,17 @@ Design (no execution of actual feature changes without confirmation):
    per-product "Propagation" checklist section with columns
    `app | php | theme | website` and default = all boxes checked.
 
-Deliverables: `docs/FEATURE-PROPAGATION.md` + `build/propagate/propagate-feature.sh` +
+Deliverables: `docs/design/FEATURE-PROPAGATION.md` + `build/propagate/propagate-feature.sh` +
 a `--dry-run` + `--yes` mode. Confirm before creating anything beyond the docs if unsure.
 
 ## Task 6 — Competitor research (suggestions file)
 
-**Status:** ✅ Done → `docs/COMPETITIVE-ANALYSIS.md` (8 competitors, pricing models,
+**Status:** ✅ Done → `docs/design/COMPETITIVE-ANALYSIS.md` (8 competitors, pricing models,
 feature-showcase patterns, social proof, conversion funnel + 5 recommended patterns).
 
 ## Task 7 — Payment/subscription model (suggestions file)
 
-**Status:** ✅ Done → `docs/PAYMENT-MODEL.md` (Freemium + 4 tiers: Community free /
+**Status:** ✅ Done → `docs/design/PAYMENT-MODEL.md` (Freemium + 4 tiers: Community free /
 School $29/mo / District $79/mo / Enterprise custom; Stripe + bKash rails; license server
 via `eskoofy-website`; 14-day trial; revenue projections; key decisions).
 

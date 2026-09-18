@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 /**
  * Demo seeder — populates the database with the accounts documented in
- * docs/DEMO-CREDENTIALS.md. Run once after schema.sql:
+ * docs/operations/DEMO-CREDENTIALS.md. Run once after schema.sql:
  *
  *   php database/seed_demo.php
  *
@@ -48,7 +48,7 @@ function hashPw(string $pw): string {
     return password_hash($pw, PASSWORD_BCRYPT, ['cost' => 12]);
 }
 
-// ─── Demo accounts (from docs/DEMO-CREDENTIALS.md) ─────────────────────────
+// ─── Demo accounts (from docs/operations/DEMO-CREDENTIALS.md) ─────────────────────────
 $accounts = [
     // Admin
     ['name' => 'Super Administrator', 'email' => 'admin@school.com',    'password' => 'ChangeMe!2026$Tr0ng', 'role' => 'admin',       'role_id' => $roleIds['admin']],

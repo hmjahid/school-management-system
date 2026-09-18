@@ -308,10 +308,10 @@ Duration: 35.54s
 |---|---|---|---|
 | 1 | Docker configuration | ✅ | `docker-compose.yml` — nginx + php-fpm + MySQL 8 + Redis |
 | 2 | Database backup command | ✅ | `BackupDatabase.php` artisan command |
-| 3 | Backup/restore documentation | ✅ | `docs/BACKUP-RESTORE.md` |
-| 4 | Production checklist | ✅ | `docs/PRODUCTION-CHECKLIST.md` |
-| 5 | Operations runbooks | ✅ | `docs/RUNBOOKS.md` |
-| 6 | Performance baseline | ✅ | `docs/PERFORMANCE-BASELINE.md` |
+| 3 | Backup/restore documentation | ✅ | `docs/operations/BACKUP-RESTORE.md` |
+| 4 | Production checklist | ✅ | `docs/operations/PRODUCTION-CHECKLIST.md` |
+| 5 | Operations runbooks | ✅ | `docs/operations/RUNBOOKS.md` |
+| 6 | Performance baseline | ✅ | `docs/operations/PERFORMANCE-BASELINE.md` |
 | 7 | Scheduled jobs | ✅ | Backup, failed job monitoring, recurring payments, scheduled notifications |
 | 8 | Queue support | ✅ | 4 async jobs (refund, SMS, absence, notification) |
 | 9 | Environment configuration | ✅ | `.env.example` documented |
@@ -438,6 +438,6 @@ Duration: 35.54s
 ---
 
 **Report Generated:** 2026-09-04
-**Review Method:** Full execution of `docs/REVIEW-PROMPT.md` (5-step methodology)
+**Review Method:** Full execution of `docs/quality/REVIEW-PROMPT.md` (5-step methodology)
 **Previous Audits Referenced:** `codebase-audit.md` (2026-08-25), `docs/planning/system-architecture-review.md`
 **Test Suite:** 867 passed, 2160 assertions, 0 failures, 35.54s

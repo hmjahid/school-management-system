@@ -2,8 +2,8 @@
 
 > **Status: ARCHIVED / SUPERSEDED (2026-09-08).** This plan was written when library,
 > transport, hostel, SMS, and timetable were not yet implemented. **All of these have
-> since been implemented** in the codebase. Refer to `docs/FEATURE-IMPROVEMENTS.md` for the
-> current review and `docs/FEATURE-IMPROVEMENTS-IMPLEMENTATION.md` for the implementation
+> since been implemented** in the codebase. Refer to `docs/features/FEATURE-IMPROVEMENTS.md` for the
+> current review and `docs/features/FEATURE-IMPROVEMENTS-IMPLEMENTATION.md` for the implementation
 > tracker. This document is retained for historical reference only.
 
 ## Original scope (locked with user)

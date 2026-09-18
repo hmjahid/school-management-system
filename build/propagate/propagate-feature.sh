@@ -94,7 +94,7 @@ case "$MODE" in
       y|Y) echo ">> confirmed — proceeding via default agent/harness." ;;
       *)
         echo ">> aborted. When you scope a change to one product, say so explicitly "
-        echo "   (e.g. \"only in eskoofy-app\"). See docs/FEATURE-PROPAGATION.md."
+        echo "   (e.g. \"only in eskoofy-app\"). See docs/design/FEATURE-PROPAGATION.md."
         exit 2
         ;;
     esac
@@ -103,5 +103,5 @@ esac
 
 # @@ hand off (this script never edits) @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 echo ">> Apply the change to: eskoofy-app → eskoofy-php → eskoofy-theme → eskoofy-website"
-echo ">> Then run the verification gates in docs/FEATURE-PROPAGATION.md (last section)."
+echo ">> Then run the verification gates in docs/design/FEATURE-PROPAGATION.md (last section)."
 exit 0

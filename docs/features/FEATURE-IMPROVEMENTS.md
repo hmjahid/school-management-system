@@ -94,7 +94,7 @@ pipeline) and implement `scheduled_at` in SMS campaigns (queue a `SendBulkSmsJob
 
 ### 3.1 Form Request + parameter-object cleanup `[engineering-health]` [P1]
 **Evidence:** Docs note ~31 `$request->all()` call sites and `H3/H4` deferred in
-`docs/IMPLEMENTATION-PLAN.md`.
+`docs/features/IMPLEMENTATION-PLAN.md`.
 
 **Recommendation:** Introduce Form Requests for the largest controllers (admissions, fees, payroll,
 bulk import/export, settings). Use `validated()` everywhere; add per-field rules with
@@ -125,7 +125,7 @@ If SaaS is NOT the roadmap, delete/neutralize the trait to avoid implying a capa
 2. **TOTP 2FA** for admin web login (`app/Providers` guard hook + a `TwoFactorAuthentication` model/table +
    recovery codes). Gate on admin role; enforce in production.
 3. Enforce `SESSION_DRIVER=database/redis`, `httponly` + `samesite=lax`, and `SESSION_SECURE_COOKIE` per env
-   (already documented in `docs/PRODUCTION-CHECKLIST.md`).
+   (already documented in `docs/operations/PRODUCTION-CHECKLIST.md`).
 
 ### 3.5 Data integrity & audit `[engineering-health]` [P1]
 - Add FK-constraint-level replicas of the observable-side effects. `AttendanceObserver`/`FinanceObserver`
@@ -177,7 +177,7 @@ Ordered by (business impact / effort):
   (like the `reports/index` nesting bug).
 
 ### 5.2 Performance baseline `[engineering-health]` [P1]
-`docs/PERFORMANCE-BASELINE.md` exists. Reinforce:
+`docs/operations/PERFORMANCE-BASELINE.md` exists. Reinforce:
 - N+1 audit on list views (students index, fees, exam results) with `with()` + `withCount()`.
 - `$students` capped at 500 in marks entry — consider chunked/lazy or virtualized paging.
 - Cache the home page (`Cache::remember` per locale) since it is CMS-driven + DB-heavy; invalidate on
@@ -196,7 +196,7 @@ Ordered by (business impact / effort):
   as out-of-scope, yet all are implemented. Update or archive it.
 - Wire the "legacy" `ClassModel`/`Grade` consolidation into a real ticket (AGENTS.md already calls it out) and
   schedule the data migration; do not leave it as an indefinite debt note.
-- Keep `docs/IMPLEMENTATION-PLAN.md` deferred list synced with this document's priorities.
+- Keep `docs/features/IMPLEMENTATION-PLAN.md` deferred list synced with this document's priorities.
 
 ---
 

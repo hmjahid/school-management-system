@@ -18,7 +18,7 @@ Verification baseline (2026-09-11): `cd eskoofy-app && composer test` → **923 
 | 0.1 | Confirm final monorepo folder names + website start | ✅ done | Folders locked: `eskoofy-app`, `eskoofy-php`, `eskoofy-theme`, `eskoofy-website`, `build/`. |
 | 0.2 | **Gate:** name the host/market for raw PHP that can't run Composer/Laravel | ✅ done | **Permanently deferred** — no such host exists. Phase 6 skipped. |
 | 0.3 | Lock INT scope (gateways, home blocks, omit/add list) | ✅ done | INT = English-only, PayPal/Stripe/Paddle, no BD ministry links, USD/UTC (see `build/profiles/profiles.php`). |
-| 0.4 | Verify move won't break deploys | ✅ done | Suite + both artifact boots green from new paths; `docs/RUNBOOKS.md` path notes updated in root AGENTS.md. |
+| 0.4 | Verify move won't break deploys | ✅ done | Suite + both artifact boots green from new paths; `docs/operations/RUNBOOKS.md` path notes updated in root AGENTS.md. |
 
 ## Phase 1 — Restructure: move Laravel app into eskoofy-app/
 
@@ -66,7 +66,7 @@ Verification baseline (2026-09-11): `cd eskoofy-app && composer test` → **923 
 |---|------|--------|-------|
 | 5.1 | Export script `build/export.sh` | ✅ done | `./build/export.sh app bd`, `app int`, `theme {bd,int}`. rsync app → apply profile `.env` → strip lang → zip `build/dist/eskoofy-app-{variant}.zip`. Idempotent; `build/artifacts` + `build/dist` git-ignored. |
 | 5.2 | CI job for export + smoke | ✅ done | `.github/workflows/ci.yml`: test+lint job → export both variants → smoke assertions → artifact upload. |
-| 5.3 | Docs/runbooks + tags | ✅ done | `docs/RUNBOOKS.md` §7 = tagging convention + release flow; `docs/README.md` updated with build/CI section. |
+| 5.3 | Docs/runbooks + tags | ✅ done | `docs/operations/RUNBOOKS.md` §7 = tagging convention + release flow; `docs/README.md` updated with build/CI section. |
 
 ## Phase 6 — eskoofy-php (raw PHP) — COMPLETE
 

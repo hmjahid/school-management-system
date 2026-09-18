@@ -176,7 +176,7 @@ function esk_register_roles(): void {
 add_action( 'init', 'esk_register_roles' );
 
 /**
- * Create WordPress users matching docs/DEMO-CREDENTIALS.md so all three
+ * Create WordPress users matching docs/operations/DEMO-CREDENTIALS.md so all three
  * products (app, php, theme) share the same demo accounts.
  *
  * Idempotent: skips users that already exists; updates password if changed.

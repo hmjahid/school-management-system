@@ -53,7 +53,7 @@ management dashboard (`wp-admin/admin.php?page=esk-dashboard`). This page does
 administrators only). The site URL is resolved from the request host, so
 `localhost:8080` and `127.0.0.1:8080` both work.
 
-> These are the credentials from `docs/DEMO-CREDENTIALS.md`, shared across
+> These are the credentials from `docs/operations/DEMO-CREDENTIALS.md`, shared across
 > the app, the raw PHP system, and this theme.
 
 ## Management dashboard (frontend)

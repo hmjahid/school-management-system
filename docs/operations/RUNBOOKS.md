@@ -27,7 +27,7 @@ Verify: `/up` health endpoint returns `ok`, `php artisan about` reports producti
 `php artisan schedule:list` shows the backup + queue monitor entries.
 
 ### Pre-deploy checklist
-Run `docs/PRODUCTION-CHECKLIST.md` items 1–6, 14 (proxies), 18–19 (secrets).
+Run `docs/operations/PRODUCTION-CHECKLIST.md` items 1–6, 14 (proxies), 18–19 (secrets).
 
 ## 2. Rollback
 
@@ -46,7 +46,7 @@ php artisan up
 ```
 
 Rules:
-- Never delete data in rollback unless a restore drill (docs/BACKUP-RESTORE.md) proves the backup.
+- Never delete data in rollback unless a restore drill (docs/operations/BACKUP-RESTORE.md) proves the backup.
 - `migrate:rollback` should only be used when the forward migration removed/renamed data; otherwise forward-fix instead.
 
 ## 3. Gateway credential rotation (bKash / Nagad / Rocket / offline)
@@ -82,7 +82,7 @@ If a live test fails after rotation:
 3. If it is a security incident: revoke the affected API keys immediately, then rotate
    (runbook §3). Preserve logs before cleanup.
 4. Restore from the latest verified backup if data corruption is suspected — ONLY after a
-   restore drill is green (docs/BACKUP-RESTORE.md).
+   restore drill is green (docs/operations/BACKUP-RESTORE.md).
 5. Apply hotfix, deploy per runbook §1, then `php artisan up`.
 6. Postmortem: root cause, timeline, blast radius, prevention.
 

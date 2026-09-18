@@ -71,7 +71,7 @@ Verify (tests/lint) both versions
 
 do above tsks. continue until finished
 
-cannot login in php vesrion login page. make ensure that all 3 products are using the docs/demo-credentials.md files credentails
+cannot login in php vesrion login page. make ensure that all 3 products are using the docs/operations/demo-credentials.md files credentails
 
 php vesrion dashboard navbar/sidebar is broken. fix the issue. also language chnaing not working in the dashboard headre. fix it also
 
@@ -145,7 +145,7 @@ now update the root readme file according to the lastest chnage sand modificatio
 
 think that you are a senior QA tester with 10 years of experience. compare the php variant and theme variant with the laravel app version and write the mismatched and other results in a file.
 
-compare dashboard (sidebar items order, inside all accordion items sub-items, ui ux, layout, styles, contnets everything )and frontend (ui ux, layout, styles, contnets everything) and functionalities also. 
+compare dashboard (sidebar items order, inside all accordion items sub-items, ui ux, layout, styles, contnets everything )and frontend (ui ux, layout, styles, contnets everything) and functionalities also.
 
 now create a implementation plan file for impelmenting these two qa-reports files and execute the implementation plan file
 
@@ -159,6 +159,7 @@ cerate a docker conatiner and do yourself
 
 give me demo credentails to login in the website as admin
 
+arrange files and folder in docs folder. create a roper documenetation file for running the products and the website in the development server. add all the details and guides in the root readme file.
 
 
 

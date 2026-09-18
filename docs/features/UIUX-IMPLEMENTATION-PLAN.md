@@ -96,9 +96,9 @@ migrated to `x-empty-state`, incl. activity, ledger, payroll, library, media, SM
 - [x] **5.2 Badge/status map cleanup:** audit remaining inline `bg-emerald-100 text-emerald-800`-style pills in
       `dashboard/**` and route through `x-badge` or a status map partial (40+ pills converted; remaining hits are
       intentional non-pills: attendance cells, step circles, icon chips).
-- [x] **5.3 Document the system:** add `docs/UIUX-GUIDELINES.md` (tokens, component cheatsheet, "new era"
+- [x] **5.3 Document the system:** add `docs/features/UIUX-GUIDELINES.md` (tokens, component cheatsheet, "new era"
       checklist, dark-mode rule, do-not-use list: `blue-600`, native `confirm()`, dynamic class strings).
-- [x] **5.4 Update `docs/UIUX-IMPLEMENTATION-PLAN.md`** checkboxes + `docs/README.md` index.
+- [x] **5.4 Update `docs/features/UIUX-IMPLEMENTATION-PLAN.md`** checkboxes + `docs/README.md` index.
 
 ---
 

@@ -29,7 +29,7 @@ Turn this single Laravel repo into a 3-product monorepo:
 | 0.1 | Confirm final monorepo folder names + whether `eskoofy-website` starts now or later | PM | — | Names locked in this doc |
 | 0.2 | **Gate:** define the concrete target host/market for raw PHP that cannot run Composer/Laravel | PM/BD | — | One named host/profile documented; without it, Phase 5 stays blocked |
 | 0.3 | Lock INT scope: list of int-standard gateways, home-page blocks, bulk-mail/eschool features omitted or added | PM | — | Signed INT feature list in this doc |
-| 0.4 | Verify current repo can be moved without breaking deploys (no production path assumptions) | Dev | — | Checklist in `docs/RUNBOOKS.md` updated for new path |
+| 0.4 | Verify current repo can be moved without breaking deploys (no production path assumptions) | Dev | — | Checklist in `docs/operations/RUNBOOKS.md` updated for new path |
 
 ## Phase 1 — Restructure: move Laravel app into `eskoofy-app/`
 
@@ -77,7 +77,7 @@ Turn this single Laravel repo into a 3-product monorepo:
 |---|------|-------|---------|-----------|
 | 5.1 | `build/export.sh` (or artisan command): clone/fetch repo, apply profile, strip locale, write `.env`, run `composer install` + `migrate`, zip to `build/dist/` | Dev | 2.5, 4.1, 4.3 | `build/dist/eskoofy-app-bd.zip` + `eskoofy-app-int.zip` produced idempotently |
 | 5.2 | CI job: on tag, run export + smoke test both artifacts (install → migrate → seed demo → core page 200) | Dev | 5.1 | CI green for both variants |
-| 5.3 | Document runbooks: `docs/BACKUP-RESTORE.md`, `docs/PRODUCTION-CHECKLIST.md`, `docs/RUNBOOKS.md` under new paths; versioned tags `bd-vNN` / `int-vNN` | Dev | 5.1 | Ops docs match real artifact layout |
+| 5.3 | Document runbooks: `docs/operations/BACKUP-RESTORE.md`, `docs/operations/PRODUCTION-CHECKLIST.md`, `docs/operations/RUNBOOKS.md` under new paths; versioned tags `bd-vNN` / `int-vNN` | Dev | 5.1 | Ops docs match real artifact layout |
 
 ## Phase 6 — eskoofy-php (raw PHP) — GATED
 

@@ -63,7 +63,7 @@ Auditors: reviewer, dev, PM.
 | 5.1 | Smooth install: DB import + first-boot flow without errors | `eskoofy-php/database/schema.sql`, `eskoofy-app` migrations | ☐ |
 | 5.2 | Install wizard or clear install documentation (host, PHP, MySQL requirements) | README per product | ☐ |
 | 5.3 | System requirements checker on first run | both PHP products | ☐ |
-| 5.4 | Documented update/upgrade path (no data loss) | `docs/RUNBOOKS.md`, release notes | ☐ |
+| 5.4 | Documented update/upgrade path (no data loss) | `docs/operations/RUNBOOKS.md`, release notes | ☐ |
 | 5.5 | Demo import or seed data clearly labeled as demo | seeds/schema.sql | ☐ |
 | 5.6 | Security review: SQL injection, XSS, CSRF, auth bypass | audit all controllers | ☐ |
 | 5.7 | Clean under PHP 8.2+ (no deprecations) | both PHP products | ☐ |

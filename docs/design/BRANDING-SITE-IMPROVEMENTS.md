@@ -2,7 +2,7 @@
 
 > Research date: September 2026
 > Target: `eskoofy-website/` (the Eskoofy marketing + license site)
-> Companion doc: `docs/COMPETITIVE-ANALYSIS.md` (8-company profile inventory).
+> Companion doc: `docs/design/COMPETITIVE-ANALYSIS.md` (8-company profile inventory).
 > This file focuses on **what to implement** and **where** in the existing site,
 > based on how international school-management software vendors showcase
 > product, pricing, social proof and conversion in 2026.
@@ -54,7 +54,7 @@ Current pages: `/` (home), `/features`, `/pricing`, `/products/{app|php|theme}`,
 
 ### 3.1 Global (highest ROI, lowest effort)
 - **G1 — Persistent header CTA.** Add a `Sign up free` / `Get a demo` button in the header nav (today header links to pricing/register only). Mirror openSIS/Fedena dual-CTA habit.
-- **G2 — Trust strip.** A reusable partial under the hero on home + product pages: "ISO-aligned security · FERPA/GDPR-ready · 3 deployment models · 1 license, 3 products". Reference the real compliance posture from `docs/PAYMENT-DEPLOYMENT.md`/app docs so copy is accurate.
+- **G2 — Trust strip.** A reusable partial under the hero on home + product pages: "ISO-aligned security · FERPA/GDPR-ready · 3 deployment models · 1 license, 3 products". Reference the real compliance posture from `docs/operations/PAYMENT-DEPLOYMENT.md`/app docs so copy is accurate.
 - **G3 — Review/comparison badges.** A "compare" nav or footer block linking to a new `/compare` page (see 3.5) and any review-listing presence.
 
 ### 3.2 Home (`views/site/home.php`)
@@ -112,7 +112,7 @@ Current pages: `/` (home), `/features`, `/pricing`, `/products/{app|php|theme}`,
 
 ## 5. Where the research lives
 
-- This file: `docs/BRANDING-SITE-IMPROVEMENTS.md`
-- Competitor inventory (profiles + cross-analysis): `docs/COMPETITIVE-ANALYSIS.md`
+- This file: `docs/design/BRANDING-SITE-IMPROVEMENTS.md`
+- Competitor inventory (profiles + cross-analysis): `docs/design/COMPETITIVE-ANALYSIS.md`
 - Re-audit/re-verify commands: `cd eskoofy-website && composer test` (79 tests) after any
   change; `php -l` each touched view.

@@ -77,4 +77,4 @@ Session auth for web, Sanctum for API. `spatie/laravel-permission` provides role
 
 ## Ops
 
-Scheduled in `routes/console.php`: `backup:database` daily 02:00, `queue:monitor-failed` every 5 min (logs / `LOG_SLACK_WEBHOOK_URL`). Docs: `docs/PRODUCTION-CHECKLIST.md`, `docs/RUNBOOKS.md`, `docs/BACKUP-RESTORE.md`, `docs/API-PAYMENTS.md`, `docs/ADMISSIONS.md`, `docs/PAYMENT-DEPLOYMENT.md`.
+Scheduled in `routes/console.php`: `backup:database` daily 02:00, `queue:monitor-failed` every 5 min (logs / `LOG_SLACK_WEBHOOK_URL`). Docs: `docs/operations/PRODUCTION-CHECKLIST.md`, `docs/operations/RUNBOOKS.md`, `docs/operations/BACKUP-RESTORE.md`, `docs/operations/API-PAYMENTS.md`, `docs/operations/ADMISSIONS.md`, `docs/operations/PAYMENT-DEPLOYMENT.md`.

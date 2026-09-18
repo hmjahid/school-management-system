@@ -76,7 +76,7 @@
 | 2.14 | Replace `sleep(2)` in refund with queued job | Audit M4 | `RefundController::process` dispatches job instead of blocking. | [x] `ProcessRefundJob` created and dispatched; tests run with sync queue so response remains completed. |
 | 2.15 | Fix offline payment placeholder data | Audit M6 | `PaymentService` offline path returns real school account from settings. | [x] Added `payment.offline` config section with env-driven account details; removed hardcoded `1234567890`. |
 | 2.16 | Fix Rocket gateway URL typo | Workflow §7.3 | `api.razo.com.bd` → correct Rocket URL. | [x] Config and code use `api.rocket.com.bd`; no `razo` references remain. |
-| 2.17 | Clarify dual payment config sources | Workflow §7.1 | Document: DB config for runtime, `config/payment.php` for fallback secrets only. | [x] Added config-source section to `docs/API-PAYMENTS.md` and `AGENTS.md`. |
+| 2.17 | Clarify dual payment config sources | Workflow §7.1 | Document: DB config for runtime, `config/payment.php` for fallback secrets only. | [x] Added config-source section to `docs/operations/API-PAYMENTS.md` and `AGENTS.md`. |
 | 2.18 | Resolve duplicate migration confusion | Audit H15 | Document intentional guarded duplicates; remove truly dead ones after analysis. | [x] Migration gotchas already documented in `AGENTS.md`; no dead migrations removed to keep `migrate:fresh` stable. |
 
 **Exit criteria for Phase 2:**
@@ -181,13 +181,13 @@
 
 | # | Task | Source | Files / Notes | Verification |
 |---|---|---|---|---|
-| 6.1 | Production security checklist | Audit + Workflow | `APP_DEBUG=false`, strong admin password, HTTPS-only cookies, secrets in env, storage PHP block. | Security review sign-off. | [x] `docs/PRODUCTION-CHECKLIST.md` |
+| 6.1 | Production security checklist | Audit + Workflow | `APP_DEBUG=false`, strong admin password, HTTPS-only cookies, secrets in env, storage PHP block. | Security review sign-off. | [x] `docs/operations/PRODUCTION-CHECKLIST.md` |
 | 6.2 | Add rate limiting to dashboard state-changing routes | Audit A7 | Uniform throttling on critical POST endpoints. | Load test shows 429 after threshold. | [x] `DashboardWriteThrottle` middleware (120/min) on dashboard mount |
 | 6.3 | Set up error tracking & logging | General | Sentry/Laravel Logs integration; monitor queue failures. | Errors alert team. | [x] `queue:monitor-failed` (5-min) + Slack/log channel |
-| 6.4 | Add database backup/restore verification | Workflow §14 | Test restore from backup monthly. | Restore succeeds on staging. | [x] `backup:database` command (sqlite/mysql/pgsql) + `docs/BACKUP-RESTORE.md` |
-| 6.5 | Write runbooks | General | Deployment, rollback, gateway credential rotation, incident response. | Team can follow runbooks. | [x] `docs/RUNBOOKS.md` |
+| 6.4 | Add database backup/restore verification | Workflow §14 | Test restore from backup monthly. | Restore succeeds on staging. | [x] `backup:database` command (sqlite/mysql/pgsql) + `docs/operations/BACKUP-RESTORE.md` |
+| 6.5 | Write runbooks | General | Deployment, rollback, gateway credential rotation, incident response. | Team can follow runbooks. | [x] `docs/operations/RUNBOOKS.md` |
 | 6.6 | Update AGENTS.md and README | General | Reflect new routes, conventions, env requirements. | Docs match code. | [x] README + AGENTS.md refreshed |
-| 6.7 | Performance baseline | General | Load test public result lookup, admission apply, dashboard home. | p95 < 2s under expected load. | [x] `docs/PERFORMANCE-BASELINE.md` + ab procedure |
+| 6.7 | Performance baseline | General | Load test public result lookup, admission apply, dashboard home. | p95 < 2s under expected load. | [x] `docs/operations/PERFORMANCE-BASELINE.md` + ab procedure |
 | 6.8 | Final regression test suite | General | Cover critical paths: admission, payment, result, fee, attendance. | Suite green. | [x] `tests/Feature/CriticalFlowRegressionTest.php` — 129 tests green |
 
 ---
@@ -246,7 +246,7 @@
 
 All tasks in Phases 1–6 are now complete and verified. Next actions depend on project priorities:
 
-1. **Production hardening:** Run the `docs/PRODUCTION-CHECKLIST.md` and perform a security review.
+1. **Production hardening:** Run the `docs/operations/PRODUCTION-CHECKLIST.md` and perform a security review.
 2. **Lighthouse / UX audit:** Validate public-site performance and accessibility scores against the Phase 4 exit criteria.
 3. **Resolve pre-existing style warnings:** Run `./vendor/bin/pint` on `tests/Feature/Gateways/RocketRefundTest.php`, `tests/Feature/LedgerPageTest.php`, and `tests/Feature/RefundControllerTest.php` if you want a fully clean Pint report.
 4. **Start a new milestone:** e.g., mobile app API, multi-school tenancy, payroll, or advanced messaging.

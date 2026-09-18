@@ -9,7 +9,7 @@
 
 > **Confirmation gate:** this plan is the *proposal*. Before ANY feature below is
 > implemented, the per-product file plan must be presented and confirmed per
-> `docs/FEATURE-PROPAGATION.md`. Nothing is applied silently across products.
+> `docs/design/FEATURE-PROPAGATION.md`. Nothing is applied silently across products.
 > **BD/INT rule:** every smart feature is config/data-driven (`config/eskoolfy.php` +
 > `build/profiles/*`), never hardcoded `if (variant)` branching in code.
 
@@ -51,7 +51,7 @@ promotions, auto fee reminders, auto salary. T2 turns the same data into foresig
    explicitly enabled the feature for their account. Per-school opt-in, per-product flag.
 6. **No vendor lock-in.** T3 provider is a config value (`provider`, `model`, `base_url`,
    `key`) — OpenAI-compatible HTTP is the contract.
-7. **Confirmation before implementation** per `docs/FEATURE-PROPAGATION.md` — every stage
+7. **Confirmation before implementation** per `docs/design/FEATURE-PROPAGATION.md` — every stage
    below ships its per-product file map first.
 
 ---
@@ -136,7 +136,7 @@ supports `--dry-run` and an idempotency key (hash of scope+period stored in
 ### 4.4 Branding website — `eskoofy-website` (NOT a product)
 
 - Copy only: `/features` mentions "Smart automation & analytics"; pricing tier copy
-  for an optional "Smart" add-on per `docs/PAYMENT-MODEL.md`; `/products/*` feature lists.
+  for an optional "Smart" add-on per `docs/design/PAYMENT-MODEL.md`; `/products/*` feature lists.
 - **Code parity does not apply.** Website never implements internal engines.
 
 ### 4.5 Config & variants
@@ -222,7 +222,7 @@ battle-tested; every T3 action logged to `automation_logs`.
 
 ---
 
-## 6. Propagation matrix (per `docs/FEATURE-PROPAGATION.md`)
+## 6. Propagation matrix (per `docs/design/FEATURE-PROPAGATION.md`)
 
 | Change | eskoofy-app | eskoofy-php | eskoofy-theme | eskoofy-website |
 |---|---|---|---|---|

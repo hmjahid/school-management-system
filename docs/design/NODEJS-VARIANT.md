@@ -80,7 +80,7 @@ Next.js is "frontend + backend in one project", the modern equivalent of Laravel
 | PWA / offline | service worker already a JS pattern — near-copy |
 | 42 dashboard modules, 200+ routes, 200+ views | **The real effort** — weeks-to-months of porting, then permanent parity upkeep |
 
-## 4. Parity rules that apply (from `docs/FEATURE-PROPAGATION.md`)
+## 4. Parity rules that apply (from `docs/design/FEATURE-PROPAGATION.md`)
 
 - Default scope for any feature change = **ALL products** (`eskoofy-app`, `eskoofy-php`,
   `eskoofy-theme`, **and once shipped `eskoofy-node`**) + sales/marketing copy on the
@@ -97,7 +97,7 @@ Next.js is "frontend + backend in one project", the modern equivalent of Laravel
 1. **Add a gated phase** to `WORKPLAN.md` (e.g. Phase 10, gated like Phase 6 was) — do not
    start until the gate is approved.
 2. **Feature matrix first**: export module × route × view × permission matrix from
-   `eskoofy-app` (`route:list`, `docs/FEATURE-PROPAGATION.md` maps). This is the Node
+   `eskoofy-app` (`route:list`, `docs/design/FEATURE-PROPAGATION.md` maps). This is the Node
    port's acceptance checklist.
 3. **Backend/API first**: in the chosen single app (Option A/B) — Prisma + MySQL against the
    same schema; reach API parity with `eskoofy-app` `/api/v1` (same envelope + middleware
@@ -105,7 +105,7 @@ Next.js is "frontend + backend in one project", the modern equivalent of Laravel
 4. **Reuse the license contract** from `eskoofy-website` (`/api/v1/licenses/*`) so the Node
    product is monetisable via the branding site's license server from day one.
 5. **Then the dashboard**, then the public site (UI parity bar is highest on dashboard).
-6. **Extend propagation maps**: add `eskoofy-node` rows to `docs/FEATURE-PROPAGATION.md`
+6. **Extend propagation maps**: add `eskoofy-node` rows to `docs/design/FEATURE-PROPAGATION.md`
    and update `build/propagate/propagate-feature.sh` product list.
 
 ## 6. Honest caveats

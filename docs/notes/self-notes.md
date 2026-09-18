@@ -739,4 +739,4 @@ i want to name this software a nice name for branding. the dahboard sidebar top 
    - composer install --no-dev --optimize-autoloader
    - php artisan migrate --force
    - php artisan config:cache route:cache view:cache; storage:link
-   - verify backup:database; sign off docs/PRODUCTION-CHECKLIST.md
+   - verify backup:database; sign off docs/operations/PRODUCTION-CHECKLIST.md

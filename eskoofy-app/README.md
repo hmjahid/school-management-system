@@ -111,10 +111,10 @@ in `archive/frontend/` for reference only.
 
 Production deployment and operations guidance:
 
-- Production security checklist: `../docs/PRODUCTION-CHECKLIST.md`
-- Runbooks (deploy, rollback, credential rotation, incidents): `../docs/RUNBOOKS.md`
-- Backup & restore: `../docs/BACKUP-RESTORE.md`
-- Payments deployment notes: `../docs/PAYMENT-DEPLOYMENT.md`
+- Production security checklist: `../docs/operations/PRODUCTION-CHECKLIST.md`
+- Runbooks (deploy, rollback, credential rotation, incidents): `../docs/operations/RUNBOOKS.md`
+- Backup & restore: `../docs/operations/BACKUP-RESTORE.md`
+- Payments deployment notes: `../docs/operations/PAYMENT-DEPLOYMENT.md`
 
 ### Docker (production-like stack)
 ```bash
@@ -125,12 +125,12 @@ Access at: **http://localhost:8080** (nginx → Laravel `public/`)
 
 ## 📚 Documentation
 
-- [API — Payments & Refunds](../docs/API-PAYMENTS.md)
-- [Admissions](../docs/ADMISSIONS.md)
-- [Dashboard troubleshooting](../docs/DASHBOARD_TROUBLESHOOTING.md)
-- [Production checklist](../docs/PRODUCTION-CHECKLIST.md)
-- [Runbooks](../docs/RUNBOOKS.md)
-- [Backup & Restore](../docs/BACKUP-RESTORE.md)
+- [API — Payments & Refunds](../docs/operations/API-PAYMENTS.md)
+- [Admissions](../docs/operations/ADMISSIONS.md)
+- [Dashboard troubleshooting](../docs/operations/DASHBOARD_TROUBLESHOOTING.md)
+- [Production checklist](../docs/operations/PRODUCTION-CHECKLIST.md)
+- [Runbooks](../docs/operations/RUNBOOKS.md)
+- [Backup & Restore](../docs/operations/BACKUP-RESTORE.md)
 
 ## 🤝 Contributing
 

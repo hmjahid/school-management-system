@@ -17,12 +17,12 @@
 
 This plan implements the two senior-QA audits:
 
-1. `docs/QA-PARITY-REPORT.md` — eskoofy-php & eskoofy-theme parity vs the Laravel app
+1. `docs/quality/QA-PARITY-REPORT.md` — eskoofy-php & eskoofy-theme parity vs the Laravel app
    (IDs `P-A1..P-A6`, `P-B1..P-B6`).
-2. `docs/QA-UI-FRONTEND-REPORT.md` — theme dashboard sidebar + UI/UX + public frontend +
+2. `docs/quality/QA-UI-FRONTEND-REPORT.md` — theme dashboard sidebar + UI/UX + public frontend +
    functionality (IDs `SB-1..SB-7`, `P-U1..P-U19`).
 
-**Scope rule (root AGENTS.md + `docs/FEATURE-PROPAGATION.md`):** default scope is ALL
+**Scope rule (root AGENTS.md + `docs/design/FEATURE-PROPAGATION.md`):** default scope is ALL
 products (app + php + theme + website copy). Feature-level additions require a confirmation
 gate per `FEATURE-PROPAGATION.md`. Bug fixes that restore parity (where the app or theme is
 *incorrect* and the counterpart is correct) are applied to the side(s) that are wrong, and

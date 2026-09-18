@@ -33,7 +33,7 @@ products — it is **not a product** itself.
 
 > **Feature consistency:** all 3 products ship the **same feature set** (+ sales copy on
 > the branding website). Default scope for any feature change = **all products**,
-> confirmed before implementing — see [`docs/FEATURE-PROPAGATION.md`](docs/FEATURE-PROPAGATION.md).
+> confirmed before implementing — see [`docs/design/FEATURE-PROPAGATION.md`](docs/design/FEATURE-PROPAGATION.md).
 
 ## Features
 
@@ -70,12 +70,28 @@ products — it is **not a product** itself.
 ├── eskoofy-website/      Branding site + license server (NOT a product) — int-only
 ├── build/                BD/INT export box + feature-propagation gate (export.sh, propagate/)
 ├── docker/               Dev tooling (theme-test WordPress stack)
-├── docs/                 Design/review/runbook docs (map: docs/README.md)
+├── docs/                 Docs index + guides/operations/design/features/quality/planning/prompts/notes (map: docs/README.md)
 ├── WORKPLAN.md           Multi-product plan (phases, gates, milestones)
 └── workplan-implementation-plan.md   Per-task implementation tracker
 ```
 
-## Quick start
+## Development server
+
+[**`docs/guides/DEVELOPMENT.md`**](docs/guides/DEVELOPMENT.md) is the full guide for
+running every product and the website locally. Summary:
+
+### Requirements
+
+PHP **8.2+**, Composer 2+, Node 18+, MySQL/MariaDB (the app also works on SQLite), and
+Docker (for the WordPress theme harness). Each component uses its own port so they can run
+side by side:
+
+| Component | Port | Entry |
+|---|---|---|
+| `eskoofy-app` | 8000 | `php artisan serve` |
+| `eskoofy-php` | 8051 | `php -S localhost:8051 -t public` |
+| `eskoofy-website` | 8011 | `php -S 127.0.0.1:8011 -t public` |
+| `eskoofy-theme` | 8080 | Docker harness (`docker/theme-test`) |
 
 ### eskoofy-app (Laravel)
 
@@ -84,13 +100,16 @@ cd eskoofy-app
 composer install
 npm install
 cp .env.example .env && php artisan key:generate
-php artisan migrate --seed
-php artisan serve
+php artisan migrate:fresh --seed   # SQLite by default — no DB server needed
+composer dev                       # app :8000 + queue + pail + Vite HMR
 ```
 
-### eskoofy-php (raw PHP)
+Open **http://127.0.0.1:8000** → `/login` → `/dashboard`. Admin:
+`admin@school.com` / `ADMIN_PASSWORD` in `.env` (dev default `ChangeMe!2026$Tr0ng`).
+Student/guardian portals: `/student/login`, `/guardian/login`. API: `/api/v1`.
+Individual servers: `php artisan serve` + `npm run dev`.
 
-Requires PHP 8.2+ and MySQL. No Composer needed at runtime.
+### eskoofy-php (raw PHP — port 8051)
 
 ```bash
 cd eskoofy-php
@@ -100,36 +119,32 @@ php database/seed_demo.php  # optional demo accounts (idempotent)
 php -S localhost:8051 -t public
 ```
 
-The PHP port is `8051` so it does not clash with the Laravel app (`eskoofy-app` defaults to
-`8000`). Point the document root at `public/` on the shared host.
+Point the document root at `public/` on a shared host. `composer test` runs the
+dev-only PHPUnit suite.
 
-```bash
-cd eskoofy-php && composer test     # dev-only PHPUnit suite (299 tests / 604 assertions)
-```
-
-### eskoofy-website (marketing + license server)
+### eskoofy-website (marketing + license server — port 8011)
 
 ```bash
 cd eskoofy-website
 cp .env.example .env        # set DB_* for the licensing DB
-mysql -u root -p < database/schema.sql
-php -S localhost:8011 -t public
+mysql -u root -p eskoofy_website < database/schema.sql
+php -S 127.0.0.1:8011 -t public
 ```
 
 Single international (int) site: USD pricing, en/bn language switcher, PWA shell,
-and a license management API at `/api/v1`.
+license management API at `/api/v1`. Admin seed: `admin@eskoofy.com` / `admin123`.
 
-### eskoofy-theme (WordPress)
+### eskoofy-theme (WordPress — port 8080)
 
 ```bash
-cd eskoofy-theme
-composer install
-composer run lint           # PHPCS, WordPress-Extra ruleset
+cd docker/theme-test
+docker compose up -d        # installs WP + activates theme, bind-mounts eskoofy-theme/
 ```
 
-Copy the theme folder into `wp-content/themes/eskoofy`, activate it, then
-Settings → Eskoofy to finish setup. Custom DB tables are created automatically on
-activation.
+Open **http://localhost:8080** (login at `/login/`, dashboard at `/dashboard/`).
+Without Docker: copy the theme into `wp-content/themes/eskoofy`, activate it, then
+Settings → Eskoofy. Custom DB tables are created automatically on activation. Lint with
+`cd eskoofy-theme && composer install && composer run lint`.
 
 ### Build-box export
 
@@ -138,6 +153,21 @@ cd build
 ./export.sh app bd   # or: app int | theme bd | theme int | php bd | php int
 ./export.sh website  # website is always int (en/USD/UTC)
 ```
+
+### Demo credentials
+
+All products share the same demo accounts — canonical list in
+[`docs/operations/DEMO-CREDENTIALS.md`](docs/operations/DEMO-CREDENTIALS.md):
+
+| Role | Email | Password |
+|---|---|---|
+| Administrator | `admin@school.com` | `ChangeMe!2026$Tr0ng` (dev) |
+| Principal | `principal@school.com` | `principal123` |
+| Teacher | `teacher.john@school.com` / `teacher.sarah@school.com` | `teach1234` / `teach5678` |
+| Accountant | `accountant@school.com` | `accountant123` |
+| Librarian | `librarian@school.com` | `librarian123` |
+| Bulk | `teacher1..30@` / `student1..5@` / `parent1..10@school.com` | `password` |
+| Website admin | `admin@eskoofy.com` | `admin123` |
 
 ## Tests & CI
 
@@ -155,18 +185,25 @@ variants on every push/PR.
 ## Documentation
 
 Start at [`docs/README.md`](docs/README.md) — map + index of the whole `docs/` tree.
+The tree is organized into folders by topic:
 
-- `docs/FEATURE-PROPAGATION.md` — cross-product feature-consistency rule + runner
-  (`build/propagate/propagate-feature.sh`)
-- `docs/SMART-SCHOOL-IMPLEMENTATION.md` — planned "smart" layer (automation engines,
-  analytics/prediction, opt-in AI) across all products
-- `docs/NODEJS-VARIANT.md` — proposal for a **4th product** built on Node.js
-  (single-architecture Nest/Next/Adonis)
-- `docs/COMPETITIVE-ANALYSIS.md`, `docs/PAYMENT-MODEL.md` — competitor research and the
-  freemium/tiered pricing model for the branding website
-- `docs/DEMO-CREDENTIALS.md` — seeded demo accounts (all products)
-- `docs/RUNBOOKS.md` — deployment runbooks + semver tagging convention (`app/v*`, `theme/v*`, `v*`)
-- `docs/planning/` — historical plans, audits and reviews
+- `docs/guides/` — how-to guides. [`DEVELOPMENT.md`](docs/guides/DEVELOPMENT.md) = run
+  everything in the development server (ports, quick starts, credentials, troubleshooting)
+- `docs/operations/` — deployment, runbooks, backups, credentials, payments ops
+  (`RUNBOOKS.md`, `PRODUCTION-CHECKLIST.md`, `BACKUP-RESTORE.md`, `DEMO-CREDENTIALS.md`,
+  `API-PAYMENTS.md`, `ADMISSIONS.md`, …)
+- `docs/design/` — product proposals, research and cross-product rules
+  (`FEATURE-PROPAGATION.md` — feature-consistency rule + runner
+  `build/propagate/propagate-feature.sh`; `SMART-SCHOOL-IMPLEMENTATION.md` — planned
+  "smart" layer; `NODEJS-VARIANT.md` — proposed 4th Node product; `COMPETITIVE-ANALYSIS.md`,
+  `PAYMENT-MODEL.md` — research + freemium tiered pricing for the branding site)
+- `docs/features/` — improvement proposals + implementation trackers
+  (`FEATURE-IMPROVEMENTS.md`, `UIUX-IMPROVEMENTS.md`, `UIUX-GUIDELINES.md`,
+  `IMPLEMENTATION-PLAN.md`, `MARKETPLACE-ELIGIBILITY.md`)
+- `docs/quality/` — QA audits + review artifacts
+  (`QA-PARITY-REPORT.md`, `QA-UI-FRONTEND-REPORT.md`, `QA-REMEDIATION-PLAN.md`,
+  `SENIOR-PM-REVIEW-REPORT.md`, `REVIEW-PROMPT.md`)
+- `docs/planning/` — historical plans, audits and reviews (read-only record)
 - `docs/prompts/` + `docs/prompts/master/` — feature-implementation prompt files
 - `docs/notes/` — working notes / journal (tracked)
 - `AGENTS.md` — agent conventions for this monorepo (read first)

@@ -59,7 +59,7 @@ framework at runtime**, built for shared hosting without Composer/Laravel/VPS.
 
 ## Demo credentials
 
-See `eskoofy-php/README.md` — the canonical table lives there (and in `docs/DEMO-CREDENTIALS.md`).
+See `eskoofy-php/README.md` — the canonical table lives there (and in `docs/operations/DEMO-CREDENTIALS.md`).
 Primary admin: `admin@eskoofy.com` / `password`; also `admin@school.com` / `ChangeMe!2026$Tr0ng`.
 
 ## Gotchas

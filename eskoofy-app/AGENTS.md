@@ -44,7 +44,7 @@ Work here is the Laravel 12 school management software.
 | `backup:database` | daily 02:00 | self-contained DB backup (sqlite/mysql/pgsql) to `storage/app/backups`, prunes to 7 by default |
 | `queue:monitor-failed` | every 5 min | reports failed queue jobs to the default log channel / Slack (`LOG_SLACK_WEBHOOK_URL`) |
 
-Ops docs: `docs/PRODUCTION-CHECKLIST.md`, `docs/RUNBOOKS.md`, `docs/BACKUP-RESTORE.md`.
+Ops docs: `docs/operations/PRODUCTION-CHECKLIST.md`, `docs/operations/RUNBOOKS.md`, `docs/operations/BACKUP-RESTORE.md`.
 
 ## Running the app
 

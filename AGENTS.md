@@ -2,7 +2,7 @@
 
 Eskoofy is a **3-product** monorepo. Each product lives in its own folder with its own
 `AGENTS.md`. The `eskoofy-website/` folder is **NOT a product** — it is the **branding
-website + license server** that markets and sells the products (see `docs/NODEJS-VARIANT.md`
+website + license server** that markets and sells the products (see `docs/design/NODEJS-VARIANT.md`
 for the "product vs website" terminology and a proposed 4th Node product).
 
 ## Layout
@@ -26,7 +26,7 @@ Unless a task explicitly scopes to one product:
 
 - Apply the change to `eskoofy-app` **and** `eskoofy-php` **and** `eskoofy-theme` **and**
   the marketing copy in `eskoofy-website`.
-- **Confirm before implementing** (see `docs/FEATURE-PROPAGATION.md` + the runner
+- **Confirm before implementing** (see `docs/design/FEATURE-PROPAGATION.md` + the runner
   `build/propagate/propagate-feature.sh`).
 - php view parity = copy `resources/views/**` byte-identical; php route parity =
   `routes/api.php` equals app `route:list`.
