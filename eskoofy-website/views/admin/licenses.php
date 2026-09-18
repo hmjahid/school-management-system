@@ -1,15 +1,15 @@
 <?php $adminTitle = 'Licenses'; ?>
 
-<div class="flex items-center justify-between mb-4">
-    <form method="get" action="/admin/licenses" class="flex gap-2">
-        <input name="q" value="<?= htmlspecialchars($q) ?>" placeholder="Search key, name or email…" class="border border-slate-300 rounded-lg px-4 py-2 text-sm w-72">
+<div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+    <form method="get" action="/admin/licenses" class="flex flex-wrap gap-2 w-full sm:w-auto">
+        <input name="q" value="<?= htmlspecialchars($q) ?>" placeholder="Search key, name or email…" class="border border-slate-300 rounded-lg px-4 py-2 text-sm w-full sm:w-72">
         <button class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm">Search</button>
     </form>
     <a href="/admin/licenses/create" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm">Issue license</a>
 </div>
 
-<div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-    <table class="w-full text-sm">
+<div class="bg-white rounded-xl border border-slate-200 overflow-x-auto">
+    <table class="w-full text-sm min-w-[820px]">
         <thead class="bg-slate-50 text-left text-slate-400 text-xs uppercase">
             <tr><th class="px-4 py-3">License key</th><th class="px-4 py-3">Customer</th><th class="px-4 py-3">Plan</th><th class="px-4 py-3">Product</th><th class="px-4 py-3">Expires</th><th class="px-4 py-3">Status</th></tr>
         </thead>

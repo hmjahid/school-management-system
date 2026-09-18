@@ -1,15 +1,15 @@
 <?php $adminTitle = 'Customers'; ?>
 
-<div class="flex items-center justify-between mb-4">
-    <form method="get" action="/admin/customers" class="flex gap-2">
-        <input name="q" value="<?= htmlspecialchars($q) ?>" placeholder="Search name or email…" class="border border-slate-300 rounded-lg px-4 py-2 text-sm w-64">
+<div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+    <form method="get" action="/admin/customers" class="flex flex-wrap gap-2 w-full sm:w-auto">
+        <input name="q" value="<?= htmlspecialchars($q) ?>" placeholder="Search name or email…" class="border border-slate-300 rounded-lg px-4 py-2 text-sm w-full sm:w-64">
         <button class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm">Search</button>
     </form>
     <span class="text-sm text-slate-400"><?= count($customers) ?> customer(s)</span>
 </div>
 
-<div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-    <table class="w-full text-sm">
+<div class="bg-white rounded-xl border border-slate-200 overflow-x-auto">
+    <table class="w-full text-sm min-w-[760px]">
         <thead class="bg-slate-50 text-left text-slate-400 text-xs uppercase">
             <tr><th class="px-4 py-3">Name</th><th class="px-4 py-3">Email</th><th class="px-4 py-3">Company</th><th class="px-4 py-3 text-right">Licenses</th><th class="px-4 py-3 text-right">Total spent</th><th class="px-4 py-3">Status</th></tr>
         </thead>

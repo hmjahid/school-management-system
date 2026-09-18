@@ -1,7 +1,7 @@
 <?php $adminTitle = 'Payments'; ?>
 
-<div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-    <table class="w-full text-sm">
+<div class="bg-white rounded-xl border border-slate-200 overflow-x-auto">
+    <table class="w-full text-sm min-w-[860px]">
         <thead class="bg-slate-50 text-left text-slate-400 text-xs uppercase">
             <tr><th class="px-4 py-3">Reference</th><th class="px-4 py-3">Customer</th><th class="px-4 py-3">Gateway</th><th class="px-4 py-3 text-right">Amount</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Created</th><th class="px-4 py-3"></th></tr>
         </thead>

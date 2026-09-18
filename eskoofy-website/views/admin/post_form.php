@@ -7,7 +7,7 @@
             <label class="block text-sm font-semibold mb-1">Title</label>
             <input name="title" value="<?= htmlspecialchars((string) ($post['title'] ?? '')) ?>" required maxlength="191" class="w-full border border-slate-300 rounded-lg px-4 py-2">
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-semibold mb-1">Slug</label>
                 <input name="slug" value="<?= htmlspecialchars((string) ($post['slug'] ?? '')) ?>" required maxlength="191" class="w-full border border-slate-300 rounded-lg px-4 py-2 font-mono text-sm">
@@ -32,7 +32,7 @@
             <label class="block text-sm font-semibold mb-1">Content (HTML allowed)</label>
             <textarea name="content" rows="14" required class="w-full border border-slate-300 rounded-lg px-4 py-2 font-mono text-sm"><?= htmlspecialchars((string) ($post['content'] ?? '')) ?></textarea>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-semibold mb-1">Featured image URL</label>
                 <input name="featured_image" value="<?= htmlspecialchars((string) ($post['featured_image'] ?? '')) ?>" class="w-full border border-slate-300 rounded-lg px-4 py-2">
@@ -45,7 +45,7 @@
                 </select>
             </div>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-semibold mb-1">Meta title</label>
                 <input name="meta_title" value="<?= htmlspecialchars((string) ($post['meta_title'] ?? '')) ?>" maxlength="191" class="w-full border border-slate-300 rounded-lg px-4 py-2">

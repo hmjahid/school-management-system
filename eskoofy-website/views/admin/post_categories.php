@@ -1,12 +1,12 @@
 <?php $adminTitle = 'Post categories'; ?>
 
-<div class="flex items-center justify-between mb-4">
+<div class="flex flex-wrap items-center justify-between gap-3 mb-4">
     <span class="text-sm text-slate-400"><?= count($categories) ?> category(ies)</span>
     <a href="/admin/post-categories/create" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm">New category</a>
 </div>
 
-<div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-    <table class="w-full text-sm">
+<div class="bg-white rounded-xl border border-slate-200 overflow-x-auto">
+    <table class="w-full text-sm min-w-[700px]">
         <thead class="bg-slate-50 text-left text-slate-400 text-xs uppercase">
             <tr><th class="px-4 py-3">Name</th><th class="px-4 py-3">Slug</th><th class="px-4 py-3">Sort</th><th class="px-4 py-3">Active</th><th class="px-4 py-3"></th></tr>
         </thead>

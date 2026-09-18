@@ -3,7 +3,7 @@
 <div class="max-w-2xl bg-white rounded-xl border border-slate-200 p-6">
     <form method="post" action="<?= $plan ? "/admin/plans/{$plan['id']}" : '/admin/plans' ?>" class="space-y-4">
         <?= csrf_field() ?>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-semibold mb-1">Product</label>
                 <select name="product" class="w-full border border-slate-300 rounded-lg px-4 py-2 text-sm">
@@ -29,7 +29,7 @@
             <label class="block text-sm font-semibold mb-1">Slug</label>
             <input name="slug" value="<?= htmlspecialchars((string) ($plan['slug'] ?? '')) ?>" required maxlength="191" class="w-full border border-slate-300 rounded-lg px-4 py-2">
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-semibold mb-1">Price (USD)</label>
                 <input type="number" name="price" value="<?= htmlspecialchars((string) ($plan['price'] ?? '')) ?>" required step="0.01" min="0" class="w-full border border-slate-300 rounded-lg px-4 py-2">
@@ -43,7 +43,7 @@
             <label class="block text-sm font-semibold mb-1">Description</label>
             <textarea name="description" rows="2" maxlength="500" class="w-full border border-slate-300 rounded-lg px-4 py-2"><?= htmlspecialchars((string) ($plan['description'] ?? '')) ?></textarea>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-semibold mb-1">Sort order</label>
                 <input type="number" name="sort_order" value="<?= (int) ($plan['sort_order'] ?? 0) ?>" class="w-full border border-slate-300 rounded-lg px-4 py-2">

@@ -1,7 +1,7 @@
 <?php $adminTitle = 'Activity log'; ?>
 
-<div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-    <table class="w-full text-sm">
+<div class="bg-white rounded-xl border border-slate-200 overflow-x-auto">
+    <table class="w-full text-sm min-w-[760px]">
         <thead class="bg-slate-50 text-left text-slate-400 text-xs uppercase">
             <tr><th class="px-4 py-3">ID</th><th class="px-4 py-3">Event</th><th class="px-4 py-3">Actor</th><th class="px-4 py-3">Actor id</th><th class="px-4 py-3">Meta</th><th class="px-4 py-3">Created</th></tr>
         </thead>

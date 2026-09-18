@@ -15,7 +15,7 @@
             <label class="block text-sm font-semibold mb-1">Description</label>
             <textarea name="description" rows="2" maxlength="400" class="w-full border border-slate-300 rounded-lg px-4 py-2"><?= htmlspecialchars((string) ($category['description'] ?? '')) ?></textarea>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-semibold mb-1">Sort order</label>
                 <input type="number" name="sort_order" value="<?= (int) ($category['sort_order'] ?? 0) ?>" class="w-full border border-slate-300 rounded-lg px-4 py-2">

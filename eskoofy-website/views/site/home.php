@@ -30,10 +30,10 @@ $siteTitle = $eskName . ' — ' . $eskTag;
                     <span class="h-2.5 w-2.5 rounded-full bg-green-400"></span>
                     <span class="ml-3 text-xs text-slate-300"><?= __('home.mock_browser') ?></span>
                 </div>
-                <div class="grid grid-cols-3 gap-3 p-5">
-                    <div class="col-span-2 space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-5">
+                    <div class="sm:col-span-2 space-y-3">
                         <div class="h-5 w-2/3 rounded bg-white/15"></div>
-                        <div class="grid grid-cols-3 gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div class="rounded-lg bg-white/10 p-3"><div class="text-xl font-extrabold text-white">1,240</div><div class="text-[10px] text-slate-300"><?= __('home.mock_students') ?></div></div>
                             <div class="rounded-lg bg-white/10 p-3"><div class="text-xl font-extrabold text-white">98%</div><div class="text-[10px] text-slate-300"><?= __('home.mock_attendance') ?></div></div>
                             <div class="rounded-lg bg-white/10 p-3"><div class="text-xl font-extrabold text-white">$18k</div><div class="text-[10px] text-slate-300"><?= __('home.mock_fees') ?></div></div>
@@ -56,7 +56,7 @@ $siteTitle = $eskName . ' — ' . $eskTag;
                 </div>
             </div>
             <!-- Stats counters -->
-            <div class="mt-5 grid grid-cols-3 gap-4 text-center">
+            <div class="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                 <div><div class="text-3xl font-extrabold text-white"><span class="esk-count" data-count="50" data-suffix="+">0</span></div><div class="text-xs text-slate-300 mt-1"><?= __('home.stats.1') ?></div></div>
                 <div><div class="text-3xl font-extrabold text-white"><span class="esk-count" data-count="3" data-suffix="-in-1">0</span></div><div class="text-xs text-slate-300 mt-1"><?= __('home.stats.2') ?></div></div>
                 <div><div class="text-3xl font-extrabold text-white"><span class="esk-count" data-count="24" data-suffix="/7">0</span></div><div class="text-xs text-slate-300 mt-1"><?= __('home.stats.3') ?></div></div>

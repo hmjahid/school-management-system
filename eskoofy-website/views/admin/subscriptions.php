@@ -1,7 +1,7 @@
 <?php $title = 'Subscriptions'; $siteTitle = $title; ?>
 
 <section class="max-w-7xl mx-auto px-4 py-10">
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
         <div>
             <h1 class="text-3xl font-extrabold">Subscriptions</h1>
             <p class="text-slate-500 mt-1">Subscription lifecycle across all customers</p>
@@ -24,8 +24,8 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <table class="w-full text-sm">
+    <div class="bg-white rounded-xl border border-slate-200 overflow-x-auto">
+        <table class="w-full text-sm min-w-[840px]">
             <thead class="bg-slate-50 text-slate-500 text-left text-xs uppercase tracking-wide">
                 <tr>
                     <th class="px-4 py-3">Customer</th>
