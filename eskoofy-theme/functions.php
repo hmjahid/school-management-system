@@ -162,8 +162,49 @@ function esk_theme_activation(): void {
 		esk_create_tables();
 	}
 	esk_create_demo_users();
+	esk_assign_homepage_and_blog();
 }
 add_action( 'after_switch_theme', 'esk_theme_activation' );
+
+/**
+ * On activation, ensure a Home page and a Blog page exist and are assigned as
+ * the WordPress static front page (rendered by front-page.php) and the posts
+ * page respectively. Idempotent: existing pages/assignments are kept.
+ */
+function esk_assign_homepage_and_blog(): void {
+	$home_id = (int) ( get_page_by_path( 'home' )?->ID ?? 0 );
+	if ( $home_id <= 0 ) {
+		$home_id = (int) wp_insert_post(
+			array(
+				'post_type'    => 'page',
+				'post_status'  => 'publish',
+				'post_title'   => 'Home',
+				'post_name'    => 'home',
+				'post_content' => '',
+			)
+		);
+	}
+
+	$blog_id = (int) ( get_page_by_path( 'blog' )?->ID ?? 0 );
+	if ( $blog_id <= 0 ) {
+		$blog_id = (int) wp_insert_post(
+			array(
+				'post_type'    => 'page',
+				'post_status'  => 'publish',
+				'post_title'   => 'Blog',
+				'post_name'    => 'blog',
+				'post_content' => '',
+			)
+		);
+	}
+
+	if ( $home_id > 0 && $blog_id > 0 ) {
+		update_option( 'show_on_front', 'page' );
+		update_option( 'page_on_front', $home_id );
+		update_option( 'page_for_posts', $blog_id );
+		flush_rewrite_rules();
+	}
+}
 
 /**
  * Register custom WordPress roles matching the eskoofy-* user model.
