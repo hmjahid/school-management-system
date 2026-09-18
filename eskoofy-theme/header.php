@@ -308,9 +308,6 @@ $esc = static fn( string $svg ): string => wp_kses_post( $svg );
 			<button type="button" data-search-open aria-label="Search" class="esk-search-toggle rounded-md p-2 text-gray-500 transition hover:bg-blue-50 hover:text-blue-700">
 				<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
 			</button>
-			<button type="button" class="esk-dark-toggle rounded-md p-2 text-gray-500 transition hover:bg-blue-50 hover:text-blue-700" aria-label="<?php echo esc_attr__( 'Toggle dark mode', 'eskoofy' ); ?>">
-				<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
-			</button>
 
 			<?php if ( $is_logged_in ) : ?>
 				<a href="<?php echo esc_url( current_user_can( 'manage_options' ) ? esk_dashboard_url( 'esk-dashboard' ) : $portal_url ); ?>" class="ml-1 inline-flex items-center justify-center rounded-md border-2 border-blue-600 bg-white px-3 py-2 text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-50 whitespace-nowrap"><?php echo esc_html( (string) esk_site_ui( 'nav.dashboard', __( 'Dashboard', 'eskoofy' ) ) ); ?></a>

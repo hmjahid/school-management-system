@@ -59,7 +59,7 @@ function esk_admin_shell_groups(): array {
 		'HR'            => array( 'esk-payroll', 'esk-payslips', 'esk-salary-structures', 'esk-leave-types', 'esk-leave-requests' ),
 		'Documents'     => array( 'esk-admit-cards', 'esk-certificates', 'esk-id-cards', 'esk-testimonials', 'esk-committee' ),
 		'Facilities'    => array( 'esk-transport', 'esk-hostels', 'esk-library', 'esk-library-reports' ),
-		'Website'       => array( 'esk-cms', 'esk-careers', 'esk-events', 'esk-news', 'esk-gallery', 'esk-documents', 'esk-media', 'esk-contact-submissions' ),
+		'Website'       => array( 'esk-cms', 'esk-events', 'esk-news', 'esk-gallery', 'esk-documents', 'esk-media', 'esk-contact-submissions' ),
 		'System'        => array( 'esk-activity', 'esk-visitor-logs', 'esk-backup', 'esk-cache', 'esk-tools', 'esk-notifications', 'esk-search' ),
 		'Settings'      => array( 'esk-settings', 'esk-onboarding', 'esk-bulk' ),
 		'Reports'       => array( 'esk-reports', 'esk-reports-builder', 'esk-analytics' ),
@@ -115,7 +115,7 @@ function esk_admin_sidebar_sections(): array {
 		$link( 'esk-tools' ),
 
 		$label( 'Website' ),
-		$details( 'Website CMS', 'dashicons-admin-site-alt3', array( 'esk-cms', 'esk-news', 'esk-gallery', 'esk-documents', 'esk-media', 'esk-contact-submissions', 'esk-careers' ) ),
+		$details( 'Website CMS', 'dashicons-admin-site-alt3', array( 'esk-cms', 'esk-news', 'esk-gallery', 'esk-documents', 'esk-media', 'esk-contact-submissions' ) ),
 
 		$label( 'Administration' ),
 		$details( 'Users & Roles', 'dashicons-admin-users', array( 'esk-users', 'esk-roles' ) ),
@@ -195,7 +195,6 @@ function esk_dashboard_page_titles(): array {
 		'esk-events-calendar'      => 'Calendar',
 		'esk-news'                 => 'News',
 		'esk-gallery'              => 'Gallery',
-		'esk-careers'              => 'Careers',
 		'esk-reports'              => 'Reports',
 		'esk-users'                => 'Users',
 		'esk-staff-directory'      => 'Staff Directory',
@@ -293,7 +292,6 @@ function esk_admin_shell_icon( string $slug ): string {
 		'esk-library'            => 'dashicons-book',
 		'esk-library-reports'    => 'dashicons-chart-pie',
 		'esk-cms'                => 'dashicons-welcome-write-blog',
-		'esk-careers'            => 'dashicons-businessperson',
 		'esk-committee'          => 'dashicons-groups',
 		'esk-testimonials'       => 'dashicons-format-quote',
 		'esk-events'             => 'dashicons-calendar-alt',
