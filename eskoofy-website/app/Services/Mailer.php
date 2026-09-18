@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Core\Database;
 use App\Core\View;
 use App\Models\Settings;
 
@@ -52,7 +53,6 @@ class Mailer
     /** Render an email template wrapped in the shared email layout. */
     public static function render(string $template, array $data = []): string
     {
-        $contentPath = View::resolve('emails.' . $template);
         $data = array_merge([
             'siteUrl'  => $_ENV['APP_URL'] ?? '/',
             'brandName' => (string) Settings::get('site.name', 'Eskoofy'),
@@ -60,12 +60,25 @@ class Mailer
             'year'     => (int) date('Y'),
         ], $data);
 
-        extract($data);
+        // Admins can override any template body (and subject) from Admin → Email templates.
+        $dbTemplate = self::dbTemplate($template);
         $contentHtml = '';
-        if ($contentPath !== null && file_exists($contentPath)) {
-            ob_start();
-            require $contentPath;
-            $contentHtml = ob_get_clean();
+        if ($dbTemplate !== null && $dbTemplate['body'] !== '') {
+            $body = $dbTemplate['body'];
+            foreach ($data as $k => $v) {
+                if (is_scalar($v) || $v === null) {
+                    $body = str_replace('{' . $k . '}', (string) ($v ?? ''), $body);
+                }
+            }
+            $contentHtml = $body;
+        } else {
+            $contentPath = View::resolve('emails.' . $template);
+            if ($contentPath !== null && file_exists($contentPath)) {
+                extract($data);
+                ob_start();
+                require $contentPath;
+                $contentHtml = ob_get_clean();
+            }
         }
 
         ob_start();
@@ -79,7 +92,37 @@ class Mailer
 
     public static function sendView(string $to, string $subject, string $template, array $data = [], array $options = []): bool
     {
+        $dbTemplate = self::dbTemplate($template);
+        if ($dbTemplate !== null && trim((string) $dbTemplate['subject']) !== '') {
+            $subject = (string) $dbTemplate['subject'];
+        }
+
         return self::send($to, $subject, self::render($template, $data), $options);
+    }
+
+    /**
+     * Return an admin-overridden template (subject/body) if one is stored.
+     *
+     * @return array{subject: string, body: string}|null
+     */
+    private static function dbTemplate(string $key): ?array
+    {
+        try {
+            $row = Database::getInstance()->fetch(
+                "SELECT subject, body, is_active FROM email_templates WHERE tkey = ? AND is_active = 1",
+                [$key]
+            );
+        } catch (\Throwable) {
+            return null;
+        }
+        if (!$row) {
+            return null;
+        }
+
+        return [
+            'subject' => (string) ($row['subject'] ?? ''),
+            'body'    => (string) ($row['body'] ?? ''),
+        ];
     }
 
     // ── sendmail / mail() path ─────────────────────────────────────────────

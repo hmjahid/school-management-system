@@ -2,3 +2,5 @@
 /vendor/
 /.phpunit.cache/
 /storage/backups/
+/storage/packages/
+/storage/documents/

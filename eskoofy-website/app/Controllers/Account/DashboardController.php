@@ -86,7 +86,49 @@ class DashboardController extends Controller
             'stats'      => $stats,
             'spendTrend' => $spendTrend,
             'renewals'   => $renewals,
+            'notifications' => $this->notifications($customer['id']),
         ]);
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function notifications(int $customerId): array
+    {
+        try {
+            return Database::getInstance()->fetchAll(
+                "SELECT pn.id, pn.title, pn.message, pn.link, pn.created_at,
+                        (r.read_at IS NOT NULL) AS read_at
+                 FROM push_notifications pn
+                 LEFT JOIN push_notification_reads r ON r.notification_id = pn.id AND r.customer_id = ?
+                 ORDER BY pn.id DESC LIMIT 20",
+                [$customerId]
+            );
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    public function markNotificationRead(int $id): void
+    {
+        Auth::requireAuth();
+        $customer = Auth::user();
+        $db = Database::getInstance();
+
+        $exists = $db->fetch("SELECT id FROM push_notifications WHERE id = ?", [$id]);
+        if ($exists) {
+            $read = $db->fetch(
+                "SELECT id FROM push_notification_reads WHERE notification_id = ? AND customer_id = ?",
+                [$id, (int) $customer['id']]
+            );
+            if (!$read) {
+                $db->insert('push_notification_reads', [
+                    'notification_id' => $id,
+                    'customer_id'     => (int) $customer['id'],
+                    'read_at'         => date('Y-m-d H:i:s'),
+                ]);
+            }
+        }
+
+        $this->redirect('/account');
     }
 
     public function regenerateApiToken(): void

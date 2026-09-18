@@ -13,6 +13,7 @@
             ['dashboard', '/account', 'Dashboard'],
             ['licenses', '/account/licenses', 'Licenses'],
             ['payments', '/account/payments', 'Payments'],
+            ['downloads', '/account/downloads', 'Downloads'],
             ['settings', '/account/settings', 'Settings'],
         ];
         foreach ($tabs as [$key, $href, $label]):

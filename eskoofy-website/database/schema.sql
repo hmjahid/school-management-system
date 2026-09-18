@@ -223,6 +223,71 @@ CREATE TABLE IF NOT EXISTS `settings` (
   UNIQUE KEY `settings_key_unique` (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Product packages delivered to licensed clients (ZIP files).
+CREATE TABLE IF NOT EXISTS `packages` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `product` VARCHAR(16) NOT NULL,
+  `version` VARCHAR(64) NOT NULL,
+  `filename` VARCHAR(255) NOT NULL,
+  `size` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  `notes` VARCHAR(500) NULL,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`),
+  KEY `packages_product_index` (`product`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Editable email templates (subject/body overrides for the license server emails).
+CREATE TABLE IF NOT EXISTS `email_templates` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `tkey` VARCHAR(64) NOT NULL,
+  `subject` VARCHAR(255) NULL,
+  `body` LONGTEXT NULL,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email_templates_tkey_unique` (`tkey`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Client help files (user manual / setup guide) sent to licensed customers.
+CREATE TABLE IF NOT EXISTS `client_documents` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(191) NOT NULL,
+  `kind` VARCHAR(32) NOT NULL DEFAULT 'other',
+  `filename` VARCHAR(255) NOT NULL,
+  `size` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  `notes` VARCHAR(500) NULL,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`),
+  KEY `client_documents_kind_index` (`kind`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Push notifications shown on customer account dashboards.
+CREATE TABLE IF NOT EXISTS `push_notifications` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(191) NOT NULL,
+  `message` TEXT NULL,
+  `link` VARCHAR(255) NULL,
+  `created_by` BIGINT UNSIGNED NULL,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Per-customer read receipt for push notifications.
+CREATE TABLE IF NOT EXISTS `push_notification_reads` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `notification_id` BIGINT UNSIGNED NOT NULL,
+  `customer_id` BIGINT UNSIGNED NOT NULL,
+  `read_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `pns_read_unique` (`notification_id`, `customer_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================================
@@ -273,7 +338,7 @@ INSERT IGNORE INTO `posts` (`id`, `category_id`, `author_id`, `title`, `slug`, `
 <h2>Three deployments, one system</h2>
 <p><a href="/products/app">Eskoofy School App</a> is the full Laravel application — run it yourself or let us host it. <a href="/products/theme">Eskoofy WP Theme</a> turns your existing WordPress site into a school management portal. <a href="/products/php">Eskoofy School System (PHP)</a> is the same system, rewritten in raw PHP for shared hosting and low-cost VPS.</p>
 <p>All three share the same modules, the same data model, and the same license server. See <a href="/pricing">pricing</a> to get started.</p>',
- 'published', NULL, NULL, NULL, 12, NOW(), NOW(), NOW()),
+ 'published', 'https://picsum.photos/seed/eskoofy-app/1200/630', NULL, NULL, 12, NOW(), NOW(), NOW()),
 (2, 2, 1, 'How to choose between the Eskoofy app, theme, and raw PHP rewrite', 'choose-app-theme-or-php',
  'A practical comparison to help your school decide between the Laravel app, the WordPress theme, and the raw PHP rewrite.',
  '<p>Choosing between the three deployments mostly comes down to infrastructure and control.</p>
@@ -284,7 +349,7 @@ INSERT IGNORE INTO `posts` (`id`, `category_id`, `author_id`, `title`, `slug`, `
 <h2>Choose the raw PHP rewrite if...</h2>
 <p>...you are on shared hosting without Composer access, or you want a no-framework, low-cost option that runs on PHP 8.2+ and MySQL.</p>
 <p>Either way you can <a href="/contact">talk to us</a> before buying.</p>',
- 'published', NULL, NULL, NULL, 8, NOW(), NOW(), NOW()),
+ 'published', 'https://picsum.photos/seed/eskoofy-choose/1200/630', NULL, NULL, 8, NOW(), NOW(), NOW()),
 (3, 1, 1, 'Coming soon: Paddle payments and the Eskoofy license portal', 'coming-soon-paddle-license-portal',
  'Payments via Paddle and the self-service license portal are on the roadmap.',
  '<p>We are adding Paddle as a payment gateway and upgrading the <a href="/account">customer license portal</a> with renewal reminders and activation history.</p>',

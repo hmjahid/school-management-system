@@ -108,9 +108,19 @@ class GatewayFactory
     {
         $codes = self::isBdCountry($country) ? self::bdGateways() : self::intGateways();
 
+        try {
+            $settings = \App\Models\Settings::all();
+        } catch (\Throwable) {
+            $settings = [];
+        }
+
         // Only keep configured gateways; always keep manual as fallback.
         $available = [];
         foreach ($codes as $code) {
+            $enabled = $settings['gateway.' . $code . '.enabled'] ?? null;
+            if ($enabled !== null && !in_array((string) $enabled, ['1', 'true', 'yes', 'on'], true)) {
+                continue;
+            }
             $gw = self::make($code);
             if (method_exists($gw, 'isConfigured') && !$gw->isConfigured()) {
                 continue;

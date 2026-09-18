@@ -36,8 +36,31 @@ abstract class AbstractGateway implements PaymentGatewayInterface
         $all  = file_exists($file) ? (array) require $file : ['gateways' => []];
         $code = $this->id();
         $block = $all['gateways'][$code] ?? [];
+        $block = is_array($block) ? $block : [];
 
-        return is_array($block) ? $block : [];
+        // Admin-managed overrides stored in the settings table
+        // (Admin → Payment gateways): gateway.<code>.<field>.
+        try {
+            $settings = \App\Models\Settings::all();
+        } catch (\Throwable) {
+            $settings = [];
+        }
+        $prefix = 'gateway.' . $code . '.';
+        foreach ($settings as $key => $value) {
+            if (!str_starts_with((string) $key, $prefix)) {
+                continue;
+            }
+            $field = substr((string) $key, strlen($prefix));
+            if ($field === '' || $field === 'enabled') {
+                continue;
+            }
+            $block[$field] = $value;
+        }
+        if (isset($block['test_mode']) && is_string($block['test_mode'])) {
+            $block['test_mode'] = in_array(strtolower($block['test_mode']), ['1', 'true', 'yes', 'on'], true);
+        }
+
+        return $block;
     }
 
     protected function setting(string $key, mixed $default = null): mixed

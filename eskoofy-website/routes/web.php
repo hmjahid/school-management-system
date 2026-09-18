@@ -68,6 +68,10 @@ $router->group('/account', function (App\Core\Router $router): void {
     $router->post('/settings/profile', \App\Controllers\Account\SettingsController::class, 'updateProfile');
     $router->post('/settings/preferences', \App\Controllers\Account\SettingsController::class, 'updatePreferences');
     $router->post('/settings/password', \App\Controllers\Account\SettingsController::class, 'updatePassword');
+    $router->get('/downloads', \App\Controllers\Account\DownloadController::class, 'index');
+    $router->get('/downloads/package/{id}', \App\Controllers\Account\DownloadController::class, 'package');
+    $router->get('/downloads/document/{id}', \App\Controllers\Account\DownloadController::class, 'document');
+    $router->post('/notifications/{id}/read', AccountDashboard::class, 'markNotificationRead');
 }, ['AuthMiddleware']);
 
 // ─── Admin backend ───────────────────────────────────────────
@@ -126,6 +130,32 @@ $router->group('/admin', function (App\Core\Router $router): void {
 
     $router->get('/services', \App\Controllers\Admin\ServiceController::class, 'index');
     $router->post('/services', \App\Controllers\Admin\ServiceController::class, 'update');
+
+    $router->get('/packages', \App\Controllers\Admin\PackageController::class, 'index');
+    $router->post('/packages', \App\Controllers\Admin\PackageController::class, 'store');
+    $router->post('/packages/{id}/delete', \App\Controllers\Admin\PackageController::class, 'delete');
+    $router->post('/packages/{id}/toggle', \App\Controllers\Admin\PackageController::class, 'toggle');
+    $router->post('/packages/{id}/send', \App\Controllers\Admin\PackageController::class, 'send');
+    $router->get('/packages/{id}/download', \App\Controllers\Admin\PackageController::class, 'download');
+
+    $router->get('/client-documents', \App\Controllers\Admin\ClientDocumentController::class, 'index');
+    $router->post('/client-documents', \App\Controllers\Admin\ClientDocumentController::class, 'store');
+    $router->post('/client-documents/{id}/delete', \App\Controllers\Admin\ClientDocumentController::class, 'delete');
+    $router->post('/client-documents/{id}/send', \App\Controllers\Admin\ClientDocumentController::class, 'send');
+    $router->get('/client-documents/{id}/download', \App\Controllers\Admin\ClientDocumentController::class, 'download');
+
+    $router->get('/email-templates', \App\Controllers\Admin\EmailTemplateController::class, 'index');
+    $router->post('/email-templates/{id}', \App\Controllers\Admin\EmailTemplateController::class, 'update');
+
+    $router->get('/push-notifications', \App\Controllers\Admin\PushNotificationController::class, 'index');
+    $router->post('/push-notifications', \App\Controllers\Admin\PushNotificationController::class, 'store');
+    $router->post('/push-notifications/{id}/delete', \App\Controllers\Admin\PushNotificationController::class, 'delete');
+
+    $router->get('/gateways', \App\Controllers\Admin\GatewayController::class, 'index');
+    $router->post('/gateways', \App\Controllers\Admin\GatewayController::class, 'update');
+
+    $router->get('/cache', \App\Controllers\Admin\CacheController::class, 'index');
+    $router->post('/cache/clear', \App\Controllers\Admin\CacheController::class, 'clear');
 
     $router->get('/backup', \App\Controllers\Admin\BackupController::class, 'index');
     $router->post('/backup/create/{type}', \App\Controllers\Admin\BackupController::class, 'create');

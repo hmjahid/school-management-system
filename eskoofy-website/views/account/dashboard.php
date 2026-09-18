@@ -39,6 +39,33 @@ $apiMasked = $apiToken !== '' ? substr($apiToken, 0, 10) . '••••••�
 
 <section class="max-w-6xl mx-auto px-4 pb-12">
 
+    <?php if (!empty($notifications)): ?>
+        <div class="bg-white rounded-xl border border-slate-200 p-6 mb-8">
+            <h2 class="font-bold mb-4">Notifications</h2>
+            <ul class="space-y-2">
+                <?php foreach ($notifications as $n): ?>
+                    <li class="flex items-center justify-between gap-3 rounded-lg border border-slate-100 px-4 py-3 <?= empty($n['read_at']) ? 'bg-blue-50/50 border-blue-200' : '' ?>">
+                        <div class="min-w-0">
+                            <div class="font-semibold text-sm"><?= htmlspecialchars((string) $n['title']) ?></div>
+                            <?php if (!empty($n['message'])): ?>
+                                <div class="text-sm text-slate-500"><?= htmlspecialchars((string) $n['message']) ?></div>
+                            <?php endif; ?>
+                            <div class="text-xs text-slate-400 mt-0.5"><?= htmlspecialchars(substr((string) $n['created_at'], 0, 16)) ?></div>
+                        </div>
+                        <?php if (!empty($n['link'])): ?>
+                            <a href="<?= htmlspecialchars((string) $n['link']) ?>" class="shrink-0 text-xs font-semibold text-blue-600 hover:underline">View →</a>
+                        <?php elseif (empty($n['read_at'])): ?>
+                            <form method="post" action="/account/notifications/<?= (int) $n['id'] ?>/read" class="shrink-0">
+                                <?= csrf_field() ?>
+                                <button class="text-xs font-semibold text-slate-500 hover:text-slate-800">Mark read</button>
+                            </form>
+                        <?php endif; ?>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
+
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div class="bg-white rounded-xl border border-slate-200 p-5">
             <div class="text-xs uppercase tracking-wide text-slate-400">Licenses</div>

@@ -45,6 +45,8 @@ $eskNavGroups = [
         ['label' => 'Plans', 'href' => '/admin/plans', 'icon' => 'layers', 'active' => $eskActive(['/admin/plans'])],
         ['label' => 'Payments', 'href' => '/admin/payments', 'icon' => 'card', 'active' => $eskActive(['/admin/payments'])],
         ['label' => 'Subscriptions', 'href' => '/admin/subscriptions', 'icon' => 'repeat', 'active' => $eskActive(['/admin/subscriptions'])],
+        ['label' => 'Packages', 'href' => '/admin/packages', 'icon' => 'archive', 'active' => $eskActive(['/admin/packages'])],
+        ['label' => 'Payment gateways', 'href' => '/admin/gateways', 'icon' => 'card', 'active' => $eskActive(['/admin/gateways'])],
         ['label' => 'Deployment & maintenance', 'href' => '/admin/services', 'icon' => 'tool', 'active' => $eskActive(['/admin/services'])],
     ],
     'Customers' => [
@@ -57,6 +59,10 @@ $eskNavGroups = [
     ],
     'System' => [
         ['label' => 'Activity log', 'href' => '/admin/activities', 'icon' => 'activity', 'active' => $eskActive(['/admin/activities'])],
+        ['label' => 'Email templates', 'href' => '/admin/email-templates', 'icon' => 'file', 'active' => $eskActive(['/admin/email-templates'])],
+        ['label' => 'Client documents', 'href' => '/admin/client-documents', 'icon' => 'file', 'active' => $eskActive(['/admin/client-documents'])],
+        ['label' => 'Push notifications', 'href' => '/admin/push-notifications', 'icon' => 'inbox', 'active' => $eskActive(['/admin/push-notifications'])],
+        ['label' => 'Clear cache', 'href' => '/admin/cache', 'icon' => 'sliders', 'active' => $eskActive(['/admin/cache'])],
         ['label' => 'Backups', 'href' => '/admin/backup', 'icon' => 'archive', 'active' => $eskActive(['/admin/backup'])],
         ['label' => 'Settings', 'href' => '/admin/settings', 'icon' => 'sliders', 'active' => $eskActive(['/admin/settings'])],
         ['label' => 'My account', 'href' => '/admin/account', 'icon' => 'user', 'active' => $eskActive(['/admin/account'])],
