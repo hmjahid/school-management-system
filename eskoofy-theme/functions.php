@@ -96,17 +96,17 @@ add_action( 'widgets_init', 'eskoofy_widgets_init' );
 if ( ! function_exists( 'eskoofy_scripts' ) ) {
 	function eskoofy_scripts(): void {
 		wp_enqueue_style(
-			'eskoofy-style',
-			get_stylesheet_uri(),
+			'eskoofy-app-public',
+			get_template_directory_uri() . '/assets/app-public.css',
 			array(),
 			wp_get_theme()->get( 'Version' )
 		);
 
 		wp_enqueue_style(
-			'eskoofy-app-public',
-			get_template_directory_uri() . '/assets/app-public.css',
+			'eskoofy-style',
+			get_stylesheet_uri(),
 			array(),
-			'1.0.0'
+			wp_get_theme()->get( 'Version' )
 		);
 
 		wp_enqueue_style(
