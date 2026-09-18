@@ -41,6 +41,9 @@ class SettingsController extends Controller
             'email.encryption'      => (string) ($_POST['email_encryption'] ?? 'tls'),
             'email.from_address'    => trim((string) ($_POST['email_from_address'] ?? '')),
             'email.from_name'       => trim((string) ($_POST['email_from_name'] ?? 'Eskoofy')),
+            'services.deploy_app'   => (string) max(0, (float) ($_POST['services_deploy_app'] ?? 250)),
+            'services.deploy_php_theme' => (string) max(0, (float) ($_POST['services_deploy_php_theme'] ?? 150)),
+            'services.care_monthly' => (string) max(0, (float) ($_POST['services_care_monthly'] ?? 29)),
         ]);
 
         // Only overwrite the SMTP password when a new one is actually provided.

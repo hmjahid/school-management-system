@@ -27,6 +27,9 @@ class Settings
         'email.encryption'       => 'tls',
         'email.from_address'     => '',
         'email.from_name'        => 'Eskoofy',
+        'services.deploy_app'    => '250',
+        'services.deploy_php_theme' => '150',
+        'services.care_monthly'  => '29',
     ];
 
     /** @var array<string, string>|null */

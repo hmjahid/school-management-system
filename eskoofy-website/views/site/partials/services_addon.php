@@ -1,4 +1,16 @@
 <section class="max-w-7xl mx-auto px-4 pb-16">
+    <?php
+    $servicesSettings = \App\Models\Settings::all();
+    $isBdServices = \App\Gateways\GatewayFactory::isBdCountry(\App\Core\Auth::user()['country'] ?? null);
+    $symServices = $isBdServices ? '৳' : '$';
+    $fmtServices = function (float $usd) use ($isBdServices, $symServices): string {
+        $value = $isBdServices ? \App\Gateways\GatewayFactory::toBdt($usd) : $usd;
+        return $symServices . number_format($value, $isBdServices ? 0 : 2);
+    };
+    $deployAppServices = (float) ($servicesSettings['services.deploy_app'] ?? 250);
+    $deployOtherServices = (float) ($servicesSettings['services.deploy_php_theme'] ?? 150);
+    $careServices = (float) ($servicesSettings['services.care_monthly'] ?? 29);
+    ?>
     <div class="rounded-3xl bg-slate-900 text-white p-8 md:p-12">
         <div class="max-w-3xl">
             <span class="text-xs uppercase tracking-widest text-blue-300 font-semibold"><?= __('services.tag') ?></span>
@@ -9,14 +21,14 @@
             <div class="bg-white/5 border border-white/10 rounded-2xl p-7">
                 <div class="flex items-center justify-between gap-3 flex-wrap">
                     <h3 class="font-bold text-lg"><?= __('services.dep_t') ?></h3>
-                    <span class="text-xs font-semibold text-emerald-300 bg-emerald-400/10 border border-emerald-400/20 px-3 py-1 rounded-full"><?= __('services.dep_price') ?></span>
+                    <span class="text-xs font-semibold text-emerald-300 bg-emerald-400/10 border border-emerald-400/20 px-3 py-1 rounded-full"><?= htmlspecialchars(__('services.dep_price', ['app' => $fmtServices($deployAppServices), 'other' => $fmtServices($deployOtherServices)])) ?></span>
                 </div>
                 <p class="mt-3 text-sm text-slate-300 leading-relaxed"><?= __('services.dep_d') ?></p>
             </div>
             <div class="bg-white/5 border border-white/10 rounded-2xl p-7">
                 <div class="flex items-center justify-between gap-3 flex-wrap">
                     <h3 class="font-bold text-lg"><?= __('services.care_t') ?></h3>
-                    <span class="text-xs font-semibold text-emerald-300 bg-emerald-400/10 border border-emerald-400/20 px-3 py-1 rounded-full"><?= __('services.care_price') ?></span>
+                    <span class="text-xs font-semibold text-emerald-300 bg-emerald-400/10 border border-emerald-400/20 px-3 py-1 rounded-full"><?= htmlspecialchars(__('services.care_price', ['price' => $fmtServices($careServices)])) ?></span>
                 </div>
                 <p class="mt-3 text-sm text-slate-300 leading-relaxed"><?= __('services.care_d') ?></p>
             </div>

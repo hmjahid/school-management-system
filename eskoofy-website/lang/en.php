@@ -210,10 +210,10 @@ return [
     'services.intro'            => 'Every license runs on your own server. If you’d rather not handle the setup or day-to-day upkeep yourself, our team can deploy and maintain the system for you — quoted per client.',
     'services.dep_t'            => 'Assisted deployment',
     'services.dep_d'            => 'We install, configure and test your system on your hosting, then hand it over ready to use. You just log in.',
-    'services.dep_price'        => 'One-time, indicative: App $250 · PHP & Theme $150',
+    'services.dep_price'        => 'One-time, indicative: App :app · PHP & Theme :other',
     'services.care_t'           => 'Monthly care & maintenance',
     'services.care_d'           => 'Updates, security patches, backup checks and priority fixes, so your system stays healthy.',
-    'services.care_price'       => 'From $29/month — start, pause or cancel anytime',
+    'services.care_price'       => 'From :price/month — start, pause or cancel anytime',
     'services.bill_note'        => 'Indicative prices in USD. Services are quoted and invoiced separately — they never change your license or plan.',
     'services.cta'              => 'Request a quote',
 

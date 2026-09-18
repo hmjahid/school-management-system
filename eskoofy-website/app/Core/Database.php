@@ -56,17 +56,17 @@ class Database implements DatabaseInterface
 
     public function insert(string $table, array $data): int
     {
-        $columns = implode(', ', array_keys($data));
+        $columns = implode(', ', array_map(fn($col) => "`{$col}`", array_keys($data)));
         $placeholders = implode(', ', array_fill(0, count($data), '?'));
-        $sql = "INSERT INTO {$table} ({$columns}) VALUES ({$placeholders})";
+        $sql = "INSERT INTO `{$table}` ({$columns}) VALUES ({$placeholders})";
         $this->query($sql, array_values($data));
         return (int) $this->pdo->lastInsertId();
     }
 
     public function update(string $table, array $data, string $where, array $whereParams = []): int
     {
-        $set = implode(', ', array_map(fn($col) => "{$col} = ?", array_keys($data)));
-        $sql = "UPDATE {$table} SET {$set} WHERE {$where}";
+        $set = implode(', ', array_map(fn($col) => "`{$col}` = ?", array_keys($data)));
+        $sql = "UPDATE `{$table}` SET {$set} WHERE {$where}";
         $stmt = $this->query($sql, array_merge(array_values($data), $whereParams));
         return $stmt->rowCount();
     }
