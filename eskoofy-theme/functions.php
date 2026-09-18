@@ -564,13 +564,17 @@ function esk_self_heal_home_option(): void {
 add_action( 'init', 'esk_self_heal_home_option', 1 );
 
 function esk_fix_front_page_slug(): void {
-	// If a page named "client" was promoted to the static front page, revert
-	// to the default (latest posts) so the home page uses the site root.
+	// If a static front page's permalink contains '/client', revert to the
+	// default (latest posts) so the home page uses the site root.
 	if ( 'page' === get_option( 'show_on_front' ) ) {
 		$front = (int) get_option( 'page_on_front' );
-		if ( $front > 0 && 'client' === get_post_field( 'post_name', $front ) ) {
-			update_option( 'show_on_front', 'posts' );
-			update_option( 'page_on_front', 0 );
+		if ( $front > 0 ) {
+			$permalink = (string) get_permalink( $front );
+			$path      = (string) parse_url( $permalink, PHP_URL_PATH );
+			if ( str_starts_with( $path, '/client' ) || 'client' === get_post_field( 'post_name', $front ) ) {
+				update_option( 'show_on_front', 'posts' );
+				update_option( 'page_on_front', 0 );
+			}
 		}
 	}
 }
