@@ -301,15 +301,6 @@ function esk_register_admin_menus(): void {
 
 	add_submenu_page(
 		'esk-dashboard',
-		esc_html__( 'Careers', 'eskoofy' ),
-		esc_html__( 'Careers', 'eskoofy' ),
-		'manage_options',
-		'esk-careers',
-		'esk_careers_page'
-	);
-
-	add_submenu_page(
-		'esk-dashboard',
 		esc_html__( 'Reports', 'eskoofy' ),
 		esc_html__( 'Reports', 'eskoofy' ),
 		'manage_options',
