@@ -59,6 +59,8 @@ return [
     'notices' => 'Notices',
     'documents_label' => 'Documents',
     'form_submissions' => 'Form submissions',
+    'careers' => 'Careers',
+    'job_applications' => 'Job applications',
     'media_library' => 'Media library',
     'cms_settings' => 'CMS Settings',
     'global_labels' => 'Global Labels',

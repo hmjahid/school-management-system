@@ -441,6 +441,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard/contact-submissions/export', [DashboardModulesController::class, 'contactSubmissionsExport'])->name('dashboard.contact-submissions.export');
 
         Route::get('/dashboard/careers', [DashboardCareerController::class, 'index'])->name('dashboard.careers.index');
+        Route::get('/dashboard/careers/applications', [DashboardCareerController::class, 'index'])->name('dashboard.careers.applications');
+        Route::get('/dashboard/careers/postings', [DashboardCareerController::class, 'postings'])->name('dashboard.careers.postings');
+        Route::get('/dashboard/careers/postings/create', [DashboardCareerController::class, 'create'])->name('dashboard.careers.create');
+        Route::post('/dashboard/careers/postings', [DashboardCareerController::class, 'store'])->name('dashboard.careers.store');
+        Route::get('/dashboard/careers/postings/{career}/edit', [DashboardCareerController::class, 'edit'])->name('dashboard.careers.edit');
+        Route::put('/dashboard/careers/postings/{career}', [DashboardCareerController::class, 'update'])->name('dashboard.careers.update');
+        Route::delete('/dashboard/careers/postings/{career}', [DashboardCareerController::class, 'destroyCareer'])->name('dashboard.careers.destroy');
         Route::get('/dashboard/careers/{application}', [DashboardCareerController::class, 'show'])->name('dashboard.careers.show');
         Route::patch('/dashboard/careers/{application}/status', [DashboardCareerController::class, 'updateStatus'])->name('dashboard.careers.status');
         Route::delete('/dashboard/careers/{application}', [DashboardCareerController::class, 'destroy'])->name('dashboard.careers.destroy');

@@ -59,6 +59,8 @@ return [
     'notices' => 'নোটিশ',
     'documents_label' => 'ডকুমেন্ট',
     'form_submissions' => 'ফর্ম জমা',
+    'careers' => 'ক্যারিয়ার',
+    'job_applications' => 'চাকরির আবেদন',
     'media_library' => 'মিডিয়া লাইব্রেরি',
     'cms_settings' => 'সিএমএস সেটিংস',
     'global_labels' => 'গ্লোবাল লেবেল',

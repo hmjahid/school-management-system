@@ -103,6 +103,8 @@ return [
     'dashboard.bulk.import.store' => '/dashboard/bulk/import/{resource}',
     'dashboard.careers.destroy' => '/dashboard/careers/{application}',
     'dashboard.careers.index' => '/dashboard/careers',
+    'dashboard.careers.postings' => '/dashboard/careers',
+    'dashboard.careers.applications' => '/dashboard/careers/applications',
     'dashboard.careers.show' => '/dashboard/careers/{application}',
     'dashboard.careers.status' => '/dashboard/careers/{application}/status',
     'dashboard.certificates.create' => '/dashboard/certificates/create',
