@@ -130,9 +130,15 @@ class Router
 
     private function runMiddleware(string $name): void
     {
-        $class = 'App\\Core\\Middleware\\' . $name;
+        // Support parameterized middleware names: "Throttle:5,1".
+        $parts = explode(':', $name, 2);
+        $class = 'App\\Core\\Middleware\\' . $parts[0];
+        if (!class_exists($class)) {
+            $class = 'App\\Core\\Middleware\\' . $name;
+        }
         if (class_exists($class)) {
-            $instance = new $class();
+            $args = isset($parts[1]) ? $parts[1] : null;
+            $instance = $args !== null ? new $class($args) : new $class();
             $instance->handle();
         }
     }

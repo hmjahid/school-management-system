@@ -4,6 +4,16 @@ Derived from `docs/security/SECURITY-AUDIT.md` (2026-09-19). **Nothing in this
 document has been implemented yet** — this is the roadmap. Each item maps to a
 finding ID (`G#`, `A#`, `P#`, `T#`, `W#`, `R#`).
 
+> **Execution status — 2026-09-19: COMPLETE.** All phases below were executed in
+> one pass (see `workplan-implementation-plan.md` Phase 10 for the per-item log).
+> Verification: app 927 tests, php 314 tests, website 95 tests all green;
+> `composer audit` clean in all 4 products; app↔php view/lang parity `diff` clean.
+> Residual items (documented, not fixed): per-route permission parity for
+> teacher/accountant/librarian content modules in the php product (blocked
+> roles are enforced centrally via `config/access.php`); machine-fingerprint
+> challenge/response for license activation (rate limit + product-secret gate
+> added instead); theme gateway-key UI is read-only (no write path to encrypt).
+
 Rules that apply to every change:
 - **Feature consistency (root AGENTS.md):** default scope = ALL products. Where a
   control is parity-relevant, implement in app **and** php **and** theme (and

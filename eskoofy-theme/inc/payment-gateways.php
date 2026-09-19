@@ -37,7 +37,17 @@ abstract class Eskoofy_Payment_Gateway {
 			),
 			ARRAY_A
 		);
-		return is_array( $row ) ? $row : array();
+		if ( ! is_array( $row ) ) {
+			return array();
+		}
+		// Decrypt secrets stored at rest (esk_encrypt_secret) so adapters keep
+		// working unchanged; legacy plaintext passes through untouched.
+		foreach ( array( 'api_key', 'api_secret', 'api_password' ) as $esk_secret_col ) {
+			if ( isset( $row[ $esk_secret_col ] ) ) {
+				$row[ $esk_secret_col ] = esk_decrypt_secret( (string) $row[ $esk_secret_col ] );
+			}
+		}
+		return $row;
 	}
 
 	public function is_test_mode(): bool {

@@ -15,6 +15,16 @@ require __DIR__ . '/../app/Core/bootstrap.php';
 
 use App\Core\Database;
 
+// Security guard: demo accounts (weak, documented passwords) must never land
+// on a production database. Require an explicit non-production environment.
+$env = strtolower((string) ($_ENV['APP_ENV'] ?? ''));
+$forced = in_array('--i-am-sure', $argv ?? [], true);
+if ($env === 'production' && !$forced) {
+    fwrite(STDERR, "Refusing to seed demo accounts in a production environment.\n");
+    fwrite(STDERR, "Set APP_ENV to a non-production value, or pass --i-am-sure to override.\n");
+    exit(1);
+}
+
 $db = Database::getInstance();
 
 // ─── Roles ────────────────────────────────────────────────────────────────

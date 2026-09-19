@@ -1,6 +1,31 @@
+# Eskoofy website — document root hardening.
+Options -Indexes
+
 RewriteEngine On
 
-# Send everything to the front controller except real files/dirs
+# Redirect all requests to index.php unless the file exists.
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [QSA,L]
+
+# Serve static files directly.
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Block access to hidden files/dotfiles (e.g. .env, .git).
+<IfModule mod_rewrite.c>
+    RewriteRule (^\.|/\.) - [F,L]
+</IfModule>
+
+# Block access to sensitive file types.
+<FilesMatch "\.(env|log|sql|bak|key|pem|p12)$">
+    Require all denied
+</FilesMatch>
+
+# Security headers.
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

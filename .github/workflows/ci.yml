@@ -33,6 +33,9 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
+      - name: Composer audit (dependencies)
+        run: composer audit
+
       - name: Install npm dependencies
         run: npm ci
 
@@ -64,6 +67,9 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
+      - name: Composer audit (dependencies)
+        run: composer audit
+
       - name: Run tests
         run: composer test
 
@@ -86,9 +92,30 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
+      - name: Composer audit (dependencies)
+        run: composer audit
+
       - name: Run tests
         run: composer test
 
+
+  security:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Hardcoded-credential grep (fail fast)
+        run: |
+          set -e
+          ! rg -n --hidden -g '!.git' -g '!vendor/**' -g '!node_modules/**' -g '!archive/**'             -g '!*.md' -g '!*.lock' -g '!*.po' -g '!*.pot' -g '!*.mo'             -i 'BEGIN (RSA|EC|OPENSSH|PGP) PRIVATE KEY|sk_live_|sk_test_|AKIA[0-9A-Z]{16}' .
   theme-lint:
     name: Theme Lint (PHPCS)
     runs-on: ubuntu-latest
@@ -107,13 +134,16 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
+      - name: Composer audit (dependencies)
+        run: composer audit
+
       - name: Run PHPCS
         run: ./vendor/bin/phpcs
 
   export:
     name: Export Artifacts
     runs-on: ubuntu-latest
-    needs: [test, php-test, website-test, theme-lint]
+    needs: [test, php-test, website-test, theme-lint, security]
     steps:
       - uses: actions/checkout@v4
 

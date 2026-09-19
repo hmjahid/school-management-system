@@ -52,6 +52,7 @@ class DashboardNewsController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validateNews($request);
+        $data['content'] = app(\App\Services\HtmlSanitizer::class)->sanitize($data['content']);
 
         if ($request->hasFile('image')) {
             $data['image_url'] = $request->file('image')->store('website/news', 'public');
@@ -75,6 +76,7 @@ class DashboardNewsController extends Controller
     public function update(Request $request, News $news): RedirectResponse
     {
         $data = $this->validateNews($request, $news->id);
+        $data['content'] = app(\App\Services\HtmlSanitizer::class)->sanitize($data['content']);
 
         if ($request->hasFile('image')) {
             if ($news->image_url && str_starts_with($news->image_url, 'website/news/')) {

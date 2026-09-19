@@ -520,3 +520,79 @@ if ( ! function_exists( 'esk_can_access_dashboard' ) ) {
 		return false;
 	}
 }
+
+/**
+ * Encrypt a gateway secret (API key / secret / webhook secret) at rest using
+ * AES-256-GCM with a key derived from the WordPress salts. Returns an
+ * `esk1:`-prefixed value so decryption can recognise both legacy plaintext
+ * and encrypted rows.
+ */
+function esk_encrypt_secret( string $plain ): string {
+	if ( '' === $plain || str_starts_with( $plain, 'esk1:' ) ) {
+		return $plain;
+	}
+	$key  = (string) wp_salt( 'auth' );
+	$iv   = random_bytes( 12 );
+	$tag  = '';
+	$ct   = openssl_encrypt( $plain, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag, '', 16 );
+	if ( false === $ct ) {
+		return $plain;
+	}
+	return 'esk1:' . base64_encode( $iv . $tag . $ct );
+}
+
+/**
+ * Decrypt a gateway secret stored with esk_encrypt_secret(). Legacy plaintext
+ * values (no `esk1:` prefix) are returned unchanged so existing installs keep
+ * working until their rows are migrated.
+ */
+function esk_decrypt_secret( ?string $value ): string {
+	if ( null === $value || '' === $value ) {
+		return '';
+	}
+	if ( ! str_starts_with( $value, 'esk1:' ) ) {
+		return $value;
+	}
+	$raw  = base64_decode( substr( $value, 5 ), true );
+	if ( false === $raw || strlen( $raw ) < 28 ) {
+		return $value;
+	}
+	$iv  = substr( $raw, 0, 12 );
+	$tag = substr( $raw, 12, 16 );
+	$ct  = substr( $raw, 28 );
+	$key = (string) wp_salt( 'auth' );
+	$out = openssl_decrypt( $ct, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag );
+	return false === $out ? '' : $out;
+}
+
+/**
+ * Migrate any plaintext gateway secrets to encrypted-at-rest values. Safe to
+ * re-run (encrypted rows are left untouched). Call on theme activation and
+ * from the Tools page.
+ */
+function esk_encrypt_gateway_secrets(): int {
+	global $wpdb;
+	$table = $wpdb->prefix . 'esk_payment_gateways';
+	if ( $wpdb->get_var( "SHOW TABLES LIKE '{$table}'" ) !== $table ) {
+		return 0;
+	}
+	$rows = $wpdb->get_results( "SELECT id, api_key, api_secret, api_password FROM {$table}", ARRAY_A );
+	if ( ! is_array( $rows ) ) {
+		return 0;
+	}
+	$migrated = 0;
+	foreach ( $rows as $row ) {
+		$update = array();
+		foreach ( array( 'api_key', 'api_secret', 'api_password' ) as $col ) {
+			$cur = (string) ( $row[ $col ] ?? '' );
+			if ( '' !== $cur && ! str_starts_with( $cur, 'esk1:' ) ) {
+				$update[ $col ] = esk_encrypt_secret( $cur );
+			}
+		}
+		if ( $update ) {
+			$wpdb->update( $table, $update, array( 'id' => (int) $row['id'] ) );
+			$migrated++;
+		}
+	}
+	return $migrated;
+}

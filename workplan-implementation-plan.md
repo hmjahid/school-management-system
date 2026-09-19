@@ -136,9 +136,37 @@ Verification baseline (2026-09-11): `cd eskoofy-app && composer test` → **923 
 
 ---
 
+## Phase 10 — Security hardening (executed from docs/security/SECURITY-IMPLEMENTATION-PLAN.md)
+
+| # | Task | Status | Notes |
+|---|------|--------|-------|
+| 10.1 | php dashboard role/permission enforcement (P1) | ✅ done | New `config/access.php` (dashboard_roles + per-module roles); `Router::authorizeDashboard()` enforces roles centrally for all `App\Controllers\Dashboard\*`; `RoleMiddleware` with param syntax; dashboard group already `AuthMiddleware`. Student/guardian roles denied; sensitive modules (users/settings/backup/payroll/sms/gateways) admin-only; finance admin+accountant. Smoke-tested (10 cases), 314 tests pass. |
+| 10.2 | License server rate limit + auth (W1/W2/W3) | ✅ done | `ThrottleMiddleware` param parsing + wired to `/api/v1/licenses/*` (activate 10/min, validate/status 30/min, deactivate 10/min) + `/login` (10/5min). Optional `LICENSE_PRODUCT_SECRET` gate (X-Product-Secret, `hash_equals`). Domain hostname validation + bounded printable machine_id. |
+| 10.3 | php payment routes auth (P2) | ✅ done | `/payments/initiate`, `/payments/status/{id}`, `/payments/receipts/{id}` now `AuthMiddleware` (app parity). |
+| 10.4 | Remove default/weak credentials (P7/P8/R1) | ✅ done | Removed admin seed from `schema.sql`; new `database/seed_admin.php` (random strong password); `seed_demo.php` refuses `APP_ENV=production` without `--i-am-sure`; README updated. docker/theme-test: `WP_ADMIN_PASSWORD` now required (compose `:?`), setup script rejects `<12 char`/`admin`; `WP_DEBUG` default 0. |
+| 10.5 | Theme per-module capability gating (T1) | ✅ done | `esk_dashboard_page_caps()` map (slug → cap); `esk_can_access_page()` enforced in route renderer; sidebar links + details sub-links hidden by capability. |
+| 10.6 | Session cookie hardening (G2) | ✅ done | php + website bootstrap: `session_set_cookie_params` (HttpOnly, SameSite=Lax, Secure via `SESSION_SECURE_COOKIE`) before `session_start()`; app prod template already sets `SESSION_SECURE_COOKIE=true`. |
+| 10.7 | Constant-time CSRF + token rotation (G3) | ✅ done | php + website CSRF compare → `hash_equals`; CSRF token rotated on login (`Auth::attempt`/`login`). |
+| 10.8 | Rate-limit public forms (G4/P6) | ✅ done | php public POSTs throttled (contact, admission, careers, password reset, admissions apply/scholarship/submit-payment, complaint/feedback, newsletter, portal message) via `Throttle:12,1` / `5,15`. |
+| 10.9 | Security headers (G1) | ✅ done | New `SecurityHeadersMiddleware` (php + website, wired in `public/index.php`); theme `send_headers` hook; app already had SecurityHeaders middleware (verified registered). CSP + nosniff + X-Frame + Referrer + Permissions + HSTS(prod) + remove X-Powered-By. |
+| 10.10 | CORS tightening (A2) | ✅ done | app `config/cors.php`: paths→`api/*,sanctum/csrf-cookie`, explicit methods/headers, `max_age=86400`. |
+| 10.11 | Stored-XSS sanitization (A4) | ✅ done | New `App\Services\HtmlSanitizer` (DOMDocument allow-list) in app + php; applied to news content (store/update) and notification template content in both products; 4 app tests. |
+| 10.12 | Theme gateway keys at rest (T2) | ✅ done | `esk_encrypt_secret`/`esk_decrypt_secret` (AES-256-GCM via wp_salt); `get_gateway_data()` decrypts transparently; `esk_encrypt_gateway_secrets()` migration runs on theme activation; legacy plaintext passes through. |
+| 10.13 | Theme nonce audit (T3) | ✅ done | Verified all nonce-less admin views are read-only (0 POST branches) — no change needed. |
+| 10.14 | App API hygiene + log redaction + model guard (A5/A6/A7) | ✅ done | `DatabaseNotification` guarded; `PaymentController` logs redact card/secret fields; publicSettings + teacher API already correctly scoped (verified). |
+| 10.15 | Results lookup rate limit (T4) | ✅ done | REST `esk/v1/results/lookup` rate-limited per-IP via transient (15/min). |
+| 10.16 | `esk_repair_site_url` gating (T5) | ✅ done | Defensive `manage_options`/`WP_CLI` guard added (call sites already admin+nonce). |
+| 10.17 | .htaccess hardening (R4) | ✅ done | app + website `public/.htaccess` + new theme root `.htaccess`: deny dotfiles, sensitive file types, block direct `inc/`/`views/` access. |
+| 10.18 | PWA cache hygiene (R3) | ✅ done | Theme SW never caches `/dashboard/`, `/wp-admin/`, `/login/`, `/api/`; cache versions bumped (app `eskoofy-v2`, theme `eskoofy-theme-v3`). |
+| 10.19 | env parser + session role re-read + `_method` (W5/P9/P5) | ✅ done | php + website `.env` parser handles quoted values + inline comments; `Auth::role()` re-reads from DB per request (cached); `_method` spoofing already POST-only (verified). |
+| 10.20 | CI security gates (G5) | ✅ done | `composer audit` added to all 4 CI jobs; new `security` job (gitleaks + hardcoded-credential grep); added to export `needs`. |
+| 10.21 | Security tests | ✅ done | php `DashboardAccessConfigTest` (3); website `LicenseApiSecurityTest` (3); app `HtmlSanitizerTest` (4). Suites: app 927, php 314, website 95 — all green. |
+
+---
+
 ## Summary
 
-- ✅ Complete: Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6 (full raw PHP port + tests + CI), Phase 7 (full WP hybrid), Phase 8 (website + license server + i18n + PWA + geo-language + marketing blog), Phase 9 (frontend social parity + dashboard/sidebar parity merge across app/php/theme + variant blueprint).
+- ✅ Complete: Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6 (full raw PHP port + tests + CI), Phase 7 (full WP hybrid), Phase 8 (website + license server + i18n + PWA + geo-language + marketing blog), Phase 9 (frontend social parity + dashboard/sidebar parity merge across app/php/theme + variant blueprint), Phase 10 (security hardening per docs/security/SECURITY-IMPLEMENTATION-PLAN.md).
 
 ## File counts
 

@@ -252,7 +252,7 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             \Log::error('Payment callback failed: '.$e->getMessage(), [
                 'gateway' => $gateway,
-                'params' => $request->all(),
+                'params' => $this->redactPayload($request->all()),
                 'exception' => $e,
             ]);
 
@@ -314,7 +314,7 @@ class PaymentController extends Controller
             // Log the webhook request
             \Log::info("Received webhook from {$gateway}", [
                 'headers' => $request->headers->all(),
-                'payload' => $request->all(),
+                'payload' => $this->redactPayload($request->all()),
             ]);
 
             // Process the webhook
@@ -337,7 +337,7 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             \Log::error('Webhook processing failed: '.$e->getMessage(), [
                 'gateway' => $gateway,
-                'payload' => $request->all(),
+                'payload' => $this->redactPayload($request->all()),
                 'exception' => $e,
             ]);
 
@@ -666,5 +666,32 @@ class PaymentController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Recursively mask sensitive gateway fields before logging.
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    protected function redactPayload(array $payload): array
+    {
+        $sensitive = ['card_number', 'pan', 'cvv', 'cvc', 'security_code', 'token', 'secret', 'signature', 'password', 'pin', 'account_number'];
+
+        $walk = function (array $data) use (&$walk, $sensitive): array {
+            foreach ($data as $key => $value) {
+                $lower = strtolower((string) $key);
+                $isSensitive = collect($sensitive)->contains(fn (string $s) => str_contains($lower, $s));
+                if ($isSensitive) {
+                    $data[$key] = '[REDACTED]';
+                } elseif (is_array($value)) {
+                    $data[$key] = $walk($value);
+                }
+            }
+
+            return $data;
+        };
+
+        return $walk($payload);
     }
 }

@@ -16,6 +16,7 @@ class Auth
             Session::getInstance()->set('user_id', $user['id']);
             Session::getInstance()->set('user_role', $user['role']);
             Session::getInstance()->regenerate();
+            Session::getInstance()->set('csrf_token', bin2hex(random_bytes(32)));
             return true;
         }
         return false;
@@ -26,6 +27,7 @@ class Auth
         Session::getInstance()->set('user_id', $user['id']);
         Session::getInstance()->set('user_role', $user['role']);
         Session::getInstance()->regenerate();
+        Session::getInstance()->set('csrf_token', bin2hex(random_bytes(32)));
     }
 
     public static function logout(): void
@@ -45,7 +47,26 @@ class Auth
 
     public static function role(): ?string
     {
-        return Session::getInstance()->get('user_role');
+        static $cache = [];
+        $id = self::id();
+        if ($id === null) {
+            return null;
+        }
+        // Re-read the role from the DB (per request) so a role change is
+        // honoured immediately and a tampered session cannot escalate.
+        if (!array_key_exists($id, $cache)) {
+            try {
+                $row = Database::getInstance()->fetch(
+                    "SELECT role FROM users WHERE id = ? AND deleted_at IS NULL",
+                    [$id]
+                );
+                $cache[$id] = $row['role'] ?? null;
+            } catch (\Throwable) {
+                $cache[$id] = Session::getInstance()->get('user_role');
+            }
+        }
+
+        return $cache[$id];
     }
 
     public static function user(): ?\App\Models\User

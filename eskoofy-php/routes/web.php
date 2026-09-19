@@ -20,14 +20,14 @@ $router->get('/notices', 'App\\Controllers\\SiteController', 'notices');
 $router->get('/events', 'App\\Controllers\\SiteController', 'events');
 $router->get('/gallery', 'App\\Controllers\\SiteController', 'gallery');
 $router->get('/contact', 'App\\Controllers\\SiteController', 'contact');
-$router->post('/contact', 'App\\Controllers\\SiteController', 'submitContact');
+$router->post('/contact', 'App\\Controllers\\SiteController', 'submitContact', ['Throttle:12,1']);
 $router->get('/results', 'App\\Controllers\\SiteController', 'results');
 $router->get('/routine', 'App\\Controllers\\SiteController', 'routine');
 $router->get('/admission', 'App\\Controllers\\SiteController', 'admission');
-$router->post('/admission', 'App\\Controllers\\SiteController', 'submitAdmission');
+$router->post('/admission', 'App\\Controllers\\SiteController', 'submitAdmission', ['Throttle:12,1']);
 $router->get('/payments', 'App\\Controllers\\SiteController', 'payments');
-$router->get('/payments/status/{id}', 'App\\Controllers\\SiteController', 'paymentStatus');
-$router->get('/payments/receipts/{id}', 'App\\Controllers\\SiteController', 'feeReceipt');
+$router->get('/payments/status/{id}', 'App\\Controllers\\SiteController', 'paymentStatus', ['AuthMiddleware']);
+$router->get('/payments/receipts/{id}', 'App\\Controllers\\SiteController', 'feeReceipt', ['AuthMiddleware']);
 $router->get('/about', 'App\\Controllers\\SiteController', 'about');
 $router->get('/academics', 'App\\Controllers\\SiteController', 'academics');
 $router->get('/students-life', 'App\\Controllers\\SiteController', 'studentsLife');
@@ -39,7 +39,7 @@ $router->get('/privacy', 'App\\Controllers\\SiteController', 'privacy');
 $router->get('/portal', 'App\\Controllers\\SiteController', 'portal');
 $router->get('/search', 'App\\Controllers\\SiteController', 'search');
 $router->get('/careers', 'App\\Controllers\\SiteController', 'careers');
-$router->post('/careers/apply', 'App\\Controllers\\SiteController', 'applyCareer');
+$router->post('/careers/apply', 'App\\Controllers\\SiteController', 'applyCareer', ['Throttle:12,1']);
 
 // Student / Guardian portal auth
 $router->get('/student/login', 'App\\Controllers\\Auth\\StudentGuardianAuthController', 'showStudentLogin');
@@ -71,9 +71,9 @@ $router->get('/manifest.json', function () {
 
 // Password reset
 $router->get('/forgot-password', 'App\\Controllers\\PasswordResetController', 'showForm');
-$router->post('/forgot-password', 'App\\Controllers\\PasswordResetController', 'sendToken');
+$router->post('/forgot-password', 'App\\Controllers\\PasswordResetController', 'sendToken', ['Throttle:5,15']);
 $router->get('/reset-password', 'App\\Controllers\\PasswordResetController', 'showReset');
-$router->post('/reset-password', 'App\\Controllers\\PasswordResetController', 'reset');
+$router->post('/reset-password', 'App\\Controllers\\PasswordResetController', 'reset', ['Throttle:10,15']);
 
 // Admission payment
 $router->post('/admission/pay', 'App\\Controllers\\PaymentController', 'admissionPay');
@@ -783,20 +783,20 @@ $router->group('/dashboard', function (Router $r) {
 // Public admissions flow
 $router->get('/admissions', 'App\\Controllers\\SiteController', 'admissions');
 $router->get('/admissions/apply', 'App\\Controllers\\SiteController', 'apply');
-$router->post('/admissions/apply', 'App\\Controllers\\SiteController', 'applyStore');
-$router->post('/admissions/scholarship', 'App\\Controllers\\SiteController', 'submitScholarship');
+$router->post('/admissions/apply', 'App\\Controllers\\SiteController', 'applyStore', ['Throttle:12,1']);
+$router->post('/admissions/scholarship', 'App\\Controllers\\SiteController', 'submitScholarship', ['Throttle:12,1']);
 $router->get('/admissions/status', 'App\\Controllers\\SiteController', 'admissionStatus');
 $router->get('/admissions/{id}/approval-letter', 'App\\Controllers\\SiteController', 'admissionApprovalLetter');
 $router->get('/admissions/{id}/receipt', 'App\\Controllers\\SiteController', 'admissionReceipt');
-$router->post('/admissions/{id}/submit-payment', 'App\\Controllers\\SiteController', 'submitPayment');
+$router->post('/admissions/{id}/submit-payment', 'App\\Controllers\\SiteController', 'submitPayment', ['Throttle:12,1']);
 
 // Contact forms
-$router->post('/contact/complaint', 'App\\Controllers\\SiteController', 'submitComplaint');
-$router->post('/contact/feedback', 'App\\Controllers\\SiteController', 'submitFeedback');
-$router->post('/newsletter', 'App\\Controllers\\SiteController', 'newsletterStore');
+$router->post('/contact/complaint', 'App\\Controllers\\SiteController', 'submitComplaint', ['Throttle:12,1']);
+$router->post('/contact/feedback', 'App\\Controllers\\SiteController', 'submitFeedback', ['Throttle:12,1']);
+$router->post('/newsletter', 'App\\Controllers\\SiteController', 'newsletterStore', ['Throttle:12,1']);
 
 // Payments
-$router->get('/payments/initiate', 'App\\Controllers\\PaymentController', 'initiate');
+$router->get('/payments/initiate', 'App\\Controllers\\PaymentController', 'initiate', ['AuthMiddleware']);
 
 // Results download
 $router->get('/results/download', 'App\\Controllers\\SiteController', 'resultsDownload');
@@ -807,7 +807,7 @@ $router->get('/students', 'App\\Controllers\\SiteController', 'students');
 // Portal
 $router->get('/portal/admission', 'App\\Controllers\\SiteController', 'portalAdmission');
 $router->get('/portal/progress', 'App\\Controllers\\SiteController', 'portalProgress');
-$router->post('/portal/message', 'App\\Controllers\\SiteController', 'messageTeacher');
+$router->post('/portal/message', 'App\\Controllers\\SiteController', 'messageTeacher', ['Throttle:12,1']);
 $router->get('/portal/register', 'App\\Controllers\\SiteController', 'portalRegister');
 
 // Student / Guardian dashboards

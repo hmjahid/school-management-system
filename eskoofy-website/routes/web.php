@@ -54,7 +54,7 @@ $router->get('/checkout/status/{reference}', \App\Controllers\Site\PaymentStatus
 $router->get('/register', RegisterController::class, 'show');
 $router->post('/register', RegisterController::class, 'store');
 $router->get('/login', LoginController::class, 'show');
-$router->post('/login', LoginController::class, 'store');
+$router->post('/login', LoginController::class, 'store', ['Throttle:10,5']);
 $router->get('/logout', LogoutController::class, 'logout');
 
 // ─── Customer account ────────────────────────────────────────

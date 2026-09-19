@@ -13,6 +13,13 @@ set -eu
 WP_PATH="/var/www/html"
 CLI="wp --allow-root --path=${WP_PATH}"
 
+# Security guard: never install with a blank/obviously-weak admin password.
+if [ -z "${WP_ADMIN_PASSWORD:-}" ] || [ "${WP_ADMIN_PASSWORD}" = "admin" ] || [ "${#WP_ADMIN_PASSWORD}" -lt 12 ]; then
+  echo "ERROR: WP_ADMIN_PASSWORD must be set to a strong value (>= 12 chars)." >&2
+  echo "       e.g. export WP_ADMIN_PASSWORD='ChangeMe!2026\$Tr0ng'" >&2
+  exit 1
+fi
+
 echo "==> Waiting for wp-config.php (written by the wp container entrypoint)..."
 i=0
 until [ -f "${WP_PATH}/wp-config.php" ]; do

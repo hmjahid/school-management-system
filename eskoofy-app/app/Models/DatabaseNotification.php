@@ -22,6 +22,14 @@ class DatabaseNotification extends BaseDatabaseNotification
     ];
 
     /**
+     * Mass-assignment is not needed for notifications (they are written by
+     * the framework); block it explicitly.
+     *
+     * @var array
+     */
+    protected $guarded = ['*'];
+
+    /**
      * Get the notifiable entity that the notification belongs to.
      */
     public function notifiable()

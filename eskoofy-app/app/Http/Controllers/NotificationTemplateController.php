@@ -88,6 +88,8 @@ class NotificationTemplateController extends Controller
             ], 409);
         }
 
+        $validated['content'] = app(\App\Services\HtmlSanitizer::class)->sanitize($validated['content']);
+
         $template = NotificationTemplate::create($validated);
 
         return response()->json([
@@ -131,6 +133,7 @@ class NotificationTemplateController extends Controller
             ],
         ]);
 
+        $validated['content'] = app(\App\Services\HtmlSanitizer::class)->sanitize($validated['content']);
         $template->update($validated);
 
         return response()->json([

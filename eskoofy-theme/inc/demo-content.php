@@ -371,6 +371,12 @@ function esk_install_demo_content(): array {
  * @return array{ok: bool, message: string}
  */
 function esk_repair_site_url(): array {
+	// Defense in depth: only administrators (or WP-CLI) may rewrite the
+	// site URL options; prevents any request-driven pivot.
+	if ( ! defined( 'WP_CLI' ) && ( ! function_exists( 'current_user_can' ) || ! current_user_can( 'manage_options' ) ) ) {
+		return array( 'ok' => false, 'message' => __( 'Permission denied.', 'eskoofy' ) );
+	}
+
 	$scheme = ( ! empty( $_SERVER['HTTPS'] ) && 'off' !== $_SERVER['HTTPS'] ) ? 'https' : 'http';
 	$host   = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
 

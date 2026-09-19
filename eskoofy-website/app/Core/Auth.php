@@ -21,6 +21,7 @@ class Auth
             Session::getInstance()->set('user_id', $user['id']);
             Session::getInstance()->set('user_role', $user['role'] ?? 'customer');
             Session::getInstance()->regenerate();
+            Session::getInstance()->set('csrf_token', bin2hex(random_bytes(32)));
             return true;
         }
         return false;
@@ -31,6 +32,7 @@ class Auth
         Session::getInstance()->set('user_id', $user['id']);
         Session::getInstance()->set('user_role', $user['role'] ?? 'customer');
         Session::getInstance()->regenerate();
+        Session::getInstance()->set('csrf_token', bin2hex(random_bytes(32)));
     }
 
     public static function logout(): void

@@ -112,6 +112,10 @@ class Router
                     $this->runMiddleware($mw);
                 }
 
+                if (!empty($route['controller']) && str_starts_with($route['controller'], 'App\\Controllers\\Dashboard\\')) {
+                    $this->authorizeDashboard($route['controller']);
+                }
+
                 if (!empty($route['closure'])) {
                     call_user_func_array($route['closure'], $params);
                     return;
@@ -137,10 +141,35 @@ class Router
 
     private function runMiddleware(string $name): void
     {
-        $class = 'App\\Core\\Middleware\\' . $name;
+        // Support parameterized middleware names: "Role:admin,super_admin".
+        $parts = explode(':', $name, 2);
+        $class = 'App\\Core\\Middleware\\' . $parts[0];
+        if (!class_exists($class)) {
+            $class = 'App\\Core\\Middleware\\' . $name;
+        }
         if (class_exists($class)) {
-            $instance = new $class();
+            $args = isset($parts[1]) ? $parts[1] : null;
+            $instance = $args !== null ? new $class($args) : new $class();
             $instance->handle();
         }
+    }
+
+    /**
+     * Central authorization for Dashboard controllers (parity with the app's
+     * `role:admin` / permission route middleware). The dashboard surface is
+     * staff-only; sensitive modules additionally require specific roles from
+     * config/access.php.
+     */
+    private function authorizeDashboard(string $controllerClass): void
+    {
+        $access = config('access', ['dashboard_roles' => ['super_admin', 'admin'], 'module_roles' => []]);
+        $allowed = $access['dashboard_roles'] ?? ['super_admin', 'admin'];
+
+        $suffix = substr($controllerClass, (int) strrpos($controllerClass, '\\') + 1);
+        if (isset($access['module_roles'][$suffix])) {
+            $allowed = $access['module_roles'][$suffix];
+        }
+
+        \App\Core\Auth::requireRole(...$allowed);
     }
 }

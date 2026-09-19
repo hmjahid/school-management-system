@@ -5,8 +5,10 @@ require __DIR__ . '/../app/Core/bootstrap.php';
 
 use App\Core\Router;
 use App\Core\Middleware\CorsMiddleware;
+use App\Core\Middleware\SecurityHeadersMiddleware;
 
-// Apply CORS globally
+// Apply security + CORS headers globally
+(new SecurityHeadersMiddleware())->handle();
 (new CorsMiddleware())->handle();
 
 $router = new Router();

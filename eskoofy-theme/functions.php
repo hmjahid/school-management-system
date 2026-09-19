@@ -18,6 +18,31 @@ if ( file_exists( $esk_inc ) ) {
 	require_once $esk_inc;
 }
 
+/* ─── Security response headers (parity with the app's SecurityHeaders) ────── */
+
+add_action(
+	'send_headers',
+	static function (): void {
+		if ( headers_sent() ) {
+			return;
+		}
+		header( 'X-Content-Type-Options: nosniff' );
+		header( 'X-Frame-Options: SAMEORIGIN' );
+		header( 'Referrer-Policy: strict-origin-when-cross-origin' );
+		header( 'Permissions-Policy: geolocation=(), microphone=(), camera=()' );
+		header( 'Cross-Origin-Opener-Policy: same-origin' );
+		header_remove( 'X-Powered-By' );
+
+		$is_secure = ( isset( $_SERVER['HTTPS'] ) && 'off' !== $_SERVER['HTTPS'] )
+			|| ( ( $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '' ) === 'https' );
+		if ( $is_secure || ( defined( 'WP_ENVIRONMENT_TYPE' ) && 'production' === WP_ENVIRONMENT_TYPE ) ) {
+			header( 'Strict-Transport-Security: max-age=31536000; includeSubDomains' );
+		}
+
+		header( "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://fonts.bunny.net; style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; frame-ancestors 'self'" );
+	}
+);
+
 /* ─── Session init (used by esk_flash / esk_get_flash for front-end          ──────
      flash messages such as contact, admission and newsletter feedback) ────── */
 
@@ -167,6 +192,9 @@ add_action( 'admin_enqueue_scripts', 'esk_admin_enqueue' );
 function esk_theme_activation(): void {
 	if ( function_exists( 'esk_create_tables' ) ) {
 		esk_create_tables();
+	}
+	if ( function_exists( 'esk_encrypt_gateway_secrets' ) ) {
+		esk_encrypt_gateway_secrets();
 	}
 	esk_create_demo_users();
 	esk_assign_homepage_and_blog();

@@ -103,6 +103,114 @@ function esk_front_dashboard_pages(): array {
 }
 
 /**
+ * esk-* slug => capability key(s) required to open the page (mirrors the
+ * app's `role:admin` / `permission:*` route middleware). A page is allowed
+ * when the user holds ANY of the listed capabilities; administrators always
+ * pass. Pages not listed here require the base 'dashboard' capability.
+ *
+ * Keys must match the capability keys editable on the Roles & Permissions
+ * page (views/admin/roles.php).
+ */
+function esk_dashboard_page_caps(): array {
+	return array(
+		'esk-dashboard'            => array( 'dashboard' ),
+		'esk-students'             => array( 'students' ),
+		'esk-student-add'          => array( 'students' ),
+		'esk-teachers'             => array( 'teachers' ),
+		'esk-teacher-add'          => array( 'teachers' ),
+		'esk-staff-directory'      => array( 'teachers' ),
+		'esk-guardians'            => array( 'guardians' ),
+		'esk-classes'              => array( 'academics' ),
+		'esk-sections'             => array( 'academics' ),
+		'esk-subjects'             => array( 'academics' ),
+		'esk-batches'              => array( 'academics' ),
+		'esk-academic-sessions'    => array( 'academics' ),
+		'esk-attendance'           => array( 'attendance' ),
+		'esk-attendance-mark'      => array( 'attendance' ),
+		'esk-exams'                => array( 'academics' ),
+		'esk-results'              => array( 'academics' ),
+		'esk-assignments'          => array( 'academics' ),
+		'esk-routines'             => array( 'academics' ),
+		'esk-progress-reports'     => array( 'academics' ),
+		'esk-seat-plans'           => array( 'academics' ),
+		'esk-admissions'           => array( 'admissions' ),
+		'esk-fees'                 => array( 'finance' ),
+		'esk-fee-payments'         => array( 'finance' ),
+		'esk-expenses'             => array( 'finance' ),
+		'esk-expense-categories'   => array( 'finance' ),
+		'esk-ledger'               => array( 'finance' ),
+		'esk-budgets'              => array( 'finance' ),
+		'esk-refunds'              => array( 'finance' ),
+		'esk-bank-reconciliation'  => array( 'finance' ),
+		'esk-income-statement'     => array( 'finance', 'reports' ),
+		'esk-balance-sheet'        => array( 'finance', 'reports' ),
+		'esk-cash-flow'            => array( 'finance', 'reports' ),
+		'esk-payroll'              => array( 'hr' ),
+		'esk-payslips'             => array( 'hr' ),
+		'esk-salary-structures'    => array( 'hr' ),
+		'esk-leave-types'          => array( 'hr' ),
+		'esk-leave-requests'       => array( 'hr' ),
+		'esk-staff-attendance'     => array( 'hr' ),
+		'esk-library'              => array( 'library' ),
+		'esk-library-reports'      => array( 'library' ),
+		'esk-events'               => array( 'events' ),
+		'esk-events-calendar'      => array( 'events' ),
+		'esk-transport'            => array( 'transport' ),
+		'esk-hostels'              => array( 'hostels' ),
+		'esk-sms'                  => array( 'sms' ),
+		'esk-notification-templates'   => array( 'sms' ),
+		'esk-notification-preferences' => array( 'sms' ),
+		'esk-messages'             => array( 'sms' ),
+		'esk-news'                 => array( 'content' ),
+		'esk-gallery'              => array( 'content' ),
+		'esk-testimonials'         => array( 'content' ),
+		'esk-committee'            => array( 'content' ),
+		'esk-careers'              => array( 'content' ),
+		'esk-careers-applications' => array( 'content' ),
+		'esk-cms'                  => array( 'content' ),
+		'esk-media'                => array( 'content' ),
+		'esk-documents'            => array( 'documents' ),
+		'esk-contact-submissions'  => array( 'content' ),
+		'esk-notices'              => array( 'content' ),
+		'esk-announcements'        => array( 'content' ),
+		'esk-certificates'         => array( 'documents' ),
+		'esk-admit-cards'          => array( 'documents' ),
+		'esk-id-cards'             => array( 'documents' ),
+		'esk-reports'              => array( 'reports' ),
+		'esk-reports-builder'      => array( 'reports' ),
+		'esk-analytics'            => array( 'reports' ),
+		'esk-users'                => array( 'users' ),
+		'esk-roles'                => array( 'users' ),
+		'esk-settings'             => array( 'settings' ),
+		'esk-onboarding'           => array( 'settings' ),
+		'esk-bulk'                 => array( 'settings' ),
+		'esk-backup'               => array( 'settings' ),
+		'esk-cache'                => array( 'settings' ),
+		'esk-tools'                => array( 'settings' ),
+		'esk-activity'             => array( 'settings' ),
+		'esk-visitor-logs'         => array( 'settings' ),
+	);
+}
+
+/**
+ * Whether the current user may open a specific dashboard page. Admins always
+ * pass; other roles need at least one of the page's required capabilities.
+ */
+function esk_can_access_page( string $slug ): bool {
+	if ( current_user_can( 'manage_options' ) ) {
+		return true;
+	}
+	$caps   = esk_dashboard_page_caps();
+	$needed = $caps[ $slug ] ?? array( 'dashboard' );
+	foreach ( $needed as $cap ) {
+		if ( esk_can( $cap ) ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
  * Register the /dashboard/ rewrite rules.
  */
 add_action(
@@ -229,7 +337,7 @@ add_action(
 
 		// Capability gate: admins always pass; other roles require a granted
 		// capability in the esk_role_caps map (see Roles & Permissions page).
-		if ( ! esk_can_access_dashboard() ) {
+		if ( ! esk_can_access_dashboard() || ! esk_can_access_page( $slug ) ) {
 			status_header( 403 );
 			nocache_headers();
 			?>

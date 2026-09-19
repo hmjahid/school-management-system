@@ -34,3 +34,13 @@
 <IfModule mod_rewrite.c>
     RewriteRule ^storage/.*\.php$ - [F,L]
 </IfModule>
+
+# Block access to hidden files/dotfiles (e.g. .env, .git)
+<IfModule mod_rewrite.c>
+    RewriteRule (^\.|/\.) - [F,L]
+</IfModule>
+
+# Block access to sensitive file types
+<FilesMatch "\.(env|log|sql|bak|key|pem|p12)$">
+    Require all denied
+</FilesMatch>

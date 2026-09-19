@@ -7,7 +7,7 @@
  * navigation.
  */
 
-const CACHE_NAME = 'eskoofy-theme-v2';
+const CACHE_NAME = 'eskoofy-theme-v3';
 const OFFLINE_URL = '/offline';
 
 function isCacheable(response) {
@@ -50,6 +50,17 @@ self.addEventListener('fetch', (event) => {
     }
 
     if (request.mode === 'navigate') {
+        // Never cache authenticated/admin surfaces.
+        if (
+            url.pathname.startsWith('/dashboard') ||
+            url.pathname.startsWith('/wp-admin') ||
+            url.pathname.startsWith('/login') ||
+            url.pathname.startsWith('/logout') ||
+            url.pathname.startsWith('/api')
+        ) {
+            event.respondWith(fetch(request));
+            return;
+        }
         event.respondWith(
             fetch(request)
                 .then((response) => {

@@ -125,9 +125,9 @@ Create a `.env` in this directory to override defaults:
 | `WP_PORT` | `8080` | Host port mapped to Apache 80 |
 | `WP_TITLE` | `Eskoofy Theme Test` | Site title |
 | `WP_ADMIN_USER` | `admin` | WP admin username |
-| `WP_ADMIN_PASSWORD` | `admin` | WP admin password |
+| `WP_ADMIN_PASSWORD` | *(required)* | WP admin password — **no default**; set a strong value (≥12 chars). `docker compose` refuses to start without it |
 | `WP_ADMIN_EMAIL` | `admin@example.test` | Admin email |
-| `WP_DEBUG` | `1` | Sets `WP_DEBUG` in `wp-config.php` |
+| `WP_DEBUG` | `0` | Sets `WP_DEBUG` in `wp-config.php` |
 
 ## Useful commands
 

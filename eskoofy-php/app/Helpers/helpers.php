@@ -39,6 +39,7 @@ function config(string $key, mixed $default = null): mixed
             'eskoolfy'     => is_file(__DIR__ . '/../../config/eskoolfy.php') ? require __DIR__ . '/../../config/eskoolfy.php' : [],
             'payment'      => $paymentConfig ?? [],
             'sms'          => is_file(__DIR__ . '/../../config/sms.php') ? require __DIR__ . '/../../config/sms.php' : [],
+            'access'       => is_file(__DIR__ . '/../../config/access.php') ? require __DIR__ . '/../../config/access.php' : ['dashboard_roles' => ['super_admin', 'admin'], 'module_roles' => []],
             'currency'     => ['symbol' => $symbol, 'currency' => $currency],
             'database'     => ['default' => $_ENV['DB_CONNECTION'] ?? 'mysql'],
             'queue'        => ['default' => $_ENV['QUEUE_CONNECTION'] ?? 'database'],

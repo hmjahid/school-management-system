@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Core\Middleware;
@@ -8,10 +9,23 @@ class ThrottleMiddleware
     private int $maxAttempts;
     private int $decayMinutes;
 
-    public function __construct(int $maxAttempts = 60, int $decayMinutes = 1)
+    /**
+     * @param string|int $maxAttempts maximum attempts in the decay window.
+     * @param int        $decayMinutes window length in minutes.
+     */
+    public function __construct(string|int $maxAttempts = 60, int $decayMinutes = 1)
     {
-        $this->maxAttempts = $maxAttempts;
-        $this->decayMinutes = $decayMinutes;
+        // Parameterized middleware name form: "Throttle:5,1".
+        if (is_string($maxAttempts) && str_contains($maxAttempts, ',')) {
+            [$max, $decay] = array_pad(explode(',', $maxAttempts, 2), 2, null);
+            $maxAttempts = (int) trim((string) $max);
+            $decayMinutes = (int) trim((string) ($decay ?? $decayMinutes));
+        } elseif (is_string($maxAttempts)) {
+            $maxAttempts = (int) trim($maxAttempts);
+        }
+
+        $this->maxAttempts = max(1, (int) $maxAttempts);
+        $this->decayMinutes = max(1, $decayMinutes);
     }
 
     public function handle(): void

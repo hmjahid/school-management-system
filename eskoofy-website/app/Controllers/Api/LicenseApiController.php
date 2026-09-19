@@ -24,19 +24,66 @@ class LicenseApiController extends Controller
         return json_decode($raw !== false ? $raw : '', true) ?? $_POST;
     }
 
+    /**
+     * Optional product-secret gate. When LICENSE_PRODUCT_SECRET is configured,
+     * every license-mutation request must present a matching X-Product-Secret
+     * header (constant-time compare). Skipped entirely when unset so existing
+     * deployments keep working until they opt in.
+     */
+    private function verifyProductSecret(): void
+    {
+        $expected = (string) ($_ENV['LICENSE_PRODUCT_SECRET'] ?? '');
+        if ($expected === '') {
+            return;
+        }
+
+        $provided = (string) ($_SERVER['HTTP_X_PRODUCT_SECRET'] ?? '');
+        if (!hash_equals($expected, $provided)) {
+            $this->error('Invalid product secret.', 401);
+        }
+    }
+
+    /**
+     * Domain must look like a real hostname (used for activation binding).
+     */
+    private function validDomain(string $domain): bool
+    {
+        return (bool) preg_match('/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/', $domain)
+            || $domain === 'localhost';
+    }
+
+    /**
+     * Sanitize a client-supplied machine identifier: keep it bounded and
+     * printable so it can never be used to smuggle anything into the DB.
+     */
+    private function normalizeMachine(mixed $machine): ?string
+    {
+        if (!is_string($machine)) {
+            return null;
+        }
+        $machine = trim($machine);
+        if ($machine === '') {
+            return null;
+        }
+
+        return substr(preg_replace('/[^\x20-\x7E]/', '', $machine), 0, 191);
+    }
+
     public function activate(): void
     {
+        $this->verifyProductSecret();
+
         $data = $this->body();
         $key = strtoupper(trim((string) ($data['license_key'] ?? '')));
         $domain = strtolower(trim((string) ($data['domain'] ?? $_SERVER['HTTP_HOST'] ?? '')));
-        $machine = $data['machine_id'] ?? null;
+        $machine = $this->normalizeMachine($data['machine_id'] ?? null);
         $ip = $_SERVER['REMOTE_ADDR'] ?? ($_SERVER['HTTP_X_FORWARDED_FOR'] ?? null);
 
-        if ($key === '' || $domain === '') {
-            $this->error('license_key and domain are required.', 422);
+        if ($key === '' || $domain === '' || !$this->validDomain($domain)) {
+            $this->error('license_key and a valid domain are required.', 422);
         }
 
-        $result = $this->manager->activate($key, $domain, is_string($machine) ? $machine : null, is_string($ip) ? $ip : null);
+        $result = $this->manager->activate($key, $domain, $machine, is_string($ip) ? $ip : null);
 
         if (($result['status'] ?? '') !== 'ok') {
             $this->error($result['message'] ?? 'Activation failed.', 422, ['code' => $result['code'] ?? null]);
@@ -47,16 +94,18 @@ class LicenseApiController extends Controller
 
     public function checkLicense(): void
     {
+        $this->verifyProductSecret();
+
         $data = $this->body();
         $key = strtoupper(trim((string) ($data['license_key'] ?? '')));
         $domain = strtolower(trim((string) ($data['domain'] ?? $_SERVER['HTTP_HOST'] ?? '')));
-        $machine = $data['machine_id'] ?? null;
+        $machine = $this->normalizeMachine($data['machine_id'] ?? null);
 
-        if ($key === '' || $domain === '') {
-            $this->error('license_key and domain are required.', 422);
+        if ($key === '' || $domain === '' || !$this->validDomain($domain)) {
+            $this->error('license_key and a valid domain are required.', 422);
         }
 
-        $result = $this->manager->validate($key, $domain, is_string($machine) ? $machine : null);
+        $result = $this->manager->validate($key, $domain, $machine);
 
         if (($result['status'] ?? '') !== 'ok') {
             $this->error($result['message'] ?? 'License invalid.', 422, ['code' => $result['code'] ?? null]);
@@ -67,16 +116,18 @@ class LicenseApiController extends Controller
 
     public function deactivate(): void
     {
+        $this->verifyProductSecret();
+
         $data = $this->body();
         $key = strtoupper(trim((string) ($data['license_key'] ?? '')));
         $domain = strtolower(trim((string) ($data['domain'] ?? $_SERVER['HTTP_HOST'] ?? '')));
-        $machine = $data['machine_id'] ?? null;
+        $machine = $this->normalizeMachine($data['machine_id'] ?? null);
 
-        if ($key === '' || $domain === '') {
-            $this->error('license_key and domain are required.', 422);
+        if ($key === '' || $domain === '' || !$this->validDomain($domain)) {
+            $this->error('license_key and a valid domain are required.', 422);
         }
 
-        $result = $this->manager->deactivate($key, $domain, is_string($machine) ? $machine : null);
+        $result = $this->manager->deactivate($key, $domain, $machine);
 
         if (($result['status'] ?? '') !== 'ok') {
             $this->error($result['message'] ?? 'Deactivation failed.', 422, ['code' => $result['code'] ?? null]);

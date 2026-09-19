@@ -31,10 +31,10 @@ services:
       WORDPRESS_DB_USER: ${DB_USER:-wpuser}
       WORDPRESS_DB_PASSWORD: ${DB_PASSWORD:-wppass}
       WORDPRESS_DB_NAME: ${DB_NAME:-wordpress}
-      WORDPRESS_DEBUG: ${WP_DEBUG:-1}
+      WORDPRESS_DEBUG: ${WP_DEBUG:-0}
       WORDPRESS_TITLE: ${WP_TITLE:-Eskoofy Theme Test}
       WORDPRESS_ADMIN_USER: ${WP_ADMIN_USER:-admin}
-      WORDPRESS_ADMIN_PASSWORD: ${WP_ADMIN_PASSWORD:-admin}
+      WORDPRESS_ADMIN_PASSWORD: ${WP_ADMIN_PASSWORD:?Set WP_ADMIN_PASSWORD to a strong value (e.g. export WP_ADMIN_PASSWORD=...)}
       WORDPRESS_ADMIN_EMAIL: ${WP_ADMIN_EMAIL:-admin@example.test}
       WORDPRESS_CONFIG_EXTRA: |
         define('WP_DEBUG_LOG', true);
@@ -65,11 +65,11 @@ services:
       WORDPRESS_DB_USER: ${DB_USER:-wpuser}
       WORDPRESS_DB_PASSWORD: ${DB_PASSWORD:-wppass}
       WORDPRESS_DB_NAME: ${DB_NAME:-wordpress}
-      WORDPRESS_DEBUG: ${WP_DEBUG:-1}
+      WORDPRESS_DEBUG: ${WP_DEBUG:-0}
       WP_URL: "http://localhost:${WP_PORT:-8080}"
       WP_TITLE: ${WP_TITLE:-Eskoofy Theme Test}
       WP_ADMIN_USER: ${WP_ADMIN_USER:-admin}
-      WP_ADMIN_PASSWORD: ${WP_ADMIN_PASSWORD:-admin}
+      WP_ADMIN_PASSWORD: ${WP_ADMIN_PASSWORD:?Set WP_ADMIN_PASSWORD to a strong value (e.g. export WP_ADMIN_PASSWORD=...)}
       WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL:-admin@example.test}
     volumes:
       - ../../eskoofy-theme:/var/www/html/wp-content/themes/eskoofy:cached

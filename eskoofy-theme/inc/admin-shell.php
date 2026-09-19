@@ -549,6 +549,7 @@ function esk_render_admin_shell_open( string $current = '' ): void {
 					<?php
 					$esk_slug  = isset( $esk_item['slug'] ) ? (string) $esk_item['slug'] : '';
 					if ( '' !== $esk_slug && ! isset( $titles[ $esk_slug ] ) ) { continue; }
+					if ( '' !== $esk_slug && function_exists( 'esk_can_access_page' ) && ! esk_can_access_page( $esk_slug ) ) { continue; }
 					$esk_label = isset( $esk_item['label'] ) && '' !== $esk_item['label'] ? $esk_item['label'] : ( '' !== $esk_slug ? $titles[ $esk_slug ] : '' );
 					if ( '' === $esk_label ) { continue; }
 					$esk_href  = ! empty( $esk_item['url'] ) ? $esk_item['url'] : esk_dashboard_url( $esk_slug );
@@ -568,7 +569,10 @@ function esk_render_admin_shell_open( string $current = '' ): void {
 					<?php
 					$esk_links = array();
 					foreach ( $esk_item['slugs'] as $esk_sub_slug ) {
-						if ( isset( $titles[ $esk_sub_slug ] ) ) { $esk_links[ $esk_sub_slug ] = $titles[ $esk_sub_slug ]; }
+						if ( isset( $titles[ $esk_sub_slug ] )
+							&& ( ! function_exists( 'esk_can_access_page' ) || esk_can_access_page( $esk_sub_slug ) ) ) {
+							$esk_links[ $esk_sub_slug ] = $titles[ $esk_sub_slug ];
+						}
 					}
 					if ( empty( $esk_links ) ) { continue; }
 					$esk_open = in_array( $current, array_keys( $esk_links ), true );

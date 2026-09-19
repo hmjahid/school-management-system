@@ -1,0 +1,20 @@
+# Eskoofy theme — prevent direct web access to PHP plugin files.
+Options -Indexes
+
+# Block hidden files/dotfiles.
+<IfModule mod_rewrite.c>
+    RewriteRule (^\.|/\.) - [F,L]
+</IfModule>
+
+# Never serve the plugin layer, templates, languages or DB schema directly.
+<IfModule mod_rewrite.c>
+    RewriteRule ^(inc|views|database|docker|composer\.json|composer\.lock|phpcs\.xml|phpunit\.xml|README\.md)(/|$) - [F,L]
+    RewriteRule \.(log|sql|bak|env|key|pem)$ - [F,L]
+</IfModule>
+
+# Block PHP execution inside inc/ and views/ (defense in depth).
+<IfModule mod_php.c>
+    <FilesMatch "^(inc|views)/">
+        php_flag engine off
+    </FilesMatch>
+</IfModule>

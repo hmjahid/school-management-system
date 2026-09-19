@@ -2448,22 +2448,9 @@ CREATE TABLE IF NOT EXISTS `failed_jobs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
--- SEED: Admin User
--- Password: password (bcrypt)
+-- (No admin seed here — security: never ship a known-credential
+-- admin account. Create the super_admin with database/seed_admin.php)
 -- ============================================================
-
--- First ensure a super_admin role exists
-INSERT INTO `roles` (`name`, `guard_name`, `created_at`, `updated_at`)
-VALUES ('super_admin', 'web', NOW(), NOW())
-ON DUPLICATE KEY UPDATE `name` = `name`;
-
-INSERT INTO `users` (`name`, `email`, `password`, `role_id`, `email_verified_at`, `created_at`, `updated_at`)
-SELECT 'Admin', 'admin@eskoofy.com', '$2y$12$0wHhsGRIV2YKGXZZo2DOGetHWVHFlMYDHC3g8g.OPKD.gGWTNqCoK',
-       `id`, NOW(), NOW(), NOW()
-FROM `roles`
-WHERE `name` = 'super_admin'
-LIMIT 1
-ON DUPLICATE KEY UPDATE `updated_at` = NOW();
 
 SET FOREIGN_KEY_CHECKS = 1;
 

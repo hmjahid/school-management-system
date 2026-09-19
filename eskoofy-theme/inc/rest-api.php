@@ -624,6 +624,18 @@ function esk_rest_create_news( WP_REST_Request $request ): WP_REST_Response {
 function esk_rest_lookup_results( WP_REST_Request $request ): WP_REST_Response {
 	global $wpdb;
 
+	// Per-IP rate limit: results lookup is a public endpoint keyed on
+	// low-entropy identifiers; cap enumeration attempts.
+	$esk_limit = 15;
+	$esk_ttl   = MINUTE_IN_SECONDS;
+	$esk_ip    = (string) ( $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0' );
+	$esk_key   = 'esk_results_lookup_' . md5( $esk_ip );
+	$esk_count = (int) get_transient( $esk_key );
+	if ( $esk_count >= $esk_limit ) {
+		return new WP_REST_Response( array( 'success' => false, 'message' => 'Too many lookup attempts. Please try again later.' ), 429 );
+	}
+	set_transient( $esk_key, $esk_count + 1, $esk_ttl );
+
 	$roll_number     = $request->get_param( 'roll_number' ) ?? '';
 	$admission_number = $request->get_param( 'admission_number' ) ?? '';
 	$exam_id         = $request->get_param( 'exam_id' ) ?? 0;

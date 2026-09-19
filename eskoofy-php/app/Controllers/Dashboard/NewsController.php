@@ -108,7 +108,7 @@ class NewsController extends Controller
         $this->db->insert('news', [
             'title'          => $data['title'],
             'slug'           => $data['slug'],
-            'content'        => $data['content'],
+            'content'        => (new \App\Services\HtmlSanitizer())->sanitize($data['content']),
             'image_url'      => $imagePath,
             'category'       => $data['category'] ?? null,
             'is_published'   => $isPublished,
@@ -154,7 +154,7 @@ class NewsController extends Controller
         $updateData = [
             'title'          => $data['title'],
             'slug'           => $data['slug'],
-            'content'        => $data['content'],
+            'content'        => (new \App\Services\HtmlSanitizer())->sanitize($data['content']),
             'category'       => $data['category'] ?? null,
             'is_published'   => ($data['status'] ?? 'draft') === 'published' ? 1 : 0,
             'is_event'       => $data['is_event'] ?? 0,

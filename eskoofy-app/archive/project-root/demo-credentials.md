@@ -1,5 +1,10 @@
 # Demo Credentials for Testing
 
+> **ARCHIVED — DEMO ONLY.** These are throwaway demo accounts for local testing.
+> Never use them on a production deployment. Production installs must create a
+> strong admin via `eskoofy-php/database/seed_admin.php` (or equivalent) and
+> change all passwords immediately.
+
 
 
 
