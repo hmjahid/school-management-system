@@ -7,7 +7,10 @@ Options -Indexes
 </IfModule>
 
 # Never serve the plugin layer, templates, languages or DB schema directly.
+# Static assets under inc/ ARE served: the dashboard shell loads its stylesheets and
+# scripts from there (inc/admin-shell.css, inc/app-dashboard.css, inc/admin.js, …).
 <IfModule mod_rewrite.c>
+    RewriteCond %{REQUEST_URI} !\.(css|js|mjs|map|png|jpe?g|gif|svg|webp|avif|ico|woff2?|ttf|otf|eot)$ [NC]
     RewriteRule ^(inc|views|database|docker|composer\.json|composer\.lock|phpcs\.xml|phpunit\.xml|README\.md)(/|$) - [F,L]
     RewriteRule \.(log|sql|bak|env|key|pem)$ - [F,L]
 </IfModule>

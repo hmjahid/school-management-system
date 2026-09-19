@@ -299,6 +299,40 @@ add_action(
 	20
 );
 
+/*
+ * Safety net for the system login.
+ *
+ * `/login/` is a regular WordPress page using `template-login.php` (the theme
+ * test bootstrap creates it). If that page is missing — e.g. a half-finished
+ * setup, or the theme used on its own — WordPress core treats `/login` as a
+ * reserved admin location: it bounces the bare URL to `wp-login.php` and 404s
+ * when a query string is present. That breaks the dashboard guard's redirect to
+ * `/login/?redirect_to=…`, leaving the dashboard unreachable.
+ *
+ * When `/login` would 404, render the login template directly instead.
+ */
+function esk_login_fallback_template(): void {
+	if ( is_admin() || ! is_404() ) {
+		return;
+	}
+
+	$path = (string) parse_url( (string) ( $_SERVER['REQUEST_URI'] ?? '/' ), PHP_URL_PATH );
+	if ( '/login' !== untrailingslashit( $path ) ) {
+		return;
+	}
+
+	global $wp_query;
+	if ( $wp_query instanceof WP_Query ) {
+		$wp_query->is_404 = false;
+	}
+
+	status_header( 200 );
+	nocache_headers();
+	include get_template_directory() . '/template-login.php';
+	exit;
+}
+add_action( 'template_redirect', 'esk_login_fallback_template', 1 );
+
 /**
  * Render the frontend dashboard for /dashboard/… requests.
  */

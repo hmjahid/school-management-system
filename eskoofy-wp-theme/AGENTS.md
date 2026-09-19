@@ -76,6 +76,17 @@ Admin: `admin@school.com` / `ChangeMe!2026$Tr0ng` (system login at `/login/`).
 
 ## Gotchas
 
+- **`.htaccess` blocks `inc/` except static assets.** The deny rule must carry
+  `RewriteCond %{REQUEST_URI} !\.(css|js|…)$` — the management dashboard loads
+  `inc/admin-shell.css`, `inc/app-dashboard.css`, `inc/admin-style.css` and `inc/admin.js`,
+  so dropping that condition makes every dashboard return 403 assets (unstyled shell).
+  `.php` files under `inc/`/`views/` stay blocked.
+- **`/login/` is a WP page using `template-login.php`.** If that page is missing (e.g. the
+  docker harness `setup` service never ran), WordPress core treats `/login` as a reserved
+  admin location → 302 to `wp-login.php`, and 404 when a query string is present, which
+  breaks the dashboard guard's `/login/?redirect_to=…`. `esk_login_fallback_template()` in
+  `inc/front-dashboard.php` renders the login template when `/login` would 404.
+
 - The compiled dashboard CSS (`inc/app-dashboard.css`) is minified Tailwind — regenerate it
   from the app's Tailwind build if the dashboard markup gains new utility classes.
 - `esk_pwa_routes()` and the front dashboard both hook `template_redirect`; keep their route

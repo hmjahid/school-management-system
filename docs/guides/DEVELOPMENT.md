@@ -339,6 +339,15 @@ plus exports both BD/INT variants and smoke-tests the artifacts.
   the templates to force recompilation.
 - **Theme changes not visible** — hard-refresh (`Ctrl-Shift-R`) or append a
   `?v=<timestamp>` cache-buster; the Docker harness bind-mounts live files.
+- **Theme dashboard unreachable / `/login/` bounces to `wp-login.php` or 404s** — the harness
+  `setup` service never ran, so its demo pages (`login`, `about`, …) are missing and
+  WordPress core hijacks the reserved `/login` slug. `wp`+`db` start anyway, which makes this
+  easy to miss (`docker compose logs setup` shows
+  `ERROR: WP_ADMIN_PASSWORD must be set…`). Fix:
+  `cd docker/theme-test && WP_ADMIN_PASSWORD='ChangeMe!2026$Tr0ng' docker compose run --rm setup`.
+- **Theme dashboard renders unstyled** — the shell loads CSS/JS from `inc/`; the theme's
+  `.htaccess` must allow static assets under `inc/` while still denying `.php` (a 403 on
+  `wp-content/themes/eskoofy/inc/admin-shell.css` means that rule regressed).
 - **Vite assets missing in the app** — run `npm install` first, then `npm run dev`
   (HMR) or `npm run build`.
 - **Website locale surprises** — the geo/language cookie decides the default

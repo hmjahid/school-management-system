@@ -292,16 +292,19 @@ now update root readme file and other documentations for the lastest changes.
 
 do all yourself for me
 
+the theme version dashboard is broken. fix the issue.
 
 
 
-make ensure that one varaint expored data (backup, students list, staff lists etc) can be used in another varinats
+
+
+the nodjs vaersion/variant not same/mirror of the laravel variant/version. make it mirror of the laravel varinat/version
+
+make ensure that one varaint exported data (backup, students list, staff lists etc) can be used in another varinats
 
 now implement the frontend parity research plan
 
-
 ensure proper payment method applied in this system app, php, theme and the website
-
 
 create a child theme of this theme like the elementor child theme so that the theme updates doesnot break/remove custom styles, scripts added by users in the theme files. tell me child theme principle fisrt. temll me how it works. how it depends on main theme?
 

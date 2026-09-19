@@ -12,8 +12,24 @@ the host applies immediately on page refresh (no rebuild step).
 
 ```bash
 cd docker/theme-test
+export WP_ADMIN_PASSWORD='ChangeMe!2026$Tr0ng'   # required — no default (see below)
 docker compose up -d        # first run pulls images + installs WP
 ```
+
+> **`WP_ADMIN_PASSWORD` is required.** `docker compose` refuses to start the `setup`
+> service without a strong value (≥12 chars). If you forget it, **`wp` and `db` still come up**
+> (the site loads) but `setup` exits immediately, so the theme stays half-configured —
+> no demo pages, and in particular **no `/login/` page**, which makes the management
+> dashboard unreachable (WordPress core then hijacks `/login` and 404s
+> `/login/?redirect_to=…`). Fix it with:
+>
+> ```bash
+> WP_ADMIN_PASSWORD='ChangeMe!2026$Tr0ng' docker compose run --rm setup
+> ```
+>
+> The theme also ships a safety net (`esk_login_fallback_template()` in
+> `inc/front-dashboard.php`) that renders the login template if `/login` would 404, so
+> the dashboard stays reachable even on a half-setup site.
 
 `setup-theme.sh` (runs once) will:
 1. Wait for the WordPress container to finish its first-run install.
@@ -151,8 +167,17 @@ docker compose up -d
 
 * **PHP errors**: `docker compose logs wp` or read `wp-content/debug.log`
   (WP_DEBUG + WP_DEBUG_LOG are enabled).
-* **Stuck setup container**: `docker compose logs setup` — usually means
-  WP did not start. Check the `wp` container logs first.
+* **Setup container exited 1**: `docker compose logs setup`. The most common cause is a
+  missing/weak `WP_ADMIN_PASSWORD` (`ERROR: WP_ADMIN_PASSWORD must be set to a strong
+  value`); re-run with `WP_ADMIN_PASSWORD='…' docker compose run --rm setup`. Otherwise WP
+  did not start — check the `wp` container logs first.
+* **Dashboard unreachable / `/login/` 302s to `wp-login.php` or 404s**: the `setup` service
+  never created the demo pages (see above). Re-run setup; `/login/`, `/dashboard/` and the
+  other `template-*.php` pages are created there.
+* **Dashboard renders unstyled**: the shell loads its CSS/JS from `inc/`. The theme's
+  `.htaccess` blocks direct access to `inc/`, so it must allow static assets
+  (`RewriteCond %{REQUEST_URI} !\.(css|js|…)`) while still denying `.php` — if
+  `inc/admin-shell.css` returns 403, that rule has regressed.
 * **Theme activation fails**: verify `esk_create_tables()` exists in
   `functions.php`/`inc/database.php` and that the MariaDB container is
   healthy (`docker compose ps`).
