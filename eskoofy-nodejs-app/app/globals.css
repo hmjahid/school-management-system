@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+/* Class-based dark mode (the app toggles a `dark` class, not the OS setting). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Tailwind CSS v4 — utility classes only, mirroring the Laravel app's setup.
+ * `--esk-brand` is the themeable brand token (equivalent of the app's
+ * `brand-*` palette + the website's `--esk-brand` custom property).
+ */
+:root {
+  --esk-brand: #2563eb;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+}

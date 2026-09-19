@@ -19,7 +19,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
-PRODUCTS=( "eskoofy-app" "eskoofy-php" "eskoofy-theme" "eskoofy-website" )
+PRODUCTS=( "eskoofy-laravel-app" "eskoofy-php-app" "eskoofy-wp-theme" "eskoofy-nodejs-app" "eskoofy-branding-website" )
 FEATURE=""
 MODE="gate"
 
@@ -51,21 +51,23 @@ done
 echo
 echo "== Eskoofy multi-product feature gate =="
 echo "  Feature : $FEATURE"
-echo "  Scope   : default=ALL products (app, php, theme, website)"
+echo "  Scope   : default=ALL products (app, php, theme, node, website)"
 echo "  Mode    : $MODE"
 echo
 
 # @@ build the per-product file plan @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-plan_app="$(printf '  - eskoofy-app:  controllers/models/routes/views under app/, routes/, resources/views/ + migrations if DB change')"
-plan_php="$(printf '  - eskoofy-php:  mirror app code to app/Controllers+Models, and copy resources/views/** byte-identical')"
-plan_theme="$(printf '  - eskoofy-theme: views/admin/<slug>.php + inc/front-dashboard.php route + inc/admin-shell.php (title/icon/group) + inc/database.php if table change')"
-plan_web="$(printf '  - eskoofy-website: /products copy + features list + pricing/license if monetisable')"
+plan_app="$(printf '  - eskoofy-laravel-app:  controllers/models/routes/views under app/, routes/, resources/views/ + migrations if DB change')"
+plan_php="$(printf '  - eskoofy-php-app:  mirror app code to app/Controllers+Models, and copy resources/views/** byte-identical')"
+plan_theme="$(printf '  - eskoofy-wp-theme: views/admin/<slug>.php + inc/front-dashboard.php route + inc/admin-shell.php (title/icon/group) + inc/database.php if table change')"
+plan_node="$(printf '  - eskoofy-nodejs-app:  app/(dashboard)/** page + lib/nav.ts + lib/modules.ts + prisma/schema.prisma + app/api/v1/** + lang/{en,bn}.ts')"
+plan_web="$(printf '  - eskoofy-branding-website: /products copy + features list + pricing/license if monetisable')"
 
 echo "Per-product file plan:"
-echo "  Tip: for exact paths, run:  rg '<feature>' eskoofy-app/ | head"
+echo "  Tip: for exact paths, run:  rg '<feature>' eskoofy-laravel-app/ | head"
 echo "$plan_app"
 echo "$plan_php"
 echo "$plan_theme"
+echo "$plan_node"
 echo "$plan_web"
 echo
 
@@ -77,9 +79,9 @@ case "$MODE" in
     ;;
   dryrun)
     echo ">> dry-run mode: would run per-product verification afterwards:"
-    echo "     (cd $ROOT/eskoofy-app && composer test)"
-    echo "     (cd $ROOT/eskoofy-php && composer test)"
-    echo "     (cd $ROOT/eskoofy-theme && php -l)   on touched files"
+    echo "     (cd $ROOT/eskoofy-laravel-app && composer test)"
+    echo "     (cd $ROOT/eskoofy-php-app && composer test)"
+    echo "     (cd $ROOT/eskoofy-wp-theme && php -l)   on touched files"
     echo "  No changes made. OK."
     exit 0
     ;;
@@ -94,7 +96,7 @@ case "$MODE" in
       y|Y) echo ">> confirmed — proceeding via default agent/harness." ;;
       *)
         echo ">> aborted. When you scope a change to one product, say so explicitly "
-        echo "   (e.g. \"only in eskoofy-app\"). See docs/design/FEATURE-PROPAGATION.md."
+        echo "   (e.g. \"only in eskoofy-laravel-app\"). See docs/design/FEATURE-PROPAGATION.md."
         exit 2
         ;;
     esac
@@ -102,6 +104,6 @@ case "$MODE" in
 esac
 
 # @@ hand off (this script never edits) @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-echo ">> Apply the change to: eskoofy-app → eskoofy-php → eskoofy-theme → eskoofy-website"
+echo ">> Apply the change to: eskoofy-laravel-app → eskoofy-php-app → eskoofy-wp-theme → eskoofy-nodejs-app → eskoofy-branding-website"
 echo ">> Then run the verification gates in docs/design/FEATURE-PROPAGATION.md (last section)."
 exit 0

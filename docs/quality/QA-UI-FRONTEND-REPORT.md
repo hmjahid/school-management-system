@@ -1,9 +1,9 @@
-# QA UI & Frontend Parity Audit — eskoofy-theme vs eskoofy-app
+# QA UI & Frontend Parity Audit — eskoofy-wp-theme vs eskoofy-laravel-app
 
 **Audit date:** 2026-09-16
 **Auditor:** Senior QA (10yrs) — dashboard/frontend UI/UX deep-dive following the
 inventory audit in `QA-PARITY-REPORT.md`.
-**Scope:** `eskoofy-theme` (WordPress) vs `eskoofy-app` (Laravel 12). Covers dashboard
+**Scope:** `eskoofy-wp-theme` (WordPress) vs `eskoofy-laravel-app` (Laravel 12). Covers dashboard
 **sidebar item order + accordion sub-items**, dashboard **UI/UX, layout, styles,
 content**, public frontend **UI/UX, layout, styles, content**, and **functionalities**.
 **Method:** source diffing of the two sidebars + topbar/page shells + all front-end
@@ -20,8 +20,8 @@ behavioral verdicts are code-inspection based.
 
 ## Part 1 — Dashboard sidebar: item order & accordion sub-items
 
-Sources: app `eskoofy-app/resources/views/partials/dashboard/sidebar.blade.php` (437 L);
-theme `eskoofy-theme/inc/admin-shell.php` (render loop at `:489`, `esk_admin_sidebar_sections()`
+Sources: app `eskoofy-laravel-app/resources/views/partials/dashboard/sidebar.blade.php` (437 L);
+theme `eskoofy-wp-theme/inc/admin-shell.php` (render loop at `:489`, `esk_admin_sidebar_sections()`
 at `:77`).
 
 ### 1.1 Side-by-side group order
@@ -404,15 +404,15 @@ config), Messages, Contact-submissions all reach parity.
 
 ```bash
 # sidebar slug registry vs rendered sections
-rg -o "esk-[a-z-]+" eskoofy-theme/inc/admin-shell.php | sort -u
+rg -o "esk-[a-z-]+" eskoofy-wp-theme/inc/admin-shell.php | sort -u
 # rendered sub-items
-sed -n '77,122p' eskoofy-theme/inc/admin-shell.php
+sed -n '77,122p' eskoofy-wp-theme/inc/admin-shell.php
 # app sidebar routeIs globs
-rg -o "request\(\)->routeIs\('[^']+'" eskoofy-app/resources/views/partials/dashboard/sidebar.blade.php
+rg -o "request\(\)->routeIs\('[^']+'" eskoofy-laravel-app/resources/views/partials/dashboard/sidebar.blade.php
 # orphaned theme views (views present but slug not in sections)
-ls eskoofy-theme/views/admin/
+ls eskoofy-wp-theme/views/admin/
 # app dark-less headings
-rg -n "text-slate-9|text-slate-6" eskoofy-app/resources/views/ --include=*.blade.php | rg -v "dark:"
+rg -n "text-slate-9|text-slate-6" eskoofy-laravel-app/resources/views/ --include=*.blade.php | rg -v "dark:"
 # theme dead link check
-rg -n "certificates" eskoofy-theme/footer.php eskoofy-theme/header.php
+rg -n "certificates" eskoofy-wp-theme/footer.php eskoofy-wp-theme/header.php
 ```

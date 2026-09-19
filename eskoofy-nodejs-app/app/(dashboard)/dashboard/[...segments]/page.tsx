@@ -1,0 +1,139 @@
+import { notFound } from "next/navigation";
+import { matchRoute } from "@/lib/route-registry";
+import { resolveResource } from "@/lib/resource-route";
+import { findRow } from "@/lib/db-query";
+import { ResourceTable } from "@/components/dashboard/ResourceTable";
+import { ResourceForm } from "@/components/dashboard/ResourceForm";
+import { ResourceDetail } from "@/components/dashboard/ResourceDetail";
+import { RoutePlaceholder } from "@/components/dashboard/RoutePlaceholder";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { ButtonLink } from "@/components/ui/Button";
+import { currentUser } from "@/lib/auth";
+import { can, permissionForTable } from "@/lib/permissions";
+import { t } from "@/lib/i18n";
+
+export const dynamic = "force-dynamic";
+
+/**
+ * Catch-all for the app's whole dashboard route surface.
+ *
+ *  - resource index / create / show / edit  → generic CRUD screens
+ *  - everything else                        → parity placeholder
+ *
+ * Mirrors the app's `index/create/store/show/edit/update/destroy` resource
+ * routes for all ~34 dashboard resources (see docs/PORTING-STATUS.md).
+ */
+export default async function DashboardCatchAll({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ segments: string[] }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const { segments } = await params;
+  const query = await searchParams;
+  const uri = `/dashboard/${segments.join("/")}`;
+  const resource = resolveResource(segments);
+  const route = matchRoute("GET", uri);
+
+  // A resource CRUD screen is served even when the app names the route slightly
+  // differently (create/edit/show all resolve generically).
+  if (!route && !resource.model) notFound();
+
+  const user = await currentUser();
+  const key = (segments[0] ?? "").replace(/-/g, "_");
+  const titleKey = `dashboard.${key}`;
+  const routeLabel = route?.name ?? uri;
+  const title = t(titleKey) === titleKey ? routeLabel : t(titleKey);
+
+  if (!resource.model) {
+    if (!route) notFound();
+    return (
+      <div>
+        <PageHeader title={title} description={routeLabel} />
+        <RoutePlaceholder uri={route.uri} name={route.name} action={route.action} method={route.method} />
+      </div>
+    );
+  }
+
+  const model = resource.model;
+
+  if (!can(user?.role, permissionForTable(model.table))) {
+    return (
+      <p className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700" role="alert">
+        403 — {title}
+      </p>
+    );
+  }
+
+  if (resource.mode === "create" || resource.mode === "edit") {
+    const row = resource.mode === "edit" && resource.id ? await findRow(model, resource.id) : null;
+    if (resource.mode === "edit" && !row) notFound();
+
+    return (
+      <div>
+        <PageHeader
+          title={`${resource.mode === "create" ? t("common.create") : t("common.save")} · ${title}`}
+          description={`${model.table}${resource.id ? ` #${resource.id}` : ""}`}
+        />
+        <ResourceForm model={model} basePath={resource.basePath} mode={resource.mode} row={row} />
+      </div>
+    );
+  }
+
+  if (resource.mode === "show" && resource.id) {
+    const row = await findRow(model, resource.id);
+    if (!row) notFound();
+
+    return (
+      <div>
+        <PageHeader
+          title={`${title} #${resource.id}`}
+          description={model.table}
+          actions={
+            <>
+              <ButtonLink href={`${resource.basePath}/${resource.id}/edit`} size="sm">
+                {t("common.save")}
+              </ButtonLink>
+              <ButtonLink href={resource.basePath} variant="secondary" size="sm">
+                {t("common.cancel")}
+              </ButtonLink>
+            </>
+          }
+        />
+        <ResourceDetail model={model} row={row} />
+      </div>
+    );
+  }
+
+  const search = typeof query.q === "string" ? query.q : undefined;
+  const page = Math.max(1, Number(typeof query.page === "string" ? query.page : 1) || 1);
+
+  return (
+    <div>
+      <PageHeader
+        title={title}
+        description={model.table}
+        actions={
+          <>
+            <form method="get" className="flex items-center gap-2">
+              <input
+                name="q"
+                defaultValue={search ?? ""}
+                placeholder={t("common.search")}
+                className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
+              />
+              <button className="rounded-lg bg-slate-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-600">
+                {t("common.search")}
+              </button>
+            </form>
+            <ButtonLink href={`${resource.basePath}/create`} size="sm">
+              + {t("common.create")}
+            </ButtonLink>
+          </>
+        }
+      />
+      <ResourceTable model={model} basePath={resource.basePath} search={search} page={page} />
+    </div>
+  );
+}

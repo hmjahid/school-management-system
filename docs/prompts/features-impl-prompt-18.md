@@ -1,13 +1,13 @@
 # Features Implementation Prompt #18 — Client Delivery, Gateways, Push, Caching
 
 ## Objective
-Extend `eskoofy-website` (license server / marketing) with client-delivery tooling and
+Extend `eskoofy-branding-website` (license server / marketing) with client-delivery tooling and
 add cache-clearing across all 4 products. Verify each change end to end and keep
 `composer test` green in every affected repo. Commit per product.
 
 ---
 
-## A. Website admin — client deliverables (eskoofy-website)
+## A. Website admin — client deliverables (eskoofy-branding-website)
 
 ### 1. Product packages (ZIP) for licensed clients
 **Goal:** admins can publish downloadable product packages (app/php/theme ZIPs) and send
@@ -78,27 +78,27 @@ PayPal, Paddle) from the admin instead of .env.
   `storage/framework/views/*` (if present), `opcache_reset()`, and bump a
   `cache.version` setting used to bust frontend asset URLs. Flash success + activity log.
 
-### 8. eskoofy-app (Laravel) "Clear cache"
+### 8. eskoofy-laravel-app (Laravel) "Clear cache"
 - Dashboard action (Settings → System or a "Clear cache" button in settings): run
   `Cache::flush()`, `Artisan::call('view:clear')`, `config:clear`, `route:clear`,
   `event:clear` guarded to admin role. Add route + controller method + button.
 
-### 9. eskoofy-php "Clear cache"
+### 9. eskoofy-php-app "Clear cache"
 - Dashboard action: delete `storage/framework/views/*`, `storage/cache/*`,
   `opcache_reset()`. Route + controller method + button.
 
-### 10. eskoofy-theme "Clear cache"
+### 10. eskoofy-wp-theme "Clear cache"
 - Dashboard action (`esk-cache` page + sidebar item under System): `wp_cache_flush()`
   (if available), `wp_clean_plugins_cache()`, delete `esk_cache` transients, flush
   opcache. New admin page per theme conventions.
 
 ## D. Fix
-- **php favicon**: `public/favicon.svg` was missing from eskoofy-php (and app) → copied
+- **php favicon**: `public/favicon.svg` was missing from eskoofy-php-app (and app) → copied
   from the website; served 200. Done this round.
 
 ## Cross-cutting
 - Preserve `bd` behaviour unless a task changes it. php view parity = copy
-  `eskoofy-app/resources/views/**` byte-identical. Theme views in `eskoofy-theme/views/admin/`.
+  `eskoofy-laravel-app/resources/views/**` byte-identical. Theme views in `eskoofy-wp-theme/views/admin/`.
 - Update `database/schema.sql` whenever a website table changes; ALTER the live DB.
 - Run `composer test` in all repos; `php -l` touched files; boot-check each new page.
 - Commit per product with clear messages.
@@ -116,9 +116,9 @@ PayPal, Paddle) from the admin instead of .env.
 | B5 | Payment gateway admin (intl + local), settings-driven overrides | Done `24513f1` (verified at checkout) |
 | B6 | Demo featured images on demo posts (DB + schema seed) | Done `24513f1` |
 | C7 | Website admin clear-cache | Done `24513f1` |
-| C8 | eskoofy-app clear-cache | Done `7c666ce` |
-| C9 | eskoofy-php clear-cache | Done `7c666ce` |
-| C10 | eskoofy-theme clear-cache page | Done `7c666ce` |
+| C8 | eskoofy-laravel-app clear-cache | Done `7c666ce` |
+| C9 | eskoofy-php-app clear-cache | Done `7c666ce` |
+| C10 | eskoofy-wp-theme clear-cache page | Done `7c666ce` |
 | D | php favicon (missing favicon.svg) | Done `7c666ce` |
 | — | Theme `/client/` home permalink (hardened filters + self-heal + front-page revert) | Done `202e271` + `7c666ce`; docker env verified clean |
 

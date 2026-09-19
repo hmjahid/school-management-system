@@ -21,7 +21,7 @@ The parity audit document `docs/parity/product-parity.md` and the blueprint
 
 ---
 
-## Task 1 — Theme frontend topbar + socials (`eskoofy-theme`)
+## Task 1 — Theme frontend topbar + socials (`eskoofy-wp-theme`)
 
 ### 1a. Topbar
 - `header.php` topbar: remove the login/logout link block + its separator.
@@ -52,8 +52,8 @@ The parity audit document `docs/parity/product-parity.md` and the blueprint
 Write `docs/parity/product-parity.md` with: verified `diff` note for app vs php
 (sidebar, dashboard index, topbar, `lang/en/dashboard.php` = identical); theme
 deltas side-by-side per group; dashboard home block matrix; planned merges. Use:
-`eskoofy-app/resources/views/partials/dashboard/sidebar.blade.php`,
-`routes/dashboard.php`, `eskoofy-theme/inc/admin-shell.php`
+`eskoofy-laravel-app/resources/views/partials/dashboard/sidebar.blade.php`,
+`routes/dashboard.php`, `eskoofy-wp-theme/inc/admin-shell.php`
 (`esk_admin_sidebar_sections()`), `views/admin/dashboard.php`.
 
 ### 2b. app + php sidebar (routes already exist)
@@ -67,7 +67,7 @@ Configuration group: add Reports Builder (`dashboard.reports.builder`) + Analyti
 (`dashboard.analytics`); tighten Reports `route-is` so Builder highlights its own
 item. Add lang keys (`expense_categories`, `budgets`, `bank_reconciliation`,
 `income_statement`, `balance_sheet`, `cash_flow`) to `lang/en/dashboard.php` +
-`lang/bn/dashboard.php`. Copy the 3 files byte-identical to `eskoofy-php` and
+`lang/bn/dashboard.php`. Copy the 3 files byte-identical to `eskoofy-php-app` and
 confirm with `diff`.
 
 ### 2c. Theme sidebar + settings
@@ -104,7 +104,7 @@ commands, open questions/owners. Reuse `WORKPLAN.md` phase wording and reference
 ## Verification (mandatory before done)
 | Product | command |
 |---|---|
-| app | `cd eskoofy-app && composer test` (923 passing) + `./vendor/bin/pint --test` |
+| app | `cd eskoofy-laravel-app && composer test` (923 passing) + `./vendor/bin/pint --test` |
 | php | `diff` views+sidler+lang vs app identical; `php -l` changed files |
 | theme | `php -l inc/*.php views/admin/*.php header.php`; `php -l views/admin/settings.php views/admin/dashboard.php` |
 | routes | `php artisan route:list | grep` the 8 new sidebar route names resolve |

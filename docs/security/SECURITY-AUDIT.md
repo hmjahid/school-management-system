@@ -22,14 +22,14 @@ hardening, and CSRF token comparison** — concentrated in the two raw-PHP produ
 | # | Severity | Finding | Location | Fix |
 |---|---|---|---|---|
 | G1 | **High** | **No security response headers** (CSP, HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy) set anywhere. `X-Powered-By` / server banner not suppressed. | app: no middleware (checked `app/Http/Middleware`); php/website: no `header()` calls; theme: no `send_headers`/`nocsrf` hook | Add a SecurityHeaders middleware per product; suppress `X-Powered-By`; emit CSP + HSTS (prod) + frame/type/referrer headers |
-| G2 | Medium | **Session cookies lack explicit hardening flags.** app: `secure=null` (env), http_only/samesite lax (OK but relies on env); **php + website: `session_start()` with no `session_set_cookie_params()`** → PHP defaults: HttpOnly=off, SameSite none, Secure=off. | `eskoofy-php/app/Core/bootstrap.php:5`, `app/Core/Session.php:21`; `eskoofy-website/app/Core/bootstrap.php`; `eskoofy-app/config/session.php:147-149` | Call `session_set_cookie_params(['httponly'=>true,'samesite'=>'Lax','secure'=>prod])` before `session_start()`; app: force `SESSION_SECURE_COOKIE=true` in production profile |
-| G3 | Medium | **CSRF token comparison is not constant-time** (`!==` instead of `hash_equals`). | `eskoofy-php/app/Core/bootstrap.php:57`; `eskoofy-website/app/Core/bootstrap.php` (same pattern) | Use `hash_equals((string)$token, (string)$_SESSION['csrf_token'])` |
-| G4 | Medium | **Rate limiting (ThrottleMiddleware) implemented but never wired** to any route in either raw-PHP product. | `eskoofy-php/app/Core/Middleware/ThrottleMiddleware.php`; `eskoofy-website/app/Core/Middleware/ThrottleMiddleware.php` | Attach to auth, contact, admission, payment, and license endpoints (app already uses `throttle:12,1` / `config('api.rate_limits.*')`) |
+| G2 | Medium | **Session cookies lack explicit hardening flags.** app: `secure=null` (env), http_only/samesite lax (OK but relies on env); **php + website: `session_start()` with no `session_set_cookie_params()`** → PHP defaults: HttpOnly=off, SameSite none, Secure=off. | `eskoofy-php-app/app/Core/bootstrap.php:5`, `app/Core/Session.php:21`; `eskoofy-branding-website/app/Core/bootstrap.php`; `eskoofy-laravel-app/config/session.php:147-149` | Call `session_set_cookie_params(['httponly'=>true,'samesite'=>'Lax','secure'=>prod])` before `session_start()`; app: force `SESSION_SECURE_COOKIE=true` in production profile |
+| G3 | Medium | **CSRF token comparison is not constant-time** (`!==` instead of `hash_equals`). | `eskoofy-php-app/app/Core/bootstrap.php:57`; `eskoofy-branding-website/app/Core/bootstrap.php` (same pattern) | Use `hash_equals((string)$token, (string)$_SESSION['csrf_token'])` |
+| G4 | Medium | **Rate limiting (ThrottleMiddleware) implemented but never wired** to any route in either raw-PHP product. | `eskoofy-php-app/app/Core/Middleware/ThrottleMiddleware.php`; `eskoofy-branding-website/app/Core/Middleware/ThrottleMiddleware.php` | Attach to auth, contact, admission, payment, and license endpoints (app already uses `throttle:12,1` / `config('api.rate_limits.*')`) |
 | G5 | Info | **No automated secret-scan / dependency-scan in CI** (audit manually clean today; no guard against regressions). | `.github/workflows/*` | Add `composer audit` + gitleaks/trufflehog + `npx audit` steps |
 
 ---
 
-## 2. eskoofy-app (Laravel 12)
+## 2. eskoofy-laravel-app (Laravel 12)
 
 Strengths: route-level middleware (`auth`, `role:admin`, `student_guardian`, `permission:*`),
 form validation (`validate()`/FormRequest), Sanctum token expiry (60 min), payment webhook
@@ -49,7 +49,7 @@ queries, `@vite`-hashed assets.
 
 ---
 
-## 3. eskoofy-php (raw PHP)
+## 3. eskoofy-php-app (raw PHP)
 
 Strengths: parameterized SQL everywhere seen (`Database::query(?, $params)`),
 Blade `{{ }}` → `e()` escaping, CSRF enforced globally on state-changing methods,
@@ -59,18 +59,18 @@ Router `_method` only from `$_POST`.
 | # | Severity | Finding | Location | Fix |
 |---|---|---|---|---|
 | P1 | **Critical** | **Zero role/permission authorization in the dashboard.** 466 `Auth::requireAuth()` calls, **0 `requireRole()`**. Any logged-in user (student/guardian) can access every admin module (`/dashboard/users`, `/dashboard/settings`, fees, payroll, backups…). | `app/Controllers/Dashboard/*` (all 68 controllers); `app/Core/Auth.php:71-86` | Route-group `Auth`+`Role`/permission middleware + per-action `requireRole`/`Gate::allows` parity with app route middleware; see IMPLEMENTATION PLAN |
-| P2 | **High** | **Payment routes not auth-gated** (`/payments/initiate`, `/payments/status/{id}`, `/payments/receipts/{id}`) — the app gates them with `auth`. | `eskoofy-php/routes/web.php` (payment block) | Add `AuthMiddleware`/`requireAuth` to those routes |
+| P2 | **High** | **Payment routes not auth-gated** (`/payments/initiate`, `/payments/status/{id}`, `/payments/receipts/{id}`) — the app gates them with `auth`. | `eskoofy-php-app/routes/web.php` (payment block) | Add `AuthMiddleware`/`requireAuth` to those routes |
 | P3 | Medium | **Session cookie flags missing** (see G2) — session cookie is HttpOnly-off by PHP default. | `app/Core/bootstrap.php:5` | `session_set_cookie_params` before start |
 | P4 | Medium | **CSRF compare `!==`** (see G3); CSRF token never rotated after login. | `app/Core/bootstrap.php:57` | `hash_equals` + regenerate token on privilege change |
 | P5 | Medium | **`_method` spoofing gap**: Router honors `_method=DELETE` from POST, CSRF covers POST — OK, but ensure GET handlers never mutate state (audit). | `app/Core/Router.php:91-95` | Add a guard: reject `_method` on GET; ensure no GET routes mutate |
 | P6 | Medium | **Public-form rate limiting absent** (newsletter/contact/admission/scholarship/submit-payment). App uses `throttle:12,1`. | `routes/web.php` (public POSTs) | Wire `ThrottleMiddleware` (see G4) |
 | P7 | Medium | **Default admin credential seeded in `schema.sql`** (`admin@eskoofy.com` / bcrypt("password"), super_admin). If a deployment imports schema without changing, admin account is trivially known. | `database/schema.sql:2451-2464` | Remove seed from schema; provide a forced-password-change first-login; document |
-| P8 | Medium | **Weak demo credentials** (`principal123`, `teach1234`, `accountant123`, `password`) in seeders + tracked `demo-credentials.md`. | `database/seed_demo.php:54-61`; `eskoofy-app/archive/project-root/demo-credentials.md` | Gate seeders behind `APP_ENV != production`; mark archive doc clearly as demo-only |
+| P8 | Medium | **Weak demo credentials** (`principal123`, `teach1234`, `accountant123`, `password`) in seeders + tracked `demo-credentials.md`. | `database/seed_demo.php:54-61`; `eskoofy-laravel-app/archive/project-root/demo-credentials.md` | Gate seeders behind `APP_ENV != production`; mark archive doc clearly as demo-only |
 | P9 | Low | Auth role stored in session (`user_role`) — if a session is hijacked, role is trusted. | `app/Core/Auth.php:17,27` | Re-read role from DB per request (or at least on sensitive actions) |
 
 ---
 
-## 4. eskoofy-theme (WordPress)
+## 4. eskoofy-wp-theme (WordPress)
 
 Strengths: **202 `$wpdb->prepare` calls**; `$wpdb->delete($t,['id'=>absint(..)])` formatting;
 nonce + `current_user_can('manage_options')` on all 5 AJAX handlers; `check_admin_referer`
@@ -88,7 +88,7 @@ no unescaped `$_GET/$_POST` echoes; safe redirects.
 
 ---
 
-## 5. eskoofy-website (license server)
+## 5. eskoofy-branding-website (license server)
 
 Strengths: license keys generated with `random_int` from an alphabet; activation enforces
 `max_activations`; SQL parameterized; admin/account actions use middleware
@@ -109,9 +109,9 @@ Strengths: license keys generated with `random_int` from an alphabet; activation
 | # | Severity | Finding | Location | Fix |
 |---|---|---|---|---|
 | R1 | **High** | **`docker/theme-test` WP admin default: `admin` / `admin`** (username AND password), MySQL `wpuser`/`wppass`, `WP_DEBUG=1` default. Local-only, but a leaked stack would be trivially compromisable; bad default hygiene. | `docker/theme-test/docker-compose.yml`, `README.md` | Require non-default creds; set `WP_DEBUG=0` unless explicitly enabled |
-| R2 | Medium | **Demo credentials tracked in repo** (`archive/project-root/demo-credentials.md`; seeders). Not secrets per se but normalize to "demo only". | `eskoofy-app/archive/project-root/demo-credentials.md`; `eskoofy-php/database/seed_demo.php` | See P8 |
-| R3 | Low | **PWA caches**: app `sw.js` correctly uses network-first for `/dashboard/` + `/api/` (good). Theme `sw.js` — confirm dashboard/api paths excluded from cache (app pattern is the reference). | `eskoofy-app/public/sw.js:30`; `eskoofy-theme/pwa/sw.js` | Keep dashboard/admin/api out of SW cache; add cache-busting version bump on release |
-| R4 | Info | `.htaccess` present in app + php `public/` (Laravel defaults) — verify deny rules for dotfiles/env in production hosting; add one for website + theme as relevant. | `eskoofy-app/public/.htaccess`; `eskoofy-php/public/.htaccess` | Add `FilesMatch` deny for `.env`/dotfiles; disable directory listing |
+| R2 | Medium | **Demo credentials tracked in repo** (`archive/project-root/demo-credentials.md`; seeders). Not secrets per se but normalize to "demo only". | `eskoofy-laravel-app/archive/project-root/demo-credentials.md`; `eskoofy-php-app/database/seed_demo.php` | See P8 |
+| R3 | Low | **PWA caches**: app `sw.js` correctly uses network-first for `/dashboard/` + `/api/` (good). Theme `sw.js` — confirm dashboard/api paths excluded from cache (app pattern is the reference). | `eskoofy-laravel-app/public/sw.js:30`; `eskoofy-wp-theme/pwa/sw.js` | Keep dashboard/admin/api out of SW cache; add cache-busting version bump on release |
+| R4 | Info | `.htaccess` present in app + php `public/` (Laravel defaults) — verify deny rules for dotfiles/env in production hosting; add one for website + theme as relevant. | `eskoofy-laravel-app/public/.htaccess`; `eskoofy-php-app/public/.htaccess` | Add `FilesMatch` deny for `.env`/dotfiles; disable directory listing |
 
 ---
 

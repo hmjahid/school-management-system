@@ -1,13 +1,13 @@
 # Features Implementation Prompt #17 — Sales Ops, SEO, and 3-Product Branding/Parity
 
 ## Objective
-Complete a multi-product round across `eskoofy-website` (license server / marketing), `eskoofy-app`
-(Laravel), `eskoofy-php` (raw PHP), and `eskoofy-theme` (WordPress). Verify each change end to end,
+Complete a multi-product round across `eskoofy-branding-website` (license server / marketing), `eskoofy-laravel-app`
+(Laravel), `eskoofy-php-app` (raw PHP), and `eskoofy-wp-theme` (WordPress). Verify each change end to end,
 keep `composer test` green in every affected repo, and commit.
 
 ---
 
-## A. Website — Sales operations (eskoofy-website)
+## A. Website — Sales operations (eskoofy-branding-website)
 
 ### 1. Issue license to unregistered users by email only
 **Issue:** The admin "Issue license" page only supports selecting an existing customer, so licenses
@@ -38,7 +38,7 @@ verified full purchase (payment paid → license issued → subscription → red
 
 ---
 
-## B. Website — Full SEO (eskoofy-website)
+## B. Website — Full SEO (eskoofy-branding-website)
 
 ### 5. SEO across all public pages
 **Done (7b5a5c1):**
@@ -64,24 +64,24 @@ non-decorative images.
 
 ### 6. Use website logo + favicon + "Eskoofy" brand in all 3 dashboards
 - Replace any placeholder/old logo/brand text in the dashboard sidebar + login pages of
-  `eskoofy-app`, `eskoofy-php`, `eskoofy-theme` with the Eskoofy mark
-  (`eskoofy-website/public/brand/eskofy-mark.svg`) and brand name "Eskoofy".
+  `eskoofy-laravel-app`, `eskoofy-php-app`, `eskoofy-wp-theme` with the Eskoofy mark
+  (`eskoofy-branding-website/public/brand/eskofy-mark.svg`) and brand name "Eskoofy".
 - Add/point favicon to the website favicon in all 3 products.
 
-### 7. eskoofy-php: "Install app" sidebar item missing
+### 7. eskoofy-php-app: "Install app" sidebar item missing
 - The Laravel dashboard exposes an install/update page; the raw PHP dashboard sidebar is missing
   the equivalent item. Locate the app's sidebar entry (search "Install" / "Update" / "installer"
-  in `eskoofy-app/resources/views/layouts/dashboard.blade.php` and routes), mirror it into
-  `eskoofy-php`'s dashboard shell and its controller/route so the menu item shows and links work.
+  in `eskoofy-laravel-app/resources/views/layouts/dashboard.blade.php` and routes), mirror it into
+  `eskoofy-php-app`'s dashboard shell and its controller/route so the menu item shows and links work.
 
-### 8. eskoofy-theme dashboard: user dropdown broken + no Communications items
+### 8. eskoofy-wp-theme dashboard: user dropdown broken + no Communications items
 - Fix the admin header user dropdown (menu does not open).
 - Add the Communications group to the theme sidebar with the same items as app/php (SMS / Email /
   Announcements / etc.) so parity holds.
 
 ### 9. Notification templates & notification preferences sidebar items
-- Theme already has them; add the equivalent sidebar items + pages to `eskoofy-app` and
-  `eskoofy-php` dashboards (mirror naming/parity rules: php views copied from app views).
+- Theme already has them; add the equivalent sidebar items + pages to `eskoofy-laravel-app` and
+  `eskoofy-php-app` dashboards (mirror naming/parity rules: php views copied from app views).
 
 ### 10. Theme frontend parity with app/php
 - Make the WordPress theme's public frontend look/behave like the app/php public site (same
@@ -100,9 +100,9 @@ non-decorative images.
 
 ## D. Cross-cutting
 - Preserve the `bd` profile behaviour byte-for-byte unless a task explicitly changes it.
-- Theme views live in `eskoofy-theme/views/admin/*.php` + `inc/admin-shell.php` +
-  `inc/database.php` for table changes; php view parity = copy `eskoofy-app/resources/views/**`.
-- Run `composer test` in `eskoofy-app`, `eskoofy-php`, and `eskoofy-website`; `php -l` touched
+- Theme views live in `eskoofy-wp-theme/views/admin/*.php` + `inc/admin-shell.php` +
+  `inc/database.php` for table changes; php view parity = copy `eskoofy-laravel-app/resources/views/**`.
+- Run `composer test` in `eskoofy-laravel-app`, `eskoofy-php-app`, and `eskoofy-branding-website`; `php -l` touched
   files; boot-check the dashboard routes of each product.
 - Commit each product's changes with clear messages.
 
@@ -122,7 +122,7 @@ non-decorative images.
 | C8 | Theme user dropdown + Communications sidebar group | Done — `202e271` |
 | C9 | Notification templates & preferences items in app/php (+ new templates page) | Done — `3241a43` |
 | C10 | Theme frontend parity with app/php | Done (verified) — theme `front-page.php` already mirrors the app's `home.blade.php` section-for-section (hero, features, stats, principal, teachers, committee, testimonials, remarkable students, photo slider, events, news, highlights, CTA, partners); remaining differences are CMS-data-driven, not structure |
-| C11 | Same demo content in all 3 products | Done — new `eskoofy-php/database/seed_demo_content.php` seeds the same "Example School" demo set as the app seeders and the theme `docker/theme-test/seed-demo.php` (14 classes, 30 teachers, 5 students + guardians, 5 notices, 15 events, 8 galleries, fees). Also fixed systemic `*_at` date-cast 500s on php dashboard pages |
+| C11 | Same demo content in all 3 products | Done — new `eskoofy-php-app/database/seed_demo_content.php` seeds the same "Example School" demo set as the app seeders and the theme `docker/theme-test/seed-demo.php` (14 classes, 30 teachers, 5 students + guardians, 5 notices, 15 events, 8 galleries, fees). Also fixed systemic `*_at` date-cast 500s on php dashboard pages |
 | C12 | Theme home permalink `/client/` | Done — `202e271` (home_url normalisation filter + revert `client` front page) |
 
 All repos green: website 92/256, php 311/699, app 923/2361.

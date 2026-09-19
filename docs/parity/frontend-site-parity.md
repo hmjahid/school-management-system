@@ -14,7 +14,7 @@ but functionally/structurally different · **?** not verified.
 
 ## 1. Architecture & runtime
 
-| Aspect | eskoofy-app (Laravel 12) | eskoofy-php (raw PHP) | eskoofy-theme (WordPress) |
+| Aspect | eskoofy-laravel-app (Laravel 12) | eskoofy-php-app (raw PHP) | eskoofy-wp-theme (WordPress) |
 |---|---|---|---|
 | Runtime | Laravel (Blade native) | in-house `App\Core\Blade.php` (compiler+runtime) + `Router` | WP template hierarchy + plugin layer (`inc/`) |
 | Public layout | single `layouts/app.blade.php` (all pages + auth views extend it) | **byte-identical copy** | per-template hierarchy (header.php / footer.php / template-*.php) |
@@ -171,7 +171,7 @@ Confirmed with `diff -qr` + per-file md5:
 - `lang/{en,bn}/` (`dashboard.php`, `messages.php`, `site_frontend.php`) + `lang/bn.json`: **byte-identical**.
 - `resources/css/app.css`, `resources/js/app.js`, `bootstrap.js`, `vite.config.js`: **byte-identical**.
 - Built assets `public/build/assets/*`: **NOT identical** — php bundle is stale (toolchain drift: app vite 7.3.6 / tailwind 4.3.3 vs php 7.1.9 / 4.1.14). Rebuild php from identical sources to converge.
-- `eskoofy-theme/assets/app-public.css` exists **only** in the theme (no app/php equivalent; theme's dashboard CSS derives from the app Tailwind build).
+- `eskoofy-wp-theme/assets/app-public.css` exists **only** in the theme (no app/php equivalent; theme's dashboard CSS derives from the app Tailwind build).
 
 Functional deltas (despite identical views):
 1. **Rate limiting**: app throttles all public form POSTs (`throttle:12,1`); php has `ThrottleMiddleware` but wires it nowhere.

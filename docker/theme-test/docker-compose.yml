@@ -1,4 +1,4 @@
-name: eskoofy-theme-test
+name: eskoofy-wp-theme-test
 
 services:
   db:
@@ -50,7 +50,7 @@ services:
         }
     volumes:
       # Bind-mount the theme so code changes apply instantly (no rebuild).
-      - ../../eskoofy-theme:/var/www/html/wp-content/themes/eskoofy:cached
+      - ../../eskoofy-wp-theme:/var/www/html/wp-content/themes/eskoofy:cached
       - esk_wp:/var/www/html
       - esk_uploads:/var/www/html/wp-content/uploads
 
@@ -72,7 +72,7 @@ services:
       WP_ADMIN_PASSWORD: ${WP_ADMIN_PASSWORD:?Set WP_ADMIN_PASSWORD to a strong value (e.g. export WP_ADMIN_PASSWORD=...)}
       WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL:-admin@example.test}
     volumes:
-      - ../../eskoofy-theme:/var/www/html/wp-content/themes/eskoofy:cached
+      - ../../eskoofy-wp-theme:/var/www/html/wp-content/themes/eskoofy:cached
       - esk_wp:/var/www/html
       - esk_uploads:/var/www/html/wp-content/uploads
       - ./setup-theme.sh:/wptest/setup-theme.sh:ro

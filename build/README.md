@@ -11,10 +11,10 @@ Variants are build-time profiles of one codebase — never separate forks (monor
 
 | Product | Variants | Artifact |
 |---|---|---|
-| `app` | `bd`, `int` | `build/dist/eskoofy-app-<variant>.zip` |
-| `php` | `bd`, `int` | `build/dist/eskoofy-php-<variant>.zip` |
-| `theme` | `bd`, `int` | `build/dist/eskoofy-theme-<variant>.zip` |
-| `website` | `int` (only) | `build/dist/eskoofy-website-int.zip` |
+| `app` | `bd`, `int` | `build/dist/eskoofy-laravel-app-<variant>.zip` |
+| `php` | `bd`, `int` | `build/dist/eskoofy-php-app-<variant>.zip` |
+| `theme` | `bd`, `int` | `build/dist/eskoofy-wp-theme-<variant>.zip` |
+| `website` | `int` (only) | `build/dist/eskoofy-branding-website-int.zip` |
 
 Raw staged trees are left in `build/artifacts/` for inspection; the zips go to `build/dist/`.
 

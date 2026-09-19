@@ -1,7 +1,7 @@
 # Branding-Site Improvements — International SMS showcase patterns (2026)
 
 > Research date: September 2026
-> Target: `eskoofy-website/` (the Eskoofy marketing + license site)
+> Target: `eskoofy-branding-website/` (the Eskoofy marketing + license site)
 > Companion doc: `docs/design/COMPETITIVE-ANALYSIS.md` (8-company profile inventory).
 > This file focuses on **what to implement** and **where** in the existing site,
 > based on how international school-management software vendors showcase
@@ -33,7 +33,7 @@
 
 ---
 
-## 2. Gap analysis — current eskoofy-website vs these patterns
+## 2. Gap analysis — current eskoofy-branding-website vs these patterns
 
 Current pages: `/` (home), `/features`, `/pricing`, `/products/{app|php|theme}`, `/about`,
 `/contact`, `/blog`, `/checkout`, auth + account/license admin.
@@ -108,11 +108,11 @@ Current pages: `/` (home), `/features`, `/pricing`, `/products/{app|php|theme}`,
 5. **Product pages**: full module list + role tabs + demo CTA + mockups (PR1–PR4).
 6. **New `/compare`** page + route + nav/footer link (C1–C2).
 7. **Testimonials/stats enrichment** (S1–S2).
-8. **Copy/labels**: all new strings into `eskoofy-website/lang/en.php` + `bn.php`; keep `int` single-variant rule.
+8. **Copy/labels**: all new strings into `eskoofy-branding-website/lang/en.php` + `bn.php`; keep `int` single-variant rule.
 
 ## 5. Where the research lives
 
 - This file: `docs/design/BRANDING-SITE-IMPROVEMENTS.md`
 - Competitor inventory (profiles + cross-analysis): `docs/design/COMPETITIVE-ANALYSIS.md`
-- Re-audit/re-verify commands: `cd eskoofy-website && composer test` (79 tests) after any
+- Re-audit/re-verify commands: `cd eskoofy-branding-website && composer test` (79 tests) after any
   change; `php -l` each touched view.

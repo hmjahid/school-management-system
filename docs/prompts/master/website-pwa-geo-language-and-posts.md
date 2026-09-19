@@ -1,8 +1,8 @@
 # Eskoofy Website — PWA, Geo-Language Detection, Marketing Blog
 
 Master prompt file. Execute every part below until all tasks complete and all
-verification passes. Implementing agent: work inside `eskoofy-website/` only,
-and read `eskoofy-website/README.md` + root `AGENTS.md` first.
+verification passes. Implementing agent: work inside `eskoofy-branding-website/` only,
+and read `eskoofy-branding-website/README.md` + root `AGENTS.md` first.
 
 > Golden rule (AGENTS.md): never hardcode BD/INT branching inside products. The
 > website stays **one codebase, one English/USD/UTC variant** (is always exported
@@ -13,7 +13,7 @@ and read `eskoofy-website/README.md` + root `AGENTS.md` first.
 
 ## Context — what the website is
 
-`eskoofy-website/` is the **marketing, selling, and licensing site for the
+`eskoofy-branding-website/` is the **marketing, selling, and licensing site for the
 Eskoofy school management system**. It is **not itself a product**. It markets
 and sells the two deployments of the school management system:
 
@@ -35,7 +35,7 @@ Current facts you must preserve:
 - Auth: `customers` table (roles `customer`/`admin`), `AuthMiddleware`,
   `AdminMiddleware`. All POST forms carry `csrf_field()`; `/api/*` is CSRF-exempt.
 - Cash-constrained data (plans/pricing) sells in USD regardless of site locale.
-- Test suite baseline: `cd eskoofy-website && composer test` → 35 tests / 101
+- Test suite baseline: `cd eskoofy-branding-website && composer test` → 35 tests / 101
   assertions (PHPUnit 11, DB-free via `tests/FakeDatabase.php`).
 - `public/` currently contains only `index.php`. Apache rewrites everything to
   `index.php` **unless a real file exists** — so static files (`sw.js`,
@@ -176,7 +176,7 @@ Add under `i18n`:
 ],
 ```
 
-Add `GEO_LANG_ENABLED` + `GEO_IP_API_URL` to `eskoofy-website/.env.example`
+Add `GEO_LANG_ENABLED` + `GEO_IP_API_URL` to `eskoofy-branding-website/.env.example`
 (commented, with a note that both are optional; default off).
 
 ### B3. Hot path — resolution middleware `app/Core/Middleware/LocaleMiddleware.php`
@@ -367,12 +367,12 @@ soft-delete, timestamps, FKs)
 
 - `build/export.sh website <any>` must include the new static files untouched
   (it rsyncs the whole tree already; confirm `sw.js`, `manifest.json`, `icons/`,
-  `offline.html` land inside `build/dist/eskoofy-website-int.zip`) and keep
+  `offline.html` land inside `build/dist/eskoofy-branding-website-int.zip`) and keep
   `ESKOOFY_VARIANT=int`/`APP_LOCALE=en`.
 - `.github/workflows/ci.yml`: `website-test` job already runs `composer test` —
   no new job required unless you add one; just make sure the suite covers the
   new code. No new exports.
-- Update `docs/README.md` or `eskoofy-website/README.md` with a short "PWA +
+- Update `docs/README.md` or `eskoofy-branding-website/README.md` with a short "PWA +
   geo-language + blog" section: what works offline, how geo-locale is configured
   (`GEO_IP_API_URL` hook), how to publish a post.
 - Update `workplan-implementation-plan.md`: mark Phase 8 rows done and add rows
@@ -383,10 +383,10 @@ soft-delete, timestamps, FKs)
 
 ## Definition of done
 
-1. `cd eskoofy-website && composer test` → green; ≥ 40 passing tests
+1. `cd eskoofy-branding-website && composer test` → green; ≥ 40 passing tests
    (baseline 35 + GeoLocale, Post, PWA static checks, route assertions).
 2. `php -l` clean on every changed/added PHP file.
-3. `gd eskoofy-php && composer test` and `cd eskoofy-app && composer test` still
+3. `gd eskoofy-php-app && composer test` and `cd eskoofy-laravel-app && composer test` still
    green (nothing there may change).
 4. Smoke with the built-in server (`php -S 127.0.0.1:8011 -t public`):
    - `/manifest.json` → 200, valid JSON; `/sw.js` → 200;

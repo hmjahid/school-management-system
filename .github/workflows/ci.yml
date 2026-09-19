@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: eskoofy-app
+        working-directory: eskoofy-laravel-app
     steps:
       - uses: actions/checkout@v4
 
@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: '20'
           cache: npm
-          cache-dependency-path: eskoofy-app/package-lock.json
+          cache-dependency-path: eskoofy-laravel-app/package-lock.json
 
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
@@ -49,11 +49,11 @@ jobs:
         run: composer test
 
   php-test:
-    name: eskoofy-php Tests
+    name: eskoofy-php-app Tests
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: eskoofy-php
+        working-directory: eskoofy-php-app
     steps:
       - uses: actions/checkout@v4
 
@@ -74,11 +74,11 @@ jobs:
         run: composer test
 
   website-test:
-    name: eskoofy-website Tests
+    name: eskoofy-branding-website Tests
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: eskoofy-website
+        working-directory: eskoofy-branding-website
     steps:
       - uses: actions/checkout@v4
 
@@ -98,6 +98,37 @@ jobs:
       - name: Run tests
         run: composer test
 
+
+  node-test:
+    name: eskoofy-nodejs-app Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: eskoofy-nodejs-app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: eskoofy-nodejs-app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Tests
+        run: npm test
+
+      - name: App ↔ node sidebar parity
+        run: npm run route:parity
 
   security:
     name: Secret Scan
@@ -121,7 +152,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: eskoofy-theme
+        working-directory: eskoofy-wp-theme
     steps:
       - uses: actions/checkout@v4
 
@@ -175,64 +206,64 @@ jobs:
         run: ./build/export.sh website int
 
       - name: Verify BD artifact exists
-        run: test -f build/dist/eskoofy-app-bd.zip
+        run: test -f build/dist/eskoofy-laravel-app-bd.zip
 
       - name: Verify INT artifact exists
-        run: test -f build/dist/eskoofy-app-int.zip
+        run: test -f build/dist/eskoofy-laravel-app-int.zip
 
       - name: Verify BD theme artifact exists
-        run: test -f build/dist/eskoofy-theme-bd.zip
+        run: test -f build/dist/eskoofy-wp-theme-bd.zip
 
       - name: Verify INT theme artifact exists
-        run: test -f build/dist/eskoofy-theme-int.zip
+        run: test -f build/dist/eskoofy-wp-theme-int.zip
 
       - name: Verify BD php artifact exists
-        run: test -f build/dist/eskoofy-php-bd.zip
+        run: test -f build/dist/eskoofy-php-app-bd.zip
 
       - name: Verify INT php artifact exists
-        run: test -f build/dist/eskoofy-php-int.zip
+        run: test -f build/dist/eskoofy-php-app-int.zip
 
       - name: Verify website artifact exists
-        run: test -f build/dist/eskoofy-website-int.zip
+        run: test -f build/dist/eskoofy-branding-website-int.zip
 
       - name: Verify website artifact is English-only / int variant
         run: |
-          if unzip -p build/dist/eskoofy-website-int.zip "eskoofy-website-int/.env" | grep -q "APP_LOCALE=bn"; then
+          if unzip -p build/dist/eskoofy-branding-website-int.zip "eskoofy-branding-website-int/.env" | grep -q "APP_LOCALE=bn"; then
             echo "error: website artifact is not English-only"
             exit 1
           fi
 
       - name: Smoke — INT app has no lang/bn
         run: |
-          if unzip -l build/dist/eskoofy-app-int.zip | grep -q "lang/bn/"; then
+          if unzip -l build/dist/eskoofy-laravel-app-int.zip | grep -q "lang/bn/"; then
             echo "error: bn lang pack leaked into int artifact"
             exit 1
           fi
 
       - name: Smoke — BD app has lang/bn
         run: |
-          if ! unzip -l build/dist/eskoofy-app-bd.zip | grep -q "lang/bn/"; then
+          if ! unzip -l build/dist/eskoofy-laravel-app-bd.zip | grep -q "lang/bn/"; then
             echo "error: bd artifact missing lang/bn"
             exit 1
           fi
 
       - name: Smoke — INT php has no lang/bn
         run: |
-          if unzip -l build/dist/eskoofy-php-int.zip | grep -q "lang/bn/"; then
+          if unzip -l build/dist/eskoofy-php-app-int.zip | grep -q "lang/bn/"; then
             echo "error: bn lang pack leaked into int php artifact"
             exit 1
           fi
 
       - name: Smoke — BD php has lang/bn
         run: |
-          if ! unzip -l build/dist/eskoofy-php-bd.zip | grep -q "lang/bn/"; then
+          if ! unzip -l build/dist/eskoofy-php-app-bd.zip | grep -q "lang/bn/"; then
             echo "error: bd php artifact missing lang/bn"
             exit 1
           fi
 
       - name: Smoke — INT php .env is variant int
         run: |
-          if unzip -p build/dist/eskoofy-php-int.zip "eskoofy-php-int/.env" | grep -q "ESKOOFY_VARIANT=bd"; then
+          if unzip -p build/dist/eskoofy-php-app-int.zip "eskoofy-php-app-int/.env" | grep -q "ESKOOFY_VARIANT=bd"; then
             echo "error: int php artifact has bd variant"
             exit 1
           fi
@@ -240,41 +271,41 @@ jobs:
       - name: Upload BD app artifact
         uses: actions/upload-artifact@v4
         with:
-          name: eskoofy-app-bd
-          path: build/dist/eskoofy-app-bd.zip
+          name: eskoofy-laravel-app-bd
+          path: build/dist/eskoofy-laravel-app-bd.zip
 
       - name: Upload INT app artifact
         uses: actions/upload-artifact@v4
         with:
-          name: eskoofy-app-int
-          path: build/dist/eskoofy-app-int.zip
+          name: eskoofy-laravel-app-int
+          path: build/dist/eskoofy-laravel-app-int.zip
 
       - name: Upload BD theme artifact
         uses: actions/upload-artifact@v4
         with:
-          name: eskoofy-theme-bd
-          path: build/dist/eskoofy-theme-bd.zip
+          name: eskoofy-wp-theme-bd
+          path: build/dist/eskoofy-wp-theme-bd.zip
 
       - name: Upload INT theme artifact
         uses: actions/upload-artifact@v4
         with:
-          name: eskoofy-theme-int
-          path: build/dist/eskoofy-theme-int.zip
+          name: eskoofy-wp-theme-int
+          path: build/dist/eskoofy-wp-theme-int.zip
 
       - name: Upload BD php artifact
         uses: actions/upload-artifact@v4
         with:
-          name: eskoofy-php-bd
-          path: build/dist/eskoofy-php-bd.zip
+          name: eskoofy-php-app-bd
+          path: build/dist/eskoofy-php-app-bd.zip
 
       - name: Upload INT php artifact
         uses: actions/upload-artifact@v4
         with:
-          name: eskoofy-php-int
-          path: build/dist/eskoofy-php-int.zip
+          name: eskoofy-php-app-int
+          path: build/dist/eskoofy-php-app-int.zip
 
       - name: Upload website artifact
         uses: actions/upload-artifact@v4
         with:
-          name: eskoofy-website-int
-          path: build/dist/eskoofy-website-int.zip
+          name: eskoofy-branding-website-int
+          path: build/dist/eskoofy-branding-website-int.zip

@@ -1,0 +1,122 @@
+# Eskoofy PHP — Raw PHP (no framework) version
+
+**Status: ACTIVE.** Feature-equivalent port of `eskoofy-laravel-app/` (Laravel 12) in raw PHP with
+**no framework at runtime**, built to run on shared hosting where Composer/Laravel/VPS is
+not available. See `WORKPLAN.md` Phase 6.
+
+## Documentation
+
+- [User Manual](docs/USER-MANUAL.md) — module-by-module usage for staff, students & guardians
+- [Setup Guide](docs/SETUP-GUIDE.md) — install, database, configuration, web server, cron
+
+## Stack
+
+- Native PHP 8.2+, PDO/MySQL, custom lightweight MVC
+- No Composer or framework at runtime — manual autoloader + bootstrap
+- **Blade-compatible template engine** (`app/Core/Blade.php`) — a compiler + runtime that
+  renders the **exact same `.blade.php` templates as the Laravel app** (`resources/views/`),
+  so the UI is byte-for-byte the same design system (theming, dark mode, components,
+  layouts, stacks, slots, `@can`/`@auth`/`@props`, `<x-...>` components).
+- Runs off a single document root (`public/` with `.htaccess`)
+
+## Layout
+
+```
+├── app/
+│   ├── Core/               Router, Database, QueryBuilder, Model, Relation, Controller, View,
+│   │                       Blade (compiler+runtime), Session, Auth, Validator, Request,
+│   │                       Schema, Storage, Gate, UrlGenerator, ViewErrorBag,
+│   │                       ComponentAttributeBag, Support/{Collection,Str,Carbon,Optional,
+│   │                       Stringable,LengthAwarePaginator}, Middleware
+│   ├── Gateways/           Gateway interface + factory + BdKash/Rocket/Nagad/
+│   │                       Stripe/PayPal/Paddle/Offline adapters
+│   ├── Helpers/            Global helpers (e, csrf_field, old, site_ui, dashboard_ui,
+│   │                       route(), __(), collect(), optional(), Str, config()…)
+│   ├── Controllers/        site + auth + 42 dashboard modules + 11 API
+│   └── Models/             78 models with Eloquent-lite features (casts, scopes,
+│                           relationships, ArrayAccess so old array code keeps working)
+├── resources/views/        THE Laravel Blade view tree (copied verbatim from eskoofy-laravel-app)
+├── config/                 app.php, school.php, eskoolfy.php, payment.php, sms.php,
+│                           routes.php (name→URI map generated from `route:list`)
+├── database/schema.sql     93-table MySQL schema + admin seed
+├── lang/                   en/ + bn/ (site_frontend, dashboard, messages — from eskoofy-laravel-app)
+├── routes/web.php          Full public + dashboard route table
+├── routes/api.php          JSON API (results/lookup, news, notices, events + protected CRUD)
+├── views/                  Legacy PHP templates (fallback when no Blade file exists)
+└── public/index.php        Front controller (loads routes, CSRF, CORS)
+```
+
+## UI parity (Blade)
+
+The raw PHP app now renders the **same Blade templates as the Laravel app** through a
+minimal Blade compiler supporting the directives the app actually uses:
+
+- Layouts (`@extends/@section/@yield/@parent/@show`), includes, stacks (`@push/@stack`),
+  `@php`, `{{ }}` / `{!! !!}` escapes with nested-literal handling, `@{{ }}`
+- Control flow: `@if/@elseif/@else/@unless/@isset/@empty/@foreach/@forelse/@for/@while/
+  @switch/@case/@break/@default` with a `$loop` variable
+- Auth/perms: `@auth/@guest/@can/@cannot/@elsecan/@canany` (via `App\Core\Gate`),
+  `@error/@enderror` with an `$errors` bag, `@csrf`, `@method`
+- Anonymous components `<x-…/>`, `<x-slot:name>`, `:prop="$expr"` bindings, `@props`,
+  `{{ $attributes->merge([...]) }}`, `@class`
+- Laravel globals aliased for templates: `Str`, `Carbon`, `Schema`, `Storage`, `Optional`,
+  `Collection`, plus `route()`, `__()`, `collect()`, `request()`, `auth()`, `session()`
+- `route()` resolves Laravel route names via the generated `config/routes.php` map
+
+**Ported and verified (HTTP 200 / smoke-OK, zero fatal errors):**
+- Full public site — home, about, academics, news, news article, notices (paginated),
+  events, gallery, contact, faculty, committee, transport, routines, results,
+  admissions, payments, search, portal, terms, privacy, careers, students-life, sitemap
+- **Full dashboard** — the `layouts.dashboard` shell (sidebar, topbar, dark mode, locale
+  switch, favorites, live clock, command-palette) plus all module pages. Every dashboard
+  controller now feeds the copied Blade views Eloquent-shaped data
+  (models/collections/paginators/Carbon). Verified via an authenticated smoke harness:
+  181 dashboard GET routes render cleanly (176 `OK`; 5 are CSV-export/redirect actions).
+- Legacy `views/*.php` templates remain as fallbacks for any view without a Blade copy;
+  they will be retired once a real-DB pass confirms full coverage.
+
+## Tests
+
+```bash
+composer test   # PHPUnit 11 (dev-only). 287 tests / 553 assertions.
+```
+
+## Quick start
+
+```bash
+cp .env.example .env      # set DB_HOST / DB_DATABASE / DB_USERNAME / DB_PASSWORD
+mysql -u root -p < database/schema.sql
+php database/seed_demo.php            # optional demo accounts (idempotent)
+php -S localhost:8051 -t public
+```
+
+The PHP port is `8051` so it does not clash with the Laravel app (`eskoofy-laravel-app`
+defaults to `8000`). Update `APP_URL` in `.env` if you run on a different port.
+
+Internet-facing setup: point the document root at `public/`; `.htaccess` routes all
+requests through `index.php`.
+
+## Demo credentials
+
+> **Security:** `database/schema.sql` no longer seeds an admin account. Create the
+> super admin with `php database/seed_admin.php` (prints a random password) — never
+> deploy the demo accounts below to production. `database/seed_demo.php` refuses to
+> run when `APP_ENV=production` (pass `--i-am-sure` to override).
+
+| Role | Email | Password |
+|---|---|---|
+| Super Admin | `admin@eskoofy.com` | generated by `database/seed_admin.php` |
+| Administrator | `admin@school.com` | `ChangeMe!2026$Tr0ng` (demo only) |
+| School Principal | `principal@school.com` | `principal123` |
+| Teachers | `teacher.john@school.com` / `teacher.sarah@school.com` | `teach1234` / `teach5678` |
+| Accountant | `accountant@school.com` | `accountant123` |
+| Librarian | `librarian@school.com` | `librarian123` |
+| Bulk teachers / students / parents | `teacher1..30@school.com` / `student1..5@school.com` / `parent1..10@school.com` | `password` |
+
+Student and parent portals use `/student/login` and `/guardian/login`.
+
+## Variants
+
+`bd` (bKash/Rocket/Nagad, Bengali+English) vs `int` (Stripe/PayPal/Paddle, English-only)
+are both driven by `config/` + `.env` — same codebase, no forked branches. This follows
+the monorepo golden rule: every BD/INT difference is data/config, never hardcoded `if (bd)`.

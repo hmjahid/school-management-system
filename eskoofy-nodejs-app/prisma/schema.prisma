@@ -1,0 +1,2216 @@
+// Eskoofy Node.js variant — Prisma schema.
+//
+// Full port of the Laravel reference product's schema
+// (`eskoofy-laravel-app/database/migrations`, applied) — 100+ tables, same table
+// and column names as the app, introspected then pinned to MySQL.
+//
+// GOTCHAS carried over from the app (do NOT "clean up"):
+//   * Two class tables on purpose: `classes` (legacy) and `school_classes`.
+//   * `exams` uses batch_id + academic_session_id + section_id — no class_id/year.
+//   * `exam_results` uses obtained_marks (not marks_obtained); total marks live on
+//     the exam, not the result.
+//   * `students.class_id` FKs `school_classes`; results connect via batch_id.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model about_contents {
+  id               Int       @id @default(autoincrement())
+  school_name      String
+  tagline          String?
+  logo_path        String?
+  favicon_path     String?
+  established_year Int
+  about_summary    String
+  mission          String?
+  vision           String?
+  history          String?
+  core_values      String?
+  contact_info     String?
+  social_links     String?
+  address          String
+  phone            String
+  email            String
+  website          String?
+  created_at       DateTime?
+  updated_at       DateTime?
+}
+
+model academic_sessions {
+  id                    Int                       @id @default(autoincrement())
+  name                  String                    @unique(map: "academic_sessions_name_unique")
+  code                  String                    @unique(map: "academic_sessions_code_unique")
+  start_date            DateTime
+  end_date              DateTime
+  description           String?
+  is_active             Boolean @default(false)
+  is_current            Boolean @default(false)
+  status                String                    @default("upcoming")
+  metadata              String?
+  created_at            DateTime?
+  updated_at            DateTime?
+  deleted_at            DateTime?
+  admissions            admissions[]
+  attendances           attendances[]
+  batches               batches[]
+  class_subject_teacher class_subject_teacher[]
+  class_teacher         class_teacher[]
+  exams                 exams[]
+  routines              routines[]
+  school_classes        school_classes[]
+  section_teacher       section_teacher[]
+}
+
+model academic_years {
+  id          Int                       @id @default(autoincrement())
+  name        String
+  session     String                    @unique(map: "academic_years_session_unique")
+  start_date  DateTime
+  end_date    DateTime
+  is_current  Boolean @default(false)
+  description String?
+  created_at  DateTime?
+  updated_at  DateTime?
+  deleted_at  DateTime?
+  sections    sections[]
+}
+
+model activities {
+  id         Int       @id @default(autoincrement())
+  user_id    Int
+  type       String
+  title      String
+  message    String
+  icon       String?
+  color      String    @default("primary")
+  properties String?
+  read_at    DateTime?
+  created_at DateTime?
+  updated_at DateTime?
+  users      users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model activity_log {
+  id           Int       @id @default(autoincrement())
+  log_name     String?
+  description  String
+  subject_type String?
+  subject_id   Int?
+  causer_type  String?
+  causer_id    Int?
+  properties   String?
+  created_at   DateTime?
+  updated_at   DateTime?
+  event        String?
+  batch_uuid   String?
+
+  @@index([log_name], map: "activity_log_log_name_index")
+  @@index([causer_type, causer_id], map: "causer")
+  @@index([subject_type, subject_id], map: "subject")
+}
+
+model admission_documents {
+  id           Int                       @id @default(autoincrement())
+  admission_id Int
+  type         String
+  name         String
+  file_path    String
+  file_type    String
+  file_size    Int
+  description  String?
+  is_approved  Boolean @default(false)
+  review_notes String?
+  reviewed_by  Int?
+  reviewed_at  DateTime?
+  created_at   DateTime?
+  updated_at   DateTime?
+  users        users?                    @relation(fields: [reviewed_by], references: [id], onUpdate: NoAction)
+  admissions   admissions                @relation(fields: [admission_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([admission_id, type, is_approved], map: "admission_documents_admission_id_type_is_approved_index")
+}
+
+model admission_settings {
+  id                      Int                       @id @default(autoincrement())
+  is_open                 Boolean @default(true)
+  closed_message_en       String?
+  closed_message_bn       String?
+  created_at              DateTime?
+  updated_at              DateTime?
+  admission_fee           Decimal                   @default(0)
+  payment_number          String?
+  payment_instructions_en String?
+  payment_instructions_bn String?
+  notice_en               String?
+  notice_bn               String?
+  display_year            String?
+  bar_title_en            String?
+  bar_title_bn            String?
+}
+
+model admission_tests {
+  id                                      Int        @id @default(autoincrement())
+  admission_id                            Int
+  scheduled_at                            DateTime?
+  venue                                   String?
+  status                                  String     @default("scheduled")
+  notes                                   String?
+  created_by                              Int?
+  updated_by                              Int?
+  created_at                              DateTime?
+  updated_at                              DateTime?
+  users_admission_tests_updated_byTousers users?     @relation("admission_tests_updated_byTousers", fields: [updated_by], references: [id], onUpdate: NoAction)
+  users_admission_tests_created_byTousers users?     @relation("admission_tests_created_byTousers", fields: [created_by], references: [id], onUpdate: NoAction)
+  admissions                              admissions @relation(fields: [admission_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([admission_id, scheduled_at, status], map: "admission_tests_admission_id_scheduled_at_status_index")
+}
+
+model admissions {
+  id                                  Int                   @id @default(autoincrement())
+  application_number                  String                @unique(map: "admissions_application_number_unique")
+  academic_session_id                 Int
+  batch_id                            Int
+  first_name                          String
+  last_name                           String
+  gender                              String
+  date_of_birth                       DateTime
+  blood_group                         String?
+  religion                            String?
+  nationality                         String                @default("Bangladeshi")
+  photo                               String?
+  email                               String                @unique(map: "admissions_email_unique")
+  phone                               String
+  address                             String
+  city                                String
+  state                               String?
+  country                             String                @default("Bangladesh")
+  postal_code                         String
+  father_name                         String
+  father_phone                        String
+  father_occupation                   String?
+  mother_name                         String
+  mother_phone                        String
+  mother_occupation                   String?
+  guardian_name                       String?
+  guardian_relation                   String?
+  guardian_phone                      String?
+  previous_school                     String?
+  previous_class                      String?
+  previous_grade                      String?
+  transfer_certificate                String?
+  birth_certificate                   String?
+  other_documents                     String?
+  status                              String                @default("draft")
+  rejection_reason                    String?
+  admission_date                      DateTime?
+  admission_notes                     String?
+  submitted_at                        DateTime?
+  approved_at                         DateTime?
+  rejected_at                         DateTime?
+  enrolled_at                         DateTime?
+  cancelled_at                        DateTime?
+  created_by                          Int?
+  updated_by                          Int?
+  approved_by                         Int?
+  rejected_by                         Int?
+  metadata                            String?
+  created_at                          DateTime?
+  updated_at                          DateTime?
+  deleted_at                          DateTime?
+  admission_fee                       Decimal               @default(0)
+  payment_number                      String?
+  transaction_id                      String?
+  payment_method                      String?
+  payment_status                      String                @default("unpaid")
+  paid_at                             DateTime?
+  verified_at                         DateTime?
+  verified_by                         Int?
+  payment_note                        String?
+  admission_documents                 admission_documents[]
+  admission_tests                     admission_tests[]
+  users_admissions_verified_byTousers users?                @relation("admissions_verified_byTousers", fields: [verified_by], references: [id], onUpdate: NoAction)
+  academic_sessions                   academic_sessions     @relation(fields: [academic_session_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  batches                             batches               @relation(fields: [batch_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users_admissions_created_byTousers  users?                @relation("admissions_created_byTousers", fields: [created_by], references: [id], onUpdate: NoAction)
+  users_admissions_updated_byTousers  users?                @relation("admissions_updated_byTousers", fields: [updated_by], references: [id], onUpdate: NoAction)
+  users_admissions_approved_byTousers users?                @relation("admissions_approved_byTousers", fields: [approved_by], references: [id], onUpdate: NoAction)
+  users_admissions_rejected_byTousers users?                @relation("admissions_rejected_byTousers", fields: [rejected_by], references: [id], onUpdate: NoAction)
+  students                            students[]
+
+  @@index([transaction_id], map: "admissions_transaction_id_index")
+  @@index([payment_status], map: "admissions_payment_status_index")
+  @@index([phone], map: "admissions_phone_index")
+  @@index([first_name, last_name], map: "admissions_name_search")
+  @@index([mother_name], map: "admissions_mother_name_index")
+  @@index([father_name], map: "admissions_father_name_index")
+  @@index([email], map: "admissions_email_index")
+  @@index([application_number, status, email, phone], map: "admissions_application_number_status_email_phone_index")
+}
+
+model admit_cards {
+  id                Int       @id @default(autoincrement())
+  exam_id           Int
+  student_id        Int
+  admit_card_number String    @unique(map: "admit_cards_admit_card_number_unique")
+  issue_date        DateTime
+  details           String?
+  status            String    @default("issued")
+  generated_by      Int?
+  created_at        DateTime?
+  updated_at        DateTime?
+  deleted_at        DateTime?
+  users             users?    @relation(fields: [generated_by], references: [id], onUpdate: NoAction)
+  students          students  @relation(fields: [student_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  exams             exams     @relation(fields: [exam_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([exam_id, student_id], map: "admit_cards_exam_id_student_id_unique")
+}
+
+model announcements {
+  id             Int                       @id @default(autoincrement())
+  title          String
+  body           String?
+  audience       String                    @default("all")
+  is_published   Boolean @default(true)
+  starts_at      DateTime?
+  ends_at        DateTime?
+  created_at     DateTime?
+  updated_at     DateTime?
+  display_target String                    @default("header")
+  title_bn       String?
+  body_bn        String?
+}
+
+model assignment_submissions {
+  id                   Int         @id @default(autoincrement())
+  assignment_id        Int
+  student_id           Int
+  file_path            String?
+  notes                String?
+  submitted_at         DateTime?
+  marks                Int?
+  feedback             String?
+  graded_by            Int?
+  graded_at            DateTime?
+  status               String      @default("submitted")
+  created_at           DateTime?
+  updated_at           DateTime?
+  guardian_notes       String?
+  guardian_notified_at DateTime?
+  guardian_id          Int?
+  guardians            guardians?  @relation(fields: [guardian_id], references: [id], onUpdate: NoAction)
+  assignments          assignments @relation(fields: [assignment_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  students             students    @relation(fields: [student_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users                users?      @relation(fields: [graded_by], references: [id], onUpdate: NoAction)
+}
+
+model assignments {
+  id                     Int                       @id @default(autoincrement())
+  title                  String
+  description            String?
+  batch_id               Int
+  subject_id             Int
+  due_date               DateTime
+  total_marks            Int?
+  file_path              String?
+  created_by             Int
+  created_at             DateTime?
+  updated_at             DateTime?
+  deleted_at             DateTime?
+  class_id               Int?
+  section_id             Int?
+  allow_guardian_notes   Boolean @default(false)
+  assignment_submissions assignment_submissions[]
+  sections               sections?                 @relation(fields: [section_id], references: [id], onUpdate: NoAction)
+  school_classes         school_classes?           @relation(fields: [class_id], references: [id], onUpdate: NoAction)
+  batches                batches                   @relation(fields: [batch_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  subjects               subjects                  @relation(fields: [subject_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users                  users                     @relation(fields: [created_by], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model attendances {
+  id                                   Int                @id @default(autoincrement())
+  student_id                           Int
+  school_class_id                      Int
+  subject_id                           Int?
+  date                                 DateTime
+  status                               String?
+  marked_by                            Int
+  created_at                           DateTime?
+  updated_at                           DateTime?
+  deleted_at                           DateTime?
+  batch_id                             Int?
+  section_id                           Int?
+  teacher_id                           Int?
+  academic_session_id                  Int?
+  type                                 String?            @default("daily")
+  period                               String?
+  remarks                              String?
+  recorded_by                          Int?
+  updated_by                           Int?
+  metadata                             String?
+  users_attendances_marked_byTousers   users              @relation("attendances_marked_byTousers", fields: [marked_by], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  subjects                             subjects?          @relation(fields: [subject_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  school_classes                       school_classes     @relation(fields: [school_class_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  students                             students           @relation(fields: [student_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  batches                              batches?           @relation(fields: [batch_id], references: [id], onUpdate: NoAction)
+  sections                             sections?          @relation(fields: [section_id], references: [id], onUpdate: NoAction)
+  teachers                             teachers?          @relation(fields: [teacher_id], references: [id], onUpdate: NoAction)
+  academic_sessions                    academic_sessions? @relation(fields: [academic_session_id], references: [id], onUpdate: NoAction)
+  users_attendances_recorded_byTousers users?             @relation("attendances_recorded_byTousers", fields: [recorded_by], references: [id], onUpdate: NoAction)
+  users_attendances_updated_byTousers  users?             @relation("attendances_updated_byTousers", fields: [updated_by], references: [id], onUpdate: NoAction)
+
+  @@unique([student_id, date, type], map: "attendances_unique_per_student_date_type")
+}
+
+model audits {
+  id             Int       @id @default(autoincrement())
+  user_id        Int?
+  event          String
+  auditable_type String
+  auditable_id   Int
+  old_values     String?
+  new_values     String?
+  url            String?
+  ip_address     String?
+  user_agent     String?
+  created_at     DateTime?
+  updated_at     DateTime?
+  users          users?    @relation(fields: [user_id], references: [id], onUpdate: NoAction)
+
+  @@index([auditable_type, auditable_id], map: "audits_auditable_type_auditable_id_index")
+}
+
+model batches {
+  id                  Int                       @id @default(autoincrement())
+  name                String
+  code                String?
+  description         String?
+  start_date          DateTime?
+  end_date            DateTime?
+  academic_session_id Int?
+  is_active           Boolean @default(true)
+  status              String?
+  notes               String?
+  created_at          DateTime?
+  updated_at          DateTime?
+  deleted_at          DateTime?
+  capacity            Int                       @default(30)
+  course_id           Int?
+  admissions          admissions[]
+  assignments         assignments[]
+  attendances         attendances[]
+  courses             courses?                  @relation(fields: [course_id], references: [id], onUpdate: NoAction)
+  academic_sessions   academic_sessions?        @relation(fields: [academic_session_id], references: [id], onUpdate: NoAction)
+  exams               exams[]
+  routines            routines[]
+  students            students[]
+}
+
+model book_categories {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  created_at  DateTime?
+  updated_at  DateTime?
+  books       books[]
+}
+
+model book_issues {
+  id          Int                       @id @default(autoincrement())
+  book_id     Int
+  student_id  Int?
+  teacher_id  Int?
+  issue_date  DateTime
+  due_date    DateTime
+  return_date DateTime?
+  status      String                    @default("issued")
+  late_fee    Decimal?
+  fine_paid   Boolean @default(false)
+  notes       String?
+  issued_by   Int?
+  created_at  DateTime?
+  updated_at  DateTime?
+  deleted_at  DateTime?
+  users       users?                    @relation(fields: [issued_by], references: [id], onUpdate: NoAction)
+  teachers    teachers?                 @relation(fields: [teacher_id], references: [id], onUpdate: NoAction)
+  students    students?                 @relation(fields: [student_id], references: [id], onUpdate: NoAction)
+  books       books                     @relation(fields: [book_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model books {
+  id                 Int                       @id @default(autoincrement())
+  title              String
+  author             String?
+  publisher          String?
+  isbn               String?                   @unique(map: "books_isbn_unique")
+  category_id        Int?
+  shelf_location     String?
+  quantity           Int                       @default(1)
+  available_quantity Int                       @default(1)
+  purchase_date      DateTime?
+  price              Decimal?
+  description        String?
+  cover_image        String?
+  status             Boolean @default(true)
+  created_by         Int?
+  created_at         DateTime?
+  updated_at         DateTime?
+  deleted_at         DateTime?
+  book_issues        book_issues[]
+  users              users?                    @relation(fields: [created_by], references: [id], onUpdate: NoAction)
+  book_categories    book_categories?          @relation(fields: [category_id], references: [id], onUpdate: NoAction)
+}
+
+model budgets {
+  id                  Int                 @id @default(autoincrement())
+  expense_category_id Int?
+  period_type         String              @default("monthly")
+  period_start        DateTime
+  period_end          DateTime
+  amount              Decimal
+  notes               String?
+  created_at          DateTime?
+  updated_at          DateTime?
+  tenant_id           Int?
+  expense_categories  expense_categories? @relation(fields: [expense_category_id], references: [id], onUpdate: NoAction)
+
+  @@index([tenant_id], map: "budgets_tenant_id_index")
+}
+
+model cache {
+  key        String @id
+  value      String
+  expiration Int
+}
+
+model cache_locks {
+  key        String @id
+  owner      String
+  expiration Int
+}
+
+model careers {
+  id               Int                       @id @default(autoincrement())
+  title            String
+  description      String
+  requirements     String
+  type             String
+  location         String
+  salary_min       Decimal?
+  salary_max       Decimal?
+  deadline         DateTime
+  is_published     Boolean @default(false)
+  created_at       DateTime?
+  updated_at       DateTime?
+  job_applications job_applications[]
+}
+
+model certificates {
+  id                                     Int       @id @default(autoincrement())
+  name                                   String
+  template                               String
+  created_by                             Int
+  created_at                             DateTime?
+  updated_at                             DateTime?
+  student_id                             Int?
+  certificate_type                       String?
+  issue_date                             DateTime?
+  certificate_number                     String?   @unique(map: "certificates_certificate_number_unique")
+  body                                   String?
+  status                                 String    @default("draft")
+  generated_by                           Int?
+  users_certificates_generated_byTousers users?    @relation("certificates_generated_byTousers", fields: [generated_by], references: [id], onUpdate: NoAction)
+  students                               students? @relation(fields: [student_id], references: [id], onUpdate: NoAction)
+  users_certificates_created_byTousers   users     @relation("certificates_created_byTousers", fields: [created_by], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model chart_of_accounts {
+  id                      Int                       @id @default(autoincrement())
+  code                    String                    @unique(map: "chart_of_accounts_code_unique")
+  name_en                 String
+  name_bn                 String?
+  type                    String
+  parent_id               Int?
+  is_active               Boolean @default(true)
+  created_at              DateTime?
+  updated_at              DateTime?
+  chart_of_accounts       chart_of_accounts?        @relation("chart_of_accountsTochart_of_accounts", fields: [parent_id], references: [id], onUpdate: NoAction)
+  other_chart_of_accounts chart_of_accounts[]       @relation("chart_of_accountsTochart_of_accounts")
+  expenses                expenses[]
+  ledger_entries          ledger_entries[]
+
+  @@index([type], map: "chart_of_accounts_type_index")
+}
+
+model class_subject_teacher {
+  id                  Int                       @id @default(autoincrement())
+  teacher_id          Int
+  subject_id          Int
+  class_id            Int?
+  academic_session_id Int?
+  is_primary          Boolean @default(false)
+  created_at          DateTime?
+  updated_at          DateTime?
+  academic_sessions   academic_sessions?        @relation(fields: [academic_session_id], references: [id], onUpdate: NoAction)
+  school_classes      school_classes?           @relation(fields: [class_id], references: [id], onUpdate: NoAction)
+  subjects            subjects                  @relation(fields: [subject_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  teachers            teachers                  @relation(fields: [teacher_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([teacher_id, subject_id, class_id, academic_session_id], map: "class_subject_teacher_unique")
+}
+
+model class_teacher {
+  id                  Int                       @id @default(autoincrement())
+  teacher_id          Int
+  class_id            Int
+  is_class_teacher    Boolean @default(false)
+  academic_session_id Int?
+  created_at          DateTime?
+  updated_at          DateTime?
+  academic_sessions   academic_sessions?        @relation(fields: [academic_session_id], references: [id], onUpdate: NoAction)
+  school_classes      school_classes            @relation(fields: [class_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  teachers            teachers                  @relation(fields: [teacher_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([teacher_id, class_id, academic_session_id], map: "class_teacher_unique")
+}
+
+model classes {
+  id            Int                       @id @default(autoincrement())
+  name          String
+  teacher_id    Int
+  subject_id    Int
+  section_id    Int
+  academic_year String
+  schedule      String?
+  created_at    DateTime?
+  updated_at    DateTime?
+  deleted_at    DateTime?
+  is_active     Boolean @default(true)
+  description   String?
+  room_number   String?
+  max_students  Int                       @default(30)
+  schedule_days String?
+  start_time    String?
+  end_time      String?
+  sections      sections                  @relation(fields: [section_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subjects      subjects                  @relation(fields: [subject_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users         users                     @relation(fields: [teacher_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  grades        grades[]
+}
+
+model committee_members {
+  id             Int                       @id @default(autoincrement())
+  name           String
+  name_bn        String?
+  designation    String
+  designation_bn String?
+  photo          String?
+  phone          String?
+  email          String?
+  bio            String?
+  bio_bn         String?
+  sort_order     Int                       @default(0)
+  is_active      Boolean @default(true)
+  created_at     DateTime?
+  updated_at     DateTime?
+}
+
+model contact_submissions {
+  id         Int       @id @default(autoincrement())
+  type       String    @default("contact")
+  name       String
+  email      String
+  phone      String?
+  subject    String?
+  message    String
+  meta       String?
+  created_at DateTime?
+  updated_at DateTime?
+}
+
+model courses {
+  id          Int                       @id @default(autoincrement())
+  name        String
+  code        String                    @unique(map: "courses_code_unique")
+  description String?
+  is_active   Boolean @default(true)
+  created_at  DateTime?
+  updated_at  DateTime?
+  batches     batches[]
+}
+
+model dashboard_favorites {
+  id         Int       @id @default(autoincrement())
+  user_id    Int
+  url        String
+  label      String?
+  created_at DateTime?
+  updated_at DateTime?
+  users      users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, url], map: "dashboard_favorites_user_id_url_unique")
+}
+
+model device_tokens {
+  id           Int       @id @default(autoincrement())
+  user_id      Int
+  token        String
+  platform     String?
+  device_name  String?
+  app_version  String?
+  last_used_at DateTime?
+  created_at   DateTime?
+  updated_at   DateTime?
+  deleted_at   DateTime?
+  users        users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, token], map: "device_tokens_user_id_token_unique")
+  @@index([token], map: "device_tokens_token_index")
+}
+
+model event_attendees {
+  id         Int       @id @default(autoincrement())
+  event_id   Int
+  user_id    Int
+  status     String    @default("registered")
+  notes      String?
+  created_at DateTime?
+  updated_at DateTime?
+  users      users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  events     events    @relation(fields: [event_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([event_id, user_id], map: "event_attendees_event_id_user_id_unique")
+}
+
+model events {
+  id                    Int                       @id @default(autoincrement())
+  created_by            Int
+  title                 String
+  description           String?
+  location              String?
+  start_date            DateTime
+  end_date              DateTime?
+  registration_deadline DateTime?
+  max_attendees         Int?
+  is_virtual            Boolean @default(false)
+  meeting_url           String?
+  status                String                    @default("draft")
+  image                 String?
+  metadata              String?
+  created_at            DateTime?
+  updated_at            DateTime?
+  deleted_at            DateTime?
+  event_attendees       event_attendees[]
+  users                 users                     @relation(fields: [created_by], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model exam_results {
+  id                Int                       @id @default(autoincrement())
+  exam_id           Int
+  student_id        Int
+  obtained_marks    Float?
+  grade             String?
+  grade_point       Float?
+  remarks           String?
+  status            String                    @default("pending")
+  submitted_by      Int?
+  submitted_at      DateTime?
+  reviewed_by       Int?
+  reviewed_at       DateTime?
+  review_remarks    String?
+  is_published      Boolean @default(false)
+  published_at      DateTime?
+  published_by      Int?
+  created_at        DateTime?
+  updated_at        DateTime?
+  deleted_at        DateTime?
+  publish_remarks   String?
+  unpublished_at    DateTime?
+  unpublished_by    Int?
+  unpublish_remarks String?
+  students          students                  @relation(fields: [student_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  exams             exams                     @relation(fields: [exam_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model exams {
+  id                            Int                       @id @default(autoincrement())
+  name                          String
+  code                          String?
+  description                   String?
+  type                          String?
+  status                        String?
+  start_date                    DateTime?
+  end_date                      DateTime?
+  duration                      Int?
+  total_marks                   Float?
+  passing_marks                 Float?
+  grading_type                  String?
+  grading_scale                 String?
+  weightage                     Float?
+  is_published                  Boolean @default(false)
+  publish_date                  DateTime?
+  publish_remarks               String?
+  academic_session_id           Int?
+  batch_id                      Int?
+  section_id                    Int?
+  subject_id                    Int?
+  created_by                    Int?
+  updated_by                    Int?
+  metadata                      String?
+  created_at                    DateTime?
+  updated_at                    DateTime?
+  deleted_at                    DateTime?
+  is_published_to_public        Boolean @default(false)
+  admit_cards                   admit_cards[]
+  exam_results                  exam_results[]
+  users_exams_updated_byTousers users?                    @relation("exams_updated_byTousers", fields: [updated_by], references: [id], onUpdate: NoAction)
+  users_exams_created_byTousers users?                    @relation("exams_created_byTousers", fields: [created_by], references: [id], onUpdate: NoAction)
+  subjects                      subjects?                 @relation(fields: [subject_id], references: [id], onUpdate: NoAction)
+  sections                      sections?                 @relation(fields: [section_id], references: [id], onUpdate: NoAction)
+  batches                       batches?                  @relation(fields: [batch_id], references: [id], onUpdate: NoAction)
+  academic_sessions             academic_sessions?        @relation(fields: [academic_session_id], references: [id], onUpdate: NoAction)
+  grades                        grades[]
+}
+
+model expense_categories {
+  id          Int                       @id @default(autoincrement())
+  name        String                    @unique(map: "expense_categories_name_unique")
+  description String?
+  color       String?
+  is_active   Boolean @default(true)
+  created_at  DateTime?
+  updated_at  DateTime?
+  deleted_at  DateTime?
+  tenant_id   Int?
+  budgets     budgets[]
+  expenses    expenses[]
+
+  @@index([tenant_id], map: "expense_categories_tenant_id_index")
+}
+
+model expenses {
+  id                  Int                 @id @default(autoincrement())
+  category            String
+  amount              Decimal
+  date                DateTime
+  vendor              String?
+  payment_method      String              @default("cash")
+  note                String?
+  chart_of_account_id Int?
+  created_by          Int?
+  created_at          DateTime?
+  updated_at          DateTime?
+  expense_category_id Int?
+  expense_categories  expense_categories? @relation(fields: [expense_category_id], references: [id], onUpdate: NoAction)
+  chart_of_accounts   chart_of_accounts?  @relation(fields: [chart_of_account_id], references: [id], onUpdate: NoAction)
+  users               users?              @relation(fields: [created_by], references: [id], onUpdate: NoAction)
+
+  @@index([date], map: "expenses_date_index")
+  @@index([category], map: "expenses_category_index")
+}
+
+model failed_jobs {
+  id         Int      @id @default(autoincrement())
+  uuid       String   @unique(map: "failed_jobs_uuid_unique")
+  connection String
+  queue      String
+  payload    String
+  exception  String
+  failed_at  DateTime @default(now())
+}
+
+model fee_payments {
+  id                                    Int       @id @default(autoincrement())
+  invoice_number                        String    @unique(map: "fee_payments_invoice_number_unique")
+  student_id                            Int
+  fee_id                                Int
+  amount                                Decimal
+  discount_amount                       Decimal   @default(0)
+  fine_amount                           Decimal   @default(0)
+  paid_amount                           Decimal
+  balance                               Decimal   @default(0)
+  payment_date                          DateTime
+  month                                 String?
+  year                                  Int?
+  payment_method                        String
+  transaction_id                        String?
+  bank_name                             String?
+  check_number                          String?
+  status                                String    @default("pending")
+  notes                                 String?
+  metadata                              String?
+  created_by                            Int
+  approved_by                           Int?
+  approved_at                           DateTime?
+  created_at                            DateTime?
+  updated_at                            DateTime?
+  deleted_at                            DateTime?
+  users_fee_payments_approved_byTousers users?    @relation("fee_payments_approved_byTousers", fields: [approved_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_fee_payments_created_byTousers  users     @relation("fee_payments_created_byTousers", fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  fees                                  fees      @relation(fields: [fee_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  students                              students  @relation(fields: [student_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model fees {
+  id              Int             @id @default(autoincrement())
+  name            String
+  description     String?
+  amount          Decimal
+  fee_type        String
+  created_at      DateTime?
+  updated_at      DateTime?
+  deleted_at      DateTime?
+  code            String?         @unique(map: "fees_code_unique")
+  class_id        Int?
+  section_id      Int?
+  student_id      Int?
+  frequency       String          @default("one_time")
+  start_date      DateTime?
+  end_date        DateTime?
+  fine_amount     Decimal         @default(0)
+  fine_type       String          @default("fixed")
+  fine_grace_days Int             @default(0)
+  discount_amount Decimal         @default(0)
+  discount_type   String          @default("fixed")
+  status          String          @default("active")
+  metadata        String?
+  created_by      Int?
+  fee_payments    fee_payments[]
+  users           users?          @relation(fields: [created_by], references: [id], onUpdate: NoAction)
+  students        students?       @relation(fields: [student_id], references: [id], onUpdate: NoAction)
+  sections        sections?       @relation(fields: [section_id], references: [id], onUpdate: NoAction)
+  school_classes  school_classes? @relation(fields: [class_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  invoices        invoices[]
+}
+
+model galleries {
+  id           Int                       @id @default(autoincrement())
+  title        String
+  description  String?
+  image_path   String
+  category     String
+  is_published Boolean @default(true)
+  created_at   DateTime?
+  updated_at   DateTime?
+}
+
+model grades {
+  id             Int       @id @default(autoincrement())
+  student_id     Int
+  class_id       Int
+  subject_id     Int
+  exam_id        Int?
+  marks_obtained Decimal
+  total_marks    Decimal
+  grade          String
+  remarks        String?
+  created_at     DateTime?
+  updated_at     DateTime?
+  exams          exams?    @relation(fields: [exam_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subjects       subjects  @relation(fields: [subject_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  classes        classes   @relation(fields: [class_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  students       students  @relation(fields: [student_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([student_id, class_id, subject_id, exam_id], map: "grades_student_id_class_id_subject_id_exam_id_unique")
+}
+
+model guardian_student {
+  id           Int                       @id @default(autoincrement())
+  guardian_id  Int
+  student_id   Int
+  relationship String?
+  is_primary   Boolean @default(false)
+  created_at   DateTime?
+  updated_at   DateTime?
+  students     students                  @relation(fields: [student_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  guardians    guardians                 @relation(fields: [guardian_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([guardian_id, student_id], map: "guardian_student_guardian_id_student_id_unique")
+  @@index([student_id, is_primary], map: "guardian_student_student_id_is_primary_index")
+}
+
+model guardians {
+  id                     Int                       @id @default(autoincrement())
+  user_id                Int
+  created_at             DateTime?
+  updated_at             DateTime?
+  deleted_at             DateTime?
+  phone                  String?
+  occupation             String?
+  company                String?
+  nid_number             String?
+  passport_number        String?
+  driving_license        String?
+  nationality            String                    @default("Bangladeshi")
+  religion               String?
+  blood_group            String?
+  present_address        String?
+  permanent_address      String?
+  city                   String?
+  state                  String?
+  zip_code               String?
+  country                String                    @default("Bangladesh")
+  office_phone           String?
+  emergency_contact      String?
+  relationship           String?
+  is_primary             Boolean @default(false)
+  monthly_income         Decimal?
+  education_level        String?
+  notes                  String?
+  assignment_submissions assignment_submissions[]
+  guardian_student       guardian_student[]
+  users                  users                     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  students               students[]
+}
+
+model hostel_assignments {
+  id             Int          @id @default(autoincrement())
+  student_id     Int
+  room_id        Int
+  check_in_date  DateTime
+  check_out_date DateTime?
+  status         String       @default("active")
+  notes          String?
+  created_at     DateTime?
+  updated_at     DateTime?
+  hostel_rooms   hostel_rooms @relation(fields: [room_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  students       students     @relation(fields: [student_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model hostel_rooms {
+  id                 Int                  @id @default(autoincrement())
+  hostel_id          Int
+  room_number        String
+  room_type          String               @default("double")
+  capacity           Int                  @default(2)
+  occupied           Int                  @default(0)
+  status             String               @default("available")
+  created_at         DateTime?
+  updated_at         DateTime?
+  hostel_assignments hostel_assignments[]
+  hostels            hostels              @relation(fields: [hostel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([hostel_id, room_number], map: "hostel_rooms_hostel_id_room_number_unique")
+}
+
+model hostels {
+  id           Int            @id @default(autoincrement())
+  name         String
+  address      String?
+  description  String?
+  total_rooms  Int            @default(0)
+  warden_name  String?
+  warden_phone String?
+  status       String         @default("active")
+  created_at   DateTime?
+  updated_at   DateTime?
+  hostel_rooms hostel_rooms[]
+}
+
+model invoices {
+  id         Int       @id @default(autoincrement())
+  student_id Int
+  fee_id     Int
+  amount     Decimal
+  due_date   DateTime
+  status     String    @default("unpaid")
+  created_at DateTime?
+  updated_at DateTime?
+  fees       fees      @relation(fields: [fee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  students   students  @relation(fields: [student_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model job_applications {
+  id           Int       @id @default(autoincrement())
+  career_id    Int
+  name         String
+  email        String
+  phone        String
+  resume_path  String
+  cover_letter String?
+  status       String    @default("pending")
+  created_at   DateTime?
+  updated_at   DateTime?
+  careers      careers   @relation(fields: [career_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([status], map: "job_applications_status_index")
+  @@index([email], map: "job_applications_email_index")
+}
+
+model job_batches {
+  id             String  @id
+  name           String
+  total_jobs     Int
+  pending_jobs   Int
+  failed_jobs    Int
+  failed_job_ids String
+  options        String?
+  cancelled_at   Int?
+  created_at     Int
+  finished_at    Int?
+}
+
+model jobs {
+  id           Int    @id @default(autoincrement())
+  queue        String
+  payload      String
+  attempts     Int
+  reserved_at  Int?
+  available_at Int
+  created_at   Int
+
+  @@index([queue], map: "jobs_queue_index")
+}
+
+model leave_requests {
+  id            Int         @id @default(autoincrement())
+  teacher_id    Int
+  leave_type_id Int
+  from_date     DateTime
+  to_date       DateTime
+  reason        String
+  status        String      @default("pending")
+  approver_id   Int?
+  approver_note String?
+  decided_at    DateTime?
+  created_at    DateTime?
+  updated_at    DateTime?
+  users         users?      @relation(fields: [approver_id], references: [id], onUpdate: NoAction)
+  leave_types   leave_types @relation(fields: [leave_type_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  teachers      teachers    @relation(fields: [teacher_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([from_date], map: "leave_requests_from_date_index")
+  @@index([status], map: "leave_requests_status_index")
+}
+
+model leave_types {
+  id             Int                       @id @default(autoincrement())
+  name_en        String
+  name_bn        String?
+  days_per_year  Int                       @default(0)
+  is_paid        Boolean @default(true)
+  is_active      Boolean @default(true)
+  created_at     DateTime?
+  updated_at     DateTime?
+  leave_requests leave_requests[]
+}
+
+model ledger_entries {
+  id                  Int               @id @default(autoincrement())
+  chart_of_account_id Int
+  date                DateTime
+  debit               Decimal           @default(0)
+  credit              Decimal           @default(0)
+  reference_type      String?
+  reference_id        Int?
+  note                String?
+  created_by          Int?
+  created_at          DateTime?
+  updated_at          DateTime?
+  users               users?            @relation(fields: [created_by], references: [id], onUpdate: NoAction)
+  chart_of_accounts   chart_of_accounts @relation(fields: [chart_of_account_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([reference_type, reference_id], map: "ledger_entries_reference_type_reference_id_index")
+  @@index([date, chart_of_account_id], map: "ledger_entries_date_chart_of_account_id_index")
+}
+
+model library_settings {
+  id                    Int       @id @default(autoincrement())
+  late_fee_per_day      Decimal   @default(5)
+  max_books_per_student Int       @default(3)
+  max_books_per_teacher Int       @default(10)
+  issue_duration_days   Int       @default(14)
+  created_at            DateTime?
+  updated_at            DateTime?
+}
+
+model messages {
+  id                                Int       @id @default(autoincrement())
+  sender_id                         Int
+  receiver_id                       Int
+  subject                           String?
+  body                              String
+  read_at                           DateTime?
+  created_at                        DateTime?
+  updated_at                        DateTime?
+  users_messages_receiver_idTousers users     @relation("messages_receiver_idTousers", fields: [receiver_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users_messages_sender_idTousers   users     @relation("messages_sender_idTousers", fields: [sender_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([receiver_id, created_at], map: "messages_receiver_id_created_at_index")
+  @@index([sender_id, created_at], map: "messages_sender_id_created_at_index")
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement())
+  migration String
+  batch     Int
+}
+
+model model_has_permissions {
+  permission_id Int
+  model_type    String
+  model_id      Int
+  permissions   permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([permission_id, model_id, model_type])
+  @@index([model_id, model_type], map: "model_has_permissions_model_id_model_type_index")
+}
+
+model model_has_roles {
+  role_id    Int
+  model_type String
+  model_id   Int
+  roles      roles  @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([role_id, model_id, model_type])
+  @@index([model_id, model_type], map: "model_has_roles_model_id_model_type_index")
+}
+
+model news {
+  id             Int                       @id @default(autoincrement())
+  title          String
+  slug           String                    @unique(map: "news_slug_unique")
+  content        String
+  image_url      String?
+  category       String?
+  is_published   Boolean @default(false)
+  is_event       Boolean @default(false)
+  published_at   DateTime?
+  event_date     DateTime?
+  event_location String?
+  author_name    String?
+  author_avatar  String?
+  created_at     DateTime?
+  updated_at     DateTime?
+  deleted_at     DateTime?
+}
+
+model notices {
+  id          Int                       @id @default(autoincrement())
+  title       String
+  content     String
+  attachments String?
+  pinned      Boolean @default(false)
+  audience    String?
+  created_by  Int
+  created_at  DateTime?
+  updated_at  DateTime?
+  title_bn    String?
+  content_bn  String?
+  users       users                     @relation(fields: [created_by], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model notification_logs {
+  id              Int       @id @default(autoincrement())
+  type            String?
+  notifiable_type String
+  notifiable_id   Int
+  content         String?
+  channel         String?
+  status          String    @default("pending")
+  error_message   String?
+  sent_at         DateTime?
+  delivered_at    DateTime?
+  opened_at       DateTime?
+  metadata        String?
+  created_at      DateTime?
+  updated_at      DateTime?
+
+  @@index([type], map: "notification_logs_type_index")
+  @@index([channel], map: "notification_logs_channel_index")
+  @@index([status], map: "notification_logs_status_index")
+  @@index([notifiable_type, notifiable_id], map: "notification_logs_notifiable_type_notifiable_id_index")
+}
+
+model notification_preferences {
+  id                Int                       @id @default(autoincrement())
+  user_id           Int
+  notification_type String
+  email             Boolean @default(true)
+  sms               Boolean @default(false)
+  push              Boolean @default(true)
+  in_app            Boolean @default(true)
+  created_at        DateTime?
+  updated_at        DateTime?
+  users             users                     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, notification_type], map: "notification_preferences_user_id_notification_type_unique")
+}
+
+model notification_templates {
+  id             Int                       @id @default(autoincrement())
+  name           String
+  key            String                    @unique(map: "notification_templates_key_unique")
+  subject        String?
+  content        String?
+  sms_content    String?
+  in_app_content String?
+  variables      String?
+  is_active      Boolean @default(true)
+  created_at     DateTime?
+  updated_at     DateTime?
+}
+
+model notifications {
+  id              String    @id
+  type            String
+  notifiable_type String
+  notifiable_id   Int
+  data            String
+  read_at         DateTime?
+  created_at      DateTime?
+  updated_at      DateTime?
+
+  @@index([notifiable_type, notifiable_id], map: "notifications_notifiable_type_notifiable_id_index")
+}
+
+model password_reset_tokens {
+  email      String    @id
+  token      String
+  created_at DateTime?
+}
+
+model payment_gateways {
+  id                   Int                       @id @default(autoincrement())
+  name                 String
+  code                 String                    @unique(map: "payment_gateways_code_unique")
+  type                 String
+  is_active            Boolean @default(true)
+  is_online            Boolean @default(false)
+  has_api              Boolean @default(false)
+  sandbox_url          String?
+  live_url             String?
+  test_mode            Boolean @default(true)
+  api_key              String?
+  api_secret           String?
+  api_username         String?
+  api_password         String?
+  callback_url         String?
+  webhook_url          String?
+  success_url          String?
+  cancel_url           String?
+  ipn_url              String?
+  logo                 String?
+  description          String?
+  instructions         String?
+  currency             String                    @default("BDT")
+  fee_percentage       Decimal                   @default(0)
+  fee_fixed            Decimal                   @default(0)
+  min_amount           Decimal?
+  max_amount           Decimal?
+  supported_currencies String?
+  extra_attributes     String?
+  sort_order           Int                       @default(0)
+  created_at           DateTime?
+  updated_at           DateTime?
+  deleted_at           DateTime?
+
+  @@index([code], map: "payment_gateways_code_index")
+  @@index([name], map: "payment_gateways_name_index")
+  @@index([is_active, is_online, type], map: "payment_gateways_is_active_is_online_type_index")
+}
+
+model payment_webhook_events {
+  id            Int       @id @default(autoincrement())
+  gateway       String
+  payload_hash  String    @unique(map: "payment_webhook_events_payload_hash_unique")
+  headers       String?
+  payload       String?
+  processed_at  DateTime?
+  payment_id    Int?
+  result_status String?
+  created_at    DateTime?
+  updated_at    DateTime?
+}
+
+model payments {
+  id                               Int       @id @default(autoincrement())
+  paymentable_type                 String
+  paymentable_id                   Int
+  invoice_number                   String    @unique(map: "payments_invoice_number_unique")
+  amount                           Decimal
+  paid_amount                      Decimal   @default(0)
+  due_amount                       Decimal   @default(0)
+  discount_amount                  Decimal   @default(0)
+  fine_amount                      Decimal   @default(0)
+  tax_amount                       Decimal   @default(0)
+  total_amount                     Decimal   @default(0)
+  payment_method                   String
+  payment_status                   String    @default("pending")
+  payment_date                     DateTime?
+  due_date                         DateTime?
+  reference_number                 String?
+  transaction_id                   String?
+  payment_details                  String?
+  notes                            String?
+  metadata                         String?
+  created_by                       Int?
+  updated_by                       Int?
+  created_at                       DateTime?
+  updated_at                       DateTime?
+  refund_status                    String    @default("not_refunded")
+  users_payments_updated_byTousers users?    @relation("payments_updated_byTousers", fields: [updated_by], references: [id], onUpdate: NoAction)
+  users_payments_created_byTousers users?    @relation("payments_created_byTousers", fields: [created_by], references: [id], onUpdate: NoAction)
+  refunds                          refunds[]
+}
+
+model payslips {
+  id               Int       @id @default(autoincrement())
+  teacher_id       Int
+  month            Int
+  year             Int
+  basic            Decimal   @default(0)
+  total_allowances Decimal   @default(0)
+  total_deductions Decimal   @default(0)
+  net_salary       Decimal   @default(0)
+  details          String?
+  status           String    @default("draft")
+  generated_at     DateTime?
+  paid_at          DateTime?
+  created_at       DateTime?
+  updated_at       DateTime?
+  teachers         teachers  @relation(fields: [teacher_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([teacher_id, month, year], map: "payslips_teacher_id_month_year_unique")
+}
+
+model permissions {
+  id                    Int                     @id @default(autoincrement())
+  name                  String
+  guard_name            String
+  created_at            DateTime?
+  updated_at            DateTime?
+  model_has_permissions model_has_permissions[]
+  role_has_permissions  role_has_permissions[]
+}
+
+model personal_access_tokens {
+  id             Int       @id @default(autoincrement())
+  tokenable_type String
+  tokenable_id   Int
+  name           String
+  token          String    @unique(map: "personal_access_tokens_token_unique")
+  abilities      String?
+  last_used_at   DateTime?
+  expires_at     DateTime?
+  created_at     DateTime?
+  updated_at     DateTime?
+
+  @@index([expires_at], map: "personal_access_tokens_expires_at_index")
+  @@index([tokenable_type, tokenable_id], map: "personal_access_tokens_tokenable_type_tokenable_id_index")
+}
+
+model recurring_payment_profiles {
+  id                   Int       @id @default(autoincrement())
+  profile_id           String    @unique(map: "recurring_payment_profiles_profile_id_unique")
+  user_id              Int
+  paymentable_type     String
+  paymentable_id       Int
+  gateway              String
+  gateway_profile_id   String?
+  amount               Decimal
+  currency             String    @default("BDT")
+  billing_period       String
+  billing_frequency    Int       @default(1)
+  start_date           DateTime
+  next_billing_date    DateTime
+  end_date             DateTime?
+  status               String    @default("active")
+  payment_method_token String?
+  card_last4           String?
+  card_brand           String?
+  card_expiry          String?
+  max_failures         Int       @default(3)
+  failure_count        Int       @default(0)
+  metadata             String?
+  created_at           DateTime?
+  updated_at           DateTime?
+  deleted_at           DateTime?
+  users                users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([next_billing_date], map: "recurring_payment_profiles_next_billing_date_index")
+  @@index([user_id, status], map: "recurring_payment_profiles_user_id_status_index")
+  @@index([paymentable_type, paymentable_id], map: "recurring_payment_profiles_paymentable_type_paymentable_id_index")
+}
+
+model refresh_tokens {
+  id           Int       @id @default(autoincrement())
+  user_id      Int
+  token        String    @unique(map: "refresh_tokens_token_unique")
+  ip_address   String?
+  user_agent   String?
+  expires_at   DateTime
+  last_used_at DateTime?
+  created_at   DateTime?
+  updated_at   DateTime?
+  users        users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([user_id, token], map: "refresh_tokens_user_id_token_index")
+}
+
+model refunds {
+  id                                Int       @id @default(autoincrement())
+  payment_id                        Int
+  user_id                           Int
+  processed_by                      Int
+  amount                            Decimal
+  currency                          String    @default("BDT")
+  transaction_id                    String?
+  status                            String    @default("pending")
+  reason                            String?
+  processed_at                      DateTime?
+  created_at                        DateTime?
+  updated_at                        DateTime?
+  deleted_at                        DateTime?
+  metadata                          String?
+  users_refunds_processed_byTousers users     @relation("refunds_processed_byTousers", fields: [processed_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users_refunds_user_idTousers      users     @relation("refunds_user_idTousers", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  payments                          payments  @relation(fields: [payment_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([created_at], map: "refunds_created_at_index")
+  @@index([status], map: "refunds_status_index")
+  @@index([transaction_id], map: "refunds_transaction_id_index")
+}
+
+model role_has_permissions {
+  permission_id Int
+  role_id       Int
+  roles         roles       @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  permissions   permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([permission_id, role_id])
+}
+
+model roles {
+  id                   Int                    @id @default(autoincrement())
+  name                 String                 @unique(map: "roles_name_unique")
+  description          String?
+  created_at           DateTime?
+  updated_at           DateTime?
+  guard_name           String                 @default("web")
+  model_has_roles      model_has_roles[]
+  role_has_permissions role_has_permissions[]
+  users                users[]
+}
+
+model routines {
+  id                  Int                       @id @default(autoincrement())
+  school_class_id     Int
+  subject_id          Int
+  teacher_id          Int
+  day_of_week         Int
+  start_time          String
+  end_time            String
+  room_number         String?
+  created_at          DateTime?
+  updated_at          DateTime?
+  section_id          Int?
+  batch_id            Int?
+  academic_session_id Int?
+  is_active           Boolean @default(true)
+  type                String?                   @default("class")
+  academic_sessions   academic_sessions?        @relation(fields: [academic_session_id], references: [id], onUpdate: NoAction)
+  batches             batches?                  @relation(fields: [batch_id], references: [id], onUpdate: NoAction)
+  sections            sections?                 @relation(fields: [section_id], references: [id], onUpdate: NoAction)
+  school_classes      school_classes            @relation(fields: [school_class_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  subjects            subjects                  @relation(fields: [subject_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  teachers            teachers                  @relation(fields: [teacher_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model salary_structures {
+  id             Int                       @id @default(autoincrement())
+  teacher_id     Int
+  basic          Decimal                   @default(0)
+  allowances     String?
+  deductions     String?
+  effective_from DateTime
+  is_active      Boolean @default(true)
+  created_at     DateTime?
+  updated_at     DateTime?
+  teachers       teachers                  @relation(fields: [teacher_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([teacher_id, is_active], map: "salary_structures_teacher_id_is_active_index")
+}
+
+model scheduled_notifications {
+  id            Int       @id @default(autoincrement())
+  name          String
+  type          String
+  channels      String
+  recipients    String
+  data          String
+  schedule      String
+  scheduled_at  DateTime
+  sent_at       DateTime?
+  status        String    @default("pending")
+  error_message String?
+  created_by    Int?
+  created_at    DateTime?
+  updated_at    DateTime?
+  deleted_at    DateTime?
+  users         users?    @relation(fields: [created_by], references: [id], onUpdate: NoAction)
+
+  @@index([status, scheduled_at], map: "scheduled_notifications_status_scheduled_at_index")
+}
+
+model school_class_subject {
+  school_class_id Int
+  subject_id      Int
+  subjects        subjects       @relation(fields: [subject_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  school_classes  school_classes @relation(fields: [school_class_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([school_class_id, subject_id])
+}
+
+model school_classes {
+  id                                                 Int                       @id @default(autoincrement())
+  name                                               String
+  seating_capacity                                   Int?
+  teacher_id                                         Int?
+  parent_id                                          Int?
+  created_at                                         DateTime?
+  updated_at                                         DateTime?
+  code                                               String?
+  description                                        String?
+  grade_level                                        Int?
+  academic_session_id                                Int?
+  class_teacher_id                                   Int?
+  max_students                                       Int                       @default(30)
+  is_active                                          Boolean @default(true)
+  monthly_fee                                        Decimal                   @default(0)
+  admission_fee                                      Decimal                   @default(0)
+  exam_fee                                           Decimal                   @default(0)
+  other_fees                                         Decimal                   @default(0)
+  notes                                              String?
+  shift                                              String?
+  assignments                                        assignments[]
+  attendances                                        attendances[]
+  class_subject_teacher                              class_subject_teacher[]
+  class_teacher                                      class_teacher[]
+  fees                                               fees[]
+  routines                                           routines[]
+  school_class_subject                               school_class_subject[]
+  teachers_school_classes_class_teacher_idToteachers teachers?                 @relation("school_classes_class_teacher_idToteachers", fields: [class_teacher_id], references: [id], onUpdate: NoAction)
+  academic_sessions                                  academic_sessions?        @relation(fields: [academic_session_id], references: [id], onUpdate: NoAction)
+  teachers_school_classes_teacher_idToteachers       teachers?                 @relation("school_classes_teacher_idToteachers", fields: [teacher_id], references: [id], onUpdate: NoAction)
+  school_classes                                     school_classes?           @relation("school_classesToschool_classes", fields: [parent_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  other_school_classes                               school_classes[]          @relation("school_classesToschool_classes")
+  sections                                           sections[]
+  sms_campaigns                                      sms_campaigns[]
+  students                                           students[]
+}
+
+model section_teacher {
+  id                  Int                       @id @default(autoincrement())
+  teacher_id          Int
+  section_id          Int
+  subject_id          Int?
+  academic_session_id Int?
+  is_class_teacher    Boolean @default(false)
+  created_at          DateTime?
+  updated_at          DateTime?
+  academic_sessions   academic_sessions?        @relation(fields: [academic_session_id], references: [id], onUpdate: NoAction)
+  subjects            subjects?                 @relation(fields: [subject_id], references: [id], onUpdate: NoAction)
+  sections            sections                  @relation(fields: [section_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  teachers            teachers                  @relation(fields: [teacher_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([teacher_id, section_id, subject_id, academic_session_id], map: "section_teacher_unique")
+}
+
+model sections {
+  id               Int                       @id @default(autoincrement())
+  name             String
+  slug             String                    @unique(map: "sections_slug_unique")
+  capacity         Int                       @default(30)
+  description      String?
+  is_active        Boolean @default(true)
+  class_teacher_id Int?
+  academic_year_id Int
+  created_at       DateTime?
+  updated_at       DateTime?
+  deleted_at       DateTime?
+  class_id         Int?
+  assignments      assignments[]
+  attendances      attendances[]
+  classes          classes[]
+  exams            exams[]
+  fees             fees[]
+  routines         routines[]
+  section_teacher  section_teacher[]
+  school_classes   school_classes?           @relation(fields: [class_id], references: [id], onUpdate: NoAction)
+  users            users?                    @relation(fields: [class_teacher_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  academic_years   academic_years            @relation(fields: [academic_year_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sms_campaigns    sms_campaigns[]
+  students         students[]
+}
+
+model sessions {
+  id            String  @id
+  user_id       Int?
+  ip_address    String?
+  user_agent    String?
+  payload       String
+  last_activity Int
+
+  @@index([last_activity], map: "sessions_last_activity_index")
+  @@index([user_id], map: "sessions_user_id_index")
+}
+
+model skip_notifications_table {
+  id         Int       @id @default(autoincrement())
+  created_at DateTime?
+  updated_at DateTime?
+}
+
+model sms_campaign_recipients {
+  id              Int           @id @default(autoincrement())
+  sms_campaign_id Int
+  phone           String
+  user_type       String?
+  user_id         Int?
+  status          String        @default("queued")
+  error           String?
+  created_at      DateTime?
+  updated_at      DateTime?
+  sms_campaigns   sms_campaigns @relation(fields: [sms_campaign_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([status], map: "sms_campaign_recipients_status_index")
+}
+
+model sms_campaigns {
+  id                      Int                       @id @default(autoincrement())
+  name                    String
+  audience_type           String
+  school_class_id         Int?
+  section_id              Int?
+  message                 String
+  scheduled_at            DateTime?
+  status                  String                    @default("draft")
+  sent_at                 DateTime?
+  created_by              Int?
+  created_at              DateTime?
+  updated_at              DateTime?
+  sms_campaign_recipients sms_campaign_recipients[]
+  users                   users?                    @relation(fields: [created_by], references: [id], onUpdate: NoAction)
+  sections                sections?                 @relation(fields: [section_id], references: [id], onUpdate: NoAction)
+  school_classes          school_classes?           @relation(fields: [school_class_id], references: [id], onUpdate: NoAction)
+
+  @@index([status], map: "sms_campaigns_status_index")
+}
+
+model staff_attendances {
+  id           Int       @id @default(autoincrement())
+  teacher_id   Int
+  date         DateTime
+  status       String    @default("present")
+  check_in_at  DateTime?
+  check_out_at DateTime?
+  note         String?
+  recorded_by  Int?
+  created_at   DateTime?
+  updated_at   DateTime?
+  users        users?    @relation(fields: [recorded_by], references: [id], onUpdate: NoAction)
+  teachers     teachers  @relation(fields: [teacher_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([teacher_id, date], map: "staff_attendances_teacher_id_date_unique")
+  @@index([status], map: "staff_attendances_status_index")
+  @@index([date], map: "staff_attendances_date_index")
+}
+
+model student_id_cards {
+  id             Int       @id @default(autoincrement())
+  student_id     Int
+  id_card_number String    @unique(map: "student_id_cards_id_card_number_unique")
+  issue_date     DateTime
+  expiry_date    DateTime?
+  blood_group    String?
+  photo_url      String?
+  details        String?
+  status         String    @default("active")
+  generated_by   Int?
+  created_at     DateTime?
+  updated_at     DateTime?
+  deleted_at     DateTime?
+  users          users?    @relation(fields: [generated_by], references: [id], onUpdate: NoAction)
+  students       students  @relation(fields: [student_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model students {
+  id                       Int                       @id @default(autoincrement())
+  user_id                  Int
+  class_id                 Int
+  section_id               Int?
+  batch_id                 Int?
+  guardian_id              Int?
+  admission_number         String                    @unique(map: "students_admission_number_unique")
+  admission_date           DateTime
+  roll_number              String?
+  blood_group              String?
+  religion                 String?
+  nationality              String                    @default("Bangladeshi")
+  nid_number               String?
+  birth_certificate_number String?
+  permanent_address        String?
+  present_address          String?
+  city                     String?
+  state                    String?
+  zip_code                 String?
+  country                  String                    @default("Bangladesh")
+  phone_1                  String?
+  phone_2                  String?
+  email                    String?
+  parent_name              String?
+  parent_phone             String?
+  parent_email             String?
+  parent_occupation        String?
+  parent_address           String?
+  monthly_fee              Decimal                   @default(0)
+  transport_fee            Decimal                   @default(0)
+  discount                 Decimal                   @default(0)
+  status                   String                    @default("active")
+  notes                    String?
+  created_at               DateTime?
+  updated_at               DateTime?
+  deleted_at               DateTime?
+  date_of_birth            DateTime?
+  gender                   String?
+  phone                    String?
+  roll_no                  String?
+  admission_no             String?                   @unique(map: "students_admission_no_unique")
+  admission_id             Int?
+  first_name               String
+  last_name                String
+  address                  String?
+  postal_code              String?
+  father_name              String?
+  father_phone             String?
+  father_occupation        String?
+  mother_name              String?
+  mother_phone             String?
+  mother_occupation        String?
+  is_notable               Boolean @default(false)
+  achievement              String?
+  attendance_percentage    Decimal?
+  admit_cards              admit_cards[]
+  assignment_submissions   assignment_submissions[]
+  attendances              attendances[]
+  book_issues              book_issues[]
+  certificates             certificates[]
+  exam_results             exam_results[]
+  fee_payments             fee_payments[]
+  fees                     fees[]
+  grades                   grades[]
+  guardian_student         guardian_student[]
+  hostel_assignments       hostel_assignments[]
+  invoices                 invoices[]
+  student_id_cards         student_id_cards[]
+  admissions               admissions?               @relation(fields: [admission_id], references: [id], onUpdate: NoAction)
+  users                    users                     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  school_classes           school_classes            @relation(fields: [class_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  sections                 sections?                 @relation(fields: [section_id], references: [id], onUpdate: NoAction)
+  batches                  batches?                  @relation(fields: [batch_id], references: [id], onUpdate: NoAction)
+  guardians                guardians?                @relation(fields: [guardian_id], references: [id], onUpdate: NoAction)
+  testimonials             testimonials[]
+  transport_assignments    transport_assignments[]
+}
+
+model subjects {
+  id                    Int                       @id @default(autoincrement())
+  name                  String
+  code                  String                    @unique(map: "subjects_code_unique")
+  teacher_id            Int?
+  created_at            DateTime?
+  updated_at            DateTime?
+  type                  String                    @default("core")
+  short_name            String?
+  credit_hours          Decimal                   @default(3)
+  description           String?
+  is_active             Boolean @default(true)
+  display_order         Int                       @default(0)
+  deleted_at            DateTime?
+  assignments           assignments[]
+  attendances           attendances[]
+  class_subject_teacher class_subject_teacher[]
+  classes               classes[]
+  exams                 exams[]
+  grades                grades[]
+  routines              routines[]
+  school_class_subject  school_class_subject[]
+  section_teacher       section_teacher[]
+  teachers              teachers?                 @relation(fields: [teacher_id], references: [id], onUpdate: NoAction)
+}
+
+model teachers {
+  id                                                       Int                     @id @default(autoincrement())
+  user_id                                                  Int
+  qualification                                            String?
+  created_at                                               DateTime?
+  updated_at                                               DateTime?
+  employee_id                                              String?                 @unique(map: "teachers_employee_id_unique")
+  gender                                                   String?
+  blood_group                                              String?
+  date_of_birth                                            DateTime?
+  religion                                                 String?
+  nationality                                              String                  @default("Bangladeshi")
+  phone                                                    String?
+  emergency_contact                                        String?
+  present_address                                          String?
+  permanent_address                                        String?
+  city                                                     String?
+  state                                                    String?
+  zip_code                                                 String?
+  country                                                  String                  @default("Bangladesh")
+  joining_date                                             DateTime?
+  leaving_date                                             DateTime?
+  status                                                   String                  @default("active")
+  bank_name                                                String?
+  bank_account_number                                      String?
+  bank_branch                                              String?
+  salary                                                   Decimal                 @default(0)
+  salary_type                                              String                  @default("monthly")
+  nid_number                                               String?
+  passport_number                                          String?
+  driving_license                                          String?
+  notes                                                    String?
+  deleted_at                                               DateTime?
+  attendances                                              attendances[]
+  book_issues                                              book_issues[]
+  class_subject_teacher                                    class_subject_teacher[]
+  class_teacher                                            class_teacher[]
+  leave_requests                                           leave_requests[]
+  payslips                                                 payslips[]
+  routines                                                 routines[]
+  salary_structures                                        salary_structures[]
+  school_classes_school_classes_class_teacher_idToteachers school_classes[]        @relation("school_classes_class_teacher_idToteachers")
+  school_classes_school_classes_teacher_idToteachers       school_classes[]        @relation("school_classes_teacher_idToteachers")
+  section_teacher                                          section_teacher[]
+  staff_attendances                                        staff_attendances[]
+  subjects                                                 subjects[]
+  users                                                    users                   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model testimonials {
+  id                 Int                       @id @default(autoincrement())
+  student_id         Int?
+  author_name        String
+  author_designation String?
+  content            String
+  rating             Int                       @default(5)
+  photo              String?
+  is_visible         Boolean @default(true)
+  sort_order         Int                       @default(0)
+  created_at         DateTime?
+  updated_at         DateTime?
+  name               String?
+  testimonial_type   String?
+  testimonial_number String?                   @unique(map: "testimonials_testimonial_number_unique")
+  issue_date         DateTime?
+  status             String                    @default("draft")
+  generated_by       Int?
+  body               String?
+  details            String?
+  users              users?                    @relation(fields: [generated_by], references: [id], onUpdate: NoAction)
+  students           students?                 @relation(fields: [student_id], references: [id], onUpdate: NoAction)
+}
+
+model transport_assignments {
+  id               Int              @id @default(autoincrement())
+  student_id       Int
+  route_id         Int
+  stop_id          Int?
+  effective_from   DateTime
+  effective_to     DateTime?
+  created_at       DateTime?
+  updated_at       DateTime?
+  transport_stops  transport_stops? @relation(fields: [stop_id], references: [id], onUpdate: NoAction)
+  transport_routes transport_routes @relation(fields: [route_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  students         students         @relation(fields: [student_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([student_id, effective_from], map: "transport_assignments_student_id_effective_from_index")
+}
+
+model transport_routes {
+  id                    Int                       @id @default(autoincrement())
+  name                  String
+  code                  String                    @unique(map: "transport_routes_code_unique")
+  fare                  Decimal                   @default(0)
+  vehicle_id            Int?
+  is_active             Boolean @default(true)
+  created_at            DateTime?
+  updated_at            DateTime?
+  transport_assignments transport_assignments[]
+  vehicles              vehicles?                 @relation(fields: [vehicle_id], references: [id], onUpdate: NoAction)
+  transport_stops       transport_stops[]
+}
+
+model transport_stops {
+  id                    Int                     @id @default(autoincrement())
+  route_id              Int
+  name                  String
+  pickup_time           String?
+  drop_time             String?
+  sort                  Int                     @default(0)
+  created_at            DateTime?
+  updated_at            DateTime?
+  transport_assignments transport_assignments[]
+  transport_routes      transport_routes        @relation(fields: [route_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([route_id], map: "transport_stops_route_id_index")
+}
+
+model user_widget_preferences {
+  id         Int                       @id @default(autoincrement())
+  user_id    Int
+  widget_id  String
+  enabled    Boolean @default(true)
+  position   Int                       @default(0)
+  settings   String?
+  created_at DateTime?
+  updated_at DateTime?
+  users      users                     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, widget_id], map: "user_widget_preferences_user_id_widget_id_unique")
+}
+
+model users {
+  id                                                Int                          @id @default(autoincrement())
+  name                                              String
+  email                                             String                       @unique(map: "users_email_unique")
+  phone                                             String?
+  address                                           String?
+  gender                                            String?
+  date_of_birth                                     DateTime?
+  photo                                             String?
+  password                                          String
+  role_id                                           Int
+  email_verified_at                                 DateTime?
+  remember_token                                    String?
+  created_at                                        DateTime?
+  updated_at                                        DateTime?
+  role                                              String                       @default("student")
+  deleted_at                                        DateTime?
+  activities                                        activities[]
+  admission_documents                               admission_documents[]
+  admission_tests_admission_tests_updated_byTousers admission_tests[]            @relation("admission_tests_updated_byTousers")
+  admission_tests_admission_tests_created_byTousers admission_tests[]            @relation("admission_tests_created_byTousers")
+  admissions_admissions_verified_byTousers          admissions[]                 @relation("admissions_verified_byTousers")
+  admissions_admissions_created_byTousers           admissions[]                 @relation("admissions_created_byTousers")
+  admissions_admissions_updated_byTousers           admissions[]                 @relation("admissions_updated_byTousers")
+  admissions_admissions_approved_byTousers          admissions[]                 @relation("admissions_approved_byTousers")
+  admissions_admissions_rejected_byTousers          admissions[]                 @relation("admissions_rejected_byTousers")
+  admit_cards                                       admit_cards[]
+  assignment_submissions                            assignment_submissions[]
+  assignments                                       assignments[]
+  attendances_attendances_marked_byTousers          attendances[]                @relation("attendances_marked_byTousers")
+  attendances_attendances_recorded_byTousers        attendances[]                @relation("attendances_recorded_byTousers")
+  attendances_attendances_updated_byTousers         attendances[]                @relation("attendances_updated_byTousers")
+  audits                                            audits[]
+  book_issues                                       book_issues[]
+  books                                             books[]
+  certificates_certificates_generated_byTousers     certificates[]               @relation("certificates_generated_byTousers")
+  certificates_certificates_created_byTousers       certificates[]               @relation("certificates_created_byTousers")
+  classes                                           classes[]
+  dashboard_favorites                               dashboard_favorites[]
+  device_tokens                                     device_tokens[]
+  event_attendees                                   event_attendees[]
+  events                                            events[]
+  exams_exams_updated_byTousers                     exams[]                      @relation("exams_updated_byTousers")
+  exams_exams_created_byTousers                     exams[]                      @relation("exams_created_byTousers")
+  expenses                                          expenses[]
+  fee_payments_fee_payments_approved_byTousers      fee_payments[]               @relation("fee_payments_approved_byTousers")
+  fee_payments_fee_payments_created_byTousers       fee_payments[]               @relation("fee_payments_created_byTousers")
+  fees                                              fees[]
+  guardians                                         guardians[]
+  leave_requests                                    leave_requests[]
+  ledger_entries                                    ledger_entries[]
+  messages_messages_receiver_idTousers              messages[]                   @relation("messages_receiver_idTousers")
+  messages_messages_sender_idTousers                messages[]                   @relation("messages_sender_idTousers")
+  notices                                           notices[]
+  notification_preferences                          notification_preferences[]
+  payments_payments_updated_byTousers               payments[]                   @relation("payments_updated_byTousers")
+  payments_payments_created_byTousers               payments[]                   @relation("payments_created_byTousers")
+  recurring_payment_profiles                        recurring_payment_profiles[]
+  refresh_tokens                                    refresh_tokens[]
+  refunds_refunds_processed_byTousers               refunds[]                    @relation("refunds_processed_byTousers")
+  refunds_refunds_user_idTousers                    refunds[]                    @relation("refunds_user_idTousers")
+  scheduled_notifications                           scheduled_notifications[]
+  sections                                          sections[]
+  sms_campaigns                                     sms_campaigns[]
+  staff_attendances                                 staff_attendances[]
+  student_id_cards                                  student_id_cards[]
+  students                                          students[]
+  teachers                                          teachers[]
+  testimonials                                      testimonials[]
+  user_widget_preferences                           user_widget_preferences[]
+  roles                                             roles                        @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  visitor_logs                                      visitor_logs[]
+
+  @@unique([phone, role_id], map: "users_phone_role_unique")
+  @@unique([email, role_id], map: "users_email_role_unique")
+  @@index([role], map: "users_role_index")
+}
+
+model vehicles {
+  id               Int                       @id @default(autoincrement())
+  number           String                    @unique(map: "vehicles_number_unique")
+  type             String?
+  capacity         Int                       @default(0)
+  driver_name      String?
+  driver_phone     String?
+  is_active        Boolean @default(true)
+  created_at       DateTime?
+  updated_at       DateTime?
+  transport_routes transport_routes[]
+}
+
+model visitor_logs {
+  id         Int       @id @default(autoincrement())
+  ip         String
+  url        String
+  method     String
+  user_agent String?
+  referer    String?
+  user_id    Int?
+  created_at DateTime?
+  users      users?    @relation(fields: [user_id], references: [id], onUpdate: NoAction)
+
+  @@index([ip], map: "visitor_logs_ip_index")
+  @@index([created_at], map: "visitor_logs_created_at_index")
+}
+
+model website_contents {
+  id                  Int                       @id @default(autoincrement())
+  created_at          DateTime?
+  updated_at          DateTime?
+  page                String                    @unique(map: "website_contents_page_unique")
+  title               String?
+  content             String?
+  meta_description    String?
+  meta_keywords       String?
+  images              String?
+  is_active           Boolean @default(true)
+  settings            String?
+  title_en            String?
+  title_bn            String?
+  meta_description_en String?
+  meta_description_bn String?
+  content_en          String?
+  content_bn          String?
+  cms_input_mode      String                    @default("json")
+}
+
+model website_documents {
+  id           Int                       @id @default(autoincrement())
+  title        String
+  category     String?
+  file_path    String
+  mime_type    String?
+  file_size    Int?
+  is_published Boolean @default(true)
+  created_at   DateTime?
+  updated_at   DateTime?
+
+  @@index([category, is_published], map: "website_documents_category_is_published_index")
+}
+
+model website_media {
+  id         Int       @id @default(autoincrement())
+  title      String?
+  category   String?
+  file_path  String
+  mime_type  String?
+  file_size  Int?
+  created_at DateTime?
+  updated_at DateTime?
+
+  @@index([category, created_at], map: "website_media_category_created_at_index")
+}
+
+model website_settings {
+  id                     Int                       @id @default(autoincrement())
+  school_name            String
+  tagline                String?
+  logo_path              String?
+  favicon_path           String?
+  established_year       Int
+  address                String
+  city                   String
+  state                  String
+  country                String
+  postal_code            String
+  phone                  String
+  email                  String
+  website                String?
+  opening_hours          String?
+  facebook_url           String?
+  twitter_url            String?
+  instagram_url          String?
+  linkedin_url           String?
+  youtube_url            String?
+  meta_title             String?
+  meta_description       String?
+  meta_keywords          String?
+  timezone               String                    @default("UTC")
+  date_format            String                    @default("Y-m-d")
+  time_format            String                    @default("H:i")
+  maintenance_mode       Boolean @default(false)
+  maintenance_message    String?
+  created_at             DateTime?
+  updated_at             DateTime?
+  default_locale         String                    @default("en")
+  school_name_bn         String?
+  tagline_bn             String?
+  show_facebook          Boolean @default(true)
+  show_instagram         Boolean @default(true)
+  show_twitter           Boolean @default(true)
+  show_youtube           Boolean @default(true)
+  show_linkedin          Boolean @default(true)
+  send_absence_sms       Boolean @default(false)
+  absence_sms_template   String?
+  sms_sender_id          String?
+  og_image_path          String?
+  theme_primary_color    String?
+  theme_secondary_color  String?
+  theme_font_family      String?
+  theme_border_radius    String?
+  section_visibility     String?
+  footer_logo_path       String?
+  footer_logo_dark_path  String?
+  bkash_merchant_number  String?
+  bkash_api_key          String?
+  bkash_api_secret       String?
+  bkash_username         String?
+  bkash_password         String?
+  bkash_app_key          String?
+  bkash_app_secret       String?
+  bkash_sandbox          Boolean @default(true)
+  nagad_merchant_number  String?
+  currency               String                    @default("BDT")
+  default_payment_method String                    @default("bkash")
+  theme_header_style     String?
+  theme_footer_style     String?
+  theme_button_style     String?
+  theme_section_spacing  String?
+  academic_start_month   Int?
+  student_id_prefix      String?
+  theme_style            String                    @default("default")
+  mail_enabled           Boolean @default(false)
+  mail_driver            String?
+  mail_host              String?
+  mail_port              String?
+  mail_username          String?
+  mail_password          String?
+  mail_encryption        String?
+  mail_from_address      String?
+  mail_from_name         String?
+  mail_test_recipient    String?
+}

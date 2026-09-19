@@ -2,9 +2,9 @@
 
 > Date: September 2026 · Status: **proposal / not started** · Owner: TBD
 >
-> **Terminology reminder (important):** The `eskoofy-website/` folder is **NOT a product** —
+> **Terminology reminder (important):** The `eskoofy-branding-website/` folder is **NOT a product** —
 > it is our **branding website + license server**. Eskoofy **ships 3 products**
-> (`eskoofy-app`, `eskoofy-php`, `eskoofy-theme`). A Node.js variant would become the
+> (`eskoofy-laravel-app`, `eskoofy-php-app`, `eskoofy-wp-theme`). A Node.js variant would become the
 > **4th product** (`eskoofy-node`). The website only *markets* and *sells* the products, so
 > it is a parity *destination for sales copy* — never a product itself.
 
@@ -82,9 +82,9 @@ Next.js is "frontend + backend in one project", the modern equivalent of Laravel
 
 ## 4. Parity rules that apply (from `docs/design/FEATURE-PROPAGATION.md`)
 
-- Default scope for any feature change = **ALL products** (`eskoofy-app`, `eskoofy-php`,
-  `eskoofy-theme`, **and once shipped `eskoofy-node`**) + sales/marketing copy on the
-  **branding website** (`eskoofy-website`).
+- Default scope for any feature change = **ALL products** (`eskoofy-laravel-app`, `eskoofy-php-app`,
+  `eskoofy-wp-theme`, **and once shipped `eskoofy-node`**) + sales/marketing copy on the
+  **branding website** (`eskoofy-branding-website`).
 - Confirmation gate before cross-product implementation
   (`build/propagate/propagate-feature.sh`).
 - BD/INT stays **build-time profiles** (`config/eskoolfy.ts` + `build/profiles/*`), never
@@ -97,12 +97,12 @@ Next.js is "frontend + backend in one project", the modern equivalent of Laravel
 1. **Add a gated phase** to `WORKPLAN.md` (e.g. Phase 10, gated like Phase 6 was) — do not
    start until the gate is approved.
 2. **Feature matrix first**: export module × route × view × permission matrix from
-   `eskoofy-app` (`route:list`, `docs/design/FEATURE-PROPAGATION.md` maps). This is the Node
+   `eskoofy-laravel-app` (`route:list`, `docs/design/FEATURE-PROPAGATION.md` maps). This is the Node
    port's acceptance checklist.
 3. **Backend/API first**: in the chosen single app (Option A/B) — Prisma + MySQL against the
-   same schema; reach API parity with `eskoofy-app` `/api/v1` (same envelope + middleware
+   same schema; reach API parity with `eskoofy-laravel-app` `/api/v1` (same envelope + middleware
    semantics) before building UI.
-4. **Reuse the license contract** from `eskoofy-website` (`/api/v1/licenses/*`) so the Node
+4. **Reuse the license contract** from `eskoofy-branding-website` (`/api/v1/licenses/*`) so the Node
    product is monetisable via the branding site's license server from day one.
 5. **Then the dashboard**, then the public site (UI parity bar is highest on dashboard).
 6. **Extend propagation maps**: add `eskoofy-node` rows to `docs/design/FEATURE-PROPAGATION.md`

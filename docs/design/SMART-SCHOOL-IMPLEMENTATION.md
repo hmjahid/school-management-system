@@ -2,8 +2,8 @@
 
 **Date:** 2026-09-16
 **Status:** `[ ] proposal` · planning only — no code shipped yet
-**Scope:** All Eskoofy products (Laravel app = source of truth + `eskoofy-php` port +
-`eskoofy-theme`) and the marketing copy on the **branding website** (`eskoofy-website` —
+**Scope:** All Eskoofy products (Laravel app = source of truth + `eskoofy-php-app` port +
+`eskoofy-wp-theme`) and the marketing copy on the **branding website** (`eskoofy-branding-website` —
 **not a product**, only sells/markets the products).
 **Status key:** `[ ] todo` · `[~] in progress` · `[x] done`
 
@@ -45,7 +45,7 @@ promotions, auto fee reminders, auto salary. T2 turns the same data into foresig
    **marketing copy** (never code parity for internal engines).
 4. **BD/INT = config.** Tier on/off, reminder day offsets, risk thresholds, AI provider,
    SMS driver all live in `config/eskoolfy.php` overridden by `build/profiles/*`.
-5. **Privacy default-off.** `eskoofy-app/archive/` and historical docs are never inputs
+5. **Privacy default-off.** `eskoofy-laravel-app/archive/` and historical docs are never inputs
    to T3. **No student PII (names, phone, guardian data) is ever sent to an external AI**
    service — only aggregated/non-identifying context, and only when the school admin
    explicitly enabled the feature for their account. Per-school opt-in, per-product flag.
@@ -98,7 +98,7 @@ Legend: **T** tier · **P** priority (P0 = core automation, P1 = valuable, P2 = 
 
 ## 4. Architecture
 
-### 4.1 App (source of truth) — `eskoofy-app`
+### 4.1 App (source of truth) — `eskoofy-laravel-app`
 
 ```
 app/Services/Smart/
@@ -116,7 +116,7 @@ Scheduling: Laravel scheduler (`bootstrap/app.php`/Kernel) runs engines; every e
 supports `--dry-run` and an idempotency key (hash of scope+period stored in
 `automation_logs`).
 
-### 4.2 Raw-PHP port — `eskoofy-php`
+### 4.2 Raw-PHP port — `eskoofy-php-app`
 
 - `app/Controllers/**` mirror each smart controller; `app/Services/Smart/**` mirrors
   engines (pure PHP port, **same algorithm constant-per-period so results match**).
@@ -124,7 +124,7 @@ supports `--dry-run` and an idempotency key (hash of scope+period stored in
 - Routes added to `routes/web.php` per the parity rule (app `route:list`).
 - Scheduling via cron; idempotency via `automation_logs` schema port.
 
-### 4.3 WordPress theme — `eskoofy-theme`
+### 4.3 WordPress theme — `eskoofy-wp-theme`
 
 - `inc/database.php`: `smart_options` + `esk_automation_logs` tables.
 - `inc/admin-ajax.php` / scheduler hooks (WP-Cron escrow): same engines (PHP port).
@@ -133,7 +133,7 @@ supports `--dry-run` and an idempotency key (hash of scope+period stored in
 - Not every T3/AI feature is a theme priority — T1/T2 are; T3 stays app/int-first until
   product decide (documented in the propagation matrix).
 
-### 4.4 Branding website — `eskoofy-website` (NOT a product)
+### 4.4 Branding website — `eskoofy-branding-website` (NOT a product)
 
 - Copy only: `/features` mentions "Smart automation & analytics"; pricing tier copy
   for an optional "Smart" add-on per `docs/design/PAYMENT-MODEL.md`; `/products/*` feature lists.
@@ -224,7 +224,7 @@ battle-tested; every T3 action logged to `automation_logs`.
 
 ## 6. Propagation matrix (per `docs/design/FEATURE-PROPAGATION.md`)
 
-| Change | eskoofy-app | eskoofy-php | eskoofy-theme | eskoofy-website |
+| Change | eskoofy-laravel-app | eskoofy-php-app | eskoofy-wp-theme | eskoofy-branding-website |
 |---|---|---|---|---|
 | Engine/controller | ✅ source | ✅ port | ⚪ T1/T2 yes, T3 app-first | — |
 | `/dashboard/smart/**` views | ✅ | ✅ byte-identical | ✅ `views/admin/smart-*.php` | — |
@@ -267,8 +267,8 @@ battle-tested; every T3 action logged to `automation_logs`.
 
 ## 9. Definition of Done (all three products)
 
-- App: `cd eskoofy-app && composer test` green (new engine/idempotency/sanitizer tests).
-- Raw PHP: `cd eskoofy-php && composer test` green; `resources/views/**` byte-identical;
+- App: `cd eskoofy-laravel-app && composer test` green (new engine/idempotency/sanitizer tests).
+- Raw PHP: `cd eskoofy-php-app && composer test` green; `resources/views/**` byte-identical;
   `route:list` parity asserted.
 - Theme: `php -l` clean on touched files; `composer run lint`; `esk_admin_shell_groups()`
   shows "Smart"; dashboards render.

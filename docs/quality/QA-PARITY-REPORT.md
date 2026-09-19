@@ -1,10 +1,10 @@
-# QA Parity Audit — eskoofy-php & eskoofy-theme vs eskoofy-app (Laravel)
+# QA Parity Audit — eskoofy-php-app & eskoofy-wp-theme vs eskoofy-laravel-app (Laravel)
 
 **Audit date:** 2026-09-16
 **Auditor:** Senior QA (10yrs) — automated inspection of file/route/schema inventory with
 code-level spot inspection of high-risk areas.
-**Scope:** Source-of-truth `eskoofy-app` (Laravel 12) vs the raw-PHP port
-(`eskoofy-php`) and the WordPress theme port (`eskoofy-theme`).
+**Scope:** Source-of-truth `eskoofy-laravel-app` (Laravel 12) vs the raw-PHP port
+(`eskoofy-php-app`) and the WordPress theme port (`eskoofy-wp-theme`).
 **Method:** mechanical diffing (MD5 byte-parity, route tree extraction, schema table
 diff) + targeted code review. No runtime E2E was executed (no DB lifted), so route-*count*
 facts are exact; *behavioral parity* verdicts are code-inspection based.
@@ -21,11 +21,11 @@ facts are exact; *behavioral parity* verdicts are code-inspection based.
 
 | Variant | Overall parity | Verdict |
 |---|---|---|
-| **eskoofy-php** (raw PHP) | **High** — near 1:1 web UI + full DB schema | P1: API/admin surface reduced, push-notifications + scheduler missing, 5 model classes absent, ~34 legacy views orphaned |
-| **eskoofy-theme** (WP) | **Medium** — page inventory ~80% matched, but "dashboard-lite" | P1: finance/RBAC/ledger/budgets/admission-test/notifications subsystems absent; several modules are add+list only |
+| **eskoofy-php-app** (raw PHP) | **High** — near 1:1 web UI + full DB schema | P1: API/admin surface reduced, push-notifications + scheduler missing, 5 model classes absent, ~34 legacy views orphaned |
+| **eskoofy-wp-theme** (WP) | **Medium** — page inventory ~80% matched, but "dashboard-lite" | P1: finance/RBAC/ledger/budgets/admission-test/notifications subsystems absent; several modules are add+list only |
 
 **Headline positives (parity that holds):**
-- All **317 app Blade views exist byte-identical in eskoofy-php** (MD5, 0 differences).
+- All **317 app Blade views exist byte-identical in eskoofy-php-app** (MD5, 0 differences).
 - php DB schema mirrors the app: **98 tables vs 101** (the 3 gap tables are Laravel framework
   tables: `cache`-family / framework internals; all product tables present).
 - Theme public-site templates match the app `site.*` route set, and the 7 recently rebuilt
@@ -34,7 +34,7 @@ facts are exact; *behavioral parity* verdicts are code-inspection based.
 
 ---
 
-## Part A — eskoofy-php vs eskoofy-app
+## Part A — eskoofy-php-app vs eskoofy-laravel-app
 
 ### A1. Views (byte parity) — ✅ PASS with over-delivery
 
@@ -120,7 +120,7 @@ behind the API surface.
 
 ---
 
-## Part B — eskoofy-theme (WP) vs eskoofy-app
+## Part B — eskoofy-wp-theme (WP) vs eskoofy-laravel-app
 
 ### B1. Admin pages
 
@@ -231,7 +231,7 @@ different component stack. [P3]
 4. **[P1] php model gaps** — add Course/Grade/UserWidgetPreference models to surface
    grades/courses.
 5. **[P2] Dead php views** — prune legacy snake_case views (or archive to
-   `eskoofy-php/archive/dashboard/`), then lock parity with an inventory test.
+   `eskoofy-php-app/archive/dashboard/`), then lock parity with an inventory test.
 6. **[P2] Theme sidebar/name alignment** — align section keys with app sidebar groups
    (per AGENTS theme-parity rule), resolve guardians/id-cards naming.
 7. Every fix ships through `build/propagate/propagate-feature.sh` with the app
@@ -252,14 +252,14 @@ def m(root):
             p=os.path.join(dp,f); r=os.path.relpath(p,root)
             o[r]=hashlib.md5(open(p,'rb').read()).hexdigest()
     return o
-a=m('eskoofy-app/resources/views'); p=m('eskoofy-php/resources/views')
+a=m('eskoofy-laravel-app/resources/views'); p=m('eskoofy-php-app/resources/views')
 print('identical',sum(1 for k in a if k in p and a[k]==p[k]),'/',len(a))
 print('php-only',len(set(p)-set(a)))
 PY
 # app route inventory
-cd eskoofy-app && php artisan route:list --json > /tmp/routes.json
+cd eskoofy-laravel-app && php artisan route:list --json > /tmp/routes.json
 # theme page slugs
-rg -n "'esk-[a-z-]+'" eskoofy-theme/inc/front-dashboard.php
+rg -n "'esk-[a-z-]+'" eskoofy-wp-theme/inc/front-dashboard.php
 # theme tables
-rg -o "CREATE TABLE.*?\`([a-z_]+)\`" eskoofy-theme/inc/database.php
+rg -o "CREATE TABLE.*?\`([a-z_]+)\`" eskoofy-wp-theme/inc/database.php
 ```

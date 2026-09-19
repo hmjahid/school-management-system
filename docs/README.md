@@ -53,7 +53,7 @@ docs/
 - `COMPETITIVE-ANALYSIS.md` — research on international school-management software sites
   (homepage/pricing/social-proof patterns + recommendations for the branding site)
 - `BRANDING-SITE-IMPROVEMENTS.md` — actionable implementation suggestions for
-  `eskoofy-website/` (pricing toggles, role-based feature showcase, trust/comparison pages,
+  `eskoofy-branding-website/` (pricing toggles, role-based feature showcase, trust/comparison pages,
   conversion CTAs) mapped to the existing pages
 - `NODEJS-VARIANT.md` — feasibility + stack recommendation for a proposed 4th product
   (`eskoofy-node`, NestJS + Next.js) and the "website is branding, not a product" framing
@@ -74,7 +74,7 @@ docs/
 
 ## Quality (`quality/`)
 
-- `QA-PARITY-REPORT.md` — senior-QA audit: eskoofy-php & eskoofy-theme parity vs the
+- `QA-PARITY-REPORT.md` — senior-QA audit: eskoofy-php-app & eskoofy-wp-theme parity vs the
   Laravel app (views byte-parity, routes, schema, services, theme page/sidebar/depth gaps)
 - `QA-UI-FRONTEND-REPORT.md` — senior-QA UI/frontend audit: theme vs app dashboard
   (sidebar item order + accordion sub-items, shell UI/UX/styles/mobile) + public frontend

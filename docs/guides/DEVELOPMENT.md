@@ -13,10 +13,10 @@ port so you can run them **side by side** at the same time.
 
 | Component | Port | Entry point | Stack |
 |---|---|---|---|
-| `eskoofy-app/` (Laravel) | **8000** | `php artisan serve` | Laravel 12, Blade, Vite/Tailwind 4 |
-| `eskoofy-php/` (raw PHP) | **8051** | `php -S ... -t public` | Native PHP + PDO/MySQL |
-| `eskoofy-website/` (marketing + license server) | **8011** | `php -S ... -t public` | Raw PHP, no Composer at runtime |
-| `eskoofy-theme/` (WordPress) | **8080** | Docker harness (`docker/theme-test`) | WordPress + Apache, bind-mounted theme |
+| `eskoofy-laravel-app/` (Laravel) | **8000** | `php artisan serve` | Laravel 12, Blade, Vite/Tailwind 4 |
+| `eskoofy-php-app/` (raw PHP) | **8051** | `php -S ... -t public` | Native PHP + PDO/MySQL |
+| `eskoofy-branding-website/` (marketing + license server) | **8011** | `php -S ... -t public` | Raw PHP, no Composer at runtime |
+| `eskoofy-wp-theme/` (WordPress) | **8080** | Docker harness (`docker/theme-test`) | WordPress + Apache, bind-mounted theme |
 
 Ports are fixed by convention so nothing clashes with the app's default 8000.
 Keep `APP_URL` in each `.env` in sync with the port you actually run on.
@@ -35,12 +35,12 @@ Keep `APP_URL` in each `.env` in sync with the port you actually run on.
 The Laravel app can also run on **SQLite** (no DB server needed) — that is its
 default dev database.
 
-## 1. eskoofy-app (Laravel 12) — port 8000
+## 1. eskoofy-laravel-app (Laravel 12) — port 8000
 
 The main product and where most work happens.
 
 ```bash
-cd eskoofy-app
+cd eskoofy-laravel-app
 composer install
 npm install
 cp .env.example .env
@@ -77,13 +77,13 @@ Commands: `composer test` (PHPUnit), `./vendor/bin/pint --test` (style check),
 > **MySQL variant:** set `DB_CONNECTION=mysql`, `DB_HOST`, `DB_DATABASE`,
 > `DB_USERNAME`, `DB_PASSWORD` in `.env`, then run `php artisan migrate:fresh --seed`.
 
-## 2. eskoofy-php (raw PHP port) — port 8051
+## 2. eskoofy-php-app (raw PHP port) — port 8051
 
 Feature-equivalent port in **native PHP with no framework at runtime**; needs a
 MySQL database. No Composer is needed to run it.
 
 ```bash
-cd eskoofy-php
+cd eskoofy-php-app
 composer install                      # dev tooling only (PHPUnit)
 cp .env.example .env                  # set DB_HOST / DB_DATABASE / DB_USERNAME / DB_PASSWORD
 mysql -u root -p < database/schema.sql
@@ -102,13 +102,13 @@ everything through it on Apache).
 
 Tests (dev-only): `composer test`.
 
-## 3. eskoofy-website (marketing + license server) — port 8011
+## 3. eskoofy-branding-website (marketing + license server) — port 8011
 
 The **branding site + license server** — markets and sells the 3 products. Raw
 PHP, no Composer at runtime. Needs its own MySQL database.
 
 ```bash
-cd eskoofy-website
+cd eskoofy-branding-website
 cp .env.example .env                  # set DB_* for the licensing DB (eskoofy_website)
 mysql -u root -p eskoofy_website < database/schema.sql
 php -S 127.0.0.1:8011 -t public
@@ -124,15 +124,15 @@ Open `http://127.0.0.1:8011`. Admin seed user:
 `admin@eskoofy.com` / `admin123` (change in production). The site is always
 the `int` variant (English/USD/UTC) with an `en`/`bn` language switcher;
 `GEO_LANG_ENABLED` / `GEO_IP_API_URL` control the location-based default
-language (see `eskoofy-website/README.md`).
+language (see `eskoofy-branding-website/README.md`).
 
 Tests: `composer test`.
 
-## 4. eskoofy-theme (WordPress) — port 8080
+## 4. eskoofy-wp-theme (WordPress) — port 8080
 
 The theme runs inside WordPress. The fastest local environment is the
 **Docker harness** in [`docker/theme-test/`](../../docker/theme-test/README.md),
-which bind-mounts `eskoofy-theme/` into WordPress + MariaDB so every edit is
+which bind-mounts `eskoofy-wp-theme/` into WordPress + MariaDB so every edit is
 visible on refresh (no rebuild step).
 
 ```bash
@@ -165,14 +165,14 @@ docker compose down -v                          # full tear-down (destroys DB)
 docker compose down -v --rmi local && docker compose up -d   # rebuild from scratch
 ```
 
-Without Docker: copy `eskoofy-theme/` into `wp-content/themes/eskoofy`, activate
+Without Docker: copy `eskoofy-wp-theme/` into `wp-content/themes/eskoofy`, activate
 it in the WordPress admin, then **Settings → Eskoofy** to finish setup. Custom DB
 tables are created automatically on activation. Lint the theme with
-`cd eskoofy-theme && composer install && composer run lint`.
+`cd eskoofy-wp-theme && composer install && composer run lint`.
 
 ## Database via Docker (optional)
 
-`eskoofy-php` and `eskoofy-website` require MySQL. Instead of installing a DB
+`eskoofy-php-app` and `eskoofy-branding-website` require MySQL. Instead of installing a DB
 server locally, run one in a container and point the component's `.env` `DB_*`
 keys at it. **A ready-made container already exists on this machine** —
 `esk-mariadb` (mariadb 11, host port **3307**, user `esk` / `eskpw`) — holding
@@ -182,7 +182,7 @@ both the `eskoofy_website` and `eskoofy_php` databases:
 docker start esk-mariadb        # DB on 127.0.0.1:3307
 ```
 
-The `eskoofy-website` and `eskoofy-php` `.env` files are already configured to
+The `eskoofy-branding-website` and `eskoofy-php-app` `.env` files are already configured to
 use it. For a fresh container elsewhere:
 
 ```bash
@@ -202,7 +202,7 @@ remaining `eskoofy` / `esk_*` tables):
 docker exec -i eskoofy-mariadb mariadb -uroot -proot -e \
   "CREATE DATABASE IF NOT EXISTS eskoofy;"
 docker exec -i eskoofy-mariadb mariadb -uroot -proot eskoofy_website \
-  < eskoofy-website/database/schema.sql
+  < eskoofy-branding-website/database/schema.sql
 ```
 
 Existing Docker setups in this repo + this machine:
@@ -211,21 +211,21 @@ Existing Docker setups in this repo + this machine:
 |---|---|---|---|---|
 | **Local dev DB (this machine)** | `esk-mariadb` | MariaDB 11 | `3307` | `eskoofy_website`, `eskoofy_php` (user `esk`/`eskpw`) |
 | `docker/theme-test/docker-compose.yml` | `db` (theme harness) | MariaDB 11.4 | internal (compose network) | `wordpress` |
-| `eskoofy-app/docker-compose.yml` | `db` (app prod-like) | MySQL 8.0 | `33061` | `school_db` |
+| `eskoofy-laravel-app/docker-compose.yml` | `db` (app prod-like) | MySQL 8.0 | `33061` | `school_db` |
 
-The app's compose (`cd eskoofy-app && docker compose up -d`) also gives you a
-ready MySQL 8 at `127.0.0.1:33061` for `eskoofy-php`/`eskoofy-website` —
+The app's compose (`cd eskoofy-laravel-app && docker compose up -d`) also gives you a
+ready MySQL 8 at `127.0.0.1:33061` for `eskoofy-php-app`/`eskoofy-branding-website` —
 set `DB_PORT=33061` in their `.env`.
 
 ## Database summary
 
 | Component | Default DB | Create command |
 |---|---|---|
-| `eskoofy-app` | SQLite (`database/database.sqlite`) | `php artisan migrate:fresh --seed` |
-| `eskoofy-app` (MySQL) | `eskoofy` (set `DB_*` in `.env`) | `php artisan migrate:fresh --seed` |
-| `eskoofy-php` | `eskoofy` | `mysql -u root -p < database/schema.sql` + `php database/seed_demo.php` |
-| `eskoofy-website` | `eskoofy_website` | `mysql -u root -p eskoofy_website < database/schema.sql` |
-| `eskoofy-theme` | MariaDB (Docker) | auto-created on theme activation (`docker/theme-test`) |
+| `eskoofy-laravel-app` | SQLite (`database/database.sqlite`) | `php artisan migrate:fresh --seed` |
+| `eskoofy-laravel-app` (MySQL) | `eskoofy` (set `DB_*` in `.env`) | `php artisan migrate:fresh --seed` |
+| `eskoofy-php-app` | `eskoofy` | `mysql -u root -p < database/schema.sql` + `php database/seed_demo.php` |
+| `eskoofy-branding-website` | `eskoofy_website` | `mysql -u root -p eskoofy_website < database/schema.sql` |
+| `eskoofy-wp-theme` | MariaDB (Docker) | auto-created on theme activation (`docker/theme-test`) |
 
 ## Running everything at once
 
@@ -233,9 +233,9 @@ Use four terminals (one per component):
 
 | Terminal | Command | URL |
 |---|---|---|
-| 1 | `cd eskoofy-app && composer dev` | `http://127.0.0.1:8000` |
-| 2 | `cd eskoofy-php && php -S localhost:8051 -t public` | `http://127.0.0.1:8051` |
-| 3 | `cd eskoofy-website && php -S 127.0.0.1:8011 -t public` | `http://127.0.0.1:8011` |
+| 1 | `cd eskoofy-laravel-app && composer dev` | `http://127.0.0.1:8000` |
+| 2 | `cd eskoofy-php-app && php -S localhost:8051 -t public` | `http://127.0.0.1:8051` |
+| 3 | `cd eskoofy-branding-website && php -S 127.0.0.1:8011 -t public` | `http://127.0.0.1:8011` |
 | 4 | `cd docker/theme-test && docker compose up -d` | `http://localhost:8080` |
 
 ## Demo credentials
@@ -257,11 +257,11 @@ All products share the same demo accounts. Canonical reference:
 ## Verifying your setup
 
 ```bash
-cd eskoofy-app && composer test                # Laravel PHPUnit suite
-cd eskoofy-app && ./vendor/bin/pint --test     # Laravel code style
-cd eskoofy-php && composer test                # raw-PHP suite (dev-only)
-cd eskoofy-website && composer test            # website suite (DB-free)
-cd eskoofy-theme && composer run lint          # PHPCS (needs composer install)
+cd eskoofy-laravel-app && composer test                # Laravel PHPUnit suite
+cd eskoofy-laravel-app && ./vendor/bin/pint --test     # Laravel code style
+cd eskoofy-php-app && composer test                # raw-PHP suite (dev-only)
+cd eskoofy-branding-website && composer test            # website suite (DB-free)
+cd eskoofy-wp-theme && composer run lint          # PHPCS (needs composer install)
 cd build && ./export.sh app bd                 # build-box export smoke test
 ```
 
@@ -274,7 +274,7 @@ push/PR, plus exports both BD/INT variants and smoke-tests the artifacts.
   and mirror it in the component's `APP_URL` in `.env`.
 - **App shows weak-password / appears in production mode** — the seeder refuses
   weak passwords when `APP_ENV=production`; keep `APP_ENV=local` for dev.
-- **Blade templates render stale in `eskoofy-php`** — after changing the Blade
+- **Blade templates render stale in `eskoofy-php-app`** — after changing the Blade
   *compiler* (not a template) delete `storage/framework/views/` cache and re-touch
   the templates to force recompilation.
 - **Theme changes not visible** — hard-refresh (`Ctrl-Shift-R`) or append a

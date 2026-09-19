@@ -9,11 +9,11 @@
 #   ./build/export.sh php int
 #   ./build/export.sh theme int
 #
-# Products: app (eskoofy-app, Laravel), php (eskoofy-php, raw PHP),
-#           theme (eskoofy-theme, WordPress), website (eskoofy-website, raw PHP).
+# Products: app (eskoofy-laravel-app, Laravel), php (eskoofy-php-app, raw PHP),
+#           theme (eskoofy-wp-theme, WordPress), website (eskoofy-branding-website, raw PHP).
 #
-# Output: build/dist/eskoofy-<product>-<variant>.zip  + the raw tree in
-#         build/artifacts/ for inspection.
+# Output: build/dist/<folder>-<variant>.zip  (e.g. eskoofy-laravel-app-bd.zip)
+#         + the raw tree in build/artifacts/ for inspection.
 #
 set -euo pipefail
 
@@ -41,9 +41,9 @@ echo "==> exporting $PRODUCT [$VARIANT — $PROFILE_LABEL]"
 
 case "$PRODUCT" in
   app)
-    SRC="$ROOT/eskoofy-app"
+    SRC="$ROOT/eskoofy-laravel-app"
     [ -d "$SRC" ] || { echo "error: $SRC not found"; exit 1; }
-    OUT="$ARTIFACTS/eskoofy-app-$VARIANT"
+    OUT="$ARTIFACTS/eskoofy-laravel-app-$VARIANT"
     STAGE="$OUT-stage"
 
     rm -rf "$STAGE" "$OUT"
@@ -96,9 +96,9 @@ case "$PRODUCT" in
     mv "$STAGE" "$OUT"
     ;;
   theme)
-    SRC="$ROOT/eskoofy-theme"
+    SRC="$ROOT/eskoofy-wp-theme"
     [ -d "$SRC" ] || { echo "error: $SRC not found"; exit 1; }
-    OUT="$ARTIFACTS/eskoofy-theme-$VARIANT"
+    OUT="$ARTIFACTS/eskoofy-wp-theme-$VARIANT"
 
     rm -rf "$OUT"
     mkdir -p "$OUT"
@@ -110,9 +110,9 @@ case "$PRODUCT" in
     fi
     ;;
   php)
-    SRC="$ROOT/eskoofy-php"
+    SRC="$ROOT/eskoofy-php-app"
     [ -d "$SRC" ] || { echo "error: $SRC not found"; exit 1; }
-    OUT="$ARTIFACTS/eskoofy-php-$VARIANT"
+    OUT="$ARTIFACTS/eskoofy-php-app-$VARIANT"
     STAGE="$OUT-stage"
 
     rm -rf "$STAGE" "$OUT"
@@ -133,7 +133,7 @@ case "$PRODUCT" in
         --exclude 'storage/' \
         "$SRC/" "$STAGE/"
 
-    # Apply variant profile to .env. eskoofy-php reads APP_TIMEZONE (not TIMEZONE),
+    # Apply variant profile to .env. eskoofy-php-app reads APP_TIMEZONE (not TIMEZONE),
     # so translate the profile's generic TIMEZONE key.
     cp "$STAGE/.env.example" "$STAGE/.env"
 
@@ -167,9 +167,9 @@ case "$PRODUCT" in
   website)
     # The licensing site is English-only / USD / UTC in BOTH variants, so it is
     # always exported as `int`. Passing `bd` simply produces the int artifact.
-    SRC="$ROOT/eskoofy-website"
+    SRC="$ROOT/eskoofy-branding-website"
     [ -d "$SRC" ] || { echo "error: $SRC not found"; exit 1; }
-    OUT="$ARTIFACTS/eskoofy-website-$VARIANT"
+    OUT="$ARTIFACTS/eskoofy-branding-website-$VARIANT"
     STAGE="$OUT-stage"
 
     rm -rf "$STAGE" "$OUT"
@@ -215,8 +215,9 @@ case "$PRODUCT" in
     ;;
 esac
 
-# Zip it.
-ZIP="$DIST/eskoofy-$PRODUCT-$VARIANT.zip"
+# Zip it. Name the archive after the exported folder (e.g. eskoofy-laravel-app-bd.zip)
+# so dist artifact names track the product folder names.
+ZIP="$DIST/$(basename "$OUT").zip"
 rm -f "$ZIP"
 ( cd "$ARTIFACTS" && zip -rq "$ZIP" "$(basename "$OUT")" )
 

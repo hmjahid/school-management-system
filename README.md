@@ -5,11 +5,12 @@
 [![PHP](https://img.shields.io/badge/PHP-8.2-777BB4?logo=php&logoColor=white)](https://php.net/)
 [![WordPress](https://img.shields.io/badge/WordPress-6.x-3E5881?logo=wordpress&logoColor=white)](https://wordpress.org/)
 
-Eskoofy is a full-featured school management software delivered as a **3-product
-monorepo**: a Laravel 12 application (`eskoofy-app`), a framework-free raw PHP version
-(`eskoofy-php`) and a WordPress theme (`eskoofy-theme`). Each product is a
+Eskoofy is a full-featured school management software delivered as a **4-product
+monorepo**: a Laravel 12 application (`eskoofy-laravel-app`), a framework-free raw PHP version
+(`eskoofy-php-app`), a WordPress theme (`eskoofy-wp-theme`) and a single-architecture Node.js
+variant (`eskoofy-nodejs-app`, a phased port of the app). Each product is a
 feature-equivalent port of the same codebase, sharing one BD/INT build-time variant strategy.
-The **branding website + license server** (`eskoofy-website`) markets and sells the
+The **branding website + license server** (`eskoofy-branding-website`) markets and sells the
 products — it is **not a product** itself.
 
 > **BD vs INT**: `bd` is the current Bangladeshi version (Bengali + English, ministry
@@ -21,17 +22,18 @@ products — it is **not a product** itself.
 
 | Folder | Product | Stack | Status |
 |--------|---------|-------|--------|
-| `eskoofy-app/` | School management software | Laravel 12, Blade, Tailwind CSS | Active — most work happens here ([`AGENTS.md`](eskoofy-app/AGENTS.md)) |
-| `eskoofy-php/` | Raw PHP port (no framework) | Native PHP + PDO/MySQL | Deferred — completed port on hold (`WORKPLAN.md` Phase 6, gate 0.2) ([`AGENTS.md`](eskoofy-php/AGENTS.md)) |
-| `eskoofy-theme/` | WordPress theme | WP hooks, shortcodes, REST, CPTs | Complete — active sync with app ([`AGENTS.md`](eskoofy-theme/AGENTS.md)) |
+| `eskoofy-laravel-app/` | School management software | Laravel 12, Blade, Tailwind CSS | Active — most work happens here ([`AGENTS.md`](eskoofy-laravel-app/AGENTS.md)) |
+| `eskoofy-php-app/` | Raw PHP port (no framework) | Native PHP + PDO/MySQL | Deferred — completed port on hold (`WORKPLAN.md` Phase 6, gate 0.2) ([`AGENTS.md`](eskoofy-php-app/AGENTS.md)) |
+| `eskoofy-wp-theme/` | WordPress theme | WP hooks, shortcodes, REST, CPTs | Complete — active sync with app ([`AGENTS.md`](eskoofy-wp-theme/AGENTS.md)) |
+| `eskoofy-nodejs-app/` | Node.js clone of the app (107 tables, 585 routes, CRUD + public site, i18n, API) | Next.js App Router, Prisma, Tailwind, Vitest | Clone functional (schema/routes/sidebar/CRUD/site verified end to end); pixel-level Blade parity + integrations pending — [`PORTING-STATUS.md`](eskoofy-nodejs-app/docs/PORTING-STATUS.md) ([`AGENTS.md`](eskoofy-nodejs-app/AGENTS.md)) |
 
 ### Branding website (not a product)
 
 | Folder | Purpose | Stack | Status |
 |--------|---------|-------|--------|
-| `eskoofy-website/` | Marketing/branding site + **license server** — sells the products | Raw PHP (app Core), en/bn, PWA | Complete — int-only, USD pricing ([`AGENTS.md`](eskoofy-website/AGENTS.md)) |
+| `eskoofy-branding-website/` | Marketing/branding site + **license server** — sells the products | Raw PHP (app Core), en/bn, PWA | Complete — int-only, USD pricing ([`AGENTS.md`](eskoofy-branding-website/AGENTS.md)) |
 
-> **Feature consistency:** all 3 products ship the **same feature set** (+ sales copy on
+> **Feature consistency:** all products ship the **same feature set** (+ sales copy on
 > the branding website). Default scope for any feature change = **all products**,
 > confirmed before implementing — see [`docs/design/FEATURE-PROPAGATION.md`](docs/design/FEATURE-PROPAGATION.md).
 
@@ -64,10 +66,11 @@ products — it is **not a product** itself.
 
 ```
 ├── AGENTS.md             Agent conventions (root-level — read first)
-├── eskoofy-app/          Laravel 12 app (bd/int profiles via config/eskoolfy.php)
-├── eskoofy-php/          Raw PHP port — no Composer at runtime, shared hosting
-├── eskoofy-theme/        WordPress theme — plugin-theme hybrid
-├── eskoofy-website/      Branding site + license server (NOT a product) — int-only
+├── eskoofy-laravel-app/          Laravel 12 app (bd/int profiles via config/eskoolfy.php)
+├── eskoofy-php-app/          Raw PHP port — no Composer at runtime, shared hosting
+├── eskoofy-wp-theme/        WordPress theme — plugin-theme hybrid
+├── eskoofy-nodejs-app/      Node.js variant — Next.js App Router + Prisma (phased port)
+├── eskoofy-branding-website/      Branding site + license server (NOT a product) — int-only
 ├── build/                BD/INT export box + feature-propagation gate (export.sh, propagate/)
 ├── docker/               Dev tooling (theme-test WordPress stack)
 ├── docs/                 Docs index + guides/operations/design/features/quality/planning/prompts/notes (map: docs/README.md)
@@ -88,15 +91,15 @@ side by side:
 
 | Component | Port | Entry |
 |---|---|---|
-| `eskoofy-app` | 8000 | `php artisan serve` |
-| `eskoofy-php` | 8051 | `php -S localhost:8051 -t public` |
-| `eskoofy-website` | 8011 | `php -S 127.0.0.1:8011 -t public` |
-| `eskoofy-theme` | 8080 | Docker harness (`docker/theme-test`) |
+| `eskoofy-laravel-app` | 8000 | `php artisan serve` |
+| `eskoofy-php-app` | 8051 | `php -S localhost:8051 -t public` |
+| `eskoofy-branding-website` | 8011 | `php -S 127.0.0.1:8011 -t public` |
+| `eskoofy-wp-theme` | 8080 | Docker harness (`docker/theme-test`) |
 
-### eskoofy-app (Laravel)
+### eskoofy-laravel-app (Laravel)
 
 ```bash
-cd eskoofy-app
+cd eskoofy-laravel-app
 composer install
 npm install
 cp .env.example .env && php artisan key:generate
@@ -109,10 +112,10 @@ Open **http://127.0.0.1:8000** → `/login` → `/dashboard`. Admin:
 Student/guardian portals: `/student/login`, `/guardian/login`. API: `/api/v1`.
 Individual servers: `php artisan serve` + `npm run dev`.
 
-### eskoofy-php (raw PHP — port 8051)
+### eskoofy-php-app (raw PHP — port 8051)
 
 ```bash
-cd eskoofy-php
+cd eskoofy-php-app
 cp .env.example .env        # set DB_* credentials
 mysql -u root -p < database/schema.sql
 php database/seed_demo.php  # optional demo accounts (idempotent)
@@ -124,10 +127,10 @@ dev-only PHPUnit suite. Need a MySQL without installing it? Run it in a Docker
 container — see *Database via Docker* in
 [`docs/guides/DEVELOPMENT.md`](docs/guides/DEVELOPMENT.md).
 
-### eskoofy-website (marketing + license server — port 8011)
+### eskoofy-branding-website (marketing + license server — port 8011)
 
 ```bash
-cd eskoofy-website
+cd eskoofy-branding-website
 cp .env.example .env        # set DB_* for the licensing DB
 mysql -u root -p eskoofy_website < database/schema.sql
 php -S 127.0.0.1:8011 -t public
@@ -142,17 +145,17 @@ web container. See the *Database via Docker* section in
 Single international (int) site: USD pricing, en/bn language switcher, PWA shell,
 license management API at `/api/v1`. Admin seed: `admin@eskoofy.com` / `admin123`.
 
-### eskoofy-theme (WordPress — port 8080)
+### eskoofy-wp-theme (WordPress — port 8080)
 
 ```bash
 cd docker/theme-test
-docker compose up -d        # installs WP + activates theme, bind-mounts eskoofy-theme/
+docker compose up -d        # installs WP + activates theme, bind-mounts eskoofy-wp-theme/
 ```
 
 Open **http://localhost:8080** (login at `/login/`, dashboard at `/dashboard/`).
 Without Docker: copy the theme into `wp-content/themes/eskoofy`, activate it, then
 Settings → Eskoofy. Custom DB tables are created automatically on activation. Lint with
-`cd eskoofy-theme && composer install && composer run lint`.
+`cd eskoofy-wp-theme && composer install && composer run lint`.
 
 ### Build-box export
 
@@ -181,10 +184,10 @@ All products share the same demo accounts — canonical list in
 
 | Product | Command |
 |---------|---------|
-| Laravel | `cd eskoofy-app && composer test` (PHPUnit, 923 tests) + `./vendor/bin/pint --test` |
-| Raw PHP | `cd eskoofy-php && composer test` (PHPUnit, 299 tests / 604 assertions) |
-| WordPress theme | `cd eskoofy-theme && composer run lint` (PHPCS) |
-| Website | `cd eskoofy-website && composer test` (PHPUnit, 79 tests / 214 assertions) |
+| Laravel | `cd eskoofy-laravel-app && composer test` (PHPUnit, 923 tests) + `./vendor/bin/pint --test` |
+| Raw PHP | `cd eskoofy-php-app && composer test` (PHPUnit, 299 tests / 604 assertions) |
+| WordPress theme | `cd eskoofy-wp-theme && composer run lint` (PHPCS) |
+| Website | `cd eskoofy-branding-website && composer test` (PHPUnit, 79 tests / 214 assertions) |
 
 GitHub Actions (`.github/workflows/ci.yml`) runs the Laravel test suite, theme
 linting, PHP + website tests, and export smoke tests for the app/theme/php/website

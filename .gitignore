@@ -9,18 +9,18 @@ Thumbs.db
 # Environment files (never commit secrets)
 .env
 .env.local
-eskoofy-php/.env
-eskoofy-app/.env
+eskoofy-php-app/.env
+eskoofy-laravel-app/.env
 
 # Vendor / dependency dirs (already excluded per-product, belt + braces)
 **/vendor/
 
 # Uploaded user files
-eskoofy-php/public/uploads/
-eskoofy-theme/uploads/
+eskoofy-php-app/public/uploads/
+eskoofy-wp-theme/uploads/
 
 # Generated backups
-eskoofy-php/storage/
+eskoofy-php-app/storage/
 
 # AI / tool agent configs (local-only, never commit)
 .commandcode/

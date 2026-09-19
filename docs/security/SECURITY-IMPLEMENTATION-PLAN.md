@@ -38,13 +38,13 @@ Rules that apply to every change:
 ## Phase 1 — Critical: authorization & license-server abuse (highest ROI)
 
 ### 1.1 php dashboard role/permission enforcement (P1) — **Critical**
-Scope: `eskoofy-php`.
+Scope: `eskoofy-php-app`.
 - Mirror the app's route middleware model: implement route-group middleware
   `Auth` + `Role`/`permission` in `app/Core/Router.php` (middleware already
   dispatched at `Router.php:111` — add named resolvers for `auth`, `role:*`,
   `permission:*` like the theme's `esk_role_caps` map or the app's permission matrix).
 - Apply `role:admin` / `permission:*` to every `/dashboard` group + submodule group
-  in `routes/web.php`, matching `eskoofy-app/routes/dashboard.php` group boundaries
+  in `routes/web.php`, matching `eskoofy-laravel-app/routes/dashboard.php` group boundaries
   (lines 177-235).
 - Belt-and-braces: add `Auth::requireRole(...)` (already exists) to sensitive
   controller actions (users, settings, fees, payroll, backups, bulk).
@@ -52,7 +52,7 @@ Scope: `eskoofy-php`.
   `/dashboard/settings`, `/dashboard/backup`; an `admin` passes.
 
 ### 1.2 License server: rate limit + auth (W1/W2/W3) — **Critical**
-Scope: `eskoofy-website`.
+Scope: `eskoofy-branding-website`.
 - Wire `ThrottleMiddleware` to `/api/v1/licenses/{activate,validate,deactivate}`
   (IP-based, strict — e.g. 5/min) and to `/login` (e.g. 10/5min, lockout).
 - Add optional product-secret header (`X-Product-Secret`) required for activation;
@@ -68,12 +68,12 @@ Scope: `eskoofy-website`.
 
 ### 2.1 php payment routes auth (P2) — **High**
 - Add `Auth`/`requireAuth` to `/payments/initiate`, `/payments/status/{id}`,
-  `/payments/receipts/{id}` in `eskoofy-php/routes/web.php` (parity with app lines 47-49).
+  `/payments/receipts/{id}` in `eskoofy-php-app/routes/web.php` (parity with app lines 47-49).
 - Mirror any controller-side guard too.
 
 ### 2.2 Remove default/weak credentials (P7/P8/R1) — **High**
-- `eskoofy-php/database/schema.sql`: remove the seeded super_admin (`admin@eskoofy.com`/“password”) or replace with a random generated password + mandatory first-login change. Ship a dedicated `seed_admin` script instead.
-- `eskoofy-php/database/seed_demo.php` + theme `inc/demo-content.php`: gate all seeding behind a non-production flag (`APP_ENV`/WP `ESK_DEMO=1`); strengthen passwords; keep doc-credentials file clearly demo-only.
+- `eskoofy-php-app/database/schema.sql`: remove the seeded super_admin (`admin@eskoofy.com`/“password”) or replace with a random generated password + mandatory first-login change. Ship a dedicated `seed_admin` script instead.
+- `eskoofy-php-app/database/seed_demo.php` + theme `inc/demo-content.php`: gate all seeding behind a non-production flag (`APP_ENV`/WP `ESK_DEMO=1`); strengthen passwords; keep doc-credentials file clearly demo-only.
 - `docker/theme-test/docker-compose.yml` + README: fail fast if `WP_ADMIN_PASSWORD` is unset or `admin`; default `WP_DEBUG=0`.
 
 ### 2.3 Theme per-module capability gating (T1) — **High**
@@ -86,10 +86,10 @@ Scope: `eskoofy-website`.
 ## Phase 3 — Medium: session/CSRF/header hardening (all products)
 
 ### 3.1 Session-cookie flags (G2)
-- `eskoofy-php`: in `app/Core/bootstrap.php` (and `Session.php` constructor) call
+- `eskoofy-php-app`: in `app/Core/bootstrap.php` (and `Session.php` constructor) call
   `session_set_cookie_params(['lifetime'=>0,'path'=>'/','secure'=><env prod>,'httponly'=>true,'samesite'=>'Lax'])` before `session_start()`.
-- `eskoofy-website`: same in its `bootstrap.php`.
-- `eskoofy-app`: ensure prod `.env` sets `SESSION_SECURE_COOKIE=true`, `SESSION_HTTP_ONLY=true`, `SESSION_SAME_SITE=lax` (document in `.env.production.example`).
+- `eskoofy-branding-website`: same in its `bootstrap.php`.
+- `eskoofy-laravel-app`: ensure prod `.env` sets `SESSION_SECURE_COOKIE=true`, `SESSION_HTTP_ONLY=true`, `SESSION_SAME_SITE=lax` (document in `.env.production.example`).
 
 ### 3.2 Constant-time CSRF (G3)
 - php + website bootstrap: replace `$token !== $_SESSION[...]` with
@@ -172,8 +172,8 @@ Scope: `eskoofy-website`.
 
 Run the full verification matrix from `SECURITY-AUDIT.md` §7:
 - Re-run `composer audit` in all 4 products → clean.
-- Re-run all test suites: `cd eskoofy-app && composer test`; `cd eskoofy-php && composer test`;
-  `cd eskoofy-website && composer test`; `cd eskoofy-theme && composer run lint`.
+- Re-run all test suites: `cd eskoofy-laravel-app && composer test`; `cd eskoofy-php-app && composer test`;
+  `cd eskoofy-branding-website && composer test`; `cd eskoofy-wp-theme && composer run lint`.
 - Re-verify php↔app byte-identical views/langs (`diff -qr`).
 - Manual pentest smoke: unauthorized role reaches nothing admin; license brute-force
   returns 429; session cookie shows HttpOnly+SameSite; headers present.

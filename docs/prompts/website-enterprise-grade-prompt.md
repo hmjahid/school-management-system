@@ -10,16 +10,16 @@ Some gentle notes before you start:
   be clear and welcoming for a school head or an office manager — not just for
   developers. Avoid jargon and always explain benefits, not just features.
 - **Keep it consistent.** Match the existing code style, the current Tailwind
-  design, and the golden rules in `eskoofy-website/AGENTS.md`. The site is the
+  design, and the golden rules in `eskoofy-branding-website/AGENTS.md`. The site is the
   `int` variant, always in English, with a বাংলা (`bn`) language switcher.
 - **Zero new runtime dependencies.** No Composer packages at runtime — the site
   must keep working on plain shared hosting. Everything we build must use the
-  existing zero-dependency mini framework in `eskoofy-website/app/Core/`.
-- **Keep tests green.** Run `composer test` from inside `eskoofy-website/`
+  existing zero-dependency mini framework in `eskoofy-branding-website/app/Core/`.
+- **Keep tests green.** Run `composer test` from inside `eskoofy-branding-website/`
   (`./vendor/bin/pint --test` too if you touch PHP style) and make sure nothing
   breaks before you finish.
 - **Always test your work.** Start the dev server (`php -S 127.0.0.1:8011 -t public`
-  inside `eskoofy-website/`) and open the pages you changed to confirm they look
+  inside `eskoofy-branding-website/`) and open the pages you changed to confirm they look
   and work correctly.
 
 Here is everything we would love you to build.

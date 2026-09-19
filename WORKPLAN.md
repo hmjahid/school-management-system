@@ -8,10 +8,11 @@ Turn this single Laravel repo into a 3-product monorepo:
 
 | Product | Folder | Stack | Variants |
 |---|---|---|---|
-| Management software (current code) | `eskoofy-app/` | Laravel 12 | `bd` (current), `int` (English-only) |
-| Raw PHP version | `eskoofy-php/` | Raw PHP (no framework) | `bd`, `int` — **gated** (Phase 5) |
-| WordPress theme | `eskoofy-theme/` | WP theme | `bd`, `int` (`.po` translations) |
-| Marketing/branding site | `eskoofy-website/` | TBD | single (future, non-blocking) |
+| Management software (current code) | `eskoofy-laravel-app/` | Laravel 12 | `bd` (current), `int` (English-only) |
+| Raw PHP version | `eskoofy-php-app/` | Raw PHP (no framework) | `bd`, `int` — **gated** (Phase 5) |
+| Node.js variant | `eskoofy-nodejs-app/` | Next.js (App Router) + Prisma | `bd`, `int` — in progress (Phase 9) |
+| WordPress theme | `eskoofy-wp-theme/` | WP theme | `bd`, `int` (`.po` translations) |
+| Marketing/branding site | `eskoofy-branding-website/` | TBD | single (future, non-blocking) |
 
 **Variant definition**
 - `bd` = current Bangladeshi version. Bengali + English, ministry/gov homepage links, bKash/Rocket/Nagad payments.
@@ -26,19 +27,19 @@ Turn this single Laravel repo into a 3-product monorepo:
 
 | # | Task | Owner | Depends | Done when |
 |---|------|-------|---------|-----------|
-| 0.1 | Confirm final monorepo folder names + whether `eskoofy-website` starts now or later | PM | — | Names locked in this doc |
+| 0.1 | Confirm final monorepo folder names + whether `eskoofy-branding-website` starts now or later | PM | — | Names locked in this doc |
 | 0.2 | **Gate:** define the concrete target host/market for raw PHP that cannot run Composer/Laravel | PM/BD | — | One named host/profile documented; without it, Phase 5 stays blocked |
 | 0.3 | Lock INT scope: list of int-standard gateways, home-page blocks, bulk-mail/eschool features omitted or added | PM | — | Signed INT feature list in this doc |
 | 0.4 | Verify current repo can be moved without breaking deploys (no production path assumptions) | Dev | — | Checklist in `docs/operations/RUNBOOKS.md` updated for new path |
 
-## Phase 1 — Restructure: move Laravel app into `eskoofy-app/`
+## Phase 1 — Restructure: move Laravel app into `eskoofy-laravel-app/`
 
 | # | Task | Owner | Depends | Done when |
 |---|------|-------|---------|-----------|
-| 1.1 | Create top-level folders: `eskoofy-app/ eskoofy-php/ eskoofy-theme/ eskoofy-website/ build/` | Dev | 0.1 | Folders exist |
-| 1.2 | Move all current app files (incl. `.env.example`, `composer.json`, `docs/`, `public/`) into `eskoofy-app/` using `git mv` | Dev | 1.1 | History preserved; nothing left at root except product folders, `build/`, `WORKPLAN.md`, `.git/`; `.gitignore` intact |
-| 1.3 | Add `eskoofy-php/README.md`, `eskoofy-theme/README.md`, `eskoofy-website/README.md` placeholders with variant/stack notes | Dev | 1.1 | READMEs committed |
-| 1.4 | Repoint any absolute paths in docs/scripts/CI to `eskoofy-app/...` | Dev | 1.2 | Full suite runs from new path |
+| 1.1 | Create top-level folders: `eskoofy-laravel-app/ eskoofy-php-app/ eskoofy-wp-theme/ eskoofy-branding-website/ build/` | Dev | 0.1 | Folders exist |
+| 1.2 | Move all current app files (incl. `.env.example`, `composer.json`, `docs/`, `public/`) into `eskoofy-laravel-app/` using `git mv` | Dev | 1.1 | History preserved; nothing left at root except product folders, `build/`, `WORKPLAN.md`, `.git/`; `.gitignore` intact |
+| 1.3 | Add `eskoofy-php-app/README.md`, `eskoofy-wp-theme/README.md`, `eskoofy-branding-website/README.md` placeholders with variant/stack notes | Dev | 1.1 | READMEs committed |
+| 1.4 | Repoint any absolute paths in docs/scripts/CI to `eskoofy-laravel-app/...` | Dev | 1.2 | Full suite runs from new path |
 | 1.5 | Update `AGENTS.md` (root) to describe monorepo layout + per-folder conventions | Dev | 1.2 | AGENTS.md accurate |
 
 ## Phase 2 — BD/INT profile system (Laravel, config-over-code)
@@ -75,25 +76,25 @@ Turn this single Laravel repo into a 3-product monorepo:
 
 | # | Task | Owner | Depends | Done when |
 |---|------|-------|---------|-----------|
-| 5.1 | `build/export.sh` (or artisan command): clone/fetch repo, apply profile, strip locale, write `.env`, run `composer install` + `migrate`, zip to `build/dist/` | Dev | 2.5, 4.1, 4.3 | `build/dist/eskoofy-app-bd.zip` + `eskoofy-app-int.zip` produced idempotently |
+| 5.1 | `build/export.sh` (or artisan command): clone/fetch repo, apply profile, strip locale, write `.env`, run `composer install` + `migrate`, zip to `build/dist/` | Dev | 2.5, 4.1, 4.3 | `build/dist/eskoofy-laravel-app-bd.zip` + `eskoofy-laravel-app-int.zip` produced idempotently |
 | 5.2 | CI job: on tag, run export + smoke test both artifacts (install → migrate → seed demo → core page 200) | Dev | 5.1 | CI green for both variants |
 | 5.3 | Document runbooks: `docs/operations/BACKUP-RESTORE.md`, `docs/operations/PRODUCTION-CHECKLIST.md`, `docs/operations/RUNBOOKS.md` under new paths; versioned tags `bd-vNN` / `int-vNN` | Dev | 5.1 | Ops docs match real artifact layout |
 
-## Phase 6 — eskoofy-php (raw PHP) — GATED
+## Phase 6 — eskoofy-php-app (raw PHP) — GATED
 
 | # | Task | Owner | Depends | Done when |
 |---|------|-------|---------|-----------|
-| 6.1 | **Continuation gate:** only start if 0.2 produced a real host/market; else keep `eskoofy-php/` as README only | PM | 0.2 | Gate decision recorded |
-| 6.2 | Architecture: router, DI-lite, auth + roles/permissions, schema port from Laravel migrations, queue-less fallbacks, PDF, gateway drivers | Dev | 6.1 | ARCHITECTURE.md in `eskoofy-php/` |
+| 6.1 | **Continuation gate:** only start if 0.2 produced a real host/market; else keep `eskoofy-php-app/` as README only | PM | 0.2 | Gate decision recorded |
+| 6.2 | Architecture: router, DI-lite, auth + roles/permissions, schema port from Laravel migrations, queue-less fallbacks, PDF, gateway drivers | Dev | 6.1 | ARCHITECTURE.md in `eskoofy-php-app/` |
 | 6.3 | Parity checklist vs Laravel BD (admissions, fees, exams/results, SMS, reports) module-by-module | Dev | 6.2 | Checklist tracked; per-module DoD = same tests as Laravel module |
 | 6.4 | Port small module (e.g. notices) end-to-end as vertical slice to validate stack | Dev | 6.2, 6.3 | Slice deployed on target host |
-| 6.5 | Full module port + bd/int profile + build-box integration | Dev | 6.4 | `build/` exports `eskoofy-php-{bd,int}` |
+| 6.5 | Full module port + bd/int profile + build-box integration | Dev | 6.4 | `build/` exports `eskoofy-php-app-{bd,int}` |
 | 6.6 | Ongoing mass: this is a **second permanent codebase** — verify budget/headcount before commit | PM | 0.2 | Sign-off |
 
-### Phase 6 status (eskoofy-php)
+### Phase 6 status (eskoofy-php-app)
 
 - Architecture (6.2) landed: router + middleware (`AuthMiddleware`), auth/roles, 98-table schema port (`database/schema.sql`, imports clean on MySQL 8), queue-less SMS/push drivers with envoy stubs, PDF via FPDF.
-- Parity (6.3): **all dashboard + public + `/api/v1` routes registered and matched 1:1 with `eskoofy-app`** (route-gap checker: 0, route-target verifier: 0); 316/316 blade views byte-identical to the app.
+- Parity (6.3): **all dashboard + public + `/api/v1` routes registered and matched 1:1 with `eskoofy-laravel-app`** (route-gap checker: 0, route-target verifier: 0); 316/316 blade views byte-identical to the app.
 - API parity pass (this sprint): notifications API ported (`GET/notifications`, `unread-count`, `{id}/read`, `read-all`, `DELETE {id}`+`/notifications`, `notification-preferences` GET/PUT, `stream` — backed by `notification_logs`/`notification_preferences`, mirroring newer app life); payment method parity fixed (callback now POST, `{id}/status` now PUT, removed php-only `POST /payments`); removed phantom php-only `courses` dashboard routes + `CourseController` (app has no course routes; page rendered an empty shell).
 - Schema: `grades` (FK→`school_classes`) + `user_widget_preferences` added to `schema.sql` (were app migrations without schema parity); full import re-validated on MySQL 8 — 98 tables, 0 errors.
 - Smoke-verified against live MySQL 8 (throwaway container): public + dashboard reads render (200s) and write endpoints persist (gallery CRUD, admission-test schedule/update/delete, notification preferences, notifications mark-read/clear, widget preferences).
@@ -102,22 +103,42 @@ Turn this single Laravel repo into a 3-product monorepo:
 - Live QoL/users writes verified on MySQL 8 (throwaway container): user create + duplicate-email guard, user update (role change), user soft-delete, profile update, profile password change (old-password verify, new bcrypt), dashboard-favorites toggle on/off + invalid-URL rejection.
 - Remaining for the release gate (6.2/6.3): real-host deployment trial (6.4).
 
-## Phase 7 — eskoofy-theme (WordPress)
+## Phase 7 — eskoofy-wp-theme (WordPress)
 
 | # | Task | Owner | Depends | Done when |
 |---|------|-------|---------|-----------|
-| 7.1 | Scaffold theme in `eskoofy-theme/` (current BD design) with `load_theme_textdomain` + `.pot/.po` (en/bn) | Dev | 1.3 | Theme repo runs as WP theme; strings internationalized |
+| 7.1 | Scaffold theme in `eskoofy-wp-theme/` (current BD design) with `load_theme_textdomain` + `.pot/.po` (en/bn) | Dev | 1.3 | Theme repo runs as WP theme; strings internationalized |
 | 7.2 | INT variant: stylesheet/branding profile + English `.po`; bd/int switch stays in WP (`WPLANG` / child profile) | Dev | 7.1 | Switchable without code change |
-| 7.3 | Theme build-box integration (zip `eskoofy-theme-{bd,int}`) | Dev | 7.2, 5.1 | Artifacts from `build/dist/` |
+| 7.3 | Theme build-box integration (zip `eskoofy-wp-theme-{bd,int}`) | Dev | 7.2, 5.1 | Artifacts from `build/dist/` |
 | 7.4 | Theme tests: lint + smoke on WP test env | Dev | 7.3 | Green in CI |
 
-## Phase 8 — eskoofy-website (marketing/branding) — future
+## Phase 8 — eskoofy-branding-website (marketing/branding) — future
 
 | # | Task | Owner | Depends | Done when |
 |---|------|-------|---------|-----------|
 | 8.1 | Clarify purpose: brand/theme/app landing, purchase/checkout for both variants, docs site | PM | 0.1 | Brief |
-| 8.2 | Implement in `eskoofy-website/` (stack TBD) | Dev | 8.1 | Deployed & linked to payments |
+| 8.2 | Implement in `eskoofy-branding-website/` (stack TBD) | Dev | 8.1 | Deployed & linked to payments |
 | — | Website is non-blocking; all phases 1–7 can finish without it | | | |
+
+## Phase 9 — eskoofy-nodejs-app (Node.js variant) — functional clone ✅ (pixel parity pending)
+
+Single-architecture Node.js port of the Laravel reference product (Next.js App Router +
+Prisma + Tailwind). Roadmap: `docs/design/VARIANT-BLUEPRINT.md`; live ledger:
+`eskoofy-nodejs-app/docs/PORTING-STATUS.md`.
+
+| # | Task | Owner | Depends | Done when |
+|---|------|-------|---------|-----------|
+| 9.1 | Scaffold single-architecture app in `eskoofy-nodejs-app/` (public site + dashboard + API in one project) | Dev | 0.1 | ✅ `npm run build` + `npm test` green |
+| 9.2 | Port app schema to `prisma/schema.prisma` (same table names + gotchas) | Dev | 9.1 | ✅ 107 models; schema valid |
+| 9.3 | Sidebar + dashboard parity (`lib/nav.ts` = app sidebar contract) | Dev | 9.1 | ✅ `npm run route:parity` green (585 routes, 95 keys) |
+| 9.4 | Module CRUD parity (students → … → settings) | Dev | 9.3 | ✅ generic index/show/create/edit/delete for all 34 resources |
+| 9.5 | API parity (`/api/v1/*`, same envelope) | Dev | 9.2 | ✅ generic REST + typed endpoints; envelope verified |
+| 9.6 | Wire into `build/` + propagation docs + CI | Dev | 9.4 | ✅ CI job + docs updated |
+
+Remaining for full 1:1 parity (tracked in `eskoofy-nodejs-app/docs/PORTING-STATUS.md`):
+pixel-identical Blade markup, print/PDF documents, non-CRUD admin screens
+(settings tabs, reports builder, CMS editors, backups), business-logic depth, and
+gateway/SMS/mail/queue integrations.
 
 ---
 
@@ -127,23 +148,23 @@ Turn this single Laravel repo into a 3-product monorepo:
 2. **All differences live in config/data.** If a feature can't be expressed as a profile flag, flag it in review before coding.
 3. **Keep `bd` = today's behaviour.** Every change must leave the `bd` profile functionally identical until an INT feature explicitly needs it.
 4. **Tests gate everything.** New gateways + profile system + export artifacts all covered in `composer test`; exports smoke-tested in CI.
-5. Repo root becomes the monorepo; `AGENTS.md` and `docs/` move into `eskoofy-app/` with this file staying at root.
+5. Repo root becomes the monorepo; `AGENTS.md` and `docs/` move into `eskoofy-laravel-app/` with this file staying at root.
 
 ## Milestones
 
 | Milestone | Phases | Exit criteria |
 |---|---|---|
-| M1 — Restructure | 0, 1 | Monorepo layout committed; full suite green from `eskoofy-app/` |
+| M1 — Restructure | 0, 1 | Monorepo layout committed; full suite green from `eskoofy-laravel-app/` |
 | M2 — Profile system | 2 | `bd` profile == current behaviour; INT flags ready |
 | M3 — INT payments | 3, 4 | Stripe/PayPal/Paddle work in INT profile, BD untouched |
-| M4 — Build-box | 5 | CI exports + smokes `eskoofy-app-{bd,int}` |
+| M4 — Build-box | 5 | CI exports + smokes `eskoofy-laravel-app-{bd,int}` |
 | M5 — Raw PHP (gated) | 6 | Gate decision + (if open) vertical slice live |
-| M6 — Theme variants | 7 | `eskoofy-theme-{bd,int}` artifacts from build-box |
+| M6 — Theme variants | 7 | `eskoofy-wp-theme-{bd,int}` artifacts from build-box |
 
 ## Open questions (for PM)
 
 - [ ] 0.2: target host/market that cannot run Composer/Laravel — needed to unblock Phase 6.
 - [ ] 0.3: final INT feature list & gateway order (PayPal/Stripe/Paddle first?)
-- [ ] 0.1: start `eskoofy-website` now or later?
+- [ ] 0.1: start `eskoofy-branding-website` now or later?
 - [ ] Naming: keep repo `school-management-system` or rename to `eskoofy` on GitHub?
 - [ ] Pool/effort: raw-PHP rewrite budget decision (6.6) made explicitly, not by default.

@@ -11,13 +11,13 @@
 **Status:** ✅ Already fixed in commit `c9def0d` (service worker cache poisoning).
 
 **What happened:** The theme never emitted a `/client` redirect. A stale service worker
-cached a poisoned navigation response. The fix bumped the PWA cache to `eskoofy-theme-v2`
+cached a poisoned navigation response. The fix bumped the PWA cache to `eskoofy-wp-theme-v2`
 and added an `isCacheable()` guard (only 2xx, non-redirected responses cached).
 
 **Verify:**
-- `eskoofy-theme/pwa/sw.js` → `CACHE_NAME = 'eskoofy-theme-v2'` + `isCacheable()` guard
-- `eskoofy-theme/functions.php` → `/offline` served with HTTP 200
-- No `wp_redirect('/client')` anywhere in `eskoofy-theme/`
+- `eskoofy-wp-theme/pwa/sw.js` → `CACHE_NAME = 'eskoofy-wp-theme-v2'` + `isCacheable()` guard
+- `eskoofy-wp-theme/functions.php` → `/offline` served with HTTP 200
+- No `wp_redirect('/client')` anywhere in `eskoofy-wp-theme/`
 - Browsers stuck on the old worker need one "Update + hard reload".
 
 ## Task 2 — Replace remaining `SchoolEase` branding with `Eskoofy`
@@ -28,20 +28,20 @@ pages, software/dev-credits page, READMEs, `.env` files). Tests pass (173 Featur
 **Concept:** SchoolEase is the legacy product name. Everything must read **Eskoofy**.
 
 **Verify:**
-- Run: `rg -i 'schoolease|school.ease' --glob '!archive/**' --glob '!storage/**' --glob '!docs/planning/**' --glob '!docs/UIUX-*' --glob '!docs/FEATURE-IMPROVEMENTS*' eskoofy-app eskoofy-php eskoofy-theme eskoofy-website`
+- Run: `rg -i 'schoolease|school.ease' --glob '!archive/**' --glob '!storage/**' --glob '!docs/planning/**' --glob '!docs/UIUX-*' --glob '!docs/FEATURE-IMPROVEMENTS*' eskoofy-laravel-app eskoofy-php-app eskoofy-wp-theme eskoofy-branding-website`
 - Only historical planning docs (`docs/planning/wordpress-theme-conversion.md`,
   `docs/features/UIUX-IMPROVEMENTS.md`, `docs/features/FEATURE-IMPROVEMENTS.md`) and `archive/` keep the old
   name as historical record — leave those.
-- Re-check `eskoofy-app/archive/frontend/src/components/dashboard/Sidebar.jsx` — read-only
+- Re-check `eskoofy-laravel-app/archive/frontend/src/components/dashboard/Sidebar.jsx` — read-only
   legacy, leave as-is.
 
 ## Task 3 — Align theme version frontend + dashboard with the app version
 
 ### 3a. Dashboard sidebar group/items parity  ✅ (code done — verify rendering)
 
-The theme sidebar (`eskoofy-theme/inc/admin-shell.php` → `esk_admin_sidebar_sections()` and
+The theme sidebar (`eskoofy-wp-theme/inc/admin-shell.php` → `esk_admin_sidebar_sections()` and
 `esk_admin_shell_groups()`) must mirror the app sidebar
-(`eskoofy-app/resources/views/partials/dashboard/sidebar.blade.php`) one-for-one:
+(`eskoofy-laravel-app/resources/views/partials/dashboard/sidebar.blade.php`) one-for-one:
 
 | App section → group | Theme section → group (slugs) |
 |---|---|
@@ -67,7 +67,7 @@ onboarding, notifications, careers) stay **reachable via the Ctrl+K command pale
 (`esk_render_palette_data()` uses `esk_admin_shell_groups()`), matching the app where those
 are also not shown in the sidebar.
 
-**Verify:** `php -l eskoofy-theme/inc/admin-shell.php` and visually render `/dashboard/`.
+**Verify:** `php -l eskoofy-wp-theme/inc/admin-shell.php` and visually render `/dashboard/`.
 
 ### 3b. Public-site frontend parity  🟡 (in progress)
 
@@ -84,7 +84,7 @@ Bring templates to parity with the app views:
 7. `template-contact.php` — hero + map + opening hours + form
 8. `header.php` / `footer.php` — minor polish (icons in nav, social links, mobile bar)
 
-Match the app views under `eskoofy-app/resources/views/site/` (news, news-show, events,
+Match the app views under `eskoofy-laravel-app/resources/views/site/` (news, news-show, events,
 gallery, notices, admissions, contact) for section order and content.
 **Do not** change `style.css` unless a truly missing class needs adding.
 
@@ -102,8 +102,8 @@ gallery, notices, admissions, contact) for section order and content.
 Design (no execution of actual feature changes without confirmation):
 
 1. **Three source-of-truth pointers** in `AGENTS.md` (root): when adding/changing a feature
-   in `eskoofy-app`, the SAME behaviour must land in `eskoofy-php` + `eskoofy-theme`
-   (and sale copy in `eskoofy-website`), unless the task explicitly scopes to one product.
+   in `eskoofy-laravel-app`, the SAME behaviour must land in `eskoofy-php-app` + `eskoofy-wp-theme`
+   (and sale copy in `eskoofy-branding-website`), unless the task explicitly scopes to one product.
 2. **Feature-defined patterns:** every feature change ships with
    `docs/design/FEATURE-PROPAGATION.md` instructions that specify file paths per product
    (app → php view parity, app → theme template parity, app → website copy).
@@ -127,15 +127,15 @@ feature-showcase patterns, social proof, conversion funnel + 5 recommended patte
 
 **Status:** ✅ Done → `docs/design/PAYMENT-MODEL.md` (Freemium + 4 tiers: Community free /
 School $29/mo / District $79/mo / Enterprise custom; Stripe + bKash rails; license server
-via `eskoofy-website`; 14-day trial; revenue projections; key decisions).
+via `eskoofy-branding-website`; 14-day trial; revenue projections; key decisions).
 
 ---
 
 ## Definition of Done
 
 - All 7 tasks complete (Status column: ✅/🟡 resolved to ✅, no ⛔ blockers).
-- `cd eskoofy-app && composer test` → green.
-- `cd eskoofy-theme && composer run lint` → no new violations beyond baseline.
+- `cd eskoofy-laravel-app && composer test` → green.
+- `cd eskoofy-wp-theme && composer run lint` → no new violations beyond baseline.
 - `php -l` clean on every touched theme file.
 - No *new* `SchoolEase`/`schoolease` occurrences outside the exempted historical files.
 - Repo-wide docs updated to match.

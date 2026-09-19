@@ -10,18 +10,18 @@
 
 Any future Eskoofy product/variant — e.g. `eskoofy-node` (proposed), a new
 `int`-style profile, an API-first client, or a desktop/mobile shell — must be
-built **from `eskoofy-app` as the source of truth**. The app holds the canonical
+built **from `eskoofy-laravel-app` as the source of truth**. The app holds the canonical
 routes, views, language strings, schema, services, and tests. This blueprint
 explains how to stand up a variant with the app as reference, in phases with
 gates, and adds the parity checklist used to close app↔php↔theme gaps.
 
 ## 2. Principles (from root `AGENTS.md`)
 
-1. **App first.** Implement/verify a feature in `eskoofy-app`, then propagate.
+1. **App first.** Implement/verify a feature in `eskoofy-laravel-app`, then propagate.
 2. **Parity is feature-complete identical output**, not "similar":
-   - `eskoofy-php`: `resources/views/**` + `lang/**` **byte-identical** to app;
+   - `eskoofy-php-app`: `resources/views/**` + `lang/**` **byte-identical** to app;
      `routes/api.php` mirrors app `route:list`.
-   - `eskoofy-theme`: mirrored `views/admin/*.php` + `inc/front-dashboard.php`
+   - `eskoofy-wp-theme`: mirrored `views/admin/*.php` + `inc/front-dashboard.php`
      routes + `inc/admin-shell.php` (title/icon/sidebar) + `inc/database.php`
      for table changes.
    - Default scope of any change = **all products**; scope explicitly otherwise.
@@ -135,7 +135,7 @@ Analytics → Settings (tabs incl. Global Labels) → Onboarding/setup checklist
 
 | Product | Command |
 |---|---|
-| app | `cd eskoofy-app && composer test` (+ `./vendor/bin/pint --test`) |
+| app | `cd eskoofy-laravel-app && composer test` (+ `./vendor/bin/pint --test`) |
 | php | `diff -r` views/lang vs app; `php -l` changed files; route:list diff |
 | theme | `php -l inc/*.php views/admin/*.php`; `composer run lint` (CS not gated); regenerate `inc/app-dashboard.css` from app Tailwind build when utilities change |
 | any | `build/propagate/propagate-feature.sh <feature>` dry-run |

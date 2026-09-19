@@ -15,7 +15,7 @@ standards for messaging. Today only `bd`-oriented and local-driver support exist
 (`SMS_DRIVER=log` default) and the raw PHP port only writes an SMS log row without
 actually delivering a message.
 
-### A1. eskoofy-app (Laravel 12)
+### A1. eskoofy-laravel-app (Laravel 12)
 - Add a real international SMS driver: **Vonage (V10/Nexmo)** alongside existing
   Twilio support. Implementation uses `Illuminate\Support\Facades\Http` against the
   Vonage Messages API (no new Composer dependency required).
@@ -25,11 +25,11 @@ actually delivering a message.
   - `build/profiles/profiles.php`: `int` profile sets `SMS_DRIVER=twilio` (defaults stay
     unset otherwise); `bd` profile keeps today's behavior (`log` default).
   - `config/eskoolfy.php`: add `features.sms` flag block documented for INT.
-- Add the new environment variables to `eskoofy-app/.env.example`.
+- Add the new environment variables to `eskoofy-laravel-app/.env.example`.
 - Unit tests for `VonageSmsService` (HTTP faked) covering send success, send failure,
   balance, and status.
 
-### A2. eskoofy-php (raw PHP)
+### A2. eskoofy-php-app (raw PHP)
 - New SMS service layer under `app/Services/Sms/`:
   - `SmsServiceInterface` (`send`, `getBalance`, `getStatus`),
   - `LogSmsService` (default, keeps today's behavior),
@@ -42,7 +42,7 @@ actually delivering a message.
 - Add `sms_status` column to `database/schema.sql` (DDL-only, no destructive migration).
 - Unit tests for all drivers + manager.
 
-### A3. eskoofy-theme (WordPress)
+### A3. eskoofy-wp-theme (WordPress)
 - New `inc/sms-gateway.php` helper that delivers SMS through Twilio **or** Vonage using
   `wp_remote_post` when the site is configured (options), and falls back to logging.
 - Wire the existing admin SMS page submission to call the helper instead of only listing.
@@ -53,17 +53,17 @@ actually delivering a message.
 
 ---
 
-## Part B — eskoofy-website: enterprise branding & licensing management site (Phase 8)
+## Part B — eskoofy-branding-website: enterprise branding & licensing management site (Phase 8)
 
-Build `eskoofy-website/` as a **fully functional, self-contained** website (stack: raw
-PHP + the reusable zero-dependency Core from `eskoofy-php/app/Core`) that markets and
+Build `eskoofy-branding-website/` as a **fully functional, self-contained** website (stack: raw
+PHP + the reusable zero-dependency Core from `eskoofy-php-app/app/Core`) that markets and
 sells the Eskoofy products, and operates as a **license server** with full customer and
 payment management. Paddle will be added as a payment gateway later; the payment layer
 must be provider-abstraction ready (`PaymentGatewayInterface`) with a working
 "manual/offline" provider now.
 
 ### B1. Foundation
-- Reuse `eskoofy-php` Core exactly (Router, Database, QueryBuilder, Model, Controller,
+- Reuse `eskoofy-php-app` Core exactly (Router, Database, QueryBuilder, Model, Controller,
   View, Session, Auth, Validator, Request, bootstrap, Middleware, Helpers). No Composer
   at runtime. PDO/MySQL, PHP 8.2+.
 - `index.php` front controller, `.htaccess` rewrite to `public/`, `.env.example`.
@@ -136,15 +136,15 @@ api endpoint success/failure, customer auth, plan pricing, manual payment flow.
 - `.github/workflows/ci.yml`: add `website-test` job (composer install dev, import schema,
   run phpunit). Add website artifact to the `export` job via `build/export.sh website bd|int`
   (website is INT-first; still profile-bounded using profiles.php).
-- `build/export.sh`: add `website` product case producing `build/dist/eskoofy-website-{profile}.zip`
+- `build/export.sh`: add `website` product case producing `build/dist/eskoofy-branding-website-{profile}.zip`
   (excludes tests, .env, public/assets source maps).
 
 ---
 
 ## Part C — Definition of done
-1. `cd eskoofy-app && composer test` green (Pint too).
-2. `cd eskoofy-php && composer test` green.
-3. `cd eskoofy-website && composer test` green (new suite).
+1. `cd eskoofy-laravel-app && composer test` green (Pint too).
+2. `cd eskoofy-php-app && composer test` green.
+3. `cd eskoofy-branding-website && composer test` green (new suite).
 4. Theme lint (`composer run lint`) green.
 5. `workplan-implementation-plan.md` Phase 8 and new INT-messaging rows marked done.
 6. `bd` profile behavior unchanged (log SMS default, byte-for-byte-ish today's output).

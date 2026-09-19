@@ -130,10 +130,10 @@ git push origin app/v1.2.3
 ```
 
 Artifacts land in `build/dist/`:
-- `eskoofy-app-bd.zip` — full Laravel app, BD profile
-- `eskoofy-app-int.zip` — full Laravel app, INT profile (no `lang/bn`)
-- `eskoofy-theme-bd.zip` — WordPress theme, BD profile
-- `eskoofy-theme-int.zip` — WordPress theme, INT profile
+- `eskoofy-laravel-app-bd.zip` — full Laravel app, BD profile
+- `eskoofy-laravel-app-int.zip` — full Laravel app, INT profile (no `lang/bn`)
+- `eskoofy-wp-theme-bd.zip` — WordPress theme, BD profile
+- `eskoofy-wp-theme-int.zip` — WordPress theme, INT profile
 
 ## 8. Contacts
 

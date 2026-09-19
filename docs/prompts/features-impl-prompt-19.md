@@ -12,9 +12,9 @@ commit per product.
 ### 1. App/php sidebar: drop the school-name tagline
 **Issue:** after the last change the sidebar shows "Eskoofy" but the tagline shows the school
 name ("Example School"). It should read **Eskoofy / Admin Panel** like the php version.
-- `eskoofy-app/resources/views/partials/dashboard/sidebar.blade.php`: brand name =
+- `eskoofy-laravel-app/resources/views/partials/dashboard/sidebar.blade.php`: brand name =
   `config('app.name', 'Eskoofy')`, sub-label = `__('dashboard.admin_panel')` **always**
-  (no school-name tagline). Sync byte-identical to `eskoofy-php`.
+  (no school-name tagline). Sync byte-identical to `eskoofy-php-app`.
 - Verify by booting each app.
 
 ### 2. Theme dashboard sidebar: "Management System" → "Eskoofy Admin Panel"
@@ -29,7 +29,7 @@ name ("Example School"). It should read **Eskoofy / Admin Panel** like the php v
 ### 3. Investigate and align the theme's public frontend
 **Goal:** theme `header.php`/`footer.php`/`front-page.php` must match the Laravel app's
 public site (nav, brand, ticker, hero, footer, permalinks).
-- Compare `eskoofy-app/resources/views/partials/site/nav.blade.php`, `footer.blade.php`,
+- Compare `eskoofy-laravel-app/resources/views/partials/site/nav.blade.php`, `footer.blade.php`,
   `home.blade.php`, `layouts/app.blade.php` vs theme `header.php`, `footer.php`,
   `front-page.php`, `style.css`.
 - Fix concrete gaps found: brand block (Eskoofy mark + name), announcement ticker, nav items

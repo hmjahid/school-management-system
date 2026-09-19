@@ -1,7 +1,7 @@
 # Side-by-side parity: dashboard, sidebar & dashboard contents (app / php / theme)
 
-Status as of this review. "app" = `eskoofy-app` (Laravel), "php" = `eskoofy-php`
-(raw PHP), "theme" = `eskoofy-theme` (WordPress). Merge strategy = **additive
+Status as of this review. "app" = `eskoofy-laravel-app` (Laravel), "php" = `eskoofy-php-app`
+(raw PHP), "theme" = `eskoofy-wp-theme` (WordPress). Merge strategy = **additive
 only** (nothing deleted). php is pinned byte-identical to app for views/lang.
 
 ## 1. Sidebar navigation

@@ -11,13 +11,13 @@
   staff-directory/expense-categories/events-calendar/library-categories/admission-tests/
   notification-templates+preferences, device_tokens + scroll/page-header sweep, archived
   19 orphaned php views).
-- ✅ Phase 7 — eskoofy-php expansion implemented (token auth, 60 API paths ported,
+- ✅ Phase 7 — eskoofy-php-app expansion implemented (token auth, 60 API paths ported,
   scheduler + push, 3 models, service classes). php suite 311 green.
 - ✅ Phase 8 — website sales copy updated (en + bn).
 
 This plan implements the two senior-QA audits:
 
-1. `docs/quality/QA-PARITY-REPORT.md` — eskoofy-php & eskoofy-theme parity vs the Laravel app
+1. `docs/quality/QA-PARITY-REPORT.md` — eskoofy-php-app & eskoofy-wp-theme parity vs the Laravel app
    (IDs `P-A1..P-A6`, `P-B1..P-B6`).
 2. `docs/quality/QA-UI-FRONTEND-REPORT.md` — theme dashboard sidebar + UI/UX + public frontend +
    functionality (IDs `SB-1..SB-7`, `P-U1..P-U19`).
@@ -26,8 +26,8 @@ This plan implements the two senior-QA audits:
 products (app + php + theme + website copy). Feature-level additions require a confirmation
 gate per `FEATURE-PROPAGATION.md`. Bug fixes that restore parity (where the app or theme is
 *incorrect* and the counterpart is correct) are applied to the side(s) that are wrong, and
-propagated through the byte-parity rule (`eskoofy-php` views must stay byte-identical to the
-app). `eskoofy-php` product work is **deferred** (root AGENTS.md / WORKPLAN Phase 6 gate
+propagated through the byte-parity rule (`eskoofy-php-app` views must stay byte-identical to the
+app). `eskoofy-php-app` product work is **deferred** (root AGENTS.md / WORKPLAN Phase 6 gate
 0.2) — API/model/scheduler expansions below are recorded but gated on the php resume gate.
 
 ---
@@ -44,7 +44,7 @@ app). `eskoofy-php` product work is **deferred** (root AGENTS.md / WORKPLAN Phas
 ## Phase 1 — App (Laravel) bug fixes + php byte-mirror  ✅ done (923 tests pass)
 
 App is *incorrect*; theme port is correct. Fix app, then mirror byte-identical into
-`eskoofy-php/resources/views/**` (root AGENTS view-parity invariant).
+`eskoofy-php-app/resources/views/**` (root AGENTS view-parity invariant).
 
 | # | Report | Finding | App fix | php mirror | Status |
 |---|---|---|---|---|---|
@@ -115,11 +115,11 @@ All items (5.1-5.12) implemented — see statuses below.
 | 6.3 | P-B3 | communications, staff directory, expense-categories, events calendar, library categories, admissions tests, notification templates/preferences pages absent | communications = `esk-messages` (compose/inbox/sent, already wired Main→Messages); `esk-expense-categories` page (CRUD); `esk-events-calendar` month view + flat link; library book categories CRUD in `library.php`; `esk-staff-directory` page (Users by staff/accountant/librarian role) under People; admission tests: `esk_admission_tests` table + schedule/update UI in `admission-detail.php`; `esk-notification-templates` + `esk-notification-preferences` pages + tables under System | ✅ |
 | 6.4 | P-B5 | Name drifts: guardians↔parents, id-cards↔student-id-cards, software↔about | Renamed labels/routes to app naming | ✅ |
 | 6.5 | P-B6 | WP list-table vs Tailwind; PWA `device_tokens` absent | Added `esk_device_tokens` table; global mobile horizontal-scroll rule for legacy tables + shared page-header styling (4.1) | ✅ |
-| 6.6 | P-A1 | ~34 legacy snake_case php views orphaned | View-unreferenced scan (view()/render + Blade includes) → **19 confirmed orphaned** archived to `eskoofy-php/archive/dashboard/`; php suite 299 tests green | ✅ |
+| 6.6 | P-A1 | ~34 legacy snake_case php views orphaned | View-unreferenced scan (view()/render + Blade includes) → **19 confirmed orphaned** archived to `eskoofy-php-app/archive/dashboard/`; php suite 299 tests green | ✅ |
 
-## Phase 7 — eskoofy-php expansion — ✅ done (php resume gate passed)
+## Phase 7 — eskoofy-php-app expansion — ✅ done (php resume gate passed)
 
-`eskoofy-php` API/model/scheduler/push expansion implemented (see statuses below).
+`eskoofy-php-app` API/model/scheduler/push expansion implemented (see statuses below).
 Byte-parity of `resources/views/**` maintained (316/316 app views identical).
 
 | # | Report | Gap | Scope sketch | Status |
@@ -132,7 +132,7 @@ Byte-parity of `resources/views/**` maintained (316/316 app views identical).
 
 ## Phase 8 — Website sales copy ✅ done
 
-`eskoofy-website` copy updated (en + bn) to reflect shipped theme features: online
+`eskoofy-branding-website` copy updated (en + bn) to reflect shipped theme features: online
 gateway payments, roles & permissions, student/parent portal, multistep admissions,
 budgets/chart-of-accounts/ledger, transport & hostel allocations, library fines. Feature
 grid + theme product page `theme_f1..f6` + `features.*_desc` + `deploy_theme` refreshed.
@@ -142,13 +142,13 @@ Website suite: 79 tests green.
 
 ## Execution order & verification gates
 
-1. **Phase 1** (app+php) — `cd eskoofy-app && composer test`, `./vendor/bin/pint --test`,
+1. **Phase 1** (app+php) — `cd eskoofy-laravel-app && composer test`, `./vendor/bin/pint --test`,
    then `diff -q` the 3 mirrored php views (must be byte-identical), `php -l` each.
 2. **Phase 2-4** (theme) — `php -l` every touched theme file; `composer run lint` where
    feasible; visual spot-check via `docker/theme-test/`.
 3. **Phases 5-6, 8** — require confirmation gate per `FEATURE-PROPAGATION.md` before
    starting; propagate via `build/propagate/propagate-feature.sh`.
-4. **Phase 7** — php suite (`cd eskoofy-php && composer test`) green after API/model/
+4. **Phase 7** — php suite (`cd eskoofy-php-app && composer test`) green after API/model/
    scheduler additions; `php -l` all new files; app→php view byte-parity recheck.
 
 ## Re-audit after implementation

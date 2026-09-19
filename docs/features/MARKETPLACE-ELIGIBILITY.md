@@ -2,9 +2,9 @@
 
 Scope: applies to all three sellable products in this monorepo:
 
-- `eskoofy-app/` — Laravel 12 school management software (sold as a CodeCanyon-style script)
-- `eskoofy-php/` — raw-PHP port (same market as the app; no framework)
-- `eskoofy-theme/` — WordPress theme/plugin hybrid
+- `eskoofy-laravel-app/` — Laravel 12 school management software (sold as a CodeCanyon-style script)
+- `eskoofy-php-app/` — raw-PHP port (same market as the app; no framework)
+- `eskoofy-wp-theme/` — WordPress theme/plugin hybrid
 
 Status: **NOT YET SUBMITTABLE.** Work through the checklist below before any marketplace submission.
 Auditors: reviewer, dev, PM.
@@ -17,7 +17,7 @@ Auditors: reviewer, dev, PM.
 |---|-------|-------|------|
 | 1.1 | No placeholder text, demo data, or broken links shipped (esp. `school.placeholder_*` fallbacks) | `config/school.php`, public views | ☐ |
 | 1.2 | Every route works from a fresh install (`install → migrate/import → seed → core pages 200`) | all 3 products | ☐ |
-| 1.3 | Styled 404 / 500 / 419 / 429 error pages (no stack traces) | `resources/views/errors/*`, `eskoofy-php/views/errors/*`, theme | ☐ |
+| 1.3 | Styled 404 / 500 / 419 / 429 error pages (no stack traces) | `resources/views/errors/*`, `eskoofy-php-app/views/errors/*`, theme | ☐ |
 | 1.4 | No `dd()`, `var_dump`, `echo` debug, or error-log leakage in shipped code | grep across all products | ☐ |
 | 1.5 | No development-only routes/controllers reachable in production | `routes/*.php`, middleware | ☐ |
 | 1.6 | PHP 8.2+ clean, no deprecation notices in browser output | all 3 products | ☐ |
@@ -40,9 +40,9 @@ Auditors: reviewer, dev, PM.
 | 3.4 | Published support policy (responses, update cadence) | marketplace listing | ☐ |
 | 3.5 | No obfuscation, no hidden "call-home" license checks, no backdoors | repo-wide audit | ☐ |
 | 3.6 | Responsive across browsers and device widths | all 3 products | ☐ |
-| 3.7 | Translation-ready (`.pot/.po` for theme; `lang/` for app + php) | `eskoofy-theme/languages/`, `*/lang/*` | ☐ |
+| 3.7 | Translation-ready (`.pot/.po` for theme; `lang/` for app + php) | `eskoofy-wp-theme/languages/`, `*/lang/*` | ☐ |
 
-## 4. WordPress specifics (`eskoofy-theme/`)
+## 4. WordPress specifics (`eskoofy-wp-theme/`)
 
 | # | Check | Where | Done |
 |---|-------|-------|------|
@@ -60,14 +60,14 @@ Auditors: reviewer, dev, PM.
 
 | # | Check | Where | Done |
 |---|-------|-------|------|
-| 5.1 | Smooth install: DB import + first-boot flow without errors | `eskoofy-php/database/schema.sql`, `eskoofy-app` migrations | ☐ |
+| 5.1 | Smooth install: DB import + first-boot flow without errors | `eskoofy-php-app/database/schema.sql`, `eskoofy-laravel-app` migrations | ☐ |
 | 5.2 | Install wizard or clear install documentation (host, PHP, MySQL requirements) | README per product | ☐ |
 | 5.3 | System requirements checker on first run | both PHP products | ☐ |
 | 5.4 | Documented update/upgrade path (no data loss) | `docs/operations/RUNBOOKS.md`, release notes | ☐ |
 | 5.5 | Demo import or seed data clearly labeled as demo | seeds/schema.sql | ☐ |
 | 5.6 | Security review: SQL injection, XSS, CSRF, auth bypass | audit all controllers | ☐ |
 | 5.7 | Clean under PHP 8.2+ (no deprecations) | both PHP products | ☐ |
-| 5.8 | Licensing/activation mechanism that is transparent and disclosed (if any) | `eskoofy-website` license server | ☐ |
+| 5.8 | Licensing/activation mechanism that is transparent and disclosed (if any) | `eskoofy-branding-website` license server | ☐ |
 
 ## 6. Branding sanitization
 
@@ -79,9 +79,9 @@ Auditors: reviewer, dev, PM.
 
 ## 7. Structural blockers (decide before work)
 
-- **7.1** `eskoofy-theme` is a full plugin-theme hybrid (54 DB tables, 7 CPTs, REST API, admin CRUD). Envato theme vs plugin classification must be decided up front — it changes the GPL requirement and review checklist.
+- **7.1** `eskoofy-wp-theme` is a full plugin-theme hybrid (54 DB tables, 7 CPTs, REST API, admin CRUD). Envato theme vs plugin classification must be decided up front — it changes the GPL requirement and review checklist.
 - **7.2** The raw-PHP and Laravel apps are identical products on different stacks. Decide whether to sell one, both, or bundle; each needs its own listing, docs, and support policy.
-- **7.3** The `eskoofy-website` license server is the activation/validation endpoint. If you ship any license enforcement, disclose it explicitly (Envato requires disclosure).
+- **7.3** The `eskoofy-branding-website` license server is the activation/validation endpoint. If you ship any license enforcement, disclose it explicitly (Envato requires disclosure).
 
 ---
 

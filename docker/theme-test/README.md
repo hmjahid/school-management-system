@@ -75,7 +75,7 @@ versions). After logging in at `/login/` you land on `/dashboard/`.
   page; administrators and the principal have full access.
 
 The dashboard renders in the app-style shell (**uses the Laravel app's actual
-compiled Tailwind CSS** — `eskoofy-theme/inc/app-dashboard.css` — and the same
+compiled Tailwind CSS** — `eskoofy-wp-theme/inc/app-dashboard.css` — and the same
 markup classes as the app's Blade views):
 
 * **Layout** — the app's exact `admin-shell flex h-screen` structure: `w-64`
@@ -93,9 +93,9 @@ markup classes as the app's Blade views):
 * Toasts, app-style confirm modal, and dark mode throughout.
 
 > `inc/app-dashboard.css` is a snapshot of the app's compiled Tailwind build
-> (`eskoofy-app/public/build/assets/app-*.css`). Regenerate it whenever the
+> (`eskoofy-laravel-app/public/build/assets/app-*.css`). Regenerate it whenever the
 > app's dashboard styling changes:
-> `cd eskoofy-app && npm run build && cp public/build/assets/app-*.css ../eskoofy-theme/inc/app-dashboard.css`
+> `cd eskoofy-laravel-app && npm run build && cp public/build/assets/app-*.css ../eskoofy-wp-theme/inc/app-dashboard.css`
 
 The WordPress admin (`/wp-admin/`) is reserved for WordPress platform use and
 has **no** Eskoofy menu.
@@ -105,7 +105,7 @@ this harness (the Laravel app runs on its own port, e.g. `127.0.0.1:8090`).
 
 ## How theme changes are applied
 
-The compose file bind-mounts the local `eskoofy-theme/` directory into
+The compose file bind-mounts the local `eskoofy-wp-theme/` directory into
 `/var/www/html/wp-content/themes/eskoofy` inside both the WordPress and
 WP-CLI containers.
 

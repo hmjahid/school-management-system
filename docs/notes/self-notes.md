@@ -663,7 +663,7 @@ read FEATURE-IMPROVEMENTS-IMPLEMENTATION.md and FEATURE-IMPROVEMENTS.md file and
 
 bd means current version. int menas only english language suuported. php version mean swhole app will be rewritten in raw php not laravel. tell me your thinking
 
-can we make a system that now keep eskoofy-app eskoofy-php and eskoofy-theme are only 3 spearte folders. but w will export bd and int vesrion from all these 3 for deployment? tell me only
+can we make a system that now keep eskoofy-laravel-app eskoofy-php-app and eskoofy-wp-theme are only 3 spearte folders. but w will export bd and int vesrion from all these 3 for deployment? tell me only
 
 the int version payemnt feature swill be int standard, will support paypal, stripe, paddle etc. if there are more option for only int, those also will be implemented, not only language chnage. because the bd payemnt systems will not work for int vesrion also he home page bd ministries links
 
@@ -689,9 +689,9 @@ eskoofy
 
 name our school management system "eskoofy". the dahboard sidebar top name will be nmaed after this name and the pwa appliction will be named after school name. the wordpress theme also will be the same name of eskoofy
 
-we will build total 3 application/product. 1. app 2. wordpress theme and 3. website for this apllication/theme marketing/branding/selling. all application codes will be inside eskoofy-app folder, theme codes inside eskoofy-theme folder and website codes inside eskoofy-website folder for managing the codes easily. now move the management software code inside eskoofy-app folder.
+we will build total 3 application/product. 1. app 2. wordpress theme and 3. website for this apllication/theme marketing/branding/selling. all application codes will be inside eskoofy-laravel-app folder, theme codes inside eskoofy-wp-theme folder and website codes inside eskoofy-branding-website folder for managing the codes easily. now move the management software code inside eskoofy-laravel-app folder.
 
-we will build app internation version and a php version and the theme also a international version. the current app will be bd (bangladesh) vesrion the php version also will be a another international version. app will be total 2 folder: 1. eskoofy-app-bd, 2. eskoofy-app-int. theme will be two folders: 1. eskoofy-theme-bd, 2. eskoofy-theme-int. app php version also will be two folders: 1. eskoofy-php-bd, 2. eskoofy-php-int
+we will build app internation version and a php version and the theme also a international version. the current app will be bd (bangladesh) vesrion the php version also will be a another international version. app will be total 2 folder: 1. eskoofy-laravel-app-bd, 2. eskoofy-laravel-app-int. theme will be two folders: 1. eskoofy-wp-theme-bd, 2. eskoofy-wp-theme-int. app php version also will be two folders: 1. eskoofy-php-app-bd, 2. eskoofy-php-app-int
 
 the website for this apllication/theme marketing/branding/selling will be a fully functional website with backend for managing users/customers, licensing, subscriptions, payments, expiration, renewals and more. we will add/use paddle for payment
 
