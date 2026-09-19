@@ -1,8 +1,8 @@
 # Cross-Product Feature Consistency System (Eskoofy)
 
-> Golden rule: Eskoofy ships the **same feature set in all 3 products** (Laravel app,
-> raw-PHP port, WordPress theme). A feature change in one product must land in all of
-> them **unless the task explicitly scopes to one product**.
+> Golden rule: Eskoofy ships the **same feature set in all products** (Laravel app,
+> raw-PHP port, WordPress theme, Node.js clone). A feature change in one product must land
+> in all of them **unless the task explicitly scopes to one product**.
 
 This document defines the workflow, the runner script, and the default-permission model so
 the whole repo stays feature-equivalent.

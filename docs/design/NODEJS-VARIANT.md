@@ -1,12 +1,21 @@
-# Node.js Variant — Feasibility & Implementation Proposal
+# Node.js Variant — Feasibility & Implementation
 
-> Date: September 2026 · Status: **proposal / not started** · Owner: TBD
+> Date: September 2026 · Status: **implemented** — Option A (Next.js single app) shipped as
+> **`eskoofy-nodejs-app/`** · Live ledger:
+> [`../../eskoofy-nodejs-app/docs/PORTING-STATUS.md`](../../eskoofy-nodejs-app/docs/PORTING-STATUS.md)
 >
 > **Terminology reminder (important):** The `eskoofy-branding-website/` folder is **NOT a product** —
-> it is our **branding website + license server**. Eskoofy **ships 3 products**
-> (`eskoofy-laravel-app`, `eskoofy-php-app`, `eskoofy-wp-theme`). A Node.js variant would become the
-> **4th product** (`eskoofy-node`). The website only *markets* and *sells* the products, so
-> it is a parity *destination for sales copy* — never a product itself.
+> it is our **branding website + license server**. Eskoofy **ships 4 products**
+> (`eskoofy-laravel-app`, `eskoofy-php-app`, `eskoofy-wp-theme`, `eskoofy-nodejs-app`). The website
+> only *markets* and *sells* the products, so it is a parity *destination for sales copy* — never a
+> product itself.
+>
+> **What shipped:** the folder is `eskoofy-nodejs-app/` (not `eskoofy-node`); the schema port is
+> 107 Prisma models (same table/column names as the app); the route surface (585 routes), the
+> sidebar (95 keys) and the strings (742 × en/bn) are parity-gated; the dashboard has generic
+> CRUD for all resources and the public site has real pages. The remaining work is
+> pixel-level Blade parity, print/PDF, non-CRUD admin screens, business-logic depth and
+> integrations — see the porting ledger.
 
 ---
 
@@ -42,17 +51,17 @@ Next.js is "frontend + backend in one project", the modern equivalent of Laravel
 | `composer test` / PHPUnit | Vitest / Playwright |
 | PWA service worker | same `public/sw.js` pattern — near-copy |
 
-- One project: `eskoofy-node/` (App Router + Prisma + Tailwind). No separate API server.
+- One project: `eskoofy-nodejs-app/` (App Router + Prisma + Tailwind). No separate API server.
 - Public-site SEO via SSR matches current products.
-- Layout:
+- Layout (as shipped):
   ```
-  eskoofy-node/
-    app/            Next.js App Router (pages + route handlers tie to https://)
-    prisma/         schema.prisma (port of the 98-table MySQL schema)
-    lib/            services, auth, middleware helpers
-    components/     React/TS UI (dashboard + site)
-    config/         bd/int profiles + env maps
-    public/         sw.js, offline.html, manifest.json
+  eskoofy-nodejs-app/
+    app/(site)/     public site + login        app/(dashboard)/  dashboard
+    app/api/v1/     JSON API route handlers
+    prisma/         schema.prisma (port of the app's 107-table MySQL schema)
+    lib/            auth, permissions, api-response, i18n, nav, schema, db-query
+    components/     React/TS UI (ui primitives + dashboard + site)
+    config/         eskoolfy.ts (bd/int profiles)
   ```
 
 ### Option B — AdonisJS single app (paradigm match to Laravel)
@@ -73,17 +82,17 @@ Next.js is "frontend + backend in one project", the modern equivalent of Laravel
 
 | Area | Status |
 |---|---|
-| 98-table MySQL schema | Port via Prisma schema; keep the same DB so data could be shared/misd during migration |
+| 100+ table MySQL schema | ✅ **done** — 107 Prisma models, same table/column names, same DB |
 | Payments (bKash/Rocket/Nagad/Stripe/PayPal/Paddle) | All REST APIs with Node SDKs — clean ports |
 | SMS (Twilio/Vonage) | Node SDKs |
 | PDFs (certificates, ID cards, admit cards, receipts) | pdfkit / puppeteer |
 | PWA / offline | service worker already a JS pattern — near-copy |
-| 42 dashboard modules, 200+ routes, 200+ views | **The real effort** — weeks-to-months of porting, then permanent parity upkeep |
+| 42 dashboard modules, 585 routes, 213 dashboard views | ✅ route surface parity-gated; dashboard CRUD generic for all resources; ⚠️ per-view Blade fidelity still pending |
 
 ## 4. Parity rules that apply (from `docs/design/FEATURE-PROPAGATION.md`)
 
 - Default scope for any feature change = **ALL products** (`eskoofy-laravel-app`, `eskoofy-php-app`,
-  `eskoofy-wp-theme`, **and once shipped `eskoofy-node`**) + sales/marketing copy on the
+  `eskoofy-wp-theme`, `eskoofy-nodejs-app`) + sales/marketing copy on the
   **branding website** (`eskoofy-branding-website`).
 - Confirmation gate before cross-product implementation
   (`build/propagate/propagate-feature.sh`).
@@ -92,21 +101,19 @@ Next.js is "frontend + backend in one project", the modern equivalent of Laravel
 - Route/view parity checkers: app ↔ node (and existing app ↔ php, app ↔ theme) must be
   asserted in CI.
 
-## 5. Suggested path
+## 5. Suggested path (what was done)
 
-1. **Add a gated phase** to `WORKPLAN.md` (e.g. Phase 10, gated like Phase 6 was) — do not
-   start until the gate is approved.
-2. **Feature matrix first**: export module × route × view × permission matrix from
-   `eskoofy-laravel-app` (`route:list`, `docs/design/FEATURE-PROPAGATION.md` maps). This is the Node
-   port's acceptance checklist.
-3. **Backend/API first**: in the chosen single app (Option A/B) — Prisma + MySQL against the
-   same schema; reach API parity with `eskoofy-laravel-app` `/api/v1` (same envelope + middleware
-   semantics) before building UI.
-4. **Reuse the license contract** from `eskoofy-branding-website` (`/api/v1/licenses/*`) so the Node
-   product is monetisable via the branding site's license server from day one.
-5. **Then the dashboard**, then the public site (UI parity bar is highest on dashboard).
-6. **Extend propagation maps**: add `eskoofy-node` rows to `docs/design/FEATURE-PROPAGATION.md`
-   and update `build/propagate/propagate-feature.sh` product list.
+1. **Gated phase**: added as `WORKPLAN.md` **Phase 9** (see that file for the task table).
+2. **Feature matrix first**: ✅ the app's `route:list` (585 routes) is checked in as
+   `lib/routes.generated.ts` — the port's acceptance checklist.
+3. **Backend/API first**: ✅ Prisma + MySQL against the same schema; `/api/v1` uses the app's
+   `{success,message,data[,meta]}` envelope, with generic REST over every table.
+4. **License contract**: the branding site's `/api/v1/licenses/*` is untouched and reusable.
+5. **Then the dashboard, then the public site**: ✅ dashboard chrome + generic CRUD, then 19 real
+   public pages.
+6. **Extend propagation maps**: ✅ `eskoofy-nodejs-app` rows added to
+   `docs/design/FEATURE-PROPAGATION.md`, the `build/propagate/propagate-feature.sh` product list,
+   the root `AGENTS.md`/`README.md`, and CI (`.github/workflows/ci.yml`).
 
 ## 6. Honest caveats
 
@@ -118,10 +125,12 @@ Next.js is "frontend + backend in one project", the modern equivalent of Laravel
   decision changes scoping, staffing, and onboarding a lot.
 - Team skills: if there is no TypeScript/Node experience, budget for a learning ramp.
 
-## 7. Open questions for the owner
+## 7. Open questions — resolved / still open
 
-- [ ] Node variant name/folder: `eskoofy-node`?
-- [ ] Is Node the flagship (int) or a parity clone of an existing variant?
-- [ ] Same DB schema (shared data possible) or independent schema?
-- [ ] Who owns it — same team as the php/theme ports, or a TS hire?
-- [ ] Does the branding website get a new `/products/node` (or rename) page?
+- [x] Node variant folder: **`eskoofy-nodejs-app`** (not `eskoofy-node`).
+- [x] Parity clone of the app (a single app; the int/bd profile rule is preserved via
+      `config/eskoolfy.ts`).
+- [x] **Same DB schema** — Prisma models map to the app's exact tables, so data can be shared.
+- [ ] Ownership: same team as the php/theme ports, or a TS hire?
+- [ ] Does the branding website get a new `/products/node` page? (Sales copy is out of scope
+      until the clone reaches pixel parity.)

@@ -1,6 +1,7 @@
 # Development Guide — Running Eskoofy Locally
 
-Eskoofy is a **3-product monorepo** plus a **branding website + license server**.
+Eskoofy is a **4-product monorepo** (Laravel app, raw-PHP port, WordPress theme, Node.js
+clone) plus a **branding website + license server**.
 This guide explains how to run every product and the website on your **development
 server**. Each component is self-contained in its own folder and uses a dedicated
 port so you can run them **side by side** at the same time.
@@ -14,6 +15,7 @@ port so you can run them **side by side** at the same time.
 | Component | Port | Entry point | Stack |
 |---|---|---|---|
 | `eskoofy-laravel-app/` (Laravel) | **8000** | `php artisan serve` | Laravel 12, Blade, Vite/Tailwind 4 |
+| `eskoofy-nodejs-app/` (Node.js clone) | **3000** | `npm run dev` | Next.js App Router + Prisma + Tailwind |
 | `eskoofy-php-app/` (raw PHP) | **8051** | `php -S ... -t public` | Native PHP + PDO/MySQL |
 | `eskoofy-branding-website/` (marketing + license server) | **8011** | `php -S ... -t public` | Raw PHP, no Composer at runtime |
 | `eskoofy-wp-theme/` (WordPress) | **8080** | Docker harness (`docker/theme-test`) | WordPress + Apache, bind-mounted theme |
@@ -27,7 +29,7 @@ Keep `APP_URL` in each `.env` in sync with the port you actually run on.
 |---|---|---|
 | PHP | **8.2+** (CLI + `pdo_mysql`/`pdo_sqlite`) | all products + website |
 | Composer | 2.0+ | app (runtime), php/theme/website (dev tooling) |
-| Node.js + npm | 18+ | app (Vite asset build) |
+| Node.js + npm | **20.9+** (18+ works for the app's Vite build) | app (Vite asset build), `eskoofy-nodejs-app` |
 | MySQL / MariaDB | 8.x / 10.x | php port, website (and optional for the app) |
 | Docker Engine + Compose v2 | ≥ 20.10 (`docker compose` plugin) | theme test harness |
 | Git | any | clone + `git mv` history |
@@ -77,7 +79,45 @@ Commands: `composer test` (PHPUnit), `./vendor/bin/pint --test` (style check),
 > **MySQL variant:** set `DB_CONNECTION=mysql`, `DB_HOST`, `DB_DATABASE`,
 > `DB_USERNAME`, `DB_PASSWORD` in `.env`, then run `php artisan migrate:fresh --seed`.
 
-## 2. eskoofy-php-app (raw PHP port) — port 8051
+## 2. eskoofy-nodejs-app (Node.js clone) — port 3000
+
+A **single-architecture** clone of the Laravel app: the public site, the dashboard and
+`/api/v1` all live in one Next.js project (no separate API server, no SPA). It reads and
+writes the **same database schema** as the app, so point it at the same MySQL database.
+
+```bash
+cd eskoofy-nodejs-app
+cp .env.example .env              # set DATABASE_URL (MySQL) + AUTH_SECRET
+npm install                       # postinstall runs `prisma generate`
+npm run prisma:push               # create the 107 tables (or: npm run prisma:migrate)
+npm run db:seed                   # demo accounts (same as the app)
+npm run dev                       # http://localhost:3000
+```
+
+| What | URL |
+|---|---|
+| Public site | `http://localhost:3000` |
+| Login | `http://localhost:3000/login` |
+| Dashboard | `http://localhost:3000/dashboard` |
+| JSON API | `http://localhost:3000/api/v1` |
+
+Log in with the app's demo account (`admin@school.com` / `ChangeMe!2026$Tr0ng`; override with
+`ADMIN_EMAIL` / `ADMIN_PASSWORD`). The API uses the same
+`{success,message,data[,meta]}` envelope as the app.
+
+Verification and parity:
+
+```bash
+npm run typecheck && npm run lint && npm test   # 48 Vitest tests
+npm run route:parity                            # 585 routes + 95 sidebar keys vs the app
+npm run build                                   # production build
+```
+
+`route:parity` re-runs `php artisan route:list` inside `eskoofy-laravel-app/`, so the app
+must be present (and its Composer deps installed) for that command. What is ported vs
+pending: [`../../eskoofy-nodejs-app/docs/PORTING-STATUS.md`](../../eskoofy-nodejs-app/docs/PORTING-STATUS.md).
+
+## 3. eskoofy-php-app (raw PHP port) — port 8051
 
 Feature-equivalent port in **native PHP with no framework at runtime**; needs a
 MySQL database. No Composer is needed to run it.
@@ -102,10 +142,11 @@ everything through it on Apache).
 
 Tests (dev-only): `composer test`.
 
-## 3. eskoofy-branding-website (marketing + license server) — port 8011
+## 4. eskoofy-branding-website (marketing + license server) — port 8011
 
-The **branding site + license server** — markets and sells the 3 products. Raw
-PHP, no Composer at runtime. Needs its own MySQL database.
+The **branding site + license server** — markets and sells the three school-management
+deployments (Laravel app / raw PHP / WordPress theme). Raw PHP, no Composer at runtime.
+Needs its own MySQL database.
 
 ```bash
 cd eskoofy-branding-website
@@ -128,7 +169,7 @@ language (see `eskoofy-branding-website/README.md`).
 
 Tests: `composer test`.
 
-## 4. eskoofy-wp-theme (WordPress) — port 8080
+## 5. eskoofy-wp-theme (WordPress) — port 8080
 
 The theme runs inside WordPress. The fastest local environment is the
 **Docker harness** in [`docker/theme-test/`](../../docker/theme-test/README.md),
@@ -215,7 +256,8 @@ Existing Docker setups in this repo + this machine:
 
 The app's compose (`cd eskoofy-laravel-app && docker compose up -d`) also gives you a
 ready MySQL 8 at `127.0.0.1:33061` for `eskoofy-php-app`/`eskoofy-branding-website` —
-set `DB_PORT=33061` in their `.env`.
+set `DB_PORT=33061` in their `.env`. For `eskoofy-nodejs-app`, point `DATABASE_URL` at the
+same server, e.g. `mysql://root:root@127.0.0.1:33061/school_db`.
 
 ## Database summary
 
@@ -223,20 +265,22 @@ set `DB_PORT=33061` in their `.env`.
 |---|---|---|
 | `eskoofy-laravel-app` | SQLite (`database/database.sqlite`) | `php artisan migrate:fresh --seed` |
 | `eskoofy-laravel-app` (MySQL) | `eskoofy` (set `DB_*` in `.env`) | `php artisan migrate:fresh --seed` |
+| `eskoofy-nodejs-app` | `eskoofy` (same schema; set `DATABASE_URL` in `.env`) | `npm run prisma:push` + `npm run db:seed` |
 | `eskoofy-php-app` | `eskoofy` | `mysql -u root -p < database/schema.sql` + `php database/seed_demo.php` |
 | `eskoofy-branding-website` | `eskoofy_website` | `mysql -u root -p eskoofy_website < database/schema.sql` |
 | `eskoofy-wp-theme` | MariaDB (Docker) | auto-created on theme activation (`docker/theme-test`) |
 
 ## Running everything at once
 
-Use four terminals (one per component):
+Use five terminals (one per component):
 
 | Terminal | Command | URL |
 |---|---|---|
 | 1 | `cd eskoofy-laravel-app && composer dev` | `http://127.0.0.1:8000` |
-| 2 | `cd eskoofy-php-app && php -S localhost:8051 -t public` | `http://127.0.0.1:8051` |
-| 3 | `cd eskoofy-branding-website && php -S 127.0.0.1:8011 -t public` | `http://127.0.0.1:8011` |
-| 4 | `cd docker/theme-test && docker compose up -d` | `http://localhost:8080` |
+| 2 | `cd eskoofy-nodejs-app && npm run dev` | `http://localhost:3000` |
+| 3 | `cd eskoofy-php-app && php -S localhost:8051 -t public` | `http://127.0.0.1:8051` |
+| 4 | `cd eskoofy-branding-website && php -S 127.0.0.1:8011 -t public` | `http://127.0.0.1:8011` |
+| 5 | `cd docker/theme-test && docker compose up -d` | `http://localhost:8080` |
 
 ## Demo credentials
 
@@ -252,6 +296,7 @@ All products share the same demo accounts. Canonical reference:
 | Accountant | `accountant@school.com` | `accountant123` |
 | Librarian | `librarian@school.com` | `librarian123` |
 | Bulk teachers / students / parents | `teacher1..30@` / `student1..5@` / `parent1..10@` | `password` |
+| Node.js clone admin | `admin@school.com` | from `.env` `ADMIN_PASSWORD` (`ChangeMe!2026$Tr0ng` in dev) |
 | Website admin | `admin@eskoofy.com` | `admin123` |
 
 ## Verifying your setup
@@ -259,6 +304,8 @@ All products share the same demo accounts. Canonical reference:
 ```bash
 cd eskoofy-laravel-app && composer test                # Laravel PHPUnit suite
 cd eskoofy-laravel-app && ./vendor/bin/pint --test     # Laravel code style
+cd eskoofy-nodejs-app && npm run typecheck && npm run lint && npm test   # Node clone
+cd eskoofy-nodejs-app && npm run route:parity          # app <-> node route + sidebar parity
 cd eskoofy-php-app && composer test                # raw-PHP suite (dev-only)
 cd eskoofy-branding-website && composer test            # website suite (DB-free)
 cd eskoofy-wp-theme && composer run lint          # PHPCS (needs composer install)
@@ -266,7 +313,8 @@ cd build && ./export.sh app bd                 # build-box export smoke test
 ```
 
 GitHub Actions (`.github/workflows/ci.yml`) runs all of the above on every
-push/PR, plus exports both BD/INT variants and smoke-tests the artifacts.
+push/PR — including the Node clone's typecheck, lint, Vitest and app↔node parity job —
+plus exports both BD/INT variants and smoke-tests the artifacts.
 
 ## Troubleshooting
 
@@ -285,6 +333,12 @@ push/PR, plus exports both BD/INT variants and smoke-tests the artifacts.
   language; a manual `/language/{en|bn}` switch always wins.
 - **MySQL connection refused** — check the `DB_HOST`/port match your local
   MySQL, and that the DB + user exist before importing the schema.
+- **Node clone cannot reach the database** — `eskoofy-nodejs-app` uses a single
+  `DATABASE_URL` (MySQL DSN, e.g. `mysql://user:pass@127.0.0.1:3306/eskoofy`), not the
+  app's `DB_*` keys. After changing `prisma/schema.prisma`, re-run `npm run prisma:generate`.
+- **`npm run route:parity` fails** — the Laravel app gained/lost/renamed a route or a sidebar
+  key; regenerate `eskoofy-nodejs-app/lib/routes.generated.ts` (and/or update `lib/nav.ts`)
+  so the clone tracks the app.
 
 ## Related docs
 
@@ -294,3 +348,5 @@ push/PR, plus exports both BD/INT variants and smoke-tests the artifacts.
 - [`../operations/DEMO-CREDENTIALS.md`](../operations/DEMO-CREDENTIALS.md) — demo accounts
 - [`../../docker/theme-test/README.md`](../../docker/theme-test/README.md) — theme Docker harness
 - [`../../build/README.md`](../../build/README.md) — build-box export
+- [`../../eskoofy-nodejs-app/docs/PORTING-STATUS.md`](../../eskoofy-nodejs-app/docs/PORTING-STATUS.md) — Node clone: ported vs pending
+- [`../design/VARIANT-BLUEPRINT.md`](../design/VARIANT-BLUEPRINT.md) — how to build a variant from the app

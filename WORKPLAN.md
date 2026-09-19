@@ -4,7 +4,7 @@ Status: draft · Owner: dev · Repo: `school-management-system` (becoming `eskoo
 
 ## Goal
 
-Turn this single Laravel repo into a 3-product monorepo:
+Turn this single Laravel repo into a 4-product monorepo:
 
 | Product | Folder | Stack | Variants |
 |---|---|---|---|

@@ -22,6 +22,22 @@ at `/admin`).
   comment to that effect).
 - The branding site is subscription-only; customers self-register at `/register`.
 
+## Node.js variant (eskoofy-nodejs-app)
+
+Seeded by `eskoofy-nodejs-app/prisma/seed.ts` (`npm run db:seed`). It uses the **same
+canonical admin account** as the app plus one demo class, student and teacher so the
+dashboard renders immediately.
+
+| Name | Email | Password | Role |
+|---|---|---|---|
+| Super Administrator | `admin@school.com` | from `.env` `ADMIN_PASSWORD` (`ChangeMe!2026$Tr0ng` in dev) | `admin` |
+| Demo Teacher | `teacher1@school.com` | `password` | `teacher` |
+| Demo Student | `student1@school.com` | `password` | `student` |
+
+Login at `/login`, dashboard at `/dashboard`. `ADMIN_EMAIL` / `ADMIN_PASSWORD` in the
+environment override the seeded admin account. The variant shares the app's database
+schema, so pointing it at the app's MySQL database gives it the full demo dataset.
+
 ## Admin
 
 | Name | Email | Password | Role |

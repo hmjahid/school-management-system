@@ -4,14 +4,17 @@
 [![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?logo=laravel&logoColor=white)](https://laravel.com/)
 [![PHP](https://img.shields.io/badge/PHP-8.2-777BB4?logo=php&logoColor=white)](https://php.net/)
 [![WordPress](https://img.shields.io/badge/WordPress-6.x-3E5881?logo=wordpress&logoColor=white)](https://wordpress.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-6-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
 
 Eskoofy is a full-featured school management software delivered as a **4-product
 monorepo**: a Laravel 12 application (`eskoofy-laravel-app`), a framework-free raw PHP version
 (`eskoofy-php-app`), a WordPress theme (`eskoofy-wp-theme`) and a single-architecture Node.js
-variant (`eskoofy-nodejs-app`, a phased port of the app). Each product is a
-feature-equivalent port of the same codebase, sharing one BD/INT build-time variant strategy.
-The **branding website + license server** (`eskoofy-branding-website`) markets and sells the
-products — it is **not a product** itself.
+clone of the app (`eskoofy-nodejs-app` — Next.js App Router + Prisma, one codebase for the
+public site, dashboard and API). Each product is a feature-equivalent port of the same
+codebase, sharing one BD/INT build-time variant strategy. The **branding website + license
+server** (`eskoofy-branding-website`) markets and sells the products — it is **not a product**
+itself.
 
 > **BD vs INT**: `bd` is the current Bangladeshi version (Bengali + English, ministry
 > links, bKash/Rocket/Nagad). `int` is the international English-only version
@@ -69,7 +72,7 @@ products — it is **not a product** itself.
 ├── eskoofy-laravel-app/          Laravel 12 app (bd/int profiles via config/eskoolfy.php)
 ├── eskoofy-php-app/          Raw PHP port — no Composer at runtime, shared hosting
 ├── eskoofy-wp-theme/        WordPress theme — plugin-theme hybrid
-├── eskoofy-nodejs-app/      Node.js variant — Next.js App Router + Prisma (phased port)
+├── eskoofy-nodejs-app/      Node.js clone — Next.js App Router + Prisma + Tailwind
 ├── eskoofy-branding-website/      Branding site + license server (NOT a product) — int-only
 ├── build/                BD/INT export box + feature-propagation gate (export.sh, propagate/)
 ├── docker/               Dev tooling (theme-test WordPress stack)
@@ -85,7 +88,7 @@ running every product and the website locally. Summary:
 
 ### Requirements
 
-PHP **8.2+**, Composer 2+, Node 18+, MySQL/MariaDB (the app also works on SQLite), and
+PHP **8.2+**, Composer 2+, Node **20.9+**, MySQL/MariaDB (the app also works on SQLite), and
 Docker (for the WordPress theme harness). Each component uses its own port so they can run
 side by side:
 
@@ -93,6 +96,7 @@ side by side:
 |---|---|---|
 | `eskoofy-laravel-app` | 8000 | `php artisan serve` |
 | `eskoofy-php-app` | 8051 | `php -S localhost:8051 -t public` |
+| `eskoofy-nodejs-app` | 3000 | `npm run dev` |
 | `eskoofy-branding-website` | 8011 | `php -S 127.0.0.1:8011 -t public` |
 | `eskoofy-wp-theme` | 8080 | Docker harness (`docker/theme-test`) |
 
@@ -111,6 +115,37 @@ Open **http://127.0.0.1:8000** → `/login` → `/dashboard`. Admin:
 `admin@school.com` / `ADMIN_PASSWORD` in `.env` (dev default `ChangeMe!2026$Tr0ng`).
 Student/guardian portals: `/student/login`, `/guardian/login`. API: `/api/v1`.
 Individual servers: `php artisan serve` + `npm run dev`.
+
+### eskoofy-nodejs-app (Node.js clone — port 3000)
+
+Single-architecture Next.js app: public site, dashboard and `/api/v1` all in one project
+(no separate API server, no SPA). It uses the **same database schema** as the Laravel app.
+
+```bash
+cd eskoofy-nodejs-app
+cp .env.example .env          # set DATABASE_URL (MySQL) + AUTH_SECRET
+npm install
+npm run prisma:generate
+npm run prisma:push           # create the 107 tables (or prisma:migrate)
+npm run db:seed               # demo accounts (see below)
+npm run dev                   # http://localhost:3000
+```
+
+Login at `/login` with the app's admin demo account (`admin@school.com` /
+`ChangeMe!2026$Tr0ng`). Dashboard: `/dashboard`. API: `/api/v1` (same
+`{success,message,data[,meta]}` envelope as the app).
+
+Verification & parity:
+
+```bash
+npm run typecheck && npm run lint && npm test   # 48 Vitest tests
+npm run route:parity                            # 585 routes + 95 sidebar keys vs the app
+npm run build                                   # production build
+```
+
+`npm run route:parity` re-runs `php artisan route:list` in `eskoofy-laravel-app/`
+and fails if the Node route surface drifts. Porting ledger:
+[`eskoofy-nodejs-app/docs/PORTING-STATUS.md`](eskoofy-nodejs-app/docs/PORTING-STATUS.md).
 
 ### eskoofy-php-app (raw PHP — port 8051)
 
@@ -184,14 +219,15 @@ All products share the same demo accounts — canonical list in
 
 | Product | Command |
 |---------|---------|
-| Laravel | `cd eskoofy-laravel-app && composer test` (PHPUnit, 923 tests) + `./vendor/bin/pint --test` |
+| Laravel | `cd eskoofy-laravel-app && composer test` (PHPUnit, 927 tests) + `./vendor/bin/pint --test` |
 | Raw PHP | `cd eskoofy-php-app && composer test` (PHPUnit, 299 tests / 604 assertions) |
 | WordPress theme | `cd eskoofy-wp-theme && composer run lint` (PHPCS) |
-| Website | `cd eskoofy-branding-website && composer test` (PHPUnit, 79 tests / 214 assertions) |
+| Node.js clone | `cd eskoofy-nodejs-app && npm run typecheck && npm run lint && npm test` (48 Vitest tests) + `npm run route:parity` |
+| Website | `cd eskoofy-branding-website && composer test` (PHPUnit, 103 tests / 303 assertions) |
 
 GitHub Actions (`.github/workflows/ci.yml`) runs the Laravel test suite, theme
-linting, PHP + website tests, and export smoke tests for the app/theme/php/website
-variants on every push/PR.
+linting, PHP + website tests, the Node typecheck/lint/test/parity job, and export
+smoke tests for the app/theme/php/website variants on every push/PR.
 
 ## Documentation
 
@@ -205,9 +241,11 @@ The tree is organized into folders by topic:
   `API-PAYMENTS.md`, `ADMISSIONS.md`, …)
 - `docs/design/` — product proposals, research and cross-product rules
   (`FEATURE-PROPAGATION.md` — feature-consistency rule + runner
-  `build/propagate/propagate-feature.sh`; `SMART-SCHOOL-IMPLEMENTATION.md` — planned
-  "smart" layer; `NODEJS-VARIANT.md` — proposed 4th Node product; `COMPETITIVE-ANALYSIS.md`,
-  `PAYMENT-MODEL.md` — research + freemium tiered pricing for the branding site)
+  `build/propagate/propagate-feature.sh`; `VARIANT-BLUEPRINT.md` — phased roadmap for adding
+  a product with the app as reference; `NODEJS-VARIANT.md` — Node stack decision (shipped as
+  `eskoofy-nodejs-app`); `SMART-SCHOOL-IMPLEMENTATION.md` — planned "smart" layer;
+  `SUPPORT-WIDGET.md` — branding-site support widget approach;
+  `COMPETITIVE-ANALYSIS.md`, `PAYMENT-MODEL.md` — research + tiered pricing for the branding site)
 - `docs/features/` — improvement proposals + implementation trackers
   (`FEATURE-IMPROVEMENTS.md`, `UIUX-IMPROVEMENTS.md`, `UIUX-GUIDELINES.md`,
   `IMPLEMENTATION-PLAN.md`, `MARKETPLACE-ELIGIBILITY.md`)
@@ -216,9 +254,21 @@ The tree is organized into folders by topic:
   `SENIOR-PM-REVIEW-REPORT.md`, `REVIEW-PROMPT.md`)
 - `docs/planning/` — historical plans, audits and reviews (read-only record)
 - `docs/prompts/` + `docs/prompts/master/` — feature-implementation prompt files
+  (incl. `product-folder-rename-branding-and-node-variant.md`, the session that renamed the
+  product folders, extended the branding site and built the Node clone)
 - `docs/notes/` — working notes / journal (tracked)
 - `AGENTS.md` — agent conventions for this monorepo (read first)
-- `WORKPLAN.md` — phase plan (0–8) and BD/INT variant rules
+- `WORKPLAN.md` — phase plan (0–9) and BD/INT variant rules
+
+Per-product documentation lives inside each product folder:
+
+| Product | Docs |
+|---|---|
+| `eskoofy-laravel-app/` | `docs/USER-MANUAL.md`, `docs/SETUP-GUIDE.md`, `AGENTS.md` |
+| `eskoofy-php-app/` | `docs/USER-MANUAL.md`, `docs/SETUP-GUIDE.md`, `AGENTS.md` |
+| `eskoofy-wp-theme/` | `docs/USER-MANUAL.md`, `docs/SETUP-GUIDE.md`, `AGENTS.md` |
+| `eskoofy-nodejs-app/` | `docs/PORTING-STATUS.md`, `README.md`, `AGENTS.md` |
+| `eskoofy-branding-website/` | `docs/USER-MANUAL.md`, `docs/SETUP-GUIDE.md`, `AGENTS.md` |
 
 ## License
 

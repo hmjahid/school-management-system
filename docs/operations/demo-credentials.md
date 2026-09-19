@@ -13,5 +13,7 @@ See [DEMO-CREDENTIALS.md](./DEMO-CREDENTIALS.md) for the full reference.
 | **eskoofy-laravel-app** (Laravel) | `php artisan migrate:fresh --seed` (requires `ALLOW_DEMO_DATA=true` in production) |
 | **eskoofy-php-app** (raw PHP) | `php database/seed_demo.php` |
 | **eskoofy-wp-theme** (WordPress) | Users auto-created on theme activation (`after_switch_theme` → `esk_create_demo_users()`) |
+| **eskoofy-nodejs-app** (Node.js) | `npm run db:seed` (same canonical admin account + a demo class/student/teacher) |
+| **eskoofy-branding-website** (license server) | Seeded by `database/schema.sql` (`admin@eskoofy.com` / `admin123`) |
 
-All three products use the same email/password pairs. See the canonical file for the full table.
+All products use the same email/password pairs. See the canonical file for the full table.

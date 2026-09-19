@@ -19,18 +19,23 @@ docs/
 ## Getting started
 
 - **[`guides/DEVELOPMENT.md`](guides/DEVELOPMENT.md)** — **start here.** How to run the
-  Laravel app, the raw-PHP port, the WordPress theme (Docker harness) and the branding
-  website on a development server: prerequisites, ports, quick-start commands per
-  component, demo credentials, verification and troubleshooting.
+  Laravel app, the raw-PHP port, the WordPress theme (Docker harness), the Node.js clone and
+  the branding website on a development server: prerequisites, ports, quick-start commands
+  per component, demo credentials, verification and troubleshooting.
 - **[`operations/DEMO-CREDENTIALS.md`](operations/DEMO-CREDENTIALS.md)** — seeded demo
   accounts for all products (+ lowercase alias `demo-credentials.md`).
 - **[`design/FEATURE-PROPAGATION.md`](design/FEATURE-PROPAGATION.md)** — the
   cross-product feature-consistency rule + runner (`build/propagate/propagate-feature.sh`).
+- **[`design/VARIANT-BLUEPRINT.md`](design/VARIANT-BLUEPRINT.md)** — the phased roadmap for
+  standing up a new product with the Laravel app as the reference.
+- **[`../eskoofy-nodejs-app/docs/PORTING-STATUS.md`](../eskoofy-nodejs-app/docs/PORTING-STATUS.md)** —
+  what the Node.js clone has ported vs what remains.
 
 ## Guides (`guides/`)
 
-- `DEVELOPMENT.md` — run all products + the website in the development server (ports,
-  quick starts, demo accounts, verification, troubleshooting)
+- `DEVELOPMENT.md` — run all products (Laravel, raw PHP, Node.js clone, WordPress theme) +
+  the website in the development server (ports, quick starts, demo accounts, verification,
+  troubleshooting)
 
 ## Operations (`operations/`)
 
@@ -55,8 +60,13 @@ docs/
 - `BRANDING-SITE-IMPROVEMENTS.md` — actionable implementation suggestions for
   `eskoofy-branding-website/` (pricing toggles, role-based feature showcase, trust/comparison pages,
   conversion CTAs) mapped to the existing pages
-- `NODEJS-VARIANT.md` — feasibility + stack recommendation for a proposed 4th product
-  (`eskoofy-node`, NestJS + Next.js) and the "website is branding, not a product" framing
+- `NODEJS-VARIANT.md` — feasibility + stack decision for the 4th product; **shipped** as
+  `eskoofy-nodejs-app` (Next.js single-architecture). Live ledger:
+  `../eskoofy-nodejs-app/docs/PORTING-STATUS.md`
+- `VARIANT-BLUEPRINT.md` — phased roadmap for building a new product from the Laravel app,
+  plus the app/php/theme/node parity checklist
+- `SUPPORT-WIDGET.md` — the branding site's customer-support widget: professional approach,
+  what was implemented, configuration and escalation path
 - `SMART-SCHOOL-IMPLEMENTATION.md` — implementation plan for the "smart" layer
   (Tier 1 automation engines, Tier 2 analytics/prediction, Tier 3 opt-in AI assistant)
 
@@ -105,6 +115,8 @@ Historical plans, audits and reviews (read-only record — do not edit):
 - `features-impl-prompt-4.md` … `features-impl-prompt-16.md`
 - `product-polish-and-docs-prompt.md` — rebrand, sidebar parity, documentation and
   feature-propagation implementation session
+- `product-folder-rename-branding-and-node-variant.md` — product folder rename + branding-site
+  upgrades (support widget, visitor log, contact page, enterprise footer) + Node.js clone
 - `master/` — legacy master prompt files (controller-vs-schema audit, INT
   messaging/branding site, website PWA/geo/language/posts)
 
@@ -117,8 +129,9 @@ Historical plans, audits and reviews (read-only record — do not edit):
 
 ## Build & CI
 
-- `.github/workflows/ci.yml` — GitHub Actions: runs tests + lint, exports both BD/INT
-  variants, smoke-tests artifacts, uploads zips.
+- `.github/workflows/ci.yml` — GitHub Actions: runs the Laravel suite + Pint, the raw-PHP and
+  website suites, theme PHPCS, the Node clone (typecheck + lint + Vitest + app↔node route
+  parity), exports both BD/INT variants, smoke-tests artifacts, uploads zips.
 - `build/export.sh` — local export script (same logic as CI).
 - `build/profiles/profiles.php` — single source of truth for BD/INT variant differences.
 - `build/propagate/propagate-feature.sh` — cross-product feature propagation gate

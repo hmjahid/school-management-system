@@ -1,6 +1,11 @@
 /**
  * Seed the minimum demo data so the dashboard renders after `db:seed`.
- * Mirrors the demo credentials in `docs/operations/DEMO-CREDENTIALS.md`.
+ *
+ * Uses the same canonical demo accounts as the Laravel app
+ * (`docs/operations/DEMO-CREDENTIALS.md`) so the clone behaves identically:
+ *   admin@school.com     / ChangeMe!2026$Tr0ng   (admin)
+ *   teacher1@school.com  / password              (teacher)
+ *   student1@school.com  / password              (student)
  *
  * Usage: npm run db:seed
  */
@@ -9,6 +14,10 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@school.com";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "ChangeMe!2026$Tr0ng";
+const DEMO_PASSWORD = "password";
+
 async function ensureRole(name: string) {
   const existing = await prisma.roles.findFirst({ where: { name } });
   if (existing) return existing;
@@ -16,19 +25,20 @@ async function ensureRole(name: string) {
 }
 
 async function main(): Promise<void> {
-  const password = await bcrypt.hash("admin123", 12);
+  const adminPassword = await bcrypt.hash(ADMIN_PASSWORD, 12);
+  const demoPassword = await bcrypt.hash(DEMO_PASSWORD, 12);
 
   const adminRole = await ensureRole("admin");
   const studentRole = await ensureRole("student");
   const teacherRole = await ensureRole("teacher");
 
   const admin = await prisma.users.upsert({
-    where: { email: "admin@eskoofy.com" },
+    where: { email: ADMIN_EMAIL },
     update: {},
     create: {
-      name: "Eskoofy Admin",
-      email: "admin@eskoofy.com",
-      password,
+      name: "Super Administrator",
+      email: ADMIN_EMAIL,
+      password: adminPassword,
       role_id: adminRole.id,
       role: "admin",
     },
@@ -47,12 +57,12 @@ async function main(): Promise<void> {
   });
 
   const studentUser = await prisma.users.upsert({
-    where: { email: "student@eskoofy.com" },
+    where: { email: "student1@school.com" },
     update: {},
     create: {
       name: "Demo Student",
-      email: "student@eskoofy.com",
-      password,
+      email: "student1@school.com",
+      password: demoPassword,
       role_id: studentRole.id,
       role: "student",
     },
@@ -76,12 +86,12 @@ async function main(): Promise<void> {
   });
 
   const teacherUser = await prisma.users.upsert({
-    where: { email: "teacher@eskoofy.com" },
+    where: { email: "teacher1@school.com" },
     update: {},
     create: {
       name: "Demo Teacher",
-      email: "teacher@eskoofy.com",
-      password,
+      email: "teacher1@school.com",
+      password: demoPassword,
       role_id: teacherRole.id,
       role: "teacher",
     },
@@ -97,7 +107,7 @@ async function main(): Promise<void> {
     },
   });
 
-  console.log(`Seeded admin user #${admin.id} (admin@eskoofy.com / admin123)`);
+  console.log(`Seeded admin user #${admin.id} (${ADMIN_EMAIL} / ${ADMIN_PASSWORD})`);
 }
 
 main()

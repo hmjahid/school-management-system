@@ -288,9 +288,9 @@ isnot the nodejs app a single architecture app? tell me only
 
 complete the full clone. continue untill finished. donot stop. 
 
-
-
 now update root readme file and other documentations for the lastest changes.
+
+do all yourself for me
 
 
 

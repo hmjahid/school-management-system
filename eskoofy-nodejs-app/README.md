@@ -26,7 +26,7 @@ cp .env.example .env
 npm install
 npm run prisma:generate
 npm run prisma:db:push   # or: npm run prisma:migrate
-npm run db:seed          # admin@eskoofy.com / admin123
+npm run db:seed          # admin@school.com / ChangeMe!2026$Tr0ng (same as the app)
 
 npm run dev              # http://localhost:3000
 ```

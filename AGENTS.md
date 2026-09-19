@@ -4,7 +4,7 @@ Eskoofy is a **4-product** monorepo (app / raw-PHP / WP theme / Node.js variant)
 lives in its own folder with its own `AGENTS.md`. The `eskoofy-branding-website/` folder is
 **NOT a product** — it is the **branding website + license server** that markets and sells the
 products (see `docs/design/NODEJS-VARIANT.md` for the "product vs website" terminology; the
-Node variant is `eskoofy-nodejs-app/`, a phased port of the app).
+Node variant is `eskoofy-nodejs-app/`, a clone of the app).
 
 ## Layout
 
