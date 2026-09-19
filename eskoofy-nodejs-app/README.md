@@ -25,11 +25,16 @@ cp .env.example .env
 
 npm install
 npm run prisma:generate
-npm run prisma:db:push   # or: npm run prisma:migrate
-npm run db:seed          # admin@school.com / ChangeMe!2026$Tr0ng (same as the app)
+npm run prisma:migrate    # or: npm run prisma:push (creates the 107 tables)
+npm run db:seed           # admin@school.com / ChangeMe!2026$Tr0ng (same as the app)
 
-npm run dev              # http://localhost:3000
+npm run dev               # http://localhost:3000
 ```
+
+> **Local database:** the default `DATABASE_URL` in `.env.example` points at the shared
+> `esk-mariadb` container (host port **3307**, user `esk`/`eskpw`, database `eskoofy_node`).
+> Start it with `docker start esk-mariadb`; if the DB refuses connections this is almost
+> always the cause.
 
 ## Scripts
 

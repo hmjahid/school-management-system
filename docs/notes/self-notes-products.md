@@ -295,7 +295,7 @@ do all yourself for me
 
 
 
-
+make ensure that one varaint expored data (backup, students list, staff lists etc) can be used in another varinats
 
 now implement the frontend parity research plan
 

@@ -87,11 +87,22 @@ writes the **same database schema** as the app, so point it at the same MySQL da
 
 ```bash
 cd eskoofy-nodejs-app
-cp .env.example .env              # set DATABASE_URL (MySQL) + AUTH_SECRET
+cp .env.example .env              # DATABASE_URL + AUTH_SECRET
+docker start esk-mariadb          # DB on 127.0.0.1:3307 (database: eskoofy_node)
 npm install                       # postinstall runs `prisma generate`
 npm run prisma:push               # create the 107 tables (or: npm run prisma:migrate)
 npm run db:seed                   # demo accounts (same as the app)
 npm run dev                       # http://localhost:3000
+```
+
+The bundled `.env.example` points at the shared `esk-mariadb` container
+(`mysql://esk:eskpw@127.0.0.1:3307/eskoofy_node`). Create that database once (as root, or
+grant `esk` access) before the first `prisma:push`:
+
+```bash
+docker exec esk-mariadb mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" -e \
+  "CREATE DATABASE IF NOT EXISTS eskoofy_node CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; \
+   GRANT ALL PRIVILEGES ON eskoofy_node.* TO 'esk'@'%'; FLUSH PRIVILEGES;"
 ```
 
 | What | URL |
@@ -213,11 +224,12 @@ tables are created automatically on activation. Lint the theme with
 
 ## Database via Docker (optional)
 
-`eskoofy-php-app` and `eskoofy-branding-website` require MySQL. Instead of installing a DB
-server locally, run one in a container and point the component's `.env` `DB_*`
-keys at it. **A ready-made container already exists on this machine** —
-`esk-mariadb` (mariadb 11, host port **3307**, user `esk` / `eskpw`) — holding
-both the `eskoofy_website` and `eskoofy_php` databases:
+`eskoofy-php-app`, `eskoofy-nodejs-app` and `eskoofy-branding-website` require MySQL.
+Instead of installing a DB server locally, run one in a container and point the
+component's `.env` (`DB_*` keys, or `DATABASE_URL` for the Node clone) at it. **A ready-made
+container already exists on this machine** — `esk-mariadb` (mariadb 11, host port **3307**,
+user `esk` / `eskpw`) — holding the `eskoofy_website`, `eskoofy_php` and `eskoofy_node`
+databases:
 
 ```bash
 docker start esk-mariadb        # DB on 127.0.0.1:3307
@@ -250,7 +262,7 @@ Existing Docker setups in this repo + this machine:
 
 | Setup | Container | DB image | Host port | Databases |
 |---|---|---|---|---|
-| **Local dev DB (this machine)** | `esk-mariadb` | MariaDB 11 | `3307` | `eskoofy_website`, `eskoofy_php` (user `esk`/`eskpw`) |
+| **Local dev DB (this machine)** | `esk-mariadb` | MariaDB 11 | `3307` | `eskoofy_website`, `eskoofy_php`, `eskoofy_node` (user `esk`/`eskpw`) |
 | `docker/theme-test/docker-compose.yml` | `db` (theme harness) | MariaDB 11.4 | internal (compose network) | `wordpress` |
 | `eskoofy-laravel-app/docker-compose.yml` | `db` (app prod-like) | MySQL 8.0 | `33061` | `school_db` |
 
@@ -265,7 +277,7 @@ same server, e.g. `mysql://root:root@127.0.0.1:33061/school_db`.
 |---|---|---|
 | `eskoofy-laravel-app` | SQLite (`database/database.sqlite`) | `php artisan migrate:fresh --seed` |
 | `eskoofy-laravel-app` (MySQL) | `eskoofy` (set `DB_*` in `.env`) | `php artisan migrate:fresh --seed` |
-| `eskoofy-nodejs-app` | `eskoofy` (same schema; set `DATABASE_URL` in `.env`) | `npm run prisma:push` + `npm run db:seed` |
+| `eskoofy-nodejs-app` | `eskoofy_node` (same schema, `esk-mariadb` :3307) | `docker start esk-mariadb` + `npm run prisma:push` + `npm run db:seed` |
 | `eskoofy-php-app` | `eskoofy` | `mysql -u root -p < database/schema.sql` + `php database/seed_demo.php` |
 | `eskoofy-branding-website` | `eskoofy_website` | `mysql -u root -p eskoofy_website < database/schema.sql` |
 | `eskoofy-wp-theme` | MariaDB (Docker) | auto-created on theme activation (`docker/theme-test`) |
@@ -331,6 +343,11 @@ plus exports both BD/INT variants and smoke-tests the artifacts.
   (HMR) or `npm run build`.
 - **Website locale surprises** — the geo/language cookie decides the default
   language; a manual `/language/{en|bn}` switch always wins.
+- **`SQLSTATE[HY000] [2002] Connection refused` (raw-PHP app, website, Node clone)** — the
+  shared database container is almost certainly stopped. `esk-mariadb` already has
+  `restart=unless-stopped`, so a manual stop is the usual cause:
+  `docker start esk-mariadb` (then confirm `ss -ltn | grep 3307`). Symptom in the browser is a
+  500 on `POST /login` with a PDOException from `app/Core/Database.php`.
 - **MySQL connection refused** — check the `DB_HOST`/port match your local
   MySQL, and that the DB + user exist before importing the schema.
 - **Node clone cannot reach the database** — `eskoofy-nodejs-app` uses a single
