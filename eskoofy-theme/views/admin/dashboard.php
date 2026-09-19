@@ -91,6 +91,35 @@ foreach ( $expenseData as $i => $v ) { $x = ( $i + 0.5 ) * 600 / 12; $y = 200 - 
 
 $cur = get_option( 'esk_currency', '৳' );
 $fmt = static function ( float $n ): string { return number_format( $n, 2 ); };
+
+/* ── Setup checklist (mirrors the app's onboarding banner) ─────────── */
+$setup_items = array(
+	array( __( 'Add school information', 'eskoofy' ), '' !== (string) esk_get_option( 'school_name', '' ) ),
+	array( __( 'Set timezone & locale', 'eskoofy' ), '' !== (string) esk_get_option( 'timezone', '' ) ),
+	array( __( 'Create an academic session', 'eskoofy' ), false ),
+	array( __( 'Add classes & batches', 'eskoofy' ), false ),
+	array( __( 'Add your teachers', 'eskoofy' ), false ),
+	array( __( 'Configure payment', 'eskoofy' ), false ),
+);
+$tbl_checks = array(
+	2 => 'esk_academic_sessions',
+	3 => 'esk_classes',
+	4 => 'esk_teachers',
+);
+foreach ( $tbl_checks as $idx => $raw ) {
+	$table = $wpdb->prefix . $raw;
+	if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table ) {
+		$setup_items[ $idx ][1] = ( (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ) ) > 0;
+	}
+}
+$gateways = $wpdb->prefix . 'esk_payment_gateways';
+if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $gateways ) ) === $gateways ) {
+	$setup_items[5][1] = ( (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$gateways} WHERE is_active = 1" ) ) > 0;
+}
+$setup_remaining = 0;
+foreach ( $setup_items as $item ) { if ( ! $item[1] ) { $setup_remaining++; } }
+$setup_total     = count( $setup_items );
+$setup_percent   = $setup_total > 0 ? (int) round( 100 * ( $setup_total - $setup_remaining ) / $setup_total ) : 100;
 ?>
 <div class="wrap esk-admin-wrap">
 
@@ -110,6 +139,39 @@ $fmt = static function ( float $n ): string { return number_format( $n, 2 ); };
 			</a>
 		</div>
 	</div>
+
+	<?php if ( $setup_remaining > 0 ) : ?>
+		<div class="mb-6 overflow-hidden rounded-xl border border-sky-200/70 bg-gradient-to-r from-sky-50 via-white to-white shadow-sm dark:border-sky-900/50 dark:from-sky-950/40 dark:via-slate-800 dark:to-slate-800" data-setup-reminder>
+			<div class="flex flex-wrap items-center gap-4 p-5">
+				<span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-400"><span class="dashicons dashicons-clipboard"></span></span>
+				<div class="min-w-0 flex-1">
+					<p class="text-sm font-semibold text-slate-900 dark:text-white"><?php echo esc_html( sprintf( __( '%1$d of %2$d setup steps remaining', 'eskoofy' ), $setup_remaining, $setup_total ) ); ?></p>
+					<div class="mt-2 h-1.5 w-full max-w-md overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
+						<div class="h-full rounded-full bg-gradient-to-r from-sky-400 to-brand-500 transition-all" style="width: <?php echo esc_attr( (string) $setup_percent ); ?>%"></div>
+					</div>
+				</div>
+				<a href="<?php echo esc_url( esk_dashboard_url( 'esk-onboarding' ) ); ?>" class="inline-flex items-center gap-1.5 rounded-lg bg-sky-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-sky-700 dark:bg-sky-500 dark:hover:bg-sky-600">
+					<span class="dashicons dashicons-megaphone"></span>
+					<?php esc_html_e( 'Start setup', 'eskoofy' ); ?>
+				</a>
+				<button type="button" data-setup-dismiss class="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-300" aria-label="<?php esc_attr_e( 'Close', 'eskoofy' ); ?>">
+					<span class="dashicons dashicons-no-alt"></span>
+				</button>
+			</div>
+		</div>
+		<script>
+		(function(){
+			var el = document.querySelector('[data-setup-reminder]');
+			if (!el) { return; }
+			if (window.localStorage.getItem('dc_setup_reminder_dismissed') === '1') { el.remove(); return; }
+			var btn = el.querySelector('[data-setup-dismiss]');
+			if (btn) { btn.addEventListener('click', function () {
+				window.localStorage.setItem('dc_setup_reminder_dismissed', '1');
+				el.remove();
+			}); }
+		})();
+		</script>
+	<?php endif; ?>
 
 	<div class="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
 		<a href="<?php echo esc_url( esk_dashboard_url( 'esk-students' ) ); ?>" class="admin-stat-card block">

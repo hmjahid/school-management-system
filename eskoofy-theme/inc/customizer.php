@@ -120,9 +120,30 @@ function esk_register_customizer( WP_Customize_Manager $wp_customize ): void {
 		'type'    => 'url',
 	) );
 
+	$wp_customize->add_setting( 'esk_social_instagram', array( 'default' => '', 'sanitize_callback' => 'esc_url_raw' ) );
+	$wp_customize->add_control( 'esk_social_instagram', array(
+		'label'   => esc_html__( 'Instagram URL', 'eskoofy' ),
+		'section' => 'esk_footer',
+		'type'    => 'url',
+	) );
+
+	$wp_customize->add_setting( 'esk_social_twitter', array( 'default' => '', 'sanitize_callback' => 'esc_url_raw' ) );
+	$wp_customize->add_control( 'esk_social_twitter', array(
+		'label'   => esc_html__( 'X / Twitter URL', 'eskoofy' ),
+		'section' => 'esk_footer',
+		'type'    => 'url',
+	) );
+
 	$wp_customize->add_setting( 'esk_social_youtube', array( 'default' => '', 'sanitize_callback' => 'esc_url_raw' ) );
 	$wp_customize->add_control( 'esk_social_youtube', array(
 		'label'   => esc_html__( 'YouTube URL', 'eskoofy' ),
+		'section' => 'esk_footer',
+		'type'    => 'url',
+	) );
+
+	$wp_customize->add_setting( 'esk_social_linkedin', array( 'default' => '', 'sanitize_callback' => 'esc_url_raw' ) );
+	$wp_customize->add_control( 'esk_social_linkedin', array(
+		'label'   => esc_html__( 'LinkedIn URL', 'eskoofy' ),
 		'section' => 'esk_footer',
 		'type'    => 'url',
 	) );

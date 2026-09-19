@@ -1424,3 +1424,36 @@ video {
     display: none;
   }
 }
+
+
+/* Eskoofy brand utilities for the public build (mirror of inc/app-dashboard.css).
+   The public Tailwind build ships without the brand palette; these rules are what
+   the header/footer templates reference (social icons, newsletter, logo letter). */
+:root {
+  --color-brand-50: oklch(97% 0.02 250);
+  --color-brand-100: oklch(93% 0.04 250);
+  --color-brand-400: oklch(63% 0.16 250);
+  --color-brand-500: oklch(55% 0.18 250);
+  --color-brand-600: oklch(48% 0.18 250);
+  --color-brand-700: oklch(42% 0.16 250);
+  --color-brand-800: oklch(35% 0.14 250);
+  --color-brand-900: oklch(28% 0.12 250);
+}
+.bg-brand-600 {
+  background-color: var(--color-brand-600);
+}
+.bg-brand-700 {
+  background-color: var(--color-brand-700);
+}
+.hover\:bg-brand-600:hover {
+  background-color: var(--color-brand-600);
+}
+.hover\:bg-brand-700:hover {
+  background-color: var(--color-brand-700);
+}
+.focus\:border-brand-500:focus {
+  border-color: var(--color-brand-500);
+}
+.focus\:ring-brand-500\/30:focus {
+  --tw-ring-color: color-mix(in oklab, var(--color-brand-500) 30%, transparent);
+}

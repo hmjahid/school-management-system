@@ -187,6 +187,14 @@ if ( ! function_exists( 'esk_site_ui' ) ) {
 				return $default;
 			}
 		}
+		// Global-labels override (Settings → Global Labels): a saved option
+		// beats the language file, mirroring the app's label overrides.
+		if ( ! is_array( $value ) && is_scalar( $value ) ) {
+			$override = get_option( 'esk_label_' . str_replace( '.', '_', $key ), '' );
+			if ( is_string( $override ) && '' !== $override ) {
+				return $override;
+			}
+		}
 		return $value;
 	}
 }
@@ -333,11 +341,20 @@ if ( ! function_exists( 'esk_social_profiles' ) ) {
 	function esk_social_profiles(): array {
 		$icons = esk_social_icons();
 		$order = array( 'facebook', 'instagram', 'twitter', 'youtube', 'linkedin' );
+		// Demo defaults mirror the app's WebsiteSettingSeeder so the icons render
+		// out of the box; admins can override each URL or toggle it off.
+		$defaults = array(
+			'facebook' => 'https://facebook.com/exampleschool',
+			'instagram' => 'https://instagram.com/exampleschool',
+			'twitter'  => 'https://twitter.com/exampleschool',
+			'youtube'  => 'https://youtube.com/exampleschool',
+			'linkedin' => 'https://linkedin.com/school/exampleschool',
+		);
 		$out   = array();
 		foreach ( $order as $key ) {
-			$url = (string) esk_school( 'social_' . $key . '_url', '' );
+			$url = (string) esk_school( 'social_' . $key . '_url', $defaults[ $key ] );
 			if ( '' === $url ) {
-				$url = (string) esk_school( 'social_' . $key, '' );
+				$url = (string) esk_school( 'social_' . $key, $defaults[ $key ] );
 			}
 			if ( '' === $url ) {
 				continue;

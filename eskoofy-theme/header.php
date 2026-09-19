@@ -211,12 +211,6 @@ $esc = static fn( string $svg ): string => wp_kses_post( $svg );
 					<a href="<?php echo esc_url( $social['url'] ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php echo esc_attr( $social['label'] ); ?>" class="text-blue-200 transition hover:text-white"><?php echo $esc( $social['svg'] ); // phpcs:ignore ?></a>
 				<?php endforeach; ?>
 			</div>
-			<span class="hidden h-4 w-px bg-blue-600 sm:block" aria-hidden="true"></span>
-			<?php if ( $is_logged_in ) : ?>
-				<a href="<?php echo esc_url( wp_logout_url( home_url( '/' ) ) ); ?>" class="whitespace-nowrap font-medium text-blue-200 hover:text-white"><?php echo esc_html( (string) esk_site_ui( 'nav.logout', '' ) ); ?></a>
-			<?php else : ?>
-				<a href="<?php echo esc_url( home_url( '/login/' ) ); ?>" class="whitespace-nowrap font-medium text-blue-200 hover:text-white"><?php echo esc_html( (string) esk_site_ui( 'nav.login', '' ) ); ?></a>
-			<?php endif; ?>
 		</div>
 	</div>
 </div>
@@ -376,11 +370,11 @@ $esc = static fn( string $svg ): string => wp_kses_post( $svg );
 	<?php endif; ?>
 	<div class="esk-panel-actions">
 		<?php if ( $is_logged_in ) : ?>
+			<a href="<?php echo esc_url( current_user_can( 'manage_options' ) ? esk_dashboard_url( 'esk-dashboard' ) : $portal_url ); ?>" class="esk-btn esk-btn-accent"><?php echo esc_html( (string) esk_site_ui( 'nav.dashboard', __( 'Dashboard', 'eskoofy' ) ) ); ?></a>
 			<a href="<?php echo esc_url( wp_logout_url( home_url( '/' ) ) ); ?>" class="esk-btn esk-btn-plain"><?php echo esc_html( (string) esk_site_ui( 'nav.logout', '' ) ); ?></a>
 		<?php else : ?>
-			<a href="<?php echo esc_url( home_url( '/login/' ) ); ?>" class="esk-btn esk-btn-plain"><?php echo esc_html( (string) esk_site_ui( 'nav.login', '' ) ); ?></a>
+			<a href="<?php echo esc_url( home_url( '/login/' ) ); ?>" class="esk-btn esk-btn-accent"><?php echo esc_html( (string) esk_site_ui( 'nav.login', '' ) ); ?></a>
 		<?php endif; ?>
-		<a href="<?php echo esc_url( $portal_url ); ?>" class="esk-btn esk-btn-accent"><?php echo esc_html( (string) esk_site_ui( 'nav.portal', '' ) ); ?></a>
 		<a href="<?php echo esc_url( add_query_arg( 'esk_lang', $target_locale ) ); ?>" class="esk-btn esk-btn-plain"><?php echo esc_html( $target_label ); ?></a>
 	</div>
 </aside>

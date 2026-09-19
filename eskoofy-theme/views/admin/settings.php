@@ -7,6 +7,31 @@
 
 defined('ABSPATH') || exit;
 
+$esk_label_fields = array(
+	'nav.home'               => __( 'Navigation: Home', 'eskoofy' ),
+	'nav.about'              => __( 'Navigation: About', 'eskoofy' ),
+	'nav.academics'          => __( 'Navigation: Academics', 'eskoofy' ),
+	'nav.admissions'         => __( 'Navigation: Admissions', 'eskoofy' ),
+	'nav.news'               => __( 'Navigation: News', 'eskoofy' ),
+	'nav.gallery'            => __( 'Navigation: Gallery', 'eskoofy' ),
+	'nav.results'            => __( 'Navigation: Results', 'eskoofy' ),
+	'nav.routine'            => __( 'Navigation: Routine', 'eskoofy' ),
+	'nav.contact'            => __( 'Navigation: Contact', 'eskoofy' ),
+	'nav.payments'           => __( 'Navigation: Payments', 'eskoofy' ),
+	'nav.portal'             => __( 'Navigation: Portal', 'eskoofy' ),
+	'home.eyebrow'           => __( 'Homepage: Eyebrow', 'eskoofy' ),
+	'home.hero_headline'     => __( 'Homepage: Hero headline', 'eskoofy' ),
+	'home.hero_subtitle'     => __( 'Homepage: Hero subtitle', 'eskoofy' ),
+	'home.hero_cta_primary'  => __( 'Homepage: Primary CTA', 'eskoofy' ),
+	'home.hero_cta_secondary'=> __( 'Homepage: Secondary CTA', 'eskoofy' ),
+	'footer.about_title'     => __( 'Footer: About title', 'eskoofy' ),
+	'footer.quick_links_title' => __( 'Footer: Quick links title', 'eskoofy' ),
+	'footer.contact_title'   => __( 'Footer: Contact title', 'eskoofy' ),
+	'footer.important_title' => __( 'Footer: Important links title', 'eskoofy' ),
+	'footer.follow_us'       => __( 'Footer: Follow us', 'eskoofy' ),
+	'footer.legal_note'      => __( 'Footer: Legal note', 'eskoofy' ),
+);
+
 if ( isset( $_POST['esk_settings_save'] ) ) {
 	check_admin_referer( 'esk_settings_form' );
 
@@ -23,6 +48,12 @@ if ( isset( $_POST['esk_settings_save'] ) ) {
 		update_option( 'esk_theme_font', sanitize_text_field( wp_unslash( $_POST['theme_font'] ?? 'Inter' ) ) );
 	} elseif ( 'localization' === $current_tab ) {
 		update_option( 'esk_locale', sanitize_text_field( wp_unslash( $_POST['locale'] ?? 'en' ) ) );
+	} elseif ( 'social' === $current_tab ) {
+		$social_keys = array( 'facebook', 'instagram', 'twitter', 'youtube', 'linkedin' );
+		foreach ( $social_keys as $key ) {
+			update_option( 'esk_social_' . $key . '_url', esc_url_raw( wp_unslash( $_POST[ 'social_' . $key . '_url' ] ?? '' ) ) );
+			update_option( 'esk_social_show_' . $key, isset( $_POST[ 'social_show_' . $key ] ) ? 1 : 0 );
+		}
 	} elseif ( 'payment' === $current_tab ) {
 		update_option( 'esk_default_gateway', sanitize_text_field( wp_unslash( $_POST['default_gateway'] ?? 'offline' ) ) );
 		update_option( 'esk_test_mode', isset( $_POST['test_mode'] ) ? 1 : 0 );
@@ -37,6 +68,12 @@ if ( isset( $_POST['esk_settings_save'] ) ) {
 		update_option( 'esk_fine_per_day', (float) ( $_POST['fine_per_day'] ?? 0 ) );
 	} elseif ( 'cms' === $current_tab ) {
 		update_option( 'esk_default_terms', sanitize_textarea_field( wp_unslash( $_POST['default_terms'] ?? '' ) ) );
+	} elseif ( 'labels' === $current_tab ) {
+		foreach ( array_keys( $esk_label_fields ) as $key ) {
+			$option = 'esk_label_' . str_replace( '.', '_', $key );
+			$value  = isset( $_POST[ $option ] ) ? sanitize_text_field( wp_unslash( $_POST[ $option ] ) ) : '';
+			update_option( $option, $value );
+		}
 	} elseif ( 'about' === $current_tab ) {
 		update_option( 'esk_about_page_content', wp_kses_post( wp_unslash( $_POST['about_page_content'] ?? '' ) ) );
 	} elseif ( 'offline' === $current_tab ) {
@@ -82,11 +119,13 @@ $error = esk_get_flash( 'error' );
 			'school'        => __( 'School Info', 'eskoofy' ),
 			'theme'         => __( 'Theme', 'eskoofy' ),
 			'localization'  => __( 'Localization', 'eskoofy' ),
+			'social'        => __( 'Social', 'eskoofy' ),
 			'payment'       => __( 'Payment', 'eskoofy' ),
 			'offline'       => __( 'Offline / Bank', 'eskoofy' ),
 			'mail'          => __( 'Mail', 'eskoofy' ),
 			'library'       => __( 'Library', 'eskoofy' ),
-			'cms'           => __( 'CMS', 'eskoofy' ),
+			'cms'           => __( 'CMS Settings', 'eskoofy' ),
+			'labels'        => __( 'Global Labels', 'eskoofy' ),
 			'about'         => __( 'About', 'eskoofy' ),
 		);
 		foreach ( $tabs as $slug => $label ) :
@@ -137,6 +176,30 @@ $error = esk_get_flash( 'error' );
 								<option value="bn_BD" <?php selected( get_option( 'esk_locale', 'en' ), 'bn_BD' ); ?>>বাংলা (Bengali)</option>
 							</select>
 						</td></tr>
+				</table>
+			</div>
+
+		<?php elseif ( 'social' === $tab ) : ?>
+			<div class="esk-card esk-form-card">
+				<table class="form-table">
+					<?php
+					$social_keys = array(
+						'facebook' => __( 'Facebook', 'eskoofy' ),
+						'instagram' => __( 'Instagram', 'eskoofy' ),
+						'twitter'  => __( 'X / Twitter', 'eskoofy' ),
+						'youtube'  => __( 'YouTube', 'eskoofy' ),
+						'linkedin' => __( 'LinkedIn', 'eskoofy' ),
+					);
+					foreach ( $social_keys as $key => $label ) :
+						?>
+						<tr>
+							<th scope="row"><?php echo esc_html( $label ); ?></th>
+							<td>
+								<input type="url" class="regular-text" name="social_<?php echo esc_attr( $key ); ?>_url" value="<?php echo esc_attr( esk_get_option( 'social_' . $key . '_url' ) ); ?>" placeholder="https://<?php echo esc_attr( $key ); ?>.com/exampleschool">
+								<label style="display:block;margin-top:4px;"><input type="checkbox" name="social_show_<?php echo esc_attr( $key ); ?>" value="1" <?php checked( '1', esk_get_option( 'social_show_' . $key, '1' ), true ); ?>> <?php esc_html_e( 'Show in header & footer', 'eskoofy' ); ?></label>
+							</td>
+						</tr>
+					<?php endforeach; ?>
 				</table>
 			</div>
 
@@ -221,6 +284,28 @@ $error = esk_get_flash( 'error' );
 					<tr><th><label for="default_terms"><?php esc_html_e( 'Default Terms & Conditions', 'eskoofy' ); ?></label></th>
 						<td><textarea name="default_terms" id="default_terms" rows="5" class="large-text"><?php echo esc_textarea( get_option( 'esk_default_terms', '' ) ); ?></textarea></td></tr>
 				</table>
+			</div>
+
+		<?php elseif ( 'labels' === $tab ) : ?>
+			<div class="esk-card esk-form-card">
+				<table class="form-table">
+					<?php foreach ( $esk_label_fields as $key => $label ) : ?>
+						<?php
+						$option = 'esk_label_' . str_replace( '.', '_', $key );
+						$placeholder = is_scalar( esk_site_ui( $key ) ) ? esk_site_ui( $key ) : '';
+						?>
+						<tr>
+							<th scope="row"><label for="<?php echo esc_attr( $option ); ?>"><?php echo esc_html( $label ); ?></label></th>
+							<td>
+								<input type="text" class="regular-text" name="<?php echo esc_attr( $option ); ?>" id="<?php echo esc_attr( $option ); ?>" value="<?php echo esc_attr( get_option( $option, '' ) ); ?>" placeholder="<?php echo esc_attr( (string) $placeholder ); ?>">
+								<?php if ( '' !== $placeholder ) : ?>
+									<p class="description" style="margin:2px 0 0;"><?php echo esc_html( sprintf( __( 'Default: %s', 'eskoofy' ), (string) $placeholder ) ); ?></p>
+								<?php endif; ?>
+							</td>
+						</tr>
+					<?php endforeach; ?>
+				</table>
+				<p class="description"><?php esc_html_e( 'Leave blank to use the built-in translations. Saved values override the language files site-wide.', 'eskoofy' ); ?></p>
 			</div>
 
 		<?php elseif ( 'about' === $tab ) : ?>

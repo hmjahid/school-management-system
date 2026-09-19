@@ -121,9 +121,24 @@ Verification baseline (2026-09-11): `cd eskoofy-app && composer test` → **923 
 
 ---
 
+## Phase 9 — Cross-product frontend & dashboard/sidebar parity + variant blueprint — COMPLETE
+
+| # | Task | Status | Notes |
+|---|------|--------|-------|
+| 9.1 | Theme topbar: move login/logout out of topbar | ✅ done | Removed login/logout + separator from `header.php` topbar (lang toggle + socials divider kept). Sticky nav Dashboard→Logout ordering verified; mobile panel now mirrors app bottom bar (logged-in: Dashboard/Portal accent first → Logout; guests: Login accent; lang toggle last). |
+| 9.2 | Theme social icons (header topbar + footer) | ✅ done | `esk_social_profiles()` gains 5-platform defaults mirroring the app seeder (`https://{key}.com/exampleschool`, linkedin school variant); customizer exposes all 5; `social` settings tab added; `app-public.css` appended brand palette + `bg-brand-*`/`hover`/`focus` utilities (color-mix). |
+| 9.3 | Side-by-side parity audit doc | ✅ done | `docs/parity/product-parity.md`: verified app↔php byte-identical (sidebar, dashboard index, topbar, `lang/en/dashboard.php`); theme per-group deltas; dashboard home block matrix; additive merge plan. |
+| 9.4 | app+php sidebar: finance/reports links | ✅ done | Finance group (+`@can('manage_expenses')`): Expense Categories, Budgets, Bank Reconciliation, Income Statement, Balance Sheet, Cash Flow (`route-is` open/active extended). Configuration: Reports Builder + Analytics (Reports `route-is` narrowed). `lang/en|bn/dashboard.php` keys added; php copied byte-identical (`diff` clean). App suite 923 passing; route names verified via `route:list`. |
+| 9.5 | Theme sidebar + Global Labels | ✅ done | Sidebar links now support custom label+url+icon; Website group + CMS Settings (`?tab=cms`) + Global Labels (`?tab=labels`); Finance details + bank-reconciliation; tab label CMS→CMS Settings; new Global Labels tab persists `esk_label_<flat>` overrides honored by `esk_site_ui()`. |
+| 9.6 | Theme dashboard setup banner | ✅ done | 6-item onboarding checklist (school info, timezone, academic session, classes, teachers, payment) from WP tables; progress bar; CTA→`esk-onboarding`; dismiss via `localStorage dc_setup_reminder_dismissed`. |
+| 9.7 | Variant blueprint | ✅ done | `docs/design/VARIANT-BLUEPRINT.md` — Laravel app as reference: canonical inventory, baseline parity debt, phased roadmap (0 scaffold→1 schema→2 auth→3 dashboard/sidebar→4 modules→5 i18n/profiles→6 API→7 tests/build-box), verification commands, open questions. |
+| 9.8 | Prompt file | ✅ done | `docs/prompts/frontend-social-and-dashboard-parity-variant-blueprint.md` covering tasks 1-3 + verification matrix; executed until green (all PHP lint clean; app 923 tests pass; `diff` parity confirmed). |
+
+---
+
 ## Summary
 
-- ✅ Complete: Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6 (full raw PHP port + tests + CI), Phase 7 (full WP hybrid), Phase 8 (website + license server + i18n + PWA + geo-language + marketing blog).
+- ✅ Complete: Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6 (full raw PHP port + tests + CI), Phase 7 (full WP hybrid), Phase 8 (website + license server + i18n + PWA + geo-language + marketing blog), Phase 9 (frontend social parity + dashboard/sidebar parity merge across app/php/theme + variant blueprint).
 
 ## File counts
 
@@ -141,3 +156,4 @@ Verification baseline (2026-09-11): `cd eskoofy-app && composer test` → **923 
 3. Design pass on the WP theme when ready.
 4. Provision the licensing DB + deploy the website; load real plan/price data into `plans`.
 5. Add a media upload pipeline for blog featured images (currently URL-only).
+6. **Parity follow-ups** (open questions in `docs/design/VARIANT-BLUEPRINT.md`): decide promote-vs-hide for theme-only sidebar tokens (leave-types, salary-structures, refunds, tools, cache, sections, subjects, batches, academic-sessions, progress-reports, seat-plans); unify Workbench gating between app (dynamic, gated) and theme (always shown); full per-page Global Labels editor in the theme vs curated subset.

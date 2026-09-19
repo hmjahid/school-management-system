@@ -77,10 +77,12 @@ function esk_admin_shell_groups(): array {
 function esk_admin_sidebar_sections(): array {
 	$label   = static fn( string $text ): array => array( 'type' => 'label', 'label' => $text );
 	$link    = static fn( string $slug ): array => array( 'type' => 'link', 'slug' => $slug );
+	$href    = static fn( string $text, string $url, string $icon ): array => array( 'type' => 'link', 'label' => $text, 'url' => $url, 'icon' => $icon );
 	$details = static fn( string $text, string $icon, array $slugs ): array => array( 'type' => 'details', 'label' => $text, 'icon' => $icon, 'slugs' => $slugs );
 
 	// Admin-only groups: shown when the user has the matching capability.
 	$can = static fn( string $cap ): bool => function_exists( 'esk_can' ) && esk_can( $cap );
+	$super_admin = current_user_can( 'manage_options' );
 
 	return array(
 		$label( 'Main' ),
@@ -98,7 +100,7 @@ function esk_admin_sidebar_sections(): array {
 		$details( 'Academics', 'dashicons-book-alt', array( 'esk-classes', 'esk-exams', 'esk-results', 'esk-assignments', 'esk-routines' ) ),
 		$link( 'esk-admissions' ),
 		$details( 'Daily', 'dashicons-calendar-alt', array( 'esk-attendance', 'esk-attendance-mark', 'esk-staff-attendance' ) ),
-		$details( 'Finance', 'dashicons-money-alt', array( 'esk-fees', 'esk-fee-payments', 'esk-expenses', 'esk-expense-categories', 'esk-ledger', 'esk-budgets', 'esk-income-statement', 'esk-balance-sheet', 'esk-cash-flow' ) ),
+		$details( 'Finance', 'dashicons-money-alt', array( 'esk-fees', 'esk-fee-payments', 'esk-expenses', 'esk-expense-categories', 'esk-ledger', 'esk-budgets', 'esk-bank-reconciliation', 'esk-income-statement', 'esk-balance-sheet', 'esk-cash-flow' ) ),
 		$details( 'HR', 'dashicons-businessperson', array( 'esk-leave-requests', 'esk-leave-types', 'esk-payroll', 'esk-payslips', 'esk-salary-structures' ) ),
 		$details( 'Documents', 'dashicons-media-document', array( 'esk-admit-cards', 'esk-id-cards', 'esk-certificates', 'esk-testimonials', 'esk-committee' ) ),
 		$details( 'Library', 'dashicons-book', array( 'esk-library', 'esk-library-reports' ) ),
@@ -116,6 +118,10 @@ function esk_admin_sidebar_sections(): array {
 
 		$label( 'Website' ),
 		$details( 'Website CMS', 'dashicons-admin-site-alt3', array( 'esk-cms', 'esk-news', 'esk-gallery', 'esk-documents', 'esk-media', 'esk-contact-submissions', 'esk-careers', 'esk-careers-applications' ) ),
+		...( $super_admin ? array(
+			$href( __( 'CMS Settings', 'eskoofy' ), esk_dashboard_url( 'esk-settings', 'tab=cms' ), 'dashicons-admin-generic' ),
+			$href( __( 'Global Labels', 'eskoofy' ), esk_dashboard_url( 'esk-settings', 'tab=labels' ), 'dashicons-translation' ),
+		) : array() ),
 
 		$label( 'Administration' ),
 		$details( 'Users & Roles', 'dashicons-admin-users', array( 'esk-users', 'esk-roles' ) ),
@@ -541,14 +547,18 @@ function esk_render_admin_shell_open( string $current = '' ): void {
 					<p class="mb-2 mt-5 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 esk-group-label"><?php echo esc_html( $esk_item['label'] ); ?></p>
 				<?php elseif ( 'link' === $esk_item['type'] ) : ?>
 					<?php
-					$esk_slug  = $esk_item['slug'];
-					if ( ! isset( $titles[ $esk_slug ] ) ) { continue; }
-					$esk_badge = esk_admin_shell_nav_badge( $esk_slug, $badges );
+					$esk_slug  = isset( $esk_item['slug'] ) ? (string) $esk_item['slug'] : '';
+					if ( '' !== $esk_slug && ! isset( $titles[ $esk_slug ] ) ) { continue; }
+					$esk_label = isset( $esk_item['label'] ) && '' !== $esk_item['label'] ? $esk_item['label'] : ( '' !== $esk_slug ? $titles[ $esk_slug ] : '' );
+					if ( '' === $esk_label ) { continue; }
+					$esk_href  = ! empty( $esk_item['url'] ) ? $esk_item['url'] : esk_dashboard_url( $esk_slug );
+					$esk_icon  = ! empty( $esk_item['icon'] ) ? $esk_item['icon'] : ( '' !== $esk_slug ? esk_admin_shell_icon( $esk_slug ) : 'dashicons-admin-generic' );
+					$esk_badge = '' !== $esk_slug ? esk_admin_shell_nav_badge( $esk_slug, $badges ) : 0;
 					?>
 					<div class="space-y-0.5 esk-nav-block">
-						<a href="<?php echo esc_url( esk_dashboard_url( $esk_slug ) ); ?>" data-esk-nav="<?php echo esc_attr( $esk_slug ); ?>" class="admin-nav-link <?php echo $current === $esk_slug ? 'admin-nav-link--active' : ''; ?>">
-							<span class="flex h-5 w-5 shrink-0 items-center justify-center opacity-80"><span class="dashicons <?php echo esc_attr( esk_admin_shell_icon( $esk_slug ) ); ?>" style="font-size:1.1rem;width:1.1rem;height:1.1rem;"></span></span>
-							<span class="flex-1 truncate"><?php echo esc_html( $titles[ $esk_slug ] ); ?></span>
+						<a href="<?php echo esc_url( $esk_href ); ?>" data-esk-nav="<?php echo esc_attr( $esk_slug ); ?>" class="admin-nav-link <?php echo $current === $esk_slug ? 'admin-nav-link--active' : ''; ?>">
+							<span class="flex h-5 w-5 shrink-0 items-center justify-center opacity-80"><span class="dashicons <?php echo esc_attr( $esk_icon ); ?>" style="font-size:1.1rem;width:1.1rem;height:1.1rem;"></span></span>
+							<span class="flex-1 truncate"><?php echo esc_html( $esk_label ); ?></span>
 							<?php if ( $esk_badge > 0 ) : ?>
 								<span class="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white"><?php echo esc_html( (string) $esk_badge ); ?></span>
 							<?php endif; ?>
