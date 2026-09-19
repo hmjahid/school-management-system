@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Core;
 
 use App\Core\Router;
+use App\Core\View;
 use Tests\TestCase;
 
 class RouterRegistrationTest extends TestCase
@@ -135,7 +136,9 @@ class RouterRegistrationTest extends TestCase
 
     public function test_payment_status_view_exists(): void
     {
-        $this->assertFileExists(dirname(__DIR__, 3) . '/views/site/payment-status.php');
+        $resolved = View::resolve('site.payment-status');
+        $this->assertFileExists($resolved, 'site.payment-status must resolve to an existing view');
+        $this->assertStringEndsWith('/views/site/payment_status.php', $resolved);
     }
 
     public function test_admin_subscriptions_view_and_route_exist(): void

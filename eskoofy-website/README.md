@@ -17,6 +17,11 @@ Bangla. Visit IP/location decides the default UI language
 
 See `WORKPLAN.md` Phase 8 and `workplan-implementation-plan.md` for scope.
 
+## Documentation
+
+- [User Manual](docs/USER-MANUAL.md) — public site, license-server API, customer & admin dashboards
+- [Setup Guide](docs/SETUP-GUIDE.md) — install, database, configuration, license settings, deploy
+
 ## Stack
 
 - Raw PHP, no framework, no Composer at runtime.

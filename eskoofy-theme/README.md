@@ -7,6 +7,11 @@ served at `/dashboard/`, mirroring `eskoofy-app/`. See `../WORKPLAN.md` Phase 7.
 BD/INT variants are build-time profiles — translations via `.pot`/`.po` and branding via a
 per-variant stylesheet/profile, never forks.
 
+## Documentation
+
+- [User Manual](docs/USER-MANUAL.md) — public site + `/dashboard/` module-by-module usage
+- [Setup Guide](docs/SETUP-GUIDE.md) — install, activation, database, configuration, deploy
+
 ## Architecture
 
 - **Public site** — WP template hierarchy (`front-page.php`, `header.php`, `footer.php`,

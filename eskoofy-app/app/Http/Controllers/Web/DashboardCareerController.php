@@ -65,6 +65,7 @@ class DashboardCareerController extends Controller
             'is_published' => ['nullable', 'boolean'],
         ]);
     }
+
     public function index(Request $request): View
     {
         $query = JobApplication::with('career')->latest();

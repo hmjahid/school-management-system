@@ -4,6 +4,11 @@
 **no framework at runtime**, built to run on shared hosting where Composer/Laravel/VPS is
 not available. See `WORKPLAN.md` Phase 6.
 
+## Documentation
+
+- [User Manual](docs/USER-MANUAL.md) — module-by-module usage for staff, students & guardians
+- [Setup Guide](docs/SETUP-GUIDE.md) — install, database, configuration, web server, cron
+
 ## Stack
 
 - Native PHP 8.2+, PDO/MySQL, custom lightweight MVC

@@ -127,6 +127,8 @@ the theme vesrion frontend is far from the app vesrion frontend. aslo theme vesr
 
 research international school management software websites for how they showcasing thier product, pricing plan and other. we will implement in our branding site them. add your suggetion in a file now.
 
+
+
 suggest me a payment/subscription model for these products in the branding website. add in a file now
 
 make a system that if I wnat to add/modify any feature in eskoofy, it will be applied to all 3 products unless I specify. but ask for confirmation before implementation
@@ -174,16 +176,115 @@ create a proper prompt file for completing the above tasks and execute the promp
 
 complte the unfinished tasks. mak ethe forntend header menu items groups. product detils non-technical to general users, add more useful sections in homepage. make the all pages more userfriendly and professionsl. make the dadmin and user dahnoard more professional annd enterprise grade. add admin/ user setting page in the dahboard. follow enterprise grade applications dahboards. continue untill finished.
 
-group the sidebar items, add more items as much as possible to make the all operations more useful
+group the sidebar items, add more items as much as possible to make the all operations more useful. enure all frontend pages and  dashboard pages are fully resposible in major screens. continue until finished
+
+the sidebar is broken. icons are too big
+
+one thing i wnat to clear now. our eskkofy not in our own server hosted application. it will be sold an dclients will be host in thier own server. is it clear in the webiste descriptions? also cannot we add deployment and maintenance cost based additional offer to clients? tell me an dask me for confirmation before execution
+
+ensure that these additional packages prices also manageable from admin dashboard. also fix why the check not working an dth epage not shoing.
+
+add monthly + yearly license summery, revenue summary, backup option in the admin dashboard. add whole site backup, license backup, user backup etc options also. move Deployment & maintenance package management option in Sales & licensing group. also fix why the checkout page not working and the page not showing nothing. continue untill finished
+
+add option to issue licence unregisterd users also using their email only. add optional addition package add option in the same issue license page. blog pages also not showing. also fix why the checkout page not working and the page not showing nothing fix the issues aslo. continue untill finished
+
+ensure that the whole branding website is fully seo optimized, all pages, every contents are fully compitable with latest seo principle and rules and mak eenusrte thaey are able to bring leads for revenue. continue untill finished
+
+use the webiste logo and faviocn in all 3 produts and us eskoofy in all 3 products dasboard brandnmae. install app sidebar item not showing in the php version dashbaord. aslo the theme vesrion dahbsord header user dropdown not working and have no communications sidebard items like app and php version. add ite and fix all these issues. add theme vesrion like notification templates and notification preferences sidebar item in app andphp version. aslo the theme version frontend not similiar to app and php version. mak eit similiar. add same demo contents in all 3 products. also the theme version home page permalink showing http://localhost:8080/client/. fix it urgently.  continue until finished
+
+create a proper prompt file for completing the above tasks and execute the prompt. continue untill finished
+
+why the theme homepage showing /client permalink? fix it urgently. also again ensure all tasks are completed.
+
+add all product packages adding option in website admin dahboard which will be sent in zip to licensed clients. also add email templates, adding uermanual, setup guide files options for sending to the clients. also add push notifications option in the website admin dashboard. continue untill finished
+
+add payment gateway adding option in the website admin dashboard both international and loacl payemt gateway. add demo featured image in website demo posts. continue untill finished
+
+add option in the all 3 products and the website for clearing frontend site caching. continue untill finished
+
+create a proper prompt file for completing the above tasks and execute the prompt. continue untill finished
+
+faviocn not showing in php version. fix the issue also
+
+why the theme homepage showing /client permalink? fix it urgently. also again ensure all tasks are completed. app version notification template and notofication references sidebard items pages shhowing 500. fix the issue. also app version dahboard admin sidebar showing exmaple schoool not esjkoofy. show eskoofy instead. continue untill finished
+
+why theme vesrion frontend style, layout, ui ux, contnets, permalinks not becoming similiar to app and php version? investigate the issue and fix them urgently.
+
+also theme version dahboard admin sidebar showing only management system not eskoofy admin panel. show eskoofy admin panel instead like app and php version. continue untill finished
+
+add refund policy, terms and conditiions, privacy policy pages in the branding website. aslo add system for the manual and bank transfer (without paddle) to accept from the admin panel fisrt then will show accepted and will send the product, license key and other files to the client.
+
+showing eskoofy but also showing exmaple school text. show like php version eskoofy admin panel. also do same in theme version. also hardly ensure that theme frontend same as the app version frontend. also add the 3 product type dahboard header in the website admin dashboard. continue until task completed.
+
+create a proper prompt file for completing the above tasks and execute the prompt. continue untill finished
+
+make system so that when the theme is activated a page of te theme is assigned in the wordpress as homepage and blog page so that we can use them as homepage and blog page.
+
+why /client issues showing till now? also the theme version frontned header footer is mimatched with the app abd php varaint frontend. investigae precisely fisrt. find the rason and fix it.
+
+php version frontend have nearly fully matched the app version. why the theme version not fully matched. too many unmatched.  find the reasons. fix the /client issue also.
+
+theme version frontend has broken. fix the issue
+
+investigate precisely for  the /client issue. fix it anyhow. aslo add the sma edemo contnets of app version in the theme version
+
+in the theme vesrion, we are controlling all pages and contents out side the wordpress dashboard. is it actually any issue? o=is the /client issue coming for this? how the pages, contnets, fonrtpage, blog page slection will be hnadled and these all will be synced with the wordpress dashboard? explain me clearly.
+
+no need. its ok. but why the version contnets are not adding from the app version? also find a way to solve the /client issue. I must fix the issue.
+
+do all yourself for me
+
+repair site url not worked though succeefully cliked.
+
+the wordpress site dashboard showing career dashboard item. should it show here? if not, remove. aslo remove theme chnaging iocn from theme version frontend. idonot wnat this in frontend
+
+add creer fature in app and the php version also
+
+in theme version, acreer page handling both job posts and job application. sepertae theme like the php version in teo pages.
+
+why cannot login in the app version dahboard?
+
+after login the page showing nothing
+
+the theme version wordpress dashoard showing creer dashbora item till now. why not removed?
+
+theme version frontend headre topbar showing logout, remove it. only will show afer the dashboard button. also the social icons not showing in header topbar and footer. fix it also 
+
+match app version vs php version vs theme version dashboard item, sidebar items, dashboard contents side by side, one by one as many are missing and mismatch from one another. merge all in all 3 products. donot delete anything fisrt.
+
+create a file with full roadmap/bluerpint of creating another variant of this school management system. us ethe laravel vesrion as idle product. make the file full detailed so that we can use that to make another variant with any stack of this school managment system besides the existing 3 variants.
+
+create a proper prompt file for completing the above tasks and execute the prompt. continue untill finished
+
+is the blueprint cretaed after merger?
+
+compare app version vs php version vs theme version frontend pages, headre, footer, styles, layouts, every page contents and sections, frontend functionalities, repsonsive layouts and styles and record in a file. donot do nay modification now.
+
+suppose you are a senior cyber security expert. research whole code base fro security issues and possible solutions in a file. then create an implementation plan to implement them. donot implement them now.
+
+exceute the implementation plan. continue untill finished
+
+create user manuals and setup guide for every products and the branding website inside their own folder.
+
+check whole codebase precisely and ensure that the 3 products and the branding website frontend and backaend+dashboard features and functionalities are working as expected and for what they are built & developed. create a plan file fisrt, then implement the plan.
+
+exceute the implementation plan. continue untill finished
 
 
 
-install app sidebar item not showing in the php version dashbaord. aslo the theme vesrion dahbsord header user dropdown not working and have no communications sidebard items like app and php version. fix all these issues.
+
+add customer support widget in th ebranding website frontend. suggest me how to add that in professional way.
 
 
+
+now implement the frontend parity research plan
 
 
 ensure proper payment method applied in this system app, php, theme and the website
+
+
+cretae a child theme of this theme like the elementor child theme so that the theme updates doesnot break/remove custom styles, scripts added by users in the theme files. tell me child theme principle fisrt. temll me how it works. how it depends on main theme?
+
 
 
 
