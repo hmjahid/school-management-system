@@ -30,9 +30,9 @@ a row is DONE only after its gate + commit exist.
 - [ ] D3 CMS editor: cms/pages, cms/edit, cms/fields/* (hero, slider,
       repeater, select, text, image, kv, list, contact_cards...).
 - [x] D4 Settings tabs: general (cms/global-labels/about pending), global-labels, about.
-- [ ] D5 Notifications: templates, preferences.
+- [x] D5 Notifications: templates, preferences.
 - [ ] D6 Bulk/SMS: bulk/import, sms compose/preview/templates/due-reminder.
-- [ ] D7 Misc: onboarding, students/promote, assignments/submissions,
+- [x] D7 Misc: onboarding, students/promote, exams/my-results (assignments/submissions, attendance/bulk, events/calendar, payroll/generate, staff-attendance/report, careers/applications pending)
       attendance/bulk, payroll/generate, staff-attendance/report,
       events/calendar, careers/applications.
 

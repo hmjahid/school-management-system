@@ -58,14 +58,14 @@ Generated: 2026-09-21T03:29
 The generic engine serves index/create/show/edit for ~46 tables. These blades are bespoke and have no Node screen:
 
 - [ ] `dashboard/admit-cards/batch.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/admit-cards/print.blade.php` — NO NODE SCREEN
+- [x] `dashboard/admit-cards/print.blade.php` — ported
 - [ ] `dashboard/announcements/_form.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/assignments/submissions.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/attendance/bulk.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/bulk/import.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/careers/applications.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/careers/form.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/certificates/print.blade.php` — NO NODE SCREEN
+- [x] `dashboard/certificates/print.blade.php` — ported
 - [ ] `dashboard/cms/fields/_pair-text.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/cms/fields/_pair-textarea.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/cms/fields/_slider-row.blade.php` — NO NODE SCREEN
@@ -87,7 +87,7 @@ The generic engine serves index/create/show/edit for ~46 tables. These blades ar
 - [ ] `dashboard/documents/_school-info-bar.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/events/calendar.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/exams/marksheet-pdf.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/exams/my-results.blade.php` — NO NODE SCREEN
+- [x] `dashboard/exams/my-results.blade.php` — ported
 - [ ] `dashboard/exams/results.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/gallery/_form.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/hostels/_form.blade.php` — NO NODE SCREEN
@@ -107,9 +107,9 @@ The generic engine serves index/create/show/edit for ~46 tables. These blades ar
 - [ ] `dashboard/modules/teachers.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/news/_form.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/notices/_form.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/notifications/preferences.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/notifications/templates.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/onboarding.blade.php` — NO NODE SCREEN
+- [x] `dashboard/notifications/preferences.blade.php` — ported
+- [x] `dashboard/notifications/templates.blade.php` — ported
+- [x] `dashboard/onboarding.blade.php` — ported
 - [ ] `dashboard/partials/bulk-actions-bar.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/partials/form-errors.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/partials/inline-validation.blade.php` — NO NODE SCREEN
@@ -123,9 +123,9 @@ The generic engine serves index/create/show/edit for ~46 tables. These blades ar
 - [ ] `dashboard/reports/balance-sheet.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/reports/builder.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/reports/cash-flow.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/reports/fees.blade.php` — NO NODE SCREEN
+- [x] `dashboard/reports/fees.blade.php` — ported
 - [ ] `dashboard/reports/income-statement.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/reports/students.blade.php` — NO NODE SCREEN
+- [x] `dashboard/reports/students.blade.php` — ported
 - [ ] `dashboard/settings/about.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/settings/cms.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/settings/general.blade.php` — NO NODE SCREEN
@@ -137,8 +137,8 @@ The generic engine serves index/create/show/edit for ~46 tables. These blades ar
 - [ ] `dashboard/software.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/staff-attendance/report.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/student-id-cards/batch.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/student-id-cards/print.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/students/promote.blade.php` — NO NODE SCREEN
+- [x] `dashboard/student-id-cards/print.blade.php` — ported
+- [x] `dashboard/students/promote.blade.php` — ported
 - [ ] `dashboard/students/results.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/testimonials/_form.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/testimonials/print.blade.php` — NO NODE SCREEN
