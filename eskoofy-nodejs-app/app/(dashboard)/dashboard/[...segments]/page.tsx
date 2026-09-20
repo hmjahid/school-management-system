@@ -6,6 +6,7 @@ import { ResourceTable } from "@/components/dashboard/ResourceTable";
 import { ResourceForm } from "@/components/dashboard/ResourceForm";
 import { ResourceDetail } from "@/components/dashboard/ResourceDetail";
 import { RoutePlaceholder } from "@/components/dashboard/RoutePlaceholder";
+import { PrintScreen } from "@/components/dashboard/PrintScreen";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { currentUser } from "@/lib/auth";
@@ -104,6 +105,19 @@ export default async function DashboardCatchAll({
         <ResourceDetail model={model} row={row} />
       </div>
     );
+  }
+
+  // Bespoke print screens (admit-cards, certificates, student-id-cards)
+  const printIdx = segments.indexOf("print");
+  if (printIdx >= 0 && resource.id) {
+    const printTables = new Set(["admit_cards", "certificates", "student_id_cards"]);
+    if (printTables.has(model.table)) {
+      return (
+        <div>
+          <PrintScreen table={model.table} id={Number(resource.id)} />
+        </div>
+      );
+    }
   }
 
   const search = typeof query.q === "string" ? query.q : undefined;
