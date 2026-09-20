@@ -1,6 +1,6 @@
 import { t } from "@/lib/i18n";
 import { getTeachers } from "@/lib/site-data";
-import { CardGrid, Empty, Hero, InfoCard, Section } from "@/components/site/Sections";
+import { CardGrid, Empty, InfoCard, Section, PageHero } from "@/components/site/Sections";
 
 export const dynamic = "force-dynamic";
 
@@ -9,7 +9,7 @@ export default async function FacultyPage() {
 
   return (
     <>
-      <Hero eyebrow={t("site.home.teachers_title")} title={t("site.home.teachers_title")} subtitle={t("site.home.teachers_intro")} />
+      <PageHero title={t("site.home.teachers_title")} subtitle={t("site.home.teachers_intro")} />
       <Section>
         {teachers.length === 0 ? (
           <Empty>No teachers to display yet.</Empty>

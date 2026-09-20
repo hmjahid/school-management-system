@@ -77,6 +77,18 @@ export function Hero({
   );
 }
 
+/** Gradient page banner (mirrors the app's `site/*.blade.php` heroes). */
+export function PageHero({ title, subtitle }: { title: string; subtitle?: string }) {
+  return (
+    <div className="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 py-20 text-white">
+      <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
+        <h1 className="text-4xl font-bold md:text-5xl">{title}</h1>
+        {subtitle ? <p className="mx-auto mt-4 max-w-2xl text-lg text-blue-100">{subtitle}</p> : null}
+      </div>
+    </div>
+  );
+}
+
 export function CardGrid({ children, columns = 3 }: { children: ReactNode; columns?: 2 | 3 | 4 }) {
   const cols = columns === 2 ? "sm:grid-cols-2" : columns === 4 ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-2 lg:grid-cols-3";
   return <div className={`grid gap-4 ${cols}`}>{children}</div>;

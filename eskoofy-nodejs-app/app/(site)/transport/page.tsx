@@ -1,6 +1,6 @@
 import { t } from "@/lib/i18n";
 import { getTransportRoutes } from "@/lib/site-data";
-import { CardGrid, Empty, Hero, InfoCard, Section } from "@/components/site/Sections";
+import { CardGrid, Empty, InfoCard, Section, PageHero } from "@/components/site/Sections";
 
 export const dynamic = "force-dynamic";
 
@@ -9,7 +9,7 @@ export default async function TransportPage() {
 
   return (
     <>
-      <Hero eyebrow={t("dashboard.transport")} title={t("dashboard.transport")} />
+      <PageHero title={t("dashboard.transport")} />
       <Section>
         {routes.length === 0 ? (
           <Empty>No transport routes published yet.</Empty>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { t } from "@/lib/i18n";
 import { getPageContent } from "@/lib/site-data";
-import { CardGrid, Hero, InfoCard, Section } from "@/components/site/Sections";
+import { CardGrid, InfoCard, Section, PageHero } from "@/components/site/Sections";
 
 export const dynamic = "force-dynamic";
 
@@ -17,13 +17,7 @@ export default async function AdmissionsPage() {
 
   return (
     <>
-      <Hero
-        eyebrow={t("site.nav.admissions")}
-        title={page?.title ? String(page.title) : t("site.nav.admissions")}
-        subtitle={page?.content ? String(page.content) : "Join our school — the whole process takes a few minutes online."}
-        primary={{ label: t("site.home.cta_apply"), href: "/admissions/apply" }}
-        secondary={{ label: "Check application status", href: "/admissions/status" }}
-      />
+      <PageHero title={page?.title ? String(page.title) : t("site.nav.admissions")} subtitle={page?.content ? String(page.content) : "Join our school — the whole process takes a few minutes online."} />
 
       <Section title="How admission works">
         <CardGrid columns={4}>

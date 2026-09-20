@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { t, tOr } from "@/lib/i18n";
 import { getPageContent } from "@/lib/site-data";
-import { Hero, Section } from "@/components/site/Sections";
+import { Section, PageHero } from "@/components/site/Sections";
 import { submitContact } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -20,11 +20,7 @@ export default async function ContactPage({
 
   return (
     <>
-      <Hero
-        eyebrow={t("site.nav.contact")}
-        title={page?.title ? String(page.title) : cp("title", "Contact us")}
-        subtitle={page?.content ? String(page.content) : cp("subtitle", "We would love to hear from you.")}
-      />
+      <PageHero title={page?.title ? String(page.title) : cp("title", "Contact us")} subtitle={page?.content ? String(page.content) : cp("subtitle", "We would love to hear from you.")} />
 
       <Section>
         <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-3">

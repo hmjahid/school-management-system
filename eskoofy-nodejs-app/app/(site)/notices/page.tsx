@@ -1,6 +1,6 @@
 import { t } from "@/lib/i18n";
 import { getNotices } from "@/lib/site-data";
-import { Empty, Hero, Section, formatDate } from "@/components/site/Sections";
+import { Empty, Section, formatDate, PageHero } from "@/components/site/Sections";
 import { Badge } from "@/components/ui/Badge";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +10,7 @@ export default async function NoticesPage() {
 
   return (
     <>
-      <Hero eyebrow={t("site.nav.notices")} title={t("site.nav.notices")} />
+      <PageHero title={t("site.nav.notices")} />
       <Section>
         {notices.length === 0 ? (
           <Empty>No notices published yet.</Empty>

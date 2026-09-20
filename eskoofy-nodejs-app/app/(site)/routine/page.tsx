@@ -1,6 +1,6 @@
 import { t } from "@/lib/i18n";
 import { getClasses, getRoutinesForClass } from "@/lib/site-data";
-import { Empty, Hero, Section } from "@/components/site/Sections";
+import { Empty, Section, PageHero } from "@/components/site/Sections";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +24,7 @@ export default async function RoutinePage({ searchParams }: { searchParams: Prom
 
   return (
     <>
-      <Hero eyebrow={t("site.nav.routine")} title={t("site.nav.routine")} subtitle="Weekly class routine." />
+      <PageHero title={t("site.nav.routine")} />
 
       <Section>
         <div className="mx-auto max-w-5xl space-y-6">

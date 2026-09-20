@@ -1,6 +1,6 @@
 import { t } from "@/lib/i18n";
 import { getStudentsNotable } from "@/lib/site-data";
-import { CardGrid, Empty, Hero, InfoCard, Section } from "@/components/site/Sections";
+import { CardGrid, Empty, InfoCard, Section, PageHero } from "@/components/site/Sections";
 
 export const dynamic = "force-dynamic";
 
@@ -9,11 +9,7 @@ export default async function StudentsPage() {
 
   return (
     <>
-      <Hero
-        eyebrow={t("dashboard.students")}
-        title={t("site.home.remarkable_students_title")}
-        subtitle={t("site.home.remarkable_students_intro")}
-      />
+      <PageHero title={t("site.home.remarkable_students_title")} subtitle={t("site.home.remarkable_students_intro")} />
       <Section>
         {notable.length === 0 ? (
           <Empty>No notable students to display yet.</Empty>

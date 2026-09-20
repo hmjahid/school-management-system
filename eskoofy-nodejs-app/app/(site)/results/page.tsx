@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { t } from "@/lib/i18n";
-import { Empty, Hero, Section, formatDate } from "@/components/site/Sections";
+import { Empty, Section, formatDate, PageHero } from "@/components/site/Sections";
 
 export const dynamic = "force-dynamic";
 
@@ -62,11 +62,7 @@ export default async function ResultsPage({
 
   return (
     <>
-      <Hero
-        eyebrow={t("site.nav.results")}
-        title={t("site.nav.results")}
-        subtitle="Enter the student roll number to view published exam results."
-      />
+      <PageHero title={t("site.nav.results")} />
 
       <Section>
         <div className="mx-auto max-w-3xl space-y-6">
