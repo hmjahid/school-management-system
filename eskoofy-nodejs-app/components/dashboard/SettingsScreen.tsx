@@ -80,7 +80,7 @@ export async function SettingsScreen() {
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-slate-700">Meta description</label>
-              <textarea name="meta_description" rows={3} className="admin-input w-full">{settings.metaDescription}</textarea>
+              <textarea name="meta_description" rows={3} className="admin-input w-full" defaultValue={settings.metaDescription} />
             </div>
           </div>
         </div>
