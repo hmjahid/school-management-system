@@ -16,6 +16,8 @@ import { EventsCalendar, LedgerBook } from "@/components/dashboard/CalendarLedge
 import { BulkAttendance, GeneratePayslips, CareersApplications } from "@/components/dashboard/BulkScreens";
 import { BalanceSheet, IncomeStatement, CashFlow } from "@/components/dashboard/FinancialReports";
 import { ExamResults, Payslips } from "@/components/dashboard/ExamPayrollScreens";
+import { SettingsTab, AttendanceReport, StudentResults, StaffAttendanceReport, AssignmentsSubmissions, BatchGenerate } from "@/components/dashboard/ExtraScreens";
+import { SmsTemplates, DueFeeReminder } from "@/components/dashboard/SmsScreens";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { currentUser } from "@/lib/auth";
@@ -256,6 +258,55 @@ export default async function DashboardCatchAll({
         <Payslips />
       </div>
     );
+  }
+
+  // Settings tabs
+  if (segments[0] === "settings" && segments[1] === "about") {
+    return (<div><SettingsTab tab="about" /></div>);
+  }
+  if (segments[0] === "settings" && segments[1] === "cms") {
+    return (<div><SettingsTab tab="cms" /></div>);
+  }
+  if (segments[0] === "settings" && segments[1] === "global-labels") {
+    return (<div><SettingsTab tab="global-labels" /></div>);
+  }
+
+  // SMS screens
+  if (segments[0] === "sms" && segments[1] === "templates") {
+    return (<div><SmsTemplates /></div>);
+  }
+  if (segments[0] === "sms" && segments[1] === "due-reminder") {
+    return (<div><DueFeeReminder /></div>);
+  }
+
+  // Attendance report
+  if (segments[0] === "reports" && segments[1] === "attendance") {
+    const q = query as Record<string, string | undefined>;
+    return (<div><AttendanceReport from={q.from} to={q.to} /></div>);
+  }
+
+  // Student results (dashboard/students/{id}/results)
+  if (segments[0] === "students" && segments.length === 3 && segments[2] === "results") {
+    return (<div><StudentResults studentId={Number(segments[1])} /></div>);
+  }
+
+  // Staff attendance report
+  if (segments[0] === "staff-attendance" && segments[1] === "report") {
+    const q = query as Record<string, string | undefined>;
+    return (<div><StaffAttendanceReport from={q.from} to={q.to} /></div>);
+  }
+
+  // Assignments submissions
+  if (segments[0] === "assignments" && segments[1] === "submissions") {
+    return (<div><AssignmentsSubmissions /></div>);
+  }
+
+  // Batch generation
+  if (segments[0] === "admit-cards" && segments[1] === "batch") {
+    return (<div><BatchGenerate kind="admit-cards" /></div>);
+  }
+  if (segments[0] === "student-id-cards" && segments[1] === "batch") {
+    return (<div><BatchGenerate kind="student-id-cards" /></div>);
   }
 
   // Bespoke settings screen (dashboard/settings = school info)
