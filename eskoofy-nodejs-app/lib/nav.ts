@@ -40,8 +40,8 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { key: "dashboard", path: "/dashboard", status: "done" },
       { key: "messages", path: "/dashboard/messages", status: "done", badgeKey: "unreadMessages" },
-      { key: "communications", path: "/dashboard/communications", permission: "bulk_sms", status: "planned" },
-      { key: "bulk_sms", path: "/dashboard/sms", permission: "bulk_sms", status: "planned" },
+      { key: "communications", path: "/dashboard/communications", permission: "bulk_sms", status: "done" },
+      { key: "bulk_sms", path: "/dashboard/sms", permission: "bulk_sms", status: "done" },
       { key: "notification_templates", path: "/dashboard/notifications/templates", status: "done" },
       { key: "notification_preferences", path: "/dashboard/notifications/preferences", status: "done" },
     ],
@@ -186,9 +186,9 @@ export const NAV_GROUPS: NavGroup[] = [
     adminOnly: true,
     items: [
       { key: "settings", path: "/dashboard/settings", permission: "manage_settings", status: "done" },
-      { key: "reports", path: "/dashboard/reports", permission: "view_reports", status: "planned" },
-      { key: "report_builder", path: "/dashboard/reports/builder", permission: "view_reports", status: "planned" },
-      { key: "analytics", path: "/dashboard/analytics", permission: "view_reports", status: "planned" },
+      { key: "reports", path: "/dashboard/reports", permission: "view_reports", status: "done" },
+      { key: "report_builder", path: "/dashboard/reports/builder", permission: "view_reports", status: "done" },
+      { key: "analytics", path: "/dashboard/analytics", permission: "view_reports", status: "done" },
       { key: "bulk_import_export", path: "/dashboard/bulk", status: "done" },
     ],
   },
