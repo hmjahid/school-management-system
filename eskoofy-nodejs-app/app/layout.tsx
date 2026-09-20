@@ -1,16 +1,37 @@
 import type { Metadata } from "next";
-import { eskoolfy } from "@/config/eskoolfy";
-import { t } from "@/lib/i18n";
+import { cookies } from "next/headers";
+import { resolveRequestLocale, setRequestLocale } from "@/lib/i18n";
+import { getSiteSettings } from "@/lib/site-settings";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: `${t("brand.name")} — ${t("brand.tagline")}`,
-  description: t("home.subtitle"),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  return {
+    title: {
+      default: `${settings.schoolName} — ${settings.tagline}`,
+      template: `%s — ${settings.schoolName}`,
+    },
+    description: settings.metaDescription,
+    icons: {
+      icon: "/favicon.ico",
+      shortcut: "/favicon.ico",
+      apple: "/favicon.ico",
+    },
+  };
+}
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const store = await cookies();
+  const locale = await resolveRequestLocale({ get: (name) => store.get(name)?.value ?? null });
+  setRequestLocale(locale);
+
   return (
-    <html lang={eskoolfy.locale}>
+    <html lang={locale}>
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="apple-touch-icon" href="/favicon.ico" />
+        <meta name="theme-color" content="#2563eb" />
+      </head>
       <body className="bg-slate-50 text-slate-800 antialiased">{children}</body>
     </html>
   );

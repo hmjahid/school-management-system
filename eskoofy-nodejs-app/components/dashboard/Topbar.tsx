@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { logoutAction } from "@/app/(site)/login/actions";
+import { availableLocales } from "@/lib/i18n";
 
 export interface TopbarLabels {
   website: string;
@@ -138,9 +139,15 @@ export function Topbar({
         </button>
         {langOpen ? (
           <div className="absolute right-0 top-full z-50 mt-2 w-36 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg dark:border-slate-700 dark:bg-slate-800">
-            <span className="block rounded-lg bg-brand-50 px-3 py-2 text-sm font-semibold text-brand-700 dark:bg-brand-900/20 dark:text-brand-400">
-              {labels.locale}
-            </span>
+            {availableLocales().map((loc) => (
+              <a
+                key={loc}
+                href={`/locale/${loc}`}
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
+              >
+                <span className="font-semibold">{loc === "bn" ? "বাংলা" : "English"}</span>
+              </a>
+            ))}
           </div>
         ) : null}
       </div>

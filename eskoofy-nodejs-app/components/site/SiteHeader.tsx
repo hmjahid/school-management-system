@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { t } from "@/lib/i18n";
 import { getSiteSettings, splitSchoolName } from "@/lib/site-settings";
+import { cookies } from "next/headers";
+import { resolveRequestLocale, availableLocales } from "@/lib/i18n";
+import { currentUser } from "@/lib/auth";
+import { logoutAction } from "@/app/(site)/login/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +17,12 @@ export const dynamic = "force-dynamic";
 export async function SiteHeader() {
   const settings = await getSiteSettings();
   const { first, rest } = splitSchoolName(settings.schoolName);
+  const user = await currentUser();
+  const store = await cookies();
+  const currentLocale = await resolveRequestLocale({
+    get: (name) => store.get(name)?.value ?? null,
+  });
+  const locales = availableLocales();
 
   return (
     <>
@@ -35,8 +45,22 @@ export async function SiteHeader() {
           </div>
           <div className="flex flex-wrap items-center justify-center gap-3 lg:justify-end">
             <div className="flex items-center gap-1">
-              <span className="inline-flex min-w-[1.75rem] items-center justify-center rounded border border-white bg-white/15 px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wide text-white">EN</span>
-              <span className="inline-flex min-w-[1.75rem] items-center justify-center rounded border border-blue-400/60 px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wide text-blue-200">বাংলা</span>
+              {locales.map((loc) => {
+                const label = loc === "bn" ? "বাংলা" : "EN";
+                const active = loc === currentLocale;
+                return (
+                  <a
+                    key={loc}
+                    href={`/locale/${loc}`}
+                    aria-label={label}
+                    className={`inline-flex min-w-[1.75rem] items-center justify-center rounded border px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-wide transition ${
+                      active ? "border-white bg-white/15 text-white" : "border-blue-400/60 text-blue-200 hover:border-white hover:text-white"
+                    }`}
+                  >
+                    {label}
+                  </a>
+                );
+              })}
             </div>
             <span className="hidden h-4 w-px bg-blue-600 sm:block" aria-hidden="true" />
             <div className="flex items-center gap-2 text-blue-200">
@@ -118,9 +142,25 @@ export async function SiteHeader() {
               </div>
             </div>
 
-            <Link href="/login" className="ml-1 inline-flex items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
-              {t("site.nav.login")}
-            </Link>
+            {user ? (
+              <>
+                <Link
+                  href={["admin", "teacher", "accountant", "staff", "librarian"].includes(user.role) ? "/dashboard" : "/portal"}
+                  className="ml-1 inline-flex items-center justify-center rounded-md border-2 border-blue-600 bg-white px-3 py-2 text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-50"
+                >
+                  {["admin", "teacher", "accountant", "staff", "librarian"].includes(user.role) ? t("site.nav.dashboard") : t("site.nav.portal")}
+                </Link>
+                <form action={logoutAction}>
+                  <button type="submit" className="ml-1 inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+                    {t("auth.logout")}
+                  </button>
+                </form>
+              </>
+            ) : (
+              <Link href="/login" className="ml-1 inline-flex items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
+                {t("site.nav.login")}
+              </Link>
+            )}
           </nav>
         </div>
       </header>

@@ -1,9 +1,9 @@
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { currentUser } from "@/lib/auth";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Topbar } from "@/components/dashboard/Topbar";
-import { t } from "@/lib/i18n";
+import { t, resolveRequestLocale, setRequestLocale } from "@/lib/i18n";
 import { eskoolfy } from "@/config/eskoolfy";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -12,6 +12,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const headerList = await headers();
   const pathname = headerList.get("x-pathname") ?? "/dashboard";
+  const store = await cookies();
+  const locale = await resolveRequestLocale({
+    get: (name) => store.get(name)?.value ?? null,
+    isDashboard: true,
+  });
+  setRequestLocale(locale);
 
   return (
     <div className="flex min-h-screen bg-slate-100">

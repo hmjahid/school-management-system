@@ -11,8 +11,19 @@ export type Dictionary = Record<string, string>;
 
 const DICTIONARIES: Record<string, Dictionary> = { en, bn: bn as Dictionary };
 
+import { cache } from "react";
+
+/** Request-scoped locale, set by the (site)/(dashboard) layouts from cookies. */
+const requestLocale = cache(() => ({ value: "" as string }));
+
+/** Store the resolved request locale (called by layouts). */
+export function setRequestLocale(locale: string): void {
+  requestLocale().value = locale;
+}
+
 export function locale(): string {
-  return eskoolfy.locale;
+  const set = requestLocale().value;
+  return set || eskoolfy.locale;
 }
 
 export function dictionary(forLocale: string = locale()): Dictionary {
@@ -42,4 +53,38 @@ export function tOr(key: string, fallback: string, params: Record<string, string
 /** Locales available in this profile (bd ships en+bn, int ships en only). */
 export function availableLocales(): string[] {
   return eskoolfy.profile.locales.filter((code) => code in DICTIONARIES);
+}
+
+/** Locale cookie names — mirror the Laravel session keys (locale / dashboard_locale). */
+export const LOCALE_COOKIE = "eskoofy_locale";
+export const DASHBOARD_LOCALE_COOKIE = "eskoofy_dashboard_locale";
+
+/**
+ * Resolve the effective locale for the current request, mirroring the app's
+ * SetLocaleFromSession middleware:
+ *  1. `?lang=` query param wins (when valid).
+ *  2. Dashboard paths read the dashboard_locale cookie, then the site cookie.
+ *  3. Site paths read the site cookie.
+ *  4. Fall back to the profile default.
+ * Returns null when the cookies/headers APIs are unavailable (build time).
+ */
+export async function resolveRequestLocale(store?: {
+  get: (name: string) => string | null;
+  searchParams?: Record<string, string | string[] | undefined>;
+  isDashboard?: boolean;
+}): Promise<string> {
+  const locales = availableLocales();
+  const fallback = eskoolfy.locale;
+
+  if (!store) return fallback;
+
+  const lang = store.searchParams?.lang;
+  const langStr = Array.isArray(lang) ? lang[0] : lang;
+  if (langStr && locales.includes(langStr)) return langStr;
+
+  const cookieName = store.isDashboard ? DASHBOARD_LOCALE_COOKIE : LOCALE_COOKIE;
+  const picked = store.get(cookieName) ?? store.get(LOCALE_COOKIE);
+  if (picked && locales.includes(picked)) return picked;
+
+  return fallback;
 }
