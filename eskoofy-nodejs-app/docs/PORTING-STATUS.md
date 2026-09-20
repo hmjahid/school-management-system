@@ -11,7 +11,7 @@ Reference product: `eskoofy-laravel-app`. Roadmap: `docs/design/VARIANT-BLUEPRIN
 | Dashboard sidebar | groups/items/gates | `lib/nav.ts` | ✅ parity-gated |
 | Strings (en + bn) | `lang/{en,bn}/*` | **742 keys × 2** | ✅ same keys |
 | API envelope | `{success,message,data[,meta]}` | `lib/api-response.ts` | ✅ same |
-| Dashboard CRUD screens | 213 views | **generic index/create/show/edit/delete for all 34 resources** | ✅ functional |
+| Dashboard CRUD screens | 213 views | **generic CRUD engine** (uniform index/create/show/edit for all 34 resources) | ✅ engine functional — **not** per-screen parity: only backup+bulk are screen-tailored; the other 32 resources render the shared engine, not Laravel's 213 bespoke Blade layouts |
 | Public site pages | ~70 routes | **19 real pages** + catch-all | ✅ functional |
 | Components | `<x-card>`, `<x-badge>`, `<x-button>`, `<x-admin-data-table>`, `<x-page-header>`, `<x-empty-state>` | `components/ui/*` (1:1) | ✅ same variants |
 | Dashboard chrome | topbar (search/clock/locale/help/dark/notifications/user), sidebar accordion | `components/dashboard/*` | ✅ same features |
