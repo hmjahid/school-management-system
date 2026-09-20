@@ -57,91 +57,91 @@ Generated: 2026-09-21T03:29
 
 The generic engine serves index/create/show/edit for ~46 tables. These blades are bespoke and have no Node screen:
 
-- [ ] `dashboard/admit-cards/batch.blade.php` — NO NODE SCREEN
+- [x] `dashboard/admit-cards/batch.blade.php` — ported
 - [x] `dashboard/admit-cards/print.blade.php` — ported
-- [ ] `dashboard/announcements/_form.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/assignments/submissions.blade.php` — NO NODE SCREEN
+- [x] `dashboard/announcements/_form.blade.php` — covered
+- [x] `dashboard/assignments/submissions.blade.php` — ported
 - [x] `dashboard/attendance/bulk.blade.php` — ported
-- [ ] `dashboard/bulk/import.blade.php` — NO NODE SCREEN
+- [x] `dashboard/bulk/import.blade.php` — covered
 - [x] `dashboard/careers/applications.blade.php` — ported
-- [ ] `dashboard/careers/form.blade.php` — NO NODE SCREEN
+- [x] `dashboard/careers/form.blade.php` — ported
 - [x] `dashboard/certificates/print.blade.php` — ported
-- [ ] `dashboard/cms/fields/_pair-text.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/cms/fields/_pair-textarea.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/cms/fields/_slider-row.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/cms/fields/contact_cards.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/cms/fields/group.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/cms/fields/hero.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/cms/fields/image.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/cms/fields/kv.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/cms/fields/list.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/cms/fields/repeater.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/cms/fields/repeater_sections.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/cms/fields/select.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/cms/fields/slider.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/cms/fields/text.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/cms/fields/textarea.blade.php` — NO NODE SCREEN
+- [x] `dashboard/cms/fields/_pair-text.blade.php` — covered (typed CMS field editor)
+- [x] `dashboard/cms/fields/_pair-textarea.blade.php` — covered (typed CMS field editor)
+- [x] `dashboard/cms/fields/_slider-row.blade.php` — covered (typed CMS field editor)
+- [x] `dashboard/cms/fields/contact_cards.blade.php` — covered (typed CMS field editor)
+- [x] `dashboard/cms/fields/group.blade.php` — covered (typed CMS field editor)
+- [x] `dashboard/cms/fields/hero.blade.php` — covered (typed CMS field editor)
+- [x] `dashboard/cms/fields/image.blade.php` — covered (typed CMS field editor)
+- [x] `dashboard/cms/fields/kv.blade.php` — covered (typed CMS field editor)
+- [x] `dashboard/cms/fields/list.blade.php` — covered (typed CMS field editor)
+- [x] `dashboard/cms/fields/repeater.blade.php` — covered (typed CMS field editor)
+- [x] `dashboard/cms/fields/repeater_sections.blade.php` — covered (typed CMS field editor)
+- [x] `dashboard/cms/fields/select.blade.php` — covered (typed CMS field editor)
+- [x] `dashboard/cms/fields/slider.blade.php` — covered (typed CMS field editor)
+- [x] `dashboard/cms/fields/text.blade.php` — covered (typed CMS field editor)
+- [x] `dashboard/cms/fields/textarea.blade.php` — covered (typed CMS field editor)
 - [x] `dashboard/cms/pages.blade.php` — ported
-- [ ] `dashboard/cms/partials/page-meta-fields.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/documents/_form.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/documents/_school-info-bar.blade.php` — NO NODE SCREEN
+- [x] `dashboard/cms/partials/page-meta-fields.blade.php` — covered (typed CMS field editor)
+- [x] `dashboard/documents/_form.blade.php` — covered
+- [x] `dashboard/documents/_school-info-bar.blade.php` — covered
 - [x] `dashboard/events/calendar.blade.php` — ported
-- [ ] `dashboard/exams/marksheet-pdf.blade.php` — NO NODE SCREEN
+- [x] `dashboard/exams/marksheet-pdf.blade.php` — ported
 - [x] `dashboard/exams/my-results.blade.php` — ported
 - [x] `dashboard/exams/results.blade.php` — ported
-- [ ] `dashboard/gallery/_form.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/hostels/_form.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/ledger/_ledger-table.blade.php` — NO NODE SCREEN
+- [x] `dashboard/gallery/_form.blade.php` — covered
+- [x] `dashboard/hostels/_form.blade.php` — covered
+- [x] `dashboard/ledger/_ledger-table.blade.php` — covered
 - [x] `dashboard/ledger/bankbook.blade.php` — ported
 - [x] `dashboard/ledger/cashbook.blade.php` — ported
 - [x] `dashboard/ledger/journal.blade.php` — ported
-- [ ] `dashboard/modules/attendance.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/modules/classes.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/modules/contact-submissions.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/modules/exams.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/modules/fees.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/modules/parents.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/modules/settings.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/modules/staff.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/modules/students.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/modules/teachers.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/news/_form.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/notices/_form.blade.php` — NO NODE SCREEN
+- [x] `dashboard/modules/attendance.blade.php` — covered by generic engine
+- [x] `dashboard/modules/classes.blade.php` — covered by generic engine
+- [x] `dashboard/modules/contact-submissions.blade.php` — covered by generic engine
+- [x] `dashboard/modules/exams.blade.php` — covered by generic engine
+- [x] `dashboard/modules/fees.blade.php` — covered by generic engine
+- [x] `dashboard/modules/parents.blade.php` — covered by generic engine
+- [x] `dashboard/modules/settings.blade.php` — covered by generic engine
+- [x] `dashboard/modules/staff.blade.php` — covered by generic engine
+- [x] `dashboard/modules/students.blade.php` — covered by generic engine
+- [x] `dashboard/modules/teachers.blade.php` — covered by generic engine
+- [x] `dashboard/news/_form.blade.php` — covered
+- [x] `dashboard/notices/_form.blade.php` — covered
 - [x] `dashboard/notifications/preferences.blade.php` — ported
 - [x] `dashboard/notifications/templates.blade.php` — ported
 - [x] `dashboard/onboarding.blade.php` — ported
-- [ ] `dashboard/partials/bulk-actions-bar.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/partials/form-errors.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/partials/inline-validation.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/partials/tabs-nav.blade.php` — NO NODE SCREEN
+- [x] `dashboard/partials/bulk-actions-bar.blade.php` — covered
+- [x] `dashboard/partials/form-errors.blade.php` — covered
+- [x] `dashboard/partials/inline-validation.blade.php` — covered
+- [x] `dashboard/partials/tabs-nav.blade.php` — covered
 - [x] `dashboard/payroll/generate.blade.php` — ported
-- [ ] `dashboard/payroll/payslip-show.blade.php` — NO NODE SCREEN
+- [x] `dashboard/payroll/payslip-show.blade.php` — ported
 - [x] `dashboard/payroll/payslips.blade.php` — ported
-- [ ] `dashboard/payroll/structures.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/reports/analytics.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/reports/attendance.blade.php` — NO NODE SCREEN
+- [x] `dashboard/payroll/structures.blade.php` — ported
+- [x] `dashboard/reports/analytics.blade.php` — covered
+- [x] `dashboard/reports/attendance.blade.php` — ported
 - [x] `dashboard/reports/balance-sheet.blade.php` — ported
-- [ ] `dashboard/reports/builder.blade.php` — NO NODE SCREEN
+- [x] `dashboard/reports/builder.blade.php` — covered
 - [x] `dashboard/reports/cash-flow.blade.php` — ported
 - [x] `dashboard/reports/fees.blade.php` — ported
 - [x] `dashboard/reports/income-statement.blade.php` — ported
 - [x] `dashboard/reports/students.blade.php` — ported
-- [ ] `dashboard/settings/about.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/settings/cms.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/settings/general.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/settings/global-labels.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/sms/compose.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/sms/due-reminder.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/sms/preview.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/sms/templates.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/software.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/staff-attendance/report.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/student-id-cards/batch.blade.php` — NO NODE SCREEN
+- [x] `dashboard/settings/about.blade.php` — ported
+- [x] `dashboard/settings/cms.blade.php` — ported
+- [x] `dashboard/settings/general.blade.php` — covered
+- [x] `dashboard/settings/global-labels.blade.php` — ported
+- [x] `dashboard/sms/compose.blade.php` — covered
+- [x] `dashboard/sms/due-reminder.blade.php` — ported
+- [x] `dashboard/sms/preview.blade.php` — ported
+- [x] `dashboard/sms/templates.blade.php` — ported
+- [x] `dashboard/software.blade.php` — ported
+- [x] `dashboard/staff-attendance/report.blade.php` — ported
+- [x] `dashboard/student-id-cards/batch.blade.php` — ported
 - [x] `dashboard/student-id-cards/print.blade.php` — ported
 - [x] `dashboard/students/promote.blade.php` — ported
-- [ ] `dashboard/students/results.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/testimonials/_form.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/testimonials/print.blade.php` — NO NODE SCREEN
+- [x] `dashboard/students/results.blade.php` — ported
+- [x] `dashboard/testimonials/_form.blade.php` — covered
+- [x] `dashboard/testimonials/print.blade.php` — ported
 
 ## 6. Next actions (plan)
 
