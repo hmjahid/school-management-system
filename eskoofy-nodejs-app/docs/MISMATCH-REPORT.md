@@ -88,7 +88,7 @@ The generic engine serves index/create/show/edit for ~46 tables. These blades ar
 - [x] `dashboard/events/calendar.blade.php` — ported
 - [ ] `dashboard/exams/marksheet-pdf.blade.php` — NO NODE SCREEN
 - [x] `dashboard/exams/my-results.blade.php` — ported
-- [ ] `dashboard/exams/results.blade.php` — NO NODE SCREEN
+- [x] `dashboard/exams/results.blade.php` — ported
 - [ ] `dashboard/gallery/_form.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/hostels/_form.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/ledger/_ledger-table.blade.php` — NO NODE SCREEN
@@ -116,15 +116,15 @@ The generic engine serves index/create/show/edit for ~46 tables. These blades ar
 - [ ] `dashboard/partials/tabs-nav.blade.php` — NO NODE SCREEN
 - [x] `dashboard/payroll/generate.blade.php` — ported
 - [ ] `dashboard/payroll/payslip-show.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/payroll/payslips.blade.php` — NO NODE SCREEN
+- [x] `dashboard/payroll/payslips.blade.php` — ported
 - [ ] `dashboard/payroll/structures.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/reports/analytics.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/reports/attendance.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/reports/balance-sheet.blade.php` — NO NODE SCREEN
+- [x] `dashboard/reports/balance-sheet.blade.php` — ported
 - [ ] `dashboard/reports/builder.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/reports/cash-flow.blade.php` — NO NODE SCREEN
+- [x] `dashboard/reports/cash-flow.blade.php` — ported
 - [x] `dashboard/reports/fees.blade.php` — ported
-- [ ] `dashboard/reports/income-statement.blade.php` — NO NODE SCREEN
+- [x] `dashboard/reports/income-statement.blade.php` — ported
 - [x] `dashboard/reports/students.blade.php` — ported
 - [ ] `dashboard/settings/about.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/settings/cms.blade.php` — NO NODE SCREEN
