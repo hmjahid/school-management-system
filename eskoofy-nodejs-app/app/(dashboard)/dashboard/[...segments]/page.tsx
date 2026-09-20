@@ -8,6 +8,7 @@ import { ResourceDetail } from "@/components/dashboard/ResourceDetail";
 import { RoutePlaceholder } from "@/components/dashboard/RoutePlaceholder";
 import { PrintScreen } from "@/components/dashboard/PrintScreen";
 import { FeesReport, StudentsReport } from "@/components/dashboard/ReportsScreen";
+import { SettingsScreen } from "@/components/dashboard/SettingsScreen";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { currentUser } from "@/lib/auth";
@@ -104,6 +105,15 @@ export default async function DashboardCatchAll({
           }
         />
         <ResourceDetail model={model} row={row} />
+      </div>
+    );
+  }
+
+  // Bespoke settings screen (dashboard/settings = school info)
+  if (segments[0] === "settings" && segments.length === 1) {
+    return (
+      <div>
+        <SettingsScreen />
       </div>
     );
   }
