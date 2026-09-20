@@ -4,14 +4,254 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * Tailwind CSS v4 — utility classes only, mirroring the Laravel app's setup.
- * `--esk-brand` is the themeable brand token (equivalent of the app's
- * `brand-*` palette + the website's `--esk-brand` custom property).
+ * Tailwind CSS v4 — utility classes only, mirroring the Laravel app's setup
+ * (eskoofy-laravel-app/resources/css/app.css). Tokens below are the same
+ * brand/status palette and design tokens the Laravel variant ships.
  */
 :root {
   --esk-brand: #2563eb;
+  --theme-primary: #2563eb;
+
+  /* Brand palette (mirrored from Laravel app.css @theme) */
+  --brand-50: oklch(0.97 0.02 250);
+  --brand-100: oklch(0.93 0.04 250);
+  --brand-400: oklch(0.63 0.16 250);
+  --brand-500: oklch(0.55 0.18 250);
+  --brand-600: oklch(0.48 0.18 250);
+  --brand-700: oklch(0.42 0.16 250);
+  --brand-800: oklch(0.35 0.14 250);
+  --brand-900: oklch(0.28 0.12 250);
+  --accent-500: oklch(0.68 0.18 55);
+  --accent-600: oklch(0.62 0.18 55);
+
+  /* Status tokens */
+  --success-50: oklch(0.97 0.04 160);
+  --success-500: oklch(0.72 0.19 156);
+  --success-700: oklch(0.47 0.16 156);
+  --warning-50: oklch(0.98 0.03 80);
+  --warning-500: oklch(0.77 0.17 70);
+  --warning-700: oklch(0.55 0.13 70);
+  --danger-50: oklch(0.97 0.02 15);
+  --danger-500: oklch(0.64 0.24 25);
+  --danger-700: oklch(0.46 0.19 25);
+  --info-50: oklch(0.97 0.02 230);
+  --info-500: oklch(0.63 0.15 250);
+  --info-700: oklch(0.45 0.12 250);
+
+  /* Enterprise design tokens */
+  --surface: oklch(0.99 0 0);
+  --surface-secondary: oklch(0.97 0.01 250);
+  --on-surface: oklch(0.15 0.02 250);
+  --on-surface-muted: oklch(0.55 0.02 250);
+  --radius-card: 1rem;
+  --radius-button: 0.625rem;
+  --shadow-card-hover: 0 8px 30px oklch(0 0 0 / 0.08);
+  --transition-default: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-bengali: "Noto Sans Bengali", "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal,
+  .animate-marquee,
+  .notice-scroll-content,
+  .site-nav-panel {
+    animation: none !important;
+  }
 }
 
 body {
   -webkit-font-smoothing: antialiased;
+}
+
+/* Visible keyboard focus */
+:focus-visible {
+  outline: 2px solid var(--theme-primary, #2563eb);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Skip-to-content link — visibly appears only when focused (keyboard users) */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  z-index: 400;
+  border-radius: 0.625rem;
+  background: var(--brand-600, #2563eb);
+  padding: 0.5rem 1rem;
+  color: white;
+  font-weight: 600;
+}
+
+/* Scroll reveal animation */
+.reveal {
+  opacity: 0;
+  transform: translateY(2rem);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Mobile nav drawer */
+@keyframes navPanelSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.site-nav-panel {
+  animation: navPanelSlideIn 0.22s ease-out;
+}
+
+/* Enterprise button */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-button, 0.625rem);
+  background: var(--brand-600, #2563eb);
+  padding: 0.625rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+  box-shadow: 0 1px 2px oklch(0 0 0 / 0.06);
+  transition: background var(--transition-default, 0.2s), box-shadow var(--transition-default, 0.2s), transform var(--transition-default, 0.2s);
+}
+.btn-primary:hover {
+  background: var(--brand-700, oklch(0.42 0.16 250));
+}
+.btn-primary:focus-visible {
+  outline: 2px solid oklch(0.55 0.18 250 / 0.5);
+  outline-offset: 2px;
+}
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* Card hover lift */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover, 0 8px 30px oklch(0 0 0 / 0.08));
+}
+
+/* Skeleton loader */
+.skeleton {
+  border-radius: 0.25rem;
+  background: var(--surface-secondary, oklch(0.97 0.01 250));
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Loading spinner */
+.spinner {
+  display: inline-block;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 9999px;
+  animation: spin 1s linear infinite;
+}
+
+/* Enterprise admin shell */
+.admin-shell {
+  --sidebar-width: 16.5rem;
+}
+
+.admin-card {
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid oklch(0.92 0.01 250 / 0.8);
+  background: white;
+  box-shadow: 0 1px 2px oklch(0 0 0 / 0.04);
+}
+.admin-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-bottom: 1px solid oklch(0.96 0.005 250);
+  padding: 1rem 1.25rem;
+}
+.admin-card-body {
+  padding: 1.25rem;
+}
+
+/* Hero overlay gradient (mirrors Laravel) */
+.hero-overlay {
+  background: linear-gradient(135deg, oklch(0.15 0.05 250 / 0.85) 0%, oklch(0.15 0.05 250 / 0.4) 100%);
+}
+
+/* Hero animated shapes */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-20px) scale(1.05);
+  }
+}
+.hero-shape {
+  position: absolute;
+  border-radius: 9999px;
+  opacity: 0.2;
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Marquee + notice vertical scroll (mirrors Laravel site header notices) */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+.animate-marquee:hover,
+.animate-marquee.paused,
+.notice-scroll-content.paused {
+  animation-play-state: paused;
+}
+@keyframes noticeScroll {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+.notice-scroll-content {
+  display: flex;
+  flex-direction: column;
+  animation: noticeScroll var(--scroll-duration, 15s) linear infinite;
+}
+.notice-scroll-container:hover .notice-scroll-content {
+  animation-play-state: paused;
 }
