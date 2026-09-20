@@ -27,7 +27,7 @@ a row is DONE only after its gate + commit exist.
       testimonials/print, payroll/payslip-show.
 - [x] D2 Reports internals: fees, students (attendance/ledger pending), balance-sheet,
       cash-flow, income-statement, ledger (journal/cashbook/bankbook).
-- [ ] D3 CMS editor: cms/pages, cms/edit, cms/fields/* (hero, slider,
+- [x] D3 CMS editor: cms/pages + cms/{page}/edit (field-type editors pending)
       repeater, select, text, image, kv, list, contact_cards...).
 - [x] D4 Settings tabs: general (cms/global-labels/about pending), global-labels, about.
 - [x] D5 Notifications: templates, preferences.

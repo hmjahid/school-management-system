@@ -61,9 +61,9 @@ The generic engine serves index/create/show/edit for ~46 tables. These blades ar
 - [x] `dashboard/admit-cards/print.blade.php` — ported
 - [ ] `dashboard/announcements/_form.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/assignments/submissions.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/attendance/bulk.blade.php` — NO NODE SCREEN
+- [x] `dashboard/attendance/bulk.blade.php` — ported
 - [ ] `dashboard/bulk/import.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/careers/applications.blade.php` — NO NODE SCREEN
+- [x] `dashboard/careers/applications.blade.php` — ported
 - [ ] `dashboard/careers/form.blade.php` — NO NODE SCREEN
 - [x] `dashboard/certificates/print.blade.php` — ported
 - [ ] `dashboard/cms/fields/_pair-text.blade.php` — NO NODE SCREEN
@@ -81,20 +81,20 @@ The generic engine serves index/create/show/edit for ~46 tables. These blades ar
 - [ ] `dashboard/cms/fields/slider.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/cms/fields/text.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/cms/fields/textarea.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/cms/pages.blade.php` — NO NODE SCREEN
+- [x] `dashboard/cms/pages.blade.php` — ported
 - [ ] `dashboard/cms/partials/page-meta-fields.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/documents/_form.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/documents/_school-info-bar.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/events/calendar.blade.php` — NO NODE SCREEN
+- [x] `dashboard/events/calendar.blade.php` — ported
 - [ ] `dashboard/exams/marksheet-pdf.blade.php` — NO NODE SCREEN
 - [x] `dashboard/exams/my-results.blade.php` — ported
 - [ ] `dashboard/exams/results.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/gallery/_form.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/hostels/_form.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/ledger/_ledger-table.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/ledger/bankbook.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/ledger/cashbook.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/ledger/journal.blade.php` — NO NODE SCREEN
+- [x] `dashboard/ledger/bankbook.blade.php` — ported
+- [x] `dashboard/ledger/cashbook.blade.php` — ported
+- [x] `dashboard/ledger/journal.blade.php` — ported
 - [ ] `dashboard/modules/attendance.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/modules/classes.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/modules/contact-submissions.blade.php` — NO NODE SCREEN
@@ -114,7 +114,7 @@ The generic engine serves index/create/show/edit for ~46 tables. These blades ar
 - [ ] `dashboard/partials/form-errors.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/partials/inline-validation.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/partials/tabs-nav.blade.php` — NO NODE SCREEN
-- [ ] `dashboard/payroll/generate.blade.php` — NO NODE SCREEN
+- [x] `dashboard/payroll/generate.blade.php` — ported
 - [ ] `dashboard/payroll/payslip-show.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/payroll/payslips.blade.php` — NO NODE SCREEN
 - [ ] `dashboard/payroll/structures.blade.php` — NO NODE SCREEN
