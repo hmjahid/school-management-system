@@ -18,6 +18,7 @@ import { BalanceSheet, IncomeStatement, CashFlow } from "@/components/dashboard/
 import { ExamResults, Payslips } from "@/components/dashboard/ExamPayrollScreens";
 import { SettingsTab, AttendanceReport, StudentResults, StaffAttendanceReport, AssignmentsSubmissions, BatchGenerate } from "@/components/dashboard/ExtraScreens";
 import { SmsTemplates, DueFeeReminder } from "@/components/dashboard/SmsScreens";
+import { MarksheetPdf, PayslipShow, PayrollStructures, SmsPreview, SoftwareAbout, TestimonialsPrint, CareersForm } from "@/components/dashboard/FinalScreens";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { currentUser } from "@/lib/auth";
@@ -307,6 +308,40 @@ export default async function DashboardCatchAll({
   }
   if (segments[0] === "student-id-cards" && segments[1] === "batch") {
     return (<div><BatchGenerate kind="student-id-cards" /></div>);
+  }
+
+  // Marksheet PDF print (dashboard/exams/{id}/results/{result}/marksheet)
+  if (segments[0] === "exams" && segments.includes("marksheet")) {
+    const q = query as Record<string, string | undefined>;
+    return (<div><MarksheetPdf studentId={q.student_id ? Number(q.student_id) : undefined} examId={segments[1] ? Number(segments[1]) : undefined} /></div>);
+  }
+
+  // Payslip show + structures
+  if (segments[0] === "payroll" && segments[1] === "payslips" && segments[2]) {
+    return (<div><PayslipShow id={Number(segments[2])} /></div>);
+  }
+  if (segments[0] === "payroll" && segments[1] === "structures") {
+    return (<div><PayrollStructures /></div>);
+  }
+
+  // SMS preview
+  if (segments[0] === "sms" && segments[1] === "preview") {
+    return (<div><SmsPreview /></div>);
+  }
+
+  // Software about page
+  if (segments[0] === "software") {
+    return (<div><SoftwareAbout /></div>);
+  }
+
+  // Testimonials print
+  if (segments[0] === "testimonials" && segments.includes("print")) {
+    return (<div><TestimonialsPrint /></div>);
+  }
+
+  // Careers form
+  if (segments[0] === "careers" && segments[1] === "form") {
+    return (<div><CareersForm /></div>);
   }
 
   // Bespoke settings screen (dashboard/settings = school info)
