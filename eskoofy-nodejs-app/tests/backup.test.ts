@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   backupsDirPath,
@@ -59,7 +59,7 @@ describe("backup files", () => {
     expect(result.tableCount).toBe(1);
     expect(result.restoredFiles).toEqual(["uploads/a.txt"]);
     const restored = join(storagePublicServePath(), "uploads", "a.txt");
-    expect(require("node:fs").readFileSync(restored, "utf8")).toBe("file-content");
+    expect(readFileSync(restored, "utf8")).toBe("file-content");
     // restore ran DELETE then INSERT
     expect(db.rows.map((entry) => entry[0].sql)).toEqual(["DELETE FROM `users`", "INSERT INTO `users` (`id`,`name`) VALUES (?,?)"]);
   });
