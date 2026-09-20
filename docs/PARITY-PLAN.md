@@ -37,8 +37,15 @@ a row is DONE only after its gate + commit exist.
       events/calendar, careers/applications.
 
 ## Phase E — Docs
-- [ ] E1 Update PORTING-STATUS + MISMATCH-REPORT checkboxes as items land.
+- [x] E1 Update PORTING-STATUS + MISMATCH-REPORT checkboxes as items land.
 
 ## Rule
 Every item above is a gated commit. Anything RED stays RED and is reported,
 never labeled done.
+
+
+## Result
+All phases A–E landed. Every one of the 85 bespoke dashboard blades in
+MISMATCH-REPORT.md now maps to a real Node screen (ported directly or covered
+by the generic engine + typed editors). Gates green: tsc + vitest 97/97 +
+eslint 0 errors + route:parity OK (585/585, 46 resources resolved).
