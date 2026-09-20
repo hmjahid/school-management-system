@@ -9,6 +9,7 @@ import { RoutePlaceholder } from "@/components/dashboard/RoutePlaceholder";
 import { PrintScreen } from "@/components/dashboard/PrintScreen";
 import { FeesReport, StudentsReport } from "@/components/dashboard/ReportsScreen";
 import { SettingsScreen } from "@/components/dashboard/SettingsScreen";
+import { NotificationTemplates, NotificationPreferences } from "@/components/dashboard/NotificationsScreen";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { currentUser } from "@/lib/auth";
@@ -105,6 +106,22 @@ export default async function DashboardCatchAll({
           }
         />
         <ResourceDetail model={model} row={row} />
+      </div>
+    );
+  }
+
+  // Notification screens
+  if (segments[0] === "notifications" && segments[1] === "templates") {
+    return (
+      <div>
+        <NotificationTemplates />
+      </div>
+    );
+  }
+  if (segments[0] === "notifications" && segments[1] === "preferences") {
+    return (
+      <div>
+        <NotificationPreferences />
       </div>
     );
   }
