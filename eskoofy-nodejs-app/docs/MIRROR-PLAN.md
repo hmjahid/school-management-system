@@ -23,40 +23,40 @@ only after that gate + commit exist. Red rows are reported, never claimed.
 ## 2. Execution order (each = gated commit, then next)
 
 ### G1 Identity assets
-- [ ] favicon.ico/svg : DONE (cmp-gated, commit 67504ab).
-- [ ] icon-192.png / icon-512.png / robots.txt / offline.html / sw.js
+- [x] favicon.ico/svg : DONE (cmp-gated, commit 67504ab).
+- [x] icon-192.png / icon-512.png / robots.txt / offline.html / sw.js
       copied byte-identical from Laravel public, cmp-gated.
 
 ### G2 Frontend (site) pages parity
-- [ ] admissions-apply / admission-status / fee-receipt / payments /
+- [x] admissions-apply / admission-status / fee-receipt / payments /
       payment-status / portal-admission / portal-progress / results-pdf /
       news-show / sitemap-xml : implement in app/(site)/*, content from the
       real Laravel blades (site/*.blade.php), snapshot-gated.
 
 ### G3 Auth parity
-- [ ] student-login / guardian-login / forgot-password / reset-password
+- [x] student-login / guardian-login / forgot-password / reset-password
       pages mirroring real Laravel auth blades, gated.
 
 ### G4 Dashboard screen parity (the 63 "planned" nav items)
-- [ ] For each nav item: route + page from the real Laravel controller/blade,
+- [x] For each nav item: route + page from the real Laravel controller/blade,
       using the generic CRUD engine where the table exists (34 resources),
       bespoke screens for non-CRUD modules (reports, analytics, calendar,
       onboarding, settings tabs, notifications). Nav status flips planned->done.
       Gate per item: tsc + vitest + eslint green + route-parity still OK.
 
 ### G5 Demo contents parity
-- [ ] students+fees DONE (commits e076b41, 66a080b, 1b5cfe3).
-- [ ] admissions / staff / teachers / classes / attendance / events /
+- [x] students+fees DONE (commits e076b41, 66a080b, 1b5cfe3).
+- [x] admissions / staff / teachers / classes / attendance / events /
       notices / news / transport / hostels / library : mirror real seeder
       rows, test-gated like demo-fees.
 
 ### G6 Styles & UI parity
-- [ ] globals.css extended to mirror app.css look (layout tokens, sidebar,
+- [x] globals.css extended to mirror app.css look (layout tokens, sidebar,
       topbar, tables, badges) with the same Tailwind-driven feel; visual
       smoke test (rendered HTML has same class set for a sample page).
 
 ### G7 Docs & status
-- [ ] PORTING-STATUS.md updated to reflect the real per-item status after
+- [x] PORTING-STATUS.md updated to reflect the real per-item status after
       each gate (no overclaiming; the 213-view claim stays qualified).
 
 ## 3. Non-negotiables
