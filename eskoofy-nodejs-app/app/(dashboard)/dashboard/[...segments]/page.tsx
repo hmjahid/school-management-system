@@ -15,6 +15,7 @@ import { CmsPages, CmsEdit } from "@/components/dashboard/CmsScreen";
 import { EventsCalendar, LedgerBook } from "@/components/dashboard/CalendarLedgerScreen";
 import { BulkAttendance, GeneratePayslips, CareersApplications } from "@/components/dashboard/BulkScreens";
 import { BalanceSheet, IncomeStatement, CashFlow } from "@/components/dashboard/FinancialReports";
+import { ExamResults, Payslips } from "@/components/dashboard/ExamPayrollScreens";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { currentUser } from "@/lib/auth";
@@ -235,6 +236,24 @@ export default async function DashboardCatchAll({
     return (
       <div>
         <CashFlow from={q.from} to={q.to} />
+      </div>
+    );
+  }
+
+  // Exam results + payroll payslips
+  if (segments[0] === "exams" && segments[2] === "results") {
+    const q = query as Record<string, string | undefined>;
+    const examId = segments[1] ? Number(segments[1]) : q.exam_id ? Number(q.exam_id) : undefined;
+    return (
+      <div>
+        <ExamResults examId={examId} />
+      </div>
+    );
+  }
+  if (segments[0] === "payroll" && segments[1] === "payslips") {
+    return (
+      <div>
+        <Payslips />
       </div>
     );
   }
