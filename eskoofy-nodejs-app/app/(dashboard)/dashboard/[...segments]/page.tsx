@@ -10,6 +10,7 @@ import { PrintScreen } from "@/components/dashboard/PrintScreen";
 import { FeesReport, StudentsReport } from "@/components/dashboard/ReportsScreen";
 import { SettingsScreen } from "@/components/dashboard/SettingsScreen";
 import { NotificationTemplates, NotificationPreferences } from "@/components/dashboard/NotificationsScreen";
+import { PromoteStudents, MyResults, Onboarding } from "@/components/dashboard/MiscScreens";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { currentUser } from "@/lib/auth";
@@ -122,6 +123,30 @@ export default async function DashboardCatchAll({
     return (
       <div>
         <NotificationPreferences />
+      </div>
+    );
+  }
+
+  // Misc bespoke screens
+  if (segments[0] === "students" && segments[1] === "promote") {
+    const q = query as Record<string, string | undefined>;
+    return (
+      <div>
+        <PromoteStudents fromClassId={q.from_class_id ? Number(q.from_class_id) : undefined} />
+      </div>
+    );
+  }
+  if (segments[0] === "exams" && segments[1] === "my-results") {
+    return (
+      <div>
+        <MyResults />
+      </div>
+    );
+  }
+  if (segments[0] === "onboarding") {
+    return (
+      <div>
+        <Onboarding />
       </div>
     );
   }
