@@ -121,9 +121,9 @@ export default async function DashboardCatchAll({
                 name="q"
                 defaultValue={search ?? ""}
                 placeholder={t("common.search")}
-                className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
+                className="admin-input"
               />
-              <button className="rounded-lg bg-slate-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-600">
+              <button className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-700">
                 {t("common.search")}
               </button>
             </form>

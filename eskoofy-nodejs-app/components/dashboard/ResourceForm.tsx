@@ -55,7 +55,7 @@ export async function ResourceForm({
   const idValue = row ? initialValue(row[idField]) : "";
 
   const inputClass =
-    "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20";
+    "admin-input";
 
   const resourceKey = `dashboard.${(basePath.split("/").pop() ?? model.table).replace(/-/g, "_")}`;
   const formTitle = t(resourceKey) === resourceKey ? model.table : t(resourceKey);
