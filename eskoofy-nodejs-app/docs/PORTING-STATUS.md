@@ -11,8 +11,8 @@ Reference product: `eskoofy-laravel-app`. Roadmap: `docs/design/VARIANT-BLUEPRIN
 | Dashboard sidebar | groups/items/gates | `lib/nav.ts` | ✅ parity-gated |
 | Strings (en + bn) | `lang/{en,bn}/*` | **742 keys × 2** | ✅ same keys |
 | API envelope | `{success,message,data[,meta]}` | `lib/api-response.ts` | ✅ same |
-| Dashboard CRUD screens | 213 views | **generic CRUD engine** (uniform index/create/show/edit for all 34 resources) | ✅ engine functional — **not** per-screen parity: only backup+bulk are screen-tailored; the other 32 resources render the shared engine, not Laravel's 213 bespoke Blade layouts |
-| Public site pages | ~70 routes | **19 real pages** + catch-all | ✅ functional |
+| Dashboard CRUD screens | 213 views | **generic CRUD engine** (uniform index/create/show/edit for all 34 resources) + **72 nav items all `done`** (0 planned): model-backed paths serve real CRUD, 5 bespoke screens (analytics, reports, reports/builder, sms, communications) | ✅ functional — engine-based, not per-screen Blade parity |
+| Public site pages | ~70 routes | **28 real pages** + catch-all (payments family, portal-admission/progress, results/pdf, sitemap.xml, student/guardian login, forgot/reset password added) | ✅ functional |
 | Components | `<x-card>`, `<x-badge>`, `<x-button>`, `<x-admin-data-table>`, `<x-page-header>`, `<x-empty-state>` | `components/ui/*` (1:1) | ✅ same variants |
 | Dashboard chrome | topbar (search/clock/locale/help/dark/notifications/user), sidebar accordion | `components/dashboard/*` | ✅ same features |
 
@@ -26,8 +26,9 @@ Reference product: `eskoofy-laravel-app`. Roadmap: `docs/design/VARIANT-BLUEPRIN
   (class-based, persisted), notifications, user dropdown with logout.
 - **Generic CRUD for every resource**: list (search + pagination + status badges),
   show, create and edit with generated forms, and delete — driven by Prisma DMMF so all
-  ~34 dashboard resources (`students`, `teachers`, `classes`, `fees`, `exam-results`,
-  `books`, `hostels`, …) work without a hand-written screen each.
+  ~34 dashboard resources work without a hand-written screen each. `resolveModel`
+  OVERRIDES fix means parents/staff/leaves/ledger/payroll/committee/library/media and
+  the financial reports now resolve to real tables and render real CRUD.
 - Forms render field-type widgets (date, number, boolean, enum select) and resolve
   foreign keys into lookup selects with real options.
 
@@ -57,7 +58,7 @@ the app's session secret):
 | `/`, `/notices`, `/events`, `/gallery`, `/faculty`, `/routine` | 200 |
 | Prisma errors during the run | **0** |
 
-Gates: `tsc --noEmit` ✅ · ESLint ✅ · **48 Vitest tests** ✅ · `route:parity` ✅
+Gates: `tsc --noEmit` ✅ · ESLint ✅ (0 errors) · **97 Vitest tests** ✅ · `route:parity` ✅
 (585/585 routes, 95/95 sidebar keys, 107 tables) · `next build` ✅.
 
 > Note: the SQLite test copy needed its `DATETIME` strings normalised to ISO-8601 because
@@ -72,9 +73,9 @@ Gates: `tsc --noEmit` ✅ · ESLint ✅ · **48 Vitest tests** ✅ · `route:par
   hand-tuned views (charts, print/PDF layouts, CMS field editors, media picker, wizards).
 - **Print/PDF.** Admit cards, ID cards, certificates, marksheets and receipts are not
   generated yet.
-- **Some dashboard screens** that are not simple CRUD (settings tabs, reports builder,
-  analytics, notifications templates/preferences, CMS editors) render the parity
-  placeholder instead of a bespoke screen.
+- **Dashboard**: analytics, reports, reports/builder, sms and communications are now
+  bespoke screens. Settings tabs, notifications templates/preferences and CMS editors
+  still render the parity placeholder (schema/APIs exist).
 - **Business-logic depth.** Exam publish semantics, recurring payments, ledger postings,
   payroll runs, SMS campaigns: the schema and APIs exist, the workflow logic is not ported.
 - **Integrations.** Payment gateways, SMS (Twilio/Vonage), mail, queues and the scheduler.
