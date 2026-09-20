@@ -9,7 +9,6 @@ export default async function GuardianLoginPage({
   searchParams: Promise<{ error?: string; redirect?: string }>;
 }) {
   const params = await searchParams;
-  const action = roleLoginAction("guardian");
 
   return (
     <section className="mx-auto flex max-w-md flex-col px-4 py-20">
@@ -23,8 +22,9 @@ export default async function GuardianLoginPage({
           </p>
         ) : null}
 
-        <form action={action} className="mt-6 space-y-5">
+        <form action={roleLoginAction} className="mt-6 space-y-5">
           <input type="hidden" name="redirect" value={params.redirect ?? "/dashboard"} />
+          <input type="hidden" name="role" value="guardian" />
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-slate-700">{t("auth.email")}</label>
             <input id="email" name="email" type="email" required autoFocus autoComplete="username"
