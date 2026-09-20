@@ -12,6 +12,7 @@ import { SettingsScreen } from "@/components/dashboard/SettingsScreen";
 import { NotificationTemplates, NotificationPreferences } from "@/components/dashboard/NotificationsScreen";
 import { PromoteStudents, MyResults, Onboarding } from "@/components/dashboard/MiscScreens";
 import { CmsPages, CmsEdit } from "@/components/dashboard/CmsScreen";
+import { EventsCalendar, LedgerBook } from "@/components/dashboard/CalendarLedgerScreen";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { currentUser } from "@/lib/auth";
@@ -164,6 +165,23 @@ export default async function DashboardCatchAll({
     return (
       <div>
         <CmsEdit page={segments[1]} />
+      </div>
+    );
+  }
+
+  // Events calendar + ledger books
+  if (segments[0] === "events" && segments[1] === "calendar") {
+    const q = query as Record<string, string | undefined>;
+    return (
+      <div>
+        <EventsCalendar month={q.month} />
+      </div>
+    );
+  }
+  if (segments[0] === "ledger" && (segments[1] === "cashbook" || segments[1] === "bankbook" || segments[1] === "journal")) {
+    return (
+      <div>
+        <LedgerBook kind={segments[1] as "cashbook" | "bankbook" | "journal"} />
       </div>
     );
   }
