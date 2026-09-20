@@ -1,15 +1,19 @@
-import {
-  displayFields,
-  labelField,
-  writableFields,
-  type FieldMeta,
-  type ModelMeta,
-} from "@/lib/schema";
+import type { FieldMeta, ModelMeta } from "@/lib/schema";
+
+/**
+ * HONEST tailored-index registry.
+ *
+ * Verified against the REAL committed Laravel blades (the two modules whose
+ * index blade exposes its own <th> set — staff, contact-submissions). Every
+ * other dashboard module in Laravel is headerless (cards/grid/panel, no
+ * <th>), so for those the generic engine IS the correct mirror; nothing here
+ * claims per-screen parity. See docs/PORTING-STATUS.md row 14.
+ */
 
 export interface TailoredIndex {
   laravelRoute: string;
   indexColumns: string[];
-  labelFieldName?: string;
+  labelFieldName: string;
 }
 
 const TAILORED: Record<string, TailoredIndex> = {
@@ -25,20 +29,17 @@ const TAILORED: Record<string, TailoredIndex> = {
   },
 };
 
-export function indexColumns(model: ModelMeta, generic: FieldMeta[]): FieldMeta[] {
-  const cfg = TAILORED[model.name];
-  if (!cfg) return generic;
-  const byName = new Map(model.fields.map((f) => [f.name, f]));
-  const picked = cfg.indexColumns
-    .map((n) => byName.get(n))
-    .filter((f): f is FieldMeta => Boolean(f) && Boolean(f.display));
-  return picked.length > 0 ? picked : generic;
+/** True iff this module's Laravel index blade exposes its own <th> set. */
+export function hasOwnThSet(moduleName: string): boolean {
+  return moduleName in TAILORED;
 }
 
-export function hasTailoredIndex(model: ModelMeta): boolean {
-  return model.name in TAILORED;
+/** The tailored screen config for a module, if its blade has its own <th>. */
+export function tailorableModule(moduleName: string): TailoredIndex | undefined {
+  return TAILORED[moduleName];
 }
 
-export function tailoredLabelField(model: ModelMeta): string | undefined {
-  return TAILORED[model.name]?.labelFieldName;
-}
+/** Headerless modules (real Laravel index has no <th>) -> generic engine mirrors them. */
+export const HEADERLESS_MODULES: readonly string[] = [
+  "settings", "attendance", "classes", "exams", "fees", "parents", "students", "teachers",
+];
