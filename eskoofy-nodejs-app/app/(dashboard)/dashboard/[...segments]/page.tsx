@@ -11,6 +11,7 @@ import { FeesReport, StudentsReport } from "@/components/dashboard/ReportsScreen
 import { SettingsScreen } from "@/components/dashboard/SettingsScreen";
 import { NotificationTemplates, NotificationPreferences } from "@/components/dashboard/NotificationsScreen";
 import { PromoteStudents, MyResults, Onboarding } from "@/components/dashboard/MiscScreens";
+import { CmsPages, CmsEdit } from "@/components/dashboard/CmsScreen";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { currentUser } from "@/lib/auth";
@@ -147,6 +148,22 @@ export default async function DashboardCatchAll({
     return (
       <div>
         <Onboarding />
+      </div>
+    );
+  }
+
+  // CMS screens
+  if (segments[0] === "cms" && segments[1] === "pages" && segments.length === 2) {
+    return (
+      <div>
+        <CmsPages />
+      </div>
+    );
+  }
+  if (segments[0] === "cms" && segments.length === 3 && segments[2] === "edit") {
+    return (
+      <div>
+        <CmsEdit page={segments[1]} />
       </div>
     );
   }
