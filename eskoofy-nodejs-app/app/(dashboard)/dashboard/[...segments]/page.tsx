@@ -14,6 +14,7 @@ import { PromoteStudents, MyResults, Onboarding } from "@/components/dashboard/M
 import { CmsPages, CmsEdit } from "@/components/dashboard/CmsScreen";
 import { EventsCalendar, LedgerBook } from "@/components/dashboard/CalendarLedgerScreen";
 import { BulkAttendance, GeneratePayslips, CareersApplications } from "@/components/dashboard/BulkScreens";
+import { BalanceSheet, IncomeStatement, CashFlow } from "@/components/dashboard/FinancialReports";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { currentUser } from "@/lib/auth";
@@ -208,6 +209,32 @@ export default async function DashboardCatchAll({
     return (
       <div>
         <CareersApplications />
+      </div>
+    );
+  }
+
+  // Financial reports (balance-sheet, income-statement, cash-flow)
+  if (segments[0] === "reports" && segments[1] === "balance-sheet") {
+    const q = query as Record<string, string | undefined>;
+    return (
+      <div>
+        <BalanceSheet asOf={q.as_of} />
+      </div>
+    );
+  }
+  if (segments[0] === "reports" && segments[1] === "income-statement") {
+    const q = query as Record<string, string | undefined>;
+    return (
+      <div>
+        <IncomeStatement from={q.from} to={q.to} />
+      </div>
+    );
+  }
+  if (segments[0] === "reports" && segments[1] === "cash-flow") {
+    const q = query as Record<string, string | undefined>;
+    return (
+      <div>
+        <CashFlow from={q.from} to={q.to} />
       </div>
     );
   }
