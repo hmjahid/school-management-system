@@ -53,18 +53,14 @@ function Item({ item, pathname, role }: { item: NavItem; pathname: string; role:
     <li>
       <Link
         href={item.path}
-        className={`flex items-center gap-2.5 rounded-lg px-3 py-2 transition ${
-          active
-            ? "bg-blue-600 font-semibold text-white"
-            : "text-slate-300 hover:bg-slate-800 hover:text-white"
-        }`}
+        className={`admin-nav-link w-full ${active ? "admin-nav-link--active" : ""}`}
       >
         <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 opacity-90" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d={iconFor(item)} />
         </svg>
         <span className="flex-1 truncate">{label}</span>
         {item.status === "planned" ? (
-          <span className="rounded-full bg-slate-800 px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-slate-500">
+          <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-slate-500 dark:bg-slate-700 dark:text-slate-400">
             {t("common.planned")}
           </span>
         ) : null}
@@ -85,7 +81,7 @@ function Group({ group, pathname, role }: { group: NavGroup; pathname: string; r
 
   return (
     <details open={open} className="group mt-1">
-      <summary className="flex cursor-pointer list-none items-center gap-1 rounded-lg px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-slate-500 hover:text-slate-300 [&::-webkit-details-marker]:hidden">
+      <summary className="admin-nav-link cursor-pointer list-none !py-1.5 text-[10px] font-semibold uppercase tracking-widest [&::-webkit-details-marker]:hidden">
         <svg viewBox="0 0 24 24" className="h-3 w-3 transition group-open:rotate-90" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M9 5l7 7-7 7" />
         </svg>
@@ -101,7 +97,7 @@ function Group({ group, pathname, role }: { group: NavGroup; pathname: string; r
       ) : null}
 
       {children.length > 0 ? (
-        <div className="ml-2 mt-1 border-l border-slate-800 pl-2">
+        <div className="ml-2 mt-1 border-l border-slate-200 pl-2 dark:border-slate-700">
           {children.map((child) => (
             <Group key={child.key} group={child} pathname={pathname} role={role} />
           ))}
@@ -115,39 +111,39 @@ export function Sidebar({ user, pathname }: { user: { name: string; role: string
   return (
     <aside
       data-sidebar
-      className="flex w-64 shrink-0 -translate-x-full flex-col bg-slate-900 text-slate-300 transition-transform lg:translate-x-0"
+      className="flex w-64 shrink-0 -translate-x-full flex-col border-r border-slate-200 bg-white text-slate-600 transition-transform dark:border-slate-700/80 dark:bg-slate-900 dark:text-slate-300 lg:translate-x-0"
     >
-      <Link href="/dashboard" className="flex items-center gap-2.5 px-6 py-5 text-white">
-        <span className="grid h-9 w-9 place-items-center rounded-lg bg-blue-600 font-bold">E</span>
+      <Link href="/dashboard" className="flex items-center gap-2.5 border-b border-slate-200/80 px-6 py-5 dark:border-slate-700/80">
+        <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-600 font-bold text-white">E</span>
         <span className="leading-tight">
-          <span className="block font-bold">{t("brand.name")}</span>
-          <span className="block text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+          <span className="block font-bold text-slate-900 dark:text-slate-100">{t("brand.name")}</span>
+          <span className="block text-[10px] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
             {t("dashboard.admin_panel")}
           </span>
         </span>
       </Link>
 
-      <nav className="flex-1 overflow-y-auto px-3 pb-6 text-sm font-medium">
+      <nav className="admin-sidebar-nav gap-0.5 text-sm font-medium">
         {NAV_GROUPS.map((group) => (
           <Group key={group.key} group={group} pathname={pathname} role={user.role} />
         ))}
-        <Link href="/" className="mt-4 block rounded-lg px-3 py-2 text-slate-400 transition hover:bg-slate-800 hover:text-white">
+        <Link href="/" className="admin-nav-link mt-4">
           {t("nav.view_site")}
         </Link>
       </nav>
 
-      <div className="border-t border-slate-800 px-4 py-4">
+      <div className="border-t border-slate-200 px-4 py-4 dark:border-slate-700/80">
         <div className="flex items-center gap-3">
-          <span className="grid h-9 w-9 place-items-center rounded-full bg-slate-700 text-xs font-bold text-white">
+          <span className="grid h-9 w-9 place-items-center rounded-full bg-slate-200 text-xs font-bold text-slate-700 dark:bg-slate-700 dark:text-white">
             {user.name.slice(0, 2).toUpperCase()}
           </span>
           <div className="min-w-0">
-            <div className="truncate text-sm text-slate-200">{user.name}</div>
+            <div className="truncate text-sm text-slate-900 dark:text-slate-200">{user.name}</div>
             <div className="truncate text-xs capitalize text-slate-500">{user.role}</div>
           </div>
         </div>
         <form action={logoutAction} className="mt-3">
-          <button type="submit" className="w-full rounded-lg bg-slate-800 px-3 py-2 text-sm text-slate-300 transition hover:bg-red-600 hover:text-white">
+          <button type="submit" className="w-full rounded-lg bg-slate-100 px-3 py-2 text-sm text-slate-700 transition hover:bg-red-600 hover:text-white dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-red-600 dark:hover:text-white">
             {t("auth.logout")}
           </button>
         </form>

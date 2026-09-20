@@ -138,7 +138,7 @@ export function Topbar({
         </button>
         {langOpen ? (
           <div className="absolute right-0 top-full z-50 mt-2 w-36 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg dark:border-slate-700 dark:bg-slate-800">
-            <span className="block rounded-lg bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">
+            <span className="block rounded-lg bg-brand-50 px-3 py-2 text-sm font-semibold text-brand-700 dark:bg-brand-900/20 dark:text-brand-400">
               {labels.locale}
             </span>
           </div>
