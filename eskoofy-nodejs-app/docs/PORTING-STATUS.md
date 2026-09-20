@@ -73,11 +73,10 @@ Gates: `tsc --noEmit` ✅ · ESLint ✅ · **48 Vitest tests** ✅ · `route:par
 - **Print/PDF.** Admit cards, ID cards, certificates, marksheets and receipts are not
   generated yet.
 - **Some dashboard screens** that are not simple CRUD (settings tabs, reports builder,
-  analytics, backups, bulk import/export, notifications templates/preferences, CMS
-  editors) render the parity placeholder instead of a bespoke screen.
+  analytics, notifications templates/preferences, CMS editors) render the parity
+  placeholder instead of a bespoke screen.
 - **Business-logic depth.** Exam publish semantics, recurring payments, ledger postings,
-  payroll runs, SMS campaigns, backup/restore: the schema and APIs exist, the workflow
-  logic is not ported.
+  payroll runs, SMS campaigns: the schema and APIs exist, the workflow logic is not ported.
 - **Integrations.** Payment gateways, SMS (Twilio/Vonage), mail, queues and the scheduler.
 - **Runtime locale switching.** The variant honours the profile locale (bd → bn, int → en);
   the app's per-request language switch is not wired.

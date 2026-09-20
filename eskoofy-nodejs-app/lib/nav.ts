@@ -140,7 +140,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { key: "activity_log", path: "/dashboard/activity", status: "planned" },
       { key: "visitor_logs", path: "/dashboard/visitor-logs", status: "planned" },
-      { key: "backups", path: "/dashboard/backup", status: "planned" },
+      { key: "backups", path: "/dashboard/backup", status: "done" },
     ],
   },
   {
@@ -189,7 +189,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { key: "reports", path: "/dashboard/reports", permission: "view_reports", status: "planned" },
       { key: "report_builder", path: "/dashboard/reports/builder", permission: "view_reports", status: "planned" },
       { key: "analytics", path: "/dashboard/analytics", permission: "view_reports", status: "planned" },
-      { key: "bulk_import_export", path: "/dashboard/bulk", status: "planned" },
+      { key: "bulk_import_export", path: "/dashboard/bulk", status: "done" },
     ],
   },
   {

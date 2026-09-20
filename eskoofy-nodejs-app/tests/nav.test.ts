@@ -30,10 +30,12 @@ describe("dashboard nav (parity contract)", () => {
     expect(missing).toEqual([]);
   });
 
-  it("marks the six Phase-4 modules as implemented", () => {
+  it("marks the implemented modules", () => {
     expect(implementedPaths().sort()).toEqual(
       [
         "/dashboard",
+        "/dashboard/backup",
+        "/dashboard/bulk",
         "/dashboard/students",
         "/dashboard/teachers",
         "/dashboard/classes",

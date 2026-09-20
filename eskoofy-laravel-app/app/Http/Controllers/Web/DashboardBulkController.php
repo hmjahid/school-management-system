@@ -34,11 +34,12 @@ class DashboardBulkController extends Controller
     {
         $this->ensureResource($resource);
 
-        if ($resource === 'students') {
-            return $this->exportStudents();
-        }
-
-        return $this->exportTeachers();
+        return match ($resource) {
+            'students' => $this->exportStudents(),
+            'teachers' => $this->exportTeachers(),
+            'fees' => $this->exportFees(),
+            'attendances' => $this->exportAttendances(),
+        };
     }
 
     public function import(Request $request, string $resource): View
@@ -246,7 +247,6 @@ class DashboardBulkController extends Controller
                 'date_of_birth' => $row['date_of_birth'] ?? null,
                 'joining_date' => $row['joining_date'] ?? now()->toDateString(),
                 'qualification' => $row['qualification'] ?? null,
-                'specialization' => $row['specialization'] ?? null,
                 'status' => $row['status'] ?? 'active',
             ]
         );

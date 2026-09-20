@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\PortableBackupService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -13,7 +14,7 @@ class BackupRunCommand extends Command
 {
     protected $signature = 'backup:run {--path= : Output directory (defaults to local disk "backups" dir)}';
 
-    protected $description = 'Create a lightweight backup archive (DB + storage/app/public).';
+    protected $description = 'Create a lightweight backup archive (portable DB dump + storage/app/public).';
 
     public function handle(): int
     {
@@ -39,17 +40,20 @@ class BackupRunCommand extends Command
             $this->zipDir($zip, $publicPath, 'storage/app/public');
         }
 
-        // DB backup (best-effort).
+        // Portable DB dump readable by every Eskoofy variant (MANIFEST.json + database/tables.json).
+        $dump = app(PortableBackupService::class)->dump('laravel');
+        $zip->addFromString(PortableBackupService::MANIFEST_FILE, json_encode($dump['manifest'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        $zip->addFromString(PortableBackupService::TABLES_FILE, json_encode($dump['tables'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
+        // Legacy self-contained sqlite DB file (kept for direct .sqlite restores).
         $driver = DB::connection()->getDriverName();
         if ($driver === 'sqlite') {
             $db = config('database.connections.sqlite.database');
             if ($db && $db !== ':memory:' && file_exists($db)) {
                 $zip->addFile($db, 'database/sqlite.sqlite');
             } else {
-                $this->warn('SQLite DB is in-memory or missing; DB file not included.');
+                $this->warn('SQLite DB is in-memory or missing; using portable tables.json only.');
             }
-        } else {
-            $this->warn("DB driver '{$driver}' detected; DB dump not included (configure external dumps like mysqldump/pg_dump).");
         }
 
         $zip->close();

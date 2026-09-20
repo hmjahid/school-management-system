@@ -43,6 +43,11 @@ export const PERMISSIONS = [
   "manage_users",
   "view_reports",
   "bulk_sms",
+  "export_student_data",
+  "import_student_data",
+  "export_attendance",
+  "backup_database",
+  "restore_database",
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];
