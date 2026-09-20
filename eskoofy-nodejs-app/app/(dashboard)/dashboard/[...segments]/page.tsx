@@ -13,6 +13,7 @@ import { NotificationTemplates, NotificationPreferences } from "@/components/das
 import { PromoteStudents, MyResults, Onboarding } from "@/components/dashboard/MiscScreens";
 import { CmsPages, CmsEdit } from "@/components/dashboard/CmsScreen";
 import { EventsCalendar, LedgerBook } from "@/components/dashboard/CalendarLedgerScreen";
+import { BulkAttendance, GeneratePayslips, CareersApplications } from "@/components/dashboard/BulkScreens";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { currentUser } from "@/lib/auth";
@@ -182,6 +183,31 @@ export default async function DashboardCatchAll({
     return (
       <div>
         <LedgerBook kind={segments[1] as "cashbook" | "bankbook" | "journal"} />
+      </div>
+    );
+  }
+
+  // Bulk workflow screens
+  if (segments[0] === "attendance" && segments[1] === "bulk") {
+    const q = query as Record<string, string | undefined>;
+    return (
+      <div>
+        <BulkAttendance date={q.date} />
+      </div>
+    );
+  }
+  if (segments[0] === "payroll" && segments[1] === "generate") {
+    const q = query as Record<string, string | undefined>;
+    return (
+      <div>
+        <GeneratePayslips month={q.month} year={q.year} />
+      </div>
+    );
+  }
+  if (segments[0] === "careers" && segments[1] === "applications") {
+    return (
+      <div>
+        <CareersApplications />
       </div>
     );
   }
