@@ -7,6 +7,7 @@ import { ResourceForm } from "@/components/dashboard/ResourceForm";
 import { ResourceDetail } from "@/components/dashboard/ResourceDetail";
 import { RoutePlaceholder } from "@/components/dashboard/RoutePlaceholder";
 import { PrintScreen } from "@/components/dashboard/PrintScreen";
+import { FeesReport, StudentsReport } from "@/components/dashboard/ReportsScreen";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { currentUser } from "@/lib/auth";
@@ -103,6 +104,23 @@ export default async function DashboardCatchAll({
           }
         />
         <ResourceDetail model={model} row={row} />
+      </div>
+    );
+  }
+
+  // Bespoke report screens (dashboard/reports/*)
+  if (segments[0] === "reports" && segments[1] === "fees") {
+    const q = query as Record<string, string | undefined>;
+    return (
+      <div>
+        <FeesReport from={q.from} to={q.to} />
+      </div>
+    );
+  }
+  if (segments[0] === "reports" && segments[1] === "students") {
+    return (
+      <div>
+        <StudentsReport />
       </div>
     );
   }
