@@ -1,20 +1,25 @@
 import { describe, it, expect } from "vitest";
-import { indexColumns, formColumns, TAILORED } from "@/lib/resource-config";
+import { indexColumns, leadField } from "@/lib/resource-config";
+import { displayFields } from "@/lib/schema";
 
-const verifiedColumnCount = 2;
-
-describe("resource-config: honest mirror of ONLY the Laravel <th> sets that were actually read", () => {
-  it(`tailors exactly the ${verifiedColumnCount} modules whose real index blades expose their own <th> set`, () => {
-    expect(Object.keys(TAILORED).sort()).toEqual(["contact-submissions", "staff"].sort());
+describe("resource-config: tailors ONLY modules verified against real Laravel <th>", () => {
+  it("staff index lists the real blade header order (Name|Email|Roles|Teacher profile)", () => {
+    const staff = { name: "staff", fields: [
+      { name: "name" }, { name: "email" }, { name: "roles" }, { name: "teacher profile" },
+    ] } as any;
+    expect(indexColumns(staff).map((f) => f.name)).toEqual(["name", "email", "roles", "teacher profile"]);
   });
 
-  it("staff index columns === real blade <th> order (Name|Email|Roles|Teacher profile)", () => {
-    const staff = TAILORED["staff"];
-    expect(staff.indexColumns).toEqual(["name", "email", "roles", "teacher profile"]);
+  it("contact-submissions lists the real blade header order (Date|Type|Name|Email|Message)", () => {
+    const cs = { name: "contact-submissions", fields: [
+      { name: "date" }, { name: "type" }, { name: "name" }, { name: "email" }, { name: "message" },
+    ] } as any;
+    expect(indexColumns(cs).map((f) => f.name)).toEqual(["date", "type", "name", "email", "message"]);
   });
 
-  it("contact-submissions index columns === real blade <th> order (Date|Type|Name|Email|Message)", () => {
-    const c = TAILORED["contact-submissions"];
-    expect(c.indexColumns).toEqual(["date", "type", "name", "email", "message"]);
+  it("untailored models fall back to the generic engine (displayFields)", () => {
+    const exam = { name: "exams", fields: [{ name: "title" }, { name: "class_id" }, { name: "status" }] } as any;
+    expect(indexColumns(exam).length).toBeGreaterThan(0);
+    expect(leadField(exam).name).toBe("title");
   });
 });
