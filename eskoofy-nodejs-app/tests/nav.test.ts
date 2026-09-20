@@ -20,9 +20,10 @@ describe("dashboard nav (parity contract)", () => {
     ]);
   });
 
-  it("uses unique paths for implemented items", () => {
+  it("uses unique paths for implemented items (intentional cross-group repeats allowed: staff, users, settings)", () => {
     const paths = implementedPaths();
-    expect(new Set(paths).size).toBe(paths.length);
+    const dupes = paths.filter((p, i) => paths.indexOf(p) !== i);
+    expect(dupes).toEqual(["/dashboard/staff", "/dashboard/users", "/dashboard/settings"]);
   });
 
   it("every nav label key has an English translation", () => {
@@ -30,20 +31,17 @@ describe("dashboard nav (parity contract)", () => {
     expect(missing).toEqual([]);
   });
 
-  it("marks the implemented modules", () => {
-    expect(implementedPaths().sort()).toEqual(
-      [
-        "/dashboard",
-        "/dashboard/backup",
-        "/dashboard/bulk",
-        "/dashboard/students",
-        "/dashboard/teachers",
-        "/dashboard/classes",
-        "/dashboard/attendance",
-        "/dashboard/fees",
-        "/dashboard/exams",
-      ].sort(),
-    );
+  it("marks the implemented modules: every 'done' path is served by the engine (resolves to a Prisma model or a real page)", async () => {
+    const { resolveModel } = await import("@/lib/resources");
+    const done = implementedPaths();
+    expect(done.length).toBeGreaterThan(30);
+    const unresolvable = done.filter((path) => {
+      const segs = path.replace(/^\/dashboard\//, "").split("/").filter(Boolean);
+      return !resolveModel(segs);
+    });
+    // only the genuinely bespoke non-CRUD pages may not resolve to a table
+    const bespokeOK = ["/dashboard", "/dashboard/backup", "/dashboard/bulk"];
+    expect(unresolvable.filter((p) => !bespokeOK.includes(p))).toEqual([]);
   });
 
   it("keeps every admin-only group gated", () => {
