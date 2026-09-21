@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { currentUser } from "@/lib/auth";
 import { t } from "@/lib/i18n";
+import { updateProfile } from "@/app/(dashboard)/dashboard/actions";
 
 /**
  * Misc bespoke dashboard screens — mirror the app's blades:
@@ -167,6 +168,113 @@ export async function Onboarding() {
           ))}
         </ul>
       </div>
+    </div>
+  );
+}
+
+const inputClass =
+  "mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20";
+
+/** dashboard/profile — mirrors the app's dashboard/profile/edit.blade.php. */
+export async function ProfileScreen({
+  searchParams,
+}: {
+  searchParams: Promise<{ sent?: string; error?: string }>;
+}) {
+  const sp = await searchParams;
+  const sent = Boolean(sp.sent);
+  const error = Boolean(sp.error);
+
+  const user = await currentUser();
+  const row = user ? await prisma.users.findUnique({ where: { id: user.id } }) : null;
+
+  return (
+    <div className="mx-auto max-w-3xl">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-slate-900">{t("dashboard.my_profile")}</h1>
+        <p className="mt-1 text-sm text-slate-500">{t("dashboard.profile_description")}</p>
+      </div>
+
+      {sent ? (
+        <p className="mb-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-800" role="status">
+          Profile updated successfully.
+        </p>
+      ) : null}
+      {error ? (
+        <p className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+          Please check the form and try again.
+        </p>
+      ) : null}
+
+      <form action={updateProfile} className="space-y-6">
+        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center gap-6">
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-indigo-600 text-2xl font-bold text-white ring-4 ring-slate-100">
+              {(row?.name ?? "?").slice(0, 1).toUpperCase()}
+            </div>
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold text-slate-900">{row?.name ?? ""}</h2>
+              <p className="text-sm text-slate-500">{row?.email ?? ""}</p>
+              <p className="mt-1 text-xs capitalize text-slate-400">{row?.role ?? ""}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h3 className="mb-4 text-lg font-semibold text-slate-900">{t("dashboard.personal_information")}</h3>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-slate-700">{t("dashboard.full_name")}</label>
+              <input id="name" name="name" type="text" defaultValue={row?.name ?? ""} required className={inputClass} />
+            </div>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-slate-700">{t("dashboard.email")}</label>
+              <input id="email" name="email" type="email" defaultValue={row?.email ?? ""} required className={inputClass} />
+            </div>
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-slate-700">{t("dashboard.phone")}</label>
+              <input id="phone" name="phone" type="text" defaultValue={row?.phone ?? ""} className={inputClass} />
+            </div>
+            <div>
+              <label htmlFor="gender" className="block text-sm font-medium text-slate-700">{t("dashboard.gender")}</label>
+              <select id="gender" name="gender" defaultValue={row?.gender ?? ""} className={inputClass}>
+                <option value="">Select</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="date_of_birth" className="block text-sm font-medium text-slate-700">{t("dashboard.date_of_birth")}</label>
+              <input id="date_of_birth" name="date_of_birth" type="date" defaultValue={row?.date_of_birth ? new Date(String(row.date_of_birth)).toISOString().slice(0, 10) : ""} className={inputClass} />
+            </div>
+            <div className="sm:col-span-2">
+              <label htmlFor="address" className="block text-sm font-medium text-slate-700">{t("dashboard.address")}</label>
+              <textarea id="address" name="address" rows={2} defaultValue={row?.address ?? ""} className={inputClass} />
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h3 className="mb-1 text-lg font-semibold text-slate-900">{t("dashboard.change_password")}</h3>
+          <p className="mb-4 text-sm text-slate-500">{t("dashboard.leave_blank_password")}</p>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-slate-700">{t("dashboard.new_password")}</label>
+              <input id="password" name="password" type="password" className={inputClass} />
+            </div>
+            <div>
+              <label htmlFor="password_confirmation" className="block text-sm font-medium text-slate-700">{t("dashboard.confirm_password")}</label>
+              <input id="password_confirmation" name="password_confirmation" type="password" className={inputClass} />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button type="submit" className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500/50">
+            {t("dashboard.save_changes")}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

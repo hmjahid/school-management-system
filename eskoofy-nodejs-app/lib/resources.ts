@@ -29,6 +29,9 @@ const OVERRIDES: Record<string, string> = {
   "student-id-cards": "student_id_cards",
   "hostel-management": "hostels",
   transport: "transport_routes",
+  "transport-routes": "transport_routes",
+  "transport-vehicles": "vehicles",
+  "transport-assignments": "transport_assignments",
   "contact-submissions": "contact_submissions",
   "job-applications": "job_applications",
   "email-templates": "notification_templates",
@@ -101,6 +104,9 @@ const OVERRIDES: Record<string, string> = {
   reports_cash_flow: "ledger_entries",
   reports_analytics: "ledger_entries",
   cms_pages: "website_contents",
+  transport_routes: "transport_routes",
+  transport_vehicles: "vehicles",
+  transport_assignments: "transport_assignments",
 };
 
 /** Underscore form of a path segment (`fee-payments` → `fee_payments`). */
@@ -117,8 +123,8 @@ export function resolveModel(segments: string[]): ModelMeta | undefined {
   if (cleaned.length === 0) return undefined;
 
   const candidates: string[] = [];
-  if (cleaned[0]) candidates.push(slugToTable(cleaned[0]));
   if (cleaned[0] && cleaned[1]) candidates.push(`${slugToTable(cleaned[0])}_${slugToTable(cleaned[1])}`);
+  if (cleaned[0]) candidates.push(slugToTable(cleaned[0]));
 
   for (const candidate of candidates) {
     const override = OVERRIDES[candidate];

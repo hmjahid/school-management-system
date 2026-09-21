@@ -329,3 +329,83 @@ export const HOME_DEFAULTS: Record<string, HomeDefaults> = {
     ],
   },
 };
+
+/** Dashboard setup-guide strings — mirrors the `dashboard.setup` sub-tree in lang/{en,bn}/dashboard.php. */
+export interface SetupItemDefaults {
+  title: string;
+  subtitle: string;
+  progress: string;
+  remaining: string;
+  complete: string;
+  all_done: string;
+  done: string;
+  pending: string;
+  open: string;
+  start_now: string;
+  view_guide: string;
+  school_info: string;
+  school_info_desc: string;
+  timezone: string;
+  timezone_desc: string;
+  academic_session: string;
+  academic_session_desc: string;
+  classes: string;
+  classes_desc: string;
+  teachers: string;
+  teachers_desc: string;
+  payment: string;
+  payment_desc: string;
+}
+
+export const DASHBOARD_SETUP_DEFAULTS: Record<string, SetupItemDefaults> = {
+  en: {
+    title: "Setup Guide",
+    subtitle: "Follow these steps to get your school running.",
+    progress: ":percent% complete",
+    remaining: ":n of :total steps remaining",
+    complete: "All set! You have completed the required setup.",
+    all_done: "Setup complete",
+    done: "Done",
+    pending: "Pending",
+    open: "Open",
+    start_now: "Start setup",
+    view_guide: "View setup guide",
+    school_info: "Add school information",
+    school_info_desc: "Set your school name, logo, and tagline.",
+    timezone: "Set timezone & locale",
+    timezone_desc: "Choose your school timezone and preferred locale.",
+    academic_session: "Create an academic session",
+    academic_session_desc: "Start a session (e.g. 2026) before adding classes.",
+    classes: "Add classes & batches",
+    classes_desc: "Create the classes, batches, and sections your school runs.",
+    teachers: "Add your teachers",
+    teachers_desc: "Create teacher accounts and assign roles.",
+    payment: "Configure payment",
+    payment_desc: "Enable a payment gateway or offline/bank options.",
+  },
+  bn: {
+    title: "সেটআপ গাইড",
+    subtitle: "আপনার স্কুল চালু করতে এই ধাপগুলো অনুসরণ করুন।",
+    progress: ":percent% সম্পন্ন",
+    remaining: ":n-টি (মোট :total) ধাপ বাকি",
+    complete: "সব ঠিক আছে! প্রয়োজনীয় সেটআপ সম্পন্ন হয়েছে।",
+    all_done: "সেটআপ সম্পন্ন",
+    done: "সম্পন্ন",
+    pending: "বাকি",
+    open: "খুলুন",
+    start_now: "সেটআপ শুরু করুন",
+    view_guide: "সেটআপ গাইড দেখুন",
+    school_info: "স্কুলের তথ্য যোগ করুন",
+    school_info_desc: "স্কুলের নাম, লোগো এবং ট্যাগলাইন সেট করুন।",
+    timezone: "টাইমজোন ও লোকেল সেট করুন",
+    timezone_desc: "স্কুলের টাইমজোন এবং পছন্দের লোকেল নির্বাচন করুন।",
+    academic_session: "একাডেমিক সেশন তৈরি করুন",
+    academic_session_desc: "ক্লাস যোগ করার আগে একটি সেশন (যেমন: ২০২৬) শুরু করুন।",
+    classes: "ক্লাস ও ব্যাচ যোগ করুন",
+    classes_desc: "আপনার স্কুল চালানো ক্লাস, ব্যাচ ও সেকশন তৈরি করুন।",
+    teachers: "শিক্ষক যোগ করুন",
+    teachers_desc: "শিক্ষক অ্যাকাউন্ট তৈরি করুন এবং ভূমিকা নির্ধারণ করুন।",
+    payment: "পেমেন্ট কনফিগার করুন",
+    payment_desc: "একটি পেমেন্ট গেটওয়ে বা অফলাইন/ব্যাংক অপশন সক্রিয় করুন।",
+  },
+};

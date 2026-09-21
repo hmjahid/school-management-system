@@ -10,7 +10,7 @@ import { PrintScreen } from "@/components/dashboard/PrintScreen";
 import { FeesReport, StudentsReport } from "@/components/dashboard/ReportsScreen";
 import { SettingsScreen } from "@/components/dashboard/SettingsScreen";
 import { NotificationTemplates, NotificationPreferences } from "@/components/dashboard/NotificationsScreen";
-import { PromoteStudents, MyResults, Onboarding } from "@/components/dashboard/MiscScreens";
+import { PromoteStudents, MyResults, Onboarding, ProfileScreen } from "@/components/dashboard/MiscScreens";
 import { CmsPages, CmsEdit } from "@/components/dashboard/CmsScreen";
 import { EventsCalendar, LedgerBook } from "@/components/dashboard/CalendarLedgerScreen";
 import { BulkAttendance, GeneratePayslips, CareersApplications } from "@/components/dashboard/BulkScreens";
@@ -19,6 +19,7 @@ import { ExamResults, Payslips } from "@/components/dashboard/ExamPayrollScreens
 import { SettingsTab, AttendanceReport, StudentResults, StaffAttendanceReport, AssignmentsSubmissions, BatchGenerate } from "@/components/dashboard/ExtraScreens";
 import { SmsTemplates, DueFeeReminder } from "@/components/dashboard/SmsScreens";
 import { MarksheetPdf, PayslipShow, PayrollStructures, SmsPreview, SoftwareAbout, TestimonialsPrint, CareersForm } from "@/components/dashboard/FinalScreens";
+import { ProgressReportsIndex, ProgressReportShow, SeatPlansIndex, SeatPlanShow } from "@/components/dashboard/ProgressSeatPlanScreens";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { currentUser } from "@/lib/auth";
@@ -145,6 +146,13 @@ export default async function DashboardCatchAll({
     );
   }
   if (segments[0] === "exams" && segments[1] === "my-results") {
+    return (
+      <div>
+        <MyResults />
+      </div>
+    );
+  }
+  if (segments[0] === "my-results") {
     return (
       <div>
         <MyResults />
@@ -344,11 +352,56 @@ export default async function DashboardCatchAll({
     return (<div><CareersForm /></div>);
   }
 
+  // Progress reports
+  if (segments[0] === "progress-reports" && segments.length === 1) {
+    const q = query as Record<string, string | undefined>;
+    return (
+      <div>
+        <ProgressReportsIndex classId={q.class_id ? Number(q.class_id) : undefined} sectionId={q.section_id ? Number(q.section_id) : undefined} batchId={q.batch_id ? Number(q.batch_id) : undefined} page={q.page ? Number(q.page) : undefined} />
+      </div>
+    );
+  }
+  if (segments[0] === "progress-reports" && segments.length === 3 && segments[2] === "generate") {
+    const q = query as Record<string, string | undefined>;
+    return (
+      <div>
+        <ProgressReportShow studentId={Number(segments[1])} view={q.view === "1"} />
+      </div>
+    );
+  }
+
+  // Seat plans
+  if (segments[0] === "seat-plans" && segments.length === 1) {
+    const q = query as Record<string, string | undefined>;
+    return (
+      <div>
+        <SeatPlansIndex published={q.published} page={q.page ? Number(q.page) : undefined} />
+      </div>
+    );
+  }
+  if (segments[0] === "seat-plans" && segments.length === 3 && segments[2] === "generate") {
+    const q = query as Record<string, string | undefined>;
+    return (
+      <div>
+        <SeatPlanShow examId={Number(segments[1])} perRoom={q.per_room ? Number(q.per_room) : undefined} view={q.view === "1"} />
+      </div>
+    );
+  }
+
   // Bespoke settings screen (dashboard/settings = school info)
   if (segments[0] === "settings" && segments.length === 1) {
     return (
       <div>
         <SettingsScreen />
+      </div>
+    );
+  }
+
+  // Profile edit (dashboard/profile)
+  if (segments[0] === "profile" && segments.length === 1) {
+    return (
+      <div>
+        <ProfileScreen searchParams={Promise.resolve(query)} />
       </div>
     );
   }
