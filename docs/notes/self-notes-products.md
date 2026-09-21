@@ -294,19 +294,52 @@ do all yourself for me
 
 the theme version dashboard is broken. fix the issue.
 
-
-
-
-
 the nodjs vaersion/variant not same/mirror of the laravel variant/version. make it mirror of the laravel varinat/version
 
-make ensure that one varaint exported data (backup, students list, staff lists etc) can be used in another varinats
+make ensure that one varaint exported/backup data (backup, students list, staff lists etc) can be used in another varinats
+
+the nodejs version not mirror or not like the laravel app. what you have implemented?
+
+make ensure that  the nodejs version is mirror/identical copy of the laravel app frontend, backend, contnets, layout, styles, demo contents, all functionalities.  continue untill finished. donot stop.
+
+the nodejs vesrion not became full mirror of the laravel version. make nodejs version mirror to laravel version. find a best way to make nodejs app mirror of the laravel app.
+
+make nodejs version same as the laravel version anyhow both frontned and dashboard. use same demo contnets, save faviocn, same log. cerate a proper plan fisrt, then execute the plan.
+
+not only these. full copy of the laravel app.
+
+compare nodejs variant app with laravel variant app. then inplement the unimplemented pages, contnets, layouts, ui ux, dahboard items, styles, contnets, funstionalities in the nodejs variant app. i wnat that the nodejs app/varinat will be a full copy of laravel app/varinat. check them side by side, cretae proper plan file and then execute the plan
+
+do all for me. I am watching the old design and contents though
+
+why too many mismatch? some only matched. maximum style s didnot mached, sidebar styles aslo didinot match. ccompare agin. match every page, every styles, every connets, every layout, every uiux, every functionalities. cretae line by line report of every single mismtch fisrt. then certae plan to implement them. then execute the plan. continue until finished.
+
+too much mismacth till now. front end maximum mismatch. frontend language witching not working properly. allpages same sections are not present in this nodejs varinat. also dashboard design not same as the laravel variant. dashboard grapghs are not sam estyled and informative. aslo sidebar style sare not smae and same patterned. fix all these one by one. continue until finished.
+
+use same favicon of the php versiaon to the nodejs vesrion. frontemd not showing dashboard and logout button though logged in. fix all these aslo
+
+
+
+
+
+create a child theme of this theme like the elementor child theme so that the theme updates doesnot break/remove custom styles, scripts added by users in the theme files. tell me child theme principle fisrt. temll me how it works. how it depends on main theme?
+
+add drive, dropbox, 4saherd,  connect feature in all 4 products and the branding website for backup sore and restore them. aslo add automatic backup system.
+
+add full cms control feature in the branding website admin dashboard
+
+add option for adding institution water mark in all exported dcuments like testimonials, cerificate, marksheet etc in the all 4 products.
+
+make ensure taht the testimonials, cerificate, marksheet, id cards, admit cards designs are totally cutsomizable in all 4 prodycts
+
+make ensure that one varaint exported/backup data (backup, students list, staff lists etc) can be used in another varinats
+
+
+
 
 now implement the frontend parity research plan
 
 ensure proper payment method applied in this system app, php, theme and the website
-
-create a child theme of this theme like the elementor child theme so that the theme updates doesnot break/remove custom styles, scripts added by users in the theme files. tell me child theme principle fisrt. temll me how it works. how it depends on main theme?
 
 
 
