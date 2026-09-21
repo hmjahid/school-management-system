@@ -1,8 +1,22 @@
 import { prisma } from "@/lib/prisma";
 import { locale, t } from "@/lib/i18n";
+import { safe } from "@/lib/site-data";
 import { PageHero } from "@/components/site/Sections";
 
 export const dynamic = "force-dynamic";
+
+type CommitteeRow = {
+  id: number;
+  name: string;
+  name_bn: string | null;
+  designation: string | null;
+  designation_bn: string | null;
+  bio: string | null;
+  bio_bn: string | null;
+  photo: string | null;
+  phone: string | null;
+  email: string | null;
+};
 
 function initialsOf(name: string): string {
   return name
@@ -16,10 +30,14 @@ function initialsOf(name: string): string {
 
 export default async function CommitteePage() {
   const n = locale();
-  const members = await prisma.committee_members.findMany({
-    where: { is_active: true },
-    orderBy: { sort_order: "asc" },
-  });
+  const members = await safe(
+    () =>
+      prisma.committee_members.findMany({
+        where: { is_active: true },
+        orderBy: { sort_order: "asc" },
+      }),
+    [] as CommitteeRow[],
+  );
 
   const rows = members.map((member) => {
     const name = n === "bn" && member.name_bn ? member.name_bn : member.name;

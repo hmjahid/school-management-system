@@ -1,15 +1,28 @@
 import { prisma } from "@/lib/prisma";
+import { safe } from "@/lib/site-data";
 import { t } from "@/lib/i18n";
 import GalleryClient, { type GalleryImage } from "@/components/site/GalleryClient";
 
 export const dynamic = "force-dynamic";
 
+type GalleryRow = {
+  id: number;
+  title: string | null;
+  description: string | null;
+  image_path: string | null;
+  category: string | null;
+};
+
 export default async function GalleryPage() {
-  const images = await prisma.galleries.findMany({
-    where: { is_published: true },
-    orderBy: { id: "desc" },
-    take: 120,
-  });
+  const images = await safe(
+    () =>
+      prisma.galleries.findMany({
+        where: { is_published: true },
+        orderBy: { id: "desc" },
+        take: 120,
+      }),
+    [] as GalleryRow[],
+  );
 
   const items: GalleryImage[] = images.map((image) => ({
     id: String(image.id),

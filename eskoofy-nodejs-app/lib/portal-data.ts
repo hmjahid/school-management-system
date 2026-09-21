@@ -68,21 +68,22 @@ export async function loadPortalData(userId: number, role: string, userEmail: st
   const isStudent = role === "student";
   const isParent = role === "parent";
 
-  const [upcomingEvents, announcements] = await Promise.all([
-    prisma.events.findMany({
-      where: { status: "published", deleted_at: null, start_date: { gte: new Date() } },
-      orderBy: { start_date: "asc" },
-      take: 10,
-    }),
-    prisma.announcements.findMany({
-      where: {
-        is_published: true,
-        OR: [{ audience: { contains: '"all"' } }, { audience: { contains: `"${isParent ? "parent" : "student"}"` } }],
-      },
-      orderBy: [{ starts_at: "desc" }, { id: "desc" }],
-      take: 10,
-    }),
-  ]);
+  try {
+    const [upcomingEvents, announcements] = await Promise.all([
+      prisma.events.findMany({
+        where: { status: "published", deleted_at: null, start_date: { gte: new Date() } },
+        orderBy: { start_date: "asc" },
+        take: 10,
+      }),
+      prisma.announcements.findMany({
+        where: {
+          is_published: true,
+          OR: [{ audience: { contains: '"all"' } }, { audience: { contains: `"${isParent ? "parent" : "student"}"` } }],
+        },
+        orderBy: [{ starts_at: "desc" }, { id: "desc" }],
+        take: 10,
+      }),
+    ]);
 
   let student: Row | null = null;
   let children: PortalChild[] = [];
@@ -198,6 +199,25 @@ export async function loadPortalData(userId: number, role: string, userEmail: st
     attendanceCalendar,
     duesTimeline,
   };
+  } catch {
+    return {
+      user: { id: userId, name: userName, email: userEmail, role },
+      isStudent,
+      isParent,
+      student: null,
+      children: [],
+      assignments: [],
+      recentAttendance: [],
+      examResults: [],
+      feePayments: [],
+      announcements: [],
+      upcomingEvents: [],
+      routine: new Map<number, Row[]>(),
+      teachers: [],
+      attendanceCalendar: new Map<string, Row[]>(),
+      duesTimeline: [],
+    };
+  }
 }
 
 function groupRoutine(rows: Row[]): Map<number, Row[]> {

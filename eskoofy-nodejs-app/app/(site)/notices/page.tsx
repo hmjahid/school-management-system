@@ -1,10 +1,22 @@
 import { prisma } from "@/lib/prisma";
+import { safe } from "@/lib/site-data";
 import { locale, t } from "@/lib/i18n";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
 const PER_PAGE = 15;
+
+type NoticeRow = {
+  id: number;
+  title: string;
+  title_bn: string | null;
+  content: string;
+  content_bn: string | null;
+  pinned: boolean;
+  audience: string | null;
+  created_at: Date | null;
+};
 
 function parseAudience(raw: unknown): string[] {
   try {
@@ -26,12 +38,16 @@ export default async function NoticesPage({
   const page = Math.max(1, Number(Array.isArray(sp.page) ? sp.page[0] : sp.page) || 1);
 
   const [total, notices] = await Promise.all([
-    prisma.notices.count(),
-    prisma.notices.findMany({
-      orderBy: [{ pinned: "desc" }, { id: "desc" }],
-      skip: (page - 1) * PER_PAGE,
-      take: PER_PAGE,
-    }),
+    safe(() => prisma.notices.count(), 0),
+    safe(
+      () =>
+        prisma.notices.findMany({
+          orderBy: [{ pinned: "desc" }, { id: "desc" }],
+          skip: (page - 1) * PER_PAGE,
+          take: PER_PAGE,
+        }),
+      [] as NoticeRow[],
+    ),
   ]);
 
   const lastPage = Math.max(1, Math.ceil(total / PER_PAGE));

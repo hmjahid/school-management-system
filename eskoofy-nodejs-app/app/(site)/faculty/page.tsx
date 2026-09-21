@@ -1,16 +1,29 @@
 import { prisma } from "@/lib/prisma";
+import { safe } from "@/lib/site-data";
 import { t } from "@/lib/i18n";
 import FacultyClient, { type FacultyMember } from "@/components/site/FacultyClient";
 
 export const dynamic = "force-dynamic";
 
+type TeacherRow = {
+  id: number;
+  qualification: string | null;
+  phone: string | null;
+  joining_date: Date | null;
+  users: { name: string } | null;
+};
+
 export default async function FacultyPage() {
-  const teachers = await prisma.teachers.findMany({
-    where: { status: "active", deleted_at: null },
-    include: { users: true },
-    orderBy: { joining_date: "desc" },
-    take: 80,
-  });
+  const teachers = await safe(
+    () =>
+      prisma.teachers.findMany({
+        where: { status: "active", deleted_at: null },
+        include: { users: true },
+        orderBy: { joining_date: "desc" },
+        take: 80,
+      }),
+    [] as TeacherRow[],
+  );
 
   const members: FacultyMember[] = teachers.map((teacher) => {
     const user = teacher.users;

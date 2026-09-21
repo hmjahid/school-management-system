@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { safe } from "@/lib/site-data";
 import { currentUser } from "@/lib/auth";
 import { t } from "@/lib/i18n";
 
@@ -27,12 +28,21 @@ export default async function PortalProgressPage({
 
   let studentIds: number[] = [];
   if (isStudent) {
-    const id = await prisma.students.findFirst({ where: { user_id: user.id, deleted_at: null }, select: { id: true } });
+    const id = await safe(
+      () => prisma.students.findFirst({ where: { user_id: user.id, deleted_at: null }, select: { id: true } }),
+      null,
+    );
     studentIds = id ? [id.id] : [];
   } else if (isParent) {
-    const guardian = await prisma.guardians.findFirst({ where: { user_id: user.id, deleted_at: null } });
+    const guardian = await safe(
+      () => prisma.guardians.findFirst({ where: { user_id: user.id, deleted_at: null } }),
+      null,
+    );
     if (guardian) {
-      const links = await prisma.guardian_student.findMany({ where: { guardian_id: guardian.id }, select: { student_id: true } });
+      const links = await safe(
+        () => prisma.guardian_student.findMany({ where: { guardian_id: guardian.id }, select: { student_id: true } }),
+        [],
+      );
       studentIds = links.map((l) => l.student_id);
     }
   }
@@ -47,22 +57,30 @@ export default async function PortalProgressPage({
   const selectedExamType = typeof sp.exam_type === "string" ? sp.exam_type : null;
 
   const [sessions, student, results] = await Promise.all([
-    prisma.academic_sessions.findMany({ orderBy: { start_date: "desc" }, take: 10 }),
-    prisma.students.findUnique({
-      where: { id: selectedStudentId },
-      include: { school_classes: true, sections: true, batches: true, users: true },
-    }),
-    prisma.exam_results.findMany({
-      where: {
-        student_id: selectedStudentId,
-        is_published: true,
-        ...(requestedSession ? { exams: { academic_session_id: requestedSession } } : {}),
-        ...(selectedExamType ? { exams: { type: selectedExamType } } : {}),
-      },
-      include: { exams: true },
-      orderBy: { id: "desc" },
-      take: 200,
-    }),
+    safe(() => prisma.academic_sessions.findMany({ orderBy: { start_date: "desc" }, take: 10 }), []),
+    safe(
+      () =>
+        prisma.students.findUnique({
+          where: { id: selectedStudentId },
+          include: { school_classes: true, sections: true, batches: true, users: true },
+        }),
+      null,
+    ),
+    safe(
+      () =>
+        prisma.exam_results.findMany({
+          where: {
+            student_id: selectedStudentId,
+            is_published: true,
+            ...(requestedSession ? { exams: { academic_session_id: requestedSession } } : {}),
+            ...(selectedExamType ? { exams: { type: selectedExamType } } : {}),
+          },
+          include: { exams: true },
+          orderBy: { id: "desc" },
+          take: 200,
+        }),
+      [],
+    ),
   ]);
 
   const byExam = new Map<number, { exam: Row; rows: Row[] }>();

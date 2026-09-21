@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { safe } from "@/lib/site-data";
 import EventsClient, { type SiteEvent } from "@/components/site/EventsClient";
 
 export const dynamic = "force-dynamic";
@@ -19,16 +20,24 @@ function toSiteEvent(event: EventRow): SiteEvent {
 
 export default async function EventsPage() {
   const [upcoming, past] = await Promise.all([
-    prisma.events.findMany({
-      where: { start_date: { gte: new Date() }, status: "published", deleted_at: null },
-      orderBy: { start_date: "asc" },
-      take: 50,
-    }),
-    prisma.events.findMany({
-      where: { start_date: { lt: new Date() }, status: "published", deleted_at: null },
-      orderBy: { start_date: "desc" },
-      take: 20,
-    }),
+    safe(
+      () =>
+        prisma.events.findMany({
+          where: { start_date: { gte: new Date() }, status: "published", deleted_at: null },
+          orderBy: { start_date: "asc" },
+          take: 50,
+        }),
+      [] as EventRow[],
+    ),
+    safe(
+      () =>
+        prisma.events.findMany({
+          where: { start_date: { lt: new Date() }, status: "published", deleted_at: null },
+          orderBy: { start_date: "desc" },
+          take: 20,
+        }),
+      [] as EventRow[],
+    ),
   ]);
 
   return (

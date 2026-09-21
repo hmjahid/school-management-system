@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { safe } from "@/lib/site-data";
 import { currentUser } from "@/lib/auth";
 import { t } from "@/lib/i18n";
 
@@ -20,16 +21,20 @@ export default async function PortalAdmissionPage() {
   if (!user) redirect("/login?redirect=/portal/admission");
 
   const admission = user.email
-    ? await prisma.admissions.findFirst({
-        where: { email: user.email, deleted_at: null },
-        include: {
-          admission_documents: true,
-          admission_tests: { orderBy: { scheduled_at: "desc" } },
-          academic_sessions: true,
-          batches: true,
-        },
-        orderBy: { id: "desc" },
-      })
+    ? await safe(
+        () =>
+          prisma.admissions.findFirst({
+            where: { email: user.email, deleted_at: null },
+            include: {
+              admission_documents: true,
+              admission_tests: { orderBy: { scheduled_at: "desc" } },
+              academic_sessions: true,
+              batches: true,
+            },
+            orderBy: { id: "desc" },
+          }),
+        null as Record<string, unknown> | null,
+      )
     : null;
 
   const academicSession = admission?.academic_sessions as unknown as Record<string, unknown> | undefined;

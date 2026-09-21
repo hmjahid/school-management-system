@@ -1,9 +1,13 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { prisma } from "@/lib/prisma";
+import { safe } from "@/lib/site-data";
 import { t } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
+
+type ClassRow = { id: number; name: string };
+type SessionRow = { id: number; name: string };
 
 const selectClass =
   "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20";
@@ -70,8 +74,8 @@ export default async function ResultsPage({
   const roll = String(sp.roll ?? "");
 
   const [classes, sessions, portfolio] = await Promise.all([
-    prisma.school_classes.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
-    prisma.academic_sessions.findMany({ orderBy: { name: "desc" }, select: { id: true, name: true } }),
+    safe(() => prisma.school_classes.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }), [] as ClassRow[]),
+    safe(() => prisma.academic_sessions.findMany({ orderBy: { name: "desc" }, select: { id: true, name: true } }), [] as SessionRow[]),
     classId && sessionId && roll ? lookup(classId, sessionId, roll) : Promise.resolve(null),
   ]);
 

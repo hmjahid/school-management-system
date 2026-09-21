@@ -1,10 +1,14 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { safe } from "@/lib/site-data";
 import { currentUser } from "@/lib/auth";
 import { t } from "@/lib/i18n";
 import { Hero } from "@/components/site/Sections";
 
 export const dynamic = "force-dynamic";
+
+type FeeRow = { id: number; name: string; amount: unknown; fee_type: string; description: string | null };
+type GatewayRow = { id: number; name: string; code: string; description: string | null };
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20";
@@ -12,8 +16,8 @@ const inputClass =
 export default async function PaymentsPage() {
   const user = await currentUser();
   const [feeRows, gateways] = await Promise.all([
-    prisma.fees.findMany({ where: { status: "active", deleted_at: null }, orderBy: { name: "asc" }, take: 40 }),
-    prisma.payment_gateways.findMany({ where: { is_active: true }, orderBy: [{ sort_order: "asc" }, { name: "asc" }] }),
+    safe(() => prisma.fees.findMany({ where: { status: "active", deleted_at: null }, orderBy: { name: "asc" }, take: 40 }), [] as FeeRow[]),
+    safe(() => prisma.payment_gateways.findMany({ where: { is_active: true }, orderBy: [{ sort_order: "asc" }, { name: "asc" }] }), [] as GatewayRow[]),
   ]);
 
   let students: Array<{ id: number; first_name: string; last_name: string }> = [];
@@ -21,36 +25,48 @@ export default async function PaymentsPage() {
 
   const isLinkedRole = user && ["student", "parent"].includes(user.role);
   if (user && isLinkedRole) {
-    const studentIds =
-      user.role === "student"
-        ? await prisma.students.findFirst({ where: { user_id: user.id, deleted_at: null }, select: { id: true } }).then((row) => (row ? [row.id] : []))
-        : await prisma.guardian_student
-            .findMany({
-              where: { guardians: { user_id: user.id } },
-              select: { student_id: true },
-            })
-            .then((rows) => rows.map((r) => r.student_id));
+    const studentIds = await safe(async () => {
+      if (user.role === "student") {
+        const row = await prisma.students.findFirst({ where: { user_id: user.id, deleted_at: null }, select: { id: true } });
+        return row ? [row.id] : [];
+      }
+      const rows = await prisma.guardian_student.findMany({
+        where: { guardians: { user_id: user.id } },
+        select: { student_id: true },
+      });
+      return rows.map((r) => r.student_id);
+    }, [] as number[]);
 
     if (studentIds.length > 0) {
       [students, feePayments] = await Promise.all([
-        prisma.students.findMany({
-          where: { id: { in: studentIds }, deleted_at: null },
-          orderBy: [{ first_name: "asc" }, { last_name: "asc" }],
-          select: { id: true, first_name: true, last_name: true },
-        }),
-        prisma.fee_payments.findMany({
-          where: { student_id: { in: studentIds }, deleted_at: null },
-          orderBy: [{ payment_date: "desc" }, { id: "desc" }],
-          take: 25,
-          select: { id: true, invoice_number: true, paid_amount: true, status: true, payment_date: true },
-        }).then((rows) =>
-          rows.map((r) => ({
-            id: r.id,
-            invoice_number: r.invoice_number,
-            paid_amount: Number(r.paid_amount),
-            status: r.status,
-            payment_date: r.payment_date,
-          })),
+        safe(
+          () =>
+            prisma.students.findMany({
+              where: { id: { in: studentIds }, deleted_at: null },
+              orderBy: [{ first_name: "asc" }, { last_name: "asc" }],
+              select: { id: true, first_name: true, last_name: true },
+            }),
+          [] as Array<{ id: number; first_name: string; last_name: string }>,
+        ),
+        safe(
+          () =>
+            prisma.fee_payments
+              .findMany({
+                where: { student_id: { in: studentIds }, deleted_at: null },
+                orderBy: [{ payment_date: "desc" }, { id: "desc" }],
+                take: 25,
+                select: { id: true, invoice_number: true, paid_amount: true, status: true, payment_date: true },
+              })
+              .then((rows) =>
+                rows.map((r) => ({
+                  id: r.id,
+                  invoice_number: r.invoice_number,
+                  paid_amount: Number(r.paid_amount),
+                  status: r.status,
+                  payment_date: r.payment_date,
+                })),
+              ),
+          [] as Array<{ id: number; invoice_number: string | null; paid_amount: number; status: string; payment_date: Date | null }>,
         ),
       ]);
     }

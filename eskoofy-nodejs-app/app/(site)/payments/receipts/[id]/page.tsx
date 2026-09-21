@@ -1,16 +1,32 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { safe } from "@/lib/site-data";
 import { t } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
+type FeePaymentRow = {
+  id: number;
+  invoice_number: string | null;
+  payment_date: Date | null;
+  payment_method: string | null;
+  amount: unknown;
+  balance: unknown;
+  students: { first_name: string | null; last_name: string | null } | null;
+  fees: { name: string | null } | null;
+};
+
 export default async function FeeReceiptPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const fp = await prisma.fee_payments.findFirst({
-    where: { id: Number(id) || -1 },
-    include: { students: true, fees: true },
-  });
+  const fp = await safe(
+    () =>
+      prisma.fee_payments.findFirst({
+        where: { id: Number(id) || -1 },
+        include: { students: true, fees: true },
+      }),
+    null as FeePaymentRow | null,
+  );
   if (!fp) notFound();
   const student = (fp.students ?? {}) as Record<string, unknown>;
   const fee = (fp.fees ?? {}) as Record<string, unknown>;

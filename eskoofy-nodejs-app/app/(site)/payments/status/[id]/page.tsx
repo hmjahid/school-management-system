@@ -1,13 +1,26 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { safe } from "@/lib/site-data";
 import { t } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
+type PaymentRow = {
+  id: number;
+  invoice_number: string | null;
+  payment_method: string | null;
+  payment_status: string | null;
+  total_amount: unknown;
+  reference_number: string | null;
+};
+
 export default async function PaymentStatusPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const payment = await prisma.payments.findFirst({ where: { id: Number(id) || -1 } });
+  const payment = await safe(
+    () => prisma.payments.findFirst({ where: { id: Number(id) || -1 } }),
+    null as PaymentRow | null,
+  );
   if (!payment) notFound();
 
   const ok = String(payment.payment_status ?? "").toLowerCase() === "completed";

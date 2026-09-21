@@ -1,9 +1,13 @@
 import { t } from "@/lib/i18n";
 import { getSiteSettings } from "@/lib/site-settings";
 import { prisma } from "@/lib/prisma";
+import { safe } from "@/lib/site-data";
 import { submitContact } from "./actions";
 
 export const dynamic = "force-dynamic";
+
+type SettingsRow = { opening_hours: string | null };
+type ContentRow = { title: string | null; content: string | null };
 
 const inputClass =
   "mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20";
@@ -33,8 +37,11 @@ export default async function ContactPage({
 
   const settings = await getSiteSettings();
   const [settingsRow, content] = await Promise.all([
-    prisma.website_settings.findFirst(),
-    prisma.website_contents.findFirst({ where: { page: "contact", is_active: true } }),
+    safe(() => prisma.website_settings.findFirst(), null as SettingsRow | null),
+    safe(
+      () => prisma.website_contents.findFirst({ where: { page: "contact", is_active: true } }),
+      null as ContentRow | null,
+    ),
   ]);
 
   const openingHours = parseJson<Record<string, { open?: string; close?: string }>>(settingsRow?.opening_hours, {});

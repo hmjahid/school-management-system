@@ -1,9 +1,21 @@
 import { prisma } from "@/lib/prisma";
+import { safe } from "@/lib/site-data";
 import { getSiteSettings } from "@/lib/site-settings";
 
 export const dynamic = "force-dynamic";
 
 type ExamRow = Record<string, unknown>;
+
+type StudentRow = {
+  id: number;
+  batch_id: number | null;
+  roll_number: string | null;
+  roll_no: string | null;
+  admission_number: string | null;
+  users: { name: string } | null;
+  school_classes: { name: string } | null;
+  sections: { name: string } | null;
+};
 
 export default async function ResultsPdfPage({
   searchParams,
@@ -18,37 +30,45 @@ export default async function ResultsPdfPage({
 
   const settings = await getSiteSettings();
 
-  const student = await prisma.students.findFirst({
-    where: {
-      ...(classId ? { class_id: classId } : {}),
-      OR: [{ roll_number: roll }, { roll_no: roll }],
-      deleted_at: null,
-    },
-    include: {
-      users: { select: { name: true } },
-      school_classes: { select: { name: true } },
-      sections: { select: { name: true } },
-    },
-  });
+  const student = await safe(
+    () =>
+      prisma.students.findFirst({
+        where: {
+          ...(classId ? { class_id: classId } : {}),
+          OR: [{ roll_number: roll }, { roll_no: roll }],
+          deleted_at: null,
+        },
+        include: {
+          users: { select: { name: true } },
+          school_classes: { select: { name: true } },
+          sections: { select: { name: true } },
+        },
+      }),
+    null as StudentRow | null,
+  );
 
   if (!student) {
     return <div className="p-16 text-center text-slate-500">Student not found — check the roll number.</div>;
   }
 
-  const results = await prisma.exam_results.findMany({
-    where: {
-      student_id: student.id,
-      ...(examId ? { exam_id: examId } : {}),
-      is_published: true,
-      exams: {
-        is_published_to_public: true,
-        ...(sessionId ? { academic_session_id: sessionId } : {}),
-        batch_id: student.batch_id,
-      },
-    },
-    include: { exams: { include: { subjects: true } } },
-    take: 200,
-  });
+  const results = await safe(
+    () =>
+      prisma.exam_results.findMany({
+        where: {
+          student_id: student.id,
+          ...(examId ? { exam_id: examId } : {}),
+          is_published: true,
+          exams: {
+            is_published_to_public: true,
+            ...(sessionId ? { academic_session_id: sessionId } : {}),
+            batch_id: student.batch_id,
+          },
+        },
+        include: { exams: { include: { subjects: true } } },
+        take: 200,
+      }),
+    [] as ExamRow[],
+  );
 
   const grouped = new Map<string, ExamRow[]>();
   for (const row of results) {

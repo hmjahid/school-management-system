@@ -1,8 +1,21 @@
 import { t } from "@/lib/i18n";
 import { prisma } from "@/lib/prisma";
+import { safe } from "@/lib/site-data";
 import { PageHero } from "@/components/site/Sections";
 
 export const dynamic = "force-dynamic";
+
+type ClassRow = { id: number; name: string };
+type SectionRow = { id: number; name: string };
+type RoutineRow = {
+  id: number;
+  day_of_week: number;
+  start_time: string | null;
+  end_time: string | null;
+  room_number: string | null;
+  subjects: { id: number; name: string } | null;
+  teachers: { users: { name: string } | null } | null;
+};
 
 const DAY_NAMES: Record<number, string> = {
   1: "Sunday",
@@ -27,17 +40,21 @@ export default async function RoutinePage({
   const sectionId = Number(Array.isArray(sp.section_id) ? sp.section_id[0] : sp.section_id) || 0;
 
   const [classes, sections, rows] = await Promise.all([
-    prisma.school_classes.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
-    prisma.sections.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
-    prisma.routines.findMany({
-      where: {
-        is_active: true,
-        ...(classId ? { school_class_id: classId } : {}),
-        ...(sectionId ? { section_id: sectionId } : {}),
-      },
-      orderBy: [{ day_of_week: "asc" }, { start_time: "asc" }],
-      include: { subjects: { select: { id: true, name: true } }, teachers: { include: { users: { select: { name: true } } } } },
-    }),
+    safe(() => prisma.school_classes.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }), [] as ClassRow[]),
+    safe(() => prisma.sections.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }), [] as SectionRow[]),
+    safe(
+      () =>
+        prisma.routines.findMany({
+          where: {
+            is_active: true,
+            ...(classId ? { school_class_id: classId } : {}),
+            ...(sectionId ? { section_id: sectionId } : {}),
+          },
+          orderBy: [{ day_of_week: "asc" }, { start_time: "asc" }],
+          include: { subjects: { select: { id: true, name: true } }, teachers: { include: { users: { select: { name: true } } } } },
+        }),
+      [] as RoutineRow[],
+    ),
   ]);
 
   const byDay: Record<number, typeof rows> = {};
