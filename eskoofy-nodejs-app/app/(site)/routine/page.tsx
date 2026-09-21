@@ -1,78 +1,111 @@
 import { t } from "@/lib/i18n";
-import { getClasses, getRoutinesForClass } from "@/lib/site-data";
-import { Empty, Section, PageHero } from "@/components/site/Sections";
+import { prisma } from "@/lib/prisma";
+import { PageHero } from "@/components/site/Sections";
 
 export const dynamic = "force-dynamic";
 
+const DAY_NAMES: Record<number, string> = {
+  1: "Sunday",
+  2: "Monday",
+  3: "Tuesday",
+  4: "Wednesday",
+  5: "Thursday",
+  6: "Friday",
+  7: "Saturday",
+};
+
 const inputClass =
-  "rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20";
+  "rounded-xl border border-gray-300 px-4 py-3 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20";
 
-const DAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+export default async function RoutinePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
+  const classId = Number(Array.isArray(sp.class_id) ? sp.class_id[0] : sp.class_id) || 0;
+  const sectionId = Number(Array.isArray(sp.section_id) ? sp.section_id[0] : sp.section_id) || 0;
 
-export default async function RoutinePage({ searchParams }: { searchParams: Promise<{ class?: string }> }) {
-  const params = await searchParams;
-  const classes = await getClasses();
-  const classId = Number(params.class ?? 0) || Number(classes[0]?.id ?? 0);
-  const rows = classId ? await getRoutinesForClass(classId) : [];
+  const [classes, sections, rows] = await Promise.all([
+    prisma.school_classes.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    prisma.sections.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    prisma.routines.findMany({
+      where: {
+        is_active: true,
+        ...(classId ? { school_class_id: classId } : {}),
+        ...(sectionId ? { section_id: sectionId } : {}),
+      },
+      orderBy: [{ day_of_week: "asc" }, { start_time: "asc" }],
+      include: { subjects: { select: { id: true, name: true } }, teachers: { include: { users: { select: { name: true } } } } },
+    }),
+  ]);
 
-  const byDay = DAYS.map((day) => ({
-    day,
-    periods: rows
-      .filter((row) => String(row.day_of_week ?? "").toLowerCase() === day)
-      .sort((a, b) => String(a.start_time ?? "").localeCompare(String(b.start_time ?? ""))),
-  }));
+  const byDay: Record<number, typeof rows> = {};
+  for (const row of rows) {
+    const day = Number(row.day_of_week);
+    (byDay[day] ??= []).push(row);
+  }
 
   return (
-    <>
-      <PageHero title={t("site.nav.routine")} />
-
-      <Section>
-        <div className="mx-auto max-w-5xl space-y-6">
-          <form method="get" className="flex flex-wrap items-end gap-3 rounded-2xl border border-slate-200 bg-white p-5">
-            <div>
-              <label htmlFor="class" className="mb-1 block text-sm font-semibold">
-                {t("dashboard.classes")}
-              </label>
-              <select id="class" name="class" defaultValue={classId ? String(classId) : ""} className={inputClass}>
-                {classes.map((schoolClass) => (
-                  <option key={String(schoolClass.id)} value={String(schoolClass.id)}>
-                    {String(schoolClass.name ?? schoolClass.id)}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <button className="rounded-xl bg-blue-600 px-5 py-2.5 font-semibold text-white hover:bg-blue-500">Show</button>
-          </form>
-
-          {classes.length === 0 ? (
-            <Empty>No classes configured yet.</Empty>
-          ) : rows.length === 0 ? (
-            <Empty>No routine published for this class yet.</Empty>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {byDay
-                .filter((entry) => entry.periods.length > 0)
-                .map((entry) => (
-                  <div key={entry.day} className="rounded-2xl border border-slate-200 bg-white p-5">
-                    <h2 className="font-bold capitalize text-slate-800">{entry.day}</h2>
-                    <ul className="mt-3 space-y-2 text-sm text-slate-600">
-                      {entry.periods.map((period, index) => (
-                        <li key={index} className="flex items-center justify-between gap-3 border-b border-slate-100 pb-2 last:border-0">
-                          <span>
-                            {String(period.start_time ?? "")} – {String(period.end_time ?? "")}
-                          </span>
-                          <span className="text-xs text-slate-400">
-                            {String(period.room_number ?? "")}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-            </div>
-          )}
+    <div className="min-h-screen bg-gray-50">
+      <div className="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 py-20 text-white">
+        <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
+          <h1 className="text-4xl font-bold md:text-5xl">{t("site.nav.routine")}</h1>
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-blue-100">View the weekly class schedule</p>
         </div>
-      </Section>
-    </>
+      </div>
+
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <form method="get" className="mb-8 flex flex-wrap gap-4">
+          <select name="class_id" className={inputClass} defaultValue={classId || ""}>
+            <option value="">Select class</option>
+            {classes.map((c) => (
+              <option key={c.id} value={c.id}>{String(c.name)}</option>
+            ))}
+          </select>
+          <select name="section_id" className={inputClass} defaultValue={sectionId || ""}>
+            <option value="">All sections</option>
+            {sections.map((s) => (
+              <option key={s.id} value={s.id}>{String(s.name)}</option>
+            ))}
+          </select>
+          <button type="submit" className="rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">
+            View routine
+          </button>
+        </form>
+
+        {rows.length === 0 ? (
+          <div className="rounded-xl border-2 border-dashed border-gray-300 p-12 text-center">
+            <p className="text-gray-500">Select a class to view the routine.</p>
+          </div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {[1, 2, 3, 4, 5, 6, 7].map((day) => {
+              const periods = byDay[day];
+              if (!periods || periods.length === 0) return null;
+              return (
+                <div key={day} className="rounded-xl bg-white p-6 shadow-md">
+                  <h3 className="mb-4 text-lg font-bold text-blue-800">{DAY_NAMES[day] ?? `Day ${day}`}</h3>
+                  <div className="space-y-3">
+                    {periods.map((period) => (
+                      <div key={period.id} className="rounded-lg border border-gray-100 bg-gray-50 p-3 text-sm">
+                        <p className="font-semibold text-gray-900">{String(period.subjects?.name ?? "—")}</p>
+                        <p className="text-xs text-gray-500">
+                          {String(period.start_time ?? "").slice(0, 5)} - {String(period.end_time ?? "").slice(0, 5)}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {String(period.teachers?.users?.name ?? "")}
+                          {period.room_number ? <> | Room {String(period.room_number)}</> : null}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

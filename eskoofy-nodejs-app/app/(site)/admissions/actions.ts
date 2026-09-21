@@ -54,3 +54,67 @@ export async function submitAdmission(formData: FormData): Promise<void> {
 
   redirect(`/admissions/status?application_number=${encodeURIComponent(applicationNumber)}`);
 }
+
+/** Mirrors the app's `admissions.scholarship.store` (SitePageController@scholarshipStore). */
+export async function submitScholarship(formData: FormData): Promise<void> {
+  const value = (key: string) => String(formData.get(key) ?? "").trim();
+  const name = value("name");
+  const email = value("email");
+  const message = value("message");
+
+  if (!name || !email || !message) {
+    redirect("/admissions?error=1");
+  }
+
+  try {
+    await prisma.contact_submissions.create({
+      data: {
+        type: "scholarship",
+        name,
+        email,
+        phone: value("phone") || null,
+        subject: "Scholarship application",
+        message,
+      },
+    });
+  } catch {
+    redirect("/admissions?error=1");
+  }
+
+  redirect("/admissions?sent=1");
+}
+
+/** Mirrors the app's `admissions.submit-payment` (AdmissionWebController@submitTransaction). */
+export async function submitPayment(formData: FormData): Promise<void> {
+  const id = Number(formData.get("id"));
+  const transactionId = String(formData.get("transaction_id") ?? "").trim();
+  const paymentMethod = String(formData.get("payment_method") ?? "").trim();
+
+  if (!id || !transactionId || !paymentMethod) {
+    redirect("/admissions/status?error=1");
+  }
+
+  let existing: { id: number; application_number: string; payment_status: string } | null = null;
+  try {
+    existing = await prisma.admissions.findUnique({
+      where: { id },
+      select: { id: true, application_number: true, payment_status: true },
+    });
+    if (!existing || existing.payment_status !== "unpaid") {
+      redirect(`/admissions/status?application_number=${encodeURIComponent(existing?.application_number ?? "")}&error=1`);
+    }
+    await prisma.admissions.update({
+      where: { id },
+      data: {
+        transaction_id: transactionId,
+        payment_method: paymentMethod,
+        payment_status: "submitted",
+        paid_at: new Date(),
+      },
+    });
+  } catch {
+    redirect("/admissions/status?error=1");
+  }
+
+  redirect(`/admissions/status?application_number=${encodeURIComponent(existing.application_number)}&sent=1`);
+}

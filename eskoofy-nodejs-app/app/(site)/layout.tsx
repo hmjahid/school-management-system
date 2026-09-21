@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
+import { RevealObserver } from "@/components/site/RevealObserver";
 import { resolveRequestLocale, setRequestLocale } from "@/lib/i18n";
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
@@ -10,6 +11,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="flex min-h-screen flex-col">
+      <RevealObserver />
       <SiteHeader />
       <main className="flex-1">{children}</main>
       <SiteFooter />

@@ -1,15 +1,23 @@
+import { prisma } from "@/lib/prisma";
 import { t } from "@/lib/i18n";
-import { getGallery } from "@/lib/site-data";
+import GalleryClient, { type GalleryImage } from "@/components/site/GalleryClient";
 
 export const dynamic = "force-dynamic";
 
-/**
- * Gallery — mirrors the real Laravel `site/gallery.blade.php`: gradient hero,
- * category filter tabs, masonry columns grid with lightbox-ready figures.
- */
 export default async function GalleryPage() {
-  const images = await getGallery(60);
-  const albums = [...new Set(images.map((image) => String(image.category ?? "general")))];
+  const images = await prisma.galleries.findMany({
+    where: { is_published: true },
+    orderBy: { id: "desc" },
+    take: 120,
+  });
+
+  const items: GalleryImage[] = images.map((image) => ({
+    id: String(image.id),
+    title: String(image.title ?? ""),
+    description: image.description,
+    src: image.image_path || null,
+    category: String(image.category ?? "general"),
+  }));
 
   return (
     <div className="bg-white">
@@ -20,42 +28,15 @@ export default async function GalleryPage() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        {albums.length > 0 ? (
-          <div className="mb-10 flex flex-wrap gap-2">
-            <span className="rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white">All</span>
-            {albums.map((album) => (
-              <span key={album} className="rounded-full bg-slate-100 px-5 py-2 text-sm font-medium capitalize text-slate-700">
-                {album}
-              </span>
-            ))}
-          </div>
-        ) : null}
+        <GalleryClient items={items} emptyText={t("site.gallery.empty")} />
 
-        {images.length === 0 ? (
-          <div className="rounded-xl border-2 border-dashed border-slate-200 p-16 text-center">
-            <p className="text-sm text-slate-500">No gallery images yet.</p>
-          </div>
-        ) : (
-          <div className="columns-1 gap-6 space-y-6 sm:columns-2 lg:columns-3 xl:columns-4">
-            {images.map((image) => (
-              <figure key={String(image.id)} className="group relative overflow-hidden rounded-2xl bg-slate-100 shadow-md ring-1 ring-slate-100 break-inside-avoid transition-all duration-300 hover:shadow-xl">
-                <div className="aspect-[4/3] bg-slate-100">
-                  {image.image_path ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={String(image.image_path)} alt={String(image.title ?? "")} className="h-full w-full object-cover" loading="lazy" />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
-                      <svg className="h-10 w-10 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                    </div>
-                  )}
-                </div>
-                <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 pb-3 pt-8 text-sm font-medium text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                  {String(image.title ?? "")}
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        )}
+        <section className="mt-16 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center">
+          <svg className="mx-auto h-10 w-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          <h2 className="mt-4 text-lg font-semibold text-slate-900">{t("site.gallery.video_section_title")}</h2>
+          <p className="mt-2 text-sm text-slate-600">{t("site.gallery.video_section_body")}</p>
+        </section>
       </div>
     </div>
   );
