@@ -17,10 +17,21 @@ import {
 import { CardGrid, Empty, formatDate } from "@/components/site/Sections";
 import { getSiteSettings, splitSchoolName } from "@/lib/site-settings";
 import { HOME_DEFAULTS } from "@/lib/site-cms-defaults";
-import { CardSlider, CountUp, NoticeScroller, initialsOf } from "@/components/site/HomeInteractive";
+import { CardSlider, CountUp, NoticeScroller } from "@/components/site/HomeInteractive";
 import type { Row } from "@/lib/site-data";
 
 export const dynamic = "force-dynamic";
+
+/** Initials avatar (server-safe copy — the client HomeInteractive one cannot be called server-side). */
+function initialsOf(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word) => word[0] ?? "")
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
 
 type Heading = { title?: unknown; intro?: unknown; view_all?: unknown };
 

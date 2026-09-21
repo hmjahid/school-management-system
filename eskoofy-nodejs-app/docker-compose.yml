@@ -1,0 +1,30 @@
+services:
+  # Eskoofy Node variant database (mirrors the app's local `esk-mariadb`).
+  db:
+    image: mariadb:11
+    container_name: esk-mariadb
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpw
+      MARIADB_DATABASE: eskoofy_node
+      MARIADB_USER: esk
+      MARIADB_PASSWORD: eskpw
+    ports:
+      - "3307:3306"
+    volumes:
+      - esk-mariadb-data:/var/lib/mysql
+    networks:
+      - esk-node-network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+networks:
+  esk-node-network:
+    driver: bridge
+
+volumes:
+  esk-mariadb-data:

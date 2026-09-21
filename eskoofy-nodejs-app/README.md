@@ -31,10 +31,11 @@ npm run db:seed           # admin@school.com / ChangeMe!2026$Tr0ng (same as the 
 npm run dev               # http://localhost:3000
 ```
 
-> **Local database:** the default `DATABASE_URL` in `.env.example` points at the shared
-> `esk-mariadb` container (host port **3307**, user `esk`/`eskpw`, database `eskoofy_node`).
-> Start it with `docker start esk-mariadb`; if the DB refuses connections this is almost
-> always the cause.
+> **Local database:** the default `DATABASE_URL` in `.env.example` points at the
+> `esk-mariadb` container shipped in `docker-compose.yml` (host port **3307**, user
+> `esk`/`eskpw`, database `eskoofy_node`). Start it with `docker compose up -d db`;
+> stop it with `docker compose down` (data persists in the `esk-mariadb-data` volume).
+> If the DB refuses connections this is almost always the cause.
 
 ## Scripts
 
