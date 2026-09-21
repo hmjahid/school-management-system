@@ -11,19 +11,25 @@ Reference product: `eskoofy-laravel-app`. Roadmap: `docs/design/VARIANT-BLUEPRIN
 | Dashboard sidebar | groups/items/gates | `lib/nav.ts` | ✅ parity-gated |
 | Strings (en + bn) | `lang/{en,bn}/*` | **742 keys × 2** | ✅ same keys |
 | API envelope | `{success,message,data[,meta]}` | `lib/api-response.ts` | ✅ same |
-| Dashboard CRUD screens | 213 views | **generic CRUD engine** (uniform index/create/show/edit for all 34 resources) + **72 nav items all `done`** (0 planned): model-backed paths serve real CRUD, 5 bespoke screens (analytics, reports, reports/builder, sms, communications) | ✅ functional — engine-based, not per-screen Blade parity |
+| Dashboard CRUD screens | 213 views | **generic CRUD engine** (uniform index/create/show/edit for all 34 resources) + **72 nav items all `done`** (0 planned): model-backed paths serve real CRUD, plus bespoke screens for analytics, reports, reports/builder, sms, communications, settings tabs, notifications inbox, permissions matrix, media library and the admissions review workflow | ✅ functional — engine-based, not per-screen Blade parity |
 | Public site pages | ~70 routes | **28 real pages** + catch-all (payments family, portal-admission/progress, results/pdf, sitemap.xml, student/guardian login, forgot/reset password added) | ✅ functional |
 | Components | `<x-card>`, `<x-badge>`, `<x-button>`, `<x-admin-data-table>`, `<x-page-header>`, `<x-empty-state>` | `components/ui/*` (1:1) | ✅ same variants |
-| Dashboard chrome | topbar (search/clock/locale/help/dark/notifications/user), sidebar accordion | `components/dashboard/*` | ✅ same features |
+| Dashboard chrome | badge counts, nav search, pinned favorites, install/dark/logout footer, clock, locale switch, pin-page, help modal, command palette, theme style + runtime brand vars | `components/dashboard/*` + `app/globals.css` | ✅ same markup + design tokens |
 
 ## What now works end to end
 
 **Dashboard (authenticated)**
 
-- Sidebar mirrors the app exactly — group order, item order, permission gates, accordion
-  groups, active state, `planned` chips for un-ported screens.
-- Topbar: live clock, website link, search, locale indicator, help, **dark mode**
-  (class-based, persisted), notifications, user dropdown with logout.
+- Sidebar mirrors the app's markup: section headers (Main/Academic/System/Website/
+  Administration/Configuration/Help), collapsible icon groups with a chevron, flat
+  sub-links, permission gates, active state, amber badge counts, nav search, pinned
+  favorites and the install/dark/logout footer.
+- Topbar: mobile drawer toggle, live timezone clock, website link, command-palette
+  search (Ctrl/Cmd+K), locale switch, pin-page, contextual help, **dark mode**
+  (class-based, persisted under `school-dark-mode`), notifications with unread badge
+  and the user dropdown.
+- Shell: skip link, top loading bar, toast + confirm-modal roots, runtime brand-color
+  CSS vars and the `theme-{default,modern,classic,minimal}` styles.
 - **Generic CRUD for every resource**: list (search + pagination + status badges),
   show, create and edit with generated forms, and delete — driven by Prisma DMMF so all
   ~34 dashboard resources work without a hand-written screen each. `resolveModel`
@@ -31,6 +37,10 @@ Reference product: `eskoofy-laravel-app`. Roadmap: `docs/design/VARIANT-BLUEPRIN
   the financial reports now resolve to real tables and render real CRUD.
 - Forms render field-type widgets (date, number, boolean, enum select) and resolve
   foreign keys into lookup selects with real options.
+- Bespoke screens beyond CRUD: settings tabs (theme/localization/payment/library/
+  academic/sms/mail + School Info), notifications inbox, permissions matrix, media
+  library (upload + picker), admissions review, dashboard search, expenses CSV export
+  and dashboard locale switch.
 
 **Public site (19 real pages)**
 
@@ -58,7 +68,7 @@ the app's session secret):
 | `/`, `/notices`, `/events`, `/gallery`, `/faculty`, `/routine` | 200 |
 | Prisma errors during the run | **0** |
 
-Gates: `tsc --noEmit` ✅ · ESLint ✅ (0 errors) · **97 Vitest tests** ✅ · `route:parity` ✅
+Gates: `tsc --noEmit` ✅ · ESLint ✅ (0 errors) · **102 Vitest tests** ✅ · `route:parity` ✅
 (585/585 routes, 95/95 sidebar keys, 107 tables) · `next build` ✅.
 
 > Note: the SQLite test copy needed its `DATETIME` strings normalised to ISO-8601 because
@@ -68,19 +78,22 @@ Gates: `tsc --noEmit` ✅ · ESLint ✅ (0 errors) · **97 Vitest tests** ✅ ·
 
 ## What is still not a 1:1 clone
 
-- **Exact Blade markup.** Screens are functionally equivalent, not pixel-identical: the
-  generic engine renders one consistent table/form rather than the app's per-module
-  hand-tuned views (charts, print/PDF layouts, CMS field editors, media picker, wizards).
-- **Print/PDF.** Admit cards, ID cards, certificates, marksheets and receipts are not
-  generated yet.
-- **Dashboard**: analytics, reports, reports/builder, sms and communications are now
-  bespoke screens. Settings tabs, notifications templates/preferences and CMS editors
-  still render the parity placeholder (schema/APIs exist).
+- **Exact Blade markup.** The dashboard chrome (sidebar, topbar, shell, CSS) mirrors the
+  app, but the generic engine still renders one consistent table/form rather than the
+  app's per-module hand-tuned views (charts, print/PDF layouts, CMS preview iframe,
+  wizards).
+- **Print/PDF.** Admit cards, ID cards, certificates, marksheets and receipts render
+  printable HTML but no downloadable PDF file yet.
+- **Dashboard**: analytics, reports, reports/builder, sms, communications, settings tabs,
+  notifications inbox, permissions matrix, media library and the admissions review are
+  now bespoke screens. The CMS editor's live-preview iframe is the remaining placeholder.
 - **Business-logic depth.** Exam publish semantics, recurring payments, ledger postings,
   payroll runs, SMS campaigns: the schema and APIs exist, the workflow logic is not ported.
 - **Integrations.** Payment gateways, SMS (Twilio/Vonage), mail, queues and the scheduler.
-- **Runtime locale switching.** The variant honours the profile locale (bd → bn, int → en);
-  the app's per-request language switch is not wired.
+- **Runtime locale switching.** The dashboard switch is wired end to end (topbar →
+  `/dashboard/locale/{locale}` → dashboard locale cookie). The public site's per-request
+  `?lang=` switch is still only partially wired; build-time profile locale still decides
+  the default.
 - **Auth depth.** Cookie session + role→permission map is in; full spatie middleware parity
   (policies, per-model abilities) is approximated.
 

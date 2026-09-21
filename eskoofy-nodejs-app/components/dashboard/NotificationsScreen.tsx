@@ -1,11 +1,99 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { currentUser } from "@/lib/auth";
 import { t } from "@/lib/i18n";
+import { markAllNotificationsRead, markNotificationRead } from "@/app/(dashboard)/dashboard/screen-actions";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 /**
  * Notification screens — mirror the app's
  * dashboard/notifications/templates.blade.php and preferences.blade.php:
  * template list + create form, and the per-type per-channel preference matrix.
  */
+
+/**
+ * Notification inbox — mirrors `dashboard/notifications/index.blade.php`
+ * (unread rows highlighted, mark-all-read, empty state).
+ */
+export async function NotificationsInbox() {
+  const user = await currentUser();
+  const rows = user
+    ? await prisma.notifications
+        .findMany({ where: { notifiable_id: user.id }, orderBy: { created_at: "desc" }, take: 100 })
+        .catch(() => [])
+    : [];
+
+  const unread = rows.filter((row) => !row.read_at).length;
+
+  function parseData(raw: string): { title?: string; message?: string; url?: string } {
+    try {
+      return JSON.parse(raw) as { title?: string; message?: string; url?: string };
+    } catch {
+      return {};
+    }
+  }
+
+  return (
+    <div>
+      <PageHeader
+        title={t("dashboard.inbox")}
+        description={`${rows.length} notification(s), ${unread} unread.`}
+        actions={
+          unread > 0 ? (
+            <form action={markAllNotificationsRead}>
+              <button type="submit" className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200">
+                Mark all read
+              </button>
+            </form>
+          ) : null
+        }
+      />
+
+      <div className="admin-card">
+        {rows.length === 0 ? (
+          <div className="admin-card-body">
+            <EmptyState title={t("common.empty")} message="You have no notifications yet." />
+          </div>
+        ) : (
+          <ul className="divide-y divide-slate-100 dark:divide-slate-700">
+            {rows.map((row) => {
+              const data = parseData(row.data);
+              const isUnread = !row.read_at;
+              return (
+                <li key={row.id}>
+                  <form action={markNotificationRead}>
+                    <input type="hidden" name="id" value={row.id} />
+                    <button
+                      type="submit"
+                      className={`flex w-full items-start gap-3 px-5 py-4 text-left transition ${
+                        isUnread ? "bg-brand-50/60 hover:bg-brand-50 dark:bg-brand-900/10" : "hover:bg-slate-50 dark:hover:bg-slate-700/40"
+                      }`}
+                    >
+                      {isUnread ? <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-500" /> : <span className="mt-1.5 h-2 w-2 shrink-0" />}
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-medium text-slate-900 dark:text-slate-100">{data.title ?? row.type}</span>
+                        {data.message ? <span className="mt-0.5 block text-sm text-slate-600 dark:text-slate-400">{data.message}</span> : null}
+                        <span className="mt-1 block text-xs text-slate-400">
+                          {row.created_at ? new Date(row.created_at).toLocaleString() : ""}
+                        </span>
+                      </span>
+                      {data.url ? (
+                        <Link href={data.url} className="shrink-0 text-xs font-medium text-brand-600 hover:underline">
+                          {t("common.view")}
+                        </Link>
+                      ) : null}
+                    </button>
+                  </form>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
 
 const CHANNELS = ["email", "sms", "in_app"];
 const TYPES = [

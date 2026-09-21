@@ -8,8 +8,12 @@ import { ResourceDetail } from "@/components/dashboard/ResourceDetail";
 import { RoutePlaceholder } from "@/components/dashboard/RoutePlaceholder";
 import { PrintScreen } from "@/components/dashboard/PrintScreen";
 import { FeesReport, StudentsReport } from "@/components/dashboard/ReportsScreen";
-import { SettingsScreen } from "@/components/dashboard/SettingsScreen";
-import { NotificationTemplates, NotificationPreferences } from "@/components/dashboard/NotificationsScreen";
+import { SettingsScreen, SchoolInfoScreen } from "@/components/dashboard/SettingsScreen";
+import { NotificationTemplates, NotificationPreferences, NotificationsInbox } from "@/components/dashboard/NotificationsScreen";
+import { PermissionsMatrix } from "@/components/dashboard/PermissionsScreen";
+import { MediaLibrary } from "@/components/dashboard/MediaScreen";
+import { AdmissionReview } from "@/components/dashboard/AdmissionsScreen";
+import { prisma } from "@/lib/prisma";
 import { PromoteStudents, MyResults, Onboarding, ProfileScreen } from "@/components/dashboard/MiscScreens";
 import { CmsPages, CmsEdit } from "@/components/dashboard/CmsScreen";
 import { EventsCalendar, LedgerBook } from "@/components/dashboard/CalendarLedgerScreen";
@@ -78,6 +82,29 @@ export default async function DashboardCatchAll({
         403 — {title}
       </p>
     );
+  }
+
+  const q = query as Record<string, string | undefined>;
+
+  // Bespoke screens whose path name matches a table, so the generic engine
+  // would otherwise hijack them (notifications inbox, permissions matrix,
+  // media library picker, admissions review).
+  if (segments[0] === "notifications" && segments.length === 1 && resource.mode === "index") {
+    return <NotificationsInbox />;
+  }
+  if (segments[0] === "permissions" && segments.length === 1 && resource.mode === "index") {
+    return <PermissionsMatrix />;
+  }
+  if (segments[0] === "media" && segments.length === 1 && resource.mode === "index") {
+    const [rows, categoryRows] = await Promise.all([
+      prisma.website_media.findMany({ orderBy: { created_at: "desc" }, take: 200 }).catch(() => []),
+      prisma.website_media.findMany({ distinct: ["category"], select: { category: true } }).catch(() => []),
+    ]);
+    const categories = categoryRows.map((row) => row.category).filter((value): value is string => Boolean(value));
+    return <MediaLibrary rows={rows} categories={categories} select={q.select === "1"} />;
+  }
+  if (segments[0] === "admissions" && resource.mode === "show" && resource.id) {
+    return <AdmissionReview id={Number(resource.id)} />;
   }
 
   if (resource.mode === "create" || resource.mode === "edit") {
@@ -388,13 +415,12 @@ export default async function DashboardCatchAll({
     );
   }
 
-  // Bespoke settings screen (dashboard/settings = school info)
+  // Tabbed settings (dashboard/settings) + School Info (dashboard/settings/general)
   if (segments[0] === "settings" && segments.length === 1) {
-    return (
-      <div>
-        <SettingsScreen />
-      </div>
-    );
+    return <SettingsScreen tab={typeof q.tab === "string" ? q.tab : "theme"} />;
+  }
+  if (segments[0] === "settings" && segments[1] === "general") {
+    return <SchoolInfoScreen />;
   }
 
   // Profile edit (dashboard/profile)

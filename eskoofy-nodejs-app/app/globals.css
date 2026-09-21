@@ -47,6 +47,52 @@
   --radius-button: 0.625rem;
   --shadow-card-hover: 0 8px 30px oklch(0 0 0 / 0.08);
   --transition-default: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Theme-style variables (overridden by .theme-* — mirrors Laravel) */
+  --theme-radius: 0.75rem;
+  --theme-card-shadow: 0 1px 2px 0 oklch(0 0 0 / 0.05);
+  --theme-heading-weight: 600;
+  --theme-accent: var(--brand-500);
+}
+
+/* Multiple theme styles — the app's `theme_style` setting (general → theme).
+   Applied to the dashboard shell wrapper (not <body>, which React owns). */
+.theme-modern {
+  --theme-radius: 1rem;
+  --theme-card-shadow: 0 12px 32px -12px oklch(0 0 0 / 0.22);
+  --theme-heading-weight: 700;
+  --theme-accent: var(--accent-500);
+}
+.theme-classic {
+  --theme-radius: 0.375rem;
+  --theme-card-shadow: 0 1px 3px 0 oklch(0 0 0 / 0.12);
+  --theme-heading-weight: 600;
+  --theme-accent: var(--brand-700);
+}
+.theme-minimal {
+  --theme-radius: 0.5rem;
+  --theme-card-shadow: none;
+  --theme-heading-weight: 500;
+  --theme-accent: var(--brand-500);
+}
+.theme-modern h1,
+.theme-modern h2,
+.theme-modern h3,
+.theme-classic h1,
+.theme-classic h2,
+.theme-classic h3,
+.theme-minimal h1,
+.theme-minimal h2,
+.theme-minimal h3 {
+  font-weight: var(--theme-heading-weight);
+}
+
+/* Apply the theme radius + shadow to every card-like surface (mirrors Laravel). */
+.theme-modern .rounded-xl,
+.theme-classic .rounded-xl,
+.theme-minimal .rounded-xl {
+  border-radius: var(--theme-radius) !important;
+  box-shadow: var(--theme-card-shadow) !important;
 }
 
 @theme {
@@ -182,10 +228,10 @@ body {
 
 .admin-card {
   overflow: hidden;
-  border-radius: 0.75rem;
+  border-radius: var(--theme-radius, 0.75rem);
   border: 1px solid oklch(0.92 0.01 250 / 0.8);
   background: white;
-  box-shadow: 0 1px 2px oklch(0 0 0 / 0.04);
+  box-shadow: var(--theme-card-shadow, 0 1px 2px oklch(0 0 0 / 0.04));
 }
 .admin-card-header {
   display: flex;
@@ -198,6 +244,19 @@ body {
 }
 .admin-card-body {
   padding: 1.25rem;
+}
+
+/* Stat card (dashboard home) — mirrors Laravel `.admin-stat-card` */
+.admin-stat-card {
+  border-radius: var(--theme-radius, 0.75rem);
+  border: 1px solid oklch(0.92 0.01 250 / 0.8);
+  background: white;
+  padding: 1.25rem;
+  box-shadow: var(--theme-card-shadow, 0 1px 2px oklch(0 0 0 / 0.04));
+  transition: box-shadow 0.2s ease;
+}
+.admin-stat-card:hover {
+  box-shadow: 0 4px 14px oklch(0 0 0 / 0.08);
 }
 
 /* Hero overlay gradient (mirrors Laravel) */
@@ -263,6 +322,15 @@ body {
   flex: 1;
   overflow-y: auto;
   padding: 1rem 0.75rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(203 213 225) transparent;
+}
+.admin-sidebar-nav::-webkit-scrollbar {
+  width: 4px;
+}
+.admin-sidebar-nav::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: rgb(203 213 225);
 }
 
 .admin-nav-link {
@@ -274,7 +342,7 @@ body {
   font-size: 0.875rem;
   font-weight: 500;
   color: oklch(0.55 0.02 250);
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition: color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
 }
 .admin-nav-link:hover {
   background: oklch(0.96 0.005 250);
@@ -288,6 +356,46 @@ body {
 .admin-nav-link--active:hover {
   background: var(--brand-50, oklch(0.97 0.02 250));
   color: var(--brand-700, oklch(0.42 0.16 250));
+}
+
+/* Sidebar sub-links (the app's `block rounded-lg py-2 pl-2 text-sm` links) */
+.admin-nav-sublink {
+  display: block;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.5rem;
+  font-size: 0.875rem;
+  color: oklch(0.45 0.02 250);
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+.admin-nav-sublink:hover {
+  color: var(--brand-600, #2563eb);
+}
+.admin-nav-sublink--active {
+  font-weight: 600;
+  color: var(--brand-700, oklch(0.42 0.16 250));
+}
+.dark .admin-nav-sublink {
+  color: oklch(0.72 0.01 250);
+}
+.dark .admin-nav-sublink:hover {
+  color: var(--brand-400, oklch(0.63 0.16 250));
+}
+.dark .admin-nav-sublink--active {
+  color: var(--brand-400, oklch(0.63 0.16 250));
+}
+
+/* Sidebar section header (the app's uppercase caption) */
+.admin-nav-section {
+  margin: 1.25rem 0 0.5rem;
+  padding: 0 0.75rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: oklch(0.68 0.02 250);
+}
+.admin-nav-section:first-child {
+  margin-top: 0;
 }
 
 .dark .admin-nav-link {
@@ -352,4 +460,122 @@ body {
   background: oklch(0.31 0.02 250);
   border-color: oklch(0.45 0.02 250);
   color: oklch(0.93 0.01 250);
+}
+.dark .admin-input::placeholder { color: oklch(0.6 0.01 250); }
+
+/* Dark-mode cards (mirrors Laravel app.css) */
+.dark .admin-card,
+.dark .admin-stat-card {
+  border-color: oklch(0.42 0.02 250 / 0.8);
+  background: oklch(0.28 0.02 250);
+}
+.dark .admin-card-header {
+  border-color: oklch(0.38 0.02 250);
+}
+
+/* Toast notifications (mirrors Laravel .toast-container/.toast) */
+.toast-container {
+  pointer-events: none;
+  position: fixed;
+  inset-inline: 0;
+  top: 1rem;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1rem;
+}
+@media (min-width: 640px) {
+  .toast-container {
+    align-items: flex-end;
+    padding-inline-end: 1.5rem;
+  }
+}
+.toast {
+  pointer-events: auto;
+  display: flex;
+  width: 100%;
+  max-width: 24rem;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  box-shadow: 0 10px 15px -3px oklch(0 0 0 / 0.1);
+  backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+  animation: toast-in 0.3s ease-out;
+}
+.toast--success {
+  border-color: oklch(0.87 0.06 160 / 0.8);
+  background: oklch(0.97 0.04 160 / 0.95);
+  color: oklch(0.35 0.09 160);
+}
+.toast--error {
+  border-color: oklch(0.87 0.06 25 / 0.8);
+  background: oklch(0.97 0.02 25 / 0.95);
+  color: oklch(0.4 0.16 25);
+}
+.toast--info {
+  border-color: oklch(0.9 0.01 250 / 0.8);
+  background: oklch(1 0 0 / 0.95);
+  color: oklch(0.21 0.02 250);
+}
+.dark .toast--info {
+  border-color: oklch(0.45 0.02 250 / 0.8);
+  background: oklch(0.31 0.02 250 / 0.95);
+  color: oklch(0.93 0.01 250);
+}
+.toast.toast--leaving {
+  animation: toast-out 0.25s ease-in forwards;
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(-0.5rem) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes toast-out {
+  to { opacity: 0; transform: translateY(-0.5rem) scale(0.98); }
+}
+
+/* Confirm / preview modal (mirrors Laravel .modal-backdrop/.modal-panel) */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: oklch(0.21 0.04 250 / 0.5);
+  backdrop-filter: blur(2px);
+  animation: fade-in 0.2s ease-out;
+}
+.modal-panel {
+  position: relative;
+  z-index: 91;
+  width: 100%;
+  max-width: 28rem;
+  border-radius: 1rem;
+  border: 1px solid oklch(0.92 0.01 250);
+  background: white;
+  padding: 1.5rem;
+  box-shadow: 0 25px 50px -12px oklch(0 0 0 / 0.25);
+  animation: modal-in 0.25s ease-out;
+}
+.dark .modal-panel {
+  border-color: oklch(0.42 0.02 250);
+  background: oklch(0.28 0.02 250);
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.96) translateY(0.5rem); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Print styles (mirrors Laravel app.css @media print) */
+@media print {
+  .no-print { display: none !important; }
+  body { font-size: 12pt; color: #000; background: #fff; }
+  a { text-decoration: underline; }
 }

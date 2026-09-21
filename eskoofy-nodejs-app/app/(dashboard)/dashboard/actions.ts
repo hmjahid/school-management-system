@@ -7,6 +7,8 @@ import { prisma } from "@/lib/prisma";
 import { MODEL_BY_NAME } from "@/lib/schema";
 import { createRow, deleteRow, updateRow } from "@/lib/db-query";
 import { currentUser } from "@/lib/auth";
+import { can } from "@/lib/permissions";
+import { updateLibrarySettings, updateWebsiteSettings } from "@/lib/dashboard-settings";
 
 /**
  * Generic create/update/delete actions behind every resource form — the Node
@@ -51,6 +53,125 @@ export async function deleteResource(formData: FormData): Promise<void> {
 
   revalidatePath(base);
   redirect(base);
+}
+
+/**
+ * Settings save — mirrors the app's `dashboard.settings.update.*` routes.
+ * The tab is carried in `__tab`; each tab writes a whitelisted field set to
+ * `website_settings` (library writes `library_settings`).
+ */
+const TAB_FIELDS: Record<string, string[]> = {
+  theme: [
+    "theme_primary_color",
+    "theme_secondary_color",
+    "theme_font_family",
+    "theme_border_radius",
+    "theme_header_style",
+    "theme_footer_style",
+    "theme_button_style",
+    "theme_section_spacing",
+    "theme_style",
+  ],
+  localization: ["timezone", "default_locale", "date_format", "time_format"],
+  payment: [
+    "bkash_merchant_number",
+    "bkash_api_key",
+    "bkash_api_secret",
+    "bkash_username",
+    "bkash_password",
+    "bkash_app_key",
+    "bkash_app_secret",
+    "bkash_sandbox",
+    "nagad_merchant_number",
+    "currency",
+    "default_payment_method",
+  ],
+  academic: ["established_year", "tagline", "website", "academic_start_month"],
+  sms: ["sms_sender_id", "absence_sms_template", "send_absence_sms"],
+  mail: [
+    "mail_enabled",
+    "mail_driver",
+    "mail_host",
+    "mail_port",
+    "mail_encryption",
+    "mail_username",
+    "mail_password",
+    "mail_from_address",
+    "mail_from_name",
+    "mail_test_recipient",
+  ],
+};
+
+export async function saveSettingsTab(formData: FormData): Promise<void> {
+  const user = await currentUser();
+  if (!user) redirect("/login?redirect=/dashboard/settings");
+  if (!can(user.role, "manage_settings")) redirect("/dashboard/settings?error=1");
+
+  const tab = String(formData.get("__tab") ?? "");
+  const target = `/dashboard/settings?tab=${encodeURIComponent(tab || "theme")}&saved=1`;
+
+  if (tab === "library") {
+    const payload: Record<string, unknown> = {};
+    for (const field of ["late_fee_per_day", "max_books_per_student", "max_books_per_teacher", "issue_duration_days"]) {
+      if (formData.has(field)) payload[field] = formData.get(field);
+    }
+    await updateLibrarySettings(payload);
+  } else {
+    const fields = TAB_FIELDS[tab] ?? [];
+    const payload: Record<string, unknown> = {};
+    for (const field of fields) {
+      if (formData.has(field)) payload[field] = formData.get(field);
+    }
+    await updateWebsiteSettings(payload);
+  }
+
+  revalidatePath("/dashboard/settings");
+  redirect(target);
+}
+
+/** School Info (settings/general) — mirrors the app's general update route. */
+export async function saveGeneralSettings(formData: FormData): Promise<void> {
+  const user = await currentUser();
+  if (!user) redirect("/login?redirect=/dashboard/settings/general");
+  if (!can(user.role, "manage_settings")) redirect("/dashboard/settings/general?error=1");
+
+  const fields = [
+    "school_name",
+    "school_name_bn",
+    "tagline",
+    "tagline_bn",
+    "address",
+    "city",
+    "state",
+    "country",
+    "postal_code",
+    "phone",
+    "email",
+    "website",
+    "facebook_url",
+    "twitter_url",
+    "instagram_url",
+    "linkedin_url",
+    "youtube_url",
+    "meta_title",
+    "meta_description",
+  ];
+  const payload: Record<string, unknown> = {};
+  for (const field of fields) {
+    if (formData.has(field)) payload[field] = formData.get(field);
+  }
+  await updateWebsiteSettings(payload);
+
+  revalidatePath("/dashboard/settings");
+  redirect("/dashboard/settings/general?saved=1");
+}
+
+/** Mirrors DashboardSettingsController@clearCache. */
+export async function clearCacheAction(): Promise<void> {
+  const user = await currentUser();
+  if (!user) redirect("/login?redirect=/dashboard/settings");
+  revalidatePath("/", "layout");
+  redirect("/dashboard/settings?tab=academic&saved=1");
 }
 
 /** Mirrors DashboardProfileController@update (PUT /dashboard/profile). */

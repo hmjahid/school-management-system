@@ -26,7 +26,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   setRequestLocale(locale);
 
   return (
-    <html lang={locale}>
+    // `suppressHydrationWarning`: the dashboard bootstrap restores the `dark`
+    // class on <html> before hydration (mirrors the Laravel layout's no-flash script).
+    <html lang={locale} suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/favicon.ico" />
