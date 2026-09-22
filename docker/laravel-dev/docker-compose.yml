@@ -1,0 +1,105 @@
+# Eskoofy Laravel variant — dev harness.
+#
+#   ./docker/dev.sh up laravel        (or: docker compose up)
+#   http://localhost:8090  (app) · :5173 (Vite HMR)
+#
+# Source is bind-mounted and every PHP request re-reads it; Vite in the
+# `assets` container hot-reloads CSS/JS. Migrations + demo seed run on boot.
+#
+# The production-like stack (nginx/php-fpm/mysql/redis) stays in
+# eskoofy-laravel-app/docker-compose.yml — untouched.
+
+name: eskoofy-laravel
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: esk-laravel-app:dev
+    container_name: esk-laravel-web
+    restart: unless-stopped
+    working_dir: /var/www
+    # Run as the host user so bind-mounted files (vendor/, storage/) stay yours.
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    entrypoint: ["/docker/entrypoint.sh"]
+    # `php artisan serve` strips every env var but a tiny allowlist, so compose's
+    # DB_*/APP_URL/... never reach the app (it falls back to the bind-mounted
+    # .env → sqlite + :8000). A raw `php -S` keeps the full env → MySQL stack.
+    command: ["php", "-S", "0.0.0.0:8000", "-t", "/var/www/public", "/docker/router.php"]
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8090
+      # Overrides (process env wins over the bind-mounted .env via immutable dotenv)
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_DATABASE: eskoofy_dev
+      DB_USERNAME: esk
+      DB_PASSWORD: eskpw
+      MYSQL_ROOT_PASSWORD: rootpw
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+      QUEUE_CONNECTION: database
+    ports:
+      - "8090:8000"
+    volumes:
+      - ../../eskoofy-laravel-app:/var/www:cached
+      - ./entrypoint.sh:/docker/entrypoint.sh:ro
+      - ./router.php:/docker/router.php:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - esk-laravel-net
+
+  # Vite dev server (HMR for CSS/JS). node_modules lives in a named volume so
+  # the container's deps never clobber the host's.
+  assets:
+    image: node:20-alpine
+    container_name: esk-laravel-assets
+    restart: unless-stopped
+    working_dir: /var/www
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+    # vite.config.dev.js forces the 0.0.0.0 bind for the published port while
+    # advertising HMR on localhost, or laravel-vite-plugin stamps public/hot with
+    # http://0.0.0.0:5173 and Blade emits unreachable asset URLs in the browser.
+    command: ["sh", "-c", "[ -f node_modules/.bin/vite ] || npm ci --no-audit --no-fund; exec npm run dev -- --config /var/www/vite.config.dev.js"]
+    ports:
+      - "5173:5173"
+    volumes:
+      - ../../eskoofy-laravel-app:/var/www:cached
+      - ./vite.config.dev.js:/var/www/vite.config.dev.js:ro
+      - esk-laravel-modules:/var/www/node_modules
+    networks:
+      - esk-laravel-net
+
+  db:
+    image: mysql:8.0
+    container_name: esk-laravel-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpw
+      MYSQL_DATABASE: eskoofy_dev
+      MYSQL_USER: esk
+      MYSQL_PASSWORD: eskpw
+    ports:
+      - "33068:3306"
+    volumes:
+      - esk-laravel-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpw"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - esk-laravel-net
+
+networks:
+  esk-laravel-net:
+
+volumes:
+  esk-laravel-db-data:
+  esk-laravel-modules:

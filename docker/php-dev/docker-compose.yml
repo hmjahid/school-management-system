@@ -1,0 +1,74 @@
+# Eskoofy raw PHP variant — dev harness.
+#
+#   ./docker/dev.sh up php && ./docker/dev.sh seed php
+#   http://localhost:8051
+#
+# The app source is bind-mounted at /var/www; PHP re-reads every file per
+# request, so edits apply on the next page refresh. The PHP built-in server
+# uses docker/php-dev/router.php (mirrors public/.htaccess) and its own
+# container DB (schema imported on first boot, demo accounts via
+# `./docker/dev.sh seed php`).
+
+name: eskoofy-php
+
+services:
+  db:
+    image: mariadb:11
+    container_name: esk-php-db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpw
+      MARIADB_DATABASE: eskoofy_php
+      MARIADB_USER: esk
+      MARIADB_PASSWORD: eskpw
+    ports:
+      - "33069:3306"
+    volumes:
+      - esk-php-db-data:/var/lib/mysql
+      # 93-table schema + admin seed, imported on first boot (empty data dir)
+      - ../../eskoofy-php-app/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    networks:
+      - esk-php-net
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: esk-php-app:dev
+    container_name: esk-php-app
+    restart: unless-stopped
+    working_dir: /var/www
+    # Run as the host user so bind-mounted storage/ stays yours.
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    ports:
+      - "8051:8051"
+    volumes:
+      - ../../eskoofy-php-app:/var/www:cached
+      # This product's bootstrap loads .env unconditionally, so swap in a
+      # container-specific .env (deeper file mount wins over the bind mount).
+      - ./php.env:/var/www/.env:ro
+      - ./router.php:/var/www/router.php:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    command:
+      - php
+      - -S
+      - 0.0.0.0:8051
+      - -t
+      - /var/www/public
+      - /var/www/router.php
+    networks:
+      - esk-php-net
+
+networks:
+  esk-php-net:
+
+volumes:
+  esk-php-db-data:

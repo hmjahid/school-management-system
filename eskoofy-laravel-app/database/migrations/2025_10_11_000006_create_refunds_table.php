@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
             // Admin who processed the refund
-            $table->foreignId('processed_by')->constrained('users')->onDelete('set null');
+            $table->foreignId('processed_by')->nullable()->constrained('users')->onDelete('set null');
 
             // Refund details
             $table->decimal('amount', 12, 2);

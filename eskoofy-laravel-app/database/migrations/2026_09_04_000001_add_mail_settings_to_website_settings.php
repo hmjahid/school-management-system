@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('website_settings', function (Blueprint $table) {
-            $table->boolean('mail_enabled')->default(false)->after('twilio_from_number');
+            $table->boolean('mail_enabled')->default(false);
             $table->string('mail_driver', 32)->nullable()->after('mail_enabled');
             $table->string('mail_host', 255)->nullable()->after('mail_driver');
             $table->string('mail_port', 10)->nullable()->after('mail_host');

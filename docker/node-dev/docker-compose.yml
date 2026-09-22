@@ -1,0 +1,67 @@
+# Eskoofy Node.js variant — dev harness.
+#
+#   ./docker/dev.sh up node && ./docker/dev.sh seed node
+#   http://localhost:3000
+#
+# The app source is bind-mounted at /app and the Next.js dev server hot-reloads
+# on every change. `node_modules` and `.next` live in named volumes seeded from
+# the build so the container's deps stay independent of the host's.
+#
+# The old DB-only compose (eskoofy-nodejs-app/docker-compose.yml, host port
+# 3307) is still used for host-side `npm run dev` — untouched.
+
+name: eskoofy-node
+
+services:
+  db:
+    image: mariadb:11
+    container_name: esk-node-db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpw
+      MARIADB_DATABASE: eskoofy_node
+      MARIADB_USER: esk
+      MARIADB_PASSWORD: eskpw
+    volumes:
+      - esk-node-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    networks:
+      - esk-node-net
+
+  app:
+    build:
+      context: ../../eskoofy-nodejs-app
+      dockerfile: Dockerfile
+    image: esk-node-app:dev
+    container_name: esk-node-app
+    restart: unless-stopped
+    user: node
+    environment:
+      # Process env wins over the bind-mounted .env
+      DATABASE_URL: mysql://esk:eskpw@db:3306/eskoofy_node
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../../eskoofy-nodejs-app:/app:cached
+      - esk-node-modules:/app/node_modules
+      - esk-node-next:/app/.next
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["npm", "run", "dev", "--", "--hostname", "0.0.0.0"]
+    networks:
+      - esk-node-net
+
+networks:
+  esk-node-net:
+
+volumes:
+  esk-node-db-data:
+  esk-node-modules:
+  esk-node-next:
