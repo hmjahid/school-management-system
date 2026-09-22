@@ -147,7 +147,7 @@ export function MediaLibrary({
                     <button type="button" onClick={() => void copy(row)} className="font-medium text-brand-600 hover:underline">
                       {copied === row.id ? "Copied!" : "Copy URL"}
                     </button>
-                    <a href={row.file_path} download className="font-medium text-slate-500 hover:underline">
+                    <a href={`/dashboard/media/${row.id}/download`} className="font-medium text-slate-500 hover:underline">
                       Download
                     </a>
                     <form action={deleteMedia} className="ml-auto">

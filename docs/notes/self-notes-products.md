@@ -318,21 +318,60 @@ too much mismacth till now. front end maximum mismatch. frontend language witchi
 
 use same favicon of the php versiaon to the nodejs vesrion. frontemd not showing dashboard and logout button though logged in. fix all these aslo
 
+verify pixel by pixel and implement unimplemented
+
+run laravel and check its own port
+
+check/compare nodejs varinat with laravel variant pixel by pixel and implement unimplemented tasks both in frontend and dashboard in the nodejs variant. continue until finished
+
+setup a docker conatiner for the dtabase rather than using the system mysql
+
+now make the nodejs variant dahboard pages, dashbaord own page. dashboard all functionalities same as the laravel varinat
+
+create a file and write there which tasks are not implemented yet
+
+read eskoofy-nodejs-app/docs/NOT-IMPLEMENTED.md  file an dimplement/complete the not-implemented tasks. also ensure that nodejs varinat dashboard is fully like the laravel variant
+  dashboard in ui ux , styles, san elooking sidebard, every page same looking.
+
+check/compare nodejs varinat dashboard every single pages with laravel variant dashboard every single pages pixel by pixel and implement unimplemented tasks in dashboard in the nodejs variant. continue until finished
+
+our theme varaint already have a docker setup to test. cretae docker setup also for nodejs, laravel and php varinats also. ensure that the chnages will directly be applied in the docker conatiner if we chnage in the app codes. also ensur that every products conatiner has different names. create  command for running the products in dev server seperately and also sepearte command for running all products together in the docker conatiner. 
+
+the laravel app is running. but the page is broken. maybe css not loading
+
+the issue not fixed.
 
 
+
+
+
+ensure that all 4 products and the branding webiste has proper user manuals, deployment guide, server requirements documentations files in thier own folders.
+
+ensure that the new variant (nodejs) has integrated in the existing int/bd export/build system
+
+create a master xlsx file to track features in all 4 products and compare which fetaures are not implemented and which features already implemented in which products. also add extra columns for tracking, is the feature/function working in the specific product or not
+
+create a master xlsx file to track features in branding websiite to track which fetaures are not implemented and which features already implemented. also add extra columns for tracking, is the feature/function working or not 
 
 
 create a child theme of this theme like the elementor child theme so that the theme updates doesnot break/remove custom styles, scripts added by users in the theme files. tell me child theme principle fisrt. temll me how it works. how it depends on main theme?
 
-add drive, dropbox, 4saherd,  connect feature in all 4 products and the branding website for backup sore and restore them. aslo add automatic backup system.
+add drive, dropbox, 4saherd,  connect feature in all 4 products and the branding website for backup sore and restore them. also add automatic backup system after a specific interval
 
 add full cms control feature in the branding website admin dashboard
 
-add option for adding institution water mark in all exported dcuments like testimonials, cerificate, marksheet etc in the all 4 products.
+add product suggestion feature for helping visitor/client for choosing the right variant of this school management system in the branding website.
 
-make ensure taht the testimonials, cerificate, marksheet, id cards, admit cards designs are totally cutsomizable in all 4 prodycts
+add a option for the visitors/clients for ordering custom/modifictaion/extra-features in the all 4 products/variant.
+
+add option for adding institution water mark in all exportable documents like testimonials, cerificate, marksheet etc in the all 4 products.
+
+make ensure taht the testimonials, cerificate, marksheet, id cards, admit cards designs are totally cutsomizable in all 4 products
 
 make ensure that one varaint exported/backup data (backup, students list, staff lists etc) can be used in another varinats
+
+
+use/add uddoktapay in all 4 products and the branding website for bangladeshi payemnt. It will be optional/ if checked will show, otherwise aill not show in the frontend. read uddoktapay documentation from their official website and the github repository fisrt.
 
 
 
@@ -348,6 +387,23 @@ ensure proper payment method applied in this system app, php, theme and the webs
 how to make this app/php-version/theme eligible for selling in theme forest or other similiar marketplaces?
 
 now write a commit message for the chnage safter the last commit and commit that
+
+
+
+
+[•] Create docker/README.md with commands, ports & container-name table
+[ ] Create docker/dev.sh orchestrator (separate + all-together commands)
+[ ] Laravel dev harness: Dockerfile + entrypoint + docker-compose.yml
+[ ] Node dev harness: app Dockerfile + .dockerignore + docker-compose.yml
+[ ] PHP dev harness: Dockerfile + compose + php.env + router
+[ ] Validate: compose config for all 4 projects, bash -n dev.sh
+
+
+
+
+
+
+
 
 ---
 working session (frontend + dashboard parity, theme):

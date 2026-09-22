@@ -58,6 +58,7 @@ export async function FeesReport({ from, to }: { from?: string; to?: string }) {
             <input type="date" name="to" defaultValue={tt.toISOString().slice(0, 10)} className="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
           </div>
           <button type="submit" className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">Apply</button>
+          <Link href="/dashboard/reports/export/fees" download className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Export CSV</Link>
         </form>
       </div>
 
@@ -103,6 +104,7 @@ export async function StudentsReport() {
           <h1 className="mt-1 text-2xl font-bold text-slate-900">Students report</h1>
           <p className="mt-1 text-sm text-slate-600">Live breakdown of all enrolled students.</p>
         </div>
+        <Link href="/dashboard/reports/export/students" download className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Export CSV</Link>
       </div>
 
       <div className="mb-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">

@@ -54,6 +54,7 @@ export async function AttendanceReport({ from, to }: { from?: string; to?: strin
         <input type="date" name="from" defaultValue={f} className="admin-input" />
         <input type="date" name="to" defaultValue={tt} className="admin-input" />
         <button className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">Apply</button>
+        <Link href="/dashboard/reports/export/attendance" download className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Export CSV</Link>
       </div>
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
