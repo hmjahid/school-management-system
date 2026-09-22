@@ -39,8 +39,11 @@ Reference product: `eskoofy-laravel-app`. Roadmap: `docs/design/VARIANT-BLUEPRIN
   foreign keys into lookup selects with real options.
 - Bespoke screens beyond CRUD: settings tabs (theme/localization/payment/library/
   academic/sms/mail + School Info), notifications inbox, permissions matrix, media
-  library (upload + picker), admissions review, dashboard search, expenses CSV export
-  and dashboard locale switch.
+  library (upload + picker), admissions review, dashboard search, reports CSV export
+  (fees/attendance/students), the full SMS campaign workflow (compose → recipient
+  resolution → preview → send/due-reminder), activity log audit screen, the daily
+  staff-attendance sheet, help & documentation (searchable accordion), media download
+  and notification read routes, and dashboard locale switch.
 
 **Public site (19 real pages)**
 
@@ -87,8 +90,10 @@ Gates: `tsc --noEmit` ✅ · ESLint ✅ (0 errors) · **102 Vitest tests** ✅ �
 - **Dashboard**: analytics, reports, reports/builder, sms, communications, settings tabs,
   notifications inbox, permissions matrix, media library and the admissions review are
   now bespoke screens. The CMS editor's live-preview iframe is the remaining placeholder.
-- **Business-logic depth.** Exam publish semantics, recurring payments, ledger postings,
-  payroll runs, SMS campaigns: the schema and APIs exist, the workflow logic is not ported.
+- **Business-logic depth.** Exam publish semantics, recurring payments, ledger postings
+  and payroll runs: the schema and APIs exist, the workflow logic is not ported. The SMS
+  campaign lifecycle (draft → recipient resolution → preview → queued/scheduled/due
+  reminder) IS ported; only the carrier gateway (Twilio/Vonage) delivery is not.
 - **Integrations.** Payment gateways, SMS (Twilio/Vonage), mail, queues and the scheduler.
 - **Runtime locale switching.** The dashboard switch is wired end to end (topbar →
   `/dashboard/locale/{locale}` → dashboard locale cookie). The public site's per-request

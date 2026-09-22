@@ -12,6 +12,10 @@ import { SettingsScreen, SchoolInfoScreen } from "@/components/dashboard/Setting
 import { NotificationTemplates, NotificationPreferences, NotificationsInbox } from "@/components/dashboard/NotificationsScreen";
 import { PermissionsMatrix } from "@/components/dashboard/PermissionsScreen";
 import { MediaLibrary } from "@/components/dashboard/MediaScreen";
+import { ActivityScreen } from "@/components/dashboard/ActivityScreen";
+import { StaffAttendanceScreen } from "@/components/dashboard/StaffAttendanceScreen";
+import { HelpScreen } from "@/components/dashboard/HelpScreen";
+import { helpContent } from "@/lib/help-content";
 import { AdmissionReview } from "@/components/dashboard/AdmissionsScreen";
 import { prisma } from "@/lib/prisma";
 import { PromoteStudents, MyResults, Onboarding, ProfileScreen } from "@/components/dashboard/MiscScreens";
@@ -22,7 +26,7 @@ import { BalanceSheet, IncomeStatement, CashFlow } from "@/components/dashboard/
 import { ExamResults, Payslips } from "@/components/dashboard/ExamPayrollScreens";
 import { SettingsTab, AttendanceReport, StudentResults, StaffAttendanceReport, AssignmentsSubmissions, BatchGenerate } from "@/components/dashboard/ExtraScreens";
 import { SmsTemplates, DueFeeReminder } from "@/components/dashboard/SmsScreens";
-import { MarksheetPdf, PayslipShow, PayrollStructures, SmsPreview, SoftwareAbout, TestimonialsPrint, CareersForm } from "@/components/dashboard/FinalScreens";
+import { MarksheetPdf, PayslipShow, PayrollStructures, SoftwareAbout, TestimonialsPrint, CareersForm } from "@/components/dashboard/FinalScreens";
 import { ProgressReportsIndex, ProgressReportShow, SeatPlansIndex, SeatPlanShow } from "@/components/dashboard/ProgressSeatPlanScreens";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
@@ -91,6 +95,16 @@ export default async function DashboardCatchAll({
   // media library picker, admissions review).
   if (segments[0] === "notifications" && segments.length === 1 && resource.mode === "index") {
     return <NotificationsInbox />;
+  }
+  if (segments[0] === "activity" && segments.length === 1 && resource.mode === "index") {
+    return <ActivityScreen filters={q} />;
+  }
+  if (segments[0] === "staff-attendance" && segments.length === 1 && resource.mode === "index") {
+    return <StaffAttendanceScreen filters={q} />;
+  }
+  if (segments[0] === "help" && segments.length === 1) {
+    const help = helpContent();
+    return <HelpScreen sections={help.sections} strings={help.strings} />;
   }
   if (segments[0] === "permissions" && segments.length === 1 && resource.mode === "index") {
     return <PermissionsMatrix />;
@@ -312,7 +326,7 @@ export default async function DashboardCatchAll({
     return (<div><SmsTemplates /></div>);
   }
   if (segments[0] === "sms" && segments[1] === "due-reminder") {
-    return (<div><DueFeeReminder /></div>);
+    return (<div><DueFeeReminder searchParams={Promise.resolve(query as Record<string, string>)} /></div>);
   }
 
   // Attendance report
@@ -359,10 +373,7 @@ export default async function DashboardCatchAll({
     return (<div><PayrollStructures /></div>);
   }
 
-  // SMS preview
-  if (segments[0] === "sms" && segments[1] === "preview") {
-    return (<div><SmsPreview /></div>);
-  }
+  // SMS preview is served by its static page (app/(dashboard)/dashboard/sms/preview)
 
   // Software about page
   if (segments[0] === "software") {
