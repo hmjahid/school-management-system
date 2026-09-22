@@ -8,13 +8,13 @@
 [![Prisma](https://img.shields.io/badge/Prisma-6-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
 
 Eskoofy is a full-featured school management software delivered as a **4-product
-monorepo**: a Laravel 12 application (`eskoofy-laravel-app`), a framework-free raw PHP version
-(`eskoofy-php-app`), a WordPress theme (`eskoofy-wp-theme`) and a single-architecture Node.js
-clone of the app (`eskoofy-nodejs-app` — Next.js App Router + Prisma, one codebase for the
-public site, dashboard and API). Each product is a feature-equivalent port of the same
-codebase, sharing one BD/INT build-time variant strategy. The **branding website + license
-server** (`eskoofy-branding-website`) markets and sells the products — it is **not a product**
-itself.
+monorepo**: a Laravel 12 application (`eskoofy-laravel-app`), a framework-free raw PHP
+version for shared hosting (`eskoofy-php-app`), a WordPress theme (`eskoofy-wp-theme`) and a
+single-architecture Node.js clone of the app (`eskoofy-nodejs-app` — Next.js App Router +
+Prisma, one codebase for the public site, dashboard and API). Each product is a
+feature-equivalent port of the same codebase, sharing one BD/INT build-time variant strategy.
+The **branding website + license server** (`eskoofy-branding-website`) markets and sells the
+products — it is **not a product** itself.
 
 > **BD vs INT**: `bd` is the current Bangladeshi version (Bengali + English, ministry
 > links, bKash/Rocket/Nagad). `int` is the international English-only version
