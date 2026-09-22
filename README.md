@@ -75,7 +75,7 @@ itself.
 ├── eskoofy-nodejs-app/      Node.js clone — Next.js App Router + Prisma + Tailwind
 ├── eskoofy-branding-website/      Branding site + license server (NOT a product) — int-only
 ├── build/                BD/INT export box + feature-propagation gate (export.sh, propagate/)
-├── docker/               Dev tooling (theme-test WordPress stack)
+├── docker/               Docker dev harnesses for all 4 products (dev.sh + docker/{laravel,node,php,theme}-dev/)
 ├── docs/                 Docs index + guides/operations/design/features/quality/planning/prompts/notes (map: docs/README.md)
 ├── WORKPLAN.md           Multi-product plan (phases, gates, milestones)
 └── workplan-implementation-plan.md   Per-task implementation tracker
@@ -89,8 +89,8 @@ running every product and the website locally. Summary:
 ### Requirements
 
 PHP **8.2+**, Composer 2+, Node **20.9+**, MySQL/MariaDB (the app also works on SQLite), and
-Docker (for the WordPress theme harness). Each component uses its own port so they can run
-side by side:
+Docker (for the WordPress theme harness and the all-product dev harnesses). Each component
+uses its own port so they can run side by side:
 
 | Component | Port | Entry |
 |---|---|---|
@@ -99,6 +99,34 @@ side by side:
 | `eskoofy-nodejs-app` | 3000 | `npm run dev` |
 | `eskoofy-branding-website` | 8011 | `php -S 127.0.0.1:8011 -t public` |
 | `eskoofy-wp-theme` | 8080 | Docker harness (`docker/theme-test`) |
+
+### Docker dev harnesses (all products)
+
+Every product has its own Docker dev harness — **no per-product MySQL/Node install needed**.
+Each runs under its own Compose project with globally unique container names and
+non-overlapping host ports, so any subset (or all four) can run simultaneously. Code is
+**bind-mounted** into the containers, so source edits are picked up on the next browser
+refresh / hot-reload — no image rebuild:
+
+```bash
+./docker/dev.sh up                # start ALL products
+./docker/dev.sh up laravel        # start one: theme | laravel | node | php
+./docker/dev.sh down              # stop all (keeps DB volumes)
+./docker/dev.sh seed laravel      # re-seed demo data for one product
+./docker/dev.sh ps                # container status
+./docker/dev.sh urls              # print every product's URL
+```
+
+| Product | URL | Stack (in-container) | DB host port |
+|---|---|---|---|
+| WP theme | <http://localhost:8080> | WordPress 8.2 + Apache | — (internal) |
+| Laravel | <http://localhost:8090> (+ Vite HMR :5173) | PHP built-in server + MySQL 8 | `33068` |
+| Node.js | <http://localhost:3000> | Next.js dev server + MariaDB | — (internal) |
+| Raw PHP | <http://localhost:8051> | PHP built-in server + MariaDB | `33069` |
+
+Laravel migrations auto-run on boot and a fresh DB auto-seeds the demo accounts
+(`docs/operations/DEMO-CREDENTIALS.md`); Node/PHP need a one-time
+`./docker/dev.sh seed node|php`. Full reference: [`docker/README.md`](docker/README.md).
 
 ### eskoofy-laravel-app (Laravel)
 
@@ -116,6 +144,10 @@ Open **http://127.0.0.1:8000** → `/login` → `/dashboard`. Admin:
 Student/guardian portals: `/student/login`, `/guardian/login`. API: `/api/v1`.
 Individual servers: `php artisan serve` + `npm run dev`.
 
+> Prefer Docker (MySQL included)? `./docker/dev.sh up laravel` serves the app on
+> <http://localhost:8090> with Vite HMR and auto-migrated/seeded MySQL — see
+> *Docker dev harnesses* below.
+
 ### eskoofy-nodejs-app (Node.js clone — port 3000)
 
 Single-architecture Next.js app: public site, dashboard and `/api/v1` all in one project
@@ -130,6 +162,9 @@ npm run prisma:push           # create the 107 tables (or prisma:migrate)
 npm run db:seed               # demo accounts (see below)
 npm run dev                   # http://localhost:3000
 ```
+
+> Prefer Docker (MariaDB included)? `./docker/dev.sh up node` then one-time
+> `./docker/dev.sh seed node` — see *Docker dev harnesses* below.
 
 Login at `/login` with the app's admin demo account (`admin@school.com` /
 `ChangeMe!2026$Tr0ng`). Dashboard: `/dashboard`. API: `/api/v1` (same
@@ -160,7 +195,8 @@ php -S localhost:8051 -t public
 Point the document root at `public/` on a shared host. `composer test` runs the
 dev-only PHPUnit suite. Need a MySQL without installing it? Run it in a Docker
 container — see *Database via Docker* in
-[`docs/guides/DEVELOPMENT.md`](docs/guides/DEVELOPMENT.md).
+[`docs/guides/DEVELOPMENT.md`](docs/guides/DEVELOPMENT.md) — or use the full
+harness: `./docker/dev.sh up php` + `./docker/dev.sh seed php`.
 
 ### eskoofy-branding-website (marketing + license server — port 8011)
 
