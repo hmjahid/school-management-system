@@ -1,0 +1,14 @@
+/*
+ Theme Name:   Eskoofy Child
+ Description:  Eskoofy child theme — keeps your custom styles/scripts safe
+               across parent updates. Add overrides to custom.css, custom-admin.css
+               and custom.js; copy any parent template file (front-page.php,
+               template-*.php, header.php, footer.php, single-*.php, archive-*.php,
+               page.php, index.php, 404.php, search.php, sidebar.php, searchform.php)
+               into this folder to override it — parent updates never touch them.
+ Author:       Eskoofy
+ Template:     eskoofy
+ Version:      1.0.0
+ Text Domain:  eskoofy
+ Domain Path:  /languages
+*/

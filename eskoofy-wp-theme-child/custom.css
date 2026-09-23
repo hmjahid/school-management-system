@@ -1,0 +1,11 @@
+/**
+ * Eskoofy Child — custom front-end styles.
+ *
+ * Add your own overrides here. Loaded AFTER the parent's bundled CSS on every
+ * public page, so you can safely override parents styles without editing the
+ * parent theme (your changes survive parent theme updates).
+ *
+ * Example:
+ *   :root { --esk-accent: #e11d48; }
+ *   .brand-heading { font-family: Georgia, serif; }
+ */

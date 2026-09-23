@@ -1,0 +1,9 @@
+/**
+ * Eskoofy Child — custom admin styles.
+ *
+ * Loaded on the Eskoofy dashboard pages and the WP admin area, after the
+ * parent's admin styles. Survives parent theme updates.
+ *
+ * Example:
+ *   #adminmenu .toplevel_page_esk-dashboard { background: #1e293b; }
+ */
