@@ -127,6 +127,8 @@ Access at: **http://localhost:8080** (nginx → Laravel `public/`)
 
 - [User Manual](docs/USER-MANUAL.md) — how school staff use every module
 - [Setup Guide](docs/SETUP-GUIDE.md) — install, configure, deploy
+- [Deployment Guide](docs/DEPLOYMENT-GUIDE.md) — production deployment & go-live
+- [Server Requirements](docs/SERVER-REQUIREMENTS.md) — sizing and prerequisites
 - [API — Payments & Refunds](../docs/operations/API-PAYMENTS.md)
 - [Admissions](../docs/operations/ADMISSIONS.md)
 - [Dashboard troubleshooting](../docs/operations/DASHBOARD_TROUBLESHOOTING.md)

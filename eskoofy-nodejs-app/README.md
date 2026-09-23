@@ -6,6 +6,15 @@ phased port of the Laravel reference product (`eskoofy-laravel-app`).
 One project holds everything — the public marketing site (server-rendered React), the admin
 dashboard, and the JSON API. There is no separate API server and no SPA client.
 
+## Documentation
+
+- [User Manual](docs/USER-MANUAL.md) — usage for staff, students & guardians
+- [Setup Guide](docs/SETUP-GUIDE.md) — install, database, configuration, first run
+- [Deployment Guide](docs/DEPLOYMENT-GUIDE.md) — production deployment & go-live
+- [Server Requirements](docs/SERVER-REQUIREMENTS.md) — sizing and prerequisites
+- [Porting Status](docs/PORTING-STATUS.md) · [Not Implemented](docs/NOT-IMPLEMENTED.md) — port ledger
+- [Mirror Plan](docs/MIRROR-PLAN.md) · [Mismatch Report](docs/MISMATCH-REPORT.md)
+
 ## Stack
 
 | Concern | Choice |

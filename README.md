@@ -77,6 +77,7 @@ products — it is **not a product** itself.
 ├── build/                BD/INT export box + feature-propagation gate (export.sh, propagate/)
 ├── docker/               Docker dev harnesses for all 4 products (dev.sh + docker/{laravel,node,php,theme}-dev/)
 ├── docs/                 Docs index + guides/operations/design/features/quality/planning/prompts/notes (map: docs/README.md)
+│   └── feature-tracking/ Feature matrices: products-feature-matrix.xlsx + branding-website-feature-matrix.xlsx (+ generators)
 ├── WORKPLAN.md           Multi-product plan (phases, gates, milestones)
 └── workplan-implementation-plan.md   Per-task implementation tracker
 ```

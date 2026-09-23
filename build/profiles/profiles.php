@@ -26,6 +26,8 @@ return [
             'APP_FALLBACK_LOCALE=en',
             'PAYMENT_CURRENCY=BDT',
             'TIMEZONE=Asia/Dhaka',
+            'ESKOOFY_MINISTRY_LINKS=true',
+            'ESKOOFY_MINISTRY_BADGE=true',
         ],
         // lang packs shipped in the artifact (bn + en)
         'locales' => ['en', 'bn'],

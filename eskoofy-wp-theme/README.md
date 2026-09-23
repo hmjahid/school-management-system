@@ -11,6 +11,8 @@ per-variant stylesheet/profile, never forks.
 
 - [User Manual](docs/USER-MANUAL.md) — public site + `/dashboard/` module-by-module usage
 - [Setup Guide](docs/SETUP-GUIDE.md) — install, activation, database, configuration, deploy
+- [Deployment Guide](docs/DEPLOYMENT-GUIDE.md) — production deployment & go-live
+- [Server Requirements](docs/SERVER-REQUIREMENTS.md) — sizing and prerequisites
 
 ## Architecture
 

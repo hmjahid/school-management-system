@@ -341,9 +341,9 @@ the laravel app is running. but the page is broken. maybe css not loading
 
 the issue not fixed.
 
+commit the five files also
 
-
-
+ensure that the root readme file is updated with the latest chnages in the repo
 
 ensure that all 4 products and the branding webiste has proper user manuals, deployment guide, server requirements documentations files in thier own folders.
 
@@ -352,6 +352,13 @@ ensure that the new variant (nodejs) has integrated in the existing int/bd expor
 create a master xlsx file to track features in all 4 products and compare which fetaures are not implemented and which features already implemented in which products. also add extra columns for tracking, is the feature/function working in the specific product or not
 
 create a master xlsx file to track features in branding websiite to track which fetaures are not implemented and which features already implemented. also add extra columns for tracking, is the feature/function working or not 
+
+create a proper prompt file for completing the above tasks and execute the prompt. continue untill finished
+
+
+
+
+
 
 
 create a child theme of this theme like the elementor child theme so that the theme updates doesnot break/remove custom styles, scripts added by users in the theme files. tell me child theme principle fisrt. temll me how it works. how it depends on main theme?

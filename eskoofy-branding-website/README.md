@@ -21,6 +21,8 @@ See `WORKPLAN.md` Phase 8 and `workplan-implementation-plan.md` for scope.
 
 - [User Manual](docs/USER-MANUAL.md) — public site, license-server API, customer & admin dashboards
 - [Setup Guide](docs/SETUP-GUIDE.md) — install, database, configuration, license settings, deploy
+- [Deployment Guide](docs/DEPLOYMENT-GUIDE.md) — production deployment & license-server operations
+- [Server Requirements](docs/SERVER-REQUIREMENTS.md) — sizing and prerequisites
 
 ## Stack
 

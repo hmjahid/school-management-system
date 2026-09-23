@@ -13,6 +13,7 @@ Variants are build-time profiles of one codebase — never separate forks (monor
 |---|---|---|
 | `app` | `bd`, `int` | `build/dist/eskoofy-laravel-app-<variant>.zip` |
 | `php` | `bd`, `int` | `build/dist/eskoofy-php-app-<variant>.zip` |
+| `node` | `bd`, `int` | `build/dist/eskoofy-nodejs-app-<variant>.zip` |
 | `theme` | `bd`, `int` | `build/dist/eskoofy-wp-theme-<variant>.zip` |
 | `website` | `int` (only) | `build/dist/eskoofy-branding-website-int.zip` |
 
@@ -25,7 +26,9 @@ Raw staged trees are left in `build/artifacts/` for inspection; the zips go to `
 2. `export.sh` rsyncs the product folder, excluding dev/local files (`.git`, `node_modules`,
    `vendor`, `.env`, backups, tests where appropriate).
 3. Applies the variant: copies the profile's config/data over the default, strips `bn`
-   locale for `int`, drops BD-only gateway/branding files for `int`, etc.
+   locale for `int` (for `node` the `lang/bn.ts` bundle is dropped), drops BD-only
+   gateway/branding files for `int`, etc. The Node artifact ships **source** — the
+   deployer runs `npm ci && npm run build` on the server (see `eskoofy-nodejs-app/docs/DEPLOYMENT-GUIDE.md`).
 4. Runs the product's smoke build (e.g. `npm run build` for the app, `wp i18n make-pot`
    for the theme when `wp-cli` is available).
 5. Zips the staged tree into `build/dist/`.

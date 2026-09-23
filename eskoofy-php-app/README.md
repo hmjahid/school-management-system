@@ -8,6 +8,8 @@ not available. See `WORKPLAN.md` Phase 6.
 
 - [User Manual](docs/USER-MANUAL.md) — module-by-module usage for staff, students & guardians
 - [Setup Guide](docs/SETUP-GUIDE.md) — install, database, configuration, web server, cron
+- [Deployment Guide](docs/DEPLOYMENT-GUIDE.md) — production deployment (shared hosting & VPS)
+- [Server Requirements](docs/SERVER-REQUIREMENTS.md) — sizing and prerequisites
 
 ## Stack
 

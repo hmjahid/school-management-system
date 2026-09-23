@@ -205,6 +205,12 @@ jobs:
       - name: Export website (English-only licensing site)
         run: ./build/export.sh website int
 
+      - name: Export BD node
+        run: ./build/export.sh node bd
+
+      - name: Export INT node
+        run: ./build/export.sh node int
+
       - name: Verify BD artifact exists
         run: test -f build/dist/eskoofy-laravel-app-bd.zip
 
@@ -222,6 +228,12 @@ jobs:
 
       - name: Verify INT php artifact exists
         run: test -f build/dist/eskoofy-php-app-int.zip
+
+      - name: Verify BD node artifact exists
+        run: test -f build/dist/eskoofy-nodejs-app-bd.zip
+
+      - name: Verify INT node artifact exists
+        run: test -f build/dist/eskoofy-nodejs-app-int.zip
 
       - name: Verify website artifact exists
         run: test -f build/dist/eskoofy-branding-website-int.zip
@@ -268,6 +280,27 @@ jobs:
             exit 1
           fi
 
+      - name: Smoke — INT node has no lang/bn.ts
+        run: |
+          if unzip -l build/dist/eskoofy-nodejs-app-int.zip | grep -q "lang/bn.ts"; then
+            echo "error: bn lang bundle leaked into int node artifact"
+            exit 1
+          fi
+
+      - name: Smoke — BD node has lang/bn.ts
+        run: |
+          if ! unzip -l build/dist/eskoofy-nodejs-app-bd.zip | grep -q "lang/bn.ts"; then
+            echo "error: bd node artifact missing lang/bn.ts"
+            exit 1
+          fi
+
+      - name: Smoke — INT node .env is variant int
+        run: |
+          if unzip -p build/dist/eskoofy-nodejs-app-int.zip "eskoofy-nodejs-app-int/.env" | grep -q "ESKOOFY_VARIANT=bd"; then
+            echo "error: int node artifact has bd variant"
+            exit 1
+          fi
+
       - name: Upload BD app artifact
         uses: actions/upload-artifact@v4
         with:
@@ -303,6 +336,18 @@ jobs:
         with:
           name: eskoofy-php-app-int
           path: build/dist/eskoofy-php-app-int.zip
+
+      - name: Upload BD node artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: eskoofy-nodejs-app-bd
+          path: build/dist/eskoofy-nodejs-app-bd.zip
+
+      - name: Upload INT node artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: eskoofy-nodejs-app-int
+          path: build/dist/eskoofy-nodejs-app-int.zip
 
       - name: Upload website artifact
         uses: actions/upload-artifact@v4

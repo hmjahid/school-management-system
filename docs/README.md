@@ -13,6 +13,7 @@ docs/
 ├── quality/         QA audits, remediation plans, senior-PM review artifacts
 ├── planning/        Historical plans, audits and reviews (read-only record)
 ├── prompts/         Feature-implementation prompt files (used by the propagation gate)
+├── feature-tracking/  Feature matrices (XLSX): 4-product comparison + branding-website tracking
 └── notes/           Scratch notes / journal (tracked)
 ```
 

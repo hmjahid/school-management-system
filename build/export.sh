@@ -7,10 +7,13 @@
 #   ./build/export.sh app int
 #   ./build/export.sh php bd
 #   ./build/export.sh php int
+#   ./build/export.sh node bd
+#   ./build/export.sh node int
 #   ./build/export.sh theme int
 #
 # Products: app (eskoofy-laravel-app, Laravel), php (eskoofy-php-app, raw PHP),
-#           theme (eskoofy-wp-theme, WordPress), website (eskoofy-branding-website, raw PHP).
+#           theme (eskoofy-wp-theme, WordPress), node (eskoofy-nodejs-app, Next.js),
+#           website (eskoofy-branding-website, raw PHP).
 #
 # Output: build/dist/<folder>-<variant>.zip  (e.g. eskoofy-laravel-app-bd.zip)
 #         + the raw tree in build/artifacts/ for inspection.
@@ -18,7 +21,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PRODUCT="${1:?usage: export.sh <product|app|php|theme|website> <variant|bd|int>}"
+PRODUCT="${1:?usage: export.sh <product|app|php|theme|node|website> <variant|bd|int>}"
 VARIANT="${2:?usage: export.sh <product> <variant>}"
 ARTIFACTS="$ROOT/build/artifacts"
 DIST="$ROOT/build/dist"
@@ -164,6 +167,61 @@ case "$PRODUCT" in
 
     mv "$STAGE" "$OUT"
     ;;
+  node)
+    SRC="$ROOT/eskoofy-nodejs-app"
+    [ -d "$SRC" ] || { echo "error: $SRC not found"; exit 1; }
+    OUT="$ARTIFACTS/eskoofy-nodejs-app-$VARIANT"
+    STAGE="$OUT-stage"
+
+    rm -rf "$STAGE" "$OUT"
+    mkdir -p "$STAGE"
+
+    # rsync the Node tree, excluding dev-only / build / local files. The artifact
+    # ships SOURCE — the deployer runs `npm ci && npm run build` (or the Dockerfile).
+    rsync -a \
+        --exclude '.git/' \
+        --exclude 'node_modules/' \
+        --exclude '.next/' \
+        --exclude '.env' \
+        --exclude 'tests/' \
+        --exclude '*.tsbuildinfo' \
+        --exclude 'Dockerfile' \
+        --exclude 'docker-compose.yml' \
+        --exclude '.dockerignore' \
+        --exclude '.gitignore' \
+        "$SRC/" "$STAGE/"
+
+    # Apply variant profile: .env with the profile's overrides. Like the php case,
+    # translate the profile's generic TIMEZONE key to the Node app's APP_TIMEZONE.
+    cp "$STAGE/.env.example" "$STAGE/.env"
+
+    php -r '
+        $overrides = json_decode($argv[1], true)["env"];
+        $path = $argv[2];
+        $env = file_get_contents($path);
+        foreach ($overrides as $line) {
+            $parts = explode("=", $line, 2);
+            $key = $parts[0];
+            if ($key === "TIMEZONE") {
+                $line = "APP_TIMEZONE=" . $parts[1];
+                $key = "APP_TIMEZONE";
+            }
+            if (preg_match("/^${key}=.*$/m", $env)) {
+                $env = preg_replace("/^${key}=.*$/m", $line, $env);
+            } else {
+                $env .= "\n${line}\n";
+            }
+        }
+        file_put_contents($path, $env);
+    ' "$PROFILE_JSON" "$STAGE/.env"
+
+    # Per-variant resource handling: int ships English only (lang/bn.ts stripped).
+    if [ "$STRIP_BN" = "yes" ]; then
+        rm -f "$STAGE/lang/bn.ts"
+    fi
+
+    mv "$STAGE" "$OUT"
+    ;;
   website)
     # The licensing site is English-only / USD / UTC in BOTH variants, so it is
     # always exported as `int`. Passing `bd` simply produces the int artifact.
@@ -210,7 +268,7 @@ case "$PRODUCT" in
     mv "$STAGE" "$OUT"
     ;;
   *)
-    echo "error: unknown product '$PRODUCT' (expected: app|php|theme|website)"
+    echo "error: unknown product '$PRODUCT' (expected: app|php|theme|node|website)"
     exit 1
     ;;
 esac
@@ -221,9 +279,10 @@ ZIP="$DIST/$(basename "$OUT").zip"
 rm -f "$ZIP"
 ( cd "$ARTIFACTS" && zip -rq "$ZIP" "$(basename "$OUT")" )
 
-# INT smoke assertions.
-if [ "$STRIP_BN" = "yes" ] && { [ "$PRODUCT" = "app" ] || [ "$PRODUCT" = "php" ]; }; then
-    if unzip -l "$ZIP" | grep -q "lang/bn/"; then
+# INT smoke assertions: no Bengali lang pack may leak into an int artifact
+# (app/php ship `lang/bn/`, node ships `lang/bn.ts`).
+if [ "$STRIP_BN" = "yes" ] && { [ "$PRODUCT" = "app" ] || [ "$PRODUCT" = "php" ] || [ "$PRODUCT" = "node" ]; }; then
+    if unzip -l "$ZIP" | grep -qE "lang/bn(\.ts|/)"; then
         echo "error: bn lang pack leaked into int artifact"
         exit 1
     fi
