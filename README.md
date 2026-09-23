@@ -28,6 +28,7 @@ products — it is **not a product** itself.
 | `eskoofy-laravel-app/` | School management software | Laravel 12, Blade, Tailwind CSS | Active — most work happens here ([`AGENTS.md`](eskoofy-laravel-app/AGENTS.md)) |
 | `eskoofy-php-app/` | Raw PHP port (no framework) | Native PHP + PDO/MySQL | Deferred — completed port on hold (`WORKPLAN.md` Phase 6, gate 0.2) ([`AGENTS.md`](eskoofy-php-app/AGENTS.md)) |
 | `eskoofy-wp-theme/` | WordPress theme | WP hooks, shortcodes, REST, CPTs | Complete — active sync with app ([`AGENTS.md`](eskoofy-wp-theme/AGENTS.md)) |
+| `eskoofy-wp-theme-child/` | Optional child theme of `eskoofy-wp-theme` (Elementor-style) | WP theme (Template: eskoofy) | Safe place for custom CSS/JS/templates that survive parent updates ([`README.md`](eskoofy-wp-theme-child/README.md)) |
 | `eskoofy-nodejs-app/` | Node.js clone of the app (107 tables, 585 routes, CRUD + public site, i18n, API) | Next.js App Router, Prisma, Tailwind, Vitest | Clone functional (schema/routes/sidebar/CRUD/site verified end to end); pixel-level Blade parity + integrations pending — [`PORTING-STATUS.md`](eskoofy-nodejs-app/docs/PORTING-STATUS.md) ([`AGENTS.md`](eskoofy-nodejs-app/AGENTS.md)) |
 
 ### Branding website (not a product)
@@ -72,6 +73,7 @@ products — it is **not a product** itself.
 ├── eskoofy-laravel-app/          Laravel 12 app (bd/int profiles via config/eskoolfy.php)
 ├── eskoofy-php-app/          Raw PHP port — no Composer at runtime, shared hosting
 ├── eskoofy-wp-theme/        WordPress theme — plugin-theme hybrid
+├── eskoofy-wp-theme-child/  Optional child theme (Template: eskoofy) — update-safe custom CSS/JS/templates
 ├── eskoofy-nodejs-app/      Node.js clone — Next.js App Router + Prisma + Tailwind
 ├── eskoofy-branding-website/      Branding site + license server (NOT a product) — int-only
 ├── build/                BD/INT export box + feature-propagation gate (export.sh, propagate/)
@@ -228,6 +230,12 @@ Open **http://localhost:8080** (login at `/login/`, dashboard at `/dashboard/`).
 Without Docker: copy the theme into `wp-content/themes/eskoofy`, activate it, then
 Settings → Eskoofy. Custom DB tables are created automatically on activation. Lint with
 `cd eskoofy-wp-theme && composer install && composer run lint`.
+
+> **Customising without breaking updates:** activate the
+> [`eskoofy-wp-theme-child`](eskoofy-wp-theme-child/) child theme and put custom
+> styles/scripts in its `custom.*` files, or copy any parent template into it.
+> With a child theme active, WP loads only the child's `functions.php`, so the child
+> re-requires the parent bootstrap — the theme stays feature-complete either way.
 
 ### Build-box export
 
