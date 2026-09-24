@@ -6,7 +6,7 @@
 # every product — can run side by side at once.
 #
 #   ./docker/dev.sh up all                 build + start every product  (default)
-#   ./docker/dev.sh up laravel|node|php|theme   start one product
+#   ./docker/dev.sh up laravel|node|php|theme|website   start one product
 #   ./docker/dev.sh up node --build        ... but rebuild its image first
 #   ./docker/dev.sh down [all|PROD]        stop (default: all; keeps volumes)
 #   ./docker/dev.sh seed [PROD|all]        seed demo data (DB + demo accounts)
@@ -30,26 +30,29 @@ COMPOSE_LARAVEL="$ROOT/docker/laravel-dev/docker-compose.yml"
 COMPOSE_NODE="$ROOT/docker/node-dev/docker-compose.yml"
 COMPOSE_PHP="$ROOT/docker/php-dev/docker-compose.yml"
 COMPOSE_THEME="$ROOT/docker/theme-test/docker-compose.yml"
+COMPOSE_WEBSITE="$ROOT/docker/website-dev/docker-compose.yml"
 
-PRODUCTS=(laravel node php theme)
+PRODUCTS=(laravel node php theme website)
 
 compose_for() {
   local p="$1"
   case "$p" in
-    laravel) echo "$COMPOSE_LARAVEL";;
-    node)    echo "$COMPOSE_NODE";;
-    php)     echo "$COMPOSE_PHP";;
-    theme)   echo "$COMPOSE_THEME";;
-    *)       echo "unknown product: $p" >&2; exit 1;;
+    laravel)  echo "$COMPOSE_LARAVEL";;
+    node)     echo "$COMPOSE_NODE";;
+    php)      echo "$COMPOSE_PHP";;
+    theme)    echo "$COMPOSE_THEME";;
+    website)  echo "$COMPOSE_WEBSITE";;
+    *)        echo "unknown product: $p" >&2; exit 1;;
   esac
 }
 
 url_for() {
   case "$1" in
-    laravel) echo "http://localhost:8090";;
-    node)    echo "http://localhost:3000";;
-    php)     echo "http://localhost:8051";;
-    theme)   echo "http://localhost:8080";;
+    laravel)  echo "http://localhost:8090";;
+    node)     echo "http://localhost:3000";;
+    php)      echo "http://localhost:8051";;
+    theme)    echo "http://localhost:8080";;
+    website)  echo "http://localhost:8052";;
   esac
 }
 
@@ -131,6 +134,9 @@ cmd_seed() {
   if [ "$target" = all ] || [ "$target" = theme ]; then
     echo "==> seed theme (handled by its setup service on boot) ..."
   fi
+  if [ "$target" = all ] || [ "$target" = website ]; then
+    echo "==> seed website (schema + admin/demo data imported on first boot) ..."
+  fi
   echo "Done. Demo credentials: docs/operations/DEMO-CREDENTIALS.md"
 }
 
@@ -177,7 +183,7 @@ cmd_exec() {
   local svc
   case "$p" in
     laravel) svc=web;; node) svc=app;; php) svc=app;;
-    theme) svc=wp;;
+    theme) svc=wp;; website) svc=app;;
   esac
   dc "$p" exec -T "$svc" "$@"
 }
@@ -192,5 +198,5 @@ case "$cmd" in
   urls|url)        cmd_ps_all;;
   build)           cmd_build "${1:-all}";;
   exec)            cmd_exec "$@";;
-  *) echo "usage: $0 {up|down|seed|logs|ps|urls|build|exec} [all|laravel|node|php|theme]" >&2; exit 1;;
+  *) echo "usage: $0 {up|down|seed|logs|ps|urls|build|exec} [all|laravel|node|php|theme|website]" >&2; exit 1;;
 esac

@@ -1,0 +1,76 @@
+# Eskoofy branding website (marketing + license server) — dev harness.
+#
+#   ./docker/dev.sh up website
+#   http://localhost:8052
+#
+# The site source is bind-mounted at /var/www; PHP re-reads every file per
+# request, so edits apply on the next page refresh. The PHP built-in server
+# uses docker/website-dev/router.php (serves public/ statics, routes the rest
+# through the front controller) and its own container DB (schema + demo
+# content imported on first boot via database/schema.sql).
+
+name: eskoofy-website
+
+services:
+  db:
+    image: mariadb:11
+    container_name: esk-website-db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpw
+      MARIADB_DATABASE: eskoofy_website
+      MARIADB_USER: esk
+      MARIADB_PASSWORD: eskpw
+    ports:
+      - "33070:3306"
+    volumes:
+      - esk-website-db-data:/var/lib/mysql
+      # Full schema + admin/demo seed, imported on first boot (empty data dir)
+      - ../../eskoofy-branding-website/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    networks:
+      - esk-website-net
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: esk-website-app:dev
+    container_name: esk-website-app
+    restart: unless-stopped
+    working_dir: /var/www
+    # Run as the host user so bind-mounted storage/ stays yours.
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    ports:
+      - "8052:8052"
+    volumes:
+      - ../../eskoofy-branding-website:/var/www:cached
+      # The front controller loads .env unconditionally, so swap in a
+      # container-specific .env (deeper file mount wins over the bind mount).
+      - ./website.env:/var/www/.env:ro
+      # Router lives outside the product tree so Docker never materializes a
+      # stray file inside the bind mount (see eskoofy-php-app/router.php).
+      - ./router.php:/router.php:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    command:
+      - php
+      - -S
+      - 0.0.0.0:8052
+      - -t
+      - /var/www/public
+      - /router.php
+    networks:
+      - esk-website-net
+
+networks:
+  esk-website-net:
+
+volumes:
+  esk-website-db-data:
