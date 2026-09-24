@@ -77,7 +77,7 @@ products — it is **not a product** itself.
 ├── eskoofy-nodejs-app/      Node.js clone — Next.js App Router + Prisma + Tailwind
 ├── eskoofy-branding-website/      Branding site + license server (NOT a product) — int-only
 ├── build/                BD/INT export box + feature-propagation gate (export.sh, propagate/)
-├── docker/               Docker dev harnesses for all 4 products (dev.sh + docker/{laravel,node,php,theme}-dev/)
+├── docker/               Docker dev harnesses for all 5 products (dev.sh + docker/{laravel,node,php,theme,website}-dev/)
 ├── docs/                 Docs index + guides/operations/design/features/quality/planning/prompts/notes (map: docs/README.md)
 │   └── feature-tracking/ Feature matrices: products-feature-matrix.xlsx + branding-website-feature-matrix.xlsx (+ generators)
 ├── WORKPLAN.md           Multi-product plan (phases, gates, milestones)
@@ -107,13 +107,13 @@ uses its own port so they can run side by side:
 
 Every product has its own Docker dev harness — **no per-product MySQL/Node install needed**.
 Each runs under its own Compose project with globally unique container names and
-non-overlapping host ports, so any subset (or all four) can run simultaneously. Code is
+non-overlapping host ports, so any subset (or all five) can run simultaneously. Code is
 **bind-mounted** into the containers, so source edits are picked up on the next browser
 refresh / hot-reload — no image rebuild:
 
 ```bash
 ./docker/dev.sh up                # start ALL products
-./docker/dev.sh up laravel        # start one: theme | laravel | node | php
+./docker/dev.sh up laravel        # start one: theme | laravel | node | php | website
 ./docker/dev.sh down              # stop all (keeps DB volumes)
 ./docker/dev.sh seed laravel      # re-seed demo data for one product
 ./docker/dev.sh ps                # container status
@@ -126,10 +126,13 @@ refresh / hot-reload — no image rebuild:
 | Laravel | <http://localhost:8090> (+ Vite HMR :5173) | PHP built-in server + MySQL 8 | `33068` |
 | Node.js | <http://localhost:3000> | Next.js dev server + MariaDB | — (internal) |
 | Raw PHP | <http://localhost:8051> | PHP built-in server + MariaDB | `33069` |
+| Branding website | <http://localhost:8052> | PHP built-in server + MariaDB | `33070` |
 
 Laravel migrations auto-run on boot and a fresh DB auto-seeds the demo accounts
 (`docs/operations/DEMO-CREDENTIALS.md`); Node/PHP need a one-time
-`./docker/dev.sh seed node|php`. Full reference: [`docker/README.md`](docker/README.md).
+`./docker/dev.sh seed node|php`; the branding website auto-imports its schema +
+admin/demo content on a fresh DB (admin `admin@eskoofy.com` / `admin123`). Full
+reference: [`docker/README.md`](docker/README.md).
 
 ### eskoofy-laravel-app (Laravel)
 
@@ -215,6 +218,11 @@ container (host port `3307`, includes the `eskoofy_website` schema):
 `docker start esk-mariadb`. The site itself is served by `php -S` — there is no
 web container. See the *Database via Docker* section in
 [`docs/guides/DEVELOPMENT.md`](docs/guides/DEVELOPMENT.md).
+
+> Prefer the all-in-one Docker harness (MariaDB included)?
+> `./docker/dev.sh up website` serves the site on <http://localhost:8052> with
+> its own container DB (schema + admin/demo content auto-imported on first
+> boot) — see *Docker dev harnesses* above.
 
 Single international (int) site: USD pricing, en/bn language switcher, PWA shell,
 license management API at `/api/v1`. Admin seed: `admin@eskoofy.com` / `admin123`.
