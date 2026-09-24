@@ -423,9 +423,10 @@ class PaymentController extends Controller
         }
 
         $rows = $this->db->fetchAll(
-            "SELECT p.*, u.name as created_by_name
+            "SELECT p.*, u.name as created_by_name, g.currency AS gateway_currency
              FROM payments p
              LEFT JOIN users u ON p.created_by = u.id
+             LEFT JOIN payment_gateways g ON p.payment_method = g.code AND g.deleted_at IS NULL
              WHERE {$where}
              ORDER BY p.created_at DESC",
             $params
@@ -444,7 +445,7 @@ class PaymentController extends Controller
                 'Total'           => (float) $payment['total_amount'],
                 'Paid'            => (float) $payment['paid_amount'],
                 'Due'             => (float) $payment['due_amount'],
-                'Currency'        => 'BDT',
+                'Currency'        => $payment['gateway_currency'] ?: config('payment.currency', 'BDT'),
                 'Reference'       => $payment['reference_number'],
                 'Transaction ID'  => $payment['transaction_id'],
                 'Description'     => $details['description'] ?? '',

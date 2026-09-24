@@ -34,7 +34,7 @@ if ( isset( $_POST['esk_refund_request'] ) ) {
 			'user_id'      => get_current_user_id(),
 			'processed_by' => get_current_user_id(),
 			'amount'       => $amount,
-			'currency'     => 'BDT',
+			'currency'     => esk_refund_currency( $id ),
 			'status'       => 'pending',
 			'reason'       => $reason,
 		) );

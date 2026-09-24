@@ -40,6 +40,54 @@ export interface BackupManifest {
   createdAt: string;
   engine: string;
   tableCount: number;
+  /** bd|int — which Eskoofy profile produced the backup. */
+  eskoofyVariant: string | null;
+  /**
+   * Identity of the source's secret-encryption key. The Laravel variant reports
+   * sha256(APP_KEY); the Node variant has no encryption layer and reports null.
+   */
+  cipherFingerprint: string | null;
+  /** Columns whose values the source wrapped with its encryption. */
+  sensitiveColumns: Record<string, string[]>;
+}
+
+/**
+ * Columns that travel encrypted in the Laravel app (its `encrypted` casts).
+ * The Node variant stores these plaintext, but lists them so a Laravel→Node or
+ * Node→Laravel restore never moves un-decryptable ciphertext (or plaintext into
+ * an encrypted column). Mirror of the Laravel PortableBackupService.
+ */
+export const SENSITIVE_COLUMNS: Record<string, string[]> = {
+  payment_gateways: ["api_key", "api_secret", "api_username", "api_password"],
+  website_settings: [
+    "bkash_merchant_number",
+    "bkash_api_key",
+    "bkash_api_secret",
+    "bkash_username",
+    "bkash_password",
+    "bkash_app_key",
+    "bkash_app_secret",
+    "twilio_sid",
+    "twilio_auth_token",
+    "twilio_from_number",
+    "mail_username",
+    "mail_password",
+  ],
+};
+
+/**
+ * Fingerprint of the receiving engine's encryption environment. The Node
+ * variant has none, so it is always null.
+ */
+export const TARGET_CIPHER_FINGERPRINT = null;
+
+/**
+ * Secrets are only kept when source and target fingerprints match. Both-null
+ * matches (Node→Node) keep plaintext; any Laravel↔Node mix or a foreign
+ * Laravel key clears the column instead of storing unusable values.
+ */
+export function secretsCompatible(sourceFingerprint: string | null): boolean {
+  return sourceFingerprint === TARGET_CIPHER_FINGERPRINT;
 }
 
 /** Narrow DB surface the engine needs — faked in unit tests, real via Prisma. */
@@ -108,6 +156,9 @@ function buildManifest(variant: string, engine: string, tableCount: number): Bac
     createdAt: formatNow(),
     engine,
     tableCount,
+    eskoofyVariant: process.env.ESKOOFY_VARIANT ?? "int",
+    cipherFingerprint: null,
+    sensitiveColumns: SENSITIVE_COLUMNS,
   };
 }
 
@@ -146,7 +197,24 @@ export async function buildDump(db: BackupDb, tables: string[]): Promise<{ dump:
 
 const INSERT_CHUNK = 200;
 
-export async function restoreDump(db: BackupDb, dump: PortableDump): Promise<void> {
+export interface RestoreOptions {
+  /** Columns wrapped by the source's encryption (manifest.sensitiveColumns). */
+  sensitiveColumns?: Record<string, string[]>;
+  /** Source fingerprint (manifest.cipherFingerprint). */
+  sourceFingerprint?: string | null;
+  /** Source Eskoofy variant (manifest.eskoofyVariant). */
+  eskoofyVariant?: string | null;
+}
+
+export interface RestoreResult {
+  /** Sensitive columns cleared because the cipher fingerprints differ. */
+  cleared: string[];
+  /** Human-readable reconciliation notes (cross-variant restores only). */
+  reconciled: string[];
+}
+
+export async function restoreDump(db: BackupDb, dump: PortableDump, options: RestoreOptions = {}): Promise<RestoreResult> {
+  const result: RestoreResult = { cleared: [], reconciled: [] };
   await db.disableForeignKeys();
   try {
     for (const table of dump.tables) {
@@ -169,9 +237,98 @@ export async function restoreDump(db: BackupDb, dump: PortableDump): Promise<voi
         await db.run(sql, flatParams);
       }
     }
+    result.cleared = await clearSensitiveColumns(db, dump.tables, options.sensitiveColumns, options.sourceFingerprint);
+    result.reconciled = await reconcileVariant(db, dump.tables, options.eskoofyVariant);
   } finally {
     await db.enableForeignKeys();
   }
+  return result;
+}
+
+/**
+ * Clear every sensitive column the source encrypted unless the cipher
+ * fingerprints match. A refused (null) value beats storing ciphertext the
+ * target cannot decrypt (or plaintext in an encrypted column).
+ */
+async function clearSensitiveColumns(
+  db: BackupDb,
+  tables: BackedUpTable[],
+  sensitiveColumns: Record<string, string[]> | undefined,
+  sourceFingerprint: string | null | undefined,
+): Promise<string[]> {
+  if (!sensitiveColumns) return [];
+  if (secretsCompatible(sourceFingerprint ?? null)) return [];
+
+  const cleared: string[] = [];
+  for (const table of tables) {
+    const safe = assertSafeTable(table.table);
+    for (const column of sensitiveColumns[safe] ?? []) {
+      if (!table.columns.includes(column)) continue;
+      await db.run(`UPDATE \`${safe}\` SET \`${column}\` = NULL`);
+      cleared.push(`${safe}.${column}`);
+    }
+  }
+  return cleared;
+}
+
+/**
+ * Re-set variant-owned configuration rows to the receiving profile after a
+ * cross-variant restore. Same/unknown-variant restores run verbatim.
+ */
+export async function reconcileVariant(
+  db: BackupDb,
+  tables: BackedUpTable[],
+  sourceVariant: string | null | undefined,
+): Promise<string[]> {
+  const target = (process.env.ESKOOFY_VARIANT ?? "int") as "bd" | "int";
+  if (sourceVariant == null || sourceVariant === target) return [];
+
+  const { eskoolfy } = await import("@/config/eskoolfy");
+  const spec = eskoolfy.restore;
+  const eligible = spec.gateways[target];
+  const currency = spec.settings.currency[target];
+  const notes: string[] = [];
+
+  const gateways = await db.fetchAll("SELECT code FROM `payment_gateways`");
+  for (const row of gateways) {
+    const code = String(row.code ?? "");
+    if (!eligible.includes(code)) {
+      await db.run("UPDATE `payment_gateways` SET `is_active` = 0 WHERE `code` = ?", [code]);
+      notes.push(`Gateway '${code}' deactivated (not part of the ${target} profile).`);
+    }
+  }
+  for (const code of eligible) {
+    const exists = gateways.some((row) => String(row.code ?? "") === code);
+    if (exists) {
+      await db.run("UPDATE `payment_gateways` SET `is_active` = 1, `currency` = ? WHERE `code` = ?", [currency, code]);
+      notes.push(`Gateway '${code}' activated (${currency}).`);
+    } else {
+      notes.push(`Gateway '${code}' is missing after restore — add it in Settings › Payments.`);
+    }
+  }
+
+  const settings = spec.settings;
+  await db.run("UPDATE `website_settings` SET `currency` = ?, `default_payment_method` = ?, `default_locale` = ?", [
+    currency,
+    settings.defaultPaymentMethod[target],
+    settings.defaultLocale[target],
+  ]);
+  notes.push(`website_settings reconciled to the ${target} profile (${currency}).`);
+
+  if (target === "int" && spec.stripBanglaForInt) {
+    for (const table of tables) {
+      if (!["website_settings", "admission_settings", "website_contents"].includes(table.table)) continue;
+      for (const column of table.columns) {
+        const isBn = column.endsWith("_bn");
+        const isPaymentNumber = table.table === "admission_settings" && column === "payment_number";
+        if (!isBn && !isPaymentNumber) continue;
+        await db.run(`UPDATE \`${assertSafeTable(table.table)}\` SET \`${column}\` = NULL`);
+        notes.push(`${table.table}.${column} cleared (Bengali content has no home in the int profile).`);
+      }
+    }
+  }
+
+  return notes;
 }
 
 // ── Prisma adapter ───────────────────────────────────────────────────────────

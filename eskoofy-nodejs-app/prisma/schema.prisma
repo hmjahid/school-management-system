@@ -1756,7 +1756,7 @@ model students {
   roll_number              String?
   blood_group              String?
   religion                 String?
-  nationality              String                    @default("Bangladeshi")
+  nationality              String?                   @default("Bangladeshi")
   nid_number               String?
   birth_certificate_number String?
   permanent_address        String?
@@ -1764,7 +1764,7 @@ model students {
   city                     String?
   state                    String?
   zip_code                 String?
-  country                  String                    @default("Bangladesh")
+  country                  String?                   @default("Bangladesh")
   phone_1                  String?
   phone_2                  String?
   email                    String?

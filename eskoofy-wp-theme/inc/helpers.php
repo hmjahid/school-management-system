@@ -39,6 +39,31 @@ if ( ! function_exists( 'esk_format_currency' ) ) {
 	}
 }
 
+if ( ! function_exists( 'esk_refund_currency' ) ) {
+	/**
+	 * Resolve the ISO currency code for a refund from the linked payment's
+	 * gateway. Falls back to 'BDT' for legacy rows with no gateway currency.
+	 */
+	function esk_refund_currency( int $payment_id ): string {
+		global $wpdb;
+
+		$method = $wpdb->get_var( $wpdb->prepare(
+			"SELECT payment_method FROM {$wpdb->prefix}esk_payments WHERE id = %d LIMIT 1",
+			$payment_id
+		) );
+		if ( ! $method ) {
+			return 'BDT';
+		}
+
+		$currency = $wpdb->get_var( $wpdb->prepare(
+			"SELECT currency FROM {$wpdb->prefix}esk_payment_gateways WHERE code = %s LIMIT 1",
+			$method
+		) );
+
+		return $currency ? $currency : 'BDT';
+	}
+}
+
 if ( ! function_exists( 'esk_generate_number' ) ) {
 	/**
 	 * Generate a unique prefixed number (admission, invoice, etc.).

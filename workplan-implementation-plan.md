@@ -166,11 +166,24 @@ Verification baseline (2026-09-11): `cd eskoofy-laravel-app && composer test` �
 | 10.20 | CI security gates (G5) | ✅ done | `composer audit` added to all 4 CI jobs; new `security` job (gitleaks + hardcoded-credential grep); added to export `needs`. |
 | 10.21 | Security tests | ✅ done | php `DashboardAccessConfigTest` (3); website `LicenseApiSecurityTest` (3); app `HtmlSanitizerTest` (4). Suites: app 927, php 314, website 95 — all green. |
 
+## Phase 11 — Cross-variant data portability — COMPLETE
+
+| # | Task | Status | Notes |
+|---|------|--------|-------|
+| 11.1 | Portable manifest v2 fields (Laravel + Node) | ✅ done | `MANIFEST.json` gains `eskoofyVariant` (bd/int), `cipherFingerprint` (sha256 of APP_KEY, Node: null), `sensitiveColumns` (from the Laravel models' `encrypted` casts). Same format/version, additive. |
+| 11.2 | Encrypted-secret fingerprint check | ✅ done | Restore keeps a sensitive column's value only when source/target fingerprints match (Laravel→same Laravel, Node→Node); otherwise clears it with a per-column warning. Prevents `DecryptException` crashes when a bd/int backup is restored under another APP_KEY or into Node. Laravel `PortableBackupService::clearSensitiveColumns`; Node `clearSensitiveColumns` + `secretsCompatible`. |
+| 11.3 | Cross-variant config reconciliation | ✅ done | When `eskoofyVariant` differs from the receiving `eskoolfy.variant`: gateways activated to the receiving profile (currency set), non-eligible ones deactivated (never deleted); `website_settings` currency / default_payment_method / default_locale reset; int restores strip `*_bn` content + admission `payment_number`. Spec is config/data (`eskoolfy.restore`) in Laravel, Node, php-app. Same-variant restores stay byte-for-byte. |
+| 11.4 | Config-driven student import defaults | ✅ done | `import.student_defaults` per variant (bd: Bangladeshi/Bangladesh; int: null). `students.nationality/country` made nullable (app migration + Node prisma optional). Fixes latent `users.password NOT NULL` bug in `DashboardBulkController::importStudent/importTeacher` (firstOrCreate now creates password atomically). Node `upsertStudentRow` mirrors the profile defaults. |
+| 11.5 | php-app restore reconcile + export currency | ✅ done | SQL backups carry `-- eskoofy-variant:` header; `BackupController::restore` runs `VariantRestoreReconciler` on cross-variant restores. Payment CSV export `Currency` now from gateway row (fallback `config('payment.currency')`) instead of hardcoded BDT. |
+| 11.6 | WP theme refund currency | ✅ done | `esk_refund_currency()` (`inc/helpers.php`) resolves the linked payment's gateway currency; both refund-insert views (fee-payments, refunds) use it instead of hardcoded `'BDT'`. |
+| 11.7 | Tests + suites | ✅ done | Laravel +15 tests (938 total): manifest fields, fingerprint keep/clear, cross-variant reconcile, bd/int import defaults. Node +6 tests (107 total). php-app `VariantRestoreReconcilerTest` (316 total). All green: Laravel `composer test` 938/2431, Pint clean, Node 107 + typecheck + route:parity OK, php-app 316/818. |
+| 11.8 | Docs | ✅ done | `docs/design/DATA-PORTABILITY.md` rewritten (contract §1a, restore rules §2a/§2b, CSV defaults §3, php/WP §4); `docs/operations/BACKUP-RESTORE.md` portable section. |
+
 ---
 
 ## Summary
 
-- ✅ Complete: Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6 (full raw PHP port + tests + CI), Phase 7 (full WP hybrid), Phase 8 (website + license server + i18n + PWA + geo-language + marketing blog), Phase 9 (frontend social parity + dashboard/sidebar parity merge across app/php/theme + variant blueprint), Phase 10 (security hardening per docs/security/SECURITY-IMPLEMENTATION-PLAN.md).
+- ✅ Complete: Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6 (full raw PHP port + tests + CI), Phase 7 (full WP hybrid), Phase 8 (website + license server + i18n + PWA + geo-language + marketing blog), Phase 9 (frontend social parity + dashboard/sidebar parity merge across app/php/theme + variant blueprint), Phase 10 (security hardening per docs/security/SECURITY-IMPLEMENTATION-PLAN.md), Phase 11 (cross-variant data portability: manifest v2, fingerprint-gated encrypted secrets, variant reconciliation, config-driven import defaults).
 
 ## File counts
 

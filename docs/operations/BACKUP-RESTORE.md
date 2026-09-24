@@ -56,6 +56,33 @@ gunzip -k storage/app/backups/pgsql_YYYY-MM-DD_HHmmss.sql.gz
 psql school_db < pgsql_backup.sql
 ```
 
+## Portable backups (`backup:run` / `backup:restore`)
+
+`backup:run` writes a **portable** archive (`MANIFEST.json` + `database/tables.json` +
+`storage/app/public/**`) that every Eskoofy variant can read — including across variants
+(`bd` ↔ `int`). See `docs/design/DATA-PORTABILITY.md` for the full contract.
+
+```bash
+php artisan backup:run                    # → storage/app/backups/backup_<ts>_<rand>.zip
+php artisan backup:restore backup_….zip   # interactive confirm
+php artisan backup:restore backup_….zip --force
+```
+
+Restore behavior worth knowing:
+
+- **Encrypted credentials** (`payment_gateways.*`, `website_settings.bkash_*`/`twilio_*`/`mail_*`)
+  are kept only when the backup was taken with the **same `APP_KEY`**. Restoring a backup
+  whose `cipherFingerprint` differs clears those columns (the command warns per column) —
+  re-enter the credentials after restore. Never restore a backup from another install and
+  expect its secrets to work.
+- **Cross-variant restores** (`eskoofyVariant` in the manifest differs from
+  `ESKOOFY_VARIANT`) reconcile variant-owned config to the receiving profile: the receiving
+  variant's gateways are activated (with its currency), `website_settings` currency /
+  default payment method / locale are reset, and int restores strip Bengali-only content
+  and the BD admission `payment_number`. Business data (students, staff, fees, results)
+  always restores verbatim.
+- Restoring an archive on the **same variant & same key** is byte-for-byte as before.
+
 ## Restore verification (required monthly)
 
 1. Restore the latest backup into a scratch database (ideally staging).

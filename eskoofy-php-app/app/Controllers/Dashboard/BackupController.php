@@ -8,6 +8,7 @@ use App\Core\Controller;
 use App\Core\Database;
 use App\Core\DatabaseInterface;
 use App\Core\Session;
+use App\Services\VariantRestoreReconciler;
 
 class BackupController extends Controller
 {
@@ -70,7 +71,8 @@ class BackupController extends Controller
             "SELECT TABLE_NAME AS `name` FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_TYPE = 'BASE TABLE' ORDER BY TABLE_NAME ASC"
         );
 
-        $output = "-- Eskoofy Backup {$timestamp}\n\n";
+        $output = "-- Eskoofy Backup {$timestamp}\n";
+        $output .= '-- eskoofy-variant: ' . (string) (config('eskoolfy.variant') ?? 'bd') . "\n\n";
 
         foreach ($tables as $table) {
             $tableName = $table['name'];
@@ -146,13 +148,29 @@ class BackupController extends Controller
 
         try {
             $sql = (string) file_get_contents($path);
+            $sourceVariant = null;
+            if (preg_match('/^-- eskoofy-variant:\s*(bd|int)/m', $sql, $matches)) {
+                $sourceVariant = $matches[1];
+            }
             foreach ($this->splitSqlStatements($sql) as $statement) {
                 if ($statement === '') {
                     continue;
                 }
                 $this->db->query($statement);
             }
-            Session::getInstance()->flash('success', 'Restore completed.');
+            $targetVariant = (string) (config('eskoolfy.variant') ?? 'bd');
+            if ($sourceVariant !== null && $sourceVariant !== $targetVariant) {
+                $reconciled = (new VariantRestoreReconciler($this->db))->reconcile($sourceVariant);
+                Session::getInstance()->flash(
+                    'success',
+                    'Restore completed. Cross-variant restore ('
+                        . $sourceVariant . ' → ' . $targetVariant
+                        . '): variant settings reconciled to this profile.'
+                        . ($reconciled !== [] ? ' ' . implode(' | ', array_slice($reconciled, 0, 8)) . (count($reconciled) > 8 ? '…' : '') : '')
+                );
+            } else {
+                Session::getInstance()->flash('success', 'Restore completed.');
+            }
         } catch (\Throwable $e) {
             Session::getInstance()->flash('error', 'Restore failed: ' . $e->getMessage());
         }

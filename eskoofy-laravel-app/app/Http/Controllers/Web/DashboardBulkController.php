@@ -168,12 +168,12 @@ class DashboardBulkController extends Controller
             [
                 'name' => $name,
                 'email_verified_at' => now(),
+                'password' => Hash::make((string) ($row['password'] ?? 'password')),
             ]
         );
-        $created = ! $user->wasRecentlyCreated === false;
+        $created = $user->wasRecentlyCreated;
 
         if ($created) {
-            $user->password = Hash::make((string) ($row['password'] ?? 'password'));
             $user->role_id = $studentRole?->id;
             $user->save();
         }
@@ -186,6 +186,8 @@ class DashboardBulkController extends Controller
         $nameParts = explode(' ', $name, 2);
         $firstName = $nameParts[0];
         $lastName = $nameParts[1] ?? $nameParts[0];
+
+        $defaults = config('eskoolfy.import.student_defaults.'.config('eskoolfy.variant', 'bd'), []);
 
         Student::updateOrCreate(
             ['admission_number' => $admission],
@@ -201,8 +203,8 @@ class DashboardBulkController extends Controller
                 'phone' => $row['phone'] ?? null,
                 'present_address' => $row['present_address'] ?? null,
                 'status' => $row['status'] ?? 'active',
-                'nationality' => 'Bangladeshi',
-                'country' => 'Bangladesh',
+                'nationality' => $defaults['nationality'] ?? null,
+                'country' => $defaults['country'] ?? null,
             ]
         );
 
@@ -224,11 +226,11 @@ class DashboardBulkController extends Controller
             [
                 'name' => $name,
                 'email_verified_at' => now(),
+                'password' => Hash::make((string) ($row['password'] ?? 'password')),
             ]
         );
 
         if ($user->wasRecentlyCreated) {
-            $user->password = Hash::make((string) ($row['password'] ?? 'password'));
             $user->role_id = $teacherRoleId;
             $user->save();
         }

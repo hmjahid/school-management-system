@@ -1,6 +1,7 @@
 import { hashPassword } from "@/lib/auth";
 import { buildCsv, exportFilename, toYmd, type BulkResource } from "@/lib/bulk";
 import { prisma } from "@/lib/prisma";
+import { profile } from "@/config/eskoolfy";
 
 /**
  * Prisma-backed bulk export/import, mirroring the Laravel app's
@@ -138,6 +139,7 @@ export async function upsertStudentRow(row: Record<string, string | null>): Prom
   const nameParts = name.split(" ");
   const firstName = nameParts[0];
   const lastName = nameParts.slice(1).join(" ") || firstName;
+  const { studentDefaults } = profile;
 
   await prisma.students.upsert({
     where: { admission_number: admission },
@@ -153,8 +155,8 @@ export async function upsertStudentRow(row: Record<string, string | null>): Prom
       phone: row.phone,
       present_address: row.present_address,
       status: row.status ?? "active",
-      nationality: "Bangladeshi",
-      country: "Bangladesh",
+      nationality: studentDefaults.nationality,
+      country: studentDefaults.country,
     },
     create: {
       user_id: user.id,
@@ -169,8 +171,8 @@ export async function upsertStudentRow(row: Record<string, string | null>): Prom
       phone: row.phone,
       present_address: row.present_address,
       status: row.status ?? "active",
-      nationality: "Bangladeshi",
-      country: "Bangladesh",
+      nationality: studentDefaults.nationality,
+      country: studentDefaults.country,
     },
   });
 

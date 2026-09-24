@@ -78,4 +78,52 @@ return [
         'currency' => 'USD',
         'timezone' => 'UTC',
     ],
+
+    /*
+    |----------------------------------------------------------------------
+    | Bulk import defaults
+    |----------------------------------------------------------------------
+    |
+    | Column values that a variant's CSV import applies when the shared import
+    | contract does not carry the column. The bd variant keeps today's
+    | Bangladeshi defaults; the int variant imports them as NULL so exported
+    | bd data never bakes BD-only values into an int install.
+    |
+    */
+    'import' => [
+        'student_defaults' => [
+            'bd' => ['nationality' => 'Bangladeshi', 'country' => 'Bangladesh'],
+            'int' => ['nationality' => null, 'country' => null],
+        ],
+    ],
+
+    /*
+    |----------------------------------------------------------------------
+    | Cross-variant restore reconciliation
+    |----------------------------------------------------------------------
+    |
+    | When a portable backup taken in one variant (bd/int) is restored into
+    | another, variant-owned configuration rows are re-set to the RECEIVING
+    | variant's defaults so the restored school matches the target profile;
+    | business data (students, staff, fees, results, ...) is always restored
+    | verbatim. Same-variant restores skip reconciliation entirely.
+    |
+    */
+    'restore' => [
+        // Gateways eligible per variant — anything else is deactivated after a
+        // cross-variant restore (never deleted, so custom gateway rows survive).
+        'gateways' => [
+            'bd' => ['bkash', 'rocket', 'nagad', 'cash', 'bank_transfer', 'cheque'],
+            'int' => ['stripe', 'paypal', 'paddle', 'cash', 'bank_transfer', 'cheque'],
+        ],
+        // Variant-owned settings forced onto the receiving variant's row(s).
+        'settings' => [
+            'currency' => ['bd' => 'BDT', 'int' => 'USD'],
+            'default_payment_method' => ['bd' => 'bkash', 'int' => 'stripe'],
+            'default_locale' => ['bd' => 'en', 'int' => 'en'],
+        ],
+        // When restoring into int: drop Bengali UI columns (`*_bn`) and the BD
+        // admission payment number so no remnant of the bd profile surfaces.
+        'strip_bangla_for_int' => true,
+    ],
 ];

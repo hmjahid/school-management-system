@@ -75,8 +75,29 @@ class BackupRestoreCommand extends Command
         }
 
         $this->extractPublicStorage($zip);
-        $service->restoreTables($service->parseTables($tablesJson));
+        $cleared = $service->restoreTables(
+            $service->parseTables($tablesJson),
+            $manifest['sensitiveColumns'] ?? null,
+            $manifest['cipherFingerprint'] ?? null,
+        );
         $this->info('Restored '.$manifest['tableCount'].' tables from portable dump.');
+
+        foreach ($cleared as $column) {
+            $this->warn("Cleared encrypted column {$column}: the backup's app key does not match this install, so the value cannot be decrypted here.");
+        }
+
+        $sourceVariant = $manifest['eskoofyVariant'] ?? null;
+        $targetVariant = config('eskoolfy.variant', 'bd');
+        if ($sourceVariant !== null && $sourceVariant !== $targetVariant) {
+            foreach ($service->reconcileVariant($sourceVariant) as $note) {
+                $this->info($note);
+            }
+            $this->warn("This backup was created on the '{$sourceVariant}' variant and is being restored on the '{$targetVariant}' variant — variant settings were reconciled to this profile (gateways, currency, payment defaults).");
+        } elseif ($sourceVariant !== null) {
+            $this->info("Restored a '{$sourceVariant}' variant backup (same variant — restored verbatim).");
+        } else {
+            $this->warn('This backup predates the variant tags in the manifest; restored verbatim.');
+        }
     }
 
     private function restoreLegacy(ZipArchive $zip): void

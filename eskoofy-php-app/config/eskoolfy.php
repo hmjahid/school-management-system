@@ -78,4 +78,33 @@ return [
         'currency' => 'USD',
         'timezone' => 'UTC',
     ],
+
+    /*
+    |----------------------------------------------------------------------
+    | Cross-variant restore reconciliation
+    |----------------------------------------------------------------------
+    |
+    | SQL backups carry a `-- eskoofy-variant:` header. When a backup taken in
+    | one variant (bd/int) is restored into another, variant-owned
+    | configuration rows are re-set to the RECEIVING variant's defaults;
+    | business data (students, staff, fees, results, ...) is restored verbatim.
+    |
+    */
+    'restore' => [
+        // Gateways eligible per variant — anything else is deactivated after a
+        // cross-variant restore (never deleted, so custom gateway rows survive).
+        'gateways' => [
+            'bd' => ['bkash', 'rocket', 'nagad', 'cash', 'bank_transfer', 'cheque'],
+            'int' => ['stripe', 'paypal', 'paddle', 'cash', 'bank_transfer', 'cheque'],
+        ],
+        // Variant-owned settings forced onto the receiving variant's row(s).
+        'settings' => [
+            'currency' => ['bd' => 'BDT', 'int' => 'USD'],
+            'default_payment_method' => ['bd' => 'bkash', 'int' => 'stripe'],
+            'default_locale' => ['bd' => 'en', 'int' => 'en'],
+        ],
+        // When restoring into int: drop Bengali UI columns (`*_bn`) and the BD
+        // admission payment number so no remnant of the bd profile surfaces.
+        'strip_bangla_for_int' => true,
+    ],
 ];
