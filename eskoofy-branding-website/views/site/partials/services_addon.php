@@ -35,6 +35,7 @@
         </div>
         <div class="mt-8 flex flex-wrap items-center gap-4">
             <a href="/contact" class="esk-btn-primary bg-blue-600 hover:bg-blue-500 px-7 py-3.5 rounded-xl font-semibold inline-flex items-center gap-2"><?= __('services.cta') ?></a>
+            <a href="/custom-order" class="border border-white/20 hover:border-white/40 bg-white/5 px-7 py-3.5 rounded-xl font-semibold inline-flex items-center gap-2"><?= __('custom_order.title') ?></a>
             <span class="text-xs text-slate-400 max-w-xl"><?= __('services.bill_note') ?></span>
         </div>
     </div>

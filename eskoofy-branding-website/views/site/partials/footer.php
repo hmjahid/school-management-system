@@ -65,8 +65,11 @@ $fSocials = array_filter($fSocials, fn ($s) => $s['url'] !== '');
                     <li><a href="/products/app" class="hover:text-white transition"><?= __('nav.school_app') ?></a></li>
                     <li><a href="/products/php" class="hover:text-white transition"><?= __('nav.raw_php') ?></a></li>
                     <li><a href="/products/theme" class="hover:text-white transition"><?= __('nav.wp_theme') ?></a></li>
+                    <li><a href="/products/node" class="hover:text-white transition"><?= __('node_page.title') ?></a></li>
                     <li><a href="/pricing" class="hover:text-white transition"><?= __('nav.pricing') ?></a></li>
                     <li><a href="/compare" class="hover:text-white transition"><?= __('nav.compare') ?></a></li>
+                    <li><a href="/choose" class="hover:text-white transition"><?= __('choose.title') ?></a></li>
+                    <li><a href="/custom-order" class="hover:text-white transition"><?= __('custom_order.title') ?></a></li>
                 </ul>
             </nav>
 

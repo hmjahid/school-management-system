@@ -64,10 +64,16 @@ class Seo
             echo '<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">';
         }
 
-        echo "\n    <link rel=\"canonical\" href=\"" . htmlspecialchars($canonicalFull) . "\">";
-        echo "\n    <link rel=\"alternate\" hreflang=\"en\" href=\"" . htmlspecialchars($canonicalFull) . "\">";
-        echo "\n    <link rel=\"alternate\" hreflang=\"bn\" href=\"" . htmlspecialchars($canonicalFull) . "\">";
-        echo "\n    <link rel=\"alternate\" hreflang=\"x-default\" href=\"" . htmlspecialchars($canonicalFull) . "\">";
+        echo "\n    <link rel=\"canonical\" href=\"" . htmlspecialchars($canonicalFull) . '">';
+
+        // hreflang (reflang) alternates — per-locale URL overrides from the CMS
+        // (or the view) win; empty entries fall back to the canonical URL.
+        $hreflang = (array) ($seo['hreflang'] ?? []);
+        $enUrl = self::absoluteUrl((string) ($hreflang['en'] ?? ''), $base, $canonicalFull);
+        $bnUrl = self::absoluteUrl((string) ($hreflang['bn'] ?? ''), $base, $canonicalFull);
+        echo "\n    <link rel=\"alternate\" hreflang=\"en\" href=\"" . htmlspecialchars($enUrl) . '">';
+        echo "\n    <link rel=\"alternate\" hreflang=\"bn\" href=\"" . htmlspecialchars($bnUrl) . '">';
+        echo "\n    <link rel=\"alternate\" hreflang=\"x-default\" href=\"" . htmlspecialchars($canonicalFull) . '">';
 
         if ($description !== '') {
             echo "\n    <meta name=\"description\" content=\"" . htmlspecialchars($description) . "\">";
@@ -107,6 +113,16 @@ class Seo
         }
 
         foreach ($schemas as $schema) {
+            // Views/CMS may hand us a raw JSON-LD string (e.g. admin-entered
+            // custom schema) — decode it; skip invalid JSON quietly.
+            if (is_string($schema)) {
+                $decoded = json_decode($schema, true);
+                if (!is_array($decoded)) {
+                    continue;
+                }
+                $schema = $decoded;
+            }
+
             if (is_array($schema)) {
                 echo "\n    <script type=\"application/ld+json\">";
                 echo json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -115,6 +131,21 @@ class Seo
         }
 
         echo "\n";
+    }
+
+    /** Resolve a possibly-relative URL against the base, with an optional fallback. */
+    private static function absoluteUrl(string $value, string $base, string $fallback): string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return $fallback;
+        }
+
+        if (preg_match('#^https?://#', $value)) {
+            return $value;
+        }
+
+        return $base . '/' . ltrim($value, '/');
     }
 
     public static function organization(): array

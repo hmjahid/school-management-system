@@ -17,6 +17,8 @@ $eskActive = function (array $prefixes) use ($eskPath): bool {
     }
     return false;
 };
+$eskUnread = (int) \App\Models\ContactMessage::countUnread();
+$eskCustomUnread = (int) \App\Models\CustomRequest::countUnread();
 $eskIcons = [
     'dashboard' => '<svg viewBox="0 0 24 24" width="20" height="20" class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>',
     'key' => '<svg viewBox="0 0 24 24" width="20" height="20" class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 2-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8 5.5 5.5 0 1 1 7.8-7.8Zm0 0L21 2M15.5 6.5l3 3"/></svg>',
@@ -26,6 +28,7 @@ $eskIcons = [
     'users' => '<svg viewBox="0 0 24 24" width="20" height="20" class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm14 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
     'file' => '<svg viewBox="0 0 24 24" width="20" height="20" class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>',
     'tag' => '<svg viewBox="0 0 24 24" width="20" height="20" class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 12 22 2 12V2h10l8.6 8.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>',
+    'layout' => '<svg viewBox="0 0 24 24" width="20" height="20" class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>',
     'inbox' => '<svg viewBox="0 0 24 24" width="20" height="20" class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2M5.5 5h13l3.5 7v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6l3.5-7Z"/></svg>',
     'activity' => '<svg viewBox="0 0 24 24" width="20" height="20" class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
     'eye' => '<svg viewBox="0 0 24 24" width="20" height="20" class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>',
@@ -54,9 +57,11 @@ $eskNavGroups = [
         ['label' => 'All customers', 'href' => '/admin/customers', 'icon' => 'users', 'active' => $eskActive(['/admin/customers'])],
     ],
     'Content & inbox' => [
+        ['label' => 'Pages', 'href' => '/admin/pages', 'icon' => 'layout', 'active' => $eskActive(['/admin/pages'])],
         ['label' => 'Blog posts', 'href' => '/admin/posts', 'icon' => 'file', 'active' => $eskActive(['/admin/posts'])],
         ['label' => 'Post categories', 'href' => '/admin/post-categories', 'icon' => 'tag', 'active' => $eskActive(['/admin/post-categories'])],
-        ['label' => 'Messages', 'href' => '/admin/messages', 'icon' => 'inbox', 'active' => $eskActive(['/admin/messages']), 'badge' => $eskUnread ?? 0],
+        ['label' => 'Custom orders', 'href' => '/admin/custom-requests', 'icon' => 'inbox', 'active' => $eskActive(['/admin/custom-requests']), 'badge' => $eskCustomUnread],
+        ['label' => 'Messages', 'href' => '/admin/messages', 'icon' => 'inbox', 'active' => $eskActive(['/admin/messages']), 'badge' => $eskUnread],
     ],
     'System' => [
         ['label' => 'Visitor log', 'href' => '/admin/visitors', 'icon' => 'eye', 'active' => $eskActive(['/admin/visitors'])],

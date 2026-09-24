@@ -2,12 +2,13 @@
 
 The Eskoofy **website** is the marketing, sales, and licensing site for the
 Eskoofy school management system. It is **not itself a product** — it markets
-and sells the three deployments of the school management system:
+and sells the four deployments of the school management system:
 
 - **Eskoofy School App** (`/products/app`) — Laravel application
 - **Eskoofy WP Theme** (`/products/theme`) — WordPress theme
 - **Eskoofy School System (PHP)** (`/products/php`) — raw PHP rewrite for
   shared hosting and low-cost VPS
+- **Eskoofy Node App** (`/products/node`) — Node.js variant of the app
 
 …and operates the license server (JSON API + customer dashboard + admin
 backend). The site is **one codebase, one variant** (always exported as
@@ -34,9 +35,18 @@ See `WORKPLAN.md` Phase 8 and `workplan-implementation-plan.md` for scope.
 
 ## Features
 
-- Public marketing site (`/`, `/products/{app,php,theme}`, `/pricing`,
+- Public marketing site (`/`, `/products/{app,php,theme,node}`, `/pricing`,
   `/features`, `/compare`, `/about`, `/contact`, `/blog`, `/blog/category/{slug}`,
   `/blog/{slug}`, `/terms`, `/privacy`, `/refund-policy`).
+- **CMS-managed pages**: per-page hero heading/intro/body + SEO
+  (meta title/description, canonical, hreflang, JSON-LD, noindex) with en/bn
+  locale columns, editable at Admin → Pages. Template text wins until edited.
+- **Product-selection wizard** (`/choose`): a 5-question quiz that recommends
+  the best-fitting deployment (app / WP theme / raw PHP / Node variant) with a
+  runner-up and links to all four product pages.
+- **Custom orders** (`/custom-order`): request custom development,
+  modifications, or extra features for any product; submissions land in
+  Admin → Custom orders for follow-up.
 - **Customer support widget** on every public page (quick links + email/phone/WhatsApp,
   configurable in Admin → Settings → Support).
 - **Enterprise footer**: grouped product/solutions/company/resources/legal columns, contact
@@ -48,7 +58,8 @@ See `WORKPLAN.md` Phase 8 and `workplan-implementation-plan.md` for scope.
 - Customer license portal (login → `/account` with licenses, activations,
   renewals, payments).
 - Admin backend (customers, plans, licenses, payments, **posts**,
-  **post-categories**, messages, activity, **visitor log**).
+  **post-categories**, messages, activity, **visitor log**, **pages/CMS**,
+  **custom orders**).
 - **Visitor log** (`/admin/visitors`): KPI cards, 30-day trend chart, top pages/countries,
   filterable + paginated table (bot-filtered); toggled by `visitors.logging_enabled`.
 - License server JSON API under `/api/v1` (activate/validate/deactivate/status/ping).
@@ -95,5 +106,5 @@ PWA icons live in `public/icons/`. To regenerate, run `./public/icons/generate.s
 ## Tests
 
 ```bash
-composer test        # 79 tests, DB-free via tests/FakeDatabase.php
+composer test        # 123 tests, DB-free via tests/FakeDatabase.php
 ```

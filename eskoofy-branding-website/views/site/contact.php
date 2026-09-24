@@ -19,8 +19,10 @@ $channels = array_values(array_filter([
     $cPhone !== '' ? ['phone', __('contact.phone'), $cPhone, 'tel:' . preg_replace('/[^0-9+]/', '', $cPhone), false] : null,
     $cWhatsapp !== '' ? ['chat', __('contact.whatsapp'), $cWhatsappRaw, 'https://wa.me/' . $cWhatsapp, true] : null,
 ]));
+$cmsHero = !empty($cmsPage['heading']) || !empty($cmsPage['intro']);
 ?>
 
+<?php if (! $cmsHero): ?>
 <section class="esk-hero text-white">
     <div class="relative z-10 max-w-7xl mx-auto px-4 py-16 text-center">
         <h1 class="text-4xl md:text-5xl font-extrabold"><?= __('contact.title') ?></h1>
@@ -31,6 +33,9 @@ $channels = array_values(array_filter([
         </div>
     </div>
 </section>
+<?php endif; ?>
+
+<?php \App\Core\View::partial('site.partials.cms_block', ['cmsPage' => $cmsPage ?? null]); ?>
 
 <section class="max-w-7xl mx-auto px-4 py-16">
     <div class="grid lg:grid-cols-5 gap-8">

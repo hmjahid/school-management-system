@@ -31,7 +31,7 @@ class RouterRegistrationTest extends TestCase
     public function test_all_admin_views_exist(): void
     {
         $base = dirname(__DIR__, 3) . '/views/admin/';
-        foreach (['dashboard', 'customers', 'customer_detail', 'plans', 'plan_form', 'licenses', 'license_form', 'license_detail', 'payments', 'messages', 'activities'] as $view) {
+        foreach (['dashboard', 'customers', 'customer_detail', 'plans', 'plan_form', 'licenses', 'license_form', 'license_detail', 'payments', 'messages', 'activities', 'pages', 'page_form', 'custom_requests'] as $view) {
             $this->assertFileExists($base . $view . '.php', "Missing admin view: {$view}");
         }
     }
@@ -48,10 +48,10 @@ class RouterRegistrationTest extends TestCase
     {
         $base = dirname(__DIR__, 3) . '/views/';
 
-        foreach (['home', 'pricing', 'features', 'about', 'contact', 'checkout', 'blog', 'post'] as $view) {
+        foreach (['home', 'pricing', 'features', 'about', 'contact', 'checkout', 'blog', 'post', 'legal', 'choose', 'choose_result', 'custom_order'] as $view) {
             $this->assertFileExists($base . 'site/' . $view . '.php', "Missing site view: {$view}");
         }
-        foreach (['app', 'theme', 'php'] as $view) {
+        foreach (['app', 'theme', 'php', 'node'] as $view) {
             $this->assertFileExists($base . 'site/products/' . $view . '.php', "Missing product view: {$view}");
         }
         foreach (['login', 'register'] as $view) {
@@ -169,6 +169,24 @@ class RouterRegistrationTest extends TestCase
         $this->assertContains('/compare', $paths);
 
         $this->assertFileExists(dirname(__DIR__, 3) . '/views/site/compare.php');
+    }
+
+    public function test_cms_quiz_and_custom_order_routes_registered(): void
+    {
+        $router = new Router();
+        require dirname(__DIR__, 3) . '/routes/web.php';
+
+        $paths = array_map(fn ($r) => $r['path'], $router->getRoutes());
+
+        foreach (['/choose', '/custom-order', '/admin/pages', '/admin/pages/create', '/admin/pages/{id}/edit', '/admin/pages/{id}/delete', '/admin/custom-requests', '/admin/custom-requests/{id}/read', '/admin/custom-requests/{id}/status', '/admin/custom-requests/{id}/delete'] as $path) {
+            $this->assertContains($path, $paths, "Missing route: {$path}");
+        }
+    }
+
+    public function test_cms_partial_exists(): void
+    {
+        $this->assertFileExists(dirname(__DIR__, 3) . '/views/site/partials/cms_block.php');
+        $this->assertFileExists(dirname(__DIR__, 3) . '/views/emails/custom_request.php');
     }
 
     public function test_site_js_and_role_tab_markup_exist(): void

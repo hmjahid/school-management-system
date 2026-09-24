@@ -26,7 +26,10 @@ $seo = [
 ];
 ?>
 
+<?php $cmsHero = !empty($cmsPage['heading']) || !empty($cmsPage['intro']); ?>
+
 <!-- Hero -->
+<?php if (! $cmsHero): ?>
 <section class="esk-hero text-white">
     <div class="relative z-10 max-w-7xl mx-auto px-4 py-16 md:py-24">
         <div class="max-w-3xl">
@@ -41,6 +44,9 @@ $seo = [
         </div>
     </div>
 </section>
+<?php endif; ?>
+
+<?php \App\Core\View::partial('site.partials.cms_block', ['cmsPage' => $cmsPage ?? null]); ?>
 
 <!-- Benefits -->
 <section class="max-w-7xl mx-auto px-4 py-16 md:py-20">

@@ -1,5 +1,7 @@
 <?php $title = __('nav.about'); $siteTitle = $title; $seo = ['title' => __('about.title'), 'description' => __('about.intro'), 'canonical' => '/about']; ?>
+<?php $cmsHero = !empty($cmsPage['heading']) || !empty($cmsPage['intro']); ?>
 
+<?php if (! $cmsHero): ?>
 <section class="esk-hero text-white">
     <div class="relative z-10 max-w-7xl mx-auto px-4 py-16 text-center">
         <span class="inline-block text-xs uppercase tracking-widest bg-blue-500/20 text-blue-200 px-3 py-1 rounded-full border border-blue-400/30 mb-6"><?= __('about.badge') ?></span>
@@ -7,6 +9,9 @@
         <p class="mt-4 text-slate-300 text-lg max-w-3xl mx-auto"><?= __('about.p0') ?></p>
     </div>
 </section>
+<?php endif; ?>
+
+<?php \App\Core\View::partial('site.partials.cms_block', ['cmsPage' => $cmsPage ?? null]); ?>
 
 <section class="max-w-3xl mx-auto px-4 py-16">
     <div class="space-y-6 text-slate-600 leading-relaxed">

@@ -4,9 +4,11 @@ declare(strict_types=1);
 namespace App\Controllers\Site;
 
 use App\Core\Controller;
+use App\Models\Page;
 use App\Models\Plan;
 use App\Models\Post;
 use App\Models\Settings;
+use App\Services\I18n;
 use App\Services\Mailer;
 
 class HomeController extends Controller
@@ -18,12 +20,13 @@ class HomeController extends Controller
             'themePlans'  => Plan::activeFor('theme'),
             'phpPlans'    => Plan::activeFor('php'),
             'recentPosts' => Post::latest(3),
+            'cmsPage'     => $this->cmsPage('/'),
         ]);
     }
 
     public function product(string $slug): void
     {
-        $products = ['app', 'theme', 'php'];
+        $products = ['app', 'theme', 'php', 'node'];
         if (!in_array($slug, $products, true)) {
             $this->view('errors.404');
 
@@ -31,7 +34,8 @@ class HomeController extends Controller
         }
 
         $this->view('site.products.' . $slug, [
-            'plans' => Plan::activeFor($slug),
+            'plans'   => Plan::activeFor($slug === 'node' ? 'app' : $slug),
+            'cmsPage' => $this->cmsPage('/products/' . $slug),
         ]);
     }
 
@@ -41,27 +45,45 @@ class HomeController extends Controller
             'appPlans'   => Plan::activeFor('app'),
             'themePlans' => Plan::activeFor('theme'),
             'phpPlans'   => Plan::activeFor('php'),
+            'cmsPage'    => $this->cmsPage('/pricing'),
         ]);
     }
 
     public function features(): void
     {
-        $this->view('site.features');
+        $this->view('site.features', [
+            'cmsPage' => $this->cmsPage('/features'),
+        ]);
     }
 
     public function compare(): void
     {
-        $this->view('site.compare');
+        $this->view('site.compare', [
+            'cmsPage' => $this->cmsPage('/compare'),
+        ]);
     }
 
     public function about(): void
     {
-        $this->view('site.about');
+        $this->view('site.about', [
+            'cmsPage' => $this->cmsPage('/about'),
+        ]);
     }
 
     public function contact(): void
     {
-        $this->view('site.contact', ['page' => 'contact']);
+        $this->view('site.contact', [
+            'page'    => 'contact',
+            'cmsPage' => $this->cmsPage('/contact'),
+        ]);
+    }
+
+    /** Load the admin-managed CMS row for a public route (localized, or null). */
+    private function cmsPage(string $path): ?array
+    {
+        $row = Page::forPath($path);
+
+        return $row !== null ? Page::localized($row, I18n::current()) : null;
     }
 
     public function storeMessage(): void

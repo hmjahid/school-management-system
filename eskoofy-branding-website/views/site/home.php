@@ -23,6 +23,7 @@ $seo = [
             <div class="mt-8 flex flex-wrap gap-3">
                 <a href="/pricing" class="esk-btn-primary bg-blue-600 hover:bg-blue-500 px-7 py-3.5 rounded-xl font-semibold"><?= __('home.cta_pricing') ?></a>
                 <a href="/register" class="border border-white/30 hover:border-white/60 bg-white/5 backdrop-blur px-7 py-3.5 rounded-xl font-semibold"><?= __('home.cta_register') ?></a>
+                <a href="/choose" class="border border-white/30 hover:border-white/60 bg-white/5 backdrop-blur px-7 py-3.5 rounded-xl font-semibold"><?= __('choose.title') ?></a>
                 <a href="/compare" class="border border-white/30 hover:border-white/60 bg-white/5 backdrop-blur px-7 py-3.5 rounded-xl font-semibold"><?= __('nav.compare') ?></a>
             </div>
         </div>
@@ -370,3 +371,5 @@ $seo = [
         <a href="/register" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold"><?= __('home.cta_register') ?></a>
     </div>
 </div>
+
+<?php \App\Core\View::partial('site.partials.cms_block', ['cmsPage' => $cmsPage ?? null, 'with_hero' => false]); ?>

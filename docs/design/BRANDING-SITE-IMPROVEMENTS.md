@@ -114,5 +114,23 @@ Current pages: `/` (home), `/features`, `/pricing`, `/products/{app|php|theme}`,
 
 - This file: `docs/design/BRANDING-SITE-IMPROVEMENTS.md`
 - Competitor inventory (profiles + cross-analysis): `docs/design/COMPETITIVE-ANALYSIS.md`
-- Re-audit/re-verify commands: `cd eskoofy-branding-website && composer test` (79 tests) after any
+- Re-audit/re-verify commands: `cd eskoofy-branding-website && composer test` (123 tests) after any
   change; `php -l` each touched view.
+
+## 6. Implemented: website CMS, product-selection wizard, custom orders (2026-09-24)
+
+Delivered from `docs/prompts/branding-website-cms-selection-and-custom-orders-prompt.md`.
+Adds the "self-service + human" conversion loop most 2026 leaders run (pattern #2 above).
+
+| Feature | What shipped | Where |
+|---|---|---|
+| **Website CMS (per-page content + SEO)** | `pages` table + 16 seeds; admin CRUD (en/bn hero heading/intro/body, meta title/description, canonical, per-locale hreflang overrides, JSON-LD, noindex); layout SEO merge — per-view `$seo` wins, CMS fills gaps, template defaults win until edited; content injected via `cms_block.php` partial | `database/schema.sql`, `app/Models/Page.php`, `app/Controllers/Admin/PageController.php`, `views/admin/pages.php` + `page_form.php`, `views/layouts/main.php`, `views/site/partials/cms_block.php` |
+| **Product-selection wizard** | `/choose` — 5-question quiz → `ProductRecommender` ranks app / raw-PHP / WP theme / Node (hosting, stack, budget levers); result page shows best fit + reason + runner-up + all four cards + custom-order fallback | `app/Controllers/Site/ChooseController.php`, `app/Services/ProductRecommender.php`, `views/site/choose.php` + `choose_result.php` |
+| **Custom-order form + admin follow-up** | `/custom-order` (product preselect via `?product=`), stores `custom_requests` + emails sales; admin inbox w/ unread badge, mark read, status pipeline, archive | `app/Controllers/Site/CustomOrderController.php`, `app/Controllers/Admin/CustomRequestController.php`, `views/site/custom_order.php`, `views/admin/custom_requests.php`, `views/emails/custom_request.php` |
+| **Node variant sales surface** | `/products/node` page; nav dropdown + drawer + home hero + footer now show 4 products + wizard + custom-order; model page CTA → `/custom-order?product=node` | `views/site/products/node.php`, `views/layouts/main.php`, `views/site/partials/footer.php`, `views/site/home.php` |
+
+Verification: `composer test` → **123 tests / 349 assertions** (new `PageTest`, `ProductRecommenderTest`,
+extended `RouterRegistrationTest`); runtime smoke-tested end-to-end (public + admin + POST flows) against a
+throwaway MySQL on port 3307. One real bug caught during smoke: optional `custom_requests` fields (`phone`/
+`subject`/`budget`/`timeline`) were `null` when omitted and hit `mb_substr(null)` — fixed with `!empty()`
+guards (`CustomOrderController::store()`).

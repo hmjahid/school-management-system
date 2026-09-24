@@ -4,6 +4,7 @@
         <p class="mt-4 text-slate-300 text-lg"><?= __('page.cta_sub') ?></p>
         <div class="mt-8 flex flex-wrap justify-center gap-3">
             <a href="/pricing" class="esk-btn-primary bg-blue-600 hover:bg-blue-500 px-7 py-3.5 rounded-xl font-semibold"><?= __('page.cta_pricing') ?></a>
+            <a href="/choose" class="border border-white/30 hover:border-white/60 bg-white/5 px-7 py-3.5 rounded-xl font-semibold"><?= __('choose.title') ?></a>
             <a href="/contact" class="border border-white/30 hover:border-white/60 bg-white/5 px-7 py-3.5 rounded-xl font-semibold"><?= __('page.cta_contact') ?></a>
         </div>
     </div>

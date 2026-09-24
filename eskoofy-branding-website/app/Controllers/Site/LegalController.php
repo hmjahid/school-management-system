@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace App\Controllers\Site;
 
 use App\Core\Controller;
+use App\Models\Page;
+use App\Services\I18n;
 
 class LegalController extends Controller
 {
@@ -28,6 +30,15 @@ class LegalController extends Controller
             'page'      => $page,
             'title'     => __('legal.' . $page . '.title'),
             'canonical' => $canonical,
+            'cmsPage'   => $this->cmsPage($canonical),
         ]);
+    }
+
+    /** Load the admin-managed CMS row for a public route (localized, or null). */
+    private function cmsPage(string $path): ?array
+    {
+        $row = Page::forPath($path);
+
+        return $row !== null ? Page::localized($row, I18n::current()) : null;
     }
 }

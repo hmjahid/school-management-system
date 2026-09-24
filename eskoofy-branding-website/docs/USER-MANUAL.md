@@ -20,16 +20,22 @@ front-controller app with no framework at runtime. This manual covers three surf
 
 | Page | Route | What it does |
 |---|---|---|
-| Home | `/` | Hero, counters, three product cards, how-it-works, roles, pricing preview (from DB plans), payment methods, testimonials, latest posts |
-| Product detail | `/products/{slug}` (`app`, `theme`, `php`) | Benefits, how it runs, per-plan pricing, getting-started, FAQ |
+| Home | `/` | Hero, counters, product cards, how-it-works, roles, pricing preview (from DB plans), payment methods, testimonials, latest posts; CMS content appended |
+| Product detail | `/products/{slug}` (`app`, `theme`, `php`, `node`) | Benefits, how it runs, per-plan pricing, getting-started, FAQ; CMS-managed hero/content |
 | Pricing | `/pricing` | Monthly/yearly plans per product, USD↔BDT switch for BD visitors, billing toggle, deployment/care add-on, FAQ |
-| Features | `/features` | Role tabs (Admin/Teacher/Parent) and module groups |
-| Compare | `/compare` | Comparison table vs other school systems |
+| Features | `/features` | Role tabs (Admin/Teacher/Parent) and module groups; CMS content appended |
+| Compare | `/compare` | Comparison table vs other school systems; CMS content appended |
 | About | `/about` | About content + CTA |
 | Blog | `/blog`, `/blog/category/{slug}`, `/blog/{slug}` | Paginated posts + categories; increments views; BlogPosting JSON-LD |
 | Contact | `/contact` (GET form, POST submit) | CSRF-protected form → `contact_messages` + email to the site contact address |
+| Product wizard | `/choose` (GET quiz, POST result) | 5-question quiz recommending the best-fit deployment (app / WP theme / raw PHP / Node) |
+| Custom orders | `/custom-order` (GET form, POST submit) | Request custom development / modifications / extra features → `custom_requests` + email to sales |
 | Legal | `/refund-policy`, `/terms`, `/privacy` | Policy pages |
 | Language | `/language/{locale}` (`en`/`bn`), `/language/geo` | Manual language switch (always wins) + timezone geo hint |
+
+**CMS pages:** every public page (home, products, legal, wizard entry, etc.) is backed by a
+`pages` row. Admin can override per-page hero heading/intro/body + SEO fields in en/bn; until
+edited, the template's translated defaults win (locale columns start blank).
 
 **Checkout / purchase:**
 - `GET/POST /checkout` — choose plan + gateway, create a pending `payments` row (variant `bd`/`int`).
@@ -137,6 +143,8 @@ subscription via the chosen gateway (`/account/licenses/{id}/renew`).
 | Payments | `/admin/payments` | List, CSV export, set status, **approve manual payment** (issues license + emails) |
 | Subscriptions | `/admin/subscriptions` | Subscription list + MRR/ARR |
 | Blog | `/admin/posts`, `/admin/post-categories` | Post & category CRUD, draft/publish, SEO fields |
+| Pages (CMS) | `/admin/pages` (+ create/edit/delete) | Per-page hero heading/intro/body in en/bn + SEO (meta title/description, canonical, hreflang overrides, JSON-LD, noindex); soft delete |
+| Custom orders | `/admin/custom-requests` | Follow up on `/custom-order` requests: unread badge, mark read, status pipeline (new → in review → quoting → approved/declined → done), archive |
 | Inbox | `/admin/messages` | Contact messages, mark read |
 | Activity | `/admin/activities` | Activity log (50/page) |
 | Settings | `/admin/settings` | Site name/tagline/contact/currency, product dashboard URLs, appearance, email/SMTP, add-on prices |
@@ -161,7 +169,7 @@ Verified on 2026-09-19 against this working tree:
 
 | Check | Command / method | Result |
 |---|---|---|
-| Test suite | `cd eskoofy-branding-website && composer test` | ✅ **95 tests passed** (270 assertions) |
+| Test suite | `cd eskoofy-branding-website && composer test` | ✅ **123 tests passed** (349 assertions) |
 | Route→controller→method integrity | static scan of `routes/web.php` + `routes/api.php` | ✅ **113 targets, 0 broken** |
 | View resolution | static scan + `View::resolve` | ✅ all static views resolve |
 | Bug found & fixed | `payment-status` view | ✅ see below |

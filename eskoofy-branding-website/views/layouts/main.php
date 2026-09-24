@@ -18,7 +18,6 @@ if (!preg_match('/^#[0-9a-fA-F]{6}$/', $eskColour)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($title ?? ($siteTitle ?? $eskBrandName)) ?> — <?= htmlspecialchars($eskBrandName) ?></title>
     <?php
     $seo = $seo ?? [];
     $seoPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
@@ -27,8 +26,34 @@ if (!preg_match('/^#[0-9a-fA-F]{6}$/', $eskColour)) {
         || str_starts_with($seoPath, '/admin')) {
         $seo['noindex'] = true;
     }
+
+    // Fold the admin-managed CMS page (passed by the controller as `$cmsPage`)
+    // into the SEO pack. Per-view overrides win; CMS fills the gaps only.
+    $cmsPage = $cmsPage ?? null;
+    if (is_array($cmsPage)) {
+        if (($seo['title'] ?? '') === '' && ($cmsPage['meta_title'] ?? '') !== '') {
+            $seo['title'] = $cmsPage['meta_title'];
+        } elseif (($seo['title'] ?? '') === '' && ($cmsPage['title'] ?? '') !== '') {
+            $seo['title'] = $cmsPage['title'];
+        }
+        if (($seo['description'] ?? '') === '' && ($cmsPage['meta_description'] ?? '') !== '') {
+            $seo['description'] = $cmsPage['meta_description'];
+        }
+        if (($seo['canonical'] ?? '') === '' && ($cmsPage['canonical'] ?? '') !== null) {
+            $seo['canonical'] = $cmsPage['canonical'];
+        }
+        $hreflang = (array) ($seo['hreflang'] ?? []);
+        $hreflang['en'] = ($hreflang['en'] ?? '') !== '' ? $hreflang['en'] : ($cmsPage['hreflang_en'] ?? '');
+        $hreflang['bn'] = ($hreflang['bn'] ?? '') !== '' ? $hreflang['bn'] : ($cmsPage['hreflang_bn'] ?? '');
+        $seo['hreflang'] = $hreflang;
+        if (($cmsPage['json_schema'] ?? '') !== '') {
+            $seo['schema'] = array_merge((array) ($seo['schema'] ?? []), [$cmsPage['json_schema']]);
+        }
+        $seo['noindex'] = ($seo['noindex'] ?? false) || !empty($cmsPage['noindex']);
+    }
     \App\Services\Seo::render($seo);
     ?>
+    <title><?= htmlspecialchars($seo['title'] ?? ($title ?? ($siteTitle ?? $eskBrandName))) ?> — <?= htmlspecialchars($eskBrandName) ?></title>
     <meta name="theme-color" content="<?= $eskColour ?>" data-light-theme="<?= $eskColour ?>">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -121,6 +146,19 @@ if (!preg_match('/^#[0-9a-fA-F]{6}$/', $eskColour)) {
                         <div class="font-semibold text-slate-800"><?= __('nav.wp_theme') ?></div>
                         <div class="text-xs text-slate-500 mt-0.5"><?= __('nav.products_theme_desc') ?></div>
                     </a>
+                    <a href="/products/node" class="block px-3 py-2.5 rounded-lg hover:bg-slate-50 hover:text-blue-600">
+                        <div class="font-semibold text-slate-800"><?= __('node_page.title') ?></div>
+                        <div class="text-xs text-slate-500 mt-0.5"><?= __('node_page.sub') ?></div>
+                    </a>
+                    <div class="my-1 border-t border-slate-100"></div>
+                    <a href="/choose" class="block px-3 py-2.5 rounded-lg hover:bg-slate-50 hover:text-blue-600">
+                        <div class="font-semibold text-slate-800"><?= __('choose.title') ?></div>
+                        <div class="text-xs text-slate-500 mt-0.5"><?= __('choose.sub') ?></div>
+                    </a>
+                    <a href="/custom-order" class="block px-3 py-2.5 rounded-lg hover:bg-slate-50 hover:text-blue-600">
+                        <div class="font-semibold text-slate-800"><?= __('custom_order.title') ?></div>
+                        <div class="text-xs text-slate-500 mt-0.5"><?= __('custom_order.sub') ?></div>
+                    </a>
                     <div class="my-1 border-t border-slate-100"></div>
                     <a href="/compare" class="block px-3 py-2 rounded-lg hover:bg-slate-50 hover:text-blue-600 text-xs">
                         <span class="font-semibold text-slate-800"><?= __('nav.compare') ?></span> — <?= __('nav.products_compare_desc') ?>
@@ -195,6 +233,9 @@ if (!preg_match('/^#[0-9a-fA-F]{6}$/', $eskColour)) {
             <a href="/products/app" class="rounded-lg px-3 py-2.5 hover:bg-slate-800 hover:text-white"><?= __('nav.school_app') ?></a>
             <a href="/products/php" class="rounded-lg px-3 py-2.5 hover:bg-slate-800 hover:text-white"><?= __('nav.raw_php') ?></a>
             <a href="/products/theme" class="rounded-lg px-3 py-2.5 hover:bg-slate-800 hover:text-white"><?= __('nav.wp_theme') ?></a>
+            <a href="/products/node" class="rounded-lg px-3 py-2.5 hover:bg-slate-800 hover:text-white"><?= __('node_page.title') ?></a>
+            <a href="/choose" class="rounded-lg px-3 py-2.5 hover:bg-slate-800 hover:text-white"><?= __('choose.title') ?></a>
+            <a href="/custom-order" class="rounded-lg px-3 py-2.5 hover:bg-slate-800 hover:text-white"><?= __('custom_order.title') ?></a>
             <a href="/compare" class="rounded-lg px-3 py-2.5 hover:bg-slate-800 hover:text-white"><?= __('nav.compare') ?></a>
             <div class="px-3 pt-3 pb-1 text-xs uppercase tracking-widest text-slate-500"><?= __('nav.explore') ?></div>
             <a href="/features" class="rounded-lg px-3 py-2.5 hover:bg-slate-800 hover:text-white"><?= __('nav.features') ?></a>

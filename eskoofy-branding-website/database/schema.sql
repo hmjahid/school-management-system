@@ -307,6 +307,59 @@ CREATE TABLE IF NOT EXISTS `push_notification_reads` (
   UNIQUE KEY `pns_read_unique` (`notification_id`, `customer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- 12. PAGES (CMS — per-page dual-language content + SEO for the marketing site)
+CREATE TABLE IF NOT EXISTS `pages` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(191) NOT NULL,
+  `route` VARCHAR(191) NOT NULL,
+  `sort_order` INT NOT NULL DEFAULT 0,
+  `status` VARCHAR(16) NOT NULL DEFAULT 'active',
+  `noindex` TINYINT(1) NOT NULL DEFAULT 0,
+  `title_en` VARCHAR(191) NULL,
+  `title_bn` VARCHAR(191) NULL,
+  `heading_en` VARCHAR(191) NULL,
+  `heading_bn` VARCHAR(191) NULL,
+  `intro_en` TEXT NULL,
+  `intro_bn` TEXT NULL,
+  `content_en` LONGTEXT NULL,
+  `content_bn` LONGTEXT NULL,
+  `meta_title_en` VARCHAR(191) NULL,
+  `meta_title_bn` VARCHAR(191) NULL,
+  `meta_description_en` VARCHAR(255) NULL,
+  `meta_description_bn` VARCHAR(255) NULL,
+  `canonical` VARCHAR(255) NULL,
+  `hreflang_en` VARCHAR(255) NULL,
+  `hreflang_bn` VARCHAR(255) NULL,
+  `json_schema` LONGTEXT NULL,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  `deleted_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `pages_route_unique` (`route`),
+  KEY `pages_status_index` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 13. CUSTOM REQUESTS (custom development / modification / extra-feature orders)
+CREATE TABLE IF NOT EXISTS `custom_requests` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(191) NOT NULL,
+  `email` VARCHAR(191) NOT NULL,
+  `phone` VARCHAR(64) NULL,
+  `product` VARCHAR(16) NOT NULL DEFAULT 'multi',
+  `request_type` VARCHAR(32) NOT NULL DEFAULT 'custom_development',
+  `subject` VARCHAR(191) NULL,
+  `details` TEXT NOT NULL,
+  `budget` VARCHAR(32) NULL,
+  `timeline` VARCHAR(191) NULL,
+  `status` VARCHAR(16) NOT NULL DEFAULT 'new',
+  `read_at` DATETIME NULL,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`),
+  KEY `custom_requests_status_index` (`status`),
+  KEY `custom_requests_product_index` (`product`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================================
@@ -361,6 +414,26 @@ INSERT IGNORE INTO `settings` (`key`, `value`, `group`, `created_at`, `updated_a
 INSERT IGNORE INTO `post_categories` (`id`, `name`, `slug`, `description`, `sort_order`, `active`, `created_at`, `updated_at`) VALUES
 (1, 'Announcements', 'announcements', 'News and updates from the Eskoofy team', 1, 1, NOW(), NOW()),
 (2, 'Guides', 'guides', 'How-tos and buying guidance for schools', 2, 1, NOW(), NOW());
+
+-- CMS pages (one row per public route; NULL content = the translated template
+-- defaults still apply until an admin edits the row from Admin → Pages).
+INSERT IGNORE INTO `pages` (`id`, `name`, `route`, `sort_order`, `status`, `noindex`, `created_at`, `updated_at`) VALUES
+(1,  'Home',            '/',                  1,  'active', 0, NOW(), NOW()),
+(2,  'About',           '/about',             2,  'active', 0, NOW(), NOW()),
+(3,  'Features',        '/features',          3,  'active', 0, NOW(), NOW()),
+(4,  'Compare',         '/compare',           4,  'active', 0, NOW(), NOW()),
+(5,  'Pricing',         '/pricing',           5,  'active', 0, NOW(), NOW()),
+(6,  'Contact',         '/contact',           6,  'active', 0, NOW(), NOW()),
+(7,  'Blog',            '/blog',              7,  'active', 0, NOW(), NOW()),
+(8,  'Product: App',    '/products/app',      8,  'active', 0, NOW(), NOW()),
+(9,  'Product: Raw PHP','/products/php',      9,  'active', 0, NOW(), NOW()),
+(10, 'Product: WP Theme','/products/theme',   10, 'active', 0, NOW(), NOW()),
+(11, 'Product: Node.js','/products/node',     11, 'active', 0, NOW(), NOW()),
+(12, 'Terms of service','/terms',             12, 'active', 0, NOW(), NOW()),
+(13, 'Privacy policy',  '/privacy',           13, 'active', 0, NOW(), NOW()),
+(14, 'Refund policy',   '/refund-policy',     14, 'active', 0, NOW(), NOW()),
+(15, 'Find my best fit','/choose',            15, 'active', 0, NOW(), NOW()),
+(16, 'Custom order',    '/custom-order',      16, 'active', 0, NOW(), NOW());
 
 -- Example posts (one draft as an editor example).
 INSERT IGNORE INTO `posts` (`id`, `category_id`, `author_id`, `title`, `slug`, `excerpt`, `content`, `status`, `featured_image`, `meta_title`, `meta_description`, `views`, `published_at`, `created_at`, `updated_at`) VALUES

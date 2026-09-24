@@ -6,8 +6,10 @@ $seo = [
     'description' => __('legal.' . $page . '.intro'),
     'canonical'   => $canonical,
 ];
+$cmsHero = !empty($cmsPage['heading']) || !empty($cmsPage['intro']);
 ?>
 
+<?php if (! $cmsHero): ?>
 <section class="esk-hero text-white">
     <div class="relative z-10 max-w-7xl mx-auto px-4 py-16 text-center">
         <span class="inline-block text-xs uppercase tracking-widest bg-blue-500/20 text-blue-200 px-3 py-1 rounded-full border border-blue-400/30 mb-6"><?= __('legal.badge') ?></span>
@@ -15,6 +17,9 @@ $seo = [
         <p class="mt-4 text-slate-300 text-lg max-w-3xl mx-auto"><?= __('legal.' . $page . '.intro') ?></p>
     </div>
 </section>
+<?php endif; ?>
+
+<?php \App\Core\View::partial('site.partials.cms_block', ['cmsPage' => $cmsPage ?? null]); ?>
 
 <section class="max-w-3xl mx-auto px-4 py-16">
     <div class="text-sm text-slate-400 mb-8"><?= __('legal.last_updated') ?>: <?= __('legal.' . $page . '.updated') ?></div>

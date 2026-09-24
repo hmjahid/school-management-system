@@ -31,6 +31,10 @@ $router->get('/pricing', HomeController::class, 'pricing');
 $router->get('/features', HomeController::class, 'features');
 $router->get('/compare', HomeController::class, 'compare');
 $router->get('/about', HomeController::class, 'about');
+$router->get('/choose', \App\Controllers\Site\ChooseController::class, 'show');
+$router->post('/choose', \App\Controllers\Site\ChooseController::class, 'result');
+$router->get('/custom-order', \App\Controllers\Site\CustomOrderController::class, 'show');
+$router->post('/custom-order', \App\Controllers\Site\CustomOrderController::class, 'store');
 $router->get('/refund-policy', \App\Controllers\Site\LegalController::class, 'refundPolicy');
 $router->get('/terms', \App\Controllers\Site\LegalController::class, 'terms');
 $router->get('/privacy', \App\Controllers\Site\LegalController::class, 'privacy');
@@ -120,6 +124,18 @@ $router->group('/admin', function (App\Core\Router $router): void {
     $router->get('/post-categories/{id}/edit', PostCategoryController::class, 'edit');
     $router->post('/post-categories/{id}', PostCategoryController::class, 'update');
     $router->post('/post-categories/{id}/delete', PostCategoryController::class, 'delete');
+
+    $router->get('/pages', \App\Controllers\Admin\PageController::class, 'index');
+    $router->get('/pages/create', \App\Controllers\Admin\PageController::class, 'create');
+    $router->post('/pages', \App\Controllers\Admin\PageController::class, 'store');
+    $router->get('/pages/{id}/edit', \App\Controllers\Admin\PageController::class, 'edit');
+    $router->post('/pages/{id}', \App\Controllers\Admin\PageController::class, 'update');
+    $router->post('/pages/{id}/delete', \App\Controllers\Admin\PageController::class, 'delete');
+
+    $router->get('/custom-requests', \App\Controllers\Admin\CustomRequestController::class, 'index');
+    $router->post('/custom-requests/{id}/read', \App\Controllers\Admin\CustomRequestController::class, 'markRead');
+    $router->post('/custom-requests/{id}/status', \App\Controllers\Admin\CustomRequestController::class, 'updateStatus');
+    $router->post('/custom-requests/{id}/delete', \App\Controllers\Admin\CustomRequestController::class, 'delete');
 
     $router->get('/messages', MessageController::class, 'index');
     $router->post('/messages/{id}/read', MessageController::class, 'markRead');

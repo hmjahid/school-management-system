@@ -47,7 +47,7 @@ dashboard + admin backend. Always exported as the `int` variant (English/USD/UTC
 | command | what |
 |---|---|
 | `php -S 127.0.0.1:8011 -t public` | dev server (README documents 8011; any port works) |
-| `composer test` | PHPUnit — 77 tests (DB-free) |
+| `composer test` | PHPUnit — 123 tests (DB-free) |
 | `mysql -u root -p eskoofy_website < database/schema.sql` | schema import |
 
 ## Gotchas

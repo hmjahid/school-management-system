@@ -3,7 +3,7 @@
 
 Tracks features of the eskoofy-branding-website marketing site + license server.
 Statuses are derived from repo evidence: routes/web.php + api.php source,
-app/Gateways/*, app/Core/Middleware/*, main.php layout, tests/ (103 Unit tests),
+app/Gateways/*, app/Core/Middleware/*, main.php layout, tests/ (123 Unit tests),
 config/gateways.php, and .github/workflows/ci.yml (branding tests + export gates).
 
 Run from the monorepo root:
@@ -54,6 +54,18 @@ FEATURES = [
     ("Public site", "Compare page",
      "Side-by-side product comparison.",
      S("Yes"), "GET /compare (web.php:32)."),
+    ("Public site", "CMS-driven page hero/content",
+     "Per-page hero heading/intro/body from the pages table, locale-aware; template defaults win until edited.",
+     S("Yes"), "app/Models/Page.php + views/site/partials/cms_block.php; Page::forPath() per route."),
+    ("Public site", "Per-page SEO (title/description/canonical/hreflang/JSON-LD)",
+     "CMS-managed metadata merged in main.php layout; per-view overrides win, CMS fills gaps.",
+     S("Yes"), "views/layouts/main.php SEO merge; app/Services/Seo.php hreflang + raw JSON-LD support."),
+    ("Public site", "Product-selection wizard (/choose)",
+     "5-question quiz recommending app / raw-PHP / WP theme / Node variant with runner-up + all-product cards.",
+     S("Yes"), "GET/POST /choose (web.php:34-35); ChooseController + ProductRecommender."),
+    ("Public site", "Custom order/development request (/custom-order)",
+     "Order custom development, modifications or extra features for any product; stored + emailed to sales.",
+     S("Yes"), "GET/POST /custom-order (web.php:36-37); CustomOrderController; admin follow-up inbox."),
     ("Public site", "About page",
      "Company/about content.",
      S("Yes"), "GET /about (web.php:33)."),
@@ -255,9 +267,23 @@ FEATURES = [
     ("Admin backend", "Cache management/clear",
      "Cache admin + clear action.",
      S("Yes"), "CacheController (web.php:166-167)."),
-    ("Admin backend", "Backup (create/download/delete)",
-     "DB backup management.",
-     S("Yes"), "BackupController (web.php:169-171)."),
+("Admin backend", "Backup (create/download/delete)",
+      "DB backup management.",
+      S("Yes"), "BackupController (web.php:169-171)."),
+
+    # ── Website CMS ─────────────────────────────────────────────────────────
+    ("Website CMS", "Pages library (pages table + seeds)",
+     "pages table with 16 seed rows covering every static/product route; soft delete.",
+     S("Yes"), "database/schema.sql pages table + seeds; Page model forPath()/routes()."),
+    ("Website CMS", "Pages admin (CRUD + soft delete)",
+     "List/create/edit/delete pages; route + name + sort + active + noindex + JSON-LD fields.",
+     S("Yes"), "PageController (web.php:128-133); views/admin/pages.php + page_form.php."),
+    ("Website CMS", "Per-locale body copy (en/bn)",
+     "Locale columns per page fall back en→bn; locale blank means template default wins.",
+     S("Yes"), "Page::localized(); page_form locale panels; I18n key parity maintained."),
+    ("Website CMS", "Custom-orders admin inbox + status workflow",
+     "Follow up on custom-order requests: unread badge, mark read, status pipeline, archive.",
+     S("Yes"), "CustomRequestController (web.php:135-139); views/admin/custom_requests.php; CustomRequest::countUnread() badge."),
 
     # ── Support widget ──────────────────────────────────────────────────────
     ("Support widget", "Support widget on public site",
@@ -308,12 +334,15 @@ FEATURES = [
      S("Yes"), "Views escape dynamic values."),
 
     # ── Testing & delivery ──────────────────────────────────────────────────
-    ("Testing & delivery", "Unit test suite (103 tests / 12 files)",
+    ("Testing & delivery", "Unit test suite (123 tests / 14 files)",
      "Core, gateways, models, services, security, PWA, geo, i18n.",
-     S("Yes"), "tests/Unit/** — 103 function test across 12 files."),
+     S("Yes"), "tests/Unit/** — 123 function test across 14 files."),
     ("Testing & delivery", "Route-registration consistency test",
      "RouterRegistrationTest.",
-     S("Yes"), "RouterRegistrationTest (15)."),
+     S("Yes"), "RouterRegistrationTest (17)."),
+    ("Testing & delivery", "CMS/quiz/custom-order model+service tests",
+     "PageTest + ProductRecommenderTest.",
+     S("Yes"), "PageTest (9) + ProductRecommenderTest (9)."),
     ("Testing & delivery", "Fake DB for tests",
      "Isolated test backend.",
      S("Yes"), "tests/FakeDatabase.php."),
