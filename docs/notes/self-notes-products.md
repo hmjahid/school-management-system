@@ -355,33 +355,50 @@ create a master xlsx file to track features in branding websiite to track which 
 
 create a proper prompt file for completing the above tasks and execute the prompt. continue untill finished
 
-
-
-
-
-
-
 create a child theme of this theme like the elementor child theme so that the theme updates doesnot break/remove custom styles, scripts added by users in the theme files. tell me child theme principle fisrt. temll me how it works. how it depends on main theme?
 
-add drive, dropbox, 4saherd,  connect feature in all 4 products and the branding website for backup sore and restore them. also add automatic backup system after a specific interval
+if child theme is active, parent theme no need to activate. but th eparent theme independenly can be activated without child theme an dfully run. right?
 
-add full cms control feature in the branding website admin dashboard
+commit this
+
+now update the root readme file with these chnages and commit that
+
+add full cms control feature in the branding website admin dashboard includinh meta title, meta desc, canonical tag, json schema, reflang as our branding website is dual language supported
 
 add product suggestion feature for helping visitor/client for choosing the right variant of this school management system in the branding website.
 
-add a option for the visitors/clients for ordering custom/modifictaion/extra-features in the all 4 products/variant.
+add a option in the branding website for the visitors/clients for ordering custom/modifictaion/extra-features in the all 4 products/variant.
+
+create a proper prompt file for completing the above tasks and execute the prompt. continue untill finished. donot forget to record features in the features tracking files where applicable.
+
+make ensure that one varaint exported/backup data (backup, students list, staff lists etc) can be used in another varinats
+
+add branding website also in the docker setup for development testing with the existing 4 products docker testing setup
+
+suppose you are a senior software engineer with 20+ years of experience. review the codebase for already implemented payment system in all 4 products and the branding website. review them, check if they are properly implemented or not, create a file for the review result and also add suggestions for properly implementing payment system in all 4 products and the branding website.
+
+now create an implementation plan for this payment system review
+
+
+
+read PAYMENT-SYSTEM-REVIEW.md and PAYMENT-IMPLEMENTATION-PLAN.md files and implement them one by one. ask me at starting every phase before execution 
+
+add drive, dropbox, 4saherd,  connect feature in all 4 products and the branding website for backup store and restore them. also add automatic backup system after a specific interval
 
 add option for adding institution water mark in all exportable documents like testimonials, cerificate, marksheet etc in the all 4 products.
 
-make ensure taht the testimonials, cerificate, marksheet, id cards, admit cards designs are totally cutsomizable in all 4 products
+make ensure that the testimonials, cerificate, marksheet, id cards, admit cards designs are totally cutsomizable in all 4 products
 
-make ensure that one varaint exported/backup data (backup, students list, staff lists etc) can be used in another varinats
+create a proper prompt file for completing the above tasks and execute the prompt. continue untill finished. donot forget to record features in the features tracking files
+
+
 
 
 use/add uddoktapay in all 4 products and the branding website for bangladeshi payemnt. It will be optional/ if checked will show, otherwise aill not show in the frontend. read uddoktapay documentation from their official website and the github repository fisrt.
 
 
 
+now update the root readme file with these chnages and commit that
 
 now implement the frontend parity research plan
 
@@ -395,7 +412,7 @@ how to make this app/php-version/theme eligible for selling in theme forest or o
 
 now write a commit message for the chnage safter the last commit and commit that
 
-
+now update the root readme file with these chnages and commit that
 
 
 [•] Create docker/README.md with commands, ports & container-name table
