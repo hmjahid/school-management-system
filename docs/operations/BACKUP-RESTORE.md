@@ -83,6 +83,37 @@ Restore behavior worth knowing:
   always restores verbatim.
 - Restoring an archive on the **same variant & same key** is byte-for-byte as before.
 
+## Cloud & automatic backups (`backup:cloud`)
+
+Every product can also upload a **portable** backup to a cloud provider on a schedule.
+The admin surface is `dashboard › Cloud Backup` in the app, `/dashboard/cloud-backup` in
+the raw-PHP port and WP theme, and `/dashboard/cloud-backup` in the Node variant.
+See `docs/design/CLOUD-BACKUP.md` for the full contract.
+
+```bash
+# Laravel app
+php artisan backup:cloud                 # upload a fresh portable backup now
+php artisan backup:cloud:dispatch        # interval dispatcher (scheduled every 5 min)
+php artisan backup:cloud:restore --latest # restore the newest remote copy
+
+# raw-PHP port
+php scripts/backup-cloud.php             # upload now
+php scripts/backup-cloud.php --dispatch  # interval dispatcher (cron.php, every 5 min)
+php scripts/backup-cloud.php --list      # list remote files
+php scripts/backup-cloud.php --restore=<file>
+```
+
+- Providers: `local` mirror, Google Drive (OAuth2 or service account), Dropbox, 4shared,
+  Amazon S3 (or any S3-compatible endpoint).
+- Provider credentials are **encrypted at rest** (raw-PHP uses `APP_KEY`) and never echoed
+  back; a blank input means unchanged.
+- Automatic mode (`auto_enabled`) uploads on the install's `interval_minutes`; retention
+  keeps the newest `keep` files and deletes the rest.
+- Every attempt is logged in `cloud_backup_runs` and on the settings row
+  (`last_run_at` / `last_status` / `last_error`).
+- Restoring a cloud copy needs `manage_cloud_backup` **and** `restore_database` in the app,
+  raw-PHP port and Node variant.
+
 ## Restore verification (required monthly)
 
 1. Restore the latest backup into a scratch database (ideally staging).

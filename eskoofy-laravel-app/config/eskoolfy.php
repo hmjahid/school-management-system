@@ -99,6 +99,152 @@ return [
 
     /*
     |----------------------------------------------------------------------
+    | Exportable documents (certificates, testimonials, marksheets, admit
+    | cards, student ID cards)
+    |----------------------------------------------------------------------
+    |
+    | `documents.types` is the canonical list of exportable document types.
+    |
+    | `documents.templates` are the built-in design templates every product
+    | ships. `documents.defaults` are the per-type design defaults, and
+    | `documents.watermark` is the institution watermark applied to every
+    | exportable document unless a saved design overrides it.
+    |
+    | Runtime overrides live in the `document_designs` table (per install) —
+    | see App\Services\DocumentDesignService. These config values are the
+    | shipped defaults, so an install with no design row keeps the bd
+    | profile's current look.
+    |
+    */
+
+    'documents' => [
+
+        'types' => ['certificate', 'testimonial', 'marksheet', 'admit_card', 'id_card'],
+
+        'templates' => ['classic', 'modern', 'minimal', 'bordered'],
+
+        'watermark' => [
+            'enabled' => env('DOCUMENT_WATERMARK_ENABLED', false),
+            'type' => 'text', // text | image | logo
+            'text' => env('DOCUMENT_WATERMARK_TEXT'),
+            'image_path' => null,
+            'opacity' => 0.18,
+            'rotation' => 45,
+            'position' => 'diagonal', // center | diagonal | tile | top | bottom
+            'font_size' => 48,
+            'color' => '#0f172a',
+            'font_family' => 'inherit',
+            'documents' => [
+                'certificate' => true,
+                'testimonial' => true,
+                'marksheet' => true,
+                'admit_card' => true,
+                'id_card' => true,
+            ],
+        ],
+
+        'defaults' => [
+            'certificate' => [
+                'template' => 'classic',
+                'primary_color' => '#1e40af',
+                'secondary_color' => '#1e3a8a',
+                'accent_color' => '#2563eb',
+                'muted_color' => '#64748b',
+                'background_color' => '#ffffff',
+                'font_family' => 'Georgia, serif',
+                'base_font_size' => 16,
+                'title_font_size' => 24,
+                'border_style' => 'double',
+                'border_width' => 3,
+                'border_color' => '#2563eb',
+                'border_radius' => 0,
+                'page_size' => 'a4',
+                'orientation' => 'landscape',
+                'padding' => 48,
+                'accent_bar' => 'none',
+            ],
+            'testimonial' => [
+                'template' => 'classic',
+                'primary_color' => '#16a34a',
+                'secondary_color' => '#166534',
+                'accent_color' => '#16a34a',
+                'muted_color' => '#64748b',
+                'background_color' => '#ffffff',
+                'font_family' => 'Georgia, serif',
+                'base_font_size' => 16,
+                'title_font_size' => 24,
+                'border_style' => 'double',
+                'border_width' => 3,
+                'border_color' => '#16a34a',
+                'border_radius' => 0,
+                'page_size' => 'a4',
+                'orientation' => 'landscape',
+                'padding' => 48,
+                'accent_bar' => 'none',
+            ],
+            'marksheet' => [
+                'template' => 'modern',
+                'primary_color' => '#1f2937',
+                'secondary_color' => '#4b5563',
+                'accent_color' => '#2563eb',
+                'muted_color' => '#6b7280',
+                'background_color' => '#ffffff',
+                'font_family' => 'Helvetica, Arial, sans-serif',
+                'base_font_size' => 13,
+                'title_font_size' => 22,
+                'border_style' => 'solid',
+                'border_width' => 1,
+                'border_color' => '#d1d5db',
+                'border_radius' => 8,
+                'page_size' => 'a4',
+                'orientation' => 'portrait',
+                'padding' => 40,
+                'accent_bar' => 'bottom',
+            ],
+            'admit_card' => [
+                'template' => 'modern',
+                'primary_color' => '#1e40af',
+                'secondary_color' => '#1e3a8a',
+                'accent_color' => '#1e40af',
+                'muted_color' => '#6b7280',
+                'background_color' => '#ffffff',
+                'font_family' => 'Arial, Helvetica, sans-serif',
+                'base_font_size' => 14,
+                'title_font_size' => 24,
+                'border_style' => 'solid',
+                'border_width' => 3,
+                'border_color' => '#1e40af',
+                'border_radius' => 12,
+                'page_size' => 'a4',
+                'orientation' => 'portrait',
+                'padding' => 30,
+                'accent_bar' => 'top',
+            ],
+            'id_card' => [
+                'template' => 'modern',
+                'primary_color' => '#1e40af',
+                'secondary_color' => '#1e3a8a',
+                'accent_color' => '#1e40af',
+                'muted_color' => '#6b7280',
+                'background_color' => '#ffffff',
+                'font_family' => 'Arial, Helvetica, sans-serif',
+                'base_font_size' => 13,
+                'title_font_size' => 18,
+                'border_style' => 'solid',
+                'border_width' => 3,
+                'border_color' => '#1e40af',
+                'border_radius' => 12,
+                'page_size' => 'credit-card',
+                'orientation' => 'landscape',
+                'padding' => 20,
+                'accent_bar' => 'none',
+            ],
+        ],
+
+    ],
+
+    /*
+    |----------------------------------------------------------------------
     | Cross-variant restore reconciliation
     |----------------------------------------------------------------------
     |

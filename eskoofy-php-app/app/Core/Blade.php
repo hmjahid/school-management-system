@@ -828,6 +828,25 @@ class Blade
         return "<?php echo \$__env->class({$e}); ?>";
     }
 
+    /**
+     * `@checked($cond)` renders ` checked` when the condition is truthy, and
+     * nothing otherwise. Laravel semantics; used by the cloud-backup and
+     * document-designs admin forms ported from eskoofy-laravel-app.
+     */
+    protected static function compileChecked(?string $e): string
+    {
+        return "<?php echo ({$e}) ? ' checked' : ''; ?>";
+    }
+
+    /**
+     * `@selected($cond)` renders ` selected` when the condition is truthy, and
+     * nothing otherwise. Laravel semantics.
+     */
+    protected static function compileSelected(?string $e): string
+    {
+        return "<?php echo ({$e}) ? ' selected' : ''; ?>";
+    }
+
     protected static function compileProps(?string $e): string
     {
         return "<?php \$__props = \$__env->componentProps({$e}); extract(\$__props, EXTR_OVERWRITE); \$attributes = new \\App\\Core\\ComponentAttributeBag(\$__env->currentComponentAttributes()); ?>";

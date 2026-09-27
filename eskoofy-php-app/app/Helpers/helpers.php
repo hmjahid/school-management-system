@@ -39,6 +39,7 @@ function config(string $key, mixed $default = null): mixed
             'eskoolfy'     => is_file(__DIR__ . '/../../config/eskoolfy.php') ? require __DIR__ . '/../../config/eskoolfy.php' : [],
             'payment'      => $paymentConfig ?? [],
             'sms'          => is_file(__DIR__ . '/../../config/sms.php') ? require __DIR__ . '/../../config/sms.php' : [],
+            'backup'       => is_file(__DIR__ . '/../../config/backup.php') ? require __DIR__ . '/../../config/backup.php' : [],
             'access'       => is_file(__DIR__ . '/../../config/access.php') ? require __DIR__ . '/../../config/access.php' : ['dashboard_roles' => ['super_admin', 'admin'], 'module_roles' => []],
             'currency'     => ['symbol' => $symbol, 'currency' => $currency],
             'database'     => ['default' => $_ENV['DB_CONNECTION'] ?? 'mysql'],
@@ -582,10 +583,35 @@ if (!function_exists('public_path')) {
     }
 }
 
+if (!function_exists('storage_path')) {
+    function storage_path(string $path = ''): string
+    {
+        $root = dirname(__DIR__, 2) . '/storage';
+        return $path === '' ? $root : $root . '/' . ltrim($path, '/');
+    }
+}
+
 if (!function_exists('can')) {
     function can(string $ability, mixed $arguments = []): bool
     {
         return \App\Core\Gate::allows($ability, $arguments);
+    }
+}
+
+if (!function_exists('abort_unless')) {
+    function abort_unless(bool $condition, int $code = 403, string $message = ''): void
+    {
+        if ($condition) {
+            return;
+        }
+
+        http_response_code($code);
+        if ($code === 403) {
+            echo '<div style="font-family:sans-serif;max-width:480px;margin:6rem auto;padding:2rem;border:1px solid #e2e8f0;border-radius:8px;color:#0f172a;"><h1 style="margin:0 0 .5rem;">403</h1><p style="margin:0;color:#475569;">' . esc($message ?: __('You do not have permission to do this.')) . '</p></div>';
+        } else {
+            echo esc($message);
+        }
+        exit;
     }
 }
 
@@ -712,5 +738,35 @@ if (!function_exists('class_basename')) {
     {
         $class = is_object($class) ? get_class($class) : $class;
         return basename(str_replace('\\', '/', $class));
+    }
+}
+
+if (!function_exists('document_context')) {
+    /**
+     * The full render context for a document type: theme, watermark and the
+     * sanitised custom CSS.
+     *
+     * Used by resources/views/partials/dashboard/document-style.blade.php and
+     * document-watermark.blade.php, which are shared byte-identical with
+     * eskoofy-laravel-app. The raw-PHP `app()` only resolves ViewErrorBag, so
+     * the service is instantiated directly.
+     *
+     * @return array{type: string, theme: array<string, mixed>, watermark: array<string, mixed>, custom_css: string, css: string}
+     */
+    function document_context(string $type): array
+    {
+        return (new \App\Services\DocumentDesignService())->context($type);
+    }
+}
+
+if (!function_exists('document_watermark')) {
+    /**
+     * The normalised institution watermark for a document type.
+     *
+     * @return array<string, mixed>
+     */
+    function document_watermark(string $type): array
+    {
+        return (new \App\Services\DocumentDesignService())->watermark($type);
     }
 }

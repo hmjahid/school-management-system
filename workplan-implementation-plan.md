@@ -179,6 +179,19 @@ Verification baseline (2026-09-11): `cd eskoofy-laravel-app && composer test` �
 | 11.7 | Tests + suites | ✅ done | Laravel +15 tests (938 total): manifest fields, fingerprint keep/clear, cross-variant reconcile, bd/int import defaults. Node +6 tests (107 total). php-app `VariantRestoreReconcilerTest` (316 total). All green: Laravel `composer test` 938/2431, Pint clean, Node 107 + typecheck + route:parity OK, php-app 316/818. |
 | 11.8 | Docs | ✅ done | `docs/design/DATA-PORTABILITY.md` rewritten (contract §1a, restore rules §2a/§2b, CSV defaults §3, php/WP §4); `docs/operations/BACKUP-RESTORE.md` portable section. |
 
+## Phase 12 — Cloud backup + configurable document designs / watermarks — COMPLETE
+
+| # | Task | Status | Notes |
+|---|------|--------|-------|
+| 12.1 | Laravel: cloud-backup subsystem | ✅ done | `config/backup.php`, migrations `cloud_backup_settings`/`cloud_backup_runs`, `CloudBackupService`/`CloudBackupManager`, drivers (local/Google Drive/Dropbox/4shared/S3), HTTPS-only cURL transport, `backup:cloud` + `backup:cloud:dispatch` commands, `routes/console.php` 5-min dispatcher, dashboard CRUD + run history. |
+| 12.2 | Laravel: document designs | ✅ done | `document_designs` migration, `DocumentDesignService`, `DashboardDocumentDesignController` + admin UI + live preview, dompdf-safe CSS, watermark partials injected into all 5 print views. |
+| 12.3 | Laravel: cloud archive correctness fixes | ✅ done | `BackupRunCommand --path` absolute-path fix, staging cleanup on success, prune by mtime (not name), cross-provider credential-leak fix (`refresh_token` shared by google_drive/dropbox), restore requiring both `manage_cloud_backup` + `restore_database`. Laravel suite **1050 passed / 2769 assertions**, Pint 1087 files clean. |
+| 12.4 | raw-PHP port | ✅ done | `config/backup.php`, `SecretCipher` (AES-256-GCM keyed from `APP_KEY`), `PortableBackupService`, full CloudBackup tree + controllers, `DocumentDesignService`, `@checked`/`@selected` Blade directives, 3 schema tables, cron + CLI scripts, byte-identical views (sidebar, 5 print views, 2 admin pages, 2 partials). Suite **342 passed / 904 assertions**. |
+| 12.5 | WP theme | ✅ done | `inc/cloud-backup.php` + `inc/document-designs.php`, 3 `esk_*` tables, cloud-backup + document-designs admin pages, WP-cron 5-min dispatcher, certificate print injection. PHPCS-consistent with existing `esk_` prefix noise (non-gating). |
+| 12.6 | Node variant | ✅ done | Prisma models (3), `lib/cloud-backup.ts` (drivers + dispatch + retention + restore), `lib/document-designs.ts`, dashboard pages + server actions, permissions, nav, i18n (en/bn), regenerated `routes.generated.ts` (598 routes). Gates green: 112 tests, typecheck, lint 0 errors, `route:parity` PARITY OK, `next build`. |
+| 12.7 | Branding website | ✅ done | en/bn marketing copy: `/features` bullets (cloud backups, branded documents), `compare.backups` row, plan `features` JSON, product benefit, legal term reconciled. Suite **123 passed / 349 assertions**. |
+| 12.8 | Docs | ✅ done | `docs/design/CLOUD-BACKUP.md`, `docs/design/DOCUMENT-DESIGNS.md`, `docs/operations/BACKUP-RESTORE.md` cloud section, prompt status → COMPLETE. |
+
 ---
 
 ## Summary

@@ -2479,3 +2479,59 @@ CREATE TABLE IF NOT EXISTS `sms_logs` (
 -- ============================================================
 -- END OF SCHEMA
 -- ============================================================
+
+-- ============================================================
+-- CLOUD BACKUP & DOCUMENT DESIGNS
+-- (parity with eskoofy-laravel-app migrations 2026_09_27_*)
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS `cloud_backup_settings` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `provider` VARCHAR(191) NOT NULL DEFAULT 'local',
+  `credentials` TEXT NULL,
+  `folder` VARCHAR(191) NULL,
+  `is_enabled` TINYINT(1) NOT NULL DEFAULT 1,
+  `auto_enabled` TINYINT(1) NOT NULL DEFAULT 0,
+  `interval_minutes` INT UNSIGNED NOT NULL DEFAULT 60,
+  `keep` INT UNSIGNED NOT NULL DEFAULT 7,
+  `last_run_at` TIMESTAMP NULL,
+  `last_status` VARCHAR(32) NULL,
+  `last_error` TEXT NULL,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `cloud_backup_runs` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `provider` VARCHAR(191) NOT NULL,
+  `file_name` VARCHAR(191) NOT NULL,
+  `remote_id` VARCHAR(191) NULL,
+  `size` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  `status` VARCHAR(20) NOT NULL DEFAULT 'success',
+  `message` TEXT NULL,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`),
+  KEY `cloud_backup_runs_status_index` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `document_designs` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `document_type` VARCHAR(50) NOT NULL,
+  `name` VARCHAR(191) NOT NULL,
+  `template` VARCHAR(50) NOT NULL DEFAULT 'classic',
+  `is_default` TINYINT(1) NOT NULL DEFAULT 0,
+  `settings` JSON NULL,
+  `watermark` JSON NULL,
+  `custom_css` TEXT NULL,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`),
+  KEY `document_designs_type_default_index` (`document_type`, `is_default`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- END OF SCHEMA
+-- ============================================================

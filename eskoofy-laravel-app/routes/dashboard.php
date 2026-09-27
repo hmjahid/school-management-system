@@ -17,9 +17,11 @@ use App\Http\Controllers\Web\DashboardBudgetController;
 use App\Http\Controllers\Web\DashboardBulkController;
 use App\Http\Controllers\Web\DashboardCareerController;
 use App\Http\Controllers\Web\DashboardCertificateController;
+use App\Http\Controllers\Web\DashboardCloudBackupController;
 use App\Http\Controllers\Web\DashboardCommunicationsController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\DashboardDocumentController;
+use App\Http\Controllers\Web\DashboardDocumentDesignController;
 use App\Http\Controllers\Web\DashboardEventController;
 use App\Http\Controllers\Web\DashboardExamController;
 use App\Http\Controllers\Web\DashboardExamResultController;
@@ -479,6 +481,25 @@ Route::middleware('auth')->group(function () {
             Route::get('/download/{file}', [DashboardBackupController::class, 'download'])->name('download');
             Route::post('/restore/{file}', [DashboardBackupController::class, 'restore'])->name('restore');
             Route::delete('/{file}', [DashboardBackupController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::prefix('dashboard/cloud-backup')->name('dashboard.cloud-backup.')->group(function () {
+            Route::get('/', [DashboardCloudBackupController::class, 'index'])->name('index');
+            Route::post('/settings', [DashboardCloudBackupController::class, 'update'])->name('update');
+            Route::post('/test', [DashboardCloudBackupController::class, 'test'])->name('test');
+            Route::post('/run', [DashboardCloudBackupController::class, 'run'])->name('run');
+            Route::post('/restore/{file}', [DashboardCloudBackupController::class, 'restore'])->name('restore');
+            Route::delete('/{file}', [DashboardCloudBackupController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::prefix('dashboard/document-designs')->name('dashboard.document-designs.')->group(function () {
+            Route::get('/', [DashboardDocumentDesignController::class, 'index'])->name('index');
+            Route::get('/create', [DashboardDocumentDesignController::class, 'create'])->name('create');
+            Route::post('/', [DashboardDocumentDesignController::class, 'store'])->name('store');
+            Route::match(['get', 'post'], '/preview', [DashboardDocumentDesignController::class, 'preview'])->name('preview');
+            Route::get('/{documentDesign}/edit', [DashboardDocumentDesignController::class, 'edit'])->name('edit');
+            Route::put('/{documentDesign}', [DashboardDocumentDesignController::class, 'update'])->name('update');
+            Route::delete('/{documentDesign}', [DashboardDocumentDesignController::class, 'destroy'])->name('destroy');
         });
 
         Route::get('/dashboard/activity', [DashboardActivityController::class, 'index'])->name('dashboard.activity.index');

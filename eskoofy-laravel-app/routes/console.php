@@ -27,3 +27,11 @@ Schedule::command('payments:process-recurring')
 Schedule::command('notifications:process-scheduled --force')
     ->everyFiveMinutes()
     ->withoutOverlapping();
+
+// Cloud backup interval dispatcher. The fixed 5-minute tick is cheap; the
+// command itself decides whether the install's configured interval
+// (dashboard › cloud backup) has elapsed before uploading.
+Schedule::command('backup:cloud:dispatch')
+    ->everyFiveMinutes()
+    ->withoutOverlapping()
+    ->runInBackground();

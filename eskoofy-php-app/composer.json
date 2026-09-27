@@ -24,7 +24,8 @@
         }
     },
     "scripts": {
-        "test": "./vendor/bin/phpunit"
+        "test": "./vendor/bin/phpunit",
+        "lint": "php -l app/Core/Blade.php && find app config routes public -name \\*.php -print0 | xargs -0 -n1 php -l"
     },
     "config": {
         "optimize-autoloader": true,

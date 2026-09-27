@@ -379,17 +379,19 @@ suppose you are a senior software engineer with 20+ years of experience. review 
 
 now create an implementation plan for this payment system review
 
-
-
-read PAYMENT-SYSTEM-REVIEW.md and PAYMENT-IMPLEMENTATION-PLAN.md files and implement them one by one. ask me at starting every phase before execution 
-
-add drive, dropbox, 4saherd,  connect feature in all 4 products and the branding website for backup store and restore them. also add automatic backup system after a specific interval
+add google drive, dropbox, 4saherd,  connect feature in all 4 products and the branding website for backup and restore them. also add automatic backup system after a specific interval
 
 add option for adding institution water mark in all exportable documents like testimonials, cerificate, marksheet etc in the all 4 products.
 
 make ensure that the testimonials, cerificate, marksheet, id cards, admit cards designs are totally cutsomizable in all 4 products
 
 create a proper prompt file for completing the above tasks and execute the prompt. continue untill finished. donot forget to record features in the features tracking files
+
+
+
+
+read PAYMENT-SYSTEM-REVIEW.md and PAYMENT-IMPLEMENTATION-PLAN.md files and implement them one by one. ask me at starting every phase before execution 
+
 
 
 
@@ -402,7 +404,7 @@ now update the root readme file with these chnages and commit that
 
 now implement the frontend parity research plan
 
-ensure proper payment method applied in this system app, php, theme and the website
+ensure proper payment method applied in this system laravel app, nodejs app, raw php, wp theme and the branding website
 
 
 

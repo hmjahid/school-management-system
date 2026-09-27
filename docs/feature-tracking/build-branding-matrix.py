@@ -270,6 +270,9 @@ FEATURES = [
 ("Admin backend", "Backup (create/download/delete)",
       "DB backup management.",
       S("Yes"), "BackupController (web.php:169-171)."),
+("Admin backend", "Cloud backup / document designs marketing copy",
+      "en/bn marketing for automatic cloud backups and branded document designs/watermarks (features bullets, compare row, plan features JSON, benefit, legal).",
+      S("Yes"), "lang/en.php + lang/bn.php + views/site/compare.php + plans seeds + features.php."),
 
     # ── Website CMS ─────────────────────────────────────────────────────────
     ("Website CMS", "Pages library (pages table + seeds)",

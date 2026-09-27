@@ -34,7 +34,7 @@ class DashboardAccessConfigTest extends TestCase
     {
         $access = $this->access();
         $map = $access['module_roles'] ?? [];
-        foreach (['UserController', 'RoleController', 'PermissionController', 'SettingController', 'BackupController', 'SmsController', 'PayrollController', 'PaymentGatewayController'] as $controller) {
+        foreach (['UserController', 'RoleController', 'PermissionController', 'SettingController', 'BackupController', 'CloudBackupController', 'DocumentDesignController', 'SmsController', 'PayrollController', 'PaymentGatewayController'] as $controller) {
             $this->assertArrayHasKey($controller, $map, "{$controller} must be explicitly mapped");
             $this->assertContains('admin', $map[$controller], "{$controller} must require admin");
             $this->assertNotContains('student', $map[$controller]);

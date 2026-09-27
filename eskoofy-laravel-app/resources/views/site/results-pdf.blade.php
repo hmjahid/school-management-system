@@ -3,32 +3,44 @@
 <head>
     <meta charset="utf-8">
     <title>{{ __('Marksheet') }} — {{ $student->user?->name ?? 'Student' }}</title>
+    @include('partials.dashboard.document-style', ['documentType' => 'marksheet'])
+    @php
+        $docDesign = document_context('marksheet');
+        $docTheme = $docDesign['theme'];
+    @endphp
+    {{-- dompdf supports neither var() nor calc(): every colour/size here must
+         come from a literal-value class emitted by DocumentDesignService. --}}
     <style>
-        body { font-family: DejaVu Sans, sans-serif; color: #1f2937; margin: 24px; }
-        .header { text-align: center; border-bottom: 2px solid #1d4ed8; padding-bottom: 12px; margin-bottom: 20px; }
+        body { margin: 0; }
+        .header { text-align: center; border-bottom: 2px solid; padding-bottom: 12px; margin-bottom: 20px; }
         .logo { max-height: 64px; margin: 0 auto 8px; }
-        .school { font-size: 20px; font-weight: bold; color: #1d4ed8; }
-        .sub { font-size: 12px; color: #6b7280; }
-        .info { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 16px; }
-        .info b { color: #374151; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th, td { border: 1px solid #d1d5db; padding: 6px 8px; text-align: left; }
-        th { background: #eff6ff; text-transform: uppercase; font-size: 10px; letter-spacing: .5px; }
-        .exam-title { font-size: 14px; font-weight: bold; margin: 18px 0 6px; color: #1e3a8a; }
+        .school { font-weight: bold; }
+        .sub { font-size: 12px; }
+        .info { display: flex; justify-content: space-between; margin-bottom: 16px; }
+        .info b { font-weight: 700; }
+        table.doc-table { font-size: 12px; }
+        table.doc-table th, table.doc-table td { padding: 6px 8px; text-align: left; }
+        table.doc-table th { text-transform: uppercase; font-size: 10px; letter-spacing: .5px; }
+        .exam-title { font-size: 14px; font-weight: bold; margin: 18px 0 6px; }
         .summary { margin-top: 20px; font-size: 13px; }
         .summary span { margin-right: 24px; }
-        .footer { margin-top: 32px; font-size: 11px; color: #9ca3af; text-align: center; }
+        .footer { margin-top: 32px; font-size: 11px; text-align: center; }
     </style>
 </head>
 <body>
+<div class="doc-root doc-marksheet">
+    <div class="doc-accent-bar"></div>
+    @include('partials.dashboard.document-watermark', ['documentType' => 'marksheet'])
+    @if($docTheme['show_header'])
     <div class="header">
-        @if($settings->logo_path)
-            <img class="logo" src="{{ asset('storage/' . $settings->logo_path) }}" alt="Logo">
+        @if($docTheme['show_logo'] && $settings->logo_path)
+            <img class="logo doc-logo" src="{{ asset('storage/' . $settings->logo_path) }}" alt="Logo">
         @endif
-        <div class="school">{{ $settings->site_name ?? config('app.name') }}</div>
-        @if($settings->tagline)<div class="sub">{{ $settings->tagline }}</div>@endif
-        @if($settings->address)<div class="sub">{{ $settings->address }}</div>@endif
+        <div class="school doc-title">{{ $docTheme['header_text'] ?? ($settings->site_name ?? config('app.name')) }}</div>
+        @if($settings->tagline)<div class="sub doc-muted">{{ $settings->tagline }}</div>@endif
+        @if($docTheme['show_footer'] && $settings->address)<div class="sub doc-muted">{{ $settings->address }}</div>@endif
     </div>
+    @endif
 
     <div class="info">
         <div>
@@ -52,8 +64,8 @@
     @endphp
 
     @foreach($grouped as $examName => $examResults)
-        <div class="exam-title">{{ $examName }}</div>
-        <table>
+        <div class="exam-title doc-name">{{ $examName }}</div>
+        <table class="doc-table">
             <thead>
                 <tr>
                     <th>{{ __('Subject') }}</th>
@@ -81,6 +93,9 @@
         <span><b>{{ __('Grade') }}:</b> {{ $grade }}</span>
     </div>
 
-    <div class="footer">{{ __('This is a computer-generated marksheet and does not require a signature.') }}</div>
+    @if($docTheme['show_footer'])
+        <div class="footer doc-muted">{{ $docTheme['footer_text'] ?? __('This is a computer-generated marksheet and does not require a signature.') }}</div>
+    @endif
+</div>
 </body>
 </html>

@@ -12,14 +12,14 @@ use ZipArchive;
 
 class BackupRunCommand extends Command
 {
-    protected $signature = 'backup:run {--path= : Output directory (defaults to local disk "backups" dir)}';
+    protected $signature = 'backup:run {--path= : Output directory (relative to the project root, or absolute). Defaults to the local disk "backups" dir}';
 
     protected $description = 'Create a lightweight backup archive (portable DB dump + storage/app/public).';
 
     public function handle(): int
     {
         $outDir = $this->option('path')
-            ? base_path($this->option('path'))
+            ? $this->resolveOutputPath((string) $this->option('path'))
             : Storage::disk('local')->path('backups');
         File::ensureDirectoryExists($outDir);
 
@@ -61,6 +61,20 @@ class BackupRunCommand extends Command
         $this->info("Backup created: {$zipPath}");
 
         return self::SUCCESS;
+    }
+
+    /**
+     * `--path` is relative to the project root, which is what it has always
+     * meant. An absolute path is now honoured as-is: base_path() concatenates
+     * unconditionally, so passing one produced a nonsense nested directory
+     * (and the archive was then written where the caller did not look for it).
+     */
+    private function resolveOutputPath(string $path): string
+    {
+        $isAbsolute = str_starts_with($path, '/')
+            || preg_match('#^[A-Za-z]:[\\\\/]#', $path) === 1;
+
+        return $isAbsolute ? $path : base_path($path);
     }
 
     private function zipDir(ZipArchive $zip, string $dir, string $prefix): void

@@ -30,6 +30,8 @@ return [
         'PermissionController'        => ['super_admin', 'admin'],
         'SettingController'           => ['super_admin', 'admin'],
         'BackupController'            => ['super_admin', 'admin'],
+        'CloudBackupController'       => ['super_admin', 'admin'],
+        'DocumentDesignController'    => ['super_admin', 'admin'],
         'BulkController'              => ['super_admin', 'admin'],
         'OnboardingController'        => ['super_admin', 'admin'],
         'PaymentGatewayController'    => ['super_admin', 'admin'],

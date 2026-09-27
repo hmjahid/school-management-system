@@ -20,7 +20,7 @@ framework at runtime**, built for shared hosting without Composer/Laravel/VPS.
   exact same `.blade.php` templates via the minimal Blade compiler
 - `config/` — `app.php`, `school.php`, `eskoolfy.php`, `payment.php`, `sms.php`,
   `routes.php` (name→URI map generated from the Laravel `route:list`)
-- `database/schema.sql` — 93-table MySQL schema + admin seed
+- `database/schema.sql` — 99-table MySQL schema + admin seed
 - `database/seed_demo.php` — idempotent demo-account seeder (run after schema.sql)
 - `lang/` — `en/` + `bn/` (from eskoofy-laravel-app)
 - `routes/web.php`, `routes/api.php` — full public + dashboard + JSON API routes

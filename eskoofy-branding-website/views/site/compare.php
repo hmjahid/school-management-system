@@ -26,7 +26,7 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-                <?php foreach (['deploy', 'pricing', 'modules', 'fees', 'portal', 'multi', 'data', 'support', 'api', 'license'] as $row): ?>
+                <?php foreach (['deploy', 'pricing', 'modules', 'fees', 'portal', 'multi', 'data', 'backups', 'support', 'api', 'license'] as $row): ?>
                     <tr>
                         <td class="px-5 py-4 font-medium text-slate-700"><?= __('compare.' . $row) ?></td>
                         <td class="px-5 py-4"><span class="text-green-700 font-semibold"><?= __('compare.yes') ?></span> — <?= __('compare.' . $row . '_eskoofy') ?></td>

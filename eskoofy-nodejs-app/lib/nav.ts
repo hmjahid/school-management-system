@@ -157,6 +157,8 @@ const SYSTEM_ITEMS: NavItem[] = [
   { key: "activity_log", path: "/dashboard/activity", status: "done" },
   { key: "visitor_logs", path: "/dashboard/visitor-logs", status: "done" },
   { key: "backups", path: "/dashboard/backup", status: "done" },
+  { key: "cloud_backup", path: "/dashboard/cloud-backup", permission: "manage_cloud_backup", status: "done" },
+  { key: "document_designs", path: "/dashboard/document-designs", permission: "manage_document_designs", status: "done" },
 ];
 
 const WEBSITE_CMS: NavGroup = {

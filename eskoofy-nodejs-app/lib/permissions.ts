@@ -48,6 +48,8 @@ export const PERMISSIONS = [
   "export_attendance",
   "backup_database",
   "restore_database",
+  "manage_cloud_backup",
+  "manage_document_designs",
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];

@@ -107,4 +107,25 @@ class BladeTest extends TestCase
         $html = Blade::render('guards');
         $this->assertStringContainsString('guest', $html);
     }
+
+    public function test_compiles_checked_and_selected_directives(): void
+    {
+        file_put_contents(
+            $this->viewRoot . '/check.blade.php',
+            '<input type="checkbox" @checked($on)>'
+            . '<select><option @selected($pick === \'a\')>a</option></select>'
+        );
+
+        $on = true;
+        $pick = 'a';
+        $html = Blade::render('check', ['on' => $on, 'pick' => $pick]);
+        $this->assertStringContainsString('checked', $html);
+        $this->assertStringContainsString('selected>a</option>', $html);
+
+        $on = false;
+        $pick = 'b';
+        $html = Blade::render('check', ['on' => $on, 'pick' => $pick]);
+        $this->assertStringNotContainsString('checked', $html);
+        $this->assertStringNotContainsString('selected>a</option>', $html);
+    }
 }

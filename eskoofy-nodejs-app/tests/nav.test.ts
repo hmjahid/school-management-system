@@ -40,7 +40,7 @@ describe("dashboard nav (parity contract)", () => {
       return !resolveModel(segs);
     });
     // only the genuinely bespoke non-CRUD pages may not resolve to a table
-    const bespokeOK = ["/dashboard", "/dashboard/backup", "/dashboard/bulk", "/dashboard/analytics", "/dashboard/communications", "/dashboard/sms", "/dashboard/reports", "/dashboard/reports/builder"];
+    const bespokeOK = ["/dashboard", "/dashboard/backup", "/dashboard/cloud-backup", "/dashboard/document-designs", "/dashboard/bulk", "/dashboard/analytics", "/dashboard/communications", "/dashboard/sms", "/dashboard/reports", "/dashboard/reports/builder"];
     expect(unresolvable.filter((p) => !bespokeOK.includes(p))).toEqual([]);
   });
 

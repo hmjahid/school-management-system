@@ -564,6 +564,24 @@ $router->group('/dashboard', function (Router $r) {
     $r->post('/backup/restore/{file}', 'App\\Controllers\\Dashboard\\BackupController', 'restore');
     $r->delete('/backup/{file}', 'App\\Controllers\\Dashboard\\BackupController', 'destroy');
 
+    // Cloud backup (dashboard › cloud backup)
+    $r->get('/cloud-backup', 'App\\Controllers\\Dashboard\\CloudBackupController', 'index');
+    $r->post('/cloud-backup/settings', 'App\\Controllers\\Dashboard\\CloudBackupController', 'update');
+    $r->post('/cloud-backup/test', 'App\\Controllers\\Dashboard\\CloudBackupController', 'test');
+    $r->post('/cloud-backup/run', 'App\\Controllers\\Dashboard\\CloudBackupController', 'run');
+    $r->post('/cloud-backup/restore/{file}', 'App\\Controllers\\Dashboard\\CloudBackupController', 'restore');
+    $r->delete('/cloud-backup/{file}', 'App\\Controllers\\Dashboard\\CloudBackupController', 'destroy');
+
+    // Document designs (dashboard › document designs)
+    $r->get('/document-designs', 'App\\Controllers\\Dashboard\\DocumentDesignController', 'index');
+    $r->get('/document-designs/create', 'App\\Controllers\\Dashboard\\DocumentDesignController', 'create');
+    $r->post('/document-designs', 'App\\Controllers\\Dashboard\\DocumentDesignController', 'store');
+    $r->get('/document-designs/preview', 'App\\Controllers\\Dashboard\\DocumentDesignController', 'preview');
+    $r->post('/document-designs/preview', 'App\\Controllers\\Dashboard\\DocumentDesignController', 'preview');
+    $r->get('/document-designs/{id}/edit', 'App\\Controllers\\Dashboard\\DocumentDesignController', 'edit');
+    $r->post('/document-designs/{id}', 'App\\Controllers\\Dashboard\\DocumentDesignController', 'update');
+    $r->delete('/document-designs/{id}', 'App\\Controllers\\Dashboard\\DocumentDesignController', 'destroy');
+
     // Budgets edit
     $r->get('/budgets/{id}/edit', 'App\\Controllers\\Dashboard\\BudgetController', 'edit');
 

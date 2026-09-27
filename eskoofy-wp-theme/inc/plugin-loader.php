@@ -29,6 +29,8 @@ $esk_includes = array(
 	'widgets.php',
 	'customizer.php',
 	'payment-gateways.php',
+	'cloud-backup.php',
+	'document-designs.php',
 );
 
 foreach ( $esk_includes as $file ) {

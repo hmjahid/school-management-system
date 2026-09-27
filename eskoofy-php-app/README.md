@@ -40,7 +40,7 @@ not available. See `WORKPLAN.md` Phase 6.
 ├── resources/views/        THE Laravel Blade view tree (copied verbatim from eskoofy-laravel-app)
 ├── config/                 app.php, school.php, eskoolfy.php, payment.php, sms.php,
 │                           routes.php (name→URI map generated from `route:list`)
-├── database/schema.sql     93-table MySQL schema + admin seed
+├── database/schema.sql     99-table MySQL schema + admin seed
 ├── lang/                   en/ + bn/ (site_frontend, dashboard, messages — from eskoofy-laravel-app)
 ├── routes/web.php          Full public + dashboard route table
 ├── routes/api.php          JSON API (results/lookup, news, notices, events + protected CRUD)

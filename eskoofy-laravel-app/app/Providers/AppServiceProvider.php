@@ -26,6 +26,14 @@ class AppServiceProvider extends ServiceProvider
     {
         // SMS/push are resolved through config('sms.default') / config('fcm.driver')
         // in SmsServiceProvider and PushNotificationServiceProvider respectively.
+
+        // The cloud-backup HTTP transport is bound to the interface so tests can
+        // swap in a fake and never touch the network.
+        $this->app->singleton(
+            \App\Services\CloudBackup\Contracts\CloudHttpClient::class,
+            \App\Services\CloudBackup\Http\CurlCloudHttpClient::class,
+        );
+        $this->app->singleton(\App\Services\CloudBackup\CloudBackupManager::class);
     }
 
     public function boot(): void

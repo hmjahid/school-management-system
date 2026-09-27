@@ -209,6 +209,8 @@ class RolePermissionSeeder extends Seeder
             'manage_sms_templates' => 'Manage SMS templates',
             'backup_database' => 'Backup database',
             'restore_database' => 'Restore database',
+            'manage_cloud_backup' => 'Manage cloud backup',
+            'manage_document_designs' => 'Manage document designs & watermarks',
 
             // Audit & Logs
             'view_audit_log' => 'View audit log',

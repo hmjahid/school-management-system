@@ -57,6 +57,25 @@ if (($only === '' || $only === '--notifications') && $minute % 5 === 0) {
     $ran = true;
 }
 
+// 3) Cloud backup interval dispatcher — every 5 minutes (mirrors the app's
+//    `backup:cloud:dispatch` schedule). The service decides whether the
+//    install's configured interval has elapsed.
+if (($only === '' || $only === '--cloud-backup') && $minute % 5 === 0) {
+    try {
+        $service = new \App\Services\CloudBackup\CloudBackupService(
+            new \App\Services\CloudBackup\CloudBackupManager(),
+            \App\Core\Database::getInstance()
+        );
+        $result = $service->dispatch();
+        if ($result['status'] !== 'skipped') {
+            error_log('[cron:cloud-backup] ' . $result['status'] . ': ' . $result['message']);
+        }
+    } catch (\Throwable $e) {
+        error_log('[cron:cloud-backup] error: ' . $e->getMessage());
+    }
+    $ran = true;
+}
+
 if ($only !== '' && !$ran) {
     // Explicit flag but outside its window — report the gating so the operator
     // knows the invocation was valid but intentionally skipped.

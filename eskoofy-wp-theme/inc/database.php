@@ -1448,6 +1448,53 @@ function esk_create_tables(): void {
 		KEY idx_exam_room (exam_id, room_number)
 	) {$charset_collate}";
 
+
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_cloud_backup_settings (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		provider VARCHAR(191) NOT NULL DEFAULT 'local',
+		credentials LONGTEXT DEFAULT NULL,
+		folder VARCHAR(191) DEFAULT 'eskoofy-backups',
+		is_enabled TINYINT(1) NOT NULL DEFAULT 1,
+		auto_enabled TINYINT(1) NOT NULL DEFAULT 0,
+		interval_minutes INT UNSIGNED NOT NULL DEFAULT 60,
+		`keep` INT UNSIGNED NOT NULL DEFAULT 7,
+		last_run_at DATETIME DEFAULT NULL,
+		last_status VARCHAR(32) DEFAULT NULL,
+		last_error TEXT DEFAULT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		PRIMARY KEY (id)
+	) {$charset_collate}";
+
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_cloud_backup_runs (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		provider VARCHAR(191) NOT NULL,
+		file_name VARCHAR(191) NOT NULL,
+		remote_id VARCHAR(191) DEFAULT NULL,
+		size BIGINT UNSIGNED NOT NULL DEFAULT 0,
+		status VARCHAR(20) NOT NULL DEFAULT 'success',
+		message TEXT DEFAULT NULL,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		KEY idx_status (status)
+	) {$charset_collate}";
+
+	$sql[] = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}esk_document_designs (
+		id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+		document_type VARCHAR(50) NOT NULL,
+		name VARCHAR(191) NOT NULL,
+		template VARCHAR(50) NOT NULL DEFAULT 'classic',
+		is_default TINYINT(1) NOT NULL DEFAULT 0,
+		settings LONGTEXT DEFAULT NULL,
+		watermark LONGTEXT DEFAULT NULL,
+		custom_css LONGTEXT DEFAULT NULL,
+		is_active TINYINT(1) NOT NULL DEFAULT 1,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		PRIMARY KEY (id),
+		KEY idx_type_default (document_type, is_default)
+	) {$charset_collate}";
+
 	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 	foreach ( $sql as $query ) {
 		dbDelta( $query );

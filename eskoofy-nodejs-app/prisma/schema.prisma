@@ -2214,3 +2214,49 @@ model website_settings {
   mail_from_name         String?
   mail_test_recipient    String?
 }
+
+model cloud_backup_settings {
+  id               Int      @id @default(autoincrement())
+  provider         String   @default("local")
+  credentials      String?
+  folder           String?
+  is_enabled       Boolean  @default(true)
+  auto_enabled     Boolean  @default(false)
+  interval_minutes Int      @default(60)
+  keep             Int      @default(7)
+  last_run_at      DateTime?
+  last_status      String?
+  last_error       String?
+  created_at       DateTime?
+  updated_at       DateTime?
+}
+
+model cloud_backup_runs {
+  id        Int       @id @default(autoincrement())
+  provider  String
+  file_name String
+  remote_id String?
+  size      BigInt    @default(0)
+  status    String    @default("success")
+  message   String?
+  created_at DateTime?
+  updated_at DateTime?
+
+  @@index([status], map: "cloud_backup_runs_status_index")
+}
+
+model document_designs {
+  id            Int      @id @default(autoincrement())
+  document_type String
+  name          String
+  template      String   @default("classic")
+  is_default    Boolean  @default(false)
+  settings      String?
+  watermark     String?
+  custom_css    String?
+  is_active     Boolean  @default(true)
+  created_at    DateTime?
+  updated_at    DateTime?
+
+  @@index([document_type, is_default], map: "document_designs_type_default_index")
+}
