@@ -32,7 +32,7 @@ export const PROFILES: Record<Variant, VariantProfile> = {
     defaultLocale: "bn",
     currency: "BDT",
     timezone: "Asia/Dhaka",
-    gateways: ["bkash", "rocket", "nagad"],
+    gateways: ["bkash", "rocket", "nagad", "uddoktapay"],
     defaultPaymentMethod: "bkash",
     studentDefaults: { nationality: "Bangladeshi", country: "Bangladesh" },
     features: { ministryLinks: true, ministryBadge: true },

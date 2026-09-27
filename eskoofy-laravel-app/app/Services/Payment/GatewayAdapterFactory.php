@@ -15,6 +15,7 @@ class GatewayAdapterFactory
             'bkash' => new BkashGatewayAdapter,
             'nagad' => new NagadGatewayAdapter,
             'rocket' => new RocketGatewayAdapter,
+            'uddoktapay' => new UddoktapayGatewayAdapter,
             'stripe' => new StripeGatewayAdapter,
             'paypal' => new PaypalGatewayAdapter,
             'paddle' => new PaddleGatewayAdapter,

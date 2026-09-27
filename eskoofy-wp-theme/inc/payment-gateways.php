@@ -785,6 +785,123 @@ class Eskoofy_Offline_Gateway extends Eskoofy_Payment_Gateway {
 }
 
 /**
+ * UddoktaPay — Bangladeshi aggregator (bKash/Nagad/Rocket/Upay/bank).
+ *
+ * Single hosted checkout covering every local method. API reference:
+ * https://uddoktapay.readme.io/reference/overview
+ */
+class Eskoofy_Uddoktapay_Gateway extends Eskoofy_Payment_Gateway {
+	public string $code = 'uddoktapay';
+	public string $name = 'UddoktaPay';
+	public string $type = 'mobile_financial_service';
+	public bool $is_online = true;
+	public bool $has_api = true;
+
+	private function base_url(): string {
+		$data = $this->get_gateway_data();
+		if ( $this->is_test_mode() ) {
+			$url = (string) ( $data['sandbox_url'] ?? '' );
+			return '' !== $url ? rtrim( $url, '/' ) : 'https://sandbox.uddoktapay.com/api';
+		}
+		$url = (string) ( $data['live_url'] ?? '' );
+		return '' !== $url ? rtrim( $url, '/' ) : 'https://pay.uddoktapay.com/api';
+	}
+
+	private function request( string $path, array $payload ): array {
+		$data = $this->get_gateway_data();
+
+		return $this->curl_request(
+			$this->base_url() . '/' . $path,
+			array(
+				'method'  => 'POST',
+				'headers' => array(
+					'RT-UDDOKTAPAY-API-KEY' => (string) ( $data['api_key'] ?? '' ),
+					'Content-Type'          => 'application/json',
+					'Accept'                => 'application/json',
+				),
+				'body'    => wp_json_encode( $payload ),
+			)
+		);
+	}
+
+	public function process_payment( float $amount, array $data ): array {
+		$gw       = $this->get_gateway_data();
+		$order_id = (string) ( $data['order_id'] ?? esk_generate_number( 'INV', 'payments' ) );
+
+		if ( '' === (string) ( $gw['api_key'] ?? '' ) ) {
+			return array(
+				'status'       => 'pending',
+				'message'      => __( 'UddoktaPay is not configured.', 'eskoofy' ),
+				'transaction'  => $order_id,
+				'redirect_url' => $this->callback_url( array( 'order_id' => $order_id, 'status' => 'failed' ) ),
+			);
+		}
+
+		$res = $this->request(
+			'checkout-v2',
+			array(
+				'full_name'    => (string) ( $data['customer']['name'] ?? 'Customer' ),
+				'email'        => (string) ( $data['customer']['email'] ?? '' ),
+				'amount'       => number_format( $amount, 2, '.', '' ),
+				'metadata'     => array( 'order_id' => $order_id ),
+				'redirect_url' => $this->callback_url( array( 'order_id' => $order_id ) ),
+				'return_type'  => 'GET',
+				'cancel_url'   => $this->callback_url( array( 'order_id' => $order_id, 'status' => 'cancelled' ) ),
+				'webhook_url'  => $this->callback_url( array( 'order_id' => $order_id ) ),
+			)
+		);
+
+		if ( $res['ok'] && ! empty( $res['decoded']['payment_url'] ) ) {
+			return array(
+				'status'       => 'pending',
+				'message'      => __( 'Redirecting to UddoktaPay...', 'eskoofy' ),
+				'transaction'  => $order_id,
+				'redirect_url' => (string) $res['decoded']['payment_url'],
+			);
+		}
+
+		return array(
+			'status'       => 'pending',
+			'message'      => __( 'UddoktaPay payment creation failed.', 'eskoofy' ),
+			'transaction'  => $order_id,
+			'redirect_url' => $this->callback_url( array( 'order_id' => $order_id, 'status' => 'failed' ) ),
+		);
+	}
+
+	public function verify_payment( array $data ): array {
+		$invoice_id = (string) ( $data['invoice_id'] ?? '' );
+		if ( '' === $invoice_id ) {
+			return array( 'verified' => false, 'status' => 'pending' );
+		}
+
+		$res    = $this->request( 'verify-payment', array( 'invoice_id' => $invoice_id ) );
+		$status = strtoupper( (string) ( $res['decoded']['status'] ?? '' ) );
+
+		if ( $res['ok'] && 'COMPLETED' === $status ) {
+			return array(
+				'verified'    => true,
+				'status'      => 'completed',
+				'transaction' => $res['decoded']['transaction_id'] ?? $invoice_id,
+				'amount'      => $res['decoded']['amount'] ?? 0,
+			);
+		}
+
+		return array( 'verified' => false, 'status' => 'pending' );
+	}
+
+	public function verify_webhook( $payload, string $signature ): bool {
+		$data = $this->get_gateway_data();
+		$key  = (string) ( $data['api_key'] ?? '' );
+		if ( '' === $key || '' === $signature ) {
+			return false;
+		}
+
+		// UddoktaPay echoes the API key in the RT-UDDOKTAPAY-API-KEY header.
+		return hash_equals( $key, $signature );
+	}
+}
+
+/**
  * Initialize all payment gateways.
  *
  * @return Eskoofy_Payment_Gateway[]
@@ -792,6 +909,7 @@ class Eskoofy_Offline_Gateway extends Eskoofy_Payment_Gateway {
 function esk_init_payment_gateways(): array {
 	return array(
 		new Eskoofy_BKash_Gateway(),
+		new Eskoofy_Uddoktapay_Gateway(),
 		new Eskoofy_Rocket_Gateway(),
 		new Eskoofy_Nagad_Gateway(),
 		new Eskoofy_Stripe_Gateway(),

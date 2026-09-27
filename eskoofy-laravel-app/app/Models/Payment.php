@@ -51,6 +51,8 @@ class Payment extends Model
 
     public const METHOD_ROCKET = 'rocket';
 
+    public const METHOD_UDDOKTAPAY = 'uddoktapay';
+
     public const METHOD_STRIPE = 'stripe';
 
     public const METHOD_PAYPAL = 'paypal';
@@ -222,6 +224,7 @@ class Payment extends Model
             self::METHOD_BKASH => 'bKash',
             self::METHOD_NAGAD => 'Nagad',
             self::METHOD_ROCKET => 'Rocket',
+            self::METHOD_UDDOKTAPAY => 'UddoktaPay',
             self::METHOD_STRIPE => 'Stripe',
             self::METHOD_PAYPAL => 'PayPal',
             self::METHOD_OTHER => 'Other',

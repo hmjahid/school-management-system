@@ -83,6 +83,11 @@ const TAB_FIELDS: Record<string, string[]> = {
     "bkash_app_secret",
     "bkash_sandbox",
     "nagad_merchant_number",
+    "uddoktapay_active",
+    "uddoktapay_api_key",
+    "uddoktapay_sandbox_url",
+    "uddoktapay_live_url",
+    "uddoktapay_sandbox",
     "currency",
     "default_payment_method",
   ],
@@ -119,8 +124,13 @@ export async function saveSettingsTab(formData: FormData): Promise<void> {
   } else {
     const fields = TAB_FIELDS[tab] ?? [];
     const payload: Record<string, unknown> = {};
+    const booleanFields = new Set(["bkash_sandbox", "uddoktapay_active", "uddoktapay_sandbox", "mail_enabled", "send_absence_sms"]);
     for (const field of fields) {
-      if (formData.has(field)) payload[field] = formData.get(field);
+      if (!formData.has(field)) continue;
+      // Checkboxes post a hidden "0" plus a "1" when checked; take the last/any "1".
+      payload[field] = booleanFields.has(field)
+        ? (formData.getAll(field).some((value) => value === "1") ? "1" : "0")
+        : formData.get(field);
     }
     await updateWebsiteSettings(payload);
   }

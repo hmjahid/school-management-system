@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\LibrarySetting;
+use App\Models\PaymentGateway;
 use App\Models\WebsiteContent;
 use App\Models\WebsiteSetting;
 use App\Services\MailSettingsService;
@@ -32,8 +33,9 @@ class DashboardSettingController extends Controller
         $librarySettings = LibrarySetting::getSettings();
         $timezones = \DateTimeZone::listIdentifiers(\DateTimeZone::ALL);
         $mailPresets = app(MailSettingsService::class)->providerPresets();
+        $uddoktapay = PaymentGateway::where('code', PaymentGateway::GATEWAY_UDDOKTAPAY)->first();
 
-        return view('dashboard.settings.index', compact('settings', 'librarySettings', 'timezones', 'mailPresets'));
+        return view('dashboard.settings.index', compact('settings', 'librarySettings', 'timezones', 'mailPresets', 'uddoktapay'));
     }
 
     public function clearCache(): RedirectResponse
@@ -218,6 +220,11 @@ class DashboardSettingController extends Controller
             'nagad_merchant_number' => ['nullable', 'string', 'max:50'],
             'currency' => ['nullable', 'string', 'max:10'],
             'default_payment_method' => ['nullable', 'string', 'max:50'],
+            'uddoktapay_active' => ['nullable', 'boolean'],
+            'uddoktapay_api_key' => ['nullable', 'string', 'max:255'],
+            'uddoktapay_sandbox_url' => ['nullable', 'string', 'max:255'],
+            'uddoktapay_live_url' => ['nullable', 'string', 'max:255'],
+            'uddoktapay_sandbox' => ['nullable', 'boolean'],
         ]);
 
         $settings = WebsiteSetting::firstOrNew([]);
@@ -228,6 +235,22 @@ class DashboardSettingController extends Controller
         }
 
         $settings->save();
+
+        PaymentGateway::updateOrCreate(
+            ['code' => PaymentGateway::GATEWAY_UDDOKTAPAY],
+            [
+                'name' => 'UddoktaPay',
+                'type' => PaymentGateway::TYPE_MOBILE_FINANCIAL_SERVICE,
+                'is_online' => true,
+                'has_api' => true,
+                'is_active' => $request->boolean('uddoktapay_active'),
+                'test_mode' => $request->boolean('uddoktapay_sandbox'),
+                'api_key' => $request->input('uddoktapay_api_key'),
+                'sandbox_url' => $request->input('uddoktapay_sandbox_url') ?: 'https://sandbox.uddoktapay.com/api',
+                'live_url' => $request->input('uddoktapay_live_url') ?: 'https://pay.uddoktapay.com/api',
+                'currency' => 'BDT',
+            ]
+        );
 
         return redirect()->route('dashboard.settings.general', ['tab' => 'payment'])->with('status', __('Payment settings saved.'));
     }

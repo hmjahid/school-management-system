@@ -56,7 +56,7 @@ class FinanceObserver
     protected function resolveAccountForMethod(string $method): ?ChartOfAccount
     {
         return match (strtolower($method)) {
-            'bank', 'bkash', 'nagad', 'rocket', 'card' => ChartOfAccount::where('code', '1010')->first(),
+            'bank', 'bkash', 'nagad', 'rocket', 'uddoktapay', 'card' => ChartOfAccount::where('code', '1010')->first(),
             default => ChartOfAccount::where('code', '1000')->first(),
         };
     }

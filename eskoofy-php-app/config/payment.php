@@ -40,6 +40,17 @@ return [
             'api_key'     => $_ENV['NAGAD_API_KEY'] ?? '',
             'api_secret'  => $_ENV['NAGAD_API_SECRET'] ?? '',
         ],
+        'uddoktapay' => [
+            'name'     => 'UddoktaPay',
+            'type'     => 'mobile_financial_service',
+            'is_online' => true,
+            'has_api'   => true,
+            'test_mode' => ($_ENV['UDDOKTAPAY_TEST_MODE'] ?? 'true') === 'true',
+            'sandbox_url' => $_ENV['UDDOKTAPAY_SANDBOX_URL'] ?? 'https://sandbox.uddoktapay.com/api',
+            'live_url'    => $_ENV['UDDOKTAPAY_LIVE_URL'] ?? 'https://pay.uddoktapay.com/api',
+            'api_key'     => $_ENV['UDDOKTAPAY_API_KEY'] ?? '',
+            'refund_payment_method' => $_ENV['UDDOKTAPAY_REFUND_METHOD'] ?? 'bkash',
+        ],
         'stripe' => [
             'name'     => 'Stripe',
             'type'     => 'online_payment',

@@ -260,6 +260,45 @@
                     </div>
                 </div>
 
+                {{-- UddoktaPay --}}
+                <div class="mb-6 rounded-lg border border-gray-100 bg-gray-50 p-4">
+                    <div class="mb-3 flex items-center justify-between">
+                        <h3 class="text-sm font-semibold text-gray-900">UddoktaPay</h3>
+                        <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+                            <input type="hidden" name="uddoktapay_active" value="0">
+                            <input type="checkbox" name="uddoktapay_active" value="1" @checked(old('uddoktapay_active', $uddoktapay->is_active ?? false))
+                                class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500">
+                            <span>{{ __('Enable UddoktaPay') }}</span>
+                        </label>
+                    </div>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div class="sm:col-span-2">
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('UddoktaPay API Key') }}</label>
+                            <input type="password" name="uddoktapay_api_key" value="{{ old('uddoktapay_api_key', $uddoktapay->api_key ?? '') }}" autocomplete="off"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-brand-500/20">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Sandbox Base URL') }}</label>
+                            <input type="text" name="uddoktapay_sandbox_url" value="{{ old('uddoktapay_sandbox_url', $uddoktapay->sandbox_url ?? 'https://sandbox.uddoktapay.com/api') }}"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-brand-500/20">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-sm font-medium text-gray-700">{{ __('Live Base URL') }}</label>
+                            <input type="text" name="uddoktapay_live_url" value="{{ old('uddoktapay_live_url', $uddoktapay->live_url ?? 'https://pay.uddoktapay.com/api') }}"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-brand-500/20">
+                        </div>
+                        <div class="flex items-center">
+                            <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+                                <input type="hidden" name="uddoktapay_sandbox" value="0">
+                                <input type="checkbox" name="uddoktapay_sandbox" value="1" @checked(old('uddoktapay_sandbox', $uddoktapay->test_mode ?? true))
+                                    class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500">
+                                <span>{{ __('Sandbox Mode') }}</span>
+                            </label>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500">{{ __('UddoktaPay aggregates bKash, Nagad, Rocket, Upay and bank transfer. Credentials are stored encrypted.') }}</p>
+                </div>
+
                 {{-- General Payment --}}
                 <div class="rounded-lg border border-gray-100 bg-gray-50 p-4">
                     <h3 class="mb-3 text-sm font-semibold text-gray-900">{{ __('General') }}</h3>
@@ -376,6 +415,17 @@
                 </button>
             </div>
         </form>
+
+        <div class="mt-4 rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
+            <h3 class="text-sm font-bold text-gray-900 dark:text-gray-100">{{ __('Frontend cache') }}</h3>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('Flushes the application, view, config, route and event caches.') }}</p>
+            <form method="post" action="{{ route('dashboard.settings.clear-cache') }}" class="mt-3">
+                @csrf
+                <button type="submit" class="rounded-lg border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                    {{ __('Clear cache') }}
+                </button>
+            </form>
+        </div>
     </div>
 
     {{-- Tab: SMS --}}

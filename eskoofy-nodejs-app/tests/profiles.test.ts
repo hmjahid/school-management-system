@@ -5,7 +5,7 @@ describe("variant profiles (BD/INT as data, never branching)", () => {
   it("bd ships bilingual + local gateways", () => {
     expect(PROFILES.bd.locales).toEqual(["en", "bn"]);
     expect(PROFILES.bd.currency).toBe("BDT");
-    expect(PROFILES.bd.gateways).toEqual(["bkash", "rocket", "nagad"]);
+    expect(PROFILES.bd.gateways).toEqual(["bkash", "rocket", "nagad", "uddoktapay"]);
     expect(PROFILES.bd.features.ministryLinks).toBe(true);
   });
 

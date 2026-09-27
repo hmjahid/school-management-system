@@ -131,7 +131,7 @@ class PaymentService
      */
     public function supportsRefunds(string $method): bool
     {
-        return in_array($method, ['bkash', 'nagad', 'rocket', 'test_gateway', 'stripe', 'paypal'], true);
+        return in_array($method, ['bkash', 'nagad', 'rocket', 'uddoktapay', 'test_gateway', 'stripe', 'paypal'], true);
     }
 
     /**

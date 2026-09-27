@@ -2194,6 +2194,11 @@ model website_settings {
   bkash_app_secret       String?
   bkash_sandbox          Boolean @default(true)
   nagad_merchant_number  String?
+  uddoktapay_active      Boolean @default(false)
+  uddoktapay_api_key     String?
+  uddoktapay_sandbox_url String?
+  uddoktapay_live_url    String?
+  uddoktapay_sandbox     Boolean @default(true)
   currency               String                    @default("BDT")
   default_payment_method String                    @default("bkash")
   theme_header_style     String?

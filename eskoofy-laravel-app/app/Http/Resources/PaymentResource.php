@@ -92,6 +92,7 @@ class PaymentResource extends JsonResource
                     'bkash' => 'bKash',
                     'nagad' => 'Nagad',
                     'rocket' => 'Rocket',
+                    'uddoktapay' => 'UddoktaPay',
                     'stripe' => 'Stripe',
                     'paypal' => 'PayPal',
                     'other' => 'Other',

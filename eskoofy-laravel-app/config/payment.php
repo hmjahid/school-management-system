@@ -43,6 +43,14 @@ return [
             'webhook_secret' => env('ROCKET_WEBHOOK_SECRET'),
         ],
 
+        'uddoktapay' => [
+            'api_key' => env('UDDOKTAPAY_API_KEY'),
+            'sandbox_url' => env('UDDOKTAPAY_SANDBOX_URL', 'https://sandbox.uddoktapay.com/api'),
+            'live_url' => env('UDDOKTAPAY_LIVE_URL', 'https://pay.uddoktapay.com/api'),
+            'webhook_secret' => env('UDDOKTAPAY_WEBHOOK_SECRET', env('UDDOKTAPAY_API_KEY')),
+            'currency' => 'BDT',
+        ],
+
         'stripe' => [
             'api_key' => env('STRIPE_API_KEY'),
             'api_secret' => env('STRIPE_WEBHOOK_SECRET'),

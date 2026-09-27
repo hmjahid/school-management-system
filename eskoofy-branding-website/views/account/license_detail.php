@@ -2,7 +2,7 @@
 
 <?php
 $gatewayNames = [
-    'bkash'  => 'bKash', 'rocket' => 'Rocket', 'nagad' => 'Nagad',
+    'bkash'  => 'bKash', 'rocket' => 'Rocket', 'nagad' => 'Nagad', 'uddoktapay' => 'UddoktaPay',
     'stripe' => 'Stripe', 'paypal' => 'PayPal', 'paddle' => 'Paddle',
     'manual' => 'Manual / Bank Transfer',
 ];

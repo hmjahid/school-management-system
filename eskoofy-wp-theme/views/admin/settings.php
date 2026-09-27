@@ -57,6 +57,33 @@ if ( isset( $_POST['esk_settings_save'] ) ) {
 	} elseif ( 'payment' === $current_tab ) {
 		update_option( 'esk_default_gateway', sanitize_text_field( wp_unslash( $_POST['default_gateway'] ?? 'offline' ) ) );
 		update_option( 'esk_test_mode', isset( $_POST['test_mode'] ) ? 1 : 0 );
+
+		// UddoktaPay — optional BD aggregator (bKash/Nagad/Rocket/Upay/bank).
+		global $wpdb;
+		$esk_gw_table  = $wpdb->prefix . 'esk_payment_gateways';
+		$esk_gw_exists = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$esk_gw_table} WHERE code = %s LIMIT 1", 'uddoktapay' ) );
+		$esk_utp_key   = sanitize_text_field( wp_unslash( $_POST['uddoktapay_api_key'] ?? '' ) );
+		$esk_gw_row    = array(
+			'name'        => 'UddoktaPay',
+			'code'        => 'uddoktapay',
+			'type'        => 'mobile_financial_service',
+			'is_active'   => isset( $_POST['uddoktapay_active'] ) ? 1 : 0,
+			'is_online'   => 1,
+			'has_api'     => 1,
+			'test_mode'   => isset( $_POST['uddoktapay_sandbox'] ) ? 1 : 0,
+			'api_key'     => function_exists( 'esk_encrypt_secret' ) ? esk_encrypt_secret( $esk_utp_key ) : $esk_utp_key,
+			'sandbox_url' => esc_url_raw( wp_unslash( $_POST['uddoktapay_sandbox_url'] ?? '' ) ),
+			'live_url'    => esc_url_raw( wp_unslash( $_POST['uddoktapay_live_url'] ?? '' ) ),
+			'currency'    => 'BDT',
+			'updated_at'  => current_time( 'mysql' ),
+		);
+		if ( $esk_gw_exists ) {
+			$wpdb->update( $esk_gw_table, $esk_gw_row, array( 'code' => 'uddoktapay' ) );
+		} else {
+			$esk_gw_row['sort_order'] = 4;
+			$esk_gw_row['created_at'] = current_time( 'mysql' );
+			$wpdb->insert( $esk_gw_table, $esk_gw_row );
+		}
 	} elseif ( 'mail' === $current_tab ) {
 		update_option( 'esk_smtp_host', sanitize_text_field( wp_unslash( $_POST['smtp_host'] ?? '' ) ) );
 		update_option( 'esk_smtp_port', absint( $_POST['smtp_port'] ?? 587 ) );
@@ -222,6 +249,48 @@ $error = esk_get_flash( 'error' );
 						<td><label><input type="checkbox" name="test_mode" value="1" <?php checked( get_option( 'esk_test_mode', 1 ), 1 ); ?>> <?php esc_html_e( 'Use sandbox/test mode', 'eskoofy' ); ?></label></td></tr>
 				</table>
 				<p class="description"><?php esc_html_e( 'Per-gateway API credentials are configured in the Payment Gateways screen.', 'eskoofy' ); ?></p>
+			</div>
+
+			<div class="esk-card esk-form-card" style="margin-top:16px;">
+				<?php
+				$uddoktapay = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}esk_payment_gateways WHERE code = %s LIMIT 1", 'uddoktapay' ), ARRAY_A );
+				if ( ! $uddoktapay ) {
+					$wpdb->insert(
+						$wpdb->prefix . 'esk_payment_gateways',
+						array(
+							'name'        => 'UddoktaPay',
+							'code'        => 'uddoktapay',
+							'type'        => 'mobile_financial_service',
+							'is_active'   => 0,
+							'is_online'   => 1,
+							'has_api'     => 1,
+							'test_mode'   => 1,
+							'sandbox_url' => 'https://sandbox.uddoktapay.com/api',
+							'live_url'    => 'https://pay.uddoktapay.com/api',
+							'currency'    => 'BDT',
+							'sort_order'  => 4,
+							'created_at'  => current_time( 'mysql' ),
+							'updated_at'  => current_time( 'mysql' ),
+						)
+					);
+					$uddoktapay = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}esk_payment_gateways WHERE code = %s LIMIT 1", 'uddoktapay' ), ARRAY_A );
+				}
+				$uddoktapay_key = isset( $uddoktapay['api_key'] ) ? esk_decrypt_secret( (string) $uddoktapay['api_key'] ) : '';
+				?>
+				<h3 style="margin-top:0;"><?php esc_html_e( 'UddoktaPay (Bangladesh)', 'eskoofy' ); ?></h3>
+				<table class="form-table">
+					<tr><th><?php esc_html_e( 'Enable UddoktaPay', 'eskoofy' ); ?></th>
+						<td><label><input type="checkbox" name="uddoktapay_active" value="1" <?php checked( ! empty( $uddoktapay['is_active'] ) ); ?>> <?php esc_html_e( 'Show UddoktaPay at checkout', 'eskoofy' ); ?></label></td></tr>
+					<tr><th><label for="uddoktapay_api_key"><?php esc_html_e( 'API Key', 'eskoofy' ); ?></label></th>
+						<td><input type="password" name="uddoktapay_api_key" id="uddoktapay_api_key" value="<?php echo esc_attr( $uddoktapay_key ); ?>" class="regular-text" autocomplete="off"></td></tr>
+					<tr><th><label for="uddoktapay_sandbox_url"><?php esc_html_e( 'Sandbox Base URL', 'eskoofy' ); ?></label></th>
+						<td><input type="text" name="uddoktapay_sandbox_url" id="uddoktapay_sandbox_url" value="<?php echo esc_attr( $uddoktapay['sandbox_url'] ?? 'https://sandbox.uddoktapay.com/api' ); ?>" class="regular-text"></td></tr>
+					<tr><th><label for="uddoktapay_live_url"><?php esc_html_e( 'Live Base URL', 'eskoofy' ); ?></label></th>
+						<td><input type="text" name="uddoktapay_live_url" id="uddoktapay_live_url" value="<?php echo esc_attr( $uddoktapay['live_url'] ?? 'https://pay.uddoktapay.com/api' ); ?>" class="regular-text"></td></tr>
+					<tr><th><?php esc_html_e( 'Sandbox mode', 'eskoofy' ); ?></th>
+						<td><label><input type="checkbox" name="uddoktapay_sandbox" value="1" <?php checked( ! isset( $uddoktapay['test_mode'] ) || ! empty( $uddoktapay['test_mode'] ) ); ?>> <?php esc_html_e( 'Use UddoktaPay sandbox', 'eskoofy' ); ?></label></td></tr>
+				</table>
+				<p class="description"><?php esc_html_e( 'Aggregates bKash, Nagad, Rocket, Upay and bank transfer. Only shown to payers when enabled.', 'eskoofy' ); ?></p>
 			</div>
 
 		<?php elseif ( 'offline' === $tab ) : ?>

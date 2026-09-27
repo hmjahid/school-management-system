@@ -9,7 +9,7 @@ import { prisma } from "@/lib/prisma";
 export type WebsiteSettingsRow = Awaited<ReturnType<typeof prisma.website_settings.findFirst>>;
 export type LibrarySettingsRow = Awaited<ReturnType<typeof prisma.library_settings.findFirst>>;
 
-const BOOLEAN_FIELDS = new Set(["bkash_sandbox", "maintenance_mode", "mail_enabled", "send_absence_sms"]);
+const BOOLEAN_FIELDS = new Set(["bkash_sandbox", "uddoktapay_active", "uddoktapay_sandbox", "maintenance_mode", "mail_enabled", "send_absence_sms"]);
 const NUMBER_FIELDS = new Set(["established_year", "academic_start_month", "mail_port"]);
 
 export async function getWebsiteSettingsRow(): Promise<WebsiteSettingsRow> {

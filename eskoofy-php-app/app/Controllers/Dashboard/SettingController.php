@@ -34,6 +34,7 @@ class SettingController extends Controller
             'librarySettings' => \App\Models\LibrarySetting::getSettings(),
             'timezones'       => \DateTimeZone::listIdentifiers(\DateTimeZone::ALL),
             'mailPresets'     => $this->mailPresets(),
+            'uddoktapay'      => $this->uddoktapayGateway(),
         ]);
     }
 
@@ -45,7 +46,17 @@ class SettingController extends Controller
             'librarySettings' => \App\Models\LibrarySetting::getSettings(),
             'timezones'       => \DateTimeZone::listIdentifiers(\DateTimeZone::ALL),
             'mailPresets'     => $this->mailPresets(),
+            'uddoktapay'      => $this->uddoktapayGateway(),
         ]);
+    }
+
+    private function uddoktapayGateway(): ?array
+    {
+        $row = $this->db->fetch(
+            "SELECT * FROM payment_gateways WHERE code = 'uddoktapay' LIMIT 1"
+        );
+
+        return $row ?: null;
     }
 
     public function cms(): void
@@ -287,7 +298,10 @@ class SettingController extends Controller
     {
         Auth::requireAuth();
         $gateways = $this->db->fetchAll("SELECT * FROM payment_gateways ORDER BY sort_order ASC, name ASC");
-        $this->view('dashboard.settings.payment', ['gateways' => $gateways]);
+        $this->view('dashboard.settings.payment', [
+            'gateways'   => $gateways,
+            'uddoktapay' => $this->uddoktapayGateway(),
+        ]);
     }
 
     public function updatePayment(): void
@@ -298,6 +312,32 @@ class SettingController extends Controller
             'currency'        => 'max:10',
         ]);
         $this->saveSettings($data);
+
+        // UddoktaPay is optional: the checkbox here controls whether it is
+        // offered to payers. Credentials are stored on the payment_gateways row.
+        $existing = $this->db->fetch("SELECT id FROM payment_gateways WHERE code = 'uddoktapay' LIMIT 1");
+        $gateway = [
+            'name'        => 'UddoktaPay',
+            'code'        => 'uddoktapay',
+            'type'        => 'mobile_financial_service',
+            'is_active'   => isset($_POST['uddoktapay_active']) ? 1 : 0,
+            'is_online'   => 1,
+            'has_api'     => 1,
+            'test_mode'   => isset($_POST['uddoktapay_sandbox']) ? 1 : 0,
+            'api_key'     => trim((string) ($_POST['uddoktapay_api_key'] ?? '')),
+            'sandbox_url' => trim((string) ($_POST['uddoktapay_sandbox_url'] ?? '')) ?: 'https://sandbox.uddoktapay.com/api',
+            'live_url'    => trim((string) ($_POST['uddoktapay_live_url'] ?? '')) ?: 'https://pay.uddoktapay.com/api',
+            'currency'    => 'BDT',
+            'updated_at'  => date('Y-m-d H:i:s'),
+        ];
+
+        if ($existing) {
+            $this->db->update('payment_gateways', $gateway, 'code = ?', ['uddoktapay']);
+        } else {
+            $gateway['created_at'] = date('Y-m-d H:i:s');
+            $this->db->insert('payment_gateways', $gateway);
+        }
+
         Session::getInstance()->flash('success', 'Payment settings saved.');
         $this->redirect('/dashboard/settings/payment');
     }

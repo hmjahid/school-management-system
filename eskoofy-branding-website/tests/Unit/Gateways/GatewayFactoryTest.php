@@ -11,6 +11,7 @@ use App\Gateways\PaddleGateway;
 use App\Gateways\PaypalGateway;
 use App\Gateways\RocketGateway;
 use App\Gateways\StripeGateway;
+use App\Gateways\UddoktapayGateway;
 use Tests\FakeDatabase;
 use Tests\TestCase;
 
@@ -57,6 +58,7 @@ class GatewayFactoryTest extends TestCase
             'bkash'  => BkashGateway::class,
             'rocket' => RocketGateway::class,
             'nagad'  => NagadGateway::class,
+            'uddoktapay' => UddoktapayGateway::class,
             'stripe' => StripeGateway::class,
             'paypal' => PaypalGateway::class,
             'paddle' => PaddleGateway::class,
@@ -89,14 +91,16 @@ class GatewayFactoryTest extends TestCase
         $_ENV['ROCKET_API_KEY'] = 'k';
         $_ENV['NAGAD_MERCHANT_ID'] = 'm';
         $_ENV['NAGAD_API_KEY'] = 'k';
+        $_ENV['UDDOKTAPAY_API_KEY'] = 'k';
 
         $codes = GatewayFactory::gatewaysForCountry('BD');
         $this->assertContains('bkash', $codes);
+        $this->assertContains('uddoktapay', $codes);
         $this->assertContains('manual', $codes);
         // BD should not offer the international gateways.
         $this->assertNotContains('stripe', $codes);
 
-        unset($_ENV['BKASH_APP_KEY'], $_ENV['BKASH_APP_SECRET'], $_ENV['ROCKET_API_KEY'], $_ENV['NAGAD_MERCHANT_ID'], $_ENV['NAGAD_API_KEY']);
+        unset($_ENV['BKASH_APP_KEY'], $_ENV['BKASH_APP_SECRET'], $_ENV['ROCKET_API_KEY'], $_ENV['NAGAD_MERCHANT_ID'], $_ENV['NAGAD_API_KEY'], $_ENV['UDDOKTAPAY_API_KEY']);
     }
 
     public function test_gateways_for_int_country_prefer_international(): void

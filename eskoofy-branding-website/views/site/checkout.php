@@ -5,6 +5,7 @@ $gatewayNames = [
     'bkash'  => 'bKash',
     'rocket' => 'Rocket',
     'nagad'  => 'Nagad',
+    'uddoktapay' => 'UddoktaPay',
     'stripe' => 'Stripe',
     'paypal' => 'PayPal',
     'paddle' => 'Paddle',

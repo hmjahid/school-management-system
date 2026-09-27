@@ -12,6 +12,7 @@ class GatewayFactory
         'bkash'  => BKashGateway::class,
         'rocket' => RocketGateway::class,
         'nagad'  => NagadGateway::class,
+        'uddoktapay' => UddoktapayGateway::class,
         'stripe' => StripeGateway::class,
         'paypal' => PaypalGateway::class,
         'paddle' => PaddleGateway::class,

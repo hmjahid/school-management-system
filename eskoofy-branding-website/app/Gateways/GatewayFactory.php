@@ -29,6 +29,7 @@ class GatewayFactory
             'bkash'   => new BkashGateway($db),
             'rocket'  => new RocketGateway($db),
             'nagad'   => new NagadGateway($db),
+            'uddoktapay' => new UddoktapayGateway($db),
             'stripe'  => new StripeGateway($db),
             'paypal'  => new PaypalGateway($db),
             'paddle'  => new PaddleGateway($db),
@@ -86,7 +87,7 @@ class GatewayFactory
      */
     public static function bdGateways(): array
     {
-        return ['bkash', 'rocket', 'nagad'];
+        return ['bkash', 'rocket', 'nagad', 'uddoktapay'];
     }
 
     /**

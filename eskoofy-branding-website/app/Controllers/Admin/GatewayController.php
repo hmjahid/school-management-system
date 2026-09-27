@@ -26,6 +26,10 @@ class GatewayController extends Controller
             'merchant_id' => ['Merchant ID', false], 'api_key' => ['API key', true],
             'api_secret' => ['API secret', true], 'test_mode' => ['Test mode (1/0)', false],
         ]],
+        'uddoktapay' => ['UddoktaPay', 'local', [
+            'api_key' => ['API key', true], 'test_mode' => ['Test mode (1/0)', false],
+            'sandbox_url' => ['Sandbox base URL', false], 'live_url' => ['Live base URL', false],
+        ]],
         'stripe' => ['Stripe', 'international', [
             'secret_key' => ['Secret key', true], 'publishable_key' => ['Publishable key', false],
             'webhook_secret' => ['Webhook secret', true], 'test_mode' => ['Test mode (1/0)', false],

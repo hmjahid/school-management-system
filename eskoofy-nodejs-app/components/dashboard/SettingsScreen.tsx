@@ -192,11 +192,33 @@ export async function SettingsScreen({ tab = "theme" }: { tab?: string }) {
                 </div>
               </div>
 
+              <div className="mb-6 rounded-lg border border-slate-100 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
+                <h3 className="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">UddoktaPay</h3>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <TextField name="uddoktapay_api_key" label="UddoktaPay API Key" value={s.uddoktapay_api_key ?? ""} type="password" />
+                  <TextField name="uddoktapay_sandbox_url" label="Sandbox Base URL" value={s.uddoktapay_sandbox_url ?? "https://sandbox.uddoktapay.com/api"} />
+                  <TextField name="uddoktapay_live_url" label="Live Base URL" value={s.uddoktapay_live_url ?? "https://pay.uddoktapay.com/api"} />
+                  <div className="flex flex-col gap-2">
+                    <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                      <input type="hidden" name="uddoktapay_active" value="0" />
+                      <input type="checkbox" name="uddoktapay_active" value="1" defaultChecked={s.uddoktapay_active ?? false} className="h-4 w-4 rounded border-slate-300 text-brand-600" />
+                      Enable UddoktaPay
+                    </label>
+                    <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                      <input type="hidden" name="uddoktapay_sandbox" value="0" />
+                      <input type="checkbox" name="uddoktapay_sandbox" value="1" defaultChecked={s.uddoktapay_sandbox ?? true} className="h-4 w-4 rounded border-slate-300 text-brand-600" />
+                      Sandbox mode
+                    </label>
+                  </div>
+                </div>
+                <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Aggregates bKash, Nagad, Rocket, Upay and bank transfer. Only offered to payers when enabled.</p>
+              </div>
+
               <div className="rounded-lg border border-slate-100 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
                 <h3 className="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">General</h3>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <SelectField name="currency" label="Currency" value={s.currency ?? "BDT"} options={["BDT", "USD", "INR", "PKR", "EUR", "GBP"].map((c) => ({ value: c, label: c }))} />
-                  <SelectField name="default_payment_method" label="Default Payment Method" value={s.default_payment_method ?? "bkash"} options={[{ value: "bkash", label: "bKash" }, { value: "nagad", label: "Nagad" }, { value: "cash", label: "Cash" }, { value: "bank", label: "Bank" }]} />
+                  <SelectField name="default_payment_method" label="Default Payment Method" value={s.default_payment_method ?? "bkash"} options={[{ value: "bkash", label: "bKash" }, { value: "nagad", label: "Nagad" }, { value: "uddoktapay", label: "UddoktaPay" }, { value: "cash", label: "Cash" }, { value: "bank", label: "Bank" }]} />
                 </div>
               </div>
             </div>

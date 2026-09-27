@@ -40,6 +40,14 @@ return [
             'api_key'    => $_ENV['NAGAD_API_KEY'] ?? '',
             'api_secret' => $_ENV['NAGAD_API_SECRET'] ?? '',
         ],
+        'uddoktapay' => [
+            'driver'      => 'uddoktapay',
+            'name'        => 'UddoktaPay',
+            'test_mode'   => ($_ENV['UDDOKTAPAY_TEST_MODE'] ?? 'true') === 'true',
+            'api_key'     => $_ENV['UDDOKTAPAY_API_KEY'] ?? '',
+            'sandbox_url' => $_ENV['UDDOKTAPAY_SANDBOX_URL'] ?? 'https://sandbox.uddoktapay.com/api',
+            'live_url'    => $_ENV['UDDOKTAPAY_LIVE_URL'] ?? '',
+        ],
         // ── International gateways ──────────────────────────────────────
         'stripe' => [
             'driver'          => 'stripe',

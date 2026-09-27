@@ -40,6 +40,7 @@ return [
             'bkash' => true,
             'rocket' => true,
             'nagad' => true,
+            'uddoktapay' => true,
             'stripe' => false,
             'paypal' => false,
             'paddle' => false,
@@ -228,7 +229,7 @@ return [
         // Gateways eligible per variant — anything else is deactivated after a
         // cross-variant restore (never deleted, so custom gateway rows survive).
         'gateways' => [
-            'bd' => ['bkash', 'rocket', 'nagad', 'cash', 'bank_transfer', 'cheque'],
+            'bd' => ['bkash', 'rocket', 'nagad', 'uddoktapay', 'cash', 'bank_transfer', 'cheque'],
             'int' => ['stripe', 'paypal', 'paddle', 'cash', 'bank_transfer', 'cheque'],
         ],
         // Variant-owned settings forced onto the receiving variant's row(s).

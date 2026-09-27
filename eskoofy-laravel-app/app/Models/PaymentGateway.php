@@ -27,6 +27,8 @@ class PaymentGateway extends Model
 
     public const GATEWAY_ROCKET = 'rocket';
 
+    public const GATEWAY_UDDOKTAPAY = 'uddoktapay';
+
     public const GATEWAY_STRIPE = 'stripe';
 
     public const GATEWAY_PAYPAL = 'paypal';
@@ -161,6 +163,9 @@ class PaymentGateway extends Model
             case self::GATEWAY_ROCKET:
                 return ! empty($this->api_key) && ! empty($this->api_secret);
 
+            case self::GATEWAY_UDDOKTAPAY:
+                return ! empty($this->api_key);
+
             case self::GATEWAY_STRIPE:
             case self::GATEWAY_PAYPAL:
             case self::GATEWAY_SSLCOMMERZ:
@@ -186,6 +191,7 @@ class PaymentGateway extends Model
                 self::GATEWAY_BKASH => 'https://example.com/images/gateways/bkash.png',
                 self::GATEWAY_NAGAD => 'https://example.com/images/gateways/nagad.png',
                 self::GATEWAY_ROCKET => 'https://example.com/images/gateways/rocket.png',
+                self::GATEWAY_UDDOKTAPAY => 'https://example.com/images/gateways/uddoktapay.png',
                 self::GATEWAY_STRIPE => 'https://example.com/images/gateways/stripe.png',
                 self::GATEWAY_PAYPAL => 'https://example.com/images/gateways/paypal.png',
                 self::GATEWAY_SSLCOMMERZ => 'https://example.com/images/gateways/sslcommerz.png',

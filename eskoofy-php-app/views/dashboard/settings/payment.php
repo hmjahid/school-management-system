@@ -18,6 +18,7 @@
                     <option value="bkash">bKash</option>
                     <option value="nagad">Nagad</option>
                     <option value="rocket">Rocket</option>
+                    <option value="uddoktapay">UddoktaPay</option>
                     <option value="stripe">Stripe</option>
                     <option value="paypal">PayPal</option>
                     <option value="paddle">Paddle</option>
@@ -28,6 +29,40 @@
                 <input type="text" name="currency" value="<?= e(config('payment.currency', 'BDT')) ?>" class="w-full border border-gray-300 rounded-lg px-4 py-2">
             </div>
         </div>
+
+        <div class="border-t pt-4 mt-4">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-md font-bold text-gray-800">UddoktaPay</h3>
+                <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                    <input type="hidden" name="uddoktapay_active" value="0">
+                    <input type="checkbox" name="uddoktapay_active" value="1" <?= !empty($uddoktapay['is_active']) ? 'checked' : '' ?> class="rounded border-gray-300">
+                    Enable UddoktaPay
+                </label>
+            </div>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">API Key</label>
+                    <input type="password" name="uddoktapay_api_key" value="<?= e($uddoktapay['api_key'] ?? '') ?>" autocomplete="off" class="w-full border border-gray-300 rounded-lg px-4 py-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Sandbox Base URL</label>
+                    <input type="text" name="uddoktapay_sandbox_url" value="<?= e($uddoktapay['sandbox_url'] ?? 'https://sandbox.uddoktapay.com/api') ?>" class="w-full border border-gray-300 rounded-lg px-4 py-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Live Base URL</label>
+                    <input type="text" name="uddoktapay_live_url" value="<?= e($uddoktapay['live_url'] ?? 'https://pay.uddoktapay.com/api') ?>" class="w-full border border-gray-300 rounded-lg px-4 py-2">
+                </div>
+                <div class="flex items-center">
+                    <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                        <input type="hidden" name="uddoktapay_sandbox" value="0">
+                        <input type="checkbox" name="uddoktapay_sandbox" value="1" <?= (!isset($uddoktapay['test_mode']) || !empty($uddoktapay['test_mode'])) ? 'checked' : '' ?> class="rounded border-gray-300">
+                        Sandbox mode
+                    </label>
+                </div>
+            </div>
+            <p class="mt-2 text-xs text-gray-500">UddoktaPay aggregates bKash, Nagad, Rocket, Upay and bank transfer. Only shown to payers when enabled.</p>
+        </div>
+
         <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Save</button>
     </form>
 </div>

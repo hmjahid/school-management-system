@@ -738,7 +738,7 @@ CREATE TABLE IF NOT EXISTS `payments` (
   `fine_amount` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
   `tax_amount` DECIMAL(12,2) NOT NULL DEFAULT 0.00,
   `total_amount` DECIMAL(12,2) NOT NULL,
-  `payment_method` ENUM('cash','bank_transfer','cheque','bkash','nagad','rocket','stripe','paypal','other') NOT NULL,
+  `payment_method` ENUM('cash','bank_transfer','cheque','bkash','nagad','rocket','uddoktapay','stripe','paypal','other') NOT NULL,
   `payment_status` ENUM('pending','processing','completed','failed','refunded','cancelled','expired') NOT NULL DEFAULT 'pending',
   `refund_status` VARCHAR(191) NOT NULL DEFAULT 'not_refunded',
   `payment_date` DATE NULL,
