@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Services\CloudBackup\CloudBackupService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 
 /**
  * Admin surface for the cloud backup feature: the provider/credential settings,
@@ -20,25 +19,11 @@ use Illuminate\View\View;
  */
 class DashboardCloudBackupController extends Controller
 {
-    public function index(Request $request, CloudBackupService $service): View
-    {
-        $this->authorize('manage_cloud_backup');
-
-        $settings = $service->settings();
-        $remote = $service->listRemote($settings);
-
-        return view('dashboard.cloud-backup.index', [
-            'settings' => $settings,
-            'providers' => $this->providers(),
-            'bounds' => $this->bounds(),
-            'remote' => $remote['files'],
-            'remoteNotice' => $remote['ok'] ? null : $remote['message'],
-            'runs' => $service->recentRuns(15),
-            'configured' => $settings->configuredFields(),
-            'isConfigured' => $service->isConfigured($settings),
-        ]);
-    }
-
+    /**
+     * The cloud-backup admin is rendered inside the Backups page
+     * (dashboard.backup.index, Local / Cloud tabs). This controller only handles
+     * the POST actions; the page itself is owned by DashboardBackupController.
+     */
     public function update(Request $request, CloudBackupService $service): RedirectResponse
     {
         $this->authorize('manage_cloud_backup');

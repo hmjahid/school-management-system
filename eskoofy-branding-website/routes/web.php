@@ -184,6 +184,13 @@ $router->group('/admin', function (App\Core\Router $router): void {
     $router->post('/backup/create/{type}', \App\Controllers\Admin\BackupController::class, 'create');
     $router->get('/backup/download', \App\Controllers\Admin\BackupController::class, 'download');
     $router->post('/backup/delete', \App\Controllers\Admin\BackupController::class, 'delete');
+
+    $router->get('/cloud-backup', \App\Controllers\Admin\CloudBackupController::class, 'index');
+    $router->post('/cloud-backup/settings', \App\Controllers\Admin\CloudBackupController::class, 'update');
+    $router->post('/cloud-backup/test', \App\Controllers\Admin\CloudBackupController::class, 'test');
+    $router->post('/cloud-backup/run', \App\Controllers\Admin\CloudBackupController::class, 'run');
+    $router->post('/cloud-backup/restore/{file}', \App\Controllers\Admin\CloudBackupController::class, 'restore');
+    $router->post('/cloud-backup/delete/{file}', \App\Controllers\Admin\CloudBackupController::class, 'destroy');
 }, ['AdminMiddleware']);
 // Gateway webhooks (public, signature-verified; CSRF-exempt via bootstrap).
 $router->post('/webhooks/{gateway}', \App\Controllers\Api\WebhookController::class, 'handle');

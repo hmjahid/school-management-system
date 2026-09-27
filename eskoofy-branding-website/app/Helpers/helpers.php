@@ -38,3 +38,13 @@ if (!function_exists('old')) {
             : $default;
     }
 }
+
+if (!function_exists('esc')) {
+    /**
+     * HTML-escape a value (short alias used by admin views).
+     */
+    function esc(mixed $value): string
+    {
+        return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+    }
+}

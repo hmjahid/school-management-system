@@ -459,3 +459,23 @@ INSERT IGNORE INTO `posts` (`id`, `category_id`, `author_id`, `title`, `slug`, `
  'Payments via Paddle and the self-service license portal are on the roadmap.',
  '<p>We are adding Paddle as a payment gateway and upgrading the <a href="/account">customer license portal</a> with renewal reminders and activation history.</p>',
  'draft', NULL, NULL, NULL, 0, NULL, NOW(), NOW());
+-- ============================================================
+-- Cloud backup run log (cloud backup admin feature)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `cloud_backup_runs` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `provider` VARCHAR(191) NOT NULL,
+  `file_name` VARCHAR(191) NOT NULL,
+  `remote_id` VARCHAR(191) NULL,
+  `size` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  `status` VARCHAR(20) NOT NULL DEFAULT 'success',
+  `message` TEXT NULL,
+  `created_at` TIMESTAMP NULL,
+  `updated_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`),
+  KEY `cloud_backup_runs_status_index` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- END OF SCHEMA
+-- ============================================================

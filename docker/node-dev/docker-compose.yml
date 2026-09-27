@@ -44,16 +44,20 @@ services:
     environment:
       # Process env wins over the bind-mounted .env
       DATABASE_URL: mysql://esk:eskpw@db:3306/eskoofy_node
+      DB_HOST: db
+      DB_PORT: "3306"
       NODE_ENV: development
     ports:
       - "3000:3000"
     volumes:
       - ../../eskoofy-nodejs-app:/app:cached
+      - ./entrypoint.sh:/app/docker-entrypoint.sh:ro
       - esk-node-modules:/app/node_modules
       - esk-node-next:/app/.next
     depends_on:
       db:
         condition: service_healthy
+    entrypoint: ["/bin/sh", "/app/docker-entrypoint.sh"]
     command: ["npm", "run", "dev", "--", "--hostname", "0.0.0.0"]
     networks:
       - esk-node-net

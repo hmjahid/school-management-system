@@ -389,6 +389,9 @@ create a proper prompt file for completing the above tasks and execute the promp
 
 
 
+ensure that the cloud backup is indie the backup page, not in another seperate page
+
+
 
 read PAYMENT-SYSTEM-REVIEW.md and PAYMENT-IMPLEMENTATION-PLAN.md files and implement them one by one. ask me at starting every phase before execution 
 

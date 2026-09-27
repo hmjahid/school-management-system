@@ -24,7 +24,7 @@ function formString(formData: FormData, key: string): string {
 
 export async function saveCloudBackupSettingsAction(formData: FormData): Promise<void> {
   const user = await currentUser();
-  if (!can(user?.role, "manage_cloud_backup")) deny("/dashboard/cloud-backup");
+  if (!can(user?.role, "manage_cloud_backup")) deny("/dashboard/backup?tab=cloud");
 
   const credentials: Record<string, string> = {};
   for (const [key, value] of formData.entries()) {
@@ -44,46 +44,46 @@ export async function saveCloudBackupSettingsAction(formData: FormData): Promise
     credentials,
   });
 
-  revalidatePath("/dashboard/cloud-backup");
-  redirect("/dashboard/cloud-backup?status=saved");
+  revalidatePath("/dashboard/backup");
+  redirect("/dashboard/backup?tab=cloud&status=saved");
 }
 
 export async function runCloudBackupAction(): Promise<void> {
   const user = await currentUser();
-  if (!can(user?.role, "manage_cloud_backup")) deny("/dashboard/cloud-backup");
+  if (!can(user?.role, "manage_cloud_backup")) deny("/dashboard/backup?tab=cloud");
 
   const result = await runCloudBackup();
-  revalidatePath("/dashboard/cloud-backup");
-  redirect(result.status === "success" ? "/dashboard/cloud-backup?status=ran" : "/dashboard/cloud-backup?error=run");
+  revalidatePath("/dashboard/backup");
+  redirect(result.status === "success" ? "/dashboard/backup?tab=cloud&status=ran" : "/dashboard/backup?tab=cloud&error=run");
 }
 
 export async function testCloudBackupAction(): Promise<void> {
   const user = await currentUser();
-  if (!can(user?.role, "manage_cloud_backup")) deny("/dashboard/cloud-backup");
+  if (!can(user?.role, "manage_cloud_backup")) deny("/dashboard/backup?tab=cloud");
 
   const result = await testConnection(await cloudSettings());
-  revalidatePath("/dashboard/cloud-backup");
-  redirect(result.ok ? "/dashboard/cloud-backup?status=tested" : "/dashboard/cloud-backup?error=test");
+  revalidatePath("/dashboard/backup");
+  redirect(result.ok ? "/dashboard/backup?tab=cloud&status=tested" : "/dashboard/backup?tab=cloud&error=test");
 }
 
 export async function restoreCloudBackupAction(formData: FormData): Promise<void> {
   const user = await currentUser();
   if (!can(user?.role, "manage_cloud_backup") || !can(user?.role, "restore_database")) {
-    deny("/dashboard/cloud-backup");
+    deny("/dashboard/backup?tab=cloud");
   }
 
   const file = formString(formData, "file");
   const result = await restoreRemote(await cloudSettings(), file);
-  revalidatePath("/dashboard/cloud-backup");
-  redirect(result.ok ? "/dashboard/cloud-backup?status=restored" : "/dashboard/cloud-backup?error=restore");
+  revalidatePath("/dashboard/backup");
+  redirect(result.ok ? "/dashboard/backup?tab=cloud&status=restored" : "/dashboard/backup?tab=cloud&error=restore");
 }
 
 export async function deleteCloudBackupAction(formData: FormData): Promise<void> {
   const user = await currentUser();
-  if (!can(user?.role, "manage_cloud_backup")) deny("/dashboard/cloud-backup");
+  if (!can(user?.role, "manage_cloud_backup")) deny("/dashboard/backup?tab=cloud");
 
   const file = formString(formData, "file");
   await deleteRemote(await cloudSettings(), file);
-  revalidatePath("/dashboard/cloud-backup");
-  redirect("/dashboard/cloud-backup?status=deleted");
+  revalidatePath("/dashboard/backup");
+  redirect("/dashboard/backup?tab=cloud&status=deleted");
 }

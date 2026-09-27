@@ -38,22 +38,9 @@ class CloudBackupController extends Controller
 
     public function index(): void
     {
-        Auth::requireAuth();
-        abort_unless(Gate::allows('manage_cloud_backup'), 403);
-
-        $settings = $this->service->settings();
-        $remote = $this->service->listRemote($settings);
-
-        $this->view('dashboard.cloud-backup.index', [
-            'settings' => $settings,
-            'providers' => $this->providers(),
-            'bounds' => $this->bounds(),
-            'remote' => $remote['files'],
-            'remoteNotice' => $remote['ok'] ? null : $remote['message'],
-            'runs' => $this->service->recentRuns(15),
-            'configured' => $settings->configuredFields(),
-            'isConfigured' => $this->service->isConfigured($settings),
-        ]);
+        // The cloud-backup admin lives inside the Backups page (Local / Cloud
+        // tabs). Keep the GET route for old links by redirecting to the tab.
+        $this->redirect(route('dashboard.backup.index', ['tab' => 'cloud']));
     }
 
     public function update(): void
@@ -79,7 +66,7 @@ class CloudBackupController extends Controller
         ]);
 
         Session::getInstance()->flash('success', __('Cloud backup settings saved.'));
-        $this->redirect(route('dashboard.cloud-backup.index'));
+        $this->redirect(route('dashboard.backup.index', ['tab' => 'cloud']));
     }
 
     public function test(): void

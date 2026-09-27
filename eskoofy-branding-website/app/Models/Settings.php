@@ -102,6 +102,15 @@ class Settings
         }
     }
 
+    /**
+     * Drop the loaded-cache. Test-only convenience so a fresh FakeDatabase can
+     * be installed between cases without the previous case's rows leaking in.
+     */
+    public static function resetCache(): void
+    {
+        self::$loaded = null;
+    }
+
     public static function mailFromAddress(): string
     {
         $address = trim((string) self::get('email.from_address', ''));

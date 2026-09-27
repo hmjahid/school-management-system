@@ -355,15 +355,12 @@
                 <x-admin-nav-link :href="route('dashboard.activity.index')" route-is="dashboard.activity*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M9 2a1 1 0 000 2h2a1 1 0 100-2H9z\'/><path fill-rule=\'evenodd\' d=\'M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z\' clip-rule=\'evenodd\'/></svg>'">{{ __('dashboard.activity_log') }}</x-admin-nav-link>
             @endcan
             <x-admin-nav-link :href="route('dashboard.visitor-logs.index')" route-is="dashboard.visitor-logs*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M10 12a2 2 0 100-4 2 2 0 000 4z\'/><path fill-rule=\'evenodd\' d=\'M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z\' clip-rule=\'evenodd\'/></svg>'">{{ __('dashboard.visitor_logs') }}</x-admin-nav-link>
-            @can('manage_cloud_backup')
-                <x-admin-nav-link :href="route('dashboard.cloud-backup.index')" route-is="dashboard.cloud-backup*" :icon="'<svg class=\'h-5 w-5\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'1.6\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M7 18a4 4 0 01-.6-7.96A5.5 5.5 0 0117.9 9.5 3.5 3.5 0 0117 18H7z\'/></svg>'">{{ __('dashboard.cloud_backup') }}</x-admin-nav-link>
-            @endcan
             @can('manage_document_designs')
                 <x-admin-nav-link :href="route('dashboard.document-designs.index')" route-is="dashboard.document-designs*" :icon="'<svg class=\'h-5 w-5\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'1.6\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M4 5h16M4 12h10M4 19h7\'/></svg>'">{{ __('dashboard.document_designs') }}</x-admin-nav-link>
             @endcan
-            @can('backup_database')
-                <x-admin-nav-link :href="route('dashboard.backup.index')" route-is="dashboard.backup*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z\'/></svg>'">{{ __('dashboard.backups') }}</x-admin-nav-link>
-            @endcan
+            @canany(['backup_database', 'manage_cloud_backup'])
+                <x-admin-nav-link :href="route('dashboard.backup.index', ['tab' => 'local'])" route-is="dashboard.backup*" :icon="'<svg class=\'h-5 w-5\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path d=\'M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z\'/></svg>'">{{ __('dashboard.backups') }}</x-admin-nav-link>
+            @endcanany
 
             <p class="mb-2 mt-5 px-3 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{{ __('dashboard.website') }}</p>
 

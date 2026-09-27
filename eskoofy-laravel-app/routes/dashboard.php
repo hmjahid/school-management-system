@@ -484,7 +484,9 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::prefix('dashboard/cloud-backup')->name('dashboard.cloud-backup.')->group(function () {
-            Route::get('/', [DashboardCloudBackupController::class, 'index'])->name('index');
+            // The cloud-backup admin lives inside the Backups page; keep the GET
+            // route for old links by redirecting to the Local/Cloud tab.
+            Route::get('/', fn () => redirect()->route('dashboard.backup.index', ['tab' => 'cloud']))->name('index');
             Route::post('/settings', [DashboardCloudBackupController::class, 'update'])->name('update');
             Route::post('/test', [DashboardCloudBackupController::class, 'test'])->name('test');
             Route::post('/run', [DashboardCloudBackupController::class, 'run'])->name('run');

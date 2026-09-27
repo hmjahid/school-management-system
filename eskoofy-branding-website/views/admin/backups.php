@@ -1,4 +1,14 @@
 <?php $adminTitle = 'Backups'; ?>
+<?php $tab = (($tab ?? 'local') === 'cloud') ? 'cloud' : 'local'; ?>
+
+<div class="mb-6 flex flex-wrap gap-1 rounded-lg border border-slate-200 bg-white p-1 text-sm">
+    <a href="/admin/backup?tab=local" class="rounded-md px-4 py-2 font-medium <?= $tab !== 'cloud' ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-100' ?>">Local backups</a>
+    <a href="/admin/backup?tab=cloud" class="rounded-md px-4 py-2 font-medium <?= $tab === 'cloud' ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-100' ?>">Cloud backup</a>
+</div>
+
+<?php if ($tab === 'cloud'): ?>
+    <?php require __DIR__ . '/cloud-backup.php'; ?>
+<?php else: ?>
 
 <div class="mb-4">
     <h2 class="font-bold text-lg">Create a backup</h2>
@@ -52,10 +62,8 @@
                 <th class="px-4 py-3 text-right">Actions</th>
             </tr>
         </thead>
-        <tbody>
-        <?php if (empty($backups)): ?>
-            <tr><td colspan="5" class="px-4 py-6 text-center text-slate-400">No backups yet — create one above.</td></tr>
-        <?php else: foreach ($backups as $b): ?>
+        <tbody class="divide-y divide-slate-100">
+        <?php if (!empty($backups)): foreach ($backups as $b): ?>
             <tr class="border-t border-slate-100">
                 <td class="px-4 py-3 font-mono text-xs"><?= htmlspecialchars($b['file']) ?></td>
                 <td class="px-4 py-3 capitalize"><?= htmlspecialchars($b['type']) ?><?= $b['full'] ? ' · site' : '' ?></td>
@@ -76,3 +84,5 @@
         </tbody>
     </table>
 </div>
+
+<?php endif; ?>

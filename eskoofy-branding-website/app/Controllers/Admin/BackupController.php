@@ -7,6 +7,7 @@ use App\Core\Auth;
 use App\Core\Controller;
 use App\Services\ActivityLog;
 use App\Services\BackupService;
+use App\Services\CloudBackupService;
 
 class BackupController extends Controller
 {
@@ -17,10 +18,58 @@ class BackupController extends Controller
 
     public function index(): void
     {
+        // The page holds both local backups and the cloud-backup panel.
+        $cloudService = new CloudBackupService(\App\Core\Database::getInstance());
+        $cloudSettings = $cloudService->settings();
+        $remote = $cloudService->listRemote();
+
         $this->view('admin.backups', [
-            'admin'   => Auth::user(),
+            'admin' => Auth::user(),
             'backups' => (new BackupService())->list(),
+            'tab' => (($_GET['tab'] ?? 'local') === 'cloud') ? 'cloud' : 'local',
+            'cloudSettings' => $cloudSettings,
+            'providers' => $this->cloudProviders(),
+            'remote' => $remote['files'],
+            'remoteNotice' => $remote['ok'] ? null : $remote['message'],
+            'isConfigured' => $cloudService->isConfigured(),
+            'runs' => $cloudService->recentRuns(15),
         ]);
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    private function cloudProviders(): array
+    {
+        return [
+            'local' => ['label' => 'This server (local folder)', 'fields' => []],
+            'google_drive' => ['label' => 'Google Drive', 'fields' => [
+                'client_id' => 'Client ID',
+                'client_secret' => 'Client secret',
+                'refresh_token' => 'Refresh token',
+                'service_account_email' => 'Service account email',
+                'service_account_private_key' => 'Service account private key',
+                'scope' => 'OAuth scope (optional)',
+            ]],
+            'dropbox' => ['label' => 'Dropbox', 'fields' => [
+                'app_key' => 'App key',
+                'app_secret' => 'App secret',
+                'refresh_token' => 'Refresh token',
+                'access_token' => 'Access token (short-lived alternative)',
+            ]],
+            '4shared' => ['label' => '4shared', 'fields' => [
+                'api_key' => 'API key',
+                'username' => 'Username',
+                'password' => 'Password',
+            ]],
+            's3' => ['label' => 'Amazon S3 (or compatible)', 'fields' => [
+                'endpoint' => 'Endpoint',
+                'bucket' => 'Bucket',
+                'key' => 'Access key',
+                'secret' => 'Secret key',
+                'region' => 'Region',
+            ]],
+        ];
     }
 
     public function create(string $type): void

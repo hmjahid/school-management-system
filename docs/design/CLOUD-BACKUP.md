@@ -57,11 +57,20 @@ the `restore_database` permission alongside `manage_cloud_backup`.
 
 ## Admin surfaces
 
-- **Laravel app**: `dashboard/cloud-backup` (settings, test, run-now, remote list, restore,
-  delete, history).
-- **Raw-PHP port**: `/dashboard/cloud-backup` (byte-identical Blade to the app).
-- **WP theme**: `views/admin/cloud-backup.php` at `/dashboard/cloud-backup`.
-- **Node variant**: `/dashboard/cloud-backup` (Next.js page + server actions).
+Cloud backup is **inside the Backups page** (a Local / Cloud tab switcher), not a
+separate admin page, in every product.
+
+- **Laravel app**: `dashboard/backup?tab=cloud` — the cloud panel is rendered by
+  `partials/dashboard/cloud-backup-panel.blade.php` inside the backup page; the old
+  `dashboard/cloud-backup` GET route redirects to the Cloud tab.
+- **Raw-PHP port**: `/dashboard/backups?tab=cloud` (byte-identical Blade to the app).
+- **WP theme**: `views/admin/backup.php` at `/dashboard/backup` includes
+  `views/admin/cloud-backup.php` for the Cloud tab.
+- **Node variant**: `/dashboard/backup?tab=cloud` (Next.js page renders
+  `components/dashboard/CloudBackupPanel.tsx`).
+- **Branding website**: `/admin/backup?tab=cloud` (settings in the `settings` table under
+  `cloud_backup.*`, run log in `cloud_backup_runs`, CLI
+  `scripts/backup-cloud.php` for cron).
 
 ## Permissions
 

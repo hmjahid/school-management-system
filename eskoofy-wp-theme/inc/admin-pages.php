@@ -608,15 +608,6 @@ function esk_register_admin_menus(): void {
 
 	add_submenu_page(
 		'esk-dashboard',
-		esc_html__( 'Cloud Backup', 'eskoofy' ),
-		esc_html__( 'Cloud Backup', 'eskoofy' ),
-		'manage_options',
-		'esk-cloud-backup',
-		'esk_cloud_backup_page'
-	);
-
-	add_submenu_page(
-		'esk-dashboard',
 		esc_html__( 'Document Designs', 'eskoofy' ),
 		esc_html__( 'Document Designs', 'eskoofy' ),
 		'manage_options',
@@ -896,7 +887,6 @@ function esk_library_reports_page(): void         { esk_render_admin_view( 'libr
 function esk_profile_page(): void                 { esk_render_admin_view( 'profile' ); }
 function esk_help_page(): void                    { esk_render_admin_view( 'help' ); }
 function esk_backup_page(): void                  { esk_render_admin_view( 'backup' ); }
-function esk_cloud_backup_page(): void             { esk_render_admin_view( 'cloud-backup' ); }
 function esk_document_designs_page(): void         { esk_render_admin_view( 'document-designs' ); }
 function esk_cache_page(): void                   { esk_render_admin_view( 'cache' ); }
 

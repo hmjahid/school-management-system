@@ -70,7 +70,7 @@ $eskNavGroups = [
         ['label' => 'Client documents', 'href' => '/admin/client-documents', 'icon' => 'file', 'active' => $eskActive(['/admin/client-documents'])],
         ['label' => 'Push notifications', 'href' => '/admin/push-notifications', 'icon' => 'inbox', 'active' => $eskActive(['/admin/push-notifications'])],
         ['label' => 'Clear cache', 'href' => '/admin/cache', 'icon' => 'sliders', 'active' => $eskActive(['/admin/cache'])],
-        ['label' => 'Backups', 'href' => '/admin/backup', 'icon' => 'archive', 'active' => $eskActive(['/admin/backup'])],
+        ['label' => 'Backups', 'href' => '/admin/backup', 'icon' => 'archive', 'active' => $eskActive(['/admin/backup', '/admin/cloud-backup'])],
         ['label' => 'Settings', 'href' => '/admin/settings', 'icon' => 'sliders', 'active' => $eskActive(['/admin/settings'])],
         ['label' => 'My account', 'href' => '/admin/account', 'icon' => 'user', 'active' => $eskActive(['/admin/account'])],
     ],

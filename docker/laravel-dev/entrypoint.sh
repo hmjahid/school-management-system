@@ -67,6 +67,14 @@ if [ "$(db_check 'SELECT EXISTS(SELECT 1 FROM users)')" != "1" ]; then
   php artisan db:seed --force
 fi
 
+# RolePermissionSeeder is idempotent (firstOrCreate + syncPermissions) and MUST
+# re-run on every boot: an existing database volume created before this seeder
+# gained a new permission would otherwise never grant it. The dashboard
+# sidebar's @can('manage_cloud_backup') / @can('manage_document_designs') links
+# depend on those grants existing.
+echo "==> Syncing role permissions (idempotent)..."
+php artisan db:seed --class=RolePermissionSeeder --force
+
 trap - EXIT
 
 echo "==> Starting: $*"

@@ -56,9 +56,18 @@ services:
       # Router lives outside the product tree so Docker never materializes a
       # stray file inside the bind mount (see eskoofy-php-app/router.php).
       - ./router.php:/router.php:ro
+      - ./entrypoint.sh:/docker/entrypoint.sh:ro
     depends_on:
       db:
         condition: service_healthy
+    entrypoint: ["/bin/sh", "/docker/entrypoint.sh"]
+    environment:
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_DATABASE: eskoofy_website
+      DB_USERNAME: esk
+      DB_PASSWORD: eskpw
+      ESK_SCHEMA_FILE: /var/www/database/schema.sql
     command:
       - php
       - -S

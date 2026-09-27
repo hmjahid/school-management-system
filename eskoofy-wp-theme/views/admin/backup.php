@@ -139,27 +139,40 @@ if ( $backup_dir && is_dir( $backup_dir ) ) {
 		return strcmp( $b['name'], $a['name'] );
 	} );
 }
+
+// Cloud backup lives on this page too (Local / Cloud tabs).
+$tab = isset( $_GET['tab'] ) && 'cloud' === $_GET['tab'] ? 'cloud' : 'local';
 ?>
 <div class="wrap esk-admin-wrap">
 
 	<div class="mb-6 flex items-center justify-between">
 		<div>
 			<h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white"><?php esc_html_e( 'Backups', 'eskoofy' ); ?></h1>
-			<p class="mt-1 text-sm text-slate-500 dark:text-slate-400"><?php esc_html_e( 'Create and restore file + database backups.', 'eskoofy' ); ?></p>
-		</div>
-		<div>
-			<form method="post" action="">
-				<?php wp_nonce_field( 'esk_backup_nonce' ); ?>
-				<button type="submit" name="esk_backup_create" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"><?php esc_html_e( 'Create backup now', 'eskoofy' ); ?></button>
-			</form>
+			<p class="mt-1 text-sm text-slate-500 dark:text-slate-400"><?php esc_html_e( 'Create, restore and upload portable backups.', 'eskoofy' ); ?></p>
 		</div>
 	</div>
+
+	<div class="mb-6 flex flex-wrap gap-1 rounded-lg border border-slate-200 bg-white p-1 text-sm dark:border-slate-700 dark:bg-slate-800">
+		<a href="<?php echo esc_url( add_query_arg( 'tab', 'local' ) ); ?>" class="rounded-md px-4 py-2 font-medium transition <?php echo 'cloud' !== $tab ? 'bg-brand-600 text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'; ?>"><?php esc_html_e( 'Local backups', 'eskoofy' ); ?></a>
+		<a href="<?php echo esc_url( add_query_arg( 'tab', 'cloud' ) ); ?>" class="rounded-md px-4 py-2 font-medium transition <?php echo 'cloud' === $tab ? 'bg-brand-600 text-white' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700'; ?>"><?php esc_html_e( 'Cloud backup', 'eskoofy' ); ?></a>
+	</div>
+
+	<?php if ( 'cloud' === $tab ) : ?>
+		<?php require ESK_PATH . '/views/admin/cloud-backup.php'; ?>
+	<?php else : ?>
 
 	<?php if ( '' !== $created ) : ?>
 		<div data-esk-flash-toast data-message="<?php echo esc_attr( $created ); ?>" data-type="success"></div>
 	<?php elseif ( '' !== $error ) : ?>
 		<div data-esk-flash-toast data-message="<?php echo esc_attr( $error ); ?>" data-type="error"></div>
 	<?php endif; ?>
+
+	<div class="mb-4 flex justify-end">
+		<form method="post" action="">
+			<?php wp_nonce_field( 'esk_backup_nonce' ); ?>
+			<button type="submit" name="esk_backup_create" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700"><?php esc_html_e( 'Create backup now', 'eskoofy' ); ?></button>
+		</form>
+	</div>
 
 	<div class="admin-card overflow-hidden">
 		<div class="overflow-x-auto">
@@ -201,4 +214,6 @@ if ( $backup_dir && is_dir( $backup_dir ) ) {
 			</table>
 		</div>
 	</div>
+
+	<?php endif; // local tab ?>
 </div>

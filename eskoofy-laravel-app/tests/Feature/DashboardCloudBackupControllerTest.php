@@ -46,18 +46,16 @@ class DashboardCloudBackupControllerTest extends TestCase
     {
         $this->actingAs($this->admin('manage_cloud_backup'))
             ->get(route('dashboard.cloud-backup.index'))
-            ->assertOk()
-            ->assertSee('Google Drive')
-            ->assertSee('4shared')
-            // Never the stored secret, and never a password value.
-            ->assertDontSee('super-secret', false);
+            ->assertRedirect(route('dashboard.backup.index', ['tab' => 'cloud']));
     }
 
     #[Test]
     public function a_user_without_the_permission_is_refused(): void
     {
+        // The cloud-backup index redirects to the Backups page; a user with
+        // neither backup_database nor manage_cloud_backup is refused there.
         $this->actingAs($this->admin())
-            ->get(route('dashboard.cloud-backup.index'))
+            ->get(route('dashboard.backup.index'))
             ->assertForbidden();
     }
 
@@ -81,9 +79,9 @@ class DashboardCloudBackupControllerTest extends TestCase
         $this->assertSame('4shared', $stored->provider);
         $this->assertSame('super-secret', $stored->credentials['api_key']);
 
-        // The page shows presence, not values.
+        // The cloud panel (Backups › Cloud tab) shows presence, not values.
         $this->actingAs($this->admin('manage_cloud_backup'))
-            ->get(route('dashboard.cloud-backup.index'))
+            ->get(route('dashboard.backup.index', ['tab' => 'cloud']))
             ->assertOk()
             ->assertSee('saved', false)
             ->assertDontSee('super-secret', false)
@@ -138,9 +136,9 @@ class DashboardCloudBackupControllerTest extends TestCase
         $this->bindFakeTransport();
 
         $this->actingAs($this->admin('manage_cloud_backup'))
-            ->from(route('dashboard.cloud-backup.index'))
+            ->from(route('dashboard.backup.index', ['tab' => 'cloud']))
             ->post(route('dashboard.cloud-backup.test'))
-            ->assertRedirect(route('dashboard.cloud-backup.index'))
+            ->assertRedirect(route('dashboard.backup.index', ['tab' => 'cloud']))
             ->assertSessionHas('cloudResult')
             ->assertSessionHas('cloudResult.ok', true);
     }
@@ -157,7 +155,7 @@ class DashboardCloudBackupControllerTest extends TestCase
         ]);
 
         $this->actingAs($this->admin('manage_cloud_backup'))
-            ->from(route('dashboard.cloud-backup.index'))
+            ->from(route('dashboard.backup.index', ['tab' => 'cloud']))
             ->post(route('dashboard.cloud-backup.test'))
             ->assertSessionHas('cloudResult.ok', false);
     }
@@ -172,7 +170,7 @@ class DashboardCloudBackupControllerTest extends TestCase
         ]);
 
         $this->actingAs($this->admin('manage_cloud_backup'))
-            ->from(route('dashboard.cloud-backup.index'))
+            ->from(route('dashboard.backup.index', ['tab' => 'cloud']))
             ->post(route('dashboard.cloud-backup.test'))
             ->assertSessionHas('cloudResult.ok', false);
 
@@ -188,9 +186,9 @@ class DashboardCloudBackupControllerTest extends TestCase
         $this->actingAs($user)->post(route('dashboard.cloud-backup.update'), ['provider' => 'local', 'is_enabled' => '1']);
 
         $this->actingAs($user)
-            ->from(route('dashboard.cloud-backup.index'))
+            ->from(route('dashboard.backup.index', ['tab' => 'cloud']))
             ->post(route('dashboard.cloud-backup.run'))
-            ->assertRedirect(route('dashboard.cloud-backup.index'))
+            ->assertRedirect(route('dashboard.backup.index', ['tab' => 'cloud']))
             ->assertSessionHasNoErrors();
 
         $run = CloudBackupRun::query()->latest('id')->first();
@@ -198,7 +196,7 @@ class DashboardCloudBackupControllerTest extends TestCase
         $this->assertSame('success', $run->status);
 
         $this->actingAs($user)
-            ->get(route('dashboard.cloud-backup.index'))
+            ->get(route('dashboard.backup.index', ['tab' => 'cloud']))
             ->assertOk()
             ->assertSee($run->file_name, false);
     }
@@ -215,9 +213,9 @@ class DashboardCloudBackupControllerTest extends TestCase
         $file = CloudBackupRun::query()->latest('id')->first()->file_name;
 
         $this->actingAs($user)
-            ->from(route('dashboard.cloud-backup.index'))
+            ->from(route('dashboard.backup.index', ['tab' => 'cloud']))
             ->delete(route('dashboard.cloud-backup.destroy', ['file' => $file]))
-            ->assertRedirect(route('dashboard.cloud-backup.index'));
+            ->assertRedirect(route('dashboard.backup.index', ['tab' => 'cloud']));
 
         $this->assertFileDoesNotExist(storage_path('app/backups/cloud/eskoofy-backups/'.$file));
     }
@@ -260,7 +258,7 @@ class DashboardCloudBackupControllerTest extends TestCase
         ]);
 
         $this->actingAs($this->admin('manage_cloud_backup'))
-            ->get(route('dashboard.cloud-backup.index'))
+            ->get(route('dashboard.backup.index', ['tab' => 'cloud']))
             ->assertOk()
             ->assertSee('no complete credential set');
     }

@@ -8,6 +8,8 @@ use App\Core\Controller;
 use App\Core\Database;
 use App\Core\DatabaseInterface;
 use App\Core\Session;
+use App\Services\CloudBackup\CloudBackupManager;
+use App\Services\CloudBackup\CloudBackupService;
 use App\Services\VariantRestoreReconciler;
 
 class BackupController extends Controller
@@ -27,21 +29,20 @@ class BackupController extends Controller
     public function index(): void
     {
         Auth::requireAuth();
-        $files = glob($this->backupDir . '/*.sql') ?: [];
-        rsort($files);
 
-        $backups = array_map(function (string $path) {
-            return [
-                'name'       => basename($path),
-                'filename'   => basename($path),
-                'size'       => number_format(filesize($path)),
-                'bytes'      => filesize($path),
-                'type'       => 'Full',
-                'created_at' => date('M d, Y H:i', filemtime($path)),
-            ];
-        }, $files);
+        // The page holds both local backups and the cloud-backup panel; either
+        // ability is enough to open it (parity with the Laravel app).
+        $user = Auth::user();
+        $canLocal = $user && \App\Core\Gate::allows('backup_database');
+        $canCloud = $user && \App\Core\Gate::allows('manage_cloud_backup');
+        if (! $canLocal && ! $canCloud) {
+            http_response_code(403);
+            echo 'Forbidden';
+            exit;
+        }
 
-        $totalBytes = array_sum(array_map('filesize', $files));
+        $files = glob($this->backupDir . '/*.zip') ?: [];
+        usort($files, static fn (string $a, string $b): int => filemtime($b) <=> filemtime($a));
 
         $files = array_map(function (string $path) {
             return [
@@ -51,59 +52,82 @@ class BackupController extends Controller
             ];
         }, $files);
 
-        $this->view('dashboard.backup.index', [
-            'rows'        => $backups,
-            'backups'     => $backups,
-            'files'       => $files,
-            'lastBackup'  => isset($backups[0]) ? $backups[0]['created_at'] : null,
-            'totalBackups' => count($backups),
-            'diskUsage'   => number_format($totalBytes / 1048576, 1) . ' MB',
-        ]);
+        $cloud = $this->cloudData();
+
+        $this->view('dashboard.backup.index', array_merge(
+            ['files' => $files, 'tab' => ($_GET['tab'] ?? 'local') === 'cloud' ? 'cloud' : 'local'],
+            $cloud
+        ));
+    }
+
+    /**
+     * Everything the cloud-backup panel needs, from the shared service.
+     *
+     * @return array<string, mixed>
+     */
+    private function cloudData(): array
+    {
+        $service = new CloudBackupService(new CloudBackupManager(), $this->db);
+        $settings = $service->settings();
+        $remote = $service->listRemote($settings);
+
+        return [
+            'cloudSettings' => $settings,
+            'providers' => $this->providers(),
+            'bounds' => $this->bounds(),
+            'remote' => $remote['files'],
+            'remoteNotice' => $remote['ok'] ? null : $remote['message'],
+            'runs' => $service->recentRuns(15),
+            'configured' => $settings->configuredFields(),
+            'isConfigured' => $service->isConfigured($settings),
+        ];
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    private function providers(): array
+    {
+        $providers = (array) config('backup.providers', []);
+
+        return array_map(fn (array $provider) => $provider + [
+            'label' => $provider['key'] ?? '',
+            'fields' => [],
+            'required' => [],
+            'alternatives' => [],
+        ], $providers);
+    }
+
+    /** @return array<string, int> */
+    private function bounds(): array
+    {
+        return [
+            'min_interval' => (int) config('backup.auto.min_interval_minutes', 5),
+            'max_interval' => (int) config('backup.auto.max_interval_minutes', 10080),
+            'min_keep' => (int) config('backup.auto.min_keep', 1),
+            'max_keep' => (int) config('backup.auto.max_keep', 365),
+        ];
     }
 
     public function create(): void
     {
         Auth::requireAuth();
-        $timestamp = date('Y-m-d_H-i-s');
-        $filename = "backup_{$timestamp}.sql";
 
-        $tables = $this->db->fetchAll(
-            "SELECT TABLE_NAME AS `name` FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_TYPE = 'BASE TABLE' ORDER BY TABLE_NAME ASC"
-        );
+        // Local backups are portable zips (MANIFEST.json + database/tables.json
+        // + storage/app/public), the same contract as backup:run in the app.
+        $service = new \App\Services\PortableBackupService($this->db);
+        $bytes = $service->zip('raw-php');
 
-        $output = "-- Eskoofy Backup {$timestamp}\n";
-        $output .= '-- eskoofy-variant: ' . (string) (config('eskoolfy.variant') ?? 'bd') . "\n\n";
+        $ts = date('Ymd_His');
+        $name = 'backup_' . $ts . '_' . bin2hex(random_bytes(3)) . '.zip';
+        $path = $this->backupDir . '/' . $name;
 
-        foreach ($tables as $table) {
-            $tableName = $table['name'];
-            $output .= "-- Table: {$tableName}\n";
-
-            $createSql = $this->db->fetch(
-                "SHOW CREATE TABLE `{$tableName}`"
-            );
-            if ($createSql) {
-                $create = array_values($createSql)[1] ?? '';
-                if ($create) {
-                    $output .= $create . ";\n\n";
-                }
-            }
-
-            $rows = $this->db->fetchAll("SELECT * FROM `{$tableName}`");
-            foreach ($rows as $row) {
-                $columns = array_keys($row);
-                $values = array_map(function ($v) {
-                    if ($v === null) return 'NULL';
-                    return "'" . str_replace("'", "''", (string) $v) . "'";
-                }, array_values($row));
-                $output .= "INSERT INTO `{$tableName}` (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $values) . ");\n";
-            }
-            $output .= "\n";
+        if (file_put_contents($path, $bytes) === false) {
+            Session::getInstance()->flash('error', 'Backup failed: unable to write archive.');
+            $this->redirect('/dashboard/backups');
         }
 
-        $filepath = $this->backupDir . '/' . $filename;
-        file_put_contents($filepath, $output);
-
-        Session::getInstance()->flash('success', "Backup created: {$filename} (" . number_format(filesize($filepath)) . " bytes)");
+        Session::getInstance()->flash('success', "Backup created: {$name} (" . number_format(filesize($path)) . " bytes)");
         $this->redirect('/dashboard/backups');
     }
 
@@ -117,7 +141,7 @@ class BackupController extends Controller
             return;
         }
 
-        header('Content-Type: application/sql');
+        header('Content-Type: application/zip');
         header('Content-Disposition: attachment; filename=' . basename($path));
         header('Content-Length: ' . filesize($path));
         readfile($path);
@@ -147,20 +171,31 @@ class BackupController extends Controller
         }
 
         try {
-            $sql = (string) file_get_contents($path);
-            $sourceVariant = null;
-            if (preg_match('/^-- eskoofy-variant:\s*(bd|int)/m', $sql, $matches)) {
-                $sourceVariant = $matches[1];
+            $service = new \App\Services\PortableBackupService($this->db);
+
+            $zip = new \ZipArchive();
+            if ($zip->open($path) !== true) {
+                throw new \RuntimeException('Not a readable zip archive.');
             }
-            foreach ($this->splitSqlStatements($sql) as $statement) {
-                if ($statement === '') {
-                    continue;
-                }
-                $this->db->query($statement);
+            $manifestRaw = $zip->getFromName(\App\Services\PortableBackupService::MANIFEST_FILE);
+            $tablesRaw = $zip->getFromName(\App\Services\PortableBackupService::TABLES_FILE);
+            $zip->close();
+
+            if ($manifestRaw === false || $tablesRaw === false) {
+                throw new \RuntimeException('Not a portable Eskoofy backup (missing MANIFEST.json / database/tables.json).');
             }
+
+            $manifest = json_decode((string) $manifestRaw, true);
+            if (! is_array($manifest) || ! $service->isValidManifest($manifest)) {
+                throw new \RuntimeException('Unsupported backup format.');
+            }
+
+            $service->restoreTables($service->parseTables((string) $tablesRaw));
+
+            $sourceVariant = is_string($manifest['eskoofyVariant'] ?? null) ? $manifest['eskoofyVariant'] : null;
             $targetVariant = (string) (config('eskoolfy.variant') ?? 'bd');
             if ($sourceVariant !== null && $sourceVariant !== $targetVariant) {
-                $reconciled = (new VariantRestoreReconciler($this->db))->reconcile($sourceVariant);
+                $reconciled = $service->reconcileVariant($sourceVariant);
                 Session::getInstance()->flash(
                     'success',
                     'Restore completed. Cross-variant restore ('
@@ -176,19 +211,5 @@ class BackupController extends Controller
         }
 
         $this->redirect('/dashboard/backups');
-    }
-
-    /**
-     * Split a SQL dump into individual statements on statement-ending
-     * semicolons followed by a newline (our dumps write one statement/line).
-     *
-     * @return list<string>
-     */
-    private function splitSqlStatements(string $sql): array
-    {
-        $parts = preg_split('/;\s*\r?\n/', $sql) ?: [];
-        $parts = array_map('trim', $parts);
-
-        return array_values(array_filter($parts, static fn ($s) => $s !== '' && !str_starts_with($s, '--')));
     }
 }

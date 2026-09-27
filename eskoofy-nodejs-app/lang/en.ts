@@ -820,6 +820,8 @@ const en: Record<string, string> = {
   "backup.deleted": "Backup deleted.",
   "backup.failed": "Backup failed. Please check the logs for details.",
   "backup.page_description": "Create and restore portable backups that work in every Eskoofy variant.",
+  "backup.local_tab": "Local backups",
+  "backup.cloud_tab": "Cloud backup",
   "backup.create_now": "Create backup now",
   "backup.restore_warning": "Restoring replaces all table rows and uploaded files with the backup's contents.",
   "backup.file": "File",

@@ -47,10 +47,17 @@ via `docker compose -f docker/<product>-dev/docker-compose.yml`).
 | Product | Live reload mechanism |
 |---|---|
 | WP theme | `eskoofy-wp-theme` bind-mounted into WordPress; PHP re-reads it per request |
-| Laravel | `eskoofy-laravel-app` bind-mounted; `php artisan serve` re-reads PHP per request + **Vite dev server (:5173) for CSS/JS hot-reload**; migrations auto-run on boot and demo data is auto-seeded on a fresh DB |
-| Node.js | `eskoofy-nodejs-app` bind-mounted; **Next.js dev server hot-reload** (`node_modules`/`.next` live in container volumes) |
+| Laravel | `eskoofy-laravel-app` bind-mounted; `php artisan serve` re-reads PHP per request + **Vite dev server (:5173) for CSS/JS hot-reload**; migrations auto-run on boot, demo data auto-seeded on a fresh DB, and **`RolePermissionSeeder` re-runs every boot** (so a new `@can(...)` permission in the sidebar appears on an existing DB volume) |
+| Node.js | `eskoofy-nodejs-app` bind-mounted; **Next.js dev server hot-reload** (`node_modules`/`.next` live in container volumes). The entrypoint **regenerates the Prisma client and runs `prisma db push` on every start**, so schema/model changes land in the container DB and the generated client never serves a stale model set |
 | Raw PHP | `eskoofy-php-app` bind-mounted; PHP built-in server re-reads per request |
 | Branding website | `eskoofy-branding-website` bind-mounted; PHP built-in server re-reads per request |
+
+> **Schema changes on existing volumes:** MySQL/MariaDB `schema.sql` init scripts
+> run **only on a fresh (empty) data volume**. If you add tables/columns to a
+> product's schema after the container has already booted once, either
+> `./docker/dev.sh down <product> --volumes` for a clean rebuild, or apply the
+> DDL to the running DB manually. The Node entrypoint is the exception — it runs
+> `prisma db push` on every start so Prisma schema changes apply automatically.
 
 ## Seeding
 

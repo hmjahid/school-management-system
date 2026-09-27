@@ -820,6 +820,8 @@ const bn: Record<string, string> = {
   "backup.deleted": "ব্যাকআপ মুছে ফেলা হয়েছে।",
   "backup.failed": "ব্যাকআপ ব্যর্থ হয়েছে। বিস্তারিত লগ দেখুন।",
   "backup.page_description": "পোর্টেবল ব্যাকআপ তৈরি ও পুনরুদ্ধার করুন যা যেকোনো Eskoofy ভ্যারিয়েন্টে কাজ করে।",
+  "backup.local_tab": "লোকাল ব্যাকআপ",
+  "backup.cloud_tab": "ক্লাউড ব্যাকআপ",
   "backup.create_now": "এখনই ব্যাকআপ তৈরি করুন",
   "backup.restore_warning": "পুনরুদ্ধার করলে সব টেবিলের রেকর্ড ও আপলোড হওয়া ফাইল ব্যাকআপের বিষয়বস্তু দিয়ে প্রতিস্থাপিত হবে।",
   "backup.file": "ফাইল",
