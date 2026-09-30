@@ -18,8 +18,10 @@ products — it is **not a product** itself.
 
 > **BD vs INT**: `bd` is the current Bangladeshi version (Bengali + English, ministry
 > links, bKash/Rocket/Nagad). `int` is the international English-only version
-> (PayPal/Stripe/Paddle). Variants are **build-time profiles of one codebase** — never
-> separate forks. Every BD/INT difference is data/config, never hardcoded branching.
+> (PayPal/Stripe/Paddle). Both variants also ship the same **optional international
+> gateway set** (disabled until an admin enables it). Variants are **build-time profiles
+> of one codebase** — never separate forks. Every BD/INT difference is data/config, never
+> hardcoded branching.
 
 ## Products
 
@@ -29,7 +31,7 @@ products — it is **not a product** itself.
 | `eskoofy-php-app/` | Raw PHP port (no framework) | Native PHP + PDO/MySQL | Deferred — completed port on hold (`WORKPLAN.md` Phase 6, gate 0.2) ([`AGENTS.md`](eskoofy-php-app/AGENTS.md)) |
 | `eskoofy-wp-theme/` | WordPress theme | WP hooks, shortcodes, REST, CPTs | Complete — active sync with app ([`AGENTS.md`](eskoofy-wp-theme/AGENTS.md)) |
 | `eskoofy-wp-theme-child/` | Optional child theme of `eskoofy-wp-theme` (Elementor-style) | WP theme (Template: eskoofy) | Safe place for custom CSS/JS/templates that survive parent updates ([`README.md`](eskoofy-wp-theme-child/README.md)) |
-| `eskoofy-nodejs-app/` | Node.js clone of the app (107 tables, 585 routes, CRUD + public site, i18n, API) | Next.js App Router, Prisma, Tailwind, Vitest | Clone functional (schema/routes/sidebar/CRUD/site verified end to end); pixel-level Blade parity + integrations pending — [`PORTING-STATUS.md`](eskoofy-nodejs-app/docs/PORTING-STATUS.md) ([`AGENTS.md`](eskoofy-nodejs-app/AGENTS.md)) |
+| `eskoofy-nodejs-app/` | Node.js clone of the app (107 tables, 604 routes, CRUD + public site, i18n, API) | Next.js App Router, Prisma, Tailwind, Vitest | Clone functional (schema/routes/sidebar/CRUD/site verified end to end); pixel-level Blade parity + integrations pending — [`PORTING-STATUS.md`](eskoofy-nodejs-app/docs/PORTING-STATUS.md) ([`AGENTS.md`](eskoofy-nodejs-app/AGENTS.md)) |
 
 ### Branding website (not a product)
 
@@ -50,7 +52,12 @@ products — it is **not a product** itself.
 
 ### Finance & Payments
 - Fee structures per class, invoices, fee payments & receipts
-- 7 payment gateways: bKash, Rocket, Nagad (BD) + Stripe, PayPal, Paddle (INT) + Offline
+- **Payment Gateways** screen (Dashboard → Payment Gateways): enable a gateway, or add
+  your own with its credentials and checkout endpoints — any gateway works, no vendor code
+- Built-in gateways: bKash, Rocket, Nagad, UddoktaPay (BD) + Stripe, PayPal, Paddle (INT)
+  + Offline, plus **12 optional international gateways** (Google Pay, Apple Pay, Razorpay,
+  Paystack, Flutterwave, SSLCommerz, Square, Mollie, Authorize.Net, Xendit, Adyen, Skrill)
+  available in **both** variants and **disabled until an admin enables them**
 - Refunds, payment history, financial reports
 
 ### Admissions & Admissions Pipeline
@@ -179,8 +186,8 @@ Login at `/login` with the app's admin demo account (`admin@school.com` /
 Verification & parity:
 
 ```bash
-npm run typecheck && npm run lint && npm test   # 48 Vitest tests
-npm run route:parity                            # 585 routes + 95 sidebar keys vs the app
+npm run typecheck && npm run lint && npm test   # 113 Vitest tests
+npm run route:parity                            # 604 routes + 97 sidebar keys vs the app
 npm run build                                   # production build
 ```
 
@@ -272,10 +279,10 @@ All products share the same demo accounts — canonical list in
 
 | Product | Command |
 |---------|---------|
-| Laravel | `cd eskoofy-laravel-app && composer test` (PHPUnit, 927 tests) + `./vendor/bin/pint --test` |
-| Raw PHP | `cd eskoofy-php-app && composer test` (PHPUnit, 299 tests / 604 assertions) |
+| Laravel | `cd eskoofy-laravel-app && composer test` (PHPUnit, 1079 tests) + `./vendor/bin/pint --test` |
+| Raw PHP | `cd eskoofy-php-app && composer test` (PHPUnit, 351 tests / 943 assertions) |
 | WordPress theme | `cd eskoofy-wp-theme && composer run lint` (PHPCS) |
-| Node.js clone | `cd eskoofy-nodejs-app && npm run typecheck && npm run lint && npm test` (48 Vitest tests) + `npm run route:parity` |
+| Node.js clone | `cd eskoofy-nodejs-app && npm run typecheck && npm run lint && npm test` (113 Vitest tests) + `npm run route:parity` |
 | Website | `cd eskoofy-branding-website && composer test` (PHPUnit, 103 tests / 303 assertions) |
 
 GitHub Actions (`.github/workflows/ci.yml`) runs the Laravel test suite, theme
