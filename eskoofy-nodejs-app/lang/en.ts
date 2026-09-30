@@ -270,6 +270,7 @@ const en: Record<string, string> = {
   "dashboard.payment": "Payment",
   "dashboard.payment_settings": "Payment Settings",
   "dashboard.payments": "Payments",
+  "dashboard.payment_gateways": "Payment Gateways",
   "dashboard.payroll": "Payroll",
   "dashboard.people": "People",
   "dashboard.permission": "Permission",

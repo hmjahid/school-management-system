@@ -326,6 +326,15 @@ function esk_register_admin_menus(): void {
 		'esk_settings_page'
 	);
 
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Payment Gateways', 'eskoofy' ),
+		esc_html__( 'Payment Gateways', 'eskoofy' ),
+		'manage_options',
+		'esk-payment-gateways',
+		'esk_payment_gateways_page'
+	);
+
 	// ─── Tools / System submenu ────────────────────────────────
 	add_submenu_page(
 		'esk-dashboard',
@@ -733,6 +742,10 @@ function esk_expenses_page(): void {
 
 function esk_expense_categories_page(): void {
 	esk_render_admin_view( 'expense-categories' );
+}
+
+function esk_payment_gateways_page(): void {
+	esk_render_admin_view( 'payment-gateways' );
 }
 
 function esk_ledger_page(): void {

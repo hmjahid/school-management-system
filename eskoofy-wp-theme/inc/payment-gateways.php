@@ -902,6 +902,204 @@ class Eskoofy_Uddoktapay_Gateway extends Eskoofy_Payment_Gateway {
 }
 
 /**
+ * Config-driven hosted-checkout gateway.
+ *
+ * Serves the international gateways that ship disabled by default (Google Pay,
+ * Apple Pay, Razorpay, Paystack, Flutterwave, SSLCommerz, Square, Mollie,
+ * Authorize.Net, Xendit, Adyen, Skrill) and any gateway an admin adds manually
+ * from the Payment Gateways screen — no vendor-specific code required.
+ *
+ * The checkout / verify / refund endpoints and their extra options live on the
+ * esk_payment_gateways row (see the Payment Gateways screen for the keys).
+ */
+class Eskoofy_Generic_Hosted_Gateway extends Eskoofy_Payment_Gateway {
+	public string $code;
+	public string $name;
+	public string $type    = 'online_payment';
+	public bool $is_online = true;
+	public bool $has_api   = true;
+
+	private const SUCCESS_VALUES = array( 'COMPLETED', 'SUCCESS', 'SUCCEEDED', 'PAID', 'CAPTURED', 'SETTLED', 'OK' );
+
+	public function __construct( string $code = '', string $name = '' ) {
+		$this->code = $code;
+		$this->name = '' !== $name ? $name : $code;
+	}
+
+	private function config(): array {
+		$data  = $this->get_gateway_data();
+		$extra = $data['extra_attributes'] ?? array();
+		if ( is_string( $extra ) ) {
+			$extra = json_decode( $extra, true ) ?: array();
+		}
+		return array_merge( $data, is_array( $extra ) ? $extra : array() );
+	}
+
+	private function base_url(): string {
+		$data = $this->get_gateway_data();
+		$url  = $this->is_test_mode()
+			? (string) ( $data['sandbox_url'] ?? '' )
+			: (string) ( $data['live_url'] ?? '' );
+		return rtrim( $url, '/' );
+	}
+
+	public function process_payment( float $amount, array $data ): array {
+		$cfg      = $this->config();
+		$order_id = (string) ( $data['order_id'] ?? esk_generate_number( 'INV', 'payments' ) );
+		$failed   = $this->callback_url( array( 'order_id' => $order_id, 'status' => 'failed' ) );
+
+		if ( $amount <= 0 ) {
+			return array( 'status' => 'failed', 'message' => __( 'Invalid amount.', 'eskoofy' ), 'transaction' => $order_id, 'redirect_url' => $failed );
+		}
+
+		$url = $this->build_checkout_url(
+			$cfg,
+			array(
+				'amount'    => number_format( $amount, 2, '.', '' ),
+				'currency'  => (string) ( $cfg['currency'] ?? 'USD' ),
+				'reference' => $order_id,
+				'invoice'   => $order_id,
+				'callback'  => $this->callback_url( array( 'order_id' => $order_id ) ),
+				'cancel'    => $this->callback_url( array( 'order_id' => $order_id, 'status' => 'cancelled' ) ),
+				'api_key'   => (string) ( $cfg['api_key'] ?? '' ),
+			)
+		);
+
+		if ( '' === $url ) {
+			return array(
+				'status'       => 'pending',
+				'message'      => $this->name . ' ' . __( 'is not configured.', 'eskoofy' ),
+				'transaction'  => $order_id,
+				'redirect_url' => $failed,
+			);
+		}
+
+		return array(
+			'status'       => 'pending',
+			'message'      => __( 'Redirecting to the hosted checkout...', 'eskoofy' ),
+			'transaction'  => $order_id,
+			'redirect_url' => $url,
+		);
+	}
+
+	public function verify_payment( array $data ): array {
+		$cfg        = $this->config();
+		$verify_url = (string) ( $cfg['verify_url'] ?? '' );
+		$reference  = (string) ( $data['reference'] ?? $data['invoice_id'] ?? $data['order_id'] ?? '' );
+
+		if ( '' === $verify_url || '' === $reference ) {
+			return array( 'verified' => false, 'status' => 'pending' );
+		}
+
+		$res    = $this->curl_request(
+			$verify_url,
+			array(
+				'method'  => 'POST',
+				'headers' => $this->auth_headers( $cfg ),
+				'body'    => wp_json_encode(
+					array(
+						'reference'      => $reference,
+						'transaction_id' => $reference,
+						'currency'       => (string) ( $cfg['currency'] ?? 'USD' ),
+					)
+				),
+			)
+		);
+		$status = strtoupper( (string) $this->value_at_path( $res['decoded'] ?? array(), (string) ( $cfg['verify_success_path'] ?? 'status' ) ) );
+
+		$expected = strtoupper( (string) ( $cfg['verify_success_value'] ?? '' ) );
+		if ( in_array( $status, self::SUCCESS_VALUES, true ) || ( '' !== $expected && $expected === $status ) ) {
+			return array(
+				'verified'    => true,
+				'status'      => 'completed',
+				'transaction' => $res['decoded']['transaction_id'] ?? $res['decoded']['id'] ?? $reference,
+				'amount'      => $res['decoded']['amount'] ?? 0,
+			);
+		}
+
+		return array( 'verified' => false, 'status' => 'pending' );
+	}
+
+	public function verify_webhook( $payload, string $signature ): bool {
+		$cfg    = $this->config();
+		$secret = (string) ( $cfg['api_secret'] ?? '' );
+		$raw    = is_string( $payload ) ? $payload : (string) wp_json_encode( $payload );
+
+		if ( '' !== $secret ) {
+			return '' !== $signature && hash_equals( hash_hmac( 'sha256', $raw, $secret ), $signature );
+		}
+
+		$api_key = (string) ( $cfg['api_key'] ?? '' );
+
+		return '' !== $api_key && '' !== $signature && hash_equals( $api_key, $signature );
+	}
+
+	/**
+	 * @param array<string,mixed> $cfg
+	 * @param array<string,string> $params
+	 */
+	private function build_checkout_url( array $cfg, array $params ): string {
+		$template = (string) ( $cfg['checkout_url_template'] ?? '' );
+
+		if ( '' !== $template ) {
+			$replacements = array();
+			foreach ( $params as $key => $value ) {
+				$replacements[ '{' . $key . '}' ] = rawurlencode( $value );
+			}
+			return strtr( $template, $replacements );
+		}
+
+		$base = $this->base_url();
+		if ( '' === $base ) {
+			return '';
+		}
+
+		$query = array_filter(
+			array(
+				'amount'       => $params['amount'],
+				'currency'     => $params['currency'],
+				'reference'    => $params['reference'],
+				'callback_url' => $params['callback'],
+			),
+			static fn ( $value ) => '' !== $value && null !== $value
+		);
+
+		return $base . ( str_contains( $base, '?' ) ? '&' : '?' ) . http_build_query( $query );
+	}
+
+	/**
+	 * @param array<string,mixed> $cfg
+	 * @return array<string,string>
+	 */
+	private function auth_headers( array $cfg ): array {
+		$api_key = (string) ( $cfg['api_key'] ?? '' );
+		$headers = array(
+			'Content-Type' => 'application/json',
+			'Accept'       => 'application/json',
+		);
+		if ( '' !== $api_key ) {
+			$headers['X-API-Key']     = $api_key;
+			$headers['Authorization'] = 'Bearer ' . $api_key;
+		}
+		return $headers;
+	}
+
+	/**
+	 * @param array<string,mixed> $data
+	 */
+	private function value_at_path( array $data, string $path ): string {
+		$value = $data;
+		foreach ( explode( '.', $path ) as $segment ) {
+			if ( ! is_array( $value ) || ! array_key_exists( $segment, $value ) ) {
+				return '';
+			}
+			$value = $value[ $segment ];
+		}
+		return is_scalar( $value ) ? (string) $value : '';
+	}
+}
+
+/**
  * Initialize all payment gateways.
  *
  * @return Eskoofy_Payment_Gateway[]
@@ -915,6 +1113,18 @@ function esk_init_payment_gateways(): array {
 		new Eskoofy_Stripe_Gateway(),
 		new Eskoofy_PayPal_Gateway(),
 		new Eskoofy_Paddle_Gateway(),
+		new Eskoofy_Generic_Hosted_Gateway( 'gpay', 'Google Pay' ),
+		new Eskoofy_Generic_Hosted_Gateway( 'applepay', 'Apple Pay' ),
+		new Eskoofy_Generic_Hosted_Gateway( 'razorpay', 'Razorpay' ),
+		new Eskoofy_Generic_Hosted_Gateway( 'paystack', 'Paystack' ),
+		new Eskoofy_Generic_Hosted_Gateway( 'flutterwave', 'Flutterwave' ),
+		new Eskoofy_Generic_Hosted_Gateway( 'sslcommerz', 'SSLCommerz' ),
+		new Eskoofy_Generic_Hosted_Gateway( 'square', 'Square' ),
+		new Eskoofy_Generic_Hosted_Gateway( 'mollie', 'Mollie' ),
+		new Eskoofy_Generic_Hosted_Gateway( 'authorize_net', 'Authorize.Net' ),
+		new Eskoofy_Generic_Hosted_Gateway( 'xendit', 'Xendit' ),
+		new Eskoofy_Generic_Hosted_Gateway( 'adyen', 'Adyen' ),
+		new Eskoofy_Generic_Hosted_Gateway( 'skrill', 'Skrill' ),
 		new Eskoofy_Offline_Gateway(),
 	);
 }
@@ -928,6 +1138,21 @@ function esk_get_payment_gateway( string $code ): ?Eskoofy_Payment_Gateway {
 			return $gw;
 		}
 	}
+
+	// Any other gateway row (an admin-added one) is served by the config-driven
+	// adapter, using the row's own name.
+	global $wpdb;
+	$row = $wpdb->get_row(
+		$wpdb->prepare(
+			"SELECT name FROM {$wpdb->prefix}esk_payment_gateways WHERE code = %s AND deleted_at IS NULL",
+			$code
+		),
+		ARRAY_A
+	);
+	if ( is_array( $row ) ) {
+		return new Eskoofy_Generic_Hosted_Gateway( $code, (string) ( $row['name'] ?? $code ) );
+	}
+
 	return null;
 }
 

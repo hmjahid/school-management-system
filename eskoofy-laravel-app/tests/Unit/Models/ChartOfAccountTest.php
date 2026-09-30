@@ -99,4 +99,26 @@ class ChartOfAccountTest extends TestCase
 
         $this->assertEquals(100.0, $account->balance(now()->startOfMonth()->toDateString(), now()->endOfMonth()->toDateString()));
     }
+
+    #[Test]
+    public function balance_includes_entries_dated_on_the_range_end(): void
+    {
+        $account = $this->makeAccount(['type' => ChartOfAccount::TYPE_ASSET]);
+
+        // Entry dated on the end date, stored with a time component.
+        LedgerEntry::create(['chart_of_account_id' => $account->id, 'date' => '2026-03-31 14:30:00', 'debit' => 100, 'credit' => 0]);
+        LedgerEntry::create(['chart_of_account_id' => $account->id, 'date' => '2026-04-01 09:00:00', 'debit' => 500, 'credit' => 0]);
+
+        $this->assertEquals(100.0, $account->balance('2026-03-01', '2026-03-31'));
+    }
+
+    #[Test]
+    public function balance_as_of_includes_same_day_entries(): void
+    {
+        $account = $this->makeAccount(['type' => ChartOfAccount::TYPE_ASSET]);
+
+        LedgerEntry::create(['chart_of_account_id' => $account->id, 'date' => '2026-03-31 23:00:00', 'debit' => 250, 'credit' => 0]);
+
+        $this->assertEquals(250.0, $account->balance(null, '2026-03-31'));
+    }
 }

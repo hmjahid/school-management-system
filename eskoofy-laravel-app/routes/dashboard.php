@@ -404,6 +404,10 @@ Route::middleware('auth')->group(function () {
             Route::post('/about', [\App\Http\Controllers\Web\DashboardSettingController::class, 'updateAbout'])->name('update.about');
         });
 
+        Route::resource('dashboard/payment-gateways', \App\Http\Controllers\Web\DashboardPaymentGatewayController::class)
+            ->except(['show'])
+            ->names('dashboard.payment-gateways');
+
         Route::get('/dashboard/cms/pages', [CmsWebController::class, 'pages'])->name('dashboard.cms.pages');
         Route::get('/dashboard/cms/edit/{page}', [CmsWebController::class, 'edit'])->name('dashboard.cms.edit');
         Route::put('/dashboard/cms/edit/{page}', [CmsWebController::class, 'update'])->name('dashboard.cms.update');

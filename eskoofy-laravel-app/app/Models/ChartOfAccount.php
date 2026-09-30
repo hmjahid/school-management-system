@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 class ChartOfAccount extends Model
 {
@@ -42,12 +43,18 @@ class ChartOfAccount extends Model
     public function balance(?string $startDate = null, ?string $endDate = null): float
     {
         $query = $this->entries();
+
+        // `ledger_entries.date` is a date column but is written with a time
+        // component (`Y-m-d H:i:s`), so comparing it against a bare `Y-m-d`
+        // string silently drops every entry dated on the end date (e.g. today,
+        // or any month-end report). Compare against whole-day bounds instead.
         if ($startDate) {
-            $query->where('date', '>=', $startDate);
+            $query->where('date', '>=', Carbon::parse($startDate)->startOfDay());
         }
         if ($endDate) {
-            $query->where('date', '<=', $endDate);
+            $query->where('date', '<=', Carbon::parse($endDate)->endOfDay());
         }
+
         $row = $query->selectRaw('COALESCE(SUM(debit),0) as d, COALESCE(SUM(credit),0) as c')->first();
 
         // For asset/expense: balance = debit - credit

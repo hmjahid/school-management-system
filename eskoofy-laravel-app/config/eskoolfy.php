@@ -44,6 +44,21 @@ return [
             'stripe' => false,
             'paypal' => false,
             'paddle' => false,
+            // International gateways — available in both variants, disabled by
+            // default. They are data rows an admin enables per install
+            // (Dashboard > Payment Gateways); no variant branching.
+            'gpay' => true,
+            'applepay' => true,
+            'razorpay' => true,
+            'paystack' => true,
+            'flutterwave' => true,
+            'sslcommerz' => true,
+            'square' => true,
+            'mollie' => true,
+            'authorize_net' => true,
+            'xendit' => true,
+            'adyen' => true,
+            'skrill' => true,
         ],
 
         // International (int variant) messaging drivers. The active driver is chosen
@@ -257,8 +272,13 @@ return [
     |
     */
     'restore' => [
-        // Gateways eligible per variant — anything else is deactivated after a
-        // cross-variant restore (never deleted, so custom gateway rows survive).
+        // Gateways activated for the receiving variant after a cross-variant
+        // restore (never deleted, so custom/optional gateway rows survive).
+        //
+        // The optional international gateways (gpay, razorpay, …) are
+        // deliberately NOT listed: they ship disabled and are enabled per
+        // install by an admin, so a restore must never force-enable a gateway
+        // whose credentials were never entered.
         'gateways' => [
             'bd' => ['bkash', 'rocket', 'nagad', 'uddoktapay', 'cash', 'bank_transfer', 'cheque'],
             'int' => ['stripe', 'paypal', 'paddle', 'cash', 'bank_transfer', 'cheque'],

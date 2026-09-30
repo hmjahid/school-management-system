@@ -194,6 +194,7 @@ const USERS_AND_ROLES: NavGroup = {
 
 const CONFIGURATION_ITEMS: NavItem[] = [
   { key: "settings", path: "/dashboard/settings", permission: "manage_settings", status: "done" },
+  { key: "payment_gateways", path: "/dashboard/payment-gateways", permission: "manage_settings", status: "done" },
   { key: "reports", path: "/dashboard/reports", permission: "view_reports", status: "done" },
   { key: "report_builder", path: "/dashboard/reports/builder", permission: "view_reports", status: "done" },
   { key: "analytics", path: "/dashboard/analytics", permission: "view_reports", status: "done" },

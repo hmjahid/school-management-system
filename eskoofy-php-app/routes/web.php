@@ -175,7 +175,11 @@ $router->group('/dashboard', function (Router $r) {
     $r->get('/payments/{id}', 'App\\Controllers\\Dashboard\\PaymentController', 'show');
     $r->post('/payments/{id}/refund', 'App\\Controllers\\Dashboard\\PaymentController', 'refund');
     $r->get('/payment-gateways', 'App\\Controllers\\Dashboard\\PaymentGatewayController', 'index');
+    $r->get('/payment-gateways/create', 'App\\Controllers\\Dashboard\\PaymentGatewayController', 'create');
+    $r->post('/payment-gateways', 'App\\Controllers\\Dashboard\\PaymentGatewayController', 'store');
+    $r->get('/payment-gateways/{id}/edit', 'App\\Controllers\\Dashboard\\PaymentGatewayController', 'edit');
     $r->put('/payment-gateways/{id}', 'App\\Controllers\\Dashboard\\PaymentGatewayController', 'update');
+    $r->delete('/payment-gateways/{id}', 'App\\Controllers\\Dashboard\\PaymentGatewayController', 'destroy');
 
     // Admissions
     $r->get('/admissions', 'App\\Controllers\\Dashboard\\AdmissionController', 'index');

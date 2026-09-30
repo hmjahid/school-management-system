@@ -127,11 +127,19 @@ class PaymentService
      * Determine whether a given payment method supports refunds.
      *
      * Paddle is intentionally excluded: its refunds are issued via the vendor
-     * dashboard and reported through the `refund_issued` webhook alert.
+     * dashboard and reported through the `refund_issued` webhook alert. A
+     * config-driven gateway (international presets or a manually added one) is
+     * refundable only when its `extra_attributes.refund_url` is configured.
      */
     public function supportsRefunds(string $method): bool
     {
-        return in_array($method, ['bkash', 'nagad', 'rocket', 'uddoktapay', 'test_gateway', 'stripe', 'paypal'], true);
+        if (in_array($method, ['bkash', 'nagad', 'rocket', 'uddoktapay', 'test_gateway', 'stripe', 'paypal'], true)) {
+            return true;
+        }
+
+        $gateway = PaymentGateway::where('code', $method)->first();
+
+        return $gateway !== null && ! empty($gateway->getApiConfig()['refund_url']);
     }
 
     /**

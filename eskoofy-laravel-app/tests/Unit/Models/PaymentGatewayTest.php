@@ -47,8 +47,36 @@ class PaymentGatewayTest extends TestCase
             'is_online' => true,
             'api_key' => 'test-key',
             'api_secret' => 'test-secret',
+            'live_url' => 'https://checkout.example.com',
         ]);
         $this->assertTrue($configured->is_configured);
+    }
+
+    #[Test]
+    public function it_requires_an_endpoint_for_config_driven_gateways(): void
+    {
+        $withoutEndpoint = PaymentGateway::create([
+            'name' => 'Google Pay',
+            'code' => 'gpay',
+            'type' => PaymentGateway::TYPE_ONLINE_PAYMENT,
+            'is_active' => true,
+            'is_online' => true,
+            'api_key' => 'test-key',
+            'live_url' => null,
+            'sandbox_url' => null,
+        ]);
+        $this->assertFalse($withoutEndpoint->is_configured);
+
+        $withEndpoint = PaymentGateway::create([
+            'name' => 'Google Pay',
+            'code' => 'gpay_2',
+            'type' => PaymentGateway::TYPE_ONLINE_PAYMENT,
+            'is_active' => true,
+            'is_online' => true,
+            'api_key' => 'test-key',
+            'sandbox_url' => 'https://sandbox.example.com/checkout',
+        ]);
+        $this->assertTrue($withEndpoint->is_configured);
     }
 
     #[Test]
@@ -75,6 +103,7 @@ class PaymentGatewayTest extends TestCase
             'api_key' => 'test-key',
             'api_secret' => 'test-secret',
             'callback_url' => 'https://example.com/callback',
+            'live_url' => 'https://checkout.example.com',
         ]);
         $this->assertTrue($withCallback->is_configured);
     }

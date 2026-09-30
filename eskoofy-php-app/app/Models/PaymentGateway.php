@@ -37,4 +37,36 @@ class PaymentGateway extends Model
         'extra_attributes' => 'json',
         'sort_order' => 'integer',
     ];
+
+    protected array $appends = ['type_label', 'is_configured'];
+
+    public function getTypeLabelAttribute(): string
+    {
+        return match ((string) $this->getAttribute('type')) {
+            'bank' => 'Bank',
+            'mobile_financial_service' => 'Mobile Financial Service',
+            'online_payment' => 'Online Payment',
+            default => 'Other',
+        };
+    }
+
+    /**
+     * Mirrors App\Models\PaymentGateway::getIsConfiguredAttribute in the app.
+     */
+    public function getIsConfiguredAttribute(): bool
+    {
+        if (!(bool) $this->getAttribute('is_online')) {
+            return true;
+        }
+
+        $has = fn (string $key): bool => trim((string) ($this->getAttribute($key) ?? '')) !== '';
+
+        return match ((string) $this->getAttribute('code')) {
+            'bkash', 'nagad', 'rocket' => $has('api_key') && $has('api_secret'),
+            'uddoktapay' => $has('api_key'),
+            'stripe', 'paypal', 'sslcommerz', 'paystack', 'razorpay', 'square', 'paddle'
+                => $has('api_key') && $has('api_secret') && $has('callback_url'),
+            default => $has('api_key') && ($has('live_url') || $has('sandbox_url')),
+        };
+    }
 }

@@ -48,6 +48,28 @@ PAYMENT_LOG_CHANNEL=payment
 LOG_LEVEL=debug
 ```
 
+### Optional international gateways
+
+The seeder also creates twelve international gateways as **disabled** rows: Google Pay,
+Apple Pay, Razorpay, Paystack, Flutterwave, SSLCommerz, Square, Mollie, Authorize.Net,
+Xendit, Adyen and Skrill. They are available in **both** the `bd` and `int` variants and do
+not appear to payers until an admin ticks **Enabled** in **Dashboard → Payment Gateways**.
+
+- Each is served by the config-driven `GenericHostedGatewayAdapter` — no per-vendor code.
+  Its behaviour is driven by the gateway row plus optional `extra_attributes`
+  (`checkout_url_template`, `checkout_method`, `verify_url`, `verify_success_path`,
+  `verify_success_value`, `refund_url`, `signature_header`).
+- **Any** gateway can be added manually from the same screen (name, code, credentials,
+  sandbox/live endpoints) and will route through the same adapter.
+- The vendor API bases in `config/payment.php` / `.env.example` are defaults only; enter the
+  real per-merchant checkout endpoint and keys in the UI (they are stored encrypted in the
+  `payment_gateways` table).
+- All twelve ship `is_active = false`, so a default install offers exactly the same gateways
+  as before, and the **bd** profile's behaviour is unchanged until an admin opts in.
+
+`payments.payment_method` is a free-form string (migration
+`2026_09_30_000001_widen_payments_payment_method`) so arbitrary gateway codes persist.
+
 ## Database Setup
 
 1. Run migrations:

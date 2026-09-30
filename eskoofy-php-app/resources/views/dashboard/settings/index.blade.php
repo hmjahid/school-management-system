@@ -198,6 +198,12 @@
                 <h2 class="text-lg font-semibold text-gray-900">{{ __('Payment settings') }}</h2>
                 <p class="mb-5 text-sm text-gray-500">{{ __('Configure payment gateways for online fee collection.') }}</p>
 
+                <div class="mb-5 rounded-lg border border-brand-100 bg-brand-50 p-4 text-sm text-brand-800">
+                    {{ __('Manage every gateway — including the international ones — and add your own in') }}
+                    <a href="{{ route('dashboard.payment-gateways.index') }}" class="font-semibold underline">{{ __('Payment Gateways') }}</a>.
+                    {{ __('A gateway is only offered to payers while it is enabled.') }}
+                </div>
+
                 {{-- bKash --}}
                 <div class="mb-6 rounded-lg border border-gray-100 bg-gray-50 p-4">
                     <h3 class="mb-3 text-sm font-semibold text-gray-900">bKash</h3>

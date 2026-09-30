@@ -33,19 +33,79 @@ class PaymentGateway extends Model
 
     public const GATEWAY_PAYPAL = 'paypal';
 
-    public const GATEWAY_SSLCOMMERZ = 'sslcommerz';
+    public const GATEWAY_PADDLE = 'paddle';
 
-    public const GATEWAY_PAYSTACK = 'paystack';
+    // International gateways (shipped disabled by default, enabled per install)
+    public const GATEWAY_GOOGLE_PAY = 'gpay';
+
+    public const GATEWAY_APPLE_PAY = 'applepay';
 
     public const GATEWAY_RAZORPAY = 'razorpay';
 
+    public const GATEWAY_PAYSTACK = 'paystack';
+
+    public const GATEWAY_FLUTTERWAVE = 'flutterwave';
+
+    public const GATEWAY_SSLCOMMERZ = 'sslcommerz';
+
     public const GATEWAY_SQUARE = 'square';
+
+    public const GATEWAY_MOLLIE = 'mollie';
+
+    public const GATEWAY_AUTHORIZE_NET = 'authorize_net';
+
+    public const GATEWAY_XENDIT = 'xendit';
+
+    public const GATEWAY_ADYEN = 'adyen';
+
+    public const GATEWAY_SKRILL = 'skrill';
 
     public const GATEWAY_CASH = 'cash';
 
     public const GATEWAY_CHEQUE = 'cheque';
 
     public const GATEWAY_BANK_TRANSFER = 'bank_transfer';
+
+    /**
+     * Gateways handled by the config-driven GenericHostedGatewayAdapter:
+     * hosted checkout endpoint + api key (+ optional api secret).
+     *
+     * @var array<int, string>
+     */
+    public const CONFIG_DRIVEN_GATEWAYS = [
+        self::GATEWAY_GOOGLE_PAY,
+        self::GATEWAY_APPLE_PAY,
+        self::GATEWAY_RAZORPAY,
+        self::GATEWAY_PAYSTACK,
+        self::GATEWAY_FLUTTERWAVE,
+        self::GATEWAY_SSLCOMMERZ,
+        self::GATEWAY_SQUARE,
+        self::GATEWAY_MOLLIE,
+        self::GATEWAY_AUTHORIZE_NET,
+        self::GATEWAY_XENDIT,
+        self::GATEWAY_ADYEN,
+        self::GATEWAY_SKRILL,
+    ];
+
+    /**
+     * Display names for the built-in international gateways.
+     *
+     * @var array<string, string>
+     */
+    public const INTERNATIONAL_GATEWAY_NAMES = [
+        self::GATEWAY_GOOGLE_PAY => 'Google Pay',
+        self::GATEWAY_APPLE_PAY => 'Apple Pay',
+        self::GATEWAY_RAZORPAY => 'Razorpay',
+        self::GATEWAY_PAYSTACK => 'Paystack',
+        self::GATEWAY_FLUTTERWAVE => 'Flutterwave',
+        self::GATEWAY_SSLCOMMERZ => 'SSLCommerz',
+        self::GATEWAY_SQUARE => 'Square',
+        self::GATEWAY_MOLLIE => 'Mollie',
+        self::GATEWAY_AUTHORIZE_NET => 'Authorize.Net',
+        self::GATEWAY_XENDIT => 'Xendit',
+        self::GATEWAY_ADYEN => 'Adyen',
+        self::GATEWAY_SKRILL => 'Skrill',
+    ];
 
     protected $fillable = [
         'name',
@@ -172,11 +232,14 @@ class PaymentGateway extends Model
             case self::GATEWAY_PAYSTACK:
             case self::GATEWAY_RAZORPAY:
             case self::GATEWAY_SQUARE:
-            case 'paddle':
+            case self::GATEWAY_PADDLE:
                 return ! empty($this->api_key) && ! empty($this->api_secret) && ! empty($this->callback_url);
 
             default:
-                return true; // For other gateways, assume they're configured
+                // Config-driven gateways (the built-in international presets and
+                // any gateway added manually) need a key and a checkout endpoint.
+                return ! empty($this->api_key)
+                    && (! empty($this->live_url) || ! empty($this->sandbox_url));
         }
     }
 
@@ -198,6 +261,15 @@ class PaymentGateway extends Model
                 self::GATEWAY_PAYSTACK => 'https://example.com/images/gateways/paystack.png',
                 self::GATEWAY_RAZORPAY => 'https://example.com/images/gateways/razorpay.png',
                 self::GATEWAY_SQUARE => 'https://example.com/images/gateways/square.png',
+                self::GATEWAY_GOOGLE_PAY => 'https://example.com/images/gateways/google-pay.png',
+                self::GATEWAY_APPLE_PAY => 'https://example.com/images/gateways/apple-pay.png',
+                self::GATEWAY_FLUTTERWAVE => 'https://example.com/images/gateways/flutterwave.png',
+                self::GATEWAY_MOLLIE => 'https://example.com/images/gateways/mollie.png',
+                self::GATEWAY_AUTHORIZE_NET => 'https://example.com/images/gateways/authorize-net.png',
+                self::GATEWAY_XENDIT => 'https://example.com/images/gateways/xendit.png',
+                self::GATEWAY_ADYEN => 'https://example.com/images/gateways/adyen.png',
+                self::GATEWAY_SKRILL => 'https://example.com/images/gateways/skrill.png',
+                self::GATEWAY_PADDLE => 'https://example.com/images/gateways/paddle.png',
                 self::GATEWAY_CASH => 'https://example.com/images/gateways/cash.png',
                 self::GATEWAY_CHEQUE => 'https://example.com/images/gateways/cheque.png',
                 self::GATEWAY_BANK_TRANSFER => 'https://example.com/images/gateways/bank-transfer.png',

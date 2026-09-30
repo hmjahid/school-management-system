@@ -270,6 +270,7 @@ const bn: Record<string, string> = {
   "dashboard.payment": "পেমেন্ট",
   "dashboard.payment_settings": "পেমেন্ট সেটিংস",
   "dashboard.payments": "পেমেন্ট",
+  "dashboard.payment_gateways": "পেমেন্ট গেটওয়ে",
   "dashboard.payroll": "বেতন",
   "dashboard.people": "ব্যক্তি",
   "dashboard.permission": "অনুমতি",

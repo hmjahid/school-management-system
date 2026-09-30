@@ -127,6 +127,7 @@ return [
     'profile' => 'Profile',
     'my_profile' => 'My Profile',
     'settings' => 'Settings',
+    'payment_gateways' => 'Payment Gateways',
     'profile_description' => 'Update your personal information and password.',
     'personal_information' => 'Personal Information',
     'full_name' => 'Full name',

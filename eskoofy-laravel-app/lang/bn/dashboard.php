@@ -127,6 +127,7 @@ return [
     'profile' => 'প্রোফাইল',
     'my_profile' => 'আমার প্রোফাইল',
     'settings' => 'সেটিংস',
+    'payment_gateways' => 'পেমেন্ট গেটওয়ে',
     'profile_description' => 'আপনার ব্যক্তিগত তথ্য এবং পাসওয়ার্ড আপডেট করুন।',
     'personal_information' => 'ব্যক্তিগত তথ্য',
     'full_name' => 'পুরো নাম',

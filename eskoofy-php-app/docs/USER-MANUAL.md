@@ -112,6 +112,12 @@ status lookup at `/admissions/status`.
 Gateways: bKash / Rocket / Nagad (BD) and Stripe / PayPal / Paddle (INT) plus offline
 bank transfer; all seven adapters live in `app/Gateways/`. Test/live mode is per gateway.
 
+`/dashboard/payment-gateways` also lists twelve optional **international** gateways
+(Google Pay, Apple Pay, Razorpay, Paystack, Flutterwave, SSLCommerz, Square, Mollie,
+Authorize.Net, Xendit, Adyen, Skrill) — disabled until enabled — and lets you **add your
+own** with its credentials and endpoints. Any code not covered by a dedicated adapter is
+served by the config-driven `app/Gateways/GenericHostedGateway.php`.
+
 ### 3.5 Library — `/library`
 
 Books (`/library/books`), categories (`/library/categories`), issues/returns/fines

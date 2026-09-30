@@ -16,6 +16,20 @@ class GatewayFactory
         'stripe' => StripeGateway::class,
         'paypal' => PaypalGateway::class,
         'paddle' => PaddleGateway::class,
+        // International gateways (disabled by default) + any gateway an admin
+        // adds manually are all served by the config-driven adapter.
+        'gpay' => GenericHostedGateway::class,
+        'applepay' => GenericHostedGateway::class,
+        'razorpay' => GenericHostedGateway::class,
+        'paystack' => GenericHostedGateway::class,
+        'flutterwave' => GenericHostedGateway::class,
+        'sslcommerz' => GenericHostedGateway::class,
+        'square' => GenericHostedGateway::class,
+        'mollie' => GenericHostedGateway::class,
+        'authorize_net' => GenericHostedGateway::class,
+        'xendit' => GenericHostedGateway::class,
+        'adyen' => GenericHostedGateway::class,
+        'skrill' => GenericHostedGateway::class,
     ];
 
     public static function loadConfig(): array
@@ -33,72 +47,107 @@ class GatewayFactory
         return self::make($code);
     }
 
-    public static function make(string $code): GatewayInterface
+    /**
+     * Build a gateway adapter.
+     *
+     * @param array<string, mixed> $overrides Per-gateway config (e.g. the
+     *        payment_gateways row) merged over config/payment.php. Unknown codes
+     *        resolve to the config-driven GenericHostedGateway when overrides are
+     *        supplied, so manually-added gateways work without code changes.
+     */
+    public static function make(string $code, array $overrides = []): GatewayInterface
     {
-        if (isset(self::$instances[$code])) {
-            return self::$instances[$code];
-        }
-
         $config = self::loadConfig();
 
         if ($code === 'offline') {
+            if (isset(self::$instances[$code])) {
+                return self::$instances[$code];
+            }
+
             $instance = new OfflineGateway($config['offline'] ?? []);
             self::$instances[$code] = $instance;
+
             return $instance;
         }
 
-        if (!isset(self::GATEWAY_MAP[$code])) {
-            throw new \InvalidArgumentException("Unknown payment gateway: {$code}");
+        $class = self::GATEWAY_MAP[$code] ?? null;
+
+        if ($class === null) {
+            if ($overrides === []) {
+                throw new \InvalidArgumentException("Unknown payment gateway: {$code}");
+            }
+
+            $class = GenericHostedGateway::class;
         }
 
-        if (!isset($config['gateways'][$code])) {
+        if ($overrides === [] && isset(self::$instances[$code])) {
+            return self::$instances[$code];
+        }
+
+        $gatewayCfg = array_merge($config['gateways'][$code] ?? [], $overrides);
+
+        if ($gatewayCfg === []) {
             throw new \InvalidArgumentException("No configuration for gateway: {$code}");
         }
 
-        $class      = self::GATEWAY_MAP[$code];
-        $gatewayCfg = $config['gateways'][$code];
-        $instance   = new $class($gatewayCfg);
-        self::$instances[$code] = $instance;
+        $instance = new $class($gatewayCfg);
+
+        if ($overrides === []) {
+            self::$instances[$code] = $instance;
+        }
 
         return $instance;
     }
 
     public static function makeFromPaymentRecord(array $payment, array $gatewayConfig): GatewayInterface
     {
-        $code = $payment['payment_method'] ?? 'offline';
+        $code = (string) ($payment['payment_method'] ?? 'offline');
 
         if ($code === 'offline') {
             return self::make('offline');
         }
 
-        if (!isset(self::GATEWAY_MAP[$code])) {
-            throw new \InvalidArgumentException("Unknown payment gateway: {$code}");
+        return self::make($code, self::configFromRow($gatewayConfig));
+    }
+
+    /**
+     * Map a payment_gateways row onto the gateway config keys, dropping empty
+     * values so a blank column never overrides an env fallback.
+     *
+     * @param array<string, mixed> $row
+     * @return array<string, mixed>
+     */
+    private static function configFromRow(array $row): array
+    {
+        if ($row === []) {
+            return [];
         }
 
-        if (isset(self::$instances[$code])) {
-            return self::$instances[$code];
+        $extra = $row['extra_attributes'] ?? [];
+        if (is_string($extra)) {
+            $extra = json_decode($extra, true) ?: [];
         }
 
-        $config = self::loadConfig();
+        $mapped = [
+            'name'         => $row['name'] ?? null,
+            'type'         => $row['type'] ?? null,
+            'is_online'    => (bool) ($row['is_online'] ?? false),
+            'has_api'      => (bool) ($row['has_api'] ?? false),
+            'test_mode'    => (bool) ($row['test_mode'] ?? false),
+            'sandbox_url'  => $row['sandbox_url'] ?? '',
+            'live_url'     => $row['live_url'] ?? '',
+            'api_key'      => $row['api_key'] ?? '',
+            'api_secret'   => $row['api_secret'] ?? '',
+            'api_username' => $row['api_username'] ?? '',
+            'api_password' => $row['api_password'] ?? '',
+            'callback_url' => $row['callback_url'] ?? '',
+            'webhook_url'  => $row['webhook_url'] ?? '',
+            'currency'     => $row['currency'] ?? null,
+        ];
 
-        if (isset($gatewayConfig['is_active']) && (bool) $gatewayConfig['is_active']) {
-            $class      = self::GATEWAY_MAP[$code];
-            $gatewayCfg = $config['gateways'][$code] ?? [];
-            $instance   = new $class($gatewayCfg);
-            self::$instances[$code] = $instance;
-            return $instance;
-        }
+        $mapped = array_filter($mapped, static fn ($value) => $value !== '' && $value !== null);
 
-        if (!isset($config['gateways'][$code])) {
-            throw new \InvalidArgumentException("No configuration for gateway: {$code}");
-        }
-
-        $class      = self::GATEWAY_MAP[$code];
-        $gatewayCfg = $config['gateways'][$code];
-        $instance   = new $class($gatewayCfg);
-        self::$instances[$code] = $instance;
-
-        return $instance;
+        return array_merge($mapped, is_array($extra) ? $extra : []);
     }
 
     public static function all(): array

@@ -57,6 +57,33 @@ class Payment extends Model
 
     public const METHOD_PAYPAL = 'paypal';
 
+    public const METHOD_PADDLE = 'paddle';
+
+    // International gateways (optional; enabled per install)
+    public const METHOD_GOOGLE_PAY = 'gpay';
+
+    public const METHOD_APPLE_PAY = 'applepay';
+
+    public const METHOD_RAZORPAY = 'razorpay';
+
+    public const METHOD_PAYSTACK = 'paystack';
+
+    public const METHOD_FLUTTERWAVE = 'flutterwave';
+
+    public const METHOD_SSLCOMMERZ = 'sslcommerz';
+
+    public const METHOD_SQUARE = 'square';
+
+    public const METHOD_MOLLIE = 'mollie';
+
+    public const METHOD_AUTHORIZE_NET = 'authorize_net';
+
+    public const METHOD_XENDIT = 'xendit';
+
+    public const METHOD_ADYEN = 'adyen';
+
+    public const METHOD_SKRILL = 'skrill';
+
     public const METHOD_OTHER = 'other';
 
     // Payment purposes
@@ -227,6 +254,19 @@ class Payment extends Model
             self::METHOD_UDDOKTAPAY => 'UddoktaPay',
             self::METHOD_STRIPE => 'Stripe',
             self::METHOD_PAYPAL => 'PayPal',
+            self::METHOD_PADDLE => 'Paddle',
+            self::METHOD_GOOGLE_PAY => 'Google Pay',
+            self::METHOD_APPLE_PAY => 'Apple Pay',
+            self::METHOD_RAZORPAY => 'Razorpay',
+            self::METHOD_PAYSTACK => 'Paystack',
+            self::METHOD_FLUTTERWAVE => 'Flutterwave',
+            self::METHOD_SSLCOMMERZ => 'SSLCommerz',
+            self::METHOD_SQUARE => 'Square',
+            self::METHOD_MOLLIE => 'Mollie',
+            self::METHOD_AUTHORIZE_NET => 'Authorize.Net',
+            self::METHOD_XENDIT => 'Xendit',
+            self::METHOD_ADYEN => 'Adyen',
+            self::METHOD_SKRILL => 'Skrill',
             self::METHOD_OTHER => 'Other',
         ];
 

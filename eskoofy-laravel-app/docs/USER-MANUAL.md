@@ -122,6 +122,12 @@ write actions are rate-limited (120 requests/minute per user/IP).
 - **Fee payments:** approve or cancel pending payments (`/dashboard/fee-payments`).
 - **Online gateways:** configure bKash/Nagad/Rocket (BD) or Stripe/PayPal/Paddle (INT)
   under Configuration → Payment, or `/dashboard/payment-gateways`.
+- **International & custom gateways:** `/dashboard/payment-gateways` lists every gateway
+  — including the optional international ones (Google Pay, Apple Pay, Razorpay, Paystack,
+  Flutterwave, SSLCommerz, Square, Mollie, Authorize.Net, Xendit, Adyen, Skrill) — and
+  lets you **add your own** with its credentials and checkout endpoints. A gateway is only
+  offered to payers while its **Enabled** box is ticked; the international presets ship
+  disabled, so enable the ones you use.
 - **Refunds:** raise and track refunds; approved refunds update the related payment.
 
 ### 3.7 Admissions — `/dashboard/admissions`

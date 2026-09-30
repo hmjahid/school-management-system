@@ -248,7 +248,15 @@ $error = esk_get_flash( 'error' );
 					<tr><th><?php esc_html_e( 'Test Mode', 'eskoofy' ); ?></th>
 						<td><label><input type="checkbox" name="test_mode" value="1" <?php checked( get_option( 'esk_test_mode', 1 ), 1 ); ?>> <?php esc_html_e( 'Use sandbox/test mode', 'eskoofy' ); ?></label></td></tr>
 				</table>
-				<p class="description"><?php esc_html_e( 'Per-gateway API credentials are configured in the Payment Gateways screen.', 'eskoofy' ); ?></p>
+				<p class="description">
+					<?php
+					printf(
+						/* translators: %s: link to the Payment Gateways screen */
+						esc_html__( 'Enable gateways, add your own, and set per-gateway API credentials in the %s.', 'eskoofy' ),
+						'<a href="' . esc_url( admin_url( 'admin.php?page=esk-payment-gateways' ) ) . '">' . esc_html__( 'Payment Gateways', 'eskoofy' ) . '</a>'
+					);
+					?>
+				</p>
 			</div>
 
 			<div class="esk-card esk-form-card" style="margin-top:16px;">

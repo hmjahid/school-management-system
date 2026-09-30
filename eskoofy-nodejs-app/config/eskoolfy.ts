@@ -10,6 +10,31 @@
 
 export type Variant = "bd" | "int";
 
+/**
+ * Optional international gateways — offered in BOTH variants but shipped
+ * DISABLED; an admin enables the ones they configure.
+ *
+ * Deliberately excluded from the cross-variant restore activation set: a restore
+ * must never force-enable a gateway whose credentials were never entered.
+ */
+export const OPTIONAL_INTERNATIONAL_GATEWAYS = [
+  "gpay",
+  "applepay",
+  "razorpay",
+  "paystack",
+  "flutterwave",
+  "sslcommerz",
+  "square",
+  "mollie",
+  "authorize_net",
+  "xendit",
+  "adyen",
+  "skrill",
+] as const;
+
+/** Offline gateways — always eligible regardless of variant. */
+export const OFFLINE_GATEWAYS = ["cash", "bank_transfer", "cheque"] as const;
+
 export interface VariantProfile {
   label: string;
   locales: string[];
@@ -32,7 +57,7 @@ export const PROFILES: Record<Variant, VariantProfile> = {
     defaultLocale: "bn",
     currency: "BDT",
     timezone: "Asia/Dhaka",
-    gateways: ["bkash", "rocket", "nagad", "uddoktapay"],
+    gateways: ["bkash", "rocket", "nagad", "uddoktapay", ...OPTIONAL_INTERNATIONAL_GATEWAYS],
     defaultPaymentMethod: "bkash",
     studentDefaults: { nationality: "Bangladeshi", country: "Bangladesh" },
     features: { ministryLinks: true, ministryBadge: true },
@@ -43,7 +68,7 @@ export const PROFILES: Record<Variant, VariantProfile> = {
     defaultLocale: "en",
     currency: "USD",
     timezone: "UTC",
-    gateways: ["stripe", "paypal", "paddle"],
+    gateways: ["stripe", "paypal", "paddle", ...OPTIONAL_INTERNATIONAL_GATEWAYS],
     defaultPaymentMethod: "stripe",
     studentDefaults: { nationality: null, country: null },
     features: { ministryLinks: false, ministryBadge: false },
@@ -76,18 +101,26 @@ export const eskoolfy = {
   gateways: profile.gateways,
 
   /** Offline gateway codes that are always eligible regardless of variant. */
-  offlineGateways: ["cash", "bank_transfer", "cheque"],
+  offlineGateways: [...OFFLINE_GATEWAYS],
 
   /**
    * Cross-variant restore reconciliation (mirrors the app's `eskoolfy.restore`).
    * On a restore of a backup tagged with a different variant, variant-owned
    * config rows are re-set to the receiving profile's defaults.
+   *
+   * The optional international gateways are excluded from the activation set so
+   * a restore never force-enables a gateway whose credentials were never entered.
    */
   restore: {
     gateways: Object.fromEntries(
       (Object.keys(PROFILES) as Variant[]).map((v) => [
         v,
-        [...PROFILES[v].gateways, ...["cash", "bank_transfer", "cheque"]],
+        [
+          ...PROFILES[v].gateways.filter(
+            (code) => !(OPTIONAL_INTERNATIONAL_GATEWAYS as readonly string[]).includes(code),
+          ),
+          ...OFFLINE_GATEWAYS,
+        ],
       ]),
     ) as Record<Variant, string[]>,
     settings: {

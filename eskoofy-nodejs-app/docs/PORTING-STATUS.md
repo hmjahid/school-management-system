@@ -94,7 +94,11 @@ Gates: `tsc --noEmit` ✅ · ESLint ✅ (0 errors) · **102 Vitest tests** ✅ �
   and payroll runs: the schema and APIs exist, the workflow logic is not ported. The SMS
   campaign lifecycle (draft → recipient resolution → preview → queued/scheduled/due
   reminder) IS ported; only the carrier gateway (Twilio/Vonage) delivery is not.
-- **Integrations.** Payment gateways, SMS (Twilio/Vonage), mail, queues and the scheduler.
+- **Integrations.** Payment gateways are manageable (the `payment_gateways` resource is
+  exposed through the generic CRUD engine at `/dashboard/payment-gateways`, and the variant
+  profiles list the optional international gateways), but the live **initiate/callback/
+  webhook handlers are still not ported** — as are SMS (Twilio/Vonage), mail, queues and the
+  scheduler.
 - **Runtime locale switching.** The dashboard switch is wired end to end (topbar →
   `/dashboard/locale/{locale}` → dashboard locale cookie). The public site's per-request
   `?lang=` switch is still only partially wired; build-time profile locale still decides

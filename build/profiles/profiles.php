@@ -31,8 +31,13 @@ return [
         ],
         // lang packs shipped in the artifact (bn + en)
         'locales' => ['en', 'bn'],
-        // exactly the BD gateways
-        'gateways' => ['bkash', 'rocket', 'nagad'],
+        // BD gateways, plus the optional BD aggregator and the international
+        // gateways (all off until an admin enables them).
+        'gateways' => [
+            'bkash', 'rocket', 'nagad', 'uddoktapay',
+            'gpay', 'applepay', 'razorpay', 'paystack', 'flutterwave', 'sslcommerz',
+            'square', 'mollie', 'authorize_net', 'xendit', 'adyen', 'skrill',
+        ],
     ],
 
     'int' => [
@@ -49,7 +54,12 @@ return [
         ],
         // only English ships; bn/others stripped at export time
         'locales' => ['en'],
-        // exactly the INT-standard gateways
-        'gateways' => ['stripe', 'paypal', 'paddle'],
+        // INT-standard gateways plus the optional international gateways
+        // (all off until an admin enables them).
+        'gateways' => [
+            'stripe', 'paypal', 'paddle',
+            'gpay', 'applepay', 'razorpay', 'paystack', 'flutterwave', 'sslcommerz',
+            'square', 'mollie', 'authorize_net', 'xendit', 'adyen', 'skrill',
+        ],
     ],
 ];

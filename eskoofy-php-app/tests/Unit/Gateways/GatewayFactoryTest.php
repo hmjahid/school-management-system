@@ -5,6 +5,7 @@ namespace Tests\Unit\Gateways;
 
 use App\Gateways\GatewayFactory;
 use App\Gateways\GatewayInterface;
+use App\Gateways\GenericHostedGateway;
 use App\Gateways\OfflineGateway;
 use App\Gateways\StripeGateway;
 use App\Gateways\PaypalGateway;
@@ -131,6 +132,44 @@ class GatewayFactoryTest extends TestCase
             []
         );
         $this->assertInstanceOf(OfflineGateway::class, $gw);
+    }
+
+    public function test_international_gateways_resolve_to_generic_hosted_gateway(): void
+    {
+        $codes = [
+            'gpay', 'applepay', 'razorpay', 'paystack', 'flutterwave', 'sslcommerz',
+            'square', 'mollie', 'authorize_net', 'xendit', 'adyen', 'skrill',
+        ];
+
+        foreach ($codes as $code) {
+            $this->assertInstanceOf(GenericHostedGateway::class, GatewayFactory::make($code), $code);
+        }
+    }
+
+    public function test_unknown_code_with_config_resolves_to_generic(): void
+    {
+        $gw = GatewayFactory::make('my_gateway', [
+            'api_key' => 'k',
+            'live_url' => 'https://checkout.example.test',
+            'test_mode' => false,
+        ]);
+
+        $this->assertInstanceOf(GenericHostedGateway::class, $gw);
+    }
+
+    public function test_make_from_payment_record_uses_the_row_config(): void
+    {
+        $gw = GatewayFactory::makeFromPaymentRecord(
+            ['payment_method' => 'my_gateway'],
+            [
+                'code' => 'my_gateway',
+                'api_key' => 'k',
+                'live_url' => 'https://checkout.example.test',
+                'test_mode' => 0,
+            ]
+        );
+
+        $this->assertInstanceOf(GenericHostedGateway::class, $gw);
     }
 
     protected function tearDown(): void
