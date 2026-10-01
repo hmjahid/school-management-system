@@ -25,6 +25,11 @@ class StripeGateway extends AbstractGateway
 
     private function apiUrl(): string
     {
+        $override = rtrim(trim((string) ($this->setting('live_url') ?? '')), '/');
+        if ($override !== '') {
+            return $override;
+        }
+
         return ($this->setting('test_mode') ?? true) === true
             ? 'https://api.stripe.com/v1'
             : 'https://api.stripe.com/v1';

@@ -123,6 +123,12 @@ class PaymentController extends Controller
             $manager->createSubscription($licenseId, (int) $plan['id'], 'manual', [
                 'customer_id' => (int) $payment['customer_id'],
             ]);
+        } elseif ($licenseId > 0) {
+            // Manual renewal: extend the existing license instead of issuing a
+            // new one, so approving the transfer actually moves the expiry.
+            $manager->renew($licenseId, (int) $payment['plan_id'], 'manual', [
+                'customer_id' => (int) $payment['customer_id'],
+            ]);
         }
 
         $customer = $db->fetch("SELECT id, name, email FROM customers WHERE id = ?", [(int) $payment['customer_id']]);

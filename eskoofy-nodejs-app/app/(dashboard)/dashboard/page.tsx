@@ -2,6 +2,7 @@ import Link from "next/link";
 import { currentUser } from "@/lib/auth";
 import { t, locale } from "@/lib/i18n";
 import { DASHBOARD_SETUP_DEFAULTS } from "@/lib/site-cms-defaults";
+import { getSiteUi, isPlainObject } from "@/lib/site-ui";
 import {
   getAttendanceStats,
   getDashboardStats,
@@ -18,7 +19,10 @@ const money = (value: number) => value.toFixed(2);
 export default async function DashboardHomePage() {
   const user = await currentUser();
   const n = locale();
-  const setupStrings = DASHBOARD_SETUP_DEFAULTS[n] ?? DASHBOARD_SETUP_DEFAULTS.en;
+  // Global Labels overrides win over the generated defaults for the setup
+  // checklist copy, matching the app's site_ui() merge.
+  const siteUiSetup = (await getSiteUi(n)).dashboard_setup;
+  const setupStrings = (isPlainObject(siteUiSetup) ? siteUiSetup : DASHBOARD_SETUP_DEFAULTS[n] ?? DASHBOARD_SETUP_DEFAULTS.en) as typeof DASHBOARD_SETUP_DEFAULTS.en;
 
   const [stats, attendance, trend, checklist, workbench] = await Promise.all([
     getDashboardStats(),

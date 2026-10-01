@@ -27,6 +27,9 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($data['email'], $data['password'])) {
+            // Correct credentials — clear the bucket so a real user is never locked out.
+            \App\Core\Middleware\LoginThrottleMiddleware::clearFor((string) $data['email']);
+
             Session::getInstance()->flash('success', 'Welcome back!');
             $this->redirect('/dashboard');
             return;

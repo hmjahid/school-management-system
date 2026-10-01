@@ -28,9 +28,23 @@ $renewPrice = $isBd
                 <div class="flex justify-between"><dt class="text-slate-400">Product</dt><dd><?= htmlspecialchars((string) ($license['product'] ?? '—')) ?></dd></div>
                 <div class="flex justify-between"><dt class="text-slate-400">Plan</dt><dd><?= htmlspecialchars((string) ($license['plan_name'] ?? '—')) ?> (<?= htmlspecialchars((string) ($license['plan_period'] ?? '—')) ?>)</dd></div>
                 <?php if (!empty($subscription)): ?>
-                    <div class="flex justify-between"><dt class="text-slate-400">Subscription</dt><dd><span class="text-green-600 font-semibold">Active</span> · <?= htmlspecialchars(ucfirst($subscription['gateway'])) ?></dd></div>
+                    <?php $subStatus = (string) ($subscription['status'] ?? 'active'); ?>
+                    <div class="flex justify-between"><dt class="text-slate-400">Subscription</dt><dd><span class="<?= $subStatus === 'active' ? 'text-green-600' : 'text-amber-600' ?> font-semibold"><?= htmlspecialchars(ucfirst($subStatus)) ?></span> · <?= htmlspecialchars(ucfirst($subscription['gateway'])) ?></dd></div>
                     <div class="flex justify-between"><dt class="text-slate-400">Period</dt><dd><?= htmlspecialchars((string) ($subscription['current_period_start'] ?? '')) ?> → <?= htmlspecialchars((string) ($subscription['current_period_end'] ?? '')) ?></dd></div>
                     <div class="flex justify-between"><dt class="text-slate-400">Renews</dt><dd><?= htmlspecialchars((string) ($subscription['renews_at'] ?? '—')) ?></dd></div>
+                    <div class="pt-2">
+                        <?php if ($subStatus === 'active'): ?>
+                            <form method="post" action="/account/licenses/subscription/cancel/<?= (int) $subscription['id'] ?>" onsubmit="return confirm('Cancel this subscription? Your license stays valid until the end of the paid period.')">
+                                <?= csrf_field() ?>
+                                <button class="px-3 py-1.5 rounded-lg border border-red-300 text-xs font-semibold text-red-600 hover:bg-red-50">Cancel subscription</button>
+                            </form>
+                        <?php else: ?>
+                            <form method="post" action="/account/licenses/subscription/resume/<?= (int) $subscription['id'] ?>">
+                                <?= csrf_field() ?>
+                                <button class="px-3 py-1.5 rounded-lg border border-green-300 text-xs font-semibold text-green-700 hover:bg-green-50">Resume subscription</button>
+                            </form>
+                        <?php endif; ?>
+                    </div>
                 <?php endif; ?>
                 <div class="flex justify-between"><dt class="text-slate-400">Starts</dt><dd><?= htmlspecialchars((string) ($license['starts_at'] ?? '—')) ?></dd></div>
                 <div class="flex justify-between"><dt class="text-slate-400">Expires</dt><dd class="<?= !empty($expired) ? 'text-red-600 font-semibold' : '' ?>"><?= $license['expires_at'] ? htmlspecialchars($license['expires_at']) : 'Never (lifetime)' ?><?= !empty($expired) ? ' — expired' : '' ?></dd></div>

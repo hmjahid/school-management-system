@@ -7,6 +7,7 @@ class ThrottleMiddleware
 {
     private int $maxAttempts;
     private int $decayMinutes;
+    private int $decaySeconds;
 
     /**
      * @param string|int $maxAttempts maximum attempts in the decay window.
@@ -25,29 +26,59 @@ class ThrottleMiddleware
 
         $this->maxAttempts = max(1, (int) $maxAttempts);
         $this->decayMinutes = max(1, $decayMinutes);
+        $this->decaySeconds = $this->decayMinutes * 60;
+    }
+
+    /**
+     * Bucket identity: ip + user when signed in.
+     *
+     * The ip comes from Request::ip() so the key matches the app's rate
+     * limiting, which honours proxy headers.
+     */
+    public static function key(): string
+    {
+        $ip = (new \App\Core\Request())->ip();
+        $userId = \App\Core\Auth::id();
+
+        return 'throttle:' . $ip . ($userId !== null ? ':' . $userId : '');
     }
 
     public function handle(): void
     {
-        $key = 'throttle:' . ($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1');
-        $session = \App\Core\Session::getInstance();
-        $attempts = $session->get($key, ['count' => 0, 'first_at' => 0]);
+        $key = self::key();
 
-        if (time() - ($attempts['first_at'] ?? 0) > $this->decayMinutes * 60) {
-            $attempts = ['count' => 0, 'first_at' => time()];
+        if (\App\Services\RateLimiter::tooManyAttempts($key, $this->maxAttempts, $this->decaySeconds)) {
+            $this->abort();
         }
 
-        if ($attempts['count'] >= $this->maxAttempts) {
-            http_response_code(429);
-            header('Retry-After: ' . ($this->decayMinutes * 60));
-            echo json_encode(['error' => 'Too many requests. Please try again later.']);
-            exit;
+        \App\Services\RateLimiter::hit($key, $this->decaySeconds);
+    }
+
+    /**
+     * Emit the 429 using the app's {success,message,data} envelope for API
+     * callers, or the HTML error page for browsers. The previous
+     * {"error": "..."} shape broke the envelope contract.
+     */
+    private function abort(): void
+    {
+        http_response_code(429);
+        header('Retry-After: ' . $this->decaySeconds);
+        header('Cache-Control: no-store, max-age=0');
+
+        $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+
+        if (str_contains($accept, 'text/html')) {
+            header('Content-Type: text/html; charset=UTF-8');
+            require __DIR__ . '/../../../views/errors/429.php';
+
+            return;
         }
 
-        $attempts['count']++;
-        if ($attempts['count'] === 1) {
-            $attempts['first_at'] = time();
-        }
-        $session->set($key, $attempts);
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => false,
+            'message' => 'Too many requests. Please try again later.',
+            'data' => null,
+        ]);
     }
 }

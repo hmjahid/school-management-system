@@ -88,6 +88,7 @@ foreach ($licenseByProduct as $row) {
         ['app', 'App', (string) ($productDashboards['products.dashboards.app'] ?? 'http://localhost:8000/dashboard')],
         ['php', 'PHP', (string) ($productDashboards['products.dashboards.php'] ?? 'http://localhost:8051/dashboard')],
         ['theme', 'Theme', (string) ($productDashboards['products.dashboards.theme'] ?? 'http://localhost:8080/dashboard')],
+        ['node', 'Node', (string) ($productDashboards['products.dashboards.node'] ?? 'http://localhost:3000/dashboard')],
     ];
     foreach ($productLinks as [$code, $label, $url]):
     ?>

@@ -397,78 +397,44 @@ class LicenseManager
     }
 
     /**
-     * Renew (extend) a license. When gateway is manual it is completed immediately.
+     * Extend a license's period because a renewal payment settled. Thin wrapper
+     * over createSubscription() so there is exactly ONE place that stacks
+     * periods and syncs `licenses.expires_at`.
+     *
+     * Callers: PaymentStatusController (gateway return), PaymentController
+     * (manual approval), account/renewal + webhooks. The payment itself is
+     * always created by the caller — this method never fabricates one, so a
+     * license can never be extended without a matching paid payment.
      *
      * @return array<string, mixed>
      */
-    public function renew(int $licenseId, ?int $planId = null, string $gateway = 'manual', array $paymentOpts = []): array
+    public function renew(int $licenseId, ?int $planId = null, string $gateway = 'manual', array $opts = []): array
     {
         $license = $this->byId($licenseId);
         if (!$license) {
             return $this->fail('License not found.', 'license_not_found');
         }
 
-        $plan = $this->db()->fetch("SELECT * FROM plans WHERE id = ?", [
-            $planId ?? (int) $license['plan_id'],
-        ]);
-        if (!$plan) {
+        $planId = $planId ?? (int) $license['plan_id'];
+        if (!$this->db()->fetch("SELECT id FROM plans WHERE id = ?", [$planId])) {
             return $this->fail('Renewal plan not found.', 'plan_not_found');
         }
 
-        $base = $license['expires_at'];
-        if (!$base || strtotime($base) < time()) {
-            $base = date('Y-m-d H:i:s');
-        }
-
-        $newExpiry = $this->expiryFor($plan, $base) ?? $license['expires_at'];
-
-        $paymentId = $this->db()->insert('payments', [
-            'customer_id' => (int) $license['customer_id'],
-            'license_id'  => $licenseId,
-            'plan_id'     => (int) $plan['id'],
-            'gateway'     => $gateway,
-            'reference'   => $paymentOpts['reference'] ?? ('REN-' . strtoupper(bin2hex(random_bytes(4)))),
-            'amount'      => $plan['price'],
-            'currency'    => $plan['currency'] ?? 'USD',
-            'status'      => 'pending',
-            'created_at'  => date('Y-m-d H:i:s'),
-            'updated_at'  => date('Y-m-d H:i:s'),
-        ]);
-
-        $gatewayService = \App\Gateways\GatewayFactory::make($gateway);
-        $payment = $this->db()->fetch("SELECT * FROM payments WHERE id = ?", [$paymentId]);
-        $result = $gatewayService->process($license, $payment);
-
-        $this->db()->update('licenses', [
-            'expires_at' => $newExpiry,
-            'updated_at' => date('Y-m-d H:i:s'),
-        ], 'id = ?', [$licenseId]);
-
-        $this->db()->insert('subscriptions', [
-            'customer_id'          => (int) $license['customer_id'],
-            'license_id'           => $licenseId,
-            'plan_id'              => (int) $plan['id'],
-            'status'               => 'active',
-            'current_period_start' => date('Y-m-d H:i:s'),
-            'current_period_end'   => $newExpiry,
-            'renews_at'            => $newExpiry,
-            'gateway'              => $gateway,
-            'created_at'           => date('Y-m-d H:i:s'),
-            'updated_at'           => date('Y-m-d H:i:s'),
-        ]);
+        $result = $this->createSubscription($licenseId, $planId, $gateway, $opts + ['stack' => true]);
 
         ActivityLog::log('license.renewed', 'system', (int) $license['customer_id'], [
             'license_id' => $licenseId,
-            'plan_id'    => (int) $plan['id'],
-            'expires_at' => $newExpiry,
+            'plan_id'    => $planId,
+            'gateway'    => $gateway,
+            'expires_at' => $result['expires_at'],
         ]);
 
         return [
-            'status'       => 'ok',
-            'message'      => 'License renewed until ' . ($newExpiry ?? 'forever') . '.',
-            'license'      => $this->byId($licenseId),
-            'payment_id'   => $paymentId,
-            'gateway'      => $result,
+            'status'     => 'ok',
+            'message'    => 'License renewed until ' . ($result['expires_at'] ?? 'forever') . '.',
+            'license'    => $this->byId($licenseId),
+            'expires_at' => $result['expires_at'],
+            'subscription' => $result,
         ];
     }
 
@@ -498,15 +464,28 @@ class LicenseManager
             [$licenseId, $planId]
         );
 
-        if ($existing) {
-            // Stack: extend from the later of now / current expiry.
+        // $opts['stack'] = true means "a renewal payment has settled — always add
+        // a fresh period on top of the current expiry". Without it, a license that
+        // has no active subscription row (cancelled, or issued without one) would
+        // swallow the renewal and never move the expiry. renew() always sets it.
+        $stack = !empty($opts['stack']) || (bool) $existing;
+
+        if ($stack) {
+            // Stack from the later of now / current expiry.
             $base = $license['expires_at'];
-            if (!$base || strtotime($base) < time()) {
+            if (!$base || strtotime((string) $base) < time()) {
                 $base = date('Y-m-d H:i:s');
             }
             $periodStart = $base;
             $periodEnd   = $this->expiryFor($plan, $base) ?? $base;
+        } else {
+            // First subscription: the license expiry was already set by issue()
+            // (period from now). Reuse it — do not double-extend.
+            $periodStart = $license['starts_at'] ?? date('Y-m-d H:i:s');
+            $periodEnd   = $license['expires_at'] ?? $this->expiryFor($plan, date('Y-m-d H:i:s')) ?? date('Y-m-d H:i:s');
+        }
 
+        if ($existing) {
             $this->db()->update('subscriptions', [
                 'status'                 => 'active',
                 'current_period_start'   => $periodStart,
@@ -518,11 +497,6 @@ class LicenseManager
             ], 'id = ?', [(int) $existing['id']]);
             $subscriptionId = (int) $existing['id'];
         } else {
-            // First subscription: the license expiry was already set by issue()
-            // (period from now). Reuse it — do not double-extend.
-            $periodStart = $license['starts_at'] ?? date('Y-m-d H:i:s');
-            $periodEnd   = $license['expires_at'] ?? $this->expiryFor($plan, date('Y-m-d H:i:s')) ?? date('Y-m-d H:i:s');
-
             $subscriptionId = (int) $this->db()->insert('subscriptions', [
                 'customer_id'            => $customerId,
                 'license_id'             => $licenseId,

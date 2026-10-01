@@ -16,6 +16,7 @@ define('ESK_PLUGIN_DIR', __DIR__);
 
 $esk_includes = array(
 	'helpers.php',
+	'throttle.php',
 	'database.php',
 	'demo-content.php',
 	'sms-gateway.php',

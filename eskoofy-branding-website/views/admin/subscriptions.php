@@ -35,11 +35,12 @@
                     <th class="px-4 py-3">Period</th>
                     <th class="px-4 py-3">Renews</th>
                     <th class="px-4 py-3">Status</th>
+                    <th class="px-4 py-3 text-right">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
                 <?php if (empty($rows)): ?>
-                    <tr><td colspan="7" class="px-4 py-10 text-center text-slate-400">No subscriptions yet.</td></tr>
+                    <tr><td colspan="8" class="px-4 py-10 text-center text-slate-400">No subscriptions yet.</td></tr>
                 <?php else: ?>
                     <?php foreach ($rows as $r): ?>
                         <tr>
@@ -56,7 +57,26 @@
                             <td class="px-4 py-3 text-xs"><?= htmlspecialchars((string) ($r['current_period_start'] ?? '')) ?><br><?= htmlspecialchars((string) ($r['current_period_end'] ?? '')) ?></td>
                             <td class="px-4 py-3"><?= htmlspecialchars((string) ($r['renews_at'] ?? '—')) ?></td>
                             <td class="px-4 py-3">
-                                <span class="px-2 py-1 rounded-full text-xs font-semibold <?= ($r['status'] ?? '') === 'active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500' ?>"><?= htmlspecialchars($r['status']) ?></span>
+                                <span class="px-2 py-1 rounded-full text-xs font-semibold <?= ($r['status'] ?? '') === 'active' ? 'bg-green-100 text-green-700' : (($r['status'] ?? '') === 'paused' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500') ?>"><?= htmlspecialchars($r['status']) ?></span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex flex-wrap justify-end gap-1">
+                                    <?php if (($r['status'] ?? '') === 'active'): ?>
+                                        <form method="post" action="/admin/subscriptions/<?= (int) $r['id'] ?>/paused">
+                                            <?= csrf_field() ?>
+                                            <button class="px-2 py-1 rounded-lg border border-slate-300 text-xs font-semibold text-slate-600 hover:bg-slate-50">Pause</button>
+                                        </form>
+                                        <form method="post" action="/admin/subscriptions/<?= (int) $r['id'] ?>/cancelled" onsubmit="return confirm('Cancel this subscription?')">
+                                            <?= csrf_field() ?>
+                                            <button class="px-2 py-1 rounded-lg border border-red-300 text-xs font-semibold text-red-600 hover:bg-red-50">Cancel</button>
+                                        </form>
+                                    <?php else: ?>
+                                        <form method="post" action="/admin/subscriptions/<?= (int) $r['id'] ?>/active">
+                                            <?= csrf_field() ?>
+                                            <button class="px-2 py-1 rounded-lg border border-green-300 text-xs font-semibold text-green-700 hover:bg-green-50">Resume</button>
+                                        </form>
+                                    <?php endif; ?>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>

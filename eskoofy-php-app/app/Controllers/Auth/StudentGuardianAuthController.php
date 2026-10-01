@@ -58,6 +58,9 @@ class StudentGuardianAuthController extends Controller
             return;
         }
 
+        // Correct credentials — clear the bucket so a real user is never locked out.
+        \App\Core\Middleware\LoginThrottleMiddleware::clearFor((string) $data['email']);
+
         // The account must belong to the student role (app parity).
         if ((int) $user['role_id'] !== \App\Core\Auth::roleId('student') && (string) $user['role'] !== 'student') {
             Session::getInstance()->flash('error', 'You do not have permission to access this portal.');
@@ -113,6 +116,9 @@ class StudentGuardianAuthController extends Controller
             $this->back();
             return;
         }
+
+        // Correct credentials — clear the bucket so a real user is never locked out.
+        \App\Core\Middleware\LoginThrottleMiddleware::clearFor((string) $data['email']);
 
         // The account must belong to the guardian role (app parity).
         if ((int) $user['role_id'] !== \App\Core\Auth::roleId('guardian') && (string) $user['role'] !== 'guardian') {

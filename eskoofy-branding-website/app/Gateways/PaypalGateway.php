@@ -26,6 +26,11 @@ class PaypalGateway extends AbstractGateway
 
     private function baseUrl(): string
     {
+        $override = rtrim(trim((string) ($this->setting('live_url') ?? '')), '/');
+        if ($override !== '') {
+            return $override;
+        }
+
         return ($this->setting('test_mode') ?? true) === true
             ? 'https://api-m.sandbox.paypal.com'
             : 'https://api-m.paypal.com';

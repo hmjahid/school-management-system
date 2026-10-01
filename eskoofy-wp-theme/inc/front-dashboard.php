@@ -373,6 +373,28 @@ add_action(
 		$GLOBALS['esk_front_dashboard'] = true;
 		$GLOBALS['esk_front_dash_slug'] = $slug;
 
+		// Write throttle — parity with the app's DashboardWriteThrottle middleware
+		// (120 writes/min per user+ip). Reads are never throttled.
+		if ( in_array( strtoupper( (string) ( $_SERVER['REQUEST_METHOD'] ?? 'GET' ) ), array( 'POST', 'PUT', 'PATCH', 'DELETE' ), true ) ) {
+			$throttled = esk_dashboard_throttle( get_current_user_id() );
+			if ( null !== $throttled ) {
+				status_header( 429 );
+				nocache_headers();
+				?>
+				<!DOCTYPE html><html <?php language_attributes(); ?>>
+				<head><meta charset="<?php bloginfo( 'charset' ); ?>"><meta name="viewport" content="width=device-width, initial-scale=1"><title><?php esc_html_e( 'Too many requests', 'eskoofy' ); ?></title></head>
+				<body style="font-family:Inter,system-ui,sans-serif;background:#0f172a;color:#e2e8f0;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;">
+				<div style="text-align:center;max-width:30rem;padding:2rem;">
+					<h1 style="font-size:1.5rem;margin:0 0 .5rem;"><?php esc_html_e( 'Too many requests', 'eskoofy' ); ?></h1>
+					<p style="color:#94a3b8;margin:0 0 1.5rem;"><?php echo esc_html( $throttled ); ?></p>
+					<a href="<?php echo esc_url( esk_dashboard_url( $slug ) ); ?>" style="color:#93c5fd;"><?php esc_html_e( 'Back to dashboard', 'eskoofy' ); ?></a>
+				</div>
+				</body></html>
+				<?php
+				exit;
+			}
+		}
+
 		// Capability gate: admins always pass; other roles require a granted
 		// capability in the esk_role_caps map (see Roles & Permissions page).
 		if ( ! esk_can_access_dashboard() || ! esk_can_access_page( $slug ) ) {

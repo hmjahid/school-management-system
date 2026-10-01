@@ -65,11 +65,39 @@ get_template_part(
 							<label for="esk_password"><?php esc_html_e( 'Password', 'eskoofy' ); ?></label>
 							<input type="password" name="esk_password" id="esk_password" class="esk-input" autocomplete="current-password" required>
 						</div>
-						<label class="esk-form-check">
-							<input type="checkbox" name="rememberme" value="forever">
-							<span><?php esc_html_e( 'Remember me', 'eskoofy' ); ?></span>
-						</label>
-						<button type="submit" name="esk_login_submit" class="esk-btn esk-btn-accent" style="width:100%;"><?php esc_html_e( 'Login', 'eskoofy' ); ?></button>
+<label class="esk-form-check">
+						<input type="checkbox" name="rememberme" value="forever">
+						<span><?php esc_html_e( 'Remember me', 'eskoofy' ); ?></span>
+					</label>
+					<?php
+					// Lockout counter — warns before the limit is hit, and shows the
+					// wait once it has been (mirrors the app's login limiter).
+					$esk_login_field = isset( $_POST['esk_login'] ) ? sanitize_user( wp_unslash( $_POST['esk_login'] ) ) : '';
+					if ( '' === $esk_login_field ) {
+						$esk_login_field = isset( $_GET['esk_login'] ) ? sanitize_user( wp_unslash( $_GET['esk_login'] ) ) : '';
+					}
+					$esk_left = esk_throttle_remaining(
+						esk_login_throttle_key( $esk_login_field ),
+						ESK_LOGIN_THROTTLE_LIMIT,
+						ESK_LOGIN_THROTTLE_DECAY
+					);
+					?>
+					<?php if ( 0 === $esk_left ) : ?>
+						<div class="esk-message-box esk-message-error" role="alert">
+							<p><?php esc_html_e( 'Login is temporarily locked for this account. Please try again in a minute.', 'eskoofy' ); ?></p>
+						</div>
+					<?php elseif ( $esk_left < ESK_LOGIN_THROTTLE_LIMIT ) : ?>
+						<p style="font-size:0.875rem; color:#b91c1c; margin:0 0 .5rem;">
+							<?php
+							printf(
+								/* translators: %d: login attempts remaining. */
+								esc_html__( '%d login attempt(s) remaining before a temporary lockout.', 'eskoofy' ),
+								(int) $esk_left
+							);
+							?>
+						</p>
+					<?php endif; ?>
+					<button type="submit" name="esk_login_submit" class="esk-btn esk-btn-accent" style="width:100%;"><?php esc_html_e( 'Login', 'eskoofy' ); ?></button>
 					</form>
 
 					<p style="text-align:center; margin-top:1rem; font-size:0.9375rem;">

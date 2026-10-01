@@ -70,6 +70,7 @@ $router->group('/account', function (App\Core\Router $router): void {
     $router->get('/licenses', AccountLicense::class, 'index');
     $router->get('/licenses/{id}', AccountLicense::class, 'show');
     $router->post('/licenses/{id}/renew', RenewalController::class, 'renew');
+    $router->post('/licenses/subscription/{action}/{id}', AccountLicense::class, 'subscription');
     $router->post('/activations/revoke', AccountLicense::class, 'revoke');
     $router->get('/payments', AccountPayment::class, 'index');
     $router->get('/settings', \App\Controllers\Account\SettingsController::class, 'index');
@@ -110,6 +111,7 @@ $router->group('/admin', function (App\Core\Router $router): void {
     $router->post('/payments/{id}/approve', AdminPayment::class, 'approveManual');
 
     $router->get('/subscriptions', \App\Controllers\Admin\SubscriptionController::class, 'index');
+    $router->post('/subscriptions/{id}/{status}', \App\Controllers\Admin\SubscriptionController::class, 'setStatus');
 
     $router->get('/posts', PostController::class, 'index');
     $router->get('/posts/create', PostController::class, 'create');

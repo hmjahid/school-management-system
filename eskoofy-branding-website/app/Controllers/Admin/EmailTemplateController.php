@@ -17,6 +17,7 @@ class EmailTemplateController extends Controller
         'license_expiring' => 'License expiring soon',
         'package_available' => 'Package available',
         'contact_message'  => 'Contact form message',
+        'custom_request'   => 'Custom order request received',
     ];
 
     public function __construct()

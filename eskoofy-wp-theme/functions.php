@@ -413,6 +413,14 @@ add_action(
 			exit;
 		}
 
+		// Brute-force guard: 5 attempts per minute per (ip, login).
+		$throttled = esk_login_throttle( $login );
+		if ( null !== $throttled ) {
+			esk_flash( 'login_error', $throttled );
+			wp_safe_redirect( home_url( '/login/' ) );
+			exit;
+		}
+
 		// Accept username or email (demo credentials are documented by email).
 		if ( false !== strpos( $login, '@' ) ) {
 			$by_email = get_user_by( 'email', $login );
@@ -435,6 +443,9 @@ add_action(
 			wp_safe_redirect( home_url( '/login/' ) );
 			exit;
 		}
+
+		// Correct credentials — clear the bucket so a real user is never locked out.
+		esk_login_throttle_reset( $login );
 
 		$redirect = home_url( '/dashboard/' );
 		$requested = isset( $_POST['redirect_to'] ) ? sanitize_url( wp_unslash( $_POST['redirect_to'] ) ) : '';

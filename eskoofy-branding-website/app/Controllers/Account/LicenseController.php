@@ -57,7 +57,7 @@ class LicenseController extends Controller
         $activations = $manager->activations((int) $license['id']);
 
         $subscription = $db->fetch(
-            "SELECT * FROM subscriptions WHERE license_id = ? AND status = 'active' ORDER BY id DESC LIMIT 1",
+            "SELECT * FROM subscriptions WHERE license_id = ? ORDER BY (status = 'active') DESC, id DESC LIMIT 1",
             [(int) $license['id']]
         );
 
@@ -110,5 +110,52 @@ class LicenseController extends Controller
 
         $this->withSuccess('Activation revoked.');
         $this->redirect('/account/licenses/' . $activation['license_id']);
+    }
+
+    /**
+     * Customer self-serve subscription management. Auto-renewal is not charged
+     * automatically on this site (renewals are always a new payment), so
+     * "cancel" simply marks the subscription cancelled at the end of the paid
+     * period, and "resume" puts it back. The license expiry is never changed.
+     */
+    public function subscription(string $action, int $id): void
+    {
+        $allowed = ['cancel', 'resume'];
+        if (!in_array($action, $allowed, true)) {
+            $this->withError('Invalid action.');
+            $this->redirect('/account/licenses');
+        }
+
+        $db = Database::getInstance();
+        $row = $db->fetch(
+            "SELECT s.* FROM subscriptions s
+             JOIN licenses l ON l.id = s.license_id
+             WHERE s.id = ? AND l.customer_id = ?",
+            [$id, $this->customerId]
+        );
+
+        if (!$row) {
+            $this->withError('Subscription not found.');
+            $this->redirect('/account/licenses');
+        }
+
+        $status = $action === 'cancel' ? 'cancelled' : 'active';
+
+        $db->update('subscriptions', [
+            'status'     => $status,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ], 'id = ?', [$id]);
+
+        ActivityLog::log('account.subscription_' . $action, 'customer', $this->customerId, [
+            'subscription_id' => $id,
+            'license_id'      => (int) ($row['license_id'] ?? 0),
+        ]);
+
+        $this->withSuccess(
+            $action === 'cancel'
+                ? 'Subscription cancelled. Your license stays valid until ' . (($row['current_period_end'] ?? 'the end of the period')) . '.'
+                : 'Subscription resumed.'
+        );
+        $this->redirect('/account/licenses/' . (int) $row['license_id']);
     }
 }

@@ -387,19 +387,38 @@ make ensure that the testimonials, cerificate, marksheet, id cards, admit cards 
 
 create a proper prompt file for completing the above tasks and execute the prompt. continue untill finished. donot forget to record features in the features tracking files
 
-
-
 ensure that the cloud backup is indie the backup page, not in another seperate page
 
+use/add uddoktapay in all 4 products and the branding website for bangladeshi payemnt. It will be optional/ if checked will show, otherwise aill not show in the frontend. read uddoktapay documentation from their official website and the github repository fisrt.
 
+use/add gpay and other international renowed payment gateways in all 4 products for international payemnt. these will be optional/ if checked will show, otherwise aill not show in the frontend.
+
+add options in the payment gateway adding section for adding as many as possible payemnet gateways manually in both int and bd variant
+
+now check again and ensure that all are implemented accurately.
+
+check the features tracking files and ensure that all fetaures are fully implemented in all product varaint and in the branding websites also fully (where which one aapplicable). cretae a proper plan first then implement. continue untill finsidhed.
+
+record in a file what have finished and what not finished of this current tasks
+
+
+
+
+
+
+
+add a system in all 4 products and the brnading website to sandbox/tets payemnt gateways/methods without any cost to mak eensure that they are working/functioning properly
+
+add more bangladeshi payemnt gateways, payemnt aggragtor and same as uddoktapay services in all products and the branding website.
+
+ensure that any chnages in any vainat or in the branding website, is immediiately effcetd in the develpopment test docker containers.
 
 read PAYMENT-SYSTEM-REVIEW.md and PAYMENT-IMPLEMENTATION-PLAN.md files and implement them one by one. ask me at starting every phase before execution 
 
+mak ethe  branding website admin dashboard same as interprise grade admin dashboard with clear an damazing ui ux, graph, scale, trending etc.
 
+find a best way to showcase our bd and int varinat as well as the 4 product varinat clearly without any confusion in the branding website. create a proper plan file first.
 
-
-
-use/add uddoktapay in all 4 products and the branding website for bangladeshi payemnt. It will be optional/ if checked will show, otherwise aill not show in the frontend. read uddoktapay documentation from their official website and the github repository fisrt.
 
 
 

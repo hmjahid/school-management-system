@@ -1,6 +1,7 @@
 import { locale, tOr } from "@/lib/i18n";
 import { getPageContent } from "@/lib/site-data";
 import { PAGE_SECTIONS_DEFAULTS, type CmsSection } from "@/lib/site-cms-defaults";
+import { getSiteUi } from "@/lib/site-ui";
 
 function asSections(value: unknown): CmsSection[] {
   if (!Array.isArray(value)) return [];
@@ -54,8 +55,18 @@ export async function CMSContentSections({ page }: { page: string }) {
     parsed = {};
   }
 
+  // Global Labels overrides win over the generated defaults for this page's
+  // sections, matching the app's site_ui() merge in the Blade templates.
+  const siteUi = await getSiteUi(n);
+  const siteUiSections = (siteUi.page_sections as Record<string, unknown> | undefined)?.[page];
+
   const sections = asSections(parsed.sections);
-  const resolvedSections = sections.length > 0 ? sections : (PAGE_SECTIONS_DEFAULTS[n] ?? PAGE_SECTIONS_DEFAULTS.en)?.[page] ?? [];
+  const resolvedSections =
+    sections.length > 0
+      ? sections
+      : asSections(siteUiSections).length > 0
+        ? asSections(siteUiSections)
+        : (PAGE_SECTIONS_DEFAULTS[n] ?? PAGE_SECTIONS_DEFAULTS.en)?.[page] ?? [];
   const intro = typeof parsed.intro === "string" ? parsed.intro : tOr(`site.pages.${page}.intro_fallback_bn`, "");
 
   return (

@@ -93,10 +93,21 @@ class RenewalController extends Controller
             $this->redirect((string) $result['redirect_url']);
         }
 
+        // Manual / bank transfer: the payment row is pending until an admin
+        // approves the transfer, then the license is extended. Same branch as
+        // CheckoutController — a pending result is not a failure.
+        if (($result['status'] ?? '') === 'pending') {
+            $this->withSuccess($result['message'] ?? 'Your renewal payment is awaiting confirmation.');
+            $this->redirect('/checkout/status/' . $reference . '?status=pending');
+        }
+
+        // Immediate/offline gateways: the license is extended now. The status
+        // page performs the same extension for gateway-returned renewals, so
+        // guard against double-stacking by only doing it once.
         if (($result['success'] ?? false)) {
             $manager = new LicenseManager();
-            $manager->createSubscription($id, $planId, $gateway, ['customer_id' => (int) $customer['id']]);
-            $this->withSuccess('Payment received. Your subscription has been extended.');
+            $manager->renew($id, $planId, $gateway, ['customer_id' => (int) $customer['id']]);
+            $this->withSuccess('Payment received. Your license has been extended.');
             $this->redirect('/account/licenses/' . $id);
         }
 

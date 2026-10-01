@@ -8,7 +8,7 @@ $router = new Router();
 // Public routes
 $router->get('/', 'App\\Controllers\\HomeController', 'index');
 $router->get('/login', 'App\\Controllers\\AuthController', 'showLogin');
-$router->post('/login', 'App\\Controllers\\AuthController', 'login');
+$router->post('/login', 'App\\Controllers\\AuthController', 'login', ['LoginThrottle:5,15']);
 $router->post('/logout', 'App\\Controllers\\AuthController', 'logout');
 $router->get('/register', 'App\\Controllers\\AuthController', 'showRegister');
 $router->post('/register', 'App\\Controllers\\AuthController', 'register');
@@ -43,10 +43,10 @@ $router->post('/careers/apply', 'App\\Controllers\\SiteController', 'applyCareer
 
 // Student / Guardian portal auth
 $router->get('/student/login', 'App\\Controllers\\Auth\\StudentGuardianAuthController', 'showStudentLogin');
-$router->post('/student/login', 'App\\Controllers\\Auth\\StudentGuardianAuthController', 'studentLogin');
+$router->post('/student/login', 'App\\Controllers\\Auth\\StudentGuardianAuthController', 'studentLogin', ['LoginThrottle:5,15']);
 $router->get('/student/logout', 'App\\Controllers\\Auth\\StudentGuardianAuthController', 'studentLogout');
 $router->get('/guardian/login', 'App\\Controllers\\Auth\\StudentGuardianAuthController', 'showGuardianLogin');
-$router->post('/guardian/login', 'App\\Controllers\\Auth\\StudentGuardianAuthController', 'guardianLogin');
+$router->post('/guardian/login', 'App\\Controllers\\Auth\\StudentGuardianAuthController', 'guardianLogin', ['LoginThrottle:5,15']);
 $router->get('/guardian/logout', 'App\\Controllers\\Auth\\StudentGuardianAuthController', 'guardianLogout');
 
 // Static files (no auth)
@@ -796,7 +796,7 @@ $router->group('/dashboard', function (Router $r) {
     $r->post('/admissions/{admissionId}/tests', 'App\\Controllers\\Dashboard\\AdmissionController', 'scheduleTest');
     $r->put('/admissions/{admissionId}/tests/{testId}', 'App\\Controllers\\Dashboard\\AdmissionController', 'updateTest');
     $r->delete('/admissions/{admissionId}/tests/{testId}', 'App\\Controllers\\Dashboard\\AdmissionController', 'deleteTest');
-}, ['AuthMiddleware']);
+}, ['AuthMiddleware', 'DashboardWriteThrottle']);
 
 // ---------------------------------------------------------------------------
 // Public site additions (parity with eskoofy-laravel-app)

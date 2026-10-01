@@ -48,11 +48,25 @@ class PaymentStatusController extends Controller
         }
 
         $paid = ($payment['status'] ?? '') === 'paid';
+        $renewalLicenseId = (int) ($payment['license_id'] ?? 0);
 
-        if ($paid && empty($payment['license_id'])) {
+        if ($paid) {
             $plan = $db->fetch("SELECT * FROM plans WHERE id = ?", [(int) $payment['plan_id']]);
             $manager = new LicenseManager();
-            if ($plan) {
+
+            // A renewal payment carries the license it extends — stack the new
+            // period onto the existing subscription instead of issuing a new
+            // license. Without this the customer pays and the expiry never moves.
+            if ($renewalLicenseId > 0) {
+                $license = $manager->byId($renewalLicenseId);
+                if ($license && (int) $license['customer_id'] === (int) $payment['customer_id']) {
+                    $manager->renew($renewalLicenseId, (int) $payment['plan_id'], (string) $payment['gateway'], [
+                        'customer_id' => (int) $payment['customer_id'],
+                    ]);
+                    $this->withSuccess('Payment verified. Your license has been extended.');
+                    $this->redirect('/account/licenses/' . $renewalLicenseId);
+                }
+            } elseif ($plan) {
                 $issued = $manager->issue(
                     (int) $payment['customer_id'],
                     (int) $plan['id'],

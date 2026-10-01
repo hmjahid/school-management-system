@@ -50,9 +50,13 @@ class PaddleGateway extends AbstractGateway
             'success_url'  => $order['return_url'] ?? '',
             'cancel_url'   => $order['cancel_url'] ?? '',
         ]);
-        $checkoutUrl = ($this->setting('test_mode') ?? true) === true
-            ? 'https://sandbox-checkout.paddle.com/custom-checkout/' . $vendorId . '?' . $query
-            : 'https://checkout.paddle.com/custom-checkout/' . $vendorId . '?' . $query;
+        $override = rtrim(trim((string) ($this->setting('live_url') ?? '')), '/');
+        $checkoutBase = $override !== ''
+            ? $override
+            : (($this->setting('test_mode') ?? true) === true
+                ? 'https://sandbox-checkout.paddle.com/custom-checkout/'
+                : 'https://checkout.paddle.com/custom-checkout/');
+        $checkoutUrl = $checkoutBase . $vendorId . '?' . $query;
 
         return [
             'success'        => true,

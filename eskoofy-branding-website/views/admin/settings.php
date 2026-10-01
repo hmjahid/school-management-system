@@ -23,7 +23,9 @@
                 <label class="block text-xs font-medium mb-0.5">Raw PHP</label>
                 <input name="products_dashboards_php" value="<?= htmlspecialchars((string) ($settings['products.dashboards.php'] ?? '')) ?>" placeholder="http://localhost:8051/dashboard" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm mb-2">
                 <label class="block text-xs font-medium mb-0.5">WordPress theme</label>
-                <input name="products_dashboards_theme" value="<?= htmlspecialchars((string) ($settings['products.dashboards.theme'] ?? '')) ?>" placeholder="http://localhost:8080/dashboard" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                <input name="products_dashboards_theme" value="<?= htmlspecialchars((string) ($settings['products.dashboards.theme'] ?? '')) ?>" placeholder="http://localhost:8080/dashboard" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm mb-2">
+                <label class="block text-xs font-medium mb-0.5">Node.js variant</label>
+                <input name="products_dashboards_node" value="<?= htmlspecialchars((string) ($settings['products.dashboards.node'] ?? '')) ?>" placeholder="http://localhost:3000/dashboard" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
             </div>
         </div>
 

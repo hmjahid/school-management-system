@@ -63,6 +63,7 @@ class CustomRequestController extends Controller
 
         ActivityLog::log('admin.read_custom_request', 'admin', (int) Auth::id(), ['id' => $id]);
 
+        $this->withSuccess('Marked as read.');
         $this->redirect('/admin/custom-requests');
     }
 

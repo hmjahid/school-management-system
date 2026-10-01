@@ -17,14 +17,17 @@ class GatewayController extends Controller
             'app_key' => ['App key', false], 'app_secret' => ['App secret', true],
             'username' => ['Username', false], 'password' => ['Password', true],
             'test_mode' => ['Test mode (1/0)', false],
+            'live_url' => ['Live base URL', false],
         ]],
         'rocket' => ['Rocket', 'local', [
             'username' => ['Username', false], 'password' => ['Password', true],
             'api_key' => ['API key', true], 'test_mode' => ['Test mode (1/0)', false],
+            'live_url' => ['Live base URL', false],
         ]],
         'nagad'  => ['Nagad', 'local', [
             'merchant_id' => ['Merchant ID', false], 'api_key' => ['API key', true],
             'api_secret' => ['API secret', true], 'test_mode' => ['Test mode (1/0)', false],
+            'live_url' => ['Live base URL', false],
         ]],
         'uddoktapay' => ['UddoktaPay', 'local', [
             'api_key' => ['API key', true], 'test_mode' => ['Test mode (1/0)', false],
@@ -33,14 +36,17 @@ class GatewayController extends Controller
         'stripe' => ['Stripe', 'international', [
             'secret_key' => ['Secret key', true], 'publishable_key' => ['Publishable key', false],
             'webhook_secret' => ['Webhook secret', true], 'test_mode' => ['Test mode (1/0)', false],
+            'live_url' => ['Live base URL', false],
         ]],
         'paypal' => ['PayPal', 'international', [
             'client_id' => ['Client ID', false], 'client_secret' => ['Client secret', true],
             'webhook_secret' => ['Webhook secret', true], 'test_mode' => ['Test mode (1/0)', false],
+            'live_url' => ['Live base URL', false],
         ]],
         'paddle' => ['Paddle', 'international', [
             'vendor_id' => ['Vendor ID', false], 'vendor_auth_code' => ['Vendor auth code', true],
             'webhook_secret' => ['Webhook secret', true], 'test_mode' => ['Test mode (1/0)', false],
+            'live_url' => ['Live base URL', false],
         ]],
     ];
 

@@ -24,7 +24,8 @@ import { EventsCalendar, LedgerBook } from "@/components/dashboard/CalendarLedge
 import { BulkAttendance, GeneratePayslips, CareersApplications } from "@/components/dashboard/BulkScreens";
 import { BalanceSheet, IncomeStatement, CashFlow } from "@/components/dashboard/FinancialReports";
 import { ExamResults, Payslips } from "@/components/dashboard/ExamPayrollScreens";
-import { SettingsTab, AttendanceReport, StudentResults, StaffAttendanceReport, AssignmentsSubmissions, BatchGenerate } from "@/components/dashboard/ExtraScreens";
+import { AttendanceReport, StudentResults, StaffAttendanceReport, AssignmentsSubmissions, BatchGenerate } from "@/components/dashboard/ExtraScreens";
+import { AboutTab, CmsSettingsTab, GlobalLabelsTab } from "@/components/dashboard/SettingsContentTabs";
 import { SmsTemplates, DueFeeReminder } from "@/components/dashboard/SmsScreens";
 import { MarksheetPdf, PayslipShow, PayrollStructures, SoftwareAbout, TestimonialsPrint, CareersForm } from "@/components/dashboard/FinalScreens";
 import { ProgressReportsIndex, ProgressReportShow, SeatPlansIndex, SeatPlanShow } from "@/components/dashboard/ProgressSeatPlanScreens";
@@ -310,15 +311,16 @@ export default async function DashboardCatchAll({
     );
   }
 
-  // Settings tabs
+  // Settings content tabs (real forms — see components/dashboard/SettingsContentTabs.tsx)
+  const settingsQuery = (query ?? {}) as Record<string, string | undefined>;
   if (segments[0] === "settings" && segments[1] === "about") {
-    return (<div><SettingsTab tab="about" /></div>);
+    return (<div><AboutTab searchParams={settingsQuery} /></div>);
   }
   if (segments[0] === "settings" && segments[1] === "cms") {
-    return (<div><SettingsTab tab="cms" /></div>);
+    return (<div><CmsSettingsTab searchParams={settingsQuery} /></div>);
   }
   if (segments[0] === "settings" && segments[1] === "global-labels") {
-    return (<div><SettingsTab tab="global-labels" /></div>);
+    return (<div><GlobalLabelsTab searchParams={settingsQuery} /></div>);
   }
 
   // SMS screens

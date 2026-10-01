@@ -2,42 +2,13 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
 /**
- * Remaining bespoke dashboard screens — mirror the app's settings tabs,
- * reports/attendance, students/results, staff-attendance/report,
- * assignments/submissions, batch generation and payslip-show/structures.
+ * Remaining bespoke dashboard screens — mirror the app's reports/attendance,
+ * students/results, staff-attendance/report, assignments/submissions,
+ * batch generation and payslip-show/structures.
+ *
+ * The settings content tabs (cms / global-labels / about) moved to
+ * `SettingsContentTabs.tsx`, where they have working forms and persistence.
  */
-
-export async function SettingsTab({ tab }: { tab: "about" | "cms" | "global-labels" }) {
-  const title = tab === "about" ? "About" : tab === "cms" ? "CMS settings" : "Global labels";
-  const fields = tab === "global-labels"
-    ? ["school_name", "tagline", "hero_headline", "hero_subtitle", "cta_apply", "cta_contact", "footer_about"]
-    : ["title", "content", "meta_description"];
-
-  return (
-    <div>
-      <div className="mb-6">
-        <Link href="/dashboard/settings" className="text-sm font-medium text-brand-600 hover:text-brand-800">← Settings</Link>
-        <h1 className="mt-1 text-2xl font-bold text-slate-900">{title}</h1>
-      </div>
-      <div className="mb-6 flex gap-2">
-        {["general", "about", "cms", "global-labels"].map((t) => (
-          <Link key={t} href={`/dashboard/settings/${t === "general" ? "" : t}`} className={`rounded-lg px-3 py-2 text-sm font-medium ${tab === t ? "bg-brand-50 text-brand-700" : "text-slate-600 hover:bg-slate-50"}`}>
-            {t === "global-labels" ? "Global labels" : t === "cms" ? "CMS" : t.charAt(0).toUpperCase() + t.slice(1)}
-          </Link>
-        ))}
-      </div>
-      <form className="max-w-2xl space-y-4">
-        {fields.map((f) => (
-          <div key={f}>
-            <label className="mb-1 block text-sm font-medium capitalize text-slate-700">{f.replace(/_/g, " ")}</label>
-            <input name={f} className="admin-input w-full" />
-          </div>
-        ))}
-        <button className="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">Save</button>
-      </form>
-    </div>
-  );
-}
 
 export async function AttendanceReport({ from, to }: { from?: string; to?: string }) {
   const f = from ?? new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);

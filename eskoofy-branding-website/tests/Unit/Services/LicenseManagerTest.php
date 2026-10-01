@@ -221,6 +221,43 @@ class LicenseManagerTest extends TestCase
         $this->assertSame('license_not_found', $result['code']);
     }
 
+    public function test_renew_extends_the_license_without_fabricating_a_payment(): void
+    {
+        $planId = $this->seedPlan(); // yearly
+        $manager = $this->manager();
+        $license = $manager->issue(11, $planId, 'app')['license'];
+        $before = $license['expires_at'];
+        $paymentsBefore = count($this->db->fetchAll('SELECT * FROM payments'));
+
+        // Stacked renewal: one year on top of the current (future) expiry.
+        $result = $manager->renew((int) $license['id'], $planId, 'stripe', ['customer_id' => 11]);
+
+        $this->assertSame('ok', $result['status']);
+        $this->assertGreaterThan(
+            strtotime($before),
+            strtotime((string) $result['expires_at']),
+            'renew() must move the expiry forward'
+        );
+        // The caller owns the payment row — renew() must never invent one.
+        $this->assertCount($paymentsBefore, $this->db->fetchAll('SELECT * FROM payments'));
+        $this->assertSame(
+            1,
+            (int) $this->db->fetch('SELECT COUNT(*) AS c FROM subscriptions WHERE license_id = ?', [(int) $license['id']])['c'],
+            'renewing an active license must extend the existing subscription, not add a second one'
+        );
+    }
+
+    public function test_renew_rejects_an_unknown_plan(): void
+    {
+        $planId = $this->seedPlan();
+        $license = $this->manager()->issue(12, $planId, 'app')['license'];
+
+        $result = $this->manager()->renew((int) $license['id'], 9999, 'manual');
+
+        $this->assertSame('error', $result['status']);
+        $this->assertSame('plan_not_found', $result['code']);
+    }
+
     public function test_create_subscription_extends_license_and_creates_subscription(): void
     {
         $planId = $this->seedPlan(); // yearly
