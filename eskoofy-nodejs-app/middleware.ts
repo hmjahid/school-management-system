@@ -41,9 +41,14 @@ function clientIp(request: NextRequest): string {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Expose the pathname to server components (for sidebar/topbar active states).
+  // Expose the pathname to server components (for sidebar/topbar active states)
+  // and the `?lang=` override so layouts can resolve the request locale (the
+  // App Router does not hand layouts the query string).
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-pathname", pathname);
+
+  const lang = request.nextUrl.searchParams.get("lang");
+  if (lang) requestHeaders.set("x-lang", lang);
 
   const response = NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set("x-request-id", crypto.randomUUID());

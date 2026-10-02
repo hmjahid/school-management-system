@@ -72,9 +72,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const headerList = await headers();
   const pathname = headerList.get("x-pathname") ?? "/dashboard";
+  const lang = headerList.get("x-lang") ?? undefined;
   const store = await cookies();
   const locale = await resolveRequestLocale({
     get: (name) => store.get(name)?.value ?? null,
+    searchParams: { lang },
     isDashboard: true,
   });
   setRequestLocale(locale);

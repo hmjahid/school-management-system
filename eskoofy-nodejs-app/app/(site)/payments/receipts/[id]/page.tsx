@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { safe } from "@/lib/site-data";
 import { t } from "@/lib/i18n";
+import { PrintButton } from "@/components/PrintButton";
 
 export const dynamic = "force-dynamic";
 
@@ -58,9 +59,9 @@ export default async function FeeReceiptPage({ params }: { params: Promise<{ id:
           <dt className="text-slate-500">{t("site.fee_receipt.method")}</dt>
           <dd className="text-slate-900">{String(fp.payment_method ?? "")}</dd>
         </dl>
-        <button onClick={() => window.print()} className="mt-6 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
+        <PrintButton className="mt-6 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
           Print
-        </button>
+        </PrintButton>
       </section>
     </div>
   );

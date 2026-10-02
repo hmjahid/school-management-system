@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { locale as currentLocale } from "@/lib/i18n";
+import { getPath, isPlainObject, siteUiDefaults } from "@/lib/site-ui";
 
 /**
  * Safe public-site queries. Every call degrades to an empty result when the
@@ -239,13 +241,183 @@ export const getRoutinesForClass = (classId: number) =>
 export const getClasses = () =>
   safe(() => prisma.school_classes.findMany({ orderBy: { id: "asc" } }) as unknown as Promise<Row[]>, [] as Row[]);
 
-/** CMS page content (falls back to nothing when the page is not authored). */
+/** Parse a `content` / `content_en` / `content_bn` JSON column into a tree. */
+function parseContentTree(raw: unknown): Record<string, unknown> {
+  if (typeof raw !== "string" || raw === "") return {};
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (isPlainObject(parsed)) return parsed;
+  } catch {
+    /* malformed JSON → empty tree */
+  }
+  return {};
+}
+
+function scalarToString(value: unknown): string {
+  if (typeof value === "string") return value.trim();
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  return "";
+}
+
+/**
+ * Keys that are real copy (as opposed to configuration/selection values) — a
+ * Bengali payload that lacks them must NOT inherit the English string, it must
+ * fall through to the language file. Port of the `$textLike` list in
+ * `WebsiteContent::stripUntranslatedLeaves()`.
+ */
+const TEXT_LIKE_KEYS = new Set([
+  "title",
+  "heading",
+  "intro",
+  "motto",
+  "caption",
+  "message",
+  "quote",
+  "cta_primary",
+  "cta_secondary",
+  "view_all",
+  "section_title",
+  "name",
+  "designation",
+  "subtitle",
+]);
+
+/** Resolve one value against its Bengali counterpart; `undefined` means drop. */
+function translateValue(enValue: unknown, bnValue: unknown): unknown {
+  if (isPlainObject(enValue) && isPlainObject(bnValue)) {
+    const sub = stripUntranslatedLeaves(enValue, bnValue);
+    return Object.keys(sub).length > 0 ? sub : undefined;
+  }
+
+  if (Array.isArray(enValue) && Array.isArray(bnValue)) {
+    const sub = enValue
+      .map((item, index) => translateValue(item, bnValue[index]))
+      .filter((item) => item !== undefined);
+    return sub.length > 0 ? sub : undefined;
+  }
+
+  if (isPlainObject(enValue) || Array.isArray(enValue)) return undefined;
+
+  const enText = scalarToString(enValue);
+  const bnText = scalarToString(bnValue);
+  return bnText !== "" && bnText !== enText ? bnValue : undefined;
+}
+
+/** Port of `WebsiteContent::stripUntranslatedLeaves()`. */
+function stripUntranslatedLeaves(
+  en: Record<string, unknown>,
+  bn: Record<string, unknown>,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+
+  for (const [key, enValue] of Object.entries(en)) {
+    const bnValue = bn[key];
+    const translated = translateValue(enValue, bnValue);
+
+    if (translated !== undefined) {
+      out[key] = translated;
+    } else if (
+      !isPlainObject(enValue) &&
+      !Array.isArray(enValue) &&
+      (bnValue === null || bnValue === undefined) &&
+      !TEXT_LIKE_KEYS.has(key)
+    ) {
+      // Configuration/selection keys have no translation — keep English.
+      out[key] = enValue;
+    }
+  }
+
+  return out;
+}
+
+/** Port of `WebsiteContent::localizedPayload()`. */
+function localizedPayload(row: Row, loc: string): Record<string, unknown> {
+  const contentEn = parseContentTree(row.content_en);
+  const english = Object.keys(contentEn).length > 0 ? contentEn : parseContentTree(row.content);
+  const bn = parseContentTree(row.content_bn);
+
+  if (loc !== "bn" || Object.keys(bn).length === 0) return english;
+
+  return stripUntranslatedLeaves(english, bn);
+}
+
+function humanize(page: string): string {
+  return page
+    .split("-")
+    .map((part) => (part ? part[0]!.toUpperCase() + part.slice(1) : part))
+    .join(" ");
+}
+
+/** Port of `WebsiteContent::localizedTitle()`. */
+function localizedTitle(row: Row, loc: string, page: string): string {
+  const en = (typeof row.title_en === "string" && row.title_en !== "" ? row.title_en : typeof row.title === "string" ? row.title : "") || "";
+
+  if (loc !== "bn") return en || humanize(page);
+
+  const bn = typeof row.title_bn === "string" ? row.title_bn : "";
+  if (bn !== "" && bn.trim() !== en.trim()) return bn;
+
+  const fallback = getPath(siteUiDefaults("bn") as unknown as Record<string, unknown>, `pages.${page}.title_fallback_bn`);
+  if (typeof fallback === "string" && fallback !== "") return fallback;
+
+  return humanize(page);
+}
+
+/** Port of `WebsiteContent::localizedMetaDescription()`. */
+function localizedMetaDescription(row: Row, loc: string, page: string): string | null {
+  const en = (typeof row.meta_description_en === "string" && row.meta_description_en !== "" ? row.meta_description_en : typeof row.meta_description === "string" ? row.meta_description : "") || "";
+
+  if (loc !== "bn") return en || null;
+
+  const bn = typeof row.meta_description_bn === "string" ? row.meta_description_bn : "";
+  if (bn !== "" && bn.trim() !== en.trim()) return bn;
+
+  const fallback = getPath(siteUiDefaults("bn") as unknown as Record<string, unknown>, `pages.${page}.meta_fallback_bn`);
+  return typeof fallback === "string" && fallback !== "" ? fallback : null;
+}
+
+/**
+ * Resolve a raw `website_contents` row for a locale — the pure core of
+ * `getPageContent()`. Mirrors `WebsiteContent::cloneForPublic()`.
+ */
+export function resolvePageContent(
+  row: Row,
+  loc: string,
+  page: string,
+): { content: Record<string, unknown>; title: string; meta_description: string | null } {
+  return {
+    content: localizedPayload(row, loc),
+    title: localizedTitle(row, loc, page),
+    meta_description: localizedMetaDescription(row, loc, page),
+  };
+}
+
+/**
+ * CMS page content, resolved for the active locale exactly like the app's
+ * `WebsiteContent::cloneForPublic()`: `content` is the localized tree (EN base
+ * with real Bengali leaves merged over it) and `title` / `meta_description`
+ * fall back to the language file. Without this the About/Global-Labels editor
+ * would write rows the public site never read.
+ */
 export const getPageContent = (page: string) =>
-  safe(
-    () =>
-      prisma.website_contents.findFirst({ where: { page, is_active: true } }) as unknown as Promise<Row | null>,
-    null as Row | null,
-  );
+  safe(async () => {
+    const row = (await prisma.website_contents.findFirst({ where: { page, is_active: true } })) as Row | null;
+    if (!row) return null;
+
+    const loc = currentLocale();
+    const resolved = resolvePageContent(row, loc, page);
+    const out: Row = {
+      ...row,
+      title: resolved.title,
+      meta_description: resolved.meta_description,
+    };
+
+    if (Object.keys(resolved.content).length > 0) {
+      out.content = JSON.stringify(resolved.content);
+    }
+
+    return out;
+  }, null as Row | null);
 
 /** Home stats bar (mirrors HomeController): students, teachers, years, awards. */
 export function getSchoolStats(): Promise<{ students: number; teachers: number; years: number | null; awards: number }> {

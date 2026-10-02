@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getSiteSettings } from "@/lib/site-settings";
+import { PrintButton } from "@/components/PrintButton";
 
 /**
  * Bespoke print/PDF screens — mirror the app's standalone blade layouts:
@@ -53,9 +54,9 @@ export async function PrintScreen({ table, id }: { table: string; id: number }) 
           </div>
         </div>
         <div className="mt-6 text-center">
-          <button onClick={() => window.print()} className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
+          <PrintButton className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
             Print / Save PDF
-          </button>
+          </PrintButton>
         </div>
       </div>
     );
@@ -74,9 +75,9 @@ export async function PrintScreen({ table, id }: { table: string; id: number }) 
           <p className="mt-6 text-xs text-slate-500">Authorized signature: ___________________</p>
         </div>
         <div className="mt-6 text-center">
-          <button onClick={() => window.print()} className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
+          <PrintButton className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
             Print / Save PDF
-          </button>
+          </PrintButton>
         </div>
       </div>
     );
@@ -97,9 +98,9 @@ export async function PrintScreen({ table, id }: { table: string; id: number }) 
           </div>
         </div>
         <div className="mt-6 text-center">
-          <button onClick={() => window.print()} className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
+          <PrintButton className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
             Print / Save PDF
-          </button>
+          </PrintButton>
         </div>
       </div>
     );

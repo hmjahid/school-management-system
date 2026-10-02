@@ -71,7 +71,9 @@ export function setPath(target: Record<string, unknown>, path: string, value: un
  * be an integer (a PHP sequential array), and any nested array must be empty.
  *
  * Non-sequential keys or non-empty nested arrays mean the value is structured
- * content, so it is walked as a tree instead of edited as free text.
+ * content, so it is walked as a tree instead of edited as free text. A PHP
+ * associative array is a plain JS object, so object elements are nested arrays
+ * too — they count as non-empty (and therefore non-simple) unless `{}`.
  */
 export function isSimpleList(value: unknown): value is unknown[] {
   if (!Array.isArray(value)) return false;
@@ -81,7 +83,10 @@ export function isSimpleList(value: unknown): value is unknown[] {
     if (!/^\d+$/.test(key)) return false;
   }
 
-  return value.every((entry) => !Array.isArray(entry) || entry.length === 0);
+  return value.every((entry) => {
+    const isPhpArray = Array.isArray(entry) || isPlainObject(entry);
+    return !isPhpArray || Object.keys(entry as object).length === 0;
+  });
 }
 
 export interface FlatLabel {

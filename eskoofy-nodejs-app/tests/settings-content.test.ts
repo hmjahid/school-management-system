@@ -28,6 +28,7 @@ import {
   normalizeAboutForm,
   normalizeCmsPayload,
 } from "@/lib/settings-content";
+import { resolvePageContent } from "@/lib/site-data";
 
 describe("deepMerge", () => {
   it("merges nested objects instead of replacing them", () => {
@@ -203,8 +204,8 @@ describe("mergeLabelOverrides", () => {
   });
 
   it("converts list textareas into arrays", () => {
-    const out = mergeLabelOverrides({}, { footer: { links: "a\nb" } }, "en");
-    expect(out).toEqual({ footer: { links: ["a", "b"] } });
+    const out = mergeLabelOverrides({}, { footer: { ministry_links: "a\nb" } }, "en");
+    expect(out).toEqual({ footer: { ministry_links: ["a", "b"] } });
   });
 });
 
@@ -344,5 +345,61 @@ describe("isPlainObject", () => {
     expect(isPlainObject([])).toBe(false);
     expect(isPlainObject(null)).toBe(false);
     expect(isPlainObject("s")).toBe(false);
+  });
+});
+
+describe("resolvePageContent (WebsiteContent::cloneForPublic parity)", () => {
+  const aboutRow = {
+    title: "About Us",
+    title_en: "About Us",
+    meta_description: "About our school",
+    content_en: JSON.stringify({
+      intro: "Welcome to our school.",
+      hero_design: "classic",
+      sections: [{ heading: "History", paragraphs: ["Founded in 1990."] }],
+    }),
+    content_bn: JSON.stringify({
+      intro: "আমাদের বিদ্যালয়ে স্বাগতম।",
+      sections: [{ heading: "ইতিহাস", paragraphs: ["১৯৯০ সালে প্রতিষ্ঠিত।"] }],
+    }),
+  };
+
+  it("resolves the English tree from content_en for en", () => {
+    const { content, title } = resolvePageContent(aboutRow, "en", "about");
+    expect(title).toBe("About Us");
+    expect(content.intro).toBe("Welcome to our school.");
+    expect(content.hero_design).toBe("classic");
+  });
+
+  it("merges real Bengali leaves and keeps untranslated config keys", () => {
+    const { content } = resolvePageContent(aboutRow, "bn", "about");
+    expect(content.intro).toBe("আমাদের বিদ্যালয়ে স্বাগতম।");
+    expect(content.sections).toEqual([{ heading: "ইতিহাস", paragraphs: ["১৯৯০ সালে প্রতিষ্ঠিত।"] }]);
+    // `hero_design` is a selection key with no translation — it must survive.
+    expect(content.hero_design).toBe("classic");
+  });
+
+  it("drops Bengali leaves identical to English so the language file wins", () => {
+    const row = {
+      content_en: JSON.stringify({ intro: "English", sections: [{ heading: "H" }] }),
+      content_bn: JSON.stringify({ intro: "English", sections: [{ heading: "H" }] }),
+    };
+    expect(resolvePageContent(row, "bn", "about").content).toEqual({});
+  });
+
+  it("falls back to the legacy content column when content_en is empty", () => {
+    const row = { content: JSON.stringify({ intro: "Legacy intro" }), content_en: null };
+    expect(resolvePageContent(row, "en", "about").content).toEqual({ intro: "Legacy intro" });
+  });
+
+  it("humanizes the page slug when no title is stored", () => {
+    expect(resolvePageContent({}, "en", "our-history").title).toBe("Our History");
+  });
+
+  it("falls back to title_bn / meta_description_bn for bn", () => {
+    const row = { title_en: "About", title_bn: "আমাদের সম্পর্কে", meta_description_en: "EN", meta_description_bn: "বাংলা" };
+    const resolved = resolvePageContent(row, "bn", "about");
+    expect(resolved.title).toBe("আমাদের সম্পর্কে");
+    expect(resolved.meta_description).toBe("বাংলা");
   });
 });

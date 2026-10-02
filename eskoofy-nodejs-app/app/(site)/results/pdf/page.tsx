@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { safe } from "@/lib/site-data";
 import { getSiteSettings } from "@/lib/site-settings";
+import { PrintButton } from "@/components/PrintButton";
 
 export const dynamic = "force-dynamic";
 
@@ -147,9 +148,9 @@ export default async function ResultsPdfPage({
       </div>
 
       <div className="mt-8 flex justify-center">
-        <button onClick={() => window.print()} className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
+        <PrintButton className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
           Print / Save PDF
-        </button>
+        </PrintButton>
       </div>
     </div>
   );

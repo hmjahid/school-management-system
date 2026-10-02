@@ -218,9 +218,10 @@ export default async function DashboardCatchAll({
     );
   }
   if (segments[0] === "cms" && segments.length === 3 && segments[2] === "edit") {
+    const q = query as Record<string, string | undefined>;
     return (
       <div>
-        <CmsEdit page={segments[1]} />
+        <CmsEdit page={segments[1]} saved={q.saved === "1"} />
       </div>
     );
   }

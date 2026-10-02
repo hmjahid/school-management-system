@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getSiteSettings } from "@/lib/site-settings";
+import { PrintButton } from "@/components/PrintButton";
 
 /**
  * Final bespoke screens — marksheet-pdf (print), payslip-show, payroll
@@ -51,7 +52,7 @@ export async function MarksheetPdf({ studentId, examId }: { studentId?: number; 
         </div>
       </div>
       <div className="mt-6 text-center">
-        <button onClick={() => window.print()} className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">Print / Save PDF</button>
+        <PrintButton className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">Print / Save PDF</PrintButton>
       </div>
     </div>
   );
@@ -82,7 +83,7 @@ export async function PayslipShow({ id }: { id?: number }) {
         <div className="mt-6 text-center text-xs text-slate-500">Authorized signature: ___________________</div>
       </div>
       <div className="mt-6 text-center">
-        <button onClick={() => window.print()} className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">Print / Save PDF</button>
+        <PrintButton className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">Print / Save PDF</PrintButton>
       </div>
     </div>
   );
@@ -169,7 +170,7 @@ export async function TestimonialsPrint() {
         ))}
       </div>
       <div className="mt-6 text-center">
-        <button onClick={() => window.print()} className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">Print / Save PDF</button>
+        <PrintButton className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">Print / Save PDF</PrintButton>
       </div>
     </div>
   );

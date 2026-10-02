@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { t } from "@/lib/i18n";
+import { saveCmsPage } from "@/app/(dashboard)/dashboard/cms-actions";
+import { CmsPreview, MediaPickerButton } from "@/components/dashboard/CmsEditorWidgets";
 
 /**
  * CMS screens — mirror the app's `dashboard/cms/pages.blade.php` (pages grid)
@@ -71,6 +72,7 @@ function FieldWidget({ type, name, value, label }: { type: string; name: string;
         <div>
           {label ? <label className="mb-1 block text-sm font-medium text-slate-700">{label}</label> : null}
           <input name={name} className={base} defaultValue={val} placeholder="Image URL or path" />
+          <MediaPickerButton targetName={name} />
         </div>
       );
     case "hero":
@@ -121,7 +123,7 @@ function renderFields(content: unknown, prefix: string): React.ReactNode[] {
   return nodes;
 }
 
-export async function CmsEdit({ page }: { page: string }) {
+export async function CmsEdit({ page, saved = false }: { page: string; saved?: boolean }) {
   const row = await prisma.website_contents.findUnique({ where: { page } });
   let content: unknown = row?.content ?? "";
   try { content = JSON.parse(String(row?.content ?? "")); } catch { /* plain text */ }
@@ -138,7 +140,13 @@ export async function CmsEdit({ page }: { page: string }) {
         </div>
       </div>
 
-      <form method="post" action={`/dashboard/cms/${page}/save`} className="max-w-3xl space-y-6" encType="multipart/form-data">
+      {saved ? (
+        <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800" role="status">
+          Page saved.
+        </div>
+      ) : null}
+
+      <form action={saveCmsPage.bind(null, page)} className="max-w-3xl space-y-6">
         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
@@ -163,9 +171,14 @@ export async function CmsEdit({ page }: { page: string }) {
           ) : null}
         </div>
 
-        <div className="flex items-center gap-3">
-          <button className="rounded-lg bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">Save</button>
-          <span className="text-xs text-slate-400">Save is wired in the Laravel variant; the Node variant keeps the editor read-only.</span>
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <CmsPreview page={page} />
+          <div className="flex items-center gap-3">
+            <a href={page === "home" ? "/" : `/${page}`} target="_blank" rel="noopener" className="text-sm font-medium text-slate-600 hover:text-slate-900">
+              Preview public page ↗
+            </a>
+            <button className="rounded-lg bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">Save page</button>
+          </div>
         </div>
       </form>
     </div>

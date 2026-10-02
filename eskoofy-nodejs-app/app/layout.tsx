@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { resolveRequestLocale, setRequestLocale } from "@/lib/i18n";
 import { getSiteSettings } from "@/lib/site-settings";
 import "./globals.css";
@@ -22,7 +22,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const store = await cookies();
-  const locale = await resolveRequestLocale({ get: (name) => store.get(name)?.value ?? null });
+  const headerList = await headers();
+  const lang = headerList.get("x-lang") ?? undefined;
+  const locale = await resolveRequestLocale({
+    get: (name) => store.get(name)?.value ?? null,
+    searchParams: { lang },
+  });
   setRequestLocale(locale);
 
   return (

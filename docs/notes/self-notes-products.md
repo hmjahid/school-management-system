@@ -401,6 +401,9 @@ check the features tracking files and ensure that all fetaures are fully impleme
 
 record in a file what have finished and what not finished of this current tasks
 
+read feature-completion-progress.md file and implmenet the balanced/incompleted tasks 
+
+are all completed?
 
 
 
