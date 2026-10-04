@@ -8,6 +8,7 @@ use App\Core\Controller;
 use App\Core\Database;
 use App\Services\ActivityLog;
 use App\Services\LicenseManager;
+use App\Services\VariantResolver;
 
 class LicenseController extends Controller
 {
@@ -122,6 +123,10 @@ class LicenseController extends Controller
                     'role'       => 'customer',
                     'status'     => 'active',
                     'locale'     => 'en',
+                    // Admin-created customers have no payment history yet; fall
+                    // back to an explicit market choice from the form, then the
+                    // documented default, so the row is never left unresolved.
+                    'variant'    => VariantResolver::normalizeOrInt($_POST['variant'] ?? null),
                     'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);

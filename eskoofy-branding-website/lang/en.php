@@ -40,6 +40,32 @@ return [
     'nav.resources_about_desc'  => 'The story behind Eskoofy',
     'nav.resources_contact_desc' => 'Get a demo or ask a question',
 
+    // Product catalog — the four Eskoofy PRODUCTS.
+    // A product is one of app / php / theme / node. It is NOT a "variant";
+    // variants (bd / int) live under `variant.*` below.
+    'catalog.product.app'        => 'School App',
+    'catalog.product.app_tag'    => 'Laravel',
+    'catalog.product.app_desc'   => 'The complete school management system on your own server.',
+    'catalog.product.php'        => 'Raw PHP',
+    'catalog.product.php_tag'    => 'No framework',
+    'catalog.product.php_desc'   => 'The same system as plain PHP files — drop into any host.',
+    'catalog.product.theme'      => 'WP Theme',
+    'catalog.product.theme_tag'  => 'WordPress',
+    'catalog.product.theme_desc' => 'A school theme and dashboard for existing WordPress sites.',
+    'catalog.product.node'       => 'Node.js App',
+    'catalog.product.node_tag'   => 'Next.js',
+    'catalog.product.node_desc'  => 'The Next.js App Router edition of the school app.',
+
+    // Market variants — bd (Bangladesh) and int (international). Two only.
+    'variant.bd'          => 'Bangladesh',
+    'variant.bd_short'    => 'BD',
+    'variant.bd_desc'     => 'Bengali and English, ministry links, bKash / Rocket / Nagad payments.',
+    'variant.int'         => 'International',
+    'variant.int_short'   => 'INT',
+    'variant.int_desc'    => 'English only, PayPal / Stripe / Paddle payments.',
+    'variant.label'       => 'Variant',
+    'variant.product'     => 'Product',
+
     // Hero / home
     'home.badge'            => 'School management made simple — runs on your own server',
     'home.title'            => 'One school management system for everything your school does.',

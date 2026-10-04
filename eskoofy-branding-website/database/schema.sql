@@ -15,6 +15,16 @@ CREATE TABLE IF NOT EXISTS `customers` (
   `company` VARCHAR(191) NULL,
   `country` VARCHAR(64) NULL,
   `locale` VARCHAR(8) NOT NULL DEFAULT 'en',
+  -- Market build profile: 'bd' or 'int'. Owned by App\Services\VariantResolver.
+  -- NOT a product — products are app/php/theme/node (see plans.product).
+  --
+  -- NULL means "not yet resolved". The column is deliberately nullable: the
+  -- resolution order (explicit -> latest payment -> country -> int) needs an
+  -- unset state, otherwise `NOT NULL DEFAULT 'int'` silently stamps every
+  -- pre-existing Bangladeshi row as 'int' on upgrade and the backfill can
+  -- never tell "resolved to int" from "never looked at". See
+  -- database/migrations/2026_10_04_add_variants.sql.
+  `variant` VARCHAR(8) NULL DEFAULT NULL,
   `role` VARCHAR(16) NOT NULL DEFAULT 'customer',
   `status` VARCHAR(16) NOT NULL DEFAULT 'active',
   `api_token` VARCHAR(128) NULL,
@@ -25,10 +35,14 @@ CREATE TABLE IF NOT EXISTS `customers` (
   UNIQUE KEY `customers_email_unique` (`email`),
   UNIQUE KEY `customers_api_token_unique` (`api_token`),
   KEY `customers_role_index` (`role`),
-  KEY `customers_status_index` (`status`)
+  KEY `customers_status_index` (`status`),
+  KEY `customers_variant_index` (`variant`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 2. PLANS
+-- Plans are deliberately VARIANT-AGNOSTIC. Prices are USD-canonical; the BD
+-- figure is derived for display at the live rate (App\Services\VariantResolver).
+-- Adding a `variant` column here would imply a second price list — don't.
 CREATE TABLE IF NOT EXISTS `plans` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `product` VARCHAR(16) NOT NULL,
@@ -56,6 +70,14 @@ CREATE TABLE IF NOT EXISTS `licenses` (
   `customer_id` BIGINT UNSIGNED NOT NULL,
   `plan_id` BIGINT UNSIGNED NULL,
   `product` VARCHAR(16) NOT NULL,
+  -- Market build profile snapshot, taken from the customer at issue time.
+  -- Deliberately denormalised and immutable: if a customer later moves
+  -- variant, historical license counts must not silently re-bucket.
+  -- `status` is also stored, but expiry is DERIVED from `expires_at` — an
+  -- 'expired' value is never written (see App\Services\Analytics\LicenseService).
+  -- NULL = not yet resolved (pre-upgrade rows awaiting the backfill); every
+  -- license issued through the app snapshots a value here.
+  `variant` VARCHAR(8) NULL DEFAULT NULL,
   `status` VARCHAR(16) NOT NULL DEFAULT 'active',
   `max_activations` INT NOT NULL DEFAULT 3,
   `starts_at` DATETIME NULL,
@@ -69,6 +91,8 @@ CREATE TABLE IF NOT EXISTS `licenses` (
   KEY `licenses_customer_id_index` (`customer_id`),
   KEY `licenses_plan_id_index` (`plan_id`),
   KEY `licenses_status_index` (`status`),
+  KEY `licenses_variant_index` (`variant`),
+  KEY `licenses_product_variant_index` (`product`, `variant`),
   KEY `licenses_expires_at_index` (`expires_at`),
   CONSTRAINT `licenses_customer_id_foreign` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE CASCADE,
   CONSTRAINT `licenses_plan_id_foreign` FOREIGN KEY (`plan_id`) REFERENCES `plans` (`id`) ON DELETE SET NULL
@@ -367,18 +391,23 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- ============================================================
 
 -- Admin customer (password: admin123) — change in production!
-INSERT IGNORE INTO `customers` (`id`, `name`, `email`, `password`, `role`, `status`, `locale`, `created_at`, `updated_at`)
-VALUES (1, 'Eskoofy Admin', 'admin@eskoofy.com', '$2y$12$V0siFMqG1/FSwS/hqKypNOWY5GY8eOV/QQlMKaknHkWPxY5CyVS9K', 'admin', 'active', 'en', NOW(), NOW());
+INSERT IGNORE INTO `customers` (`id`, `name`, `email`, `password`, `role`, `status`, `locale`, `variant`, `created_at`, `updated_at`)
+VALUES (1, 'Eskoofy Admin', 'admin@eskoofy.com', '$2y$12$V0siFMqG1/FSwS/hqKypNOWY5GY8eOV/QQlMKaknHkWPxY5CyVS9K', 'admin', 'active', 'en', 'int', NOW(), NOW());
 
 -- Subscription-only plans (no freemium, no one-time). Prices in USD (canonical);
 -- BDT is derived at checkout via the USD→BDT rate. Monthly + yearly per product.
+-- Plans carry no `variant`: one price list per product, two market profiles.
+-- All four products must be present so every cell of the Product x Variant
+-- matrix is purchasable (App\Services\Catalog).
 INSERT IGNORE INTO `plans` (`id`, `product`, `name`, `slug`, `description`, `price`, `currency`, `period`, `max_activations`, `features`, `sort_order`, `active`, `created_at`, `updated_at`) VALUES
 (1, 'app',     'Monthly',  'monthly',  'School management app — monthly subscription (one school, all modules)', 12.00,  'USD', 'monthly', 3, '["One school", "All modules", "Online fee payments", "Student & parent portal", "Automatic cloud backups", "Branded documents & watermarks", "Email support"]', 1, 1, NOW(), NOW()),
 (2, 'app',     'Yearly',   'yearly',   'School management app — yearly subscription (one school, all modules)',    120.00, 'USD', 'yearly',  3, '["One school", "All modules", "Online fee payments", "Student & parent portal", "Automatic cloud backups", "Branded documents & watermarks", "Priority support"]', 2, 1, NOW(), NOW()),
 (3, 'theme',   'Monthly',  'monthly',  'WordPress theme — monthly subscription (one school, all modules)',        9.00,  'USD', 'monthly', 3, '["One school", "All modules", "Online fee payments", "Roles & permissions", "Automatic cloud backups", "Branded documents & watermarks", "Email support"]', 1, 1, NOW(), NOW()),
 (4, 'theme',   'Yearly',   'yearly',   'WordPress theme — yearly subscription (one school, all modules)',         90.00, 'USD', 'yearly',  3, '["One school", "All modules", "Online fee payments", "Roles & permissions", "Automatic cloud backups", "Branded documents & watermarks", "Priority support"]', 2, 1, NOW(), NOW()),
-(5, 'php',     'Monthly',  'monthly',  'School system (raw PHP) — monthly subscription (one school, all modules)',  9.00, 'USD', 'monthly', 3, '["One school", "All modules", "Self-hosted raw PHP", "Shared-hosting ready", "Automatic cloud backups", "Branded documents & watermarks", "Email support"]', 1, 1, NOW(), NOW()),
-(6, 'php',     'Yearly',   'yearly',   'School system (raw PHP) — yearly subscription (one school, all modules)',   90.00, 'USD', 'yearly',  3, '["One school", "All modules", "Self-hosted raw PHP", "Shared-hosting ready", "Automatic cloud backups", "Branded documents & watermarks", "Priority support"]', 2, 1, NOW(), NOW());
+(5, 'php',     'Monthly',  'monthly',  'School system (raw PHP) — monthly subscription (one school, all modules)',  9.00,  'USD', 'monthly', 3, '["One school", "All modules", "Self-hosted raw PHP", "Shared-hosting ready", "Automatic cloud backups", "Branded documents & watermarks", "Email support"]', 1, 1, NOW(), NOW()),
+(6, 'php',     'Yearly',   'yearly',   'School system (raw PHP) — yearly subscription (one school, all modules)',   90.00, 'USD', 'yearly',  3, '["One school", "All modules", "Self-hosted raw PHP", "Shared-hosting ready", "Automatic cloud backups", "Branded documents & watermarks", "Priority support"]', 2, 1, NOW(), NOW()),
+(7, 'node',    'Monthly',  'monthly',  'Node.js school system — monthly subscription (one school, all modules)',    12.00, 'USD', 'monthly', 3, '["One school", "All modules", "Next.js + Prisma stack", "Automatic cloud backups", "Branded documents & watermarks", "Email support"]', 1, 1, NOW(), NOW()),
+(8, 'node',    'Yearly',   'yearly',   'Node.js school system — yearly subscription (one school, all modules)',     120.00,'USD', 'yearly',  3, '["One school", "All modules", "Next.js + Prisma stack", "Automatic cloud backups", "Branded documents & watermarks", "Priority support"]', 2, 1, NOW(), NOW());
 
 -- Site-level settings (editable from Admin → Settings; falls back to defaults).
 INSERT IGNORE INTO `settings` (`key`, `value`, `group`, `created_at`, `updated_at`) VALUES
@@ -437,23 +466,26 @@ INSERT IGNORE INTO `pages` (`id`, `name`, `route`, `sort_order`, `status`, `noin
 
 -- Example posts (one draft as an editor example).
 INSERT IGNORE INTO `posts` (`id`, `category_id`, `author_id`, `title`, `slug`, `excerpt`, `content`, `status`, `featured_image`, `meta_title`, `meta_description`, `views`, `published_at`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, 'Introducing Eskoofy: one school management system, three deployments', 'introducing-eskoofy-three-deployments',
- 'The Eskoofy school management system now ships in three flavors — a Laravel application, a WordPress theme, and a raw PHP rewrite for shared hosting. Pick the deployment that fits your school.',
+(1, 1, 1, 'Introducing Eskoofy: one school management system, four products', 'introducing-eskoofy-four-products',
+ 'Eskoofy ships as four products — a Laravel application, a raw PHP rewrite, a WordPress theme, and a Node.js build — each available in the Bangladesh and International market profiles. Pick the product that fits your infrastructure.',
  '<p>Managing a school means managing admissions, attendance, fees, exams, results, transport, hostels and more. Eskoofy brings all of it into one place.</p>
-<h2>Three deployments, one system</h2>
-<p><a href="/products/app">Eskoofy School App</a> is the full Laravel application — run it yourself or let us host it. <a href="/products/theme">Eskoofy WP Theme</a> turns your existing WordPress site into a school management portal. <a href="/products/php">Eskoofy School System (PHP)</a> is the same system, rewritten in raw PHP for shared hosting and low-cost VPS.</p>
-<p>All three share the same modules, the same data model, and the same license server. See <a href="/pricing">pricing</a> to get started.</p>',
+<h2>Four products, one system</h2>
+<p>To be precise about the terms we use: a <strong>product</strong> is what you deploy, and a <strong>variant</strong> is which market build you run.</p>
+<p><a href="/products/app">Eskoofy School App</a> is the full Laravel application — run it yourself or let us host it. <a href="/products/php">Eskoofy School System (PHP)</a> is the same system rewritten in raw PHP for shared hosting and low-cost VPS. <a href="/products/theme">Eskoofy WP Theme</a> turns your existing WordPress site into a school management portal. <a href="/products/node">Eskoofy Node.js</a> is the Next.js + Prisma build for JavaScript teams.</p>
+<p>All four products share the same modules, the same data model, and the same license server. Each is available in two variants: <strong>BD</strong> (Bengali, BDT, bKash/Rocket/Nagad, ministry links) and <strong>INT</strong> (English, USD, Stripe/PayPal/Paddle). The variants are configuration profiles of the same code, not separate products — see <a href="/products">the product and variant matrix</a> for the full picture, or <a href="/pricing">pricing</a> to get started.</p>',
  'published', 'https://picsum.photos/seed/eskoofy-laravel-app/1200/630', NULL, NULL, 12, NOW(), NOW(), NOW()),
-(2, 2, 1, 'How to choose between the Eskoofy app, theme, and raw PHP rewrite', 'choose-app-theme-or-php',
- 'A practical comparison to help your school decide between the Laravel app, the WordPress theme, and the raw PHP rewrite.',
- '<p>Choosing between the three deployments mostly comes down to infrastructure and control.</p>
+(2, 2, 1, 'How to choose between the four Eskoofy products', 'choose-your-eskoofy-product',
+ 'A practical comparison to help your school decide between the Laravel app, the raw PHP rewrite, the WordPress theme, and the Node.js build.',
+ '<p>Choosing between the four products mostly comes down to infrastructure and control.</p>
 <h2>Choose the app if...</h2>
 <p>...you want the complete package with all modules, an admin dashboard, and a license server that handles API validation automatically.</p>
-<h2>Choose the theme if...</h2>
-<p>...you already run WordPress and want your data on your own server with a familiar theme workflow.</p>
 <h2>Choose the raw PHP rewrite if...</h2>
 <p>...you are on shared hosting without Composer access, or you want a no-framework, low-cost option that runs on PHP 8.2+ and MySQL.</p>
-<p>Either way you can <a href="/contact">talk to us</a> before buying.</p>',
+<h2>Choose the WordPress theme if...</h2>
+<p>...you already run WordPress and want your data on your own server with a familiar theme workflow.</p>
+<h2>Choose the Node.js build if...</h2>
+<p>...your team works in JavaScript and you want a Next.js + Prisma codebase instead of PHP.</p>
+<p>Every product is offered in both the BD and INT variants — that choice affects language, currency and payment gateways, not features. Either way you can <a href="/contact">talk to us</a> before buying.</p>',
  'published', 'https://picsum.photos/seed/eskoofy-choose/1200/630', NULL, NULL, 8, NOW(), NOW(), NOW()),
 (3, 1, 1, 'Coming soon: Paddle payments and the Eskoofy license portal', 'coming-soon-paddle-license-portal',
  'Payments via Paddle and the self-service license portal are on the roadmap.',

@@ -64,9 +64,60 @@ class LicenseManagerTest extends TestCase
         );
     }
 
-    public function test_issue_throws_for_missing_plan(): void
+    /**
+ * `licenses.variant` is an immutable snapshot taken at issue time. Nothing used
+ * to write it, so every newly issued license sat at NULL and the dashboard
+ * reported it as international regardless of the customer's actual market.
+ */
+public function test_issue_snapshots_the_customer_market_onto_the_license(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->db->seed('customers', [
+            ['name' => 'BD User', 'email' => 'bd@x.com', 'country' => 'BD', 'variant' => 'bd'],
+        ]);
+        $customerId = (int) $this->db->rows('customers')[0]['id'];
+        $planId = $this->seedPlan();
+
+        $license = $this->manager()->issue($customerId, $planId, 'app')['license'];
+
+        $this->assertSame('bd', $license['variant']);
+    }
+
+    public function test_issue_defaults_to_international_for_non_bd_countries(): void
+    {
+        $this->db->seed('customers', [
+            ['name' => 'GB User', 'email' => 'gb@x.com', 'country' => 'GB', 'variant' => null],
+        ]);
+        $customerId = (int) $this->db->rows('customers')[0]['id'];
+        $planId = $this->seedPlan();
+
+        $license = $this->manager()->issue($customerId, $planId, 'app')['license'];
+
+        $this->assertSame('int', $license['variant']);
+    }
+
+    /**
+     * A source payment records the market actually charged, so it outranks the
+     * customer's stored/derived value at issue time.
+     */
+public function test_issue_prefers_the_source_payment_market(): void
+    {
+        $this->db->seed('customers', [
+            ['name' => 'Pay User', 'email' => 'x@x.com', 'country' => 'GB', 'variant' => 'int'],
+        ]);
+        $customerId = (int) $this->db->rows('customers')[0]['id'];
+        $paymentId = $this->db->insert('payments', [
+            'customer_id' => $customerId, 'variant' => 'bd', 'status' => 'paid',
+            'amount' => 12.0, 'currency' => 'BDT',
+        ]);
+        $planId = $this->seedPlan();
+
+        $license = $this->manager()->issue($customerId, $planId, 'app', ['payment' => $paymentId])['license'];
+
+        $this->assertSame('bd', $license['variant']);
+    }
+
+    public function test_issue_throws_for_missing_plan(): void
+    {        $this->expectException(\InvalidArgumentException::class);
 
         $this->manager()->issue(1, 999, 'app');
     }

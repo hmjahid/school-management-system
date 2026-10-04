@@ -6,6 +6,25 @@ $unread = $unreadMessages ?? [];
 $daysLeft = function (string $expires): int {
     return max(0, (int) floor((strtotime($expires) - time()) / 86400));
 };
+
+/**
+ * Preset links that keep the active product/variant filters.
+ *
+ * Without this, picking a range would silently drop the filters and vice versa —
+ * the two controls share one query string.
+ */
+$rangeLink = static function (string $preset) use ($filters): string {
+    $query = ['range' => $preset];
+
+    if (!empty($filters['product'])) {
+        $query['product'] = $filters['product'];
+    }
+    if (!empty($filters['variant'])) {
+        $query['variant'] = $filters['variant'];
+    }
+
+    return '/admin/dashboard?' . http_build_query($query);
+};
 ?>
 
 <?php
@@ -21,12 +40,12 @@ $barChart = function (array $points, string $color = '#2563eb') {
     $slot = $n > 0 ? $plotW / $n : $plotW;
     $barW = max(6, min(36, (int) floor($slot * 0.62)));
     $svg = '<svg viewBox="0 0 ' . $w . ' ' . $h . '" preserveAspectRatio="xMidYMid meet" class="w-full h-56" role="img" aria-label="Revenue trend">';
-    $svg .= '<g stroke="#e2e8f0" stroke-width="1">';
+    $svg .= '<g stroke="var(--border)" stroke-width="1">';
     for ($i = 0; $i <= 3; $i++) {
         $y = $padT + $plotH - ($plotH * $i / 3);
         $svg .= '<line x1="' . $padL . '" y1="' . $y . '" x2="' . ($w - $padR) . '" y2="' . $y . '"></line>';
         $val = $max * $i / 3;
-        $svg .= '<text x="' . ($padL - 6) . '" y="' . ($y + 4) . '" text-anchor="end" font-size="10" fill="#94a3b8">$' . number_format($val) . '</text>';
+        $svg .= '<text x="' . ($padL - 6) . '" y="' . ($y + 4) . '" text-anchor="end" font-size="10" fill="var(--text-subtle)">$' . number_format($val) . '</text>';
     }
     $svg .= '</g>';
     foreach ($points as $i => $p) {
@@ -34,9 +53,9 @@ $barChart = function (array $points, string $color = '#2563eb') {
         $bh = $plotH * ((float) ($p['value'] ?? 0)) / $max;
         $y = $padT + $plotH - $bh;
         $svg .= '<rect x="' . $x . '" y="' . $y . '" width="' . $barW . '" height="' . $bh . '" rx="3" fill="' . $color . '" opacity="0.85"></rect>';
-        $svg .= '<text x="' . ($x + $barW / 2) . '" y="' . ($padT + $plotH + 16) . '" text-anchor="middle" font-size="10" fill="#64748b">' . htmlspecialchars((string) $p['label']) . '</text>';
+        $svg .= '<text x="' . ($x + $barW / 2) . '" y="' . ($padT + $plotH + 16) . '" text-anchor="middle" font-size="10" fill="var(--text-muted)">' . htmlspecialchars((string) $p['label']) . '</text>';
         if ($bh > 24) {
-            $svg .= '<text x="' . ($x + $barW / 2) . '" y="' . ($y - 6) . '" text-anchor="middle" font-size="9" fill="#475569">' . number_format((float) $p['value'], (float) $p['value'] && (float) $p['value'] < 1000 ? 0 : 0) . '</text>';
+            $svg .= '<text x="' . ($x + $barW / 2) . '" y="' . ($y - 6) . '" text-anchor="middle" font-size="9" fill="var(--text-muted)">' . number_format((float) $p['value'], 0) . '</text>';
         }
     }
     $svg .= '</svg>';
@@ -44,40 +63,54 @@ $barChart = function (array $points, string $color = '#2563eb') {
     return $svg;
 };
 
-$donut = function (array $segments, int $total) {
+/**
+ * Licenses by derived status.
+ *
+ * `$segments` is a status => count map from LicenseService::countsByStatus(),
+ * which derives `expired` from `expires_at` rather than reading the stored
+ * `status` column. The old version grouped on the raw column, so past-expiry
+ * `active` rows landed in the green wedge and the legend carried an `expired`
+ * swatch that no row could ever hold.
+ *
+ * @param array<string, int> $segments
+ * @param array<string, array{label: string, tone: string}> $meta
+ */
+$donut = function (array $segments, array $meta) {
+    $total = array_sum($segments);
     if ($total <= 0) {
-        return '<div class="text-sm text-slate-400 text-center py-10">No licenses yet.</div>';
+        return '<div class="esk-empty"><div class="esk-empty-body">No licenses yet.</div></div>';
     }
+
+    $tones = [
+        'success' => 'var(--success)',
+        'warning' => 'var(--warning)',
+        'muted'   => 'var(--text-subtle)',
+        'danger'  => 'var(--danger)',
+    ];
+
     $r = 54; $cx = 74; $cy = 74; $c = 2 * M_PI * $r;
-    $offset = 0;
-    $colors = ['active' => '#16a34a', 'expired' => '#cbd5e1', 'suspended' => '#f59e0b', 'cancelled' => '#ef4444'];
+    $offset = 0.0;
+
     $svg = '<svg viewBox="0 0 148 148" class="w-36 h-36 mx-auto" role="img" aria-label="Licenses by status">';
-    $svg .= '<circle cx="' . $cx . '" cy="' . $cy . '" r="' . $r . '" fill="none" stroke="#e2e8f0" stroke-width="20"></circle>';
-    $acc = 0.0;
-    foreach ($segments as $s) {
-        $val = (float) $s['c'];
-        if ($val <= 0) {
+    $svg .= '<circle cx="' . $cx . '" cy="' . $cy . '" r="' . $r . '" fill="none" stroke="var(--border)" stroke-width="20"></circle>';
+    foreach ($segments as $status => $count) {
+        $count = (int) $count;
+        if ($count <= 0) {
             continue;
         }
-        $len = $val / $total * $c;
-        $color = $colors[$s['status']] ?? '#64748b';
+        $len = $count / $total * $c;
+        $color = $tones[$meta[$status]['tone'] ?? 'muted'] ?? 'var(--text-subtle)';
         $svg .= '<circle cx="' . $cx . '" cy="' . $cy . '" r="' . $r . '" fill="none" stroke="' . $color . '" stroke-width="20" stroke-dasharray="' . round($len, 2) . ' ' . round($c, 2) . '" stroke-dashoffset="' . round(-$offset, 2) . '"></circle>';
         $offset += $len;
-        $acc += $val;
     }
-    $svg .= '<text x="' . $cx . '" y="' . ($cy + 2) . '" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">' . ((int) $acc) . '</text>';
-    $svg .= '<text x="' . $cx . '" y="' . ($cy + 16) . '" text-anchor="middle" font-size="9" fill="#94a3b8">licenses</text>';
+    $svg .= '<text x="' . $cx . '" y="' . ($cy + 2) . '" text-anchor="middle" font-size="13" font-weight="700" fill="var(--text)">' . $total . '</text>';
+    $svg .= '<text x="' . $cx . '" y="' . ($cy + 16) . '" text-anchor="middle" font-size="9" fill="var(--text-subtle)">licenses</text>';
     $svg .= '</svg>';
 
     return $svg;
 };
 
-$productColors = ['app' => '#2563eb', 'theme' => '#7c3aed', 'php' => '#0ea5e9'];
-$totalLicenses = max(1, (int) $stats['licenses']);
-$maxProduct = 1;
-foreach ($licenseByProduct as $row) {
-    $maxProduct = max($maxProduct, (int) $row['c']);
-}
+$totalLicenses = max(1, (int) array_sum($licenseByStatus));
 ?>
 
 <div class="mb-6 bg-white rounded-xl border border-slate-200 p-4 flex flex-wrap items-center gap-3">
@@ -96,6 +129,65 @@ foreach ($licenseByProduct as $row) {
     <?php endforeach; ?>
     <span class="text-xs text-slate-400 ml-auto">Set the dashboard URLs in Settings → Site.</span>
 </div>
+
+<form method="get" action="/admin/dashboard" class="mb-6 bg-white rounded-xl border border-slate-200 p-4">
+    <div class="flex flex-wrap items-center gap-3">
+        <span class="text-xs uppercase tracking-wide text-slate-400">Range</span>
+
+        <?php foreach (['today', '7d', '30d', '90d', '12mo', 'ytd', 'all'] as $preset): ?>
+            <a href="<?= htmlspecialchars($rangeLink($preset)) ?>"
+               class="text-xs font-semibold px-3 py-1.5 rounded-lg border <?= $range->preset === $preset ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50' ?>">
+                <?= htmlspecialchars(\App\Services\Analytics\DateRange::fromRequest(['range' => $preset])->label()) ?>
+            </a>
+        <?php endforeach; ?>
+
+        <span class="text-xs text-slate-400 ml-auto"><?= htmlspecialchars($range->label()) ?></span>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3 mt-3 pt-3 border-t border-slate-100">
+        <span class="text-xs uppercase tracking-wide text-slate-400">Filters</span>
+
+        <label class="text-xs text-slate-500 flex items-center gap-2">
+            Product
+            <select name="product" class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white">
+                <option value="">All products</option>
+                <?php foreach ($productCatalog as $product): ?>
+                    <option value="<?= htmlspecialchars($product['code']) ?>" <?= ($filters['product'] ?? null) === $product['code'] ? 'selected' : '' ?>>
+                        <?= htmlspecialchars(\App\Services\Catalog::label($product['code'])) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </label>
+
+        <label class="text-xs text-slate-500 flex items-center gap-2">
+            Variant
+            <select name="variant" class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white">
+                <option value="">All variants</option>
+                <?php foreach ($variants as $variant): ?>
+                    <option value="<?= htmlspecialchars($variant) ?>" <?= ($filters['variant'] ?? null) === $variant ? 'selected' : '' ?>>
+                        <?= htmlspecialchars(\App\Services\VariantResolver::label($variant)) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </label>
+
+        <input type="hidden" name="range" value="<?= htmlspecialchars($range->preset) ?>">
+
+        <button type="submit" class="text-xs bg-slate-900 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg font-semibold">Apply</button>
+
+        <?php if (!empty($filters['product']) || !empty($filters['variant'])): ?>
+            <a href="<?= htmlspecialchars($rangeLink($range->preset)) ?>" class="text-xs text-slate-500 hover:underline">Clear filters</a>
+            <span class="text-xs text-slate-400 ml-auto">
+                <?php if (!empty($filters['product'])): ?>
+                    <?= htmlspecialchars(\App\Services\Catalog::label($filters['product'])) ?>
+                <?php endif; ?>
+                <?php if (!empty($filters['variant'])): ?>
+                    · <?= htmlspecialchars(\App\Services\VariantResolver::label($filters['variant'])) ?>
+                <?php endif; ?>
+            </span>
+        <?php endif; ?>
+    </div>
+</form>
 
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
     <div class="bg-white rounded-xl border border-slate-200 p-5 flex items-center justify-between">
@@ -193,7 +285,39 @@ foreach ($licenseByProduct as $row) {
                 <dt class="text-slate-500">Pending payments</dt>
                 <dd class="font-semibold <?= (float) $stats['revenue_pending'] > 0 ? 'text-amber-600' : '' ?>">$<?= number_format((float) $stats['revenue_pending'], 0) ?></dd>
             </div>
+            <div class="flex items-center justify-between">
+                <dt class="text-slate-500">MRR</dt>
+                <dd class="font-semibold">$<?= number_format((float) $reconciliation['mrr'], 0) ?></dd>
+            </div>
         </dl>
+
+        <?php
+        /**
+         * B4: MRR (committed recurring value) and collected revenue (actual cash)
+         * come from different tables. Printing them side by side with no stated
+         * relationship is what made the old dashboard misleading, so the
+         * reconciliation names the case explicitly.
+         */
+        $reconTones = [
+            'reconciled'           => ['bg-emerald-50', 'border-emerald-200', 'text-emerald-900'],
+            'divergent'            => ['bg-amber-50', 'border-amber-200', 'text-amber-900'],
+            'mrr_without_revenue'  => ['bg-amber-50', 'border-amber-200', 'text-amber-900'],
+            'revenue_without_mrr'  => ['bg-slate-50', 'border-slate-200', 'text-slate-700'],
+            'empty'                => ['bg-slate-50', 'border-slate-200', 'text-slate-600'],
+        ];
+        [$reconBg, $reconBorder, $reconText] = $reconTones[$reconciliation['status']] ?? $reconTones['empty'];
+        ?>
+        <div class="mt-4 rounded-lg border <?= $reconBorder ?> <?= $reconBg ?> <?= $reconText ?> p-3">
+            <div class="text-xs font-bold uppercase tracking-wide opacity-70">MRR vs collected</div>
+            <p class="text-xs mt-1 leading-relaxed"><?= htmlspecialchars($reconciliation['note']) ?></p>
+            <?php if ($reconciliation['status'] !== 'empty'): ?>
+                <p class="text-xs mt-1.5 font-semibold">
+                    Gap: <?= ($reconciliation['gap'] >= 0 ? '+' : '') . '$' . number_format((float) $reconciliation['gap'], 0) ?>
+                    over <?= htmlspecialchars($range->label()) ?>
+                </p>
+            <?php endif; ?>
+        </div>
+
         <a href="/admin/payments" class="mt-4 inline-block text-sm font-semibold text-blue-600 hover:underline">View payments →</a>
     </div>
 </div>
@@ -262,18 +386,29 @@ foreach ($licenseByProduct as $row) {
 <div class="grid lg:grid-cols-3 gap-6 mb-6">
     <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-6">
         <div class="flex items-center justify-between mb-4">
-            <h2 class="font-bold">Revenue — last 12 months</h2>
+            <h2 class="font-bold">Collected revenue — <?= htmlspecialchars($range->label()) ?></h2>
+            <?php if (!empty($filters['product']) || !empty($filters['variant'])): ?>
+                <span class="text-xs text-slate-400">filtered</span>
+            <?php endif; ?>
         </div>
         <?= $barChart($revenueTrend) ?>
     </div>
     <div class="bg-white rounded-xl border border-slate-200 p-6">
-        <h2 class="font-bold mb-4">Licenses by status</h2>
-        <?= $donut($licenseByStatus, $totalLicenses) ?>
+        <h2 class="font-bold mb-1">Licenses by status</h2>
+        <p class="text-xs text-slate-400 mb-4">Expiry is derived from the expiry date, not a stored status.</p>
+        <?= $donut($licenseByStatus, $licenseStatuses) ?>
         <ul class="mt-4 space-y-1.5 text-sm">
-            <?php foreach ($licenseByStatus as $row): ?>
+            <?php foreach ($licenseByStatus as $status => $count): ?>
+                <?php
+                $meta = \App\Services\Analytics\LicenseService::statusMeta((string) $status);
+                $toneVar = ['success' => 'var(--success)', 'warning' => 'var(--warning)', 'danger' => 'var(--danger)', 'muted' => 'var(--text-subtle)'][$meta['tone']] ?? 'var(--text-subtle)';
+                ?>
                 <li class="flex items-center justify-between">
-                    <span class="flex items-center gap-2 text-slate-500"><span class="inline-block h-2.5 w-2.5 rounded-full" style="background:<?= (['active' => '#16a34a', 'expired' => '#cbd5e1', 'suspended' => '#f59e0b', 'cancelled' => '#ef4444'])[$row['status']] ?? '#64748b' ?>"></span><?= htmlspecialchars((string) $row['status']) ?></span>
-                    <span class="font-semibold"><?= (int) $row['c'] ?></span>
+                    <span class="flex items-center gap-2 text-slate-500">
+                        <span class="inline-block h-2.5 w-2.5 rounded-full" style="background:<?= $toneVar ?>"></span>
+                        <?= htmlspecialchars($meta['label']) ?>
+                    </span>
+                    <span class="font-semibold"><?= (int) $count ?></span>
                 </li>
             <?php endforeach; ?>
         </ul>
@@ -281,23 +416,32 @@ foreach ($licenseByProduct as $row) {
 </div>
 
 <div class="bg-white rounded-xl border border-slate-200 p-6 mb-6">
-    <h2 class="font-bold mb-4">Licenses by product</h2>
+    <h2 class="font-bold mb-1">Licenses by product</h2>
+    <p class="text-xs text-slate-400 mb-4">All four products, always &mdash; colours come from the product catalog.</p>
     <div class="space-y-4">
-        <?php foreach ($licenseByProduct as $row): ?>
-            <?php $pct = round((int) $row['c'] / $totalLicenses * 100); ?>
+        <?php foreach (\App\Services\Catalog::keys() as $productCode): ?>
+            <?php
+            $product = \App\Services\Catalog::get($productCode);
+            $count = (int) ($licenseByProduct[$productCode] ?? 0);
+            // Clamped: countsByProduct and countsByStatus are separate queries, so a
+            // discrepancy must not let a bar render wider than its track.
+            $pct = $totalLicenses > 0
+                ? max(0, min(100, (int) round($count / $totalLicenses * 100)))
+                : 0;
+            ?>
             <div>
                 <div class="flex items-center justify-between text-sm mb-1">
-                    <span class="font-medium capitalize text-slate-600"><?= htmlspecialchars((string) $row['product']) ?></span>
-                    <span class="text-slate-500"><?= (int) $row['c'] ?> <span class="text-slate-300 text-xs">(<?= $pct ?>%)</span></span>
+                    <a href="/admin/licenses?product=<?= htmlspecialchars($productCode) ?>" class="font-medium text-slate-600 hover:underline flex items-center gap-2">
+                        <span class="inline-block h-2.5 w-2.5 rounded-full" style="background:<?= htmlspecialchars($product['color']) ?>"></span>
+                        <?= htmlspecialchars(\App\Services\Catalog::label($productCode)) ?>
+                    </a>
+                    <span class="text-slate-500"><?= $count ?> <span class="text-slate-300 text-xs">(<?= $pct ?>%)</span></span>
                 </div>
                 <div class="h-2.5 rounded-full bg-slate-100 overflow-hidden">
-                    <div class="h-full rounded-full" style="width:<?= $pct ?>%;background:<?= $productColors[$row['product']] ?? '#2563eb' ?>"></div>
+                    <div class="h-full rounded-full" style="width:<?= $pct ?>%;background:<?= htmlspecialchars($product['color']) ?>"></div>
                 </div>
             </div>
         <?php endforeach; ?>
-        <?php if (empty($licenseByProduct)): ?>
-            <p class="text-sm text-slate-400">No licenses yet.</p>
-        <?php endif; ?>
     </div>
 </div>
 

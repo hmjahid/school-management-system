@@ -6,7 +6,13 @@ namespace App\Controllers\Admin;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Database;
+use App\Services\Analytics\DateRange;
+use App\Services\Analytics\LicenseService;
+use App\Services\Analytics\RevenueService;
+use App\Services\Cache;
+use App\Services\Catalog;
 use App\Services\LicenseReminderService;
+use App\Services\VariantResolver;
 
 class DashboardController extends Controller
 {
@@ -20,91 +26,154 @@ class DashboardController extends Controller
         $db = Database::getInstance();
 
         // Best-effort expiring-soon reminders (non-blocking).
+        //
+        // TODO(phase-5): this fires customer email on every dashboard page view,
+        // so an admin refreshing the page is a mail loop. It moves to
+        // routes/cron.php behind App\Services\Cron\ExpiringNotifier; leaving it
+        // here until that lands keeps renewal emails working in the meantime.
         (new LicenseReminderService())->notifyExpiring();
 
-        $stats = $db->fetch(
-            "SELECT
-                (SELECT COUNT(*) FROM customers WHERE deleted_at IS NULL) AS customers,
-                (SELECT COUNT(*) FROM licenses WHERE deleted_at IS NULL) AS licenses,
-                (SELECT COUNT(*) FROM licenses WHERE deleted_at IS NULL AND status = 'active' AND (expires_at IS NULL OR expires_at > NOW())) AS active_licenses,
-                (SELECT COUNT(*) FROM payments WHERE status = 'paid') AS paid_payments,
-                (SELECT COALESCE(SUM(amount),0) FROM payments WHERE status = 'paid') AS revenue,
-                (SELECT COUNT(*) FROM licenses WHERE deleted_at IS NULL AND expires_at IS NOT NULL AND expires_at BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 30 DAY)) AS expiring_soon,
-                (SELECT COUNT(*) FROM contact_messages WHERE read_at IS NULL) AS unread_messages,
-                (SELECT COALESCE(SUM(amount),0) FROM payments WHERE status = 'paid' AND paid_at >= DATE_FORMAT(NOW(), '%Y-%m-01')) AS revenue_this_month,
-                (SELECT COALESCE(SUM(amount),0) FROM payments WHERE status = 'paid' AND paid_at >= DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 MONTH), '%Y-%m-01') AND paid_at < DATE_FORMAT(NOW(), '%Y-%m-01')) AS revenue_prev_month,
-                (SELECT COUNT(*) FROM licenses l JOIN plans pl ON l.plan_id = pl.id WHERE l.deleted_at IS NULL AND pl.period = 'monthly') AS monthly_licenses,
-                (SELECT COUNT(*) FROM licenses l JOIN plans pl ON l.plan_id = pl.id WHERE l.deleted_at IS NULL AND pl.period IN ('yearly', 'annual')) AS yearly_licenses,
-                (SELECT COUNT(*) FROM subscriptions WHERE status = 'active') AS active_subscriptions,
-                (SELECT COALESCE(SUM(CASE WHEN pl.period IN ('yearly', 'annual') THEN pl.price / 12 ELSE pl.price END), 0) FROM subscriptions s JOIN plans pl ON s.plan_id = pl.id WHERE s.status = 'active') AS mrr,
-                (SELECT COALESCE(SUM(CASE WHEN pl.period IN ('yearly', 'annual') THEN pl.price ELSE pl.price * 12 END), 0) FROM subscriptions s JOIN plans pl ON s.plan_id = pl.id WHERE s.status = 'active') AS arr,
-                (SELECT COALESCE(SUM(amount),0) FROM payments WHERE status = 'pending') AS revenue_pending"
-        );
+        $range = DateRange::fromRequest($_GET);
+        $filters = self::filtersFromRequest($_GET);
 
-        $monthlyRows = $db->fetchAll(
-            "SELECT DATE_FORMAT(paid_at, '%Y-%m') AS ym, COALESCE(SUM(amount),0) AS total
-             FROM payments
-             WHERE status = 'paid' AND paid_at >= DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-01'), INTERVAL 11 MONTH)
-             GROUP BY ym ORDER BY ym ASC"
-        );
-        $monthly = [];
-        foreach ($monthlyRows as $row) {
-            $monthly[$row['ym']] = (float) $row['total'];
-        }
-        $revenueTrend = [];
-        $cursor = new \DateTimeImmutable('first day of this month');
-        for ($i = 11; $i >= 0; $i--) {
-            $ym = $cursor->modify("-{$i} months")->format('Y-m');
-            $revenueTrend[] = ['label' => $cursor->modify("-{$i} months")->format('M'), 'value' => $monthly[$ym] ?? 0.0];
-        }
+        $licenses = new LicenseService($db);
+        $revenue = new RevenueService($db);
 
-        $licenseByStatus = $db->fetchAll(
-            "SELECT status, COUNT(*) AS c FROM licenses WHERE deleted_at IS NULL GROUP BY status ORDER BY c DESC"
-        );
+        // Derived-status counts replace the old raw `GROUP BY status`, whose
+        // legend carried an `expired` swatch no row could ever hold while
+        // past-expiry `active` rows landed in the green wedge (bug B2).
+        $licenseByStatus = $licenses->countsByStatus($filters);
 
-        $licenseByProduct = $db->fetchAll(
-            "SELECT product, COUNT(*) AS c FROM licenses WHERE deleted_at IS NULL GROUP BY product ORDER BY c DESC"
+        // Product counts come from Catalog, which knows all four products —
+        // the old local `$productColors` map had no `node` entry, so the Node.js
+        // bar rendered in the app's blue (bug B3).
+        $licenseByProduct = $licenses->countsByProduct($filters);
+
+        // `expiring_soon` now uses the same predicate as the list beneath it, so
+        // the tile and the table can no longer disagree (bug B1).
+        $expiringLicenses = $licenses->expiring(30, 10, $filters);
+
+        $stats = [
+            'customers'    => (int) $db->count('customers', 'deleted_at IS NULL'),
+            'licenses'     => array_sum($licenseByStatus),
+            'active_licenses' => $licenseByStatus[LicenseService::STATUS_ACTIVE] ?? 0,
+            // All-time collected, normalised to USD by RevenueService — a raw
+            // SUM(amount) here would add BDT rows to USD rows and render the
+            // nonsense total with a '$' symbol.
+            'revenue'      => $revenue->lifetimeTotal(),
+            'unread_messages' => (int) $db->count('contact_messages', 'read_at IS NULL'),
+            'expiring_soon' => $licenses->expiringCount(30, $filters),
+        ];
+
+        $mrr = $revenue->mrr($filters);
+        $revenueTotals = $revenue->totals($range, $filters);
+
+        $stats['revenue_this_month'] = $revenueTotals['current'];
+        $stats['revenue_prev_month'] = $revenueTotals['prior'];
+        $stats['monthly_licenses'] = $this->countLicensesByPeriod('monthly', $filters);
+        $stats['yearly_licenses'] = $this->countLicensesByPeriod('yearly', $filters);
+        $stats['active_subscriptions'] = $mrr['active_subscriptions'];
+        // `pl.active = 1` is now respected — a retired plan no longer inflates
+        // recurring revenue (bug B12).
+        $stats['mrr'] = $mrr['mrr'];
+        $stats['arr'] = $mrr['arr'];
+        $stats['revenue_pending'] = (float) ($db->fetch("SELECT COALESCE(SUM(amount),0) AS total FROM payments WHERE status = 'pending'")['total'] ?? 0);
+
+        $revenueTrend = Cache::remember(
+            'revenue',
+            'trend:' . $range->cacheKey() . ':' . md5(json_encode($filters)),
+            static fn (): array => $revenue->trend($range, $filters)
         );
 
         $recentPayments = $db->fetchAll(
-            "SELECT p.*, c.name AS customer_name FROM payments p
+            'SELECT p.*, c.name AS customer_name FROM payments p
              LEFT JOIN customers c ON p.customer_id = c.id
-             ORDER BY p.id DESC LIMIT 8"
+             ORDER BY p.id DESC LIMIT 8'
         );
 
         $recentLicenses = $db->fetchAll(
-            "SELECT l.*, c.name AS customer_name FROM licenses l
+            'SELECT l.*, c.name AS customer_name FROM licenses l
              LEFT JOIN customers c ON l.customer_id = c.id
              WHERE l.deleted_at IS NULL
-             ORDER BY l.id DESC LIMIT 8"
-        );
-
-        $expiringLicenses = $db->fetchAll(
-            "SELECT l.id, l.license_key, l.expires_at, l.status, c.name AS customer_name, c.email AS customer_email
-             FROM licenses l
-             LEFT JOIN customers c ON l.customer_id = c.id
-             WHERE l.deleted_at IS NULL
-               AND l.status = 'active'
-               AND l.expires_at IS NOT NULL
-               AND l.expires_at BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 30 DAY)
-             ORDER BY l.expires_at ASC
-             LIMIT 10"
+             ORDER BY l.id DESC LIMIT 8'
         );
 
         $unreadMessages = $db->fetchAll(
-            "SELECT * FROM contact_messages WHERE read_at IS NULL ORDER BY id DESC LIMIT 8"
+            'SELECT * FROM contact_messages WHERE read_at IS NULL ORDER BY id DESC LIMIT 8'
         );
 
         $this->view('admin.dashboard', [
-            'admin'             => Auth::user(),
-            'stats'             => $stats,
-            'revenueTrend'      => $revenueTrend,
-            'licenseByStatus'   => $licenseByStatus,
-            'licenseByProduct'  => $licenseByProduct,
-            'recentPayments'    => $recentPayments,
-            'recentLicenses'    => $recentLicenses,
-            'expiringLicenses'  => $expiringLicenses,
-            'unreadMessages'    => $unreadMessages,
+            'admin'            => Auth::user(),
+            'stats'            => $stats,
+            'range'            => $range,
+            'filters'          => $filters,
+            'revenueTrend'     => $revenueTrend,
+            'licenseByStatus'  => $licenseByStatus,
+            'licenseByProduct' => $licenseByProduct,
+            'licenseStatuses'  => LicenseService::STATUSES,
+            'productCatalog'   => Catalog::all(),
+            'variants'         => VariantResolver::all(),
+            'reconciliation'   => $revenue->reconcile($range, $filters),
+            'recentPayments'   => $recentPayments,
+            'recentLicenses'   => $recentLicenses,
+            'expiringLicenses' => $expiringLicenses,
+            'unreadMessages'   => $unreadMessages,
         ]);
+    }
+
+    /**
+     * Normalise the product/variant filters from the query string.
+     *
+     * @param array<string, mixed> $query
+     * @return array{product: ?string, variant: ?string}
+     */
+    public static function filtersFromRequest(array $query): array
+    {
+        return [
+            'product' => Catalog::has((string) ($query['product'] ?? ''))
+                ? strtolower(trim((string) $query['product']))
+                : null,
+            'variant' => VariantResolver::isValid($query['variant'] ?? null)
+                ? VariantResolver::normalize($query['variant'])
+                : null,
+        ];
+    }
+
+    /**
+     * License count joined to plans of a given billing period.
+     *
+     * @param array{product?: ?string, variant?: ?string} $filters
+     */
+    private function countLicensesByPeriod(string $period, array $filters): int
+    {
+        $db = Database::getInstance();
+
+        $periods = $period === 'yearly' ? ['yearly', 'annual'] : ['monthly'];
+
+        $placeholders = implode(', ', array_fill(0, count($periods), '?'));
+
+        // Bind values only, in placeholder order, and add a predicate for each
+        // one. A literal such as `deleted_at IS NULL` belongs in the SQL; adding
+        // it to $params instead shifts every binding ("Invalid parameter number").
+        $params = $periods;
+        $extra  = '';
+        if (! empty($filters['product'])) {
+            $extra .= ' AND l.product = ?';
+            $params[] = $filters['product'];
+        }
+        if (! empty($filters['variant'])) {
+            $extra .= ' AND l.variant = ?';
+            $params[] = $filters['variant'];
+        }
+
+        $row = $db->fetch(
+            'SELECT COUNT(*) AS c FROM licenses l
+               JOIN plans pl ON pl.id = l.plan_id
+              WHERE l.deleted_at IS NULL
+                AND pl.period IN (' . $placeholders . ')' . $extra,
+            $params
+        );
+
+        return (int) ($row['c'] ?? 0);
     }
 }

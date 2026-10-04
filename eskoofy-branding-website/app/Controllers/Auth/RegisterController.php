@@ -41,6 +41,13 @@ class RegisterController extends Controller
             'locale'     => 'en',
             'role'       => 'customer',
             'status'     => 'active',
+            // Resolve the market now rather than leaving the column NULL: the
+            // columns are nullable precisely so the *backfill* can tell
+            // "unresolved" from "resolved", and a row that is never resolved
+            // would be reported as international forever.
+            'variant'    => \App\Services\VariantResolver::forCustomer([
+                'country' => $_POST['country'] ?? null,
+            ]),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]);

@@ -5,6 +5,7 @@ namespace App\Services;
 
 use App\Core\Database;
 use App\Core\DatabaseInterface;
+use App\Services\VariantResolver;
 
 class LicenseManager
 {
@@ -60,12 +61,26 @@ class LicenseManager
         $maxActivations = (int) ($plan['max_activations'] ?? 3);
         $key = $opts['license_key'] ?? $this->generateKey();
 
+        // Snapshot the customer's market onto the license. A source payment is
+        // the strongest signal available at issue time (it records the gateway
+        // and currency actually charged), so prefer it when present.
+        $customer = $this->db()->fetch('SELECT * FROM customers WHERE id = ?', [$customerId]) ?: [];
+        if (! empty($opts['payment'])) {
+            $customer['variant'] = VariantResolver::latestPaymentVariant(
+                $customerId,
+                $this->db()
+            ) ?? ($customer['variant'] ?? null);
+        }
+
         $licenseId = $this->db()->insert('licenses', [
             'license_key'      => $key,
             'customer_id'      => $customerId,
             'plan_id'          => $planId,
             'product'          => $product,
             'status'           => 'active',
+            // Immutable snapshot of the market this license was sold into, so
+            // historical counts never re-bucket when the customer later moves.
+            'variant'          => VariantResolver::forNewLicense($customer ?? []),
             'max_activations'  => $maxActivations,
             'starts_at'        => $startsAt,
             'expires_at'       => $expiresAt,

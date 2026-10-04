@@ -41,6 +41,31 @@ return [
     'nav.resources_about_desc'  => 'এসকুফির পেছনের গল্প',
     'nav.resources_contact_desc' => 'ডেমো নিন বা প্রশ্ন জিজ্ঞেস করুন',
 
+    // পণ্য ক্যাটালগ — Eskoofy-এর চারটি পণ্য (app / php / theme / node)।
+    // "সংস্করণ" (variant) শুধুমাত্র bd ও int বোঝায় — পণ্য নয়।
+    'catalog.product.app'        => 'স্কুল অ্যাপ',
+    'catalog.product.app_tag'    => 'লারাভেল',
+    'catalog.product.app_desc'   => 'নিজের সার্ভারে চালানো সম্পূর্ণ স্কুল ম্যানেজমেন্ট সিস্টেম।',
+    'catalog.product.php'        => 'র’ পিএইচপি',
+    'catalog.product.php_tag'    => 'ফ্রেমওয়ার্ক ছাড়া',
+    'catalog.product.php_desc'   => 'একই সিস্টেম সাধারণ পিএইচপি ফাইল হিসেবে — যেকোনো হোস্টে চালান।',
+    'catalog.product.theme'      => 'ওয়ার্ডপ্রেস থিম',
+    'catalog.product.theme_tag'  => 'ওয়ার্ডপ্রেস',
+    'catalog.product.theme_desc' => 'বিদ্যমান ওয়ার্ডপ্রেস সাইটের জন্য স্কুল থিম ও ড্যাশবোর্ড।',
+    'catalog.product.node'       => 'নোড.জেএস অ্যাপ',
+    'catalog.product.node_tag'   => 'নেক্সট.জেএস',
+    'catalog.product.node_desc'  => 'স্কুল অ্যাপের Next.js App Router সংস্করণ।',
+
+    // বাজার সংস্করণ — শুধু দুটি: bd (বাংলাদেশ) ও int (আন্তর্জাতিক)।
+    'variant.bd'          => 'বাংলাদেশ',
+    'variant.bd_short'    => 'বাংলাদেশ',
+    'variant.bd_desc'     => 'বাংলা ও ইংরেজি, মন্ত্রণালয়ের লিংক, বিকাশ / রকেট / নগদ পেমেন্ট।',
+    'variant.int'         => 'আন্তর্জাতিক',
+    'variant.int_short'   => 'আন্তর্জাতিক',
+    'variant.int_desc'    => 'শুধু ইংরেজি, PayPal / Stripe / Paddle পেমেন্ট।',
+    'variant.label'       => 'সংস্করণ',
+    'variant.product'     => 'পণ্য',
+
     // Hero / home
     'home.badge'            => 'স্কুল ম্যানেজমেন্ট এখন সিম্পল — আপনার নিজের সার্ভারেই চলে',
     'home.title'            => 'আপনার স্কুলের সবকিছুর জন্য একটি স্কুল ম্যানেজমেন্ট সিস্টেম।',

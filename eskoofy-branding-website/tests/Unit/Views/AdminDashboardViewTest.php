@@ -1,0 +1,363 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Unit\Views;
+
+use App\Core\Database;
+use App\Services\Analytics\DateRange;
+use App\Services\Analytics\LicenseService;
+use App\Services\Analytics\RevenueService;
+use App\Services\Catalog;
+use App\Services\VariantResolver;
+use Tests\Support\AggregateDatabaseStub;
+use Tests\TestCase;
+
+/**
+ * Renders the admin dashboard view end to end.
+ *
+ * The view is ~550 lines of PHP that no other test executes, so an undefined
+ * variable or a missing controller key would only surface in a browser. This
+ * renders it with representative data and turns any PHP notice/warning into a
+ * failure, then asserts the Phase 1 fixes are actually visible in the markup.
+ *
+ * @see docs/design/BRANDING-ADMIN-DASHBOARD-UX.md §7.3
+ */
+class AdminDashboardViewTest extends TestCase
+{
+    private const NOW = '2026-10-04 12:00:00';
+
+    private AggregateDatabaseStub $db;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->db = new AggregateDatabaseStub();
+        Database::setInstance($this->db);
+    }
+
+    /** @return array<string, mixed> exactly the keys DashboardController passes. */
+    private function viewData(string $preset = '12mo', array $filters = ['product' => null, 'variant' => null]): array
+    {
+        $range = DateRange::fromRequest(['range' => $preset], new \DateTimeImmutable(self::NOW, new \DateTimeZone('UTC')));
+        $licenses = new LicenseService($this->db);
+        $revenue = new RevenueService($this->db);
+
+        return [
+            'admin'            => ['name' => 'Admin', 'email' => 'admin@eskoofy.com'],
+            'stats'            => [
+                'customers'            => 42,
+                'licenses'             => 137,
+                'active_licenses'      => 120,
+                'revenue'              => 50000,
+                'revenue_this_month'   => 1200,
+                'revenue_prev_month'   => 900,
+                'revenue_pending'      => 250,
+                'unread_messages'      => 3,
+                'expiring_soon'        => 2,
+                'monthly_licenses'     => 90,
+                'yearly_licenses'      => 47,
+                'active_subscriptions' => 31,
+                'mrr'                  => 1490.5,
+                'arr'                  => 17886,
+            ],
+            'range'            => $range,
+            'filters'          => $filters,
+            'revenueTrend'     => $revenue->trend($range),
+            'licenseByStatus'  => $licenses->countsByStatus(),
+            'licenseByProduct' => $licenses->countsByProduct(),
+            'licenseStatuses'  => LicenseService::STATUSES,
+            'productCatalog'   => Catalog::all(),
+            'variants'         => VariantResolver::all(),
+            'reconciliation'   => $revenue->reconcile($range, $filters),
+            'recentPayments'   => [],
+            'recentLicenses'   => [],
+            'expiringLicenses' => [],
+            'unreadMessages'   => [],
+        ];
+    }
+
+    /**
+     * Render the view with warnings promoted to exceptions.
+     *
+     * @return array{0: string, 1: string} [html, rendered view text]
+     */
+    private function render(array $data): array
+    {
+        $adminTitle = 'Dashboard';
+
+        // Undefined variables and array-to-string conversions must fail the test,
+        // not scroll past as a notice.
+        set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
+            throw new \ErrorException($message, 0, $severity, $file, $line);
+        });
+
+        ob_start();
+
+        try {
+            extract($data, EXTR_SKIP);
+            include dirname(__DIR__, 3) . '/views/admin/dashboard.php';
+            $html = (string) ob_get_contents();
+        } catch (\Throwable $e) {
+            ob_end_clean();
+            restore_error_handler();
+
+            self::fail('Dashboard view raised ' . $e::class . ': ' . $e->getMessage());
+
+            return ['', ''];
+        }
+
+        ob_end_clean();
+        restore_error_handler();
+
+        return [$html, $adminTitle];
+    }
+
+    public function testTheViewRendersWithoutWarningsOrUndefinedVariables(): void
+    {
+        [$html] = $this->render($this->viewData());
+
+        self::assertNotSame('', $html);
+        self::assertGreaterThan(5000, strlen($html), 'suspiciously small render');
+    }
+
+    /**
+     * B3: all four products must appear, each in its own catalog colour. The old
+     * local colour map had no `node` entry, so Node.js rendered in the app's blue.
+     */
+    public function testAllFourProductsRenderInTheirCatalogColours(): void
+    {
+        [$html] = $this->render($this->viewData());
+
+        foreach (Catalog::all() as $code => $product) {
+            self::assertStringContainsString(Catalog::label($code), $html, "{$code} is missing from the dashboard");
+            self::assertStringContainsString($product['color'], $html, "{$code} colour is missing");
+        }
+
+        self::assertStringContainsString('Node.js App', $html);
+    }
+
+    public function testProductBarsAreAlwaysPresentEvenWithNoLicenses(): void
+    {
+        // countsByProduct returns all four keys at zero, so the axis never collapses
+        // to nothing on a fresh install.
+        [$html] = $this->render($this->viewData());
+
+        self::assertStringContainsString('Licenses by product', $html);
+        self::assertSame(4, substr_count($html, 'rounded-full bg-slate-100 overflow-hidden'));
+
+        // The donut, having no rows at all, falls back to its empty state.
+        self::assertStringContainsString('No licenses yet.', $html);
+    }
+
+    public function testTheProductBarPercentagesStayInRange(): void
+    {
+        $data = $this->viewData();
+
+        // One product holding everything; the rest at zero.
+        $data['licenseByProduct'] = ['app' => 137, 'php' => 0, 'theme' => 0, 'node' => 0];
+
+        [$html] = $this->render($data);
+
+        self::assertStringContainsString('width:100%', $html);
+        self::assertStringContainsString('width:0%', $html);
+
+        preg_match_all('/width:(\d+)%/', $html, $m);
+        foreach ($m[1] as $pct) {
+            self::assertLessThanOrEqual(100, (int) $pct, 'a bar overflowed its track');
+        }
+    }
+
+    /**
+     * B2: the legend must only offer statuses that can actually hold rows, and
+     * every one of them must render.
+     */
+    public function testTheStatusLegendRendersEveryDerivedStatus(): void
+    {
+        [$html] = $this->render($this->viewData());
+
+        foreach (LicenseService::STATUSES as $status => $meta) {
+            self::assertStringContainsString($meta['label'], $html, "status {$status} missing from the legend");
+        }
+
+        self::assertStringContainsString('Expiry is derived from the expiry date', $html);
+    }
+
+    /**
+     * B5: a month with no payments must still appear on the axis as a zero bar,
+     * so the chart never draws a phantom gap.
+     */
+    public function testTheRevenueChartPlotsEveryBucketInTheWindow(): void
+    {
+        $data = $this->viewData('12mo');
+        self::assertCount(13, $data['revenueTrend']);
+
+        [$html] = $this->render($data);
+
+        foreach ($data['revenueTrend'] as $point) {
+            self::assertStringContainsString(
+                htmlspecialchars((string) $point['label']),
+                $html,
+                "bucket {$point['key']} is missing from the axis"
+            );
+        }
+    }
+
+    public function testTheChartHeadingNamesTheActiveWindowRatherThanAHardcodedRange(): void
+    {
+        [$monthly] = $this->render($this->viewData('30d'));
+        self::assertStringContainsString('Last 30 days', $monthly);
+        self::assertStringNotContainsString('Revenue — last 12 months', $monthly);
+
+        [$weekly] = $this->render($this->viewData('7d'));
+        self::assertStringContainsString('Last 7 days', $weekly);
+    }
+
+    /** B4: the reconciliation must be visible, not just computed. */
+    public function testTheReconciliationPanelIsRendered(): void
+    {
+        [$html] = $this->render($this->viewData());
+
+        self::assertStringContainsString('MRR vs collected', $html);
+        // With no data at all the status is `empty`, which states the fact
+        // without a meaningless gap figure.
+        self::assertStringContainsString('No active subscriptions and no collected revenue', $html);
+        self::assertStringNotContainsString('Gap:', $html);
+    }
+
+    public function testTheReconciliationGapIsShownOnceThereIsData(): void
+    {
+        $this->db->on('FROM subscriptions s', [['id' => 1, 'price' => '49.00', 'period' => 'monthly']]);
+        $this->db->returnsOne(['total' => 49]);
+
+        // A monthly window: $49 MRR against $49 collected reconciles.
+        [$html] = $this->render($this->viewData('30d'));
+
+        self::assertStringContainsString('MRR vs collected', $html);
+        self::assertStringContainsString('Gap:', $html);
+        self::assertStringContainsString('Collected revenue is in line with committed MRR', $html);
+    }
+
+    public function testALongWindowExpectsProportionallyMoreRevenueThanOneMonthOfMrr(): void
+    {
+        // $49 MRR over 12 months implies roughly $596 collected, so $49 in is a
+        // shortfall and must be reported as one rather than read as healthy.
+        $this->db->on('FROM subscriptions s', [['id' => 1, 'price' => '49.00', 'period' => 'monthly']]);
+        $this->db->returnsOne(['total' => 49]);
+
+        [$html] = $this->render($this->viewData('12mo'));
+
+        self::assertStringContainsString('falls short of committed MRR', $html);
+    }
+
+    public function testTheReconciliationPanelRendersForEveryStatus(): void
+    {
+        // Each status maps to a different tone class; none may fatal.
+        $statuses = ['reconciled', 'divergent', 'mrr_without_revenue', 'revenue_without_mrr', 'empty'];
+
+        foreach ($statuses as $status) {
+            $data = $this->viewData();
+            $data['reconciliation'] = array_merge($data['reconciliation'], [
+                'status' => $status,
+                'gap'    => 12.5,
+                'note'   => 'note for ' . $status,
+            ]);
+
+            [$html] = $this->render($data);
+
+            self::assertStringContainsString('note for ' . $status, $html);
+        }
+    }
+
+    public function testTheFilterBarExposesEveryProductAndVariant(): void
+    {
+        [$html] = $this->render($this->viewData());
+
+        foreach (Catalog::keys() as $code) {
+            self::assertStringContainsString('value="' . $code . '"', $html);
+        }
+        foreach (VariantResolver::all() as $variant) {
+            self::assertStringContainsString('value="' . $variant . '"', $html);
+        }
+
+        self::assertStringContainsString('name="range"', $html);
+    }
+
+    public function testTheActiveRangePresetIsMarkedAsSelected(): void
+    {
+        [$html] = $this->render($this->viewData('90d'));
+
+        // The 90d pill must render in the selected (dark) style.
+        self::assertStringContainsString('value="90d"', $html);
+        self::assertStringContainsString('bg-slate-900 text-white border-slate-900', $html);
+    }
+
+    public function testRangeLinksPreserveTheActiveFilters(): void
+    {
+        [$html] = $this->render($this->viewData('30d', ['product' => 'node', 'variant' => 'bd']));
+
+        // Choosing a new range must not silently drop the product/variant filters.
+        self::assertStringContainsString('range=7d&amp;product=node&amp;variant=bd', $html);
+    }
+
+    public function testClearFiltersAppearsOnlyWhenAFilterIsActive(): void
+    {
+        [$unfiltered] = $this->render($this->viewData('30d'));
+        self::assertStringNotContainsString('Clear filters', $unfiltered);
+
+        [$filtered] = $this->render($this->viewData('30d', ['product' => 'node', 'variant' => null]));
+        self::assertStringContainsString('Clear filters', $filtered);
+    }
+
+    public function testTheSelectedFilterIsMarkedSelected(): void
+    {
+        [$html] = $this->render($this->viewData('30d', ['product' => 'theme', 'variant' => 'int']));
+
+        self::assertStringContainsString('value="theme" selected', $html);
+        self::assertStringContainsString('value="int" selected', $html);
+    }
+
+    /**
+     * I18n::t() echoes the key back when a translation is missing, so an
+     * untranslated catalog entry would render `catalog.product.node` in the UI.
+     */
+    public function testNoRawLangKeysLeakIntoTheMarkup(): void
+    {
+        [$html] = $this->render($this->viewData());
+
+        self::assertSame(0, preg_match_all('/catalog\.product\.[a-z_]+/', $html), 'catalog lang key leaked');
+        self::assertSame(0, preg_match_all('/\bvariant\.[a-z_]+/', $html), 'variant lang key leaked');
+    }
+
+    public function testEmptyStatesRenderInsteadOfBlankPanels(): void
+    {
+        [$html] = $this->render($this->viewData());
+
+        self::assertStringContainsString('No licenses expiring in the next 30 days', $html);
+        self::assertStringContainsString('Inbox zero', $html);
+    }
+
+    public function testMarkupIsHtmlEscapedForUntrustedValues(): void
+    {
+        $data = $this->viewData();
+        $data['expiringLicenses'] = [[
+            'id'             => 1,
+            'license_key'    => '<script>alert(1)</script>',
+            'expires_at'     => '2026-10-20 00:00:00',
+            'customer_name'  => '<img src=x onerror=alert(1)>',
+            'customer_email' => '"><script>bad()</script>',
+        ]];
+        $data['unreadMessages'] = [[
+            'name'    => '<b>bold</b>',
+            'message' => '<script>alert(2)</script>',
+        ]];
+
+        [$html] = $this->render($data);
+
+        self::assertStringNotContainsString('<script>alert(1)</script>', $html);
+        self::assertStringNotContainsString('<script>alert(2)</script>', $html);
+        self::assertStringNotContainsString('<img src=x onerror', $html);
+        self::assertStringContainsString('&lt;script&gt;', $html);
+    }
+}

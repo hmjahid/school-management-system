@@ -1,0 +1,701 @@
+/*
+ * Eskoofy admin — design tokens + primitives.
+ *
+ * No build step: the site loads Tailwind via CDN, so every colour here is a CSS
+ * custom property rather than a Tailwind class. That matters because the Tailwind
+ * CDN JIT only sees classes present in the DOM — chart colours and dynamically
+ * injected markup would otherwise silently lose their styling in production.
+ *
+ * Light and dark themes read from the same token names, so every component is
+ * written once. Phase 0 establishes the tokens; the token sweep across the 30
+ * admin views replaces hardcoded bg-white / text-slate-* with these.
+ *
+ * @see docs/design/BRANDING-ADMIN-DASHBOARD-UX.md §5
+ */
+
+:root {
+    /* Brand — overridden at runtime from the appearance.brand_color setting. */
+    --brand: #2563eb;
+
+    /* Surfaces */
+    --bg: #f1f5f9;
+    --surface: #ffffff;
+    --surface-2: #f8fafc;
+    --surface-3: #f1f5f9;
+
+    /* Borders */
+    --border: #e2e8f0;
+    --border-strong: #cbd5e1;
+
+    /* Text */
+    --text: #0f172a;
+    --text-muted: #64748b;
+    --text-subtle: #94a3b8;
+    --text-inverse: #ffffff;
+
+    /* Status */
+    --success: #16a34a;
+    --success-bg: #dcfce7;
+    --warning: #f59e0b;
+    --warning-bg: #fef3c7;
+    --danger: #ef4444;
+    --danger-bg: #fee2e2;
+    --info: #0ea5e9;
+    --info-bg: #e0f2fe;
+
+    /*
+     * Product brand colours — one per product, owned by App\Services\Catalog.
+     * Products are rendered as rounded pills in these colours.
+     */
+    --p-app: #4f46e5;
+    --p-php: #0284c7;
+    --p-theme: #7c3aed;
+    --p-node: #059669;
+
+    /*
+     * Variant accents — bd / int. Variants are rendered as square-corner chips
+     * with a diagonal hatch so they can never be mistaken for a product pill.
+     */
+    --v-bd: #16a34a;
+    --v-int: #2563eb;
+
+    /* Geometry */
+    --radius: 14px;
+    --radius-sm: 10px;
+    --radius-pill: 999px;
+
+    /* Elevation */
+    --shadow-1: 0 1px 2px rgb(15 23 42 / 0.06);
+    --shadow-2: 0 10px 30px -12px rgb(15 23 42 / 0.18);
+    --shadow-focus: 0 0 0 3px color-mix(in srgb, var(--brand) 35%, transparent);
+
+    /* Motion */
+    --motion-fast: 0.12s ease;
+    --motion: 0.22s ease;
+
+    /* Sidebar */
+    --sidebar-bg: #0f172a;
+    --sidebar-text: #cbd5e1;
+    --sidebar-text-muted: #64748b;
+    --sidebar-active: #1e293b;
+    --sidebar-border: #1e293b;
+}
+
+[data-theme='dark'] {
+    --bg: #0b1220;
+    --surface: #111a2e;
+    --surface-2: #16203a;
+    --surface-3: #1b2740;
+
+    --border: #1f2c4a;
+    --border-strong: #2c3b60;
+
+    --text: #e8eefb;
+    --text-muted: #94a3b8;
+    --text-subtle: #64748b;
+
+    --success-bg: #052e1a;
+    --warning-bg: #3a2a05;
+    --danger-bg: #3f1212;
+    --info-bg: #05283a;
+
+    --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-2: 0 16px 40px -16px rgb(0 0 0 / 0.7);
+
+    --sidebar-bg: #080f1c;
+    --sidebar-active: #16203a;
+    --sidebar-border: #1f2c4a;
+}
+
+/* ---------------------------------------------------------------- base ---- */
+
+body {
+    background: var(--bg);
+    color: var(--text);
+}
+
+:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+    border-radius: var(--radius-sm);
+}
+
+/* Numeric columns must align across rows. */
+.esk-tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+}
+
+/* Visible only to screen readers. */
+.esk-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* --------------------------------------------------------------- panel ---- */
+
+.esk-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-1);
+}
+
+.esk-panel-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem 1.25rem 0;
+}
+
+.esk-panel-title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.esk-panel-sub {
+    font-size: 0.75rem;
+    color: var(--text-subtle);
+    margin-top: 0.125rem;
+}
+
+.esk-panel-body {
+    padding: 1.25rem;
+}
+
+/* ----------------------------------------------------------- stat card ---- */
+
+.esk-stat {
+    position: relative;
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-1);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: box-shadow var(--motion), transform var(--motion);
+}
+
+.esk-stat--link:hover {
+    box-shadow: var(--shadow-2);
+    transform: translateY(-1px);
+}
+
+.esk-stat-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-subtle);
+}
+
+.esk-stat-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+}
+
+.esk-stat-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.esk-stat-icon {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--radius-sm);
+    background: var(--surface-3);
+    color: var(--brand);
+    flex-shrink: 0;
+}
+
+.esk-stat-spark {
+    height: 2.25rem;
+    margin: 0 -0.25rem;
+}
+
+/* Delta chips — direction is carried by an arrow glyph as well as colour,
+   so the meaning survives a colour-vision deficiency or a greyscale print. */
+.esk-delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.esk-delta--up { color: var(--success); }
+.esk-delta--down { color: var(--danger); }
+.esk-delta--flat { color: var(--text-subtle); }
+
+/* --------------------------------------------------------------- pills ---- */
+
+/*
+ * A PRODUCT is a rounded pill in the product's brand colour.
+ * A VARIANT is a square-corner chip with a diagonal hatch.
+ * The shape difference is the primary signal; colour is secondary.
+ */
+.esk-product-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.1875rem 0.625rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #fff;
+    background: var(--pill-color, var(--text-muted));
+    white-space: nowrap;
+}
+
+.esk-variant-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.1875rem 0.5rem;
+    border-radius: 3px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--chip-color, var(--text));
+    border: 1px solid currentColor;
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 3px,
+        color-mix(in srgb, currentColor 22%, transparent) 3px,
+        color-mix(in srgb, currentColor 22%, transparent) 6px
+    );
+}
+
+.esk-variant-chip--bd { --chip-color: var(--v-bd); }
+.esk-variant-chip--int { --chip-color: var(--v-int); }
+
+.esk-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3125rem;
+    padding: 0.1875rem 0.5rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.esk-status--success { color: var(--success); background: var(--success-bg); }
+.esk-status--warning { color: var(--warning); background: var(--warning-bg); }
+.esk-status--danger  { color: var(--danger);  background: var(--danger-bg); }
+.esk-status--info    { color: var(--info);    background: var(--info-bg); }
+.esk-status--muted   { color: var(--text-muted); background: var(--surface-3); }
+
+/* -------------------------------------------------------------- tables ---- */
+
+.esk-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.8125rem;
+}
+
+.esk-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--surface-2);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-subtle);
+    text-align: left;
+    padding: 0.625rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.esk-table tbody td {
+    padding: 0.625rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: middle;
+}
+
+.esk-table tbody tr:last-child td { border-bottom: 0; }
+
+.esk-table tbody tr:hover td { background: var(--surface-2); }
+
+.esk-table .esk-num { text-align: right; font-variant-numeric: tabular-nums; }
+
+.esk-mono {
+    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 0.75rem;
+    letter-spacing: -0.01em;
+}
+
+/* --------------------------------------------------------------- chart ---- */
+
+/*
+ * Charts need a fixed-height wrapper because both Chart.js and ApexCharts are
+ * configured with maintainAspectRatio:false — without a bounded parent they
+ * collapse or overflow the panel.
+ */
+.esk-chart {
+    position: relative;
+    width: 100%;
+    height: 260px;
+}
+
+.esk-chart--sm { height: 180px; }
+.esk-chart--lg { height: 340px; }
+
+/* Canvas is transparent; the panel supplies the surface colour so theme
+   changes only need to re-read the token, not repaint the chart. */
+.esk-chart canvas { display: block; }
+
+/* ------------------------------------------------------------- skeleton ---- */
+
+.esk-skeleton {
+    position: relative;
+    overflow: hidden;
+    background: var(--surface-3);
+    border-radius: var(--radius-sm);
+}
+
+.esk-skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+        90deg,
+        transparent,
+        color-mix(in srgb, var(--text) 6%, transparent),
+        transparent
+    );
+    animation: esk-shimmer 1.4s infinite;
+}
+
+@keyframes esk-shimmer {
+    100% { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .esk-skeleton::after { animation: none; }
+}
+
+/* --------------------------------------------------------- empty state ---- */
+
+.esk-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    color: var(--text-subtle);
+}
+
+.esk-empty-icon {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--radius-pill);
+    background: var(--surface-3);
+    color: var(--text-subtle);
+}
+
+.esk-empty-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.esk-empty-body { font-size: 0.8125rem; max-width: 28rem; }
+
+/* ------------------------------------------------------- command palette ---- */
+
+.esk-palette-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: rgb(15 23 42 / 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 10vh 1rem 1rem;
+}
+
+.esk-palette {
+    width: 100%;
+    max-width: 40rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-2);
+    overflow: hidden;
+}
+
+.esk-palette-input {
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    padding: 0.875rem 1rem;
+    font-size: 0.9375rem;
+}
+
+.esk-palette-input::placeholder { color: var(--text-subtle); }
+.esk-palette-input:focus { outline: none; box-shadow: none; }
+
+.esk-palette-list {
+    max-height: 24rem;
+    overflow-y: auto;
+    padding: 0.375rem;
+}
+
+.esk-palette-group {
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-subtle);
+    padding: 0.5rem 0.625rem 0.25rem;
+}
+
+.esk-palette-item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    width: 100%;
+    padding: 0.5rem 0.625rem;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text);
+    font-size: 0.8125rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.esk-palette-item[aria-selected='true'] {
+    background: var(--surface-3);
+    color: var(--brand);
+}
+
+.esk-palette-hint {
+    margin-left: auto;
+    font-size: 0.6875rem;
+    color: var(--text-subtle);
+    font-variant-numeric: tabular-nums;
+}
+
+.esk-palette-foot {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 0.875rem;
+    border-top: 1px solid var(--border);
+    background: var(--surface-2);
+    font-size: 0.6875rem;
+    color: var(--text-subtle);
+}
+
+.esk-kbd {
+    display: inline-block;
+    padding: 0.0625rem 0.3125rem;
+    border: 1px solid var(--border-strong);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    background: var(--surface);
+    font-family: inherit;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+/* ---------------------------------------------------------------- shell ---- */
+
+.esk-shell { display: flex; min-height: 100vh; }
+
+.esk-sidebar {
+    position: fixed;
+    inset-block: 0;
+    left: 0;
+    z-index: 50;
+    width: 16.5rem;
+    display: flex;
+    flex-direction: column;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    transition: transform var(--motion), width var(--motion);
+}
+
+.esk-sidebar-nav {
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.5rem 0.75rem 1rem;
+}
+
+.esk-nav-group-label {
+    padding: 0.875rem 0.75rem 0.375rem;
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--sidebar-text-muted);
+}
+
+.esk-nav-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--sidebar-text);
+    transition: background var(--motion-fast), color var(--motion-fast);
+}
+
+.esk-nav-link:hover { background: var(--sidebar-active); color: #fff; }
+
+.esk-nav-link[aria-current='page'] {
+    background: var(--sidebar-active);
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Active-section indicator bar. */
+.esk-nav-link[aria-current='page']::before {
+    content: '';
+    position: absolute;
+    left: -0.75rem;
+    top: 50%;
+    translate: 0 -50%;
+    width: 3px;
+    height: 1.25rem;
+    border-radius: 0 3px 3px 0;
+    background: var(--brand);
+}
+
+.esk-nav-badge {
+    margin-left: auto;
+    display: grid;
+    place-items: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding-inline: 0.375rem;
+    border-radius: var(--radius-pill);
+    background: var(--danger);
+    color: #fff;
+    font-size: 0.625rem;
+    font-weight: 700;
+}
+
+.esk-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    height: 4rem;
+    padding-inline: 1.5rem;
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+}
+
+.esk-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+.esk-content {
+    flex: 1;
+    width: 100%;
+    max-width: 100rem;
+    margin-inline: auto;
+    padding: 1.5rem;
+}
+
+@media (min-width: 1280px) {
+    .esk-content { padding: 2rem 2rem 3rem; }
+}
+
+/* Mobile: sidebar slides in over the content. */
+@media (max-width: 767px) {
+    .esk-sidebar { transform: translateX(-100%); box-shadow: var(--shadow-2); }
+    .esk-sidebar[data-open='true'] { transform: translateX(0); }
+    .esk-content { padding: 1rem; }
+}
+
+/* ---------------------------------------------------------------- misc ---- */
+
+.esk-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 0.8125rem;
+}
+
+.esk-alert--warning { border-color: var(--warning); background: var(--warning-bg); color: var(--warning); }
+.esk-alert--danger  { border-color: var(--danger);  background: var(--danger-bg);  color: var(--danger); }
+.esk-alert--info    { border-color: var(--info);    background: var(--info-bg);    color: var(--info); }
+.esk-alert--success { border-color: var(--success); background: var(--success-bg); color: var(--success); }
+
+.esk-alert a { color: inherit; font-weight: 700; text-decoration: underline; }
+
+/* A matrix cell that is genuinely empty vs. one that is not offered: never
+   conflate the two. */
+.esk-cell-empty { color: var(--text-subtle); font-style: italic; }
+.esk-cell-zero { color: var(--text-subtle); font-variant-numeric: tabular-nums; }
+
+/* Print: charts and dark surfaces fall back to ink on white. */
+@media print {
+    .esk-sidebar, .esk-topbar, .esk-palette-backdrop { display: none !important; }
+    .esk-content { max-width: none; padding: 0; }
+    body { background: #fff; color: #000; }
+}
