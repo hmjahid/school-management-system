@@ -11,7 +11,7 @@ Legend: `[x]` done · `[~]` partial · `[ ]` not started.
 
 - [x] **Phase 0 — Foundations** (tokens/css, Catalog, Nav, Cache, VariantResolver, schema migration, backfill, vendored charts, admin.js skeleton). Gate met: 328 tests green; backfill idempotent + reports reconciliation vs `payments.variant`; CSP test passes.
 - [x] **Phase 1 — Fix the data** (B1–B5, B12 live, plus B14–B20 found during Docker verification). Gate met, with one caveat noted below.
-- [ ] **Phase 2 — Variant showcase, public side** (matrix component, `/products`, home 4-card grid, pricing, `/choose` market question, `/compare`, copy sweep).
+- [x] **Phase 2 — Variant showcase, public side** (matrix component, `/products`, home 4-card grid, pricing, `/choose` market question, `/compare`, copy sweep).
 - [ ] **Phase 3 — Shell + dark mode + command palette** (admin.php rewrite, token sweep, topbar, sidebar, Ctrl+K).
 - [~] **Phase 4 — Dashboard widgets** — read models (`Analytics/*` services) exist, but W1–W21 widgets, alert strip, skeletons/empty states are **not built**.
 - [ ] **Phase 5 — Move email off the request path** (Cron\ExpiringNotifier, routes/cron.php, crontab docs, close B6/B7).
@@ -43,8 +43,8 @@ Outstanding (deliberately deferred / not in Phase 0–1 scope):
 - [ ] B7 dashboard caching via `App\Services\Cache` wired (Phase 3/4)
 - [ ] B8 hardcoded `localhost` product URLs in production UI (Phase 4/6)
 - [ ] B9 `<html lang>` via I18n (Phase 3)
-- [ ] B10 **partial**: node plans seeded + 4th product, but public home/pricing/nav cards still not updated (Phase 2)
-- [ ] B11 `/products/node` recommender CTA link (Phase 2)
+- [x] B10 node plans seeded + 4th product wired through public home/pricing/products/compare (Phase 2)
+- [x] B11 `/products/node` recommender CTA link (Phase 2)
 - [ ] B13 CSP gate met via `tests/Unit/Core/SecurityHeadersCspTest.php` (done; listed here for completeness)
 
 ---
@@ -73,9 +73,11 @@ Outstanding (deliberately deferred / not in Phase 0–1 scope):
 | `public/js/charts.js` | [x] (not loaded) |
 | `public/vendor/charts/chart.umd.min.js` | [x] |
 | `public/vendor/charts/apexcharts.min.js` | [x] |
-| `views/partials/product_variant_matrix.php` | [ ] |
+| `views/partials/product_variant_matrix.php` | [x] (full/compact/admin modes) |
+| `views/partials/product_variant_switch.php` | [x] (single-product market-build switcher) |
+| `app/Services/ProductMatrix.php` | [x] |
 | `views/admin/partials/{stat_card,panel,chart,data_table,status_pill,empty_state,skeleton,variant_chip,product_pill,range_picker,legend_matrix,command_palette}.php` | [ ] all 12 |
-| `views/site/products_index.php` | [ ] |
+| `views/site/products_index.php` | [x] |
 | `views/admin/analytics.php` | [ ] |
 | `public/css/admin.css` | [x] (tokens + primitives; not linked) |
 
@@ -88,18 +90,19 @@ Outstanding (deliberately deferred / not in Phase 0–1 scope):
 | `views/admin/dashboard.php` (rewrite §6.2) | [x] — Phase 1 correctness; visuals deferred |
 | `views/admin/{licenses,payments,customers,subscriptions,visitors,activities,settings,gateways,backups,cloud-backup}.php` (token sweep) | [ ] all |
 | `views/admin/settings.php` ("Products & variants" group) | [ ] |
-| `views/site/{home,pricing,compare,choose,choose_result,features}.php` | [ ] all |
-| `views/site/products/{app,php,theme,node}.php` (variant strip) | [ ] |
-| `views/layouts/main.php` (nav + /products + node + badges) | [ ] |
+| `views/site/{home,pricing,compare,choose,choose_result,features}.php` | [x] home/pricing/compare/choose/choose_result; `features` unchanged (no product/variant claims) |
+| `views/site/products/{app,php,theme,node}.php` (variant strip) | [x] switcher + matrix + variant-driven prices |
+| `views/layouts/main.php` (nav + /products + node + badges) | [~] matrix + switcher CSS and /products nav done; command palette is Phase 3 |
 | `app/Controllers/Admin/DashboardController.php` | [x] (rewritten; thin + Analytics services) |
 | `app/Controllers/Admin/AnalyticsController.php` | [ ] |
-| `app/Controllers/Site/{Home,Pricing,Choose,ChooseResult}Controller.php` | [~] only `HomeController.php` + `ChooseController.php` exist (product route present); no variant logic |
+| `app/Controllers/Site/{Home,Choose}Controller.php` | [x] `/products` route + `productVariant` wiring; `ChooseController::RULES`/`OPTIONS` are the single source of the six quiz questions |
 | `app/Controllers/{Auth/Register,Site/Checkout,Account/Renewal,Admin/License}Controller.php` — set variant | [x] — Register/Checkout/License patched this session; RenewalController already wrote `variant => $isBd ? 'bd' : 'int'` (verified) |
-| `app/Services/{ProductRecommender,LicenseReminderService}.php` | [ ] — untouched; ProductRecommender still uses the old conflated "4 products/variants" wording (copy sweep, Phase 2); LicenseReminderService stays in the request path until Phase 5 (B6) |
+| `app/Services/ProductRecommender.php` | [x] — returns `product` + `variant` as separate axes; conflated wording gone (regression-tested in `I18nKeyParityTest`) |
+| `app/Services/LicenseReminderService.php` | [ ] — stays in the request path until Phase 5 (B6) |
 | `app/Models/{License,Customer,Payment,Visitor}.php` | [ ] |
-| `routes/web.php` (+/products, /admin/analytics, cron, palette) | [~] only existing `/products/{slug}` route; no new ones |
+| `routes/web.php` (+/products, /admin/analytics, cron, palette) | [~] `/products` added before `/products/{slug}` (order regression-tested); /admin/analytics + cron are Phase 3/5 |
 | `routes/cron.php` | [ ] |
-| `lang/{en,bn}.php` (+~220 keys, renames §3.4) | [~] catalog + variant keys added; full parity sweep not run |
+| `lang/{en,bn}.php` (+~220 keys, renames §3.4) | [x] both directions of key parity, placeholder parity, duplicate keys and terminology now regression-tested by `tests/Unit/I18n/I18nKeyParityTest.php` |
 | `config/{app,licensing}.php` | [~] `config/app.php` has `variant` default; licensing untouched |
 | `public/manifest.json` (four deployments) | [ ] |
 | `AGENTS.md` (variant rules + dashboard architecture) | [ ] |
@@ -109,10 +112,31 @@ Outstanding (deliberately deferred / not in Phase 0–1 scope):
 
 ## Tests
 
-- [x] `composer test` — **328 tests / 1266 assertions** green (host, DB-free).
+- [x] `composer test` — **407 tests / 1664 assertions** green (host, DB-free). Run `composer test`, not `./vendor/bin/phpunit` — the bare binary emits a harmless `No configuration file found at ~/.esmtprc` warning.
 - [x] Live verification in `./docker/dev.sh up website`: 21/21 dashboard range×filter combos clean; backfill idempotent + reconciliation warn; upgrade path proven on a simulated old install.
-- [ ] Gate-test names in the doc (`LicenseStatusTest`, `DashboardConsistencyTest`, `NoVariantConfusionTest`, `CommandPaletteTest`) do **not** exist as named; Phase 0/1 coverage lives in `tests/Unit/Services/…` and `tests/Unit/Services/Analytics/…`.
+- [x] Phase 2 coverage added: `tests/Unit/Services/ProductMatrixTest.php` (shape, prices, "not offered" rule, links), `tests/Unit/Views/ProductVariantMatrixViewTest.php` (all three modes, warnings promoted to exceptions), `tests/Unit/Views/SitePagesRenderTest.php` (every page Phase 2 touched, rendered with the controllers' real data shapes), `tests/Unit/Core/SiteRoutesDispatchTest.php` (real routes + real controllers against `FakeDatabase`), `tests/Unit/I18n/I18nKeyParityTest.php` (two-way key parity, duplicate keys, placeholder parity, terminology).
+- [ ] Gate-test names in the doc (`LicenseStatusTest`, `DashboardConsistencyTest`, `CommandPaletteTest`) do **not** exist as named. `NoVariantConfusionTest` is now covered in substance by the terminology assertion in `I18nKeyParityTest` plus the two-axis assertions in `ProductMatrixTest`; the other two remain Phase 3/4 work.
 - [ ] Stronger derived-status test still worth writing: diff emitted SQL against a seeded matrix of fixtures (would have caught B16).
+
+## Phase 2 — what landed
+
+| Surface | File | Notes |
+|---|---|---|
+| Matrix service | `app/Services/ProductMatrix.php` | 4 rows × 2 columns; one USD price list, BDT derived and flagged; a product with no active plans is an explicit `offered => false` cell pointing at `/custom-order?product=…&variant=…` |
+| Matrix component | `views/partials/product_variant_matrix.php` | `full` / `compact` / `admin`; products get a rounded brand pill, variants a square hatched chip; `''` suppresses the heading, `false` the legend/footnote |
+| Product switcher | `views/partials/product_variant_switch.php` | Real `?variant=` links, so it works without JS and is shareable |
+| Catalog page | `views/site/products_index.php` + `/products` | Registered before `/products/{slug}`; order is regression-tested |
+| Homepage | `views/site/home.php` | Four cards driven by `Catalog::keys()`, each with its variant badge strip |
+| Pricing | `views/site/pricing.php` | Four product rows over one `plans` source; month/year and market-build toggles ship **both** currencies in the markup, so the swap is an attribute read and the two can never disagree |
+| Chooser | `views/site/choose.php`, `choose_result.php`, `ChooseController`, `ProductRecommender` | Sixth question is the market build; the result returns `product` **and** `variant` and rings that one cell of the compact matrix |
+| Compare | `views/site/compare.php` | Eskoofy's own matrix leads; the competitor table answers "how are we better" second |
+| Product pages | `views/site/products/{app,php,theme,node}.php` | Prices follow `productVariant` instead of the visitor's country, so a BD visitor can inspect the international build; `node` gained the pricing block its seeded plans were already advertising |
+| Copy | `lang/{en,bn}.php` | Matrix, products page, chooser and node keys; the conflated "products/variants" phrasing is gone and now fails the build if reintroduced |
+
+Two decisions worth remembering:
+
+- **Node.js is offered in both variants.** `database/schema.sql` seeds all four products with monthly + yearly plans and no `variant` column on `plans`, so every one of the eight cells is purchasable. "Not offered" is a *rendered state* for when a product has no active plans, not the current situation.
+- **A product page never reads `$variant`.** `View::share('variant', …)` already publishes the site's own build profile; the per-page value is `productVariant` so it cannot shadow the layout's language/currency context.
 
 ## Known caveat
 

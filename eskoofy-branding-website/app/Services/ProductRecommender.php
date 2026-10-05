@@ -6,9 +6,16 @@ namespace App\Services;
 /**
  * Deterministic product-suggestion engine for the marketing site.
  *
- * Answers a short quiz with the best-fit Eskoofy variant out of the four
- * products/variants the monorepo ships: the Laravel app, the raw-PHP rewrite,
- * the WordPress theme and the Node.js variant.
+ * Answers a short quiz and returns the best-fit **product** plus the market
+ * **variant**. Both axes are needed for a real recommendation: the product
+ * decides what you deploy, the variant decides language, currency and payment
+ * gateways. The result maps onto exactly one cell of the Product x Variant
+ * matrix, which is how `/choose` renders the winner.
+ *
+ * Terminology is load-bearing here — the four candidates are *products*
+ * ({@see Catalog}), never variants. The old copy called them "four
+ * products/variants", which is what made the site read as if bd/int were
+ * siblings of app/php/theme/node.
  */
 class ProductRecommender
 {
@@ -20,7 +27,7 @@ class ProductRecommender
         ['key' => 'node', 'label_key' => 'choose.result.node_name', 'desc_key' => 'choose.result.node_desc', 'link' => '/custom-order?product=node'],
     ];
 
-    /** All four products/variants with translated label/description keys. */
+    /** All four products with translated label/description keys. */
     public static function candidates(): array
     {
         return self::CANDIDATES;
@@ -33,20 +40,22 @@ class ProductRecommender
     }
 
     /**
-     * Pick the best product for the given quiz answers.
+     * Pick the best product and variant for the given quiz answers.
      *
-     * Answers (all optional, best-effort):
-     *   hosting   = wordpress | shared | vps | cloud
-     *   comfort   = non_technical | some | technical
-     *   stack     = any | javascript | php
-     *   priority  = budget | features | control
-     *   size      = small | medium | large
+     * Answers (all optional except `market`, best-effort):
+     *   market   = bd | int
+     *   hosting  = wordpress | shared | vps | cloud
+     *   comfort  = non_technical | some | technical
+     *   stack    = any | javascript | php
+     *   priority = budget | features | control
+     *   size     = small | medium | large
      *
      * @param array<string, mixed> $answers
-     * @return array{product: string, runnerUp: string, score: array<string, int>, reason_key: string}
+     * @return array{product: string, runnerUp: string, variant: string, score: array<string, int>, reason_key: string}
      */
     public static function recommend(array $answers): array
     {
+        $variant = VariantResolver::normalizeOrInt($answers['market'] ?? null);
         $hosting = self::norm($answers['hosting'] ?? '');
         $comfort = self::norm($answers['comfort'] ?? '');
         $stack = self::norm($answers['stack'] ?? '');
@@ -66,8 +75,8 @@ class ProductRecommender
             $score['node'] += 2;
         }
 
-        // Stack preference is the deciding signal for JS teams — the Node
-        // variant must outrank the full app even on feature-first requests.
+        // Stack preference is the deciding signal for JS teams — the Node.js
+        // product must outrank the full app even on feature-first requests.
         if ($stack === 'javascript') {
             $score['node'] += 8;
         } elseif ($stack === 'php') {
@@ -116,9 +125,10 @@ class ProductRecommender
         $runnerUp = $order[1];
 
         return [
-            'product' => $product,
-            'runnerUp' => $runnerUp,
-            'score' => $score,
+            'product'    => $product,
+            'runnerUp'   => $runnerUp,
+            'variant'    => $variant,
+            'score'      => $score,
             'reason_key' => self::reasonKey($answers, $product),
         ];
     }
@@ -129,6 +139,7 @@ class ProductRecommender
         $hosting = self::norm($answers['hosting'] ?? '');
         $stack = self::norm($answers['stack'] ?? '');
         $priority = self::norm($answers['priority'] ?? '');
+        $market = self::norm($answers['market'] ?? '');
 
         if ($hosting === 'wordpress') {
             return 'choose.reason.wordpress';
@@ -147,6 +158,9 @@ class ProductRecommender
         }
         if ($priority === 'control') {
             return 'choose.reason.control';
+        }
+        if (in_array($market, [VariantResolver::BD, VariantResolver::INT], true)) {
+            return 'choose.reason.' . $market;
         }
 
         return 'choose.reason.' . $product;

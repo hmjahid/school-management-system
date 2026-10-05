@@ -10,6 +10,7 @@ use App\Models\Post;
 use App\Models\Settings;
 use App\Services\I18n;
 use App\Services\Mailer;
+use App\Services\ProductMatrix;
 
 class HomeController extends Controller
 {
@@ -19,22 +20,56 @@ class HomeController extends Controller
             'appPlans'    => Plan::activeFor('app'),
             'themePlans'  => Plan::activeFor('theme'),
             'phpPlans'    => Plan::activeFor('php'),
+            'nodePlans'   => Plan::activeFor('node'),
+            'matrix'      => ProductMatrix::build(),
             'recentPosts' => Post::latest(3),
             'cmsPage'     => $this->cmsPage('/'),
         ]);
     }
 
+    /**
+     * `/products` — the canonical Product x Variant explainer.
+     *
+     * This is the page the whole taxonomy hangs off: every product page links
+     * back here as its breadcrumb, and it is the only place that shows all
+     * eight product x variant combinations at once, including the explicit
+     * "not offered yet" state.
+     */
+    public function products(): void
+    {
+        $this->view('site.products_index', [
+            'matrix'  => ProductMatrix::build(),
+            'cmsPage' => $this->cmsPage('/products'),
+        ]);
+    }
+
     public function product(string $slug): void
     {
-        $products = ['app', 'theme', 'php', 'node'];
-        if (!in_array($slug, $products, true)) {
+        if (!\App\Services\Catalog::has($slug)) {
+            // The slug route matches any string, so the status code has to be
+            // set here — otherwise an unknown product returns the 404 page with
+            // a 200 and search engines index it.
+            http_response_code(404);
             $this->view('errors.404');
 
             return;
         }
 
-        $this->view('site.products.' . $slug, [
-            'plans'   => Plan::activeFor($slug === 'node' ? 'app' : $slug),
+        $variant = \App\Services\VariantResolver::normalize($_GET['variant'] ?? null);
+
+        $this->view('site.products.' . strtolower($slug), [
+            // Plans are per product and carry no variant (one USD price list per
+            // product, two market profiles), so the product slug is the key.
+            // The Node.js product has its own plans — it must not borrow the
+            // app's, or the matrix and this page would disagree on its price.
+            'plans'   => Plan::activeFor($slug),
+            'matrix'  => ProductMatrix::build(),
+            // Named `$productVariant`, not `$variant`: `View::share('variant', …)`
+            // already publishes the site's own build profile, and shadowing it
+            // would silently change the layout's language/currency context.
+            'productVariant' => $variant,
+            'productCode'    => $slug,
+            'productPath'    => \App\Services\Catalog::page($slug),
             'cmsPage' => $this->cmsPage('/products/' . $slug),
         ]);
     }
@@ -45,6 +80,8 @@ class HomeController extends Controller
             'appPlans'   => Plan::activeFor('app'),
             'themePlans' => Plan::activeFor('theme'),
             'phpPlans'   => Plan::activeFor('php'),
+            'nodePlans'  => Plan::activeFor('node'),
+            'matrix'     => ProductMatrix::build(),
             'cmsPage'    => $this->cmsPage('/pricing'),
         ]);
     }
@@ -59,6 +96,7 @@ class HomeController extends Controller
     public function compare(): void
     {
         $this->view('site.compare', [
+            'matrix'  => ProductMatrix::build(),
             'cmsPage' => $this->cmsPage('/compare'),
         ]);
     }

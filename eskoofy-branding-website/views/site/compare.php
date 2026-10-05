@@ -14,6 +14,23 @@
 <?php \App\Core\View::partial('site.partials.cms_block', ['cmsPage' => $cmsPage ?? null]); ?>
 
 <div class="max-w-7xl mx-auto px-4 py-16">
+    <!--
+        Eskoofy's own Product x Variant matrix comes first: the competitor table
+        below answers "how are we better", this answers "which of our own builds
+        do I actually want". Leading with the competitor columns made the two
+        questions feel interchangeable.
+    -->
+    <section class="mb-16" aria-labelledby="compare-matrix-title">
+        <?php
+        \App\Core\View::partial('partials.product_variant_matrix', [
+            'matrix'     => $matrix ?? [],
+            'matrixMode' => 'full',
+            'matrixTitle' => __('matrix.title'),
+            'matrixSub'  => __('matrix.sub'),
+        ]);
+        ?>
+    </section>
+
     <div class="overflow-x-auto">
         <table class="w-full text-sm bg-white rounded-2xl border border-slate-200 overflow-hidden">
             <thead class="bg-slate-50 text-slate-600 text-xs uppercase tracking-wide">

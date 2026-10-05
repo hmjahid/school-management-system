@@ -1,12 +1,31 @@
 <?php $title = __('node_page.title'); $siteTitle = $title; ?>
 
 <?php
+/**
+ * Same variant-driven pricing as the other product pages. Node.js is sold
+ * sales-assisted, but it still has real plans in `plans` (ids 7-8), so the page
+ * has to quote them — otherwise the matrix above advertises a price this page
+ * then refuses to name.
+ */
+$variant = $productVariant ?? \App\Services\VariantResolver::forCustomer(\App\Core\Auth::user() ?? []);
+$isBd    = $variant === \App\Services\VariantResolver::BD;
+$sym     = \App\Services\VariantResolver::currencySymbol($variant);
+$cur     = \App\Services\VariantResolver::currencyCode($variant);
+$fmt     = static fn (float $usd): float => (float) \App\Services\VariantResolver::displayAmount($usd, $variant)['amount'];
+$minPrice = 0.0;
+foreach ($plans as $p) {
+    $minPrice = $minPrice === 0.0 || (float) $p['price'] < $minPrice ? (float) $p['price'] : $minPrice;
+}
+
 $seo = [
     'title'       => __('node_page.title'),
     'description' => __('node_page.sub'),
     'canonical'   => '/products/node',
     'type'        => 'product',
-    'breadcrumbs' => [['name' => __('nav.home'), 'url' => '/'], ['name' => __('node_page.title'), 'url' => '/products/node']],
+    'schema'      => [
+        \App\Services\Seo::product(['name' => __('node_page.title'), 'description' => __('node_page.sub'), 'url' => '/products/node', 'price' => number_format($minPrice, 2), 'currency' => 'USD']),
+    ],
+    'breadcrumbs' => [['name' => __('nav.home'), 'url' => '/'], ['name' => __('products.label'), 'url' => '/products'], ['name' => __('node_page.title'), 'url' => '/products/node']],
 ];
 ?>
 
@@ -48,6 +67,57 @@ $seo = [
             </div>
         <?php endforeach; ?>
     </div>
+</section>
+
+<!-- Market build: the variant axis for this one product -->
+<section class="max-w-7xl mx-auto px-4 pb-4" aria-labelledby="variant-switch-title">
+    <div class="text-center mb-8">
+        <span class="text-xs uppercase tracking-widest text-blue-600 font-semibold"><?= __('matrix.variant_axis') ?></span>
+        <h2 id="variant-switch-title" class="text-3xl md:text-4xl font-extrabold mt-3"><?= __('matrix.product_variant_title', ['product' => \App\Services\Catalog::label($productCode)]) ?></h2>
+        <p class="text-slate-500 mt-3 max-w-2xl mx-auto"><?= __('matrix.product_variant_sub') ?></p>
+    </div>
+
+    <?php
+    \App\Core\View::partial('partials.product_variant_switch', [
+        'variant'     => $variant,
+        'productCode' => $productCode,
+        'productPath' => $productPath,
+    ]);
+
+    // The same 4x2 grid as /products, with this product's current cell ringed —
+    // it answers "and what does the other market build look like?" in place.
+    \App\Core\View::partial('partials.product_variant_matrix', [
+        'matrix'          => $matrix,
+        'matrixMode'      => 'full',
+        'matrixTitle'     => '',
+        'matrixSub'       => '',
+        'matrixHighlight' => $productCode . ':' . $variant,
+    ]);
+    ?>
+</section>
+
+<!-- Pricing -->
+<section id="pricing" class="max-w-7xl mx-auto px-4 py-16 grid md:grid-cols-2 gap-8 max-w-4xl">
+    <?php foreach ($plans as $plan): ?>
+        <?php
+        $isYearly = ($plan['period'] ?? '') === 'yearly';
+        $price = $fmt((float) $plan['price']);
+        ?>
+        <div class="bg-white rounded-3xl p-8 border <?= $isYearly ? 'border-2 border-blue-600 shadow-xl shadow-blue-600/10' : 'border-slate-200' ?> esk-card-hover flex flex-col relative">
+            <?php if ($isYearly): ?>
+                <span class="absolute -top-3 left-8 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full"><?= __('pricing.most_popular') ?></span>
+            <?php endif; ?>
+            <div class="text-xs text-blue-600 font-semibold uppercase tracking-wide"><?= htmlspecialchars($plan['name']) ?> <?= __('product.license') ?></div>
+            <h3 class="text-2xl font-bold mt-2"><?= htmlspecialchars($plan['description']) ?></h3>
+            <div class="mt-5">
+                <span class="text-4xl font-extrabold text-blue-700"><?= htmlspecialchars($sym) ?><?= number_format($price, $isBd ? 0 : 2) ?></span>
+                <span class="text-xs text-slate-400 uppercase"> / <?= __('pricing.per') ?> <?= htmlspecialchars($plan['period']) ?></span>
+            </div>
+            <div class="text-xs text-slate-400 uppercase tracking-wide mt-1"><?= htmlspecialchars($cur) ?> · <?= $isYearly ? __('pricing.yearly_badge') : __('pricing.monthly_label') ?></div>
+            <a href="/checkout?plan=<?= (int) $plan['id'] ?>" class="mt-6 block <?= $isYearly ? 'bg-blue-600 hover:bg-blue-500' : 'bg-slate-900 hover:bg-blue-600' ?> text-white py-3 rounded-xl text-center font-semibold"><?= __('pricing.buy') ?></a>
+            <a href="/custom-order?product=node&amp;variant=<?= htmlspecialchars($variant) ?>" class="mt-3 block text-center text-sm text-blue-600 font-semibold hover:underline"><?= __('node_page.cta') ?></a>
+        </div>
+    <?php endforeach; ?>
 </section>
 
 <!-- How ordering works -->

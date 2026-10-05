@@ -26,6 +26,10 @@ use App\Controllers\Site\PostController as SitePostController;
 
 // ─── Public marketing site ───────────────────────────────────
 $router->get('/', HomeController::class, 'index');
+// `/products` must be registered before `/products/{slug}`: the router matches
+// in registration order, and the index page is the breadcrumb target for every
+// product page.
+$router->get('/products', HomeController::class, 'products');
 $router->get('/products/{slug}', HomeController::class, 'product');
 $router->get('/pricing', HomeController::class, 'pricing');
 $router->get('/features', HomeController::class, 'features');

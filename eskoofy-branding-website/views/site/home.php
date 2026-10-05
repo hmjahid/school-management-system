@@ -89,44 +89,105 @@ $seo = [
         <h2 class="text-3xl md:text-4xl font-extrabold mt-3"><?= __('home.products_heading') ?></h2>
         <p class="text-slate-500 mt-3 max-w-2xl mx-auto"><?= __('home.products_sub') ?></p>
     </div>
-    <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-white rounded-3xl border border-slate-200 p-8 esk-card-hover flex flex-col">
-            <div class="text-xs text-blue-600 font-semibold uppercase tracking-wide"><?= __('home.products.app_tag') ?></div>
-            <h3 class="text-2xl font-bold mt-2"><?= __('home.products.app_name') ?></h3>
-            <p class="text-slate-500 mt-3 text-sm leading-relaxed flex-1"><?= __('home.products.app_desc') ?></p>
-            <div class="mt-5 space-y-2 text-sm text-slate-600">
-                <p class="esk-check"><?= __('product.app_f1') ?></p>
-                <p class="esk-check"><?= __('product.app_f3') ?></p>
-                <p class="esk-check"><?= __('product.app_f4') ?></p>
-                <p class="esk-check"><?= __('product.app_f8') ?></p>
+    <?php
+    /**
+     * Four cards, one per catalog product. The card list is driven by
+     * `Catalog::keys()` rather than hand-written, because the missing fourth
+     * card (Node.js) was exactly the kind of drift a hard-coded grid causes.
+     * Each card carries an inline variant badge strip built from the same
+     * `ProductMatrix` data the full matrix renders, so the homepage and
+     * `/products` can never disagree about which cells are offered.
+     */
+    $productCards = [
+        'app' => [
+            'tag'  => __('home.products.app_tag'),
+            'name' => __('home.products.app_name'),
+            'desc' => __('home.products.app_desc'),
+            'cta'  => __('home.products.app_cta'),
+            'feats' => ['product.app_f1', 'product.app_f3', 'product.app_f4', 'product.app_f8'],
+        ],
+        'php' => [
+            'tag'  => __('home.products.php_tag'),
+            'name' => __('home.products.php_name'),
+            'desc' => __('home.products.php_desc'),
+            'cta'  => __('home.products.php_cta'),
+            'feats' => ['product.php_f1', 'product.php_f2', 'product.php_f3', 'product.php_f6'],
+            'featured' => true,
+        ],
+        'theme' => [
+            'tag'  => __('home.products.theme_tag'),
+            'name' => __('home.products.theme_name'),
+            'desc' => __('home.products.theme_desc'),
+            'cta'  => __('home.products.theme_cta'),
+            'feats' => ['product.theme_f1', 'product.theme_f2', 'product.theme_f4', 'product.theme_f5'],
+        ],
+        'node' => [
+            'tag'  => __('home.products.node_tag'),
+            'name' => __('home.products.node_name'),
+            'desc' => __('home.products.node_desc'),
+            'cta'  => __('home.products.node_cta'),
+            'feats' => ['product.node_f1', 'product.node_f2', 'product.node_f3'],
+        ],
+    ];
+    $matrixRows = [];
+    foreach ((array) ($matrix['rows'] ?? []) as $matrixRow) {
+        $matrixRows[(string) $matrixRow['product']['code']] = $matrixRow;
+    }
+    $variantColumns = (array) ($matrix['variants'] ?? []);
+    ?>
+    <div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-6">
+        <?php foreach (\App\Services\Catalog::keys() as $productCode): ?>
+            <?php
+            if (!isset($productCards[$productCode])) {
+                continue;
+            }
+            $card = $productCards[$productCode];
+            $catalogProduct = \App\Services\Catalog::get($productCode);
+            $matrixRow = $matrixRows[$productCode] ?? ['cells' => [], 'color' => $catalogProduct['color']];
+            $accent = (string) $catalogProduct['color'];
+            $featured = !empty($card['featured']);
+            ?>
+            <div class="bg-white rounded-3xl border <?= $featured ? 'border-2 border-blue-600 shadow-xl shadow-blue-600/10' : 'border-slate-200' ?> p-7 esk-card-hover flex flex-col relative"
+                 style="--pill: <?= htmlspecialchars($accent) ?>">
+                <?php if ($featured): ?>
+                    <span class="absolute -top-3 left-6 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full"><?= __('home.products.recommended') ?></span>
+                <?php endif; ?>
+
+                <span class="esk-product-pill text-xs"><?= htmlspecialchars((string) $card['tag']) ?></span>
+                <h3 class="text-xl font-bold mt-3"><?= htmlspecialchars((string) $card['name']) ?></h3>
+                <p class="text-slate-500 mt-2 text-sm leading-relaxed flex-1"><?= htmlspecialchars((string) $card['desc']) ?></p>
+
+                <div class="mt-4 space-y-2 text-sm text-slate-600">
+                    <?php foreach ($card['feats'] as $featureKey): ?>
+                        <p class="esk-check"><?= __($featureKey) ?></p>
+                    <?php endforeach; ?>
+                </div>
+
+                <?php /* Inline variant badge strip — the compact half of the matrix. */ ?>
+                <div class="mt-5 pt-4 border-t border-slate-100">
+                    <div class="text-[11px] uppercase tracking-wide text-slate-400"><?= __('home.products.badge_prefix') ?></div>
+                    <div class="flex flex-wrap gap-1.5 mt-1.5">
+                        <?php foreach ($variantColumns as $column): ?>
+                            <?php $cell = (array) (($matrixRow['cells'] ?? [])[$column['code']] ?? []); ?>
+                            <?php if ((bool) ($cell['offered'] ?? false)): ?>
+                                <a href="<?= htmlspecialchars((string) ($cell['href'] ?? $catalogProduct['page'])) ?>"
+                                   class="esk-variant-chip esk-variant-chip--<?= htmlspecialchars((string) $column['code']) ?> border px-2 py-0.5 text-xs font-semibold text-slate-600"
+                                   title="<?= htmlspecialchars((string) $column['desc']) ?>"><?= htmlspecialchars((string) $column['short']) ?></a>
+                            <?php else: ?>
+                                <span class="esk-variant-chip esk-variant-chip--<?= htmlspecialchars((string) $column['code']) ?> border px-2 py-0.5 text-xs font-semibold text-slate-400 line-through"
+                                      title="<?= htmlspecialchars((string) __('matrix.cell_empty')) ?>"><?= htmlspecialchars((string) $column['short']) ?></span>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <div class="mt-5"><a href="<?= htmlspecialchars((string) $catalogProduct['page']) ?>" class="inline-block font-semibold" style="color:<?= htmlspecialchars($accent) ?>"><?= htmlspecialchars((string) $card['cta']) ?> →</a></div>
             </div>
-            <div class="mt-6"><a href="/products/app" class="inline-block text-blue-600 font-semibold"><?= __('home.products.app_cta') ?> →</a></div>
-        </div>
-        <div class="bg-white rounded-3xl border-2 border-blue-600 p-8 esk-card-hover flex flex-col shadow-xl shadow-blue-600/10 relative">
-            <span class="absolute -top-3 left-8 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full"><?= __('home.products.recommended') ?></span>
-            <div class="text-xs text-blue-600 font-semibold uppercase tracking-wide"><?= __('home.products.php_tag') ?></div>
-            <h3 class="text-2xl font-bold mt-2"><?= __('home.products.php_name') ?></h3>
-            <p class="text-slate-500 mt-3 text-sm leading-relaxed flex-1"><?= __('home.products.php_desc') ?></p>
-            <div class="mt-5 space-y-2 text-sm text-slate-600">
-                <p class="esk-check"><?= __('product.php_f1') ?></p>
-                <p class="esk-check"><?= __('product.php_f2') ?></p>
-                <p class="esk-check"><?= __('product.php_f3') ?></p>
-                <p class="esk-check"><?= __('product.php_f6') ?></p>
-            </div>
-            <div class="mt-6"><a href="/products/php" class="inline-block text-blue-600 font-semibold"><?= __('home.products.php_cta') ?> →</a></div>
-        </div>
-        <div class="bg-white rounded-3xl border border-slate-200 p-8 esk-card-hover flex flex-col">
-            <div class="text-xs text-blue-600 font-semibold uppercase tracking-wide"><?= __('home.products.theme_tag') ?></div>
-            <h3 class="text-2xl font-bold mt-2"><?= __('home.products.theme_name') ?></h3>
-            <p class="text-slate-500 mt-3 text-sm leading-relaxed flex-1"><?= __('home.products.theme_desc') ?></p>
-            <div class="mt-5 space-y-2 text-sm text-slate-600">
-                <p class="esk-check"><?= __('product.theme_f1') ?></p>
-                <p class="esk-check"><?= __('product.theme_f2') ?></p>
-                <p class="esk-check"><?= __('product.theme_f4') ?></p>
-                <p class="esk-check"><?= __('product.theme_f5') ?></p>
-            </div>
-            <div class="mt-6"><a href="/products/theme" class="inline-block text-blue-600 font-semibold"><?= __('home.products.theme_cta') ?> →</a></div>
-        </div>
+        <?php endforeach; ?>
+    </div>
+
+    <div class="text-center mt-10">
+        <a href="/products" class="esk-chip inline-block border border-blue-300 text-blue-600 px-6 py-2.5 rounded-xl font-semibold"><?= __('home.products.all') ?> →</a>
     </div>
 </section>
 

@@ -1,10 +1,17 @@
 <?php $title = __('product.app_title'); $siteTitle = $title; ?>
 
 <?php
-$isBd = \App\Gateways\GatewayFactory::isBdCountry(\App\Core\Auth::user()['country'] ?? null);
-$sym  = $isBd ? '৳' : '$';
-$cur  = $isBd ? 'BDT' : 'USD';
-$fmt  = fn (float $usd): float => $isBd ? \App\Gateways\GatewayFactory::toBdt($usd) : $usd;
+/**
+ * Prices come from the **variant** axis, resolved once by the controller and
+ * overridable with `?variant=bd|int`. Previously this page inferred the market
+ * build from the visitor's country, which made a BD visitor unable to inspect
+ * the international build of the same product at all.
+ */
+$variant    = $productVariant ?? \App\Services\VariantResolver::forCustomer(\App\Core\Auth::user() ?? []);
+$isBd       = $variant === \App\Services\VariantResolver::BD;
+$sym        = \App\Services\VariantResolver::currencySymbol($variant);
+$cur        = \App\Services\VariantResolver::currencyCode($variant);
+$fmt        = static fn (float $usd): float => (float) \App\Services\VariantResolver::displayAmount($usd, $variant)['amount'];
 $minPrice = 0.0;
 foreach ($plans as $p) {
     $minPrice = $minPrice === 0.0 || (float) $p['price'] < $minPrice ? (float) $p['price'] : $minPrice;
@@ -22,7 +29,7 @@ $seo = [
         \App\Services\Seo::product(['name' => __('product.app_title'), 'description' => __('product.app_sub'), 'url' => '/products/app', 'price' => number_format($minPrice, 2), 'currency' => 'USD']),
         \App\Services\Seo::faq($faqItems),
     ],
-    'breadcrumbs' => [['name' => __('nav.home'), 'url' => '/'], ['name' => __('product.app_title'), 'url' => '/products/app']],
+    'breadcrumbs' => [['name' => __('nav.home'), 'url' => '/'], ['name' => __('products.label'), 'url' => '/products'], ['name' => __('product.app_title'), 'url' => '/products/app']],
 ];
 ?>
 
@@ -85,6 +92,33 @@ $seo = [
             </div>
         </div>
     </div>
+</section>
+
+<!-- Market build: the variant axis for this one product -->
+<section class="max-w-7xl mx-auto px-4 pb-4" aria-labelledby="variant-switch-title">
+    <div class="text-center mb-8">
+        <span class="text-xs uppercase tracking-widest text-blue-600 font-semibold"><?= __('matrix.variant_axis') ?></span>
+        <h2 id="variant-switch-title" class="text-3xl md:text-4xl font-extrabold mt-3"><?= __('matrix.product_variant_title', ['product' => \App\Services\Catalog::label($productCode)]) ?></h2>
+        <p class="text-slate-500 mt-3 max-w-2xl mx-auto"><?= __('matrix.product_variant_sub') ?></p>
+    </div>
+
+    <?php
+    \App\Core\View::partial('partials.product_variant_switch', [
+        'variant'     => $variant,
+        'productCode' => $productCode,
+        'productPath' => $productPath,
+    ]);
+
+    // The same 4x2 grid as /products, with this product's current cell ringed —
+    // it answers "and what does the other market build look like?" in place.
+    \App\Core\View::partial('partials.product_variant_matrix', [
+        'matrix'          => $matrix,
+        'matrixMode'      => 'full',
+        'matrixTitle'     => '',
+        'matrixSub'       => '',
+        'matrixHighlight' => $productCode . ':' . $variant,
+    ]);
+    ?>
 </section>
 
 <!-- Pricing -->

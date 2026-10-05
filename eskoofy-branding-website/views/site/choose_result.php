@@ -15,6 +15,10 @@ $pick = static function (string $product) use ($candidates): ?array {
 
 $best = $pick($result['product']);
 $second = $pick($result['runnerUp']);
+$variant = $result['variant'];
+// Ring the winning cell in the compact matrix so the quiz output is visibly
+// one cell of the same grid `/products` shows in full.
+$highlight = $result['product'] . ':' . $variant;
 ?>
 
 <section class="esk-hero text-white">
@@ -22,6 +26,11 @@ $second = $pick($result['runnerUp']);
         <span class="inline-block text-xs uppercase tracking-widest bg-blue-500/20 text-blue-200 px-3 py-1 rounded-full border border-blue-400/30 mb-6"><?= __('choose.badge') ?></span>
         <h1 class="text-4xl md:text-5xl font-extrabold"><?= __('choose.result_title') ?></h1>
         <p class="mt-4 text-slate-300 text-lg max-w-3xl mx-auto"><?= __('choose.result_sub') ?></p>
+        <p class="mt-4 inline-flex items-center gap-2 text-sm bg-white/10 border border-white/15 rounded-full px-4 py-2">
+            <span class="text-slate-200"><?= __('choose.your_variant') ?>:</span>
+            <span class="font-bold"><?= htmlspecialchars(\App\Services\VariantResolver::label($variant, \App\Services\I18n::current())) ?></span>
+            <span class="text-slate-300">· <?= htmlspecialchars((string) (\App\Services\VariantResolver::currencyCode($variant))) ?></span>
+        </p>
     </div>
 </section>
 
@@ -32,7 +41,7 @@ $second = $pick($result['runnerUp']);
         <p class="mt-3 text-slate-600 leading-relaxed"><?= __($best['desc_key']) ?></p>
         <p class="mt-4 text-sm text-slate-500"><strong class="text-slate-700"><?= __('choose.why') ?></strong> <?= __($result['reason_key']) ?></p>
         <div class="mt-6 flex flex-wrap gap-3">
-            <a href="<?= htmlspecialchars($best['link']) ?>" class="esk-btn-primary bg-blue-600 hover:bg-blue-500 text-white px-7 py-3.5 rounded-xl font-semibold"><?= __('choose.cta_view') ?></a>
+            <a href="<?= htmlspecialchars($best['link'] . (str_contains($best['link'], '?') ? '&' : '?') . 'variant=' . rawurlencode($variant)) ?>" class="esk-btn-primary bg-blue-600 hover:bg-blue-500 text-white px-7 py-3.5 rounded-xl font-semibold"><?= __('choose.cta_view') ?></a>
             <?php if ($second): ?>
                 <a href="<?= htmlspecialchars($second['link']) ?>" class="border border-slate-300 text-slate-700 px-7 py-3.5 rounded-xl font-semibold"><?= __('choose.cta_runner') ?>: <?= __($second['label_key']) ?></a>
             <?php endif; ?>
@@ -40,7 +49,19 @@ $second = $pick($result['runnerUp']);
     </div>
 
     <div class="mt-10">
-        <h3 class="text-lg font-bold text-slate-900 mb-4"><?= __('choose.all_variants') ?></h3>
+        <?php
+        \App\Core\View::partial('partials.product_variant_matrix', [
+            'matrix'      => $matrix,
+            'matrixMode'     => 'compact',
+            'matrixTitle'    => __('choose.all_products'),
+            'matrixSub'      => '',
+            'matrixHighlight'=> $highlight,
+        ]);
+        ?>
+    </div>
+
+    <div class="mt-10">
+        <h3 class="text-lg font-bold text-slate-900 mb-4"><?= __('choose.all_products') ?></h3>
         <div class="grid sm:grid-cols-2 gap-4">
             <?php foreach ($candidates as $c): ?>
                 <div class="border border-slate-200 rounded-2xl p-6 bg-white">

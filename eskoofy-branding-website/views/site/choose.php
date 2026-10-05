@@ -22,6 +22,7 @@ $cmsHero = !empty($cmsPage['heading']) || !empty($cmsPage['intro']);
         <?= csrf_field() ?>
 
         <?php foreach ([
+            ['market', __('choose.q_market'), $markets],
             ['size', __('choose.q_size'), $sizes],
             ['comfort', __('choose.q_comfort'), $comforts],
             ['hosting', __('choose.q_hosting'), $hostings],

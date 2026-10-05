@@ -79,6 +79,54 @@ if (!preg_match('/^#[0-9a-fA-F]{6}$/', $eskColour)) {
         @keyframes eskFadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .esk-table th, .esk-table td { vertical-align: middle; }
         .esk-check::before { content: '✓'; display: inline-block; color: #16a34a; font-weight: 700; margin-right: .5rem; }
+
+        /* Product x Variant matrix — one component, five surfaces.
+           The two axes are styled orthogonally on purpose: products get a
+           rounded pill in the product brand colour, variants get a square
+           chip with a diagonal hatch, so you can never mix them up. */
+        .esk-matrix-legend { display: flex; flex-wrap: wrap; gap: 1.25rem; font-size: .8125rem; color: #475569; }
+        .esk-matrix-legend-item { display: inline-flex; align-items: center; gap: .5rem; }
+        .esk-legend-axis { display: inline-block; font-size: .6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #2563eb; background: rgba(37,99,235,.1); border-radius: 999px; padding: .125rem .5rem; }
+        .esk-legend-axis--variant { color: #0f766e; background: rgba(13,148,136,.12); border-radius: .25rem; }
+        .esk-matrix-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) repeat(2, minmax(0, 1fr)); gap: .5rem; }
+        .esk-matrix-corner { display: flex; align-items: center; gap: .375rem; padding: .75rem; }
+        .esk-matrix-corner-glyph { color: #94a3b8; font-size: .75rem; }
+        .esk-matrix-head { padding: .75rem; border: 1px solid #e2e8f0; border-radius: .5rem; background: #f8fafc; }
+        .esk-matrix-rowlabel { display: flex; flex-direction: column; gap: .25rem; padding: .875rem .75rem; }
+        .esk-matrix-rowmeta { font-size: .75rem; color: #64748b; }
+        .esk-matrix-metric, .esk-matrix-cell-metric { font-size: .75rem; font-weight: 600; color: #475569; }
+        .esk-product-pill { display: inline-block; align-self: flex-start; font-size: .8125rem; font-weight: 700; color: #fff; background: var(--pill, #64748b); border-radius: 999px; padding: .1875rem .625rem; }
+        .esk-variant-chip { border-radius: .5rem; background-image: repeating-linear-gradient(45deg, rgba(15,118,110,.09) 0 6px, transparent 6px 12px); }
+        .esk-variant-chip--bd { border-color: #a7f3d0; }
+        .esk-variant-chip--int { border-color: #bfdbfe; }
+        .esk-variant-chip-label { display: block; font-size: .8125rem; font-weight: 700; color: #0f172a; }
+        .esk-variant-chip-gateways { display: block; font-size: .6875rem; color: #64748b; margin-top: .125rem; }
+        .esk-matrix-cell { display: flex; flex-direction: column; gap: .1875rem; padding: .875rem; border: 1px solid #e2e8f0; border-radius: .5rem; background: #fff; }
+        a.esk-matrix-cell { transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+        a.esk-matrix-cell:hover { border-color: var(--pill, #2563eb); box-shadow: 0 8px 20px -12px rgb(15 23 42/.35); transform: translateY(-1px); }
+        .esk-matrix-cell--highlight { border-color: var(--pill, #2563eb); box-shadow: 0 0 0 2px var(--pill, #2563eb); }
+        .esk-matrix-cell--empty { background: repeating-linear-gradient(45deg, #f8fafc 0 8px, #f1f5f9 8px 16px); border-style: dashed; }
+        .esk-matrix-cell-price { font-size: 1.0625rem; font-weight: 800; color: #0f172a; font-variant-numeric: tabular-nums; }
+        .esk-matrix-cell-plan { font-size: .75rem; color: #64748b; }
+        .esk-matrix-cell-dash { font-size: 1.0625rem; font-weight: 800; color: #94a3b8; }
+        .esk-matrix-cell-cta { font-size: .75rem; font-weight: 600; color: #2563eb; margin-top: .1875rem; }
+        .esk-matrix-footnote { font-size: .75rem; color: #94a3b8; }
+
+        /* Single-product market-build switcher. Square-cornered like the
+           variant axis of the matrix, so it never reads as a product change. */
+        .esk-variant-switch { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .5rem; max-width: 44rem; margin: 0 auto 2rem; }
+        .esk-variant-switch-label { font-size: .6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #0f766e; background: rgba(13,148,136,.12); border-radius: .25rem; padding: .125rem .5rem; }
+        .esk-variant-switch-option { display: flex; flex-direction: column; gap: .125rem; flex: 1 1 12rem; max-width: 16rem; padding: .75rem 1rem; border: 1px solid #e2e8f0; border-radius: .5rem; background: #fff; text-decoration: none; transition: border-color .15s ease, box-shadow .15s ease; }
+        .esk-variant-switch-option:hover { border-color: #0f766e; box-shadow: 0 8px 20px -14px rgb(15 23 42/.4); }
+        .esk-variant-switch-option.is-active { border-color: #0f766e; box-shadow: 0 0 0 2px #0f766e; }
+        .esk-variant-switch-name { font-size: .9375rem; font-weight: 700; color: #0f172a; }
+        .esk-variant-switch-meta { font-size: .75rem; color: #64748b; }
+        .esk-variant-switch-option[aria-current="true"] .esk-variant-switch-name::after { content: " ✓"; color: #0f766e; }
+
+        @media (max-width: 767px) {
+            .esk-matrix-grid { grid-template-columns: 1fr; }
+            .esk-matrix-corner { display: none; }
+        }
         .esk-drawer { transition: transform .25s ease; }
         .esk-drawer.open { transform: translateX(0); }
         .esk-drop { opacity: 0; visibility: hidden; transform: translateY(8px); transition: opacity .15s ease, transform .15s ease, visibility .15s; pointer-events: none; }
@@ -93,6 +141,18 @@ if (!preg_match('/^#[0-9a-fA-F]{6}$/', $eskColour)) {
         .dark .text-slate-700 { color: #e2e8f0; }
         .dark .text-slate-600, .dark .text-slate-500 { color: #94a3b8; }
         .dark .bg-slate-100 { background-color: #1e293b; }
+
+        /* Matrix dark theme. */
+        .dark .esk-matrix-legend { color: #94a3b8; }
+        .dark .esk-matrix-head { background: #1e293b; border-color: #334155; }
+        .dark .esk-matrix-rowmeta, .dark .esk-variant-chip-gateways, .dark .esk-matrix-cell-plan, .dark .esk-matrix-footnote { color: #94a3b8; }
+        .dark .esk-matrix-cell { background: #1e293b; border-color: #334155; }
+        .dark .esk-matrix-cell--empty { background-image: repeating-linear-gradient(45deg, #1e293b 0 8px, #172033 8px 16px); border-color: #334155; }
+        .dark .esk-matrix-cell-price, .dark .esk-variant-chip-label { color: #f1f5f9; }
+        .dark .esk-matrix-cell-dash { color: #64748b; }
+        .dark .esk-variant-switch-option { background: #1e293b; border-color: #334155; }
+        .dark .esk-variant-switch-name { color: #f1f5f9; }
+        .dark .esk-variant-switch-meta { color: #94a3b8; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased font-sans">

@@ -48,7 +48,7 @@ class RouterRegistrationTest extends TestCase
     {
         $base = dirname(__DIR__, 3) . '/views/';
 
-        foreach (['home', 'pricing', 'features', 'about', 'contact', 'checkout', 'blog', 'post', 'legal', 'choose', 'choose_result', 'custom_order'] as $view) {
+        foreach (['home', 'products_index', 'pricing', 'features', 'about', 'contact', 'checkout', 'blog', 'post', 'legal', 'choose', 'choose_result', 'custom_order'] as $view) {
             $this->assertFileExists($base . 'site/' . $view . '.php', "Missing site view: {$view}");
         }
         foreach (['app', 'theme', 'php', 'node'] as $view) {
@@ -197,5 +197,71 @@ class RouterRegistrationTest extends TestCase
         $this->assertStringContainsString('data-role-tabs', $features);
         $this->assertStringContainsString('data-role-panel="teacher"', $features);
         $this->assertStringContainsString('data-role-panel="parent"', $features);
+    }
+
+    // -------------------------------------------- Phase 2: product x variant
+
+    /**
+     * `/products` must be registered *before* `/products/{slug}`, or the slug
+     * route swallows it and the taxonomy page 404s.
+     */
+    public function test_products_index_route_precedes_the_product_slug_route(): void
+    {
+        $source = (string) file_get_contents(dirname(__DIR__, 3) . '/routes/web.php');
+
+        // Only real registrations count: the file also explains this ordering in
+        // a comment, which mentions the slug route first.
+        preg_match_all('/^\$router->get\(\'([^\']+)\'/m', $source, $matches);
+        $paths = $matches[1];
+
+        $index = array_search('/products', $paths, true);
+        $slug = array_search('/products/{slug}', $paths, true);
+
+        $this->assertNotFalse($index, '/products route is missing');
+        $this->assertNotFalse($slug, '/products/{slug} route is missing');
+        $this->assertLessThan($slug, $index, '/products must be registered before /products/{slug}');
+    }
+
+    public function test_the_shared_matrix_partial_exists_in_every_mode(): void
+    {
+        $partial = dirname(__DIR__, 3) . '/views/partials/product_variant_matrix.php';
+        $this->assertFileExists($partial);
+
+        $source = (string) file_get_contents($partial);
+        foreach (['full', 'compact', 'admin'] as $mode) {
+            $this->assertStringContainsString("'{$mode}'", $source, "matrix mode {$mode} is not handled");
+        }
+    }
+
+    /**
+     * The single-product market-build switcher is a second shared partial; a
+     * broken path here would 500 on all four product pages at once.
+     */
+    public function test_the_product_variant_switch_partial_exists(): void
+    {
+        $this->assertFileExists(dirname(__DIR__, 3) . '/views/partials/product_variant_switch.php');
+    }
+
+    public function test_every_product_page_renders_the_matrix_and_the_switcher(): void
+    {
+        $base = dirname(__DIR__, 3) . '/views/site/products/';
+
+        foreach (['app', 'php', 'theme', 'node'] as $product) {
+            $source = (string) file_get_contents($base . $product . '.php');
+
+            $this->assertStringContainsString('partials.product_variant_switch', $source, $product);
+            $this->assertStringContainsString('partials.product_variant_matrix', $source, $product);
+            $this->assertStringContainsString('$productVariant', $source, $product);
+        }
+    }
+
+    public function test_choose_result_and_compare_render_the_matrix(): void
+    {
+        $base = dirname(__DIR__, 3) . '/views/site/';
+
+        foreach (['choose_result', 'compare', 'products_index'] as $view) {
+            $source = (string) file_get_contents($base . $view . '.php');
+            $this->assertStringContainsString('partials.product_variant_matrix', $source, $view);
+        }
     }
 }
