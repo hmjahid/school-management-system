@@ -3,10 +3,19 @@
 #
 # Same contract as docker/php-dev/entrypoint.sh: the MariaDB init script runs
 # only on a fresh volume, so schema changes on an existing volume are applied
-# here on every boot (the schema is CREATE TABLE IF NOT EXISTS-safe).
+# here on every boot — `./docker/dev.sh restart website` is what makes a
+# database/schema.sql edit visible.
+#
+# The per-statement applier (docker/apply-schema.php) is used rather than a
+# single multi-statement exec because a whole-file exec is not idempotent: any
+# statement that is not `CREATE TABLE IF NOT EXISTS` runs again on every boot and
+# aborts the file on the second. That is what crash-looped the php-dev container
+# before this was shared. The website schema happens to be CREATE-TABLE-only
+# today, but it will not stay that way.
 
 set -eu
 
+# Wait for the database to accept connections (first boot races db startup).
 i=0
 until php -r '
   try {
@@ -22,22 +31,8 @@ until php -r '
 done
 
 SCHEMA="${ESK_SCHEMA_FILE:-/var/www/database/schema.sql}"
-if [ -f "$SCHEMA" ]; then
-  echo "==> Applying schema.sql (idempotent) to the container DB..."
-  php -r '
-    $pdo = new PDO(
-      sprintf("mysql:host=%s;port=%s;dbname=%s", getenv("DB_HOST") ?: "db", getenv("DB_PORT") ?: "3306", getenv("DB_DATABASE") ?: "eskoofy_website"),
-      getenv("DB_USERNAME") ?: "esk",
-      getenv("DB_PASSWORD") ?: "eskpw",
-      [PDO::MYSQL_ATTR_MULTI_STATEMENTS => true]
-    );
-    $sql = file_get_contents(getenv("ESK_SCHEMA_FILE") ?: "/var/www/database/schema.sql");
-    if ($sql !== false && trim($sql) !== "") { $pdo->exec($sql); }
-    echo "schema.sql applied\n";
-  '
-else
-  echo "==> No schema.sql found at $SCHEMA — skipping."
-fi
+echo "==> Applying schema.sql to the container DB (idempotent)..."
+php /docker/apply-schema.php "$SCHEMA"
 
 echo "==> Starting: $*"
 exec "$@"

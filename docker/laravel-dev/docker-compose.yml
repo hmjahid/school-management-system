@@ -48,6 +48,8 @@ services:
       - ../../eskoofy-laravel-app:/var/www:cached
       - ./entrypoint.sh:/docker/entrypoint.sh:ro
       - ./router.php:/docker/router.php:ro
+      # Shared no-store static handler used by all three `php -S` routers.
+      - ../static-dev.php:/docker/static-dev.php:ro
     depends_on:
       db:
         condition: service_healthy
@@ -63,15 +65,17 @@ services:
     working_dir: /var/www
     environment:
       CHOKIDAR_USEPOLLING: "true"
-    # vite.config.dev.js forces the 0.0.0.0 bind for the published port while
-    # advertising HMR on localhost, or laravel-vite-plugin stamps public/hot with
-    # http://0.0.0.0:5173 and Blade emits unreachable asset URLs in the browser.
-    command: ["sh", "-c", "[ -f node_modules/.bin/vite ] || npm ci --no-audit --no-fund; exec npm run dev -- --config /var/www/vite.config.dev.js"]
+    # assets.sh owns the public/hot lifecycle (create on start, remove on stop)
+    # so Blade's @vite never resolves to a dead dev server or silently to a
+    # stale public/build/manifest.json.
+    command: ["/bin/sh", "/docker/assets.sh"]
     ports:
       - "5173:5173"
     volumes:
       - ../../eskoofy-laravel-app:/var/www:cached
+      # Under /var/www on purpose (module resolution) — gitignored in the product.
       - ./vite.config.dev.js:/var/www/vite.config.dev.js:ro
+      - ./assets.sh:/docker/assets.sh:ro
       - esk-laravel-modules:/var/www/node_modules
     networks:
       - esk-laravel-net

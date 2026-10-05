@@ -56,6 +56,10 @@ services:
       # Router lives outside the product tree so Docker never materializes a
       # stray file inside the bind mount (see eskoofy-php-app/router.php).
       - ./router.php:/router.php:ro
+      # Shared no-store static handler used by all three `php -S` routers.
+      - ../static-dev.php:/docker/static-dev.php:ro
+      # Shared idempotent, per-statement schema applier (re-run on every boot).
+      - ../apply-schema.php:/docker/apply-schema.php:ro
       - ./entrypoint.sh:/docker/entrypoint.sh:ro
     depends_on:
       db:

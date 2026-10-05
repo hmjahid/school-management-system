@@ -23,3 +23,10 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Docker dev-harness artifact. docker/laravel-dev/docker-compose.yml bind-mounts
+# its Vite override to this path, so Docker creates the file in the product tree
+# on `up`. It must live under /var/www for Node to resolve `import 'vite'`, so it
+# cannot simply be mounted somewhere harmless — ignore it instead.
+# See docker/README.md ("Laravel assets: public/hot is the switch").
+/vite.config.dev.js

@@ -67,6 +67,28 @@ if [ "$(db_check 'SELECT EXISTS(SELECT 1 FROM users)')" != "1" ]; then
   php artisan db:seed --force
 fi
 
+# Blade's @vite prefers public/hot (the :5173 dev server) and falls back to
+# public/build/manifest.json. That manifest is a gitignored `npm run build`
+# artefact, so it is often sitting in the bind mount from an earlier build. If
+# the assets container is not running, hot is absent and Blade silently serves
+# the prebuilt bundle — which is why a CSS/JS edit appears to do nothing. Say so
+# loudly instead of letting it be debugged from the wrong end.
+if [ -f public/build/manifest.json ] && [ ! -f public/hot ]; then
+  echo ""
+  echo "  ############################################################"
+  echo "  # WARNING: serving PREBUILT assets, not the Vite dev server  #"
+  echo "  #                                                            #"
+  echo "  # public/build/manifest.json exists and public/hot does not,   #"
+  echo "  # so @vite will emit URLs to a bundle built before your     #"
+  echo "  # last CSS/JS edit. CSS/JS changes will NOT be live.         #"
+  echo "  #                                                            #"
+  echo "  # Fix:  ./docker/dev.sh up laravel   (starts the assets       #"
+  echo "  #        container, which recreates public/hot)              #"
+  echo "  # Or:   rm -rf eskoofy-laravel-app/public/build              #"
+  echo "  ############################################################"
+  echo ""
+fi
+
 # RolePermissionSeeder is idempotent (firstOrCreate + syncPermissions) and MUST
 # re-run on every boot: an existing database volume created before this seeder
 # gained a new permission would otherwise never grant it. The dashboard
