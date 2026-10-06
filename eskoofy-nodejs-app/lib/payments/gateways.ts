@@ -91,8 +91,74 @@ export function gatewayConfig(row: GatewayRow): GatewayConfig {
   return { ...base, ...parseJsonObject(row.extra_attributes) };
 }
 
+/* -------------------------------------------------------------------------- */
+/* Test / sandbox gateway (zero credentials, local simulated results)          */
+/* -------------------------------------------------------------------------- */
+
+/** Credential-free test gateway code (same code the app's refunds short-circuit on). */
+export const TEST_GATEWAY_CODE = "test_gateway";
+export const TEST_GATEWAY_LABEL = "Test / Sandbox";
+
+export function isTestGatewayCode(code: string): boolean {
+  return code === TEST_GATEWAY_CODE;
+}
+
+/** Adapter resolved for a gateway row — the admin diagnostics "adapter" column. */
+export type GatewayAdapterName = "TestGatewayAdapter" | "GenericHostedGatewayAdapter" | "OfflineGateway";
+
+export function resolveGatewayAdapter(row: Pick<GatewayRow, "code" | "is_online">): GatewayAdapterName {
+  if (isTestGatewayCode(row.code)) return "TestGatewayAdapter";
+  if (!row.is_online) return "OfflineGateway";
+  return "GenericHostedGatewayAdapter";
+}
+
+/** Local sandbox page for a payment — Laravel's `payments.sandbox` URL shape. */
+export function testSandboxPath(paymentId: number | string): string {
+  return `/payments/sandbox/${paymentId}`;
+}
+
+export type TestGatewaySimulate = "success" | "failure" | "cancel";
+
+/** `simulate` form value → outcome (case-insensitive), or null when unusable. */
+export function parseTestGatewaySimulate(value: unknown): TestGatewaySimulate | null {
+  const normalized = text(value).trim().toLowerCase();
+  if (normalized === "success" || normalized === "failure" || normalized === "cancel") return normalized;
+  return null;
+}
+
+export interface TestGatewayPaymentState {
+  payment_method: string;
+  payment_status: string;
+  invoice_number: string;
+}
+
+export type TestGatewayPlan =
+  | { action: "noop"; reason: string }
+  | { action: "complete"; transaction_id: string; status: string }
+  | { action: "fail"; status: string; reason: string }
+  | { action: "cancel"; status: string; reason: string };
+
+/**
+ * Pure simulate decision for the test gateway:
+ *   - only payments taken with `test_gateway` can be simulated,
+ *   - a paid payment is never changed (verify stays idempotent),
+ *   - success completes with `TEST-<reference>`, failure/cancel reuse the
+ *     product's existing status vocabulary (`failed` / `cancelled`).
+ */
+export function planTestGateway(payment: TestGatewayPaymentState, simulate: TestGatewaySimulate | null): TestGatewayPlan {
+  if (payment.payment_method !== TEST_GATEWAY_CODE) return { action: "noop", reason: "not a test payment" };
+  if (payment.payment_status === "completed") return { action: "noop", reason: "already paid" };
+  if (simulate === "success") return { action: "complete", transaction_id: `TEST-${payment.invoice_number}`, status: "COMPLETED" };
+  if (simulate === "failure") return { action: "fail", status: "FAILED", reason: "Simulated payment failure" };
+  if (simulate === "cancel") return { action: "cancel", status: "CANCELLED", reason: "Payment cancelled in the sandbox" };
+  return { action: "noop", reason: "no outcome simulated" };
+}
+
 /** Port of `PaymentGateway::getIsConfiguredAttribute()`. */
 export function isGatewayConfigured(row: GatewayRow): boolean {
+  // The test gateway never has (nor needs) credentials.
+  if (isTestGatewayCode(row.code)) return true;
+
   if (!row.is_online) return true;
 
   const code = row.code;

@@ -11,6 +11,7 @@
  */
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { PAYMENT_GATEWAY_SEEDS } from "./gateways";
 
 const prisma = new PrismaClient();
 
@@ -24,6 +25,26 @@ async function ensureRole(name: string) {
   return prisma.roles.create({ data: { name, guard_name: "web" } });
 }
 
+/**
+ * Seed the payment gateways this product owns (`test_gateway` + the extended
+ * BD hosted set). Create-only upsert: an existing row is never overwritten, so
+ * a re-seed never clobbers admin-entered credentials or enable/disable flags.
+ */
+async function seedPaymentGateways(): Promise<void> {
+  for (const seed of PAYMENT_GATEWAY_SEEDS) {
+    await prisma.payment_gateways.upsert({
+      where: { code: seed.code },
+      update: {},
+      create: {
+        ...seed,
+        extra_attributes: seed.extra_attributes ? JSON.stringify(seed.extra_attributes) : null,
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+    });
+  }
+}
+
 async function main(): Promise<void> {
   const adminPassword = await bcrypt.hash(ADMIN_PASSWORD, 12);
   const demoPassword = await bcrypt.hash(DEMO_PASSWORD, 12);
@@ -31,6 +52,8 @@ async function main(): Promise<void> {
   const adminRole = await ensureRole("admin");
   const studentRole = await ensureRole("student");
   const teacherRole = await ensureRole("teacher");
+
+  await seedPaymentGateways();
 
   const admin = await prisma.users.upsert({
     where: { email: ADMIN_EMAIL },

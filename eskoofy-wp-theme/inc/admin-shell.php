@@ -61,7 +61,7 @@ function esk_admin_shell_groups(): array {
 		'Facilities'    => array( 'esk-transport', 'esk-hostels', 'esk-library', 'esk-library-reports' ),
 		'Website'       => array( 'esk-cms', 'esk-careers', 'esk-careers-applications', 'esk-events', 'esk-news', 'esk-gallery', 'esk-documents', 'esk-media', 'esk-contact-submissions' ),
 		'System'        => array( 'esk-activity', 'esk-visitor-logs', 'esk-backup', 'esk-document-designs', 'esk-cache', 'esk-tools', 'esk-notifications', 'esk-search' ),
-		'Settings'      => array( 'esk-settings', 'esk-payment-gateways', 'esk-onboarding', 'esk-bulk' ),
+		'Settings'      => array( 'esk-settings', 'esk-payment-gateways', 'esk-payment-sandbox', 'esk-onboarding', 'esk-bulk' ),
 		'Reports'       => array( 'esk-reports', 'esk-reports-builder', 'esk-analytics' ),
 		'Help'          => array( 'esk-software', 'esk-help', 'esk-profile' ),
 	);
@@ -130,6 +130,7 @@ function esk_admin_sidebar_sections(): array {
 		$label( 'Configuration' ),
 		$link( 'esk-settings' ),
 		$link( 'esk-payment-gateways' ),
+		$link( 'esk-payment-sandbox' ),
 		$link( 'esk-reports' ),
 		$link( 'esk-bulk' ),
 
@@ -209,6 +210,7 @@ function esk_dashboard_page_titles(): array {
 		'esk-roles'                => 'Roles & Permissions',
 		'esk-settings'             => 'Settings',
 		'esk-payment-gateways'     => 'Payment Gateways',
+		'esk-payment-sandbox'      => 'Payment Sandbox',
 		'esk-onboarding'           => 'Onboarding',
 		'esk-documents'            => 'Documents',
 		'esk-media'                => 'Media Library',
@@ -325,6 +327,7 @@ function esk_admin_shell_icon( string $slug ): string {
 		'esk-bulk'               => 'dashicons-upload',
 		'esk-settings'           => 'dashicons-admin-generic',
 		'esk-payment-gateways'   => 'dashicons-credit-card',
+		'esk-payment-sandbox'    => 'dashicons-controls-play',
 		'esk-onboarding'         => 'dashicons-megaphone',
 		'esk-profile'            => 'dashicons-admin-users',
 		'esk-help'               => 'dashicons-editor-help',

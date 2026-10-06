@@ -29,6 +29,8 @@ class PaymentGateway extends Model
 
     public const GATEWAY_UDDOKTAPAY = 'uddoktapay';
 
+    public const GATEWAY_TEST_GATEWAY = 'test_gateway';
+
     public const GATEWAY_STRIPE = 'stripe';
 
     public const GATEWAY_PAYPAL = 'paypal';
@@ -218,6 +220,9 @@ class PaymentGateway extends Model
 
         // Check required API credentials based on gateway type
         switch ($this->code) {
+            case self::GATEWAY_TEST_GATEWAY:
+                return true;
+
             case self::GATEWAY_BKASH:
             case self::GATEWAY_NAGAD:
             case self::GATEWAY_ROCKET:

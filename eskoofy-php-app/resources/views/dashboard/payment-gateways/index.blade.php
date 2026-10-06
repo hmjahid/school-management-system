@@ -71,4 +71,43 @@
             </table>
         </div>
     </x-card>
+    <x-card :title="__('Gateway diagnostics')" :padding="false">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200 text-sm">
+                <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-600">
+                    <tr>
+                        <th class="px-4 py-3">{{ __('Code') }}</th>
+                        <th class="px-4 py-3">{{ __('Label') }}</th>
+                        <th class="px-4 py-3">{{ __('Active') }}</th>
+                        <th class="px-4 py-3">{{ __('Test mode') }}</th>
+                        <th class="px-4 py-3">{{ __('Configured') }}</th>
+                        <th class="px-4 py-3">{{ __('Adapter') }}</th>
+                        <th class="px-4 py-3 text-right">{{ __('Actions') }}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($diagnostics as $item)
+                        @php($row = $item['gateway'])
+                        <tr>
+                            <td class="px-4 py-3 font-mono text-xs text-slate-600">{{ $row->code }}</td>
+                            <td class="px-4 py-3 font-medium text-slate-900">{{ $row->name }}</td>
+                            <td class="px-4 py-3">{{ $row->is_active ? __('Yes') : __('No') }}</td>
+                            <td class="px-4 py-3">{{ $row->test_mode ? __('Yes') : __('No') }}</td>
+                            <td class="px-4 py-3">{{ $row->is_configured ? __('Yes') : __('No') }}</td>
+                            <td class="px-4 py-3 font-mono text-xs text-slate-600">{{ $item['adapter'] }}</td>
+                            <td class="px-4 py-3 text-right">
+                                @if($row->code === \App\Models\PaymentGateway::GATEWAY_TEST_GATEWAY)
+                                    <x-button :href="route('payments.sandbox')" variant="ghost" size="sm">{{ __('Run test payment') }}</x-button>
+                                @else
+                                    <span class="text-xs text-slate-400">—</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="7" class="px-4 py-16"><x-empty-state :title="__('No gateways yet')" :message="__('Add a payment gateway to start collecting fees online.')" icon="credit-card" /></td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </x-card>
 @endsection

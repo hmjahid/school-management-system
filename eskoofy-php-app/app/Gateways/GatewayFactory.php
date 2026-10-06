@@ -13,6 +13,15 @@ class GatewayFactory
         'rocket' => RocketGateway::class,
         'nagad'  => NagadGateway::class,
         'uddoktapay' => UddoktapayGateway::class,
+        'test_gateway' => TestGateway::class,
+        'shurjopay' => GenericHostedGateway::class,
+        'portwallet' => GenericHostedGateway::class,
+        'cellfin' => GenericHostedGateway::class,
+        'purse' => GenericHostedGateway::class,
+        'cashby' => GenericHostedGateway::class,
+        'upay' => GenericHostedGateway::class,
+        'mycash' => GenericHostedGateway::class,
+        'payer' => GenericHostedGateway::class,
         'stripe' => StripeGateway::class,
         'paypal' => PaypalGateway::class,
         'paddle' => PaddleGateway::class,
@@ -148,6 +157,19 @@ class GatewayFactory
         $mapped = array_filter($mapped, static fn ($value) => $value !== '' && $value !== null);
 
         return array_merge($mapped, is_array($extra) ? $extra : []);
+    }
+
+    /**
+     * Resolve the adapter class a code dispatches to, for admin diagnostics.
+     * Unknown codes fall back to the config-driven GenericHostedGateway.
+     */
+    public static function driverFor(string $code): string
+    {
+        if ($code === 'offline') {
+            return OfflineGateway::class;
+        }
+
+        return self::GATEWAY_MAP[$code] ?? GenericHostedGateway::class;
     }
 
     public static function all(): array

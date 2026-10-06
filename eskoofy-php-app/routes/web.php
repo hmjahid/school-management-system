@@ -819,6 +819,9 @@ $router->post('/newsletter', 'App\\Controllers\\SiteController', 'newsletterStor
 
 // Payments
 $router->get('/payments/initiate', 'App\\Controllers\\PaymentController', 'initiate', ['AuthMiddleware']);
+$router->get('/payments/sandbox', 'App\\Controllers\\PaymentController', 'sandbox', ['AuthMiddleware']);
+$router->get('/payments/sandbox/{payment}', 'App\\Controllers\\PaymentController', 'sandbox', ['AuthMiddleware']);
+$router->post('/payments/sandbox/{payment}', 'App\\Controllers\\PaymentController', 'simulate', ['AuthMiddleware']);
 
 // Results download
 $router->get('/results/download', 'App\\Controllers\\SiteController', 'resultsDownload');

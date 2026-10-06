@@ -58,6 +58,8 @@ $router->get('/language/{locale}', LanguageController::class, 'switch');
 $router->get('/checkout', CheckoutController::class, 'index');
 $router->post('/checkout', CheckoutController::class, 'process');
 $router->get('/checkout/status/{reference}', \App\Controllers\Site\PaymentStatusController::class, 'show');
+$router->get('/checkout/sandbox/{reference}', CheckoutController::class, 'sandbox');
+$router->post('/checkout/sandbox/{reference}', CheckoutController::class, 'simulate');
 
 // ─── Auth ────────────────────────────────────────────────────
 $router->get('/register', RegisterController::class, 'show');

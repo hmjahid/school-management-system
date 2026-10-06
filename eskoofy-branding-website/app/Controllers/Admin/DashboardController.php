@@ -112,7 +112,6 @@ class DashboardController extends Controller
             'licenseByProduct' => $licenseByProduct,
             'licenseStatuses'  => LicenseService::STATUSES,
             'productCatalog'   => Catalog::all(),
-            'variants'         => VariantResolver::all(),
             'reconciliation'   => $revenue->reconcile($range, $filters),
             'recentPayments'   => $recentPayments,
             'recentLicenses'   => $recentLicenses,

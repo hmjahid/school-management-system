@@ -8,9 +8,9 @@ $daysLeft = function (string $expires): int {
 };
 
 /**
- * Preset links that keep the active product/variant filters.
+ * Preset links that keep the active product filter.
  *
- * Without this, picking a range would silently drop the filters and vice versa —
+ * Without this, picking a range would silently drop the filter and vice versa —
  * the two controls share one query string.
  */
 $rangeLink = static function (string $preset) use ($filters): string {
@@ -18,9 +18,6 @@ $rangeLink = static function (string $preset) use ($filters): string {
 
     if (!empty($filters['product'])) {
         $query['product'] = $filters['product'];
-    }
-    if (!empty($filters['variant'])) {
-        $query['variant'] = $filters['variant'];
     }
 
     return '/admin/dashboard?' . http_build_query($query);
@@ -159,31 +156,14 @@ $totalLicenses = max(1, (int) array_sum($licenseByStatus));
             </select>
         </label>
 
-        <label class="text-xs text-slate-500 flex items-center gap-2">
-            Variant
-            <select name="variant" class="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white">
-                <option value="">All variants</option>
-                <?php foreach ($variants as $variant): ?>
-                    <option value="<?= htmlspecialchars($variant) ?>" <?= ($filters['variant'] ?? null) === $variant ? 'selected' : '' ?>>
-                        <?= htmlspecialchars(\App\Services\VariantResolver::label($variant)) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </label>
-
         <input type="hidden" name="range" value="<?= htmlspecialchars($range->preset) ?>">
 
         <button type="submit" class="text-xs bg-slate-900 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg font-semibold">Apply</button>
 
-        <?php if (!empty($filters['product']) || !empty($filters['variant'])): ?>
+        <?php if (!empty($filters['product'])): ?>
             <a href="<?= htmlspecialchars($rangeLink($range->preset)) ?>" class="text-xs text-slate-500 hover:underline">Clear filters</a>
             <span class="text-xs text-slate-400 ml-auto">
-                <?php if (!empty($filters['product'])): ?>
-                    <?= htmlspecialchars(\App\Services\Catalog::label($filters['product'])) ?>
-                <?php endif; ?>
-                <?php if (!empty($filters['variant'])): ?>
-                    · <?= htmlspecialchars(\App\Services\VariantResolver::label($filters['variant'])) ?>
-                <?php endif; ?>
+                <?= htmlspecialchars(\App\Services\Catalog::label($filters['product'])) ?>
             </span>
         <?php endif; ?>
     </div>

@@ -177,10 +177,10 @@ if (!preg_match('/^#[0-9a-fA-F]{6}$/', $eskColour)) {
 <?php endif; ?>
 
 <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-lg shadow-slate-900/20">
-    <nav class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-        <a href="/" class="flex items-center gap-2.5">
-            <img src="/brand/eskofy-mark.svg" alt="<?= $eskBrandName ?>" class="h-11 w-11 drop-shadow-md">
-            <span class="font-bold text-xl tracking-tight"><?= $eskBrandName ?></span>
+    <nav class="max-w-7xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between gap-2 sm:gap-4">
+        <a href="/" class="flex items-center gap-2 sm:gap-2.5 min-w-0">
+            <img src="/brand/eskofy-mark.svg" alt="<?= $eskBrandName ?>" class="h-9 w-9 sm:h-11 sm:w-11 drop-shadow-md flex-shrink-0">
+            <span class="font-bold text-base sm:text-xl tracking-tight truncate"><?= $eskBrandName ?></span>
         </a>
 
         <button type="button" data-drawer-open aria-label="Open menu" class="md:hidden inline-flex items-center justify-center rounded-lg border border-slate-600 p-2 text-slate-200 hover:text-white">
@@ -248,25 +248,25 @@ if (!preg_match('/^#[0-9a-fA-F]{6}$/', $eskColour)) {
                 </div>
             </div>
         </div>
-        <div class="flex items-center gap-3 text-sm">
-            <button type="button" data-dark-toggle aria-label="Toggle dark mode" class="inline-flex items-center justify-center rounded-lg border border-slate-600 p-2 text-slate-200 hover:text-white">
+        <div class="flex items-center gap-1.5 sm:gap-3 text-sm shrink-0">
+            <button type="button" data-dark-toggle aria-label="Toggle dark mode" class="inline-flex items-center justify-center rounded-lg border border-slate-600 p-1.5 sm:p-2 text-slate-200 hover:text-white">
                 <svg data-icon-moon viewBox="0 0 24 24" class="h-5 w-5 hidden" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
                 <svg data-icon-sun viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
             </button>
             <?php if (\App\Core\Auth::check()): ?>
-                <a href="/account" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-semibold"><?= __('nav.my_account') ?></a>
+                <a href="/account" class="bg-blue-600 hover:bg-blue-500 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold"><?= __('nav.my_account') ?></a>
                 <?php if (\App\Core\Auth::hasRole('admin')): ?>
-                    <a href="/admin" class="border border-slate-600 hover:border-slate-400 px-4 py-2 rounded-lg"><?= __('nav.admin') ?></a>
+                    <a href="/admin" class="hidden sm:inline-block border border-slate-600 hover:border-slate-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg"><?= __('nav.admin') ?></a>
                 <?php endif; ?>
-                <a href="/logout" class="text-slate-300 hover:text-white px-2"><?= __('nav.logout') ?></a>
+                <a href="/logout" class="hidden sm:inline text-slate-300 hover:text-white px-2"><?= __('nav.logout') ?></a>
             <?php else: ?>
                 <a href="/login" class="hover:text-white hidden sm:inline"><?= __('nav.login') ?></a>
-                <a href="/contact" class="border border-blue-400/50 hover:border-blue-300 px-4 py-2 rounded-lg font-semibold text-blue-200 hover:text-white"><?= __('nav.get_demo') ?></a>
-                <a href="/register" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-semibold"><?= __('nav.register') ?></a>
+                <a href="/contact" class="hidden sm:inline-block border border-blue-400/50 hover:border-blue-300 px-4 py-2 rounded-lg font-semibold text-blue-200 hover:text-white"><?= __('nav.get_demo') ?></a>
+                <a href="/register" class="bg-blue-600 hover:bg-blue-500 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold"><?= __('nav.register') ?></a>
             <?php endif; ?>
-            <span class="relative inline-flex">
+            <span class="relative hidden sm:inline-flex">
                 <form method="get" action="/language/<?= \App\Services\I18n::current() === 'en' ? 'bn' : 'en' ?>">
-                    <button type="submit" class="border border-slate-600 hover:border-slate-400 px-3 py-1.5 rounded-lg text-xs text-slate-200">
+                    <button type="submit" class="border border-slate-600 hover:border-slate-400 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs text-slate-200">
                         <?= \App\Services\I18n::current() === 'en' ? 'বাংলা' : 'English' ?>
                     </button>
                 </form>
@@ -312,7 +312,13 @@ if (!preg_match('/^#[0-9a-fA-F]{6}$/', $eskColour)) {
             <?php else: ?>
                 <a href="/register" class="bg-blue-600 hover:bg-blue-500 text-white rounded-lg px-4 py-2.5 text-center font-semibold"><?= __('nav.register') ?></a>
                 <a href="/login" class="text-slate-300 hover:text-white text-center"><?= __('nav.login') ?></a>
+                <a href="/contact" class="text-slate-300 hover:text-white text-center"><?= __('nav.get_demo') ?></a>
             <?php endif; ?>
+            <form method="get" action="/language/<?= \App\Services\I18n::current() === 'en' ? 'bn' : 'en' ?>">
+                <button type="submit" class="w-full border border-slate-600 hover:border-slate-400 text-slate-200 rounded-lg px-4 py-2.5 text-center">
+                    <?= \App\Services\I18n::current() === 'en' ? 'বাংলা' : 'English' ?>
+                </button>
+            </form>
         </div>
     </nav>
 </div>

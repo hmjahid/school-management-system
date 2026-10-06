@@ -31,6 +31,7 @@ import { MarksheetPdf, PayslipShow, PayrollStructures, SoftwareAbout, Testimonia
 import { ProgressReportsIndex, ProgressReportShow, SeatPlansIndex, SeatPlanShow } from "@/components/dashboard/ProgressSeatPlanScreens";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
+import { GatewayDiagnostics } from "@/components/dashboard/GatewayDiagnostics";
 import { currentUser } from "@/lib/auth";
 import { can, permissionForTable } from "@/lib/permissions";
 import { t } from "@/lib/i18n";
@@ -88,8 +89,12 @@ export default async function DashboardCatchAll({
       </p>
     );
   }
-
   const q = query as Record<string, string | undefined>;
+
+  // Admin gateway diagnostics table (code/label/active/test_mode/configured/
+  // adapter + "Run test payment") above the generic gateway list.
+  const showGatewayDiagnostics = segments[0] === "payment-gateways" && segments.length === 1 && resource.mode === "index";
+
 
   // Bespoke screens whose path name matches a table, so the generic engine
   // would otherwise hijack them (notifications inbox, permissions matrix,
@@ -481,6 +486,7 @@ export default async function DashboardCatchAll({
 
   return (
     <div>
+      {showGatewayDiagnostics ? <GatewayDiagnostics error={q.test_error} /> : null}
       <PageHeader
         title={title}
         description={model.table}

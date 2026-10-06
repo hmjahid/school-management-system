@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Gateways\GatewayFactory;
 use App\Models\Settings;
 use App\Services\ActivityLog;
 
@@ -33,6 +34,40 @@ class GatewayController extends Controller
             'api_key' => ['API key', true], 'test_mode' => ['Test mode (1/0)', false],
             'sandbox_url' => ['Sandbox base URL', false], 'live_url' => ['Live base URL', false],
         ]],
+        // Extended BD hosted gateway set — config-driven (GenericHostedGateway).
+        'shurjopay' => ['ShurjoPay', 'local', [
+            'api_key' => ['API key', true], 'merchant_id' => ['Merchant ID', false],
+            'test_mode' => ['Test mode (1/0)', false], 'sandbox_url' => ['Sandbox base URL', false], 'live_url' => ['Live base URL', false],
+        ]],
+        'portwallet' => ['PortWallet', 'local', [
+            'api_key' => ['API key', true], 'merchant_id' => ['Merchant ID', false],
+            'test_mode' => ['Test mode (1/0)', false], 'sandbox_url' => ['Sandbox base URL', false], 'live_url' => ['Live base URL', false],
+        ]],
+        'cellfin' => ['Cellfin', 'local', [
+            'api_key' => ['API key', true], 'merchant_id' => ['Merchant ID', false],
+            'test_mode' => ['Test mode (1/0)', false], 'sandbox_url' => ['Sandbox base URL', false], 'live_url' => ['Live base URL', false],
+        ]],
+        'purse' => ['Purse', 'local', [
+            'api_key' => ['API key', true], 'merchant_id' => ['Merchant ID', false],
+            'test_mode' => ['Test mode (1/0)', false], 'sandbox_url' => ['Sandbox base URL', false], 'live_url' => ['Live base URL', false],
+        ]],
+        'cashby' => ['Cashby', 'local', [
+            'api_key' => ['API key', true], 'merchant_id' => ['Merchant ID', false],
+            'test_mode' => ['Test mode (1/0)', false], 'sandbox_url' => ['Sandbox base URL', false], 'live_url' => ['Live base URL', false],
+        ]],
+        'upay' => ['UPay', 'local', [
+            'api_key' => ['API key', true], 'merchant_id' => ['Merchant ID', false],
+            'test_mode' => ['Test mode (1/0)', false], 'sandbox_url' => ['Sandbox base URL', false], 'live_url' => ['Live base URL', false],
+        ]],
+        'mycash' => ['MyCash', 'local', [
+            'api_key' => ['API key', true], 'merchant_id' => ['Merchant ID', false],
+            'test_mode' => ['Test mode (1/0)', false], 'sandbox_url' => ['Sandbox base URL', false], 'live_url' => ['Live base URL', false],
+        ]],
+        'payer' => ['Payer', 'local', [
+            'api_key' => ['API key', true], 'merchant_id' => ['Merchant ID', false],
+            'test_mode' => ['Test mode (1/0)', false], 'sandbox_url' => ['Sandbox base URL', false], 'live_url' => ['Live base URL', false],
+        ]],
+        'test_gateway' => ['Test / Sandbox', 'testing', []],
         'stripe' => ['Stripe', 'international', [
             'secret_key' => ['Secret key', true], 'publishable_key' => ['Publishable key', false],
             'webhook_secret' => ['Webhook secret', true], 'test_mode' => ['Test mode (1/0)', false],
@@ -58,10 +93,35 @@ class GatewayController extends Controller
     public function index(): void
     {
         $settings = Settings::all();
+
+        $diagnostics = [];
+        foreach (self::GATEWAYS as $code => $meta) {
+            $enabled = (string) ($settings['gateway.' . $code . '.enabled'] ?? ($code === 'manual' || $code === 'test_gateway' ? '1' : '0')) === '1';
+            $configured = $code === 'manual';
+            $driver = '—';
+            try {
+                $gateway = GatewayFactory::make($code);
+                $configured = method_exists($gateway, 'isConfigured') ? (bool) $gateway->isConfigured() : true;
+                $driver = (new \ReflectionClass($gateway))->getShortName();
+            } catch (\Throwable) {
+            }
+            $diagnostics[$code] = [
+                'label'      => $meta[0],
+                'group'      => $meta[1],
+                'enabled'    => $enabled,
+                'test_mode'  => (string) ($settings['gateway.' . $code . '.test_mode'] ?? ''),
+                'configured' => $configured,
+                'driver'     => $driver,
+                'testable'   => $code === 'test_gateway',
+            ];
+        }
+
         $this->view('admin.gateways', [
-            'admin'     => Auth::user(),
-            'settings'  => $settings,
-            'gateways'  => self::GATEWAYS,
+            'admin'       => Auth::user(),
+            'settings'    => $settings,
+            'gateways'    => self::GATEWAYS,
+            'diagnostics' => $diagnostics,
+            'testEnabled' => GatewayFactory::testGatewayEnabled(),
         ]);
     }
 

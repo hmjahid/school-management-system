@@ -2,7 +2,7 @@
  * GENERATED — do not edit by hand.
  *
  * The Laravel reference app route surface, exported with
- * `php artisan route:list --json` (604 routes).
+ * `php artisan route:list --json` (606 routes).
  *
  * This is the app->node route PARITY CONTRACT: `npm run route:parity` re-runs
  * route:list and fails if this file is stale.
@@ -145,6 +145,8 @@ export const APP_ROUTES: AppRoute[] = [
   { method: "GET|HEAD", uri: "/api/v1/payments/gateways", name: "payments.gateways", action: "App\\Http\\Controllers\\PaymentController@gateways", middleware: ["api", "App\\Http\\Middleware\\RequestId", "App\\Http\\Middleware\\ForceJsonResponse", "Illuminate\\Routing\\Middleware\\ThrottleRequests:60,1"] },
   { method: "POST", uri: "/api/v1/payments/initiate", name: "payments.initiate", action: "App\\Http\\Controllers\\PaymentController@initiate", middleware: ["api", "App\\Http\\Middleware\\RequestId", "App\\Http\\Middleware\\ForceJsonResponse", "Illuminate\\Auth\\Middleware\\Authenticate:sanctum", "Illuminate\\Routing\\Middleware\\ThrottleRequests:60,1", "Illuminate\\Auth\\Middleware\\Authorize:initiate,App\\Models\\Payment"] },
   { method: "POST", uri: "/api/v1/payments/record-offline", name: "payments.record-offline", action: "App\\Http\\Controllers\\PaymentController@recordOfflinePayment", middleware: ["api", "App\\Http\\Middleware\\RequestId", "App\\Http\\Middleware\\ForceJsonResponse", "Illuminate\\Auth\\Middleware\\Authenticate:sanctum", "Illuminate\\Auth\\Middleware\\Authorize:recordOffline,App\\Models\\Payment"] },
+  { method: "GET|HEAD", uri: "/api/v1/payments/sandbox/{payment?}", name: "payments.sandbox", action: "App\\Http\\Controllers\\Web\\PaymentSandboxController@show", middleware: ["api","App\\Http\\Middleware\\RequestId","App\\Http\\Middleware\\ForceJsonResponse","web","Illuminate\\Auth\\Middleware\\Authenticate:sanctum"] },
+  { method: "POST", uri: "/api/v1/payments/sandbox/{payment}", name: "payments.sandbox.simulate", action: "App\\Http\\Controllers\\Web\\PaymentSandboxController@simulate", middleware: ["api","App\\Http\\Middleware\\RequestId","App\\Http\\Middleware\\ForceJsonResponse","web","Illuminate\\Auth\\Middleware\\Authenticate:sanctum"] },
   { method: "GET|HEAD", uri: "/api/v1/payments/status/{payment}", name: "payments.status", action: "App\\Http\\Controllers\\PaymentController@status", middleware: ["api", "App\\Http\\Middleware\\RequestId", "App\\Http\\Middleware\\ForceJsonResponse", "Illuminate\\Auth\\Middleware\\Authenticate:sanctum", "Illuminate\\Routing\\Middleware\\ThrottleRequests:60,1"] },
   { method: "POST", uri: "/api/v1/payments/webhook/{gateway}", name: "payments.webhook", action: "App\\Http\\Controllers\\PaymentController@webhook", middleware: ["api", "App\\Http\\Middleware\\RequestId", "App\\Http\\Middleware\\ForceJsonResponse"] },
   { method: "GET|HEAD", uri: "/api/v1/payments/{payment}", name: "payments.show", action: "App\\Http\\Controllers\\PaymentController@show", middleware: ["api", "App\\Http\\Middleware\\RequestId", "App\\Http\\Middleware\\ForceJsonResponse", "Illuminate\\Auth\\Middleware\\Authenticate:sanctum", "Illuminate\\Auth\\Middleware\\Authorize:view,payment"] },

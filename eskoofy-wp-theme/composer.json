@@ -18,6 +18,6 @@
     "scripts": {
         "lint": "phpcs",
         "lint:fix": "phpcbf",
-        "test": "php tests/throttle-test.php"
+        "test": "php tests/throttle-test.php && php tests/payment-gateway-test.php"
     }
 }

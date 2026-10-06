@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\PaymentGateway;
+use App\Services\Payment\GatewayAdapterFactory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -20,8 +21,14 @@ class DashboardPaymentGatewayController extends Controller
             ->orderBy('name')
             ->get();
 
+        $diagnostics = $rows->map(fn (PaymentGateway $row) => [
+            'gateway' => $row,
+            'adapter' => class_basename(GatewayAdapterFactory::make($row->code)),
+        ]);
+
         return view('dashboard.payment-gateways.index', [
             'rows' => $rows,
+            'diagnostics' => $diagnostics,
         ]);
     }
 

@@ -331,7 +331,7 @@ $seo = [
             <p class="text-slate-500 mt-3 max-w-2xl mx-auto"><?= __('home.pay_sub') ?></p>
         </div>
         <div class="flex flex-wrap justify-center gap-3 max-w-3xl mx-auto">
-            <?php foreach (['pay_1', 'pay_2', 'pay_3', 'pay_4', 'pay_5', 'pay_6'] as $k): ?>
+            <?php foreach (['pay_1', 'pay_2', 'pay_3', 'pay_4', 'pay_5', 'pay_6', 'pay_7', 'pay_8', 'pay_9', 'pay_10', 'pay_11', 'pay_12', 'pay_13', 'pay_14', 'pay_15'] as $k): ?>
                 <span class="inline-flex items-center gap-2 border border-slate-200 bg-slate-50 rounded-full px-5 py-2.5 text-sm font-semibold text-slate-700">
                     <svg viewBox="0 0 24 24" class="h-4 w-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
                     <?= __('home.' . $k) ?>

@@ -449,6 +449,8 @@ return [
     'payments.index' => '/api/v1/payments',
     'payments.initiate' => '/api/v1/payments/initiate',
     'payments.record-offline' => '/api/v1/payments/record-offline',
+    'payments.sandbox' => '/payments/sandbox/{payment}',
+    'payments.sandbox.simulate' => '/payments/sandbox/{payment}',
     'payments.show' => '/api/v1/payments/{payment}',
     'payments.status' => '/api/v1/payments/status/{payment}',
     'payments.update.status' => '/api/v1/payments/{payment}/status',

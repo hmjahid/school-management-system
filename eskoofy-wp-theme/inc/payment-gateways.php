@@ -55,6 +55,32 @@ abstract class Eskoofy_Payment_Gateway {
 		return ! empty( $data['test_mode'] );
 	}
 
+	/**
+	 * Whether the gateway holds everything it needs to take a payment.
+	 *
+	 * Credential-free gateways (the test gateway) override this so the
+	 * diagnostics table never reports them as unconfigured.
+	 */
+	public function is_configured(): bool {
+		$data = $this->get_gateway_data();
+		foreach ( array( 'api_key', 'api_secret', 'api_username', 'api_password' ) as $esk_credential ) {
+			if ( '' !== trim( (string) ( $data[ $esk_credential ] ?? '' ) ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Resolved adapter/driver class short name — powers the "driver" column
+	 * on the Payment Gateways diagnostics table.
+	 */
+	public function driver_name(): string {
+		$class = static::class;
+		$pos   = strrpos( $class, '\\' );
+		return false === $pos ? $class : substr( $class, $pos + 1 );
+	}
+
 	public function callback_url( array $data = array() ): string {
 		$base = rest_url( 'esk/v1/payments/callback/' . $this->code );
 		return $base . ( $data ? '?' . http_build_query( $data ) : '' );
@@ -902,6 +928,101 @@ class Eskoofy_Uddoktapay_Gateway extends Eskoofy_Payment_Gateway {
 }
 
 /**
+ * Test / Sandbox — credential-free test gateway.
+ *
+ * Lets admins verify the whole payment pipeline (init → hosted page →
+ * callback → verify → paid) with zero money and zero third-party calls:
+ * checkout never leaves this host, it redirects to the local
+ * /dashboard/payment-sandbox/ page where the outcome is simulated.
+ *
+ * It has no credentials, so it is always "configured" and `test_mode` is
+ * irrelevant for it.
+ */
+class Eskoofy_Test_Gateway extends Eskoofy_Payment_Gateway {
+	public string $code    = 'test_gateway';
+	public string $name    = 'Test / Sandbox';
+	public string $type    = 'online_payment';
+	public bool $is_online = true;
+	public bool $has_api   = false;
+
+	public function is_configured(): bool {
+		return true;
+	}
+
+	public function process_payment( float $amount, array $data ): array {
+		$order_id = (string) ( $data['order_id'] ?? esk_generate_number( 'INV', 'payments' ) );
+
+		return array(
+			'status'       => 'pending',
+			'message'      => __( 'Opening the test payment sandbox...', 'eskoofy' ),
+			'transaction'  => $order_id,
+			'redirect_url' => esk_dashboard_url(
+				'esk-payment-sandbox',
+				http_build_query(
+					array(
+						'gateway'  => $this->code,
+						'order_id' => $order_id,
+					)
+				)
+			),
+		);
+	}
+
+	/**
+	 * Simulation-driven verify: never talks to a network.
+	 *
+	 * A payment that is already paid verifies as paid again (idempotent,
+	 * no side effects); otherwise the `simulate` flag sent by the sandbox
+	 * page decides the outcome.
+	 */
+	public function verify_payment( array $data ): array {
+		$reference = (string) ( $data['order_id'] ?? $data['reference'] ?? $data['invoice_id'] ?? '' );
+		if ( '' === $reference ) {
+			return array(
+				'verified' => false,
+				'status'   => 'pending',
+			);
+		}
+
+		global $wpdb;
+		$payment = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT payment_status, transaction_id FROM {$wpdb->prefix}esk_payments WHERE invoice_number = %s AND deleted_at IS NULL",
+				$reference
+			),
+			ARRAY_A
+		);
+
+		if ( is_array( $payment ) && 'completed' === $payment['payment_status'] ) {
+			$transaction = (string) ( $payment['transaction_id'] ?? '' );
+			return array(
+				'verified'    => true,
+				'status'      => 'completed',
+				'transaction' => '' !== $transaction ? $transaction : 'TEST-' . $reference,
+			);
+		}
+
+		if ( 'success' !== strtolower( (string) ( $data['simulate'] ?? '' ) ) ) {
+			return array(
+				'verified' => false,
+				'status'   => 'pending',
+			);
+		}
+
+		return array(
+			'verified'    => true,
+			'status'      => 'completed',
+			'transaction' => 'TEST-' . $reference,
+		);
+	}
+
+	public function verify_webhook( $payload, string $signature ): bool {
+		// The sandbox never receives webhooks — there is no external caller.
+		return false;
+	}
+}
+
+/**
  * Config-driven hosted-checkout gateway.
  *
  * Serves the international gateways that ship disabled by default (Google Pay,
@@ -911,6 +1032,18 @@ class Eskoofy_Uddoktapay_Gateway extends Eskoofy_Payment_Gateway {
  *
  * The checkout / verify / refund endpoints and their extra options live on the
  * esk_payment_gateways row (see the Payment Gateways screen for the keys).
+ *
+ * extra_attributes keys:
+ *   checkout_method        GET (default) | POST
+ *   checkout_url_template  optional URL with {amount} {currency} {reference}
+ *                          {invoice} {callback} {cancel} {api_key} placeholders
+ *                          plus {base_url} (the sandbox_url/live_url picked by
+ *                          test_mode) so one template works in both modes
+ *   verify_url             server-side verification endpoint (may use {base_url})
+ *   verify_success_path    JSON path in the verify response (default: status)
+ *   verify_success_value   expected value at that path (default: COMPLETED)
+ *   refund_url             refund endpoint; absence means refunds unsupported
+ *   signature_header       webhook signature header (default: X-Webhook-Signature)
  */
 class Eskoofy_Generic_Hosted_Gateway extends Eskoofy_Payment_Gateway {
 	public string $code;
@@ -984,7 +1117,7 @@ class Eskoofy_Generic_Hosted_Gateway extends Eskoofy_Payment_Gateway {
 
 	public function verify_payment( array $data ): array {
 		$cfg        = $this->config();
-		$verify_url = (string) ( $cfg['verify_url'] ?? '' );
+		$verify_url = strtr( (string) ( $cfg['verify_url'] ?? '' ), array( '{base_url}' => $this->base_url() ) );
 		$reference  = (string) ( $data['reference'] ?? $data['invoice_id'] ?? $data['order_id'] ?? '' );
 
 		if ( '' === $verify_url || '' === $reference ) {
@@ -1042,7 +1175,9 @@ class Eskoofy_Generic_Hosted_Gateway extends Eskoofy_Payment_Gateway {
 		$template = (string) ( $cfg['checkout_url_template'] ?? '' );
 
 		if ( '' !== $template ) {
-			$replacements = array();
+			// {base_url} resolves to the sandbox/live host picked by test_mode
+			// and is deliberately not URL-encoded (it is a host, not a value).
+			$replacements = array( '{base_url}' => $this->base_url() );
 			foreach ( $params as $key => $value ) {
 				$replacements[ '{' . $key . '}' ] = rawurlencode( $value );
 			}
@@ -1125,6 +1260,16 @@ function esk_init_payment_gateways(): array {
 		new Eskoofy_Generic_Hosted_Gateway( 'xendit', 'Xendit' ),
 		new Eskoofy_Generic_Hosted_Gateway( 'adyen', 'Adyen' ),
 		new Eskoofy_Generic_Hosted_Gateway( 'skrill', 'Skrill' ),
+		// Bangladeshi hosted gateways — config-driven, seeded disabled.
+		new Eskoofy_Generic_Hosted_Gateway( 'shurjopay', 'ShurjoPay' ),
+		new Eskoofy_Generic_Hosted_Gateway( 'portwallet', 'PortWallet' ),
+		new Eskoofy_Generic_Hosted_Gateway( 'cellfin', 'Cellfin' ),
+		new Eskoofy_Generic_Hosted_Gateway( 'purse', 'Purse' ),
+		new Eskoofy_Generic_Hosted_Gateway( 'cashby', 'Cashby' ),
+		new Eskoofy_Generic_Hosted_Gateway( 'upay', 'UPay' ),
+		new Eskoofy_Generic_Hosted_Gateway( 'mycash', 'MyCash' ),
+		new Eskoofy_Generic_Hosted_Gateway( 'payer', 'Payer' ),
+		new Eskoofy_Test_Gateway(),
 		new Eskoofy_Offline_Gateway(),
 	);
 }

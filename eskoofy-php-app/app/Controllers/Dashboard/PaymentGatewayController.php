@@ -8,6 +8,7 @@ use App\Core\Controller;
 use App\Core\Database;
 use App\Core\DatabaseInterface;
 use App\Core\Session;
+use App\Gateways\GatewayFactory;
 use App\Models\PaymentGateway;
 
 class PaymentGatewayController extends Controller
@@ -35,6 +36,81 @@ class PaymentGatewayController extends Controller
         'skrill'        => ['name' => 'Skrill',        'currency' => 'USD', 'currencies' => ['USD', 'EUR', 'GBP', 'AUD', 'CAD', 'JPY'], 'sort' => 31],
     ];
 
+    /**
+     * Additional Bangladeshi hosted gateways, served by the config-driven
+     * GenericHosted gateway. Disabled by default with draft sandbox URLs — an
+     * admin enables one and supplies real credentials before use. URLs must be
+     * verified against official docs (marked DRAFT here).
+     *
+     * @var array<string, array<string, string>>
+     */
+    private const EXTENDED_BD_GATEWAYS = [
+        'shurjopay' => [
+            'name' => 'ShurjoPay',
+            'sandbox_url' => 'https://sandbox.shurjopay.io/', // DRAFT — verify before use
+            'live_url' => '',
+            'checkout_method' => 'GET',
+            'checkout_url_template' => 'https://sandbox.shurjopay.io/?amount={amount}&currency={currency}&reference={reference}&callback={callback}&cancel={cancel}&api_key={api_key}',
+            'verify_url' => 'https://sandbox.shurjopay.io/verify',
+        ],
+        'portwallet' => [
+            'name' => 'PortWallet',
+            'sandbox_url' => 'https://sandbox.portwallet.com/cloud-payment/', // DRAFT — verify before use
+            'live_url' => '',
+            'checkout_method' => 'POST',
+            'checkout_url_template' => 'https://sandbox.portwallet.com/cloud-payment/?amount={amount}&currency={currency}&reference={reference}&callback={callback}&cancel={cancel}&api_key={api_key}',
+            'verify_url' => 'https://sandbox.portwallet.com/cloud-payment/verify',
+        ],
+        'cellfin' => [
+            'name' => 'Cellfin',
+            'sandbox_url' => 'https://sandbox.cellfin.io', // DRAFT — verify before use
+            'live_url' => '',
+            'checkout_method' => 'GET',
+            'checkout_url_template' => 'https://sandbox.cellfin.io/checkout?amount={amount}&currency={currency}&reference={reference}&callback={callback}&cancel={cancel}&api_key={api_key}',
+            'verify_url' => 'https://sandbox.cellfin.io/verify',
+        ],
+        'purse' => [
+            'name' => 'Purse',
+            'sandbox_url' => 'https://sandbox.purse.com.bd', // DRAFT — verify before use
+            'live_url' => '',
+            'checkout_method' => 'GET',
+            'checkout_url_template' => 'https://sandbox.purse.com.bd/checkout?amount={amount}&currency={currency}&reference={reference}&callback={callback}&cancel={cancel}&api_key={api_key}',
+            'verify_url' => 'https://sandbox.purse.com.bd/verify',
+        ],
+        'cashby' => [
+            'name' => 'Cashby',
+            'sandbox_url' => 'https://sandbox.cashby.com.bd', // DRAFT — verify before use
+            'live_url' => '',
+            'checkout_method' => 'GET',
+            'checkout_url_template' => 'https://sandbox.cashby.com.bd/checkout?amount={amount}&currency={currency}&reference={reference}&callback={callback}&cancel={cancel}&api_key={api_key}',
+            'verify_url' => 'https://sandbox.cashby.com.bd/verify',
+        ],
+        'upay' => [
+            'name' => 'UPay',
+            'sandbox_url' => 'https://sandbox.upay.ltd', // DRAFT — verify before use
+            'live_url' => '',
+            'checkout_method' => 'GET',
+            'checkout_url_template' => 'https://sandbox.upay.ltd/checkout?amount={amount}&currency={currency}&reference={reference}&callback={callback}&cancel={cancel}&api_key={api_key}',
+            'verify_url' => 'https://sandbox.upay.ltd/verify',
+        ],
+        'mycash' => [
+            'name' => 'MyCash',
+            'sandbox_url' => 'https://sandbox.mycash.com.bd', // DRAFT — verify before use
+            'live_url' => '',
+            'checkout_method' => 'GET',
+            'checkout_url_template' => 'https://sandbox.mycash.com.bd/checkout?amount={amount}&currency={currency}&reference={reference}&callback={callback}&cancel={cancel}&api_key={api_key}',
+            'verify_url' => 'https://sandbox.mycash.com.bd/verify',
+        ],
+        'payer' => [
+            'name' => 'Payer',
+            'sandbox_url' => 'https://sandbox.payer.com.bd', // DRAFT — verify before use
+            'live_url' => '',
+            'checkout_method' => 'GET',
+            'checkout_url_template' => 'https://sandbox.payer.com.bd/checkout?amount={amount}&currency={currency}&reference={reference}&callback={callback}&cancel={cancel}&api_key={api_key}',
+            'verify_url' => 'https://sandbox.payer.com.bd/verify',
+        ],
+    ];
+
     public function __construct()
     {
         $this->db = Database::getInstance();
@@ -51,10 +127,19 @@ class PaymentGatewayController extends Controller
 
         $rows = PaymentGateway::hydrate($rows);
 
+        $diagnostics = [];
+        foreach ($rows as $row) {
+            $diagnostics[] = [
+                'gateway' => $row,
+                'adapter' => class_basename(GatewayFactory::driverFor((string) $row->code)),
+            ];
+        }
+
         $this->view('dashboard.payment-gateways.index', [
-            'rows'     => $rows,
+            'rows'        => $rows,
+            'diagnostics' => $diagnostics,
             // Legacy fallback view contract.
-            'gateways' => $rows,
+            'gateways'    => $rows,
         ]);
     }
 
@@ -282,6 +367,62 @@ class PaymentGatewayController extends Controller
                 'sort_order'  => 4,
                 'created_at'  => date('Y-m-d H:i:s'),
                 'updated_at'  => date('Y-m-d H:i:s'),
+            ]);
+        }
+
+        // Zero-credential sandbox gateway — always active, never charges.
+        if ($this->db->count('payment_gateways', 'code = ?', ['test_gateway']) === 0) {
+            $this->db->insert('payment_gateways', [
+                'name'        => 'Test / Sandbox',
+                'code'        => 'test_gateway',
+                'type'        => 'mobile_financial_service',
+                'is_active'   => 1,
+                'is_online'   => 1,
+                'has_api'     => 1,
+                'test_mode'   => 1,
+                'sandbox_url' => 'local://payments/sandbox',
+                'currency'    => 'BDT',
+                'description' => 'Free sandbox gateway for testing the payment pipeline without moving money.',
+                'sort_order'  => 5,
+                'created_at'  => date('Y-m-d H:i:s'),
+                'updated_at'  => date('Y-m-d H:i:s'),
+            ]);
+        }
+
+        // Extended BD hosted gateways (disabled until an admin configures them).
+        foreach (self::EXTENDED_BD_GATEWAYS as $code => $meta) {
+            if ($this->db->count('payment_gateways', 'code = ?', [$code]) > 0) {
+                continue;
+            }
+
+            $extra = [
+                'checkout_method'       => $meta['checkout_method'],
+                'checkout_url_template' => $meta['checkout_url_template'],
+                'verify_url'            => $meta['verify_url'],
+                'verify_success_path'   => 'status',
+                'verify_success_value'  => 'COMPLETED',
+                'signature_header'      => 'X-Webhook-Signature',
+            ];
+
+            $this->db->insert('payment_gateways', [
+                'name'                 => $meta['name'],
+                'code'                 => $code,
+                'type'                 => 'mobile_financial_service',
+                'is_active'            => 0,
+                'is_online'            => 1,
+                'has_api'              => 1,
+                'test_mode'            => 1,
+                'sandbox_url'          => $meta['sandbox_url'],
+                'live_url'             => $meta['live_url'],
+                'callback_url'         => '/api/payments/' . $code . '/callback',
+                'webhook_url'          => '/api/payments/' . $code . '/webhook',
+                'description'          => $meta['name'] . ' — Bangladesh, hosted checkout (draft sandbox URL).',
+                'currency'             => 'BDT',
+                'supported_currencies' => json_encode(['BDT']),
+                'extra_attributes'     => json_encode($extra),
+                'sort_order'           => 40 + array_search($code, array_keys(self::EXTENDED_BD_GATEWAYS), true),
+                'created_at'           => date('Y-m-d H:i:s'),
+                'updated_at'           => date('Y-m-d H:i:s'),
             ]);
         }
 

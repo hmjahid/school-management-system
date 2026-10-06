@@ -6,6 +6,8 @@ use App\Core\Model;
 
 class PaymentGateway extends Model
 {
+    public const GATEWAY_TEST_GATEWAY = 'test_gateway';
+
     protected static string $table = 'payment_gateways';
     protected static string $primaryKey = 'id';
     protected static bool $softDeletes = true;
@@ -62,6 +64,7 @@ class PaymentGateway extends Model
         $has = fn (string $key): bool => trim((string) ($this->getAttribute($key) ?? '')) !== '';
 
         return match ((string) $this->getAttribute('code')) {
+            'test_gateway' => true,
             'bkash', 'nagad', 'rocket' => $has('api_key') && $has('api_secret'),
             'uddoktapay' => $has('api_key'),
             'stripe', 'paypal', 'sslcommerz', 'paystack', 'razorpay', 'square', 'paddle'

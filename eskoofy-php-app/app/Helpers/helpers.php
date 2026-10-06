@@ -386,6 +386,9 @@ if (!function_exists('route')) {
                 $unused[$key] = $value;
             }
         }
+        // Laravel-style optional trailing parameters (`/x/{id?}`): drop any
+        // unfilled trailing placeholder instead of emitting a literal `{...}`.
+        $uri = preg_replace('#/\{[^/}]+\}$#', '', $uri) ?? $uri;
         if ($unused !== []) {
             $uri .= (str_contains($uri, '?') ? '&' : '?') . http_build_query($unused);
         }

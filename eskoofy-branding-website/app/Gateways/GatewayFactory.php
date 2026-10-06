@@ -30,10 +30,11 @@ class GatewayFactory
             'rocket'  => new RocketGateway($db),
             'nagad'   => new NagadGateway($db),
             'uddoktapay' => new UddoktapayGateway($db),
+            'test_gateway' => new TestGateway($db),
             'stripe'  => new StripeGateway($db),
             'paypal'  => new PaypalGateway($db),
             'paddle'  => new PaddleGateway($db),
-            default   => throw new \InvalidArgumentException("Unsupported payment gateway: {$code}"),
+            default   => self::makeGeneric($code, $config, $db),
         };
 
         return self::$instances[$code] = $service;
@@ -81,13 +82,38 @@ class GatewayFactory
     }
 
     /**
+     * Config-driven hosted gateways (no bespoke class) resolve through
+     * GenericHostedGateway; anything else is unsupported.
+     *
+     * @param  array<string, mixed>  $config
+     */
+    private static function makeGeneric(string $code, array $config, ?DatabaseInterface $db): PaymentGatewayInterface
+    {
+        $driver = $config['gateways'][$code]['driver'] ?? null;
+        if ($driver === 'generic_hosted') {
+            return new GenericHostedGateway($db, $code);
+        }
+
+        throw new \InvalidArgumentException("Unsupported payment gateway: {$code}");
+    }
+
+    /**
+     * Whether the zero-credential test gateway is offered at checkout.
+     * Off by default; enable with TEST_GATEWAY_ENABLED=true.
+     */
+    public static function testGatewayEnabled(): bool
+    {
+        return in_array(strtolower((string) ($_ENV['TEST_GATEWAY_ENABLED'] ?? 'false')), ['1', 'true', 'yes', 'on'], true);
+    }
+
+    /**
      * BD gateway codes (local payment methods).
      *
      * @return string[]
      */
     public static function bdGateways(): array
     {
-        return ['bkash', 'rocket', 'nagad', 'uddoktapay'];
+        return ['bkash', 'rocket', 'nagad', 'uddoktapay', 'shurjopay', 'portwallet', 'cellfin', 'purse', 'cashby', 'upay', 'mycash', 'payer'];
     }
 
     /**
@@ -122,13 +148,24 @@ class GatewayFactory
             if ($enabled !== null && !in_array((string) $enabled, ['1', 'true', 'yes', 'on'], true)) {
                 continue;
             }
-            $gw = self::make($code);
-            if (method_exists($gw, 'isConfigured') && !$gw->isConfigured()) {
-                continue;
+            try {
+                $gw = self::make($code);
+                if (method_exists($gw, 'isConfigured') && !$gw->isConfigured()) {
+                    continue;
+                }
+                $available[] = $code;
+            } catch (\Throwable) {
+                // A gateway that cannot even be constructed (e.g. a missing
+                // runtime dependency) must never take the whole checkout down.
             }
-            $available[] = $code;
         }
         $available[] = 'manual';
+
+        // The zero-credential test gateway is a development tool: only offer it
+        // when explicitly enabled, and never as the default choice.
+        if (self::testGatewayEnabled() && !in_array('test_gateway', $available, true)) {
+            array_unshift($available, 'test_gateway');
+        }
 
         return $available;
     }

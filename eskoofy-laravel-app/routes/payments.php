@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Web\PaymentSandboxController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -26,6 +27,19 @@ Route::prefix('payments')->group(function () {
     // Payment webhook from gateway (public endpoint)
     Route::post('/webhook/{gateway}', [PaymentController::class, 'webhook'])
         ->name('payments.webhook');
+});
+
+// Test/sandbox gateway — local sandbox page. Registered before the
+// /payments/{payment} route so /payments/sandbox is not swallowed by it, and
+// mounted on the web group for session auth + CSRF on the simulate POST.
+Route::middleware(['web'])->group(function () {
+    Route::get('/payments/sandbox/{payment?}', [PaymentSandboxController::class, 'show'])
+        ->middleware('auth:sanctum')
+        ->name('payments.sandbox');
+
+    Route::post('/payments/sandbox/{payment}', [PaymentSandboxController::class, 'simulate'])
+        ->middleware('auth:sanctum')
+        ->name('payments.sandbox.simulate');
 });
 
 // Protected routes (authentication required)

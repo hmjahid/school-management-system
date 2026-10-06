@@ -23,10 +23,10 @@ $fSocials = array_filter($fSocials, fn ($s) => $s['url'] !== '');
 <footer class="bg-slate-900 text-slate-400 border-t border-slate-800" aria-labelledby="site-footer-heading">
     <h2 id="site-footer-heading" class="sr-only"><?= __('footer.heading') ?></h2>
 
-    <div class="max-w-7xl mx-auto px-4 pt-14 pb-10">
-        <div class="grid gap-10 lg:grid-cols-12">
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 pt-10 sm:pt-14 pb-10">
+        <div class="grid gap-8 sm:gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-12">
             <!-- Brand -->
-            <div class="lg:col-span-4">
+            <div class="sm:col-span-2 lg:col-span-4">
                 <a href="/" class="flex items-center gap-2.5 mb-4">
                     <img src="/brand/eskofy-mark.svg" alt="<?= htmlspecialchars($fBrand) ?>" class="h-10 w-10 drop-shadow-md">
                     <span class="text-white font-bold text-xl tracking-tight"><?= htmlspecialchars($fBrand) ?></span>
@@ -157,7 +157,7 @@ $fSocials = array_filter($fSocials, fn ($s) => $s['url'] !== '');
 
     <!-- Bottom bar -->
     <div class="border-t border-slate-800 bg-slate-950/60">
-        <div class="max-w-7xl mx-auto px-4 py-5 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-3 sm:px-4 py-5 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-slate-500">
             <div class="text-center md:text-left">© <?= date('Y') ?> <?= htmlspecialchars($fBrand) ?>. <?= __('footer.rights') ?></div>
             <div class="flex items-center gap-4">
                 <span><?= __('footer.currency_note') ?></span>

@@ -149,4 +149,70 @@ class CheckoutController extends Controller
         $this->withError($result['message'] ?? 'Payment failed. Please try again.');
         $this->redirect('/checkout?plan=' . $planId);
     }
+
+    /**
+     * Local sandbox page for the zero-credential test gateway. Shows the
+     * payment summary and three simulate buttons — no external host involved.
+     */
+    public function sandbox(string $reference): void
+    {
+        $payment = $this->ownedTestPayment($reference);
+
+        $plan = Database::getInstance()->fetch("SELECT * FROM plans WHERE id = ?", [(int) $payment['plan_id']]);
+
+        $this->view('site.sandbox', [
+            'payment' => $payment,
+            'plan'    => $plan,
+        ]);
+    }
+
+    /**
+     * Apply a simulated sandbox result to a test payment.
+     */
+    public function simulate(string $reference): void
+    {
+        $payment = $this->ownedTestPayment($reference);
+
+        $simulate = strtolower((string) ($_POST['simulate'] ?? ''));
+        if (!in_array($simulate, ['success', 'failure', 'cancel'], true)) {
+            $this->error('Invalid sandbox simulation.', 422);
+        }
+
+        GatewayFactory::make('test_gateway')->verify($payment, ['simulate' => $simulate]);
+
+        if ($simulate === 'success') {
+            $this->withSuccess('Test payment completed.');
+            $this->redirect('/checkout/status/' . rawurlencode($reference));
+        }
+
+        $this->withError('Test payment simulated as ' . ($simulate === 'cancel' ? 'cancelled' : 'failed') . '.');
+        $this->redirect('/checkout?plan=' . (int) $payment['plan_id']);
+    }
+
+    /**
+     * Fetch a test payment, enforcing ownership and the test-gateway code.
+     *
+     * @return array<string, mixed>
+     */
+    private function ownedTestPayment(string $reference): array
+    {
+        $db = Database::getInstance();
+        $payment = $db->fetch("SELECT * FROM payments WHERE reference = ? ORDER BY id DESC LIMIT 1", [$reference]);
+
+        if (!$payment) {
+            $this->withError('Payment not found.');
+            $this->redirect('/pricing');
+        }
+
+        if (!Auth::check() || (int) $payment['customer_id'] !== (int) Auth::id()) {
+            $this->redirect('/login?redirect=/checkout/sandbox/' . rawurlencode($reference));
+        }
+
+        if ((string) $payment['gateway'] !== 'test_gateway') {
+            $this->withError('That payment is not a test payment.');
+            $this->redirect('/checkout/status/' . rawurlencode($reference));
+        }
+
+        return $payment;
+    }
 }

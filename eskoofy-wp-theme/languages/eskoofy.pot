@@ -1,98 +1,7678 @@
-# Translation template for Eskoofy WordPress theme.
 # Copyright (C) 2026 Eskoofy
-# This file is distributed under the MIT license.
-#
+# This file is distributed under the same license as the Eskoofy theme.
 msgid ""
 msgstr ""
 "Project-Id-Version: Eskoofy 0.2.0\n"
-"Report-Msgid-Bugs-To: https://github.com/anomalyco/school-management-system/issues\n"
-"POT-Creation-Date: 2026-09-09 00:00+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/theme/eskoofy\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.5\n"
+"POT-Creation-Date: 2026-10-06T15:50:43+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: eskoofy\n"
 
-#: header.php:17
-msgid "Primary menu"
+#. Theme Name of the theme
+#. Author of the theme
+#: style.css
+#: inc/admin-pages.php:14
+#: inc/admin-pages.php:15
+#: views/admin/software.php:47
+msgid "Eskoofy"
 msgstr ""
 
-#: header.php:17
-#: functions.php:86
-msgid "Footer menu"
-msgstr ""
-
-#: footer.php:13
-msgid "All rights reserved."
-msgstr ""
-
-#: sidebar.php:13
-msgid "Sidebar"
-msgstr ""
-
-#: single.php:25
-#: search.php:30
-msgid "Previous"
-msgstr ""
-
-#: single.php:26
-#: search.php:31
-msgid "Next"
-msgstr ""
-
-#: 404.php:13
-msgid "Page not found"
+#. Description of the theme
+#: style.css
+msgid "Eskoofy WordPress theme. BD and INT variants are profiles"
 msgstr ""
 
 #: 404.php:16
+msgid "Page not found"
+msgstr ""
+
+#: 404.php:17
 msgid "The page you are looking for might have been moved or does not exist."
 msgstr ""
 
-#: 404.php:20
+#: 404.php:24
 msgid "Back to home"
 msgstr ""
 
-#: archive.php:29
-#: search.php:36
-msgid "&laquo; Previous"
+#: archive-esk_careers.php:13
+#: inc/custom-post-types.php:185
+#: views/admin/careers.php:41
+msgid "Careers"
+msgstr ""
+
+#: archive-esk_careers.php:23
+msgid "No open positions."
+msgstr ""
+
+#: archive-esk_careers.php:33
+msgid "Deadline:"
+msgstr ""
+
+#: archive-esk_events.php:15
+msgid "Events & Calendar"
+msgstr ""
+
+#: archive-esk_events.php:16
+msgid "Upcoming school events, open days, and important dates."
+msgstr ""
+
+#: archive-esk_events.php:72
+#: archive-esk_galleries.php:57
+#: views/admin/announcements.php:83
+msgid "All"
+msgstr ""
+
+#: archive-esk_events.php:73
+#: views/admin/exam-form.php:76
+msgid "Upcoming"
+msgstr ""
+
+#: archive-esk_events.php:74
+msgid "Past"
+msgstr ""
+
+#: archive-esk_events.php:79
+#: inc/shortcodes.php:741
+msgid "Upcoming Events"
+msgstr ""
+
+#: archive-esk_events.php:111
+msgid "Virtual"
+msgstr ""
+
+#: archive-esk_events.php:129
+msgid "No upcoming events published yet."
+msgstr ""
+
+#: archive-esk_events.php:136
+msgid "Past Events"
+msgstr ""
+
+#. Template Name of the theme
+#: archive-esk_galleries.php:16
+#: inc/custom-post-types.php:103
+#: views/admin/gallery.php:59
+msgid "Gallery"
+msgstr ""
+
+#: archive-esk_galleries.php:106
+msgid "Click to view"
+msgstr ""
+
+#: archive-esk_galleries.php:119
+msgid "No gallery items have been published yet."
+msgstr ""
+
+#: archive-esk_news.php:15
+msgid "News & Updates"
+msgstr ""
+
+#: archive-esk_news.php:72
+#: archive-esk_news.php:120
+msgid "Read more"
+msgstr ""
+
+#: archive-esk_news.php:139
+#: archive-esk_notices.php:102
+#: single.php:62
+msgid "Previous"
+msgstr ""
+
+#: archive-esk_news.php:140
+#: archive-esk_notices.php:103
+#: single.php:63
+#: views/admin/events-calendar.php:46
+msgid "Next"
+msgstr ""
+
+#: archive-esk_news.php:148
+msgid "No news articles have been published yet."
+msgstr ""
+
+#: archive-esk_notices.php:14
+msgid "Notices & Announcements"
+msgstr ""
+
+#: archive-esk_notices.php:15
+msgid "Stay informed with the latest notices and announcements."
+msgstr ""
+
+#: archive-esk_notices.php:79
+#: views/admin/notices.php:100
+msgid "Pinned"
+msgstr ""
+
+#: archive-esk_notices.php:111
+msgid "No notices have been published yet."
+msgstr ""
+
+#: archive.php:26
+#: inc/admin-pages.php:387
+#: inc/admin-shell.php:736
+#: searchform.php:12
+#: searchform.php:23
+#: template-search.php:18
+#: template-search.php:26
+#: template-search.php:29
+#: views/admin/search.php:61
+#: views/admin/teachers.php:55
+msgid "Search"
 msgstr ""
 
 #: archive.php:30
-#: search.php:37
+msgid "Archives"
+msgstr ""
+
+#: archive.php:64
+#: search.php:52
+#: template-search.php:88
+msgid "&laquo; Previous"
+msgstr ""
+
+#: archive.php:65
+#: search.php:53
+#: template-search.php:89
 msgid "Next &raquo;"
 msgstr ""
 
-#: archive.php:33
-#: search.php:40
+#: archive.php:71
 msgid "No posts found."
 msgstr ""
 
-#: search.php:22
+#: footer.php:60
+msgid "Excellence in Education"
+msgstr ""
+
+#: footer.php:152
+#: inc/admin-shell.php:727
+msgid "Are you sure?"
+msgstr ""
+
+#: footer.php:153
+msgid "This action cannot be undone."
+msgstr ""
+
+#: footer.php:155
+#: inc/admin-shell.php:730
+#: views/admin/announcements.php:95
+#: views/admin/assignments.php:170
+#: views/admin/certificates.php:308
+#: views/admin/document-designs.php:268
+#: views/admin/events.php:90
+#: views/admin/expense-categories.php:79
+#: views/admin/expenses.php:122
+#: views/admin/fees.php:118
+#: views/admin/gallery.php:82
+#: views/admin/hostels.php:221
+#: views/admin/news.php:116
+#: views/admin/notices.php:94
+#: views/admin/notification-templates.php:107
+#: views/admin/payment-gateways.php:374
+#: views/admin/payment-sandbox.php:223
+#: views/admin/refunds.php:119
+#: views/admin/routines.php:155
+#: views/admin/teacher-form.php:123
+#: views/admin/testimonials-admin.php:85
+msgid "Cancel"
+msgstr ""
+
+#: footer.php:156
+#: inc/admin-shell.php:731
+msgid "Confirm"
+msgstr ""
+
+#: functions.php:89
+msgid "Primary menu"
+msgstr ""
+
+#: functions.php:90
+msgid "Footer menu"
+msgstr ""
+
+#: functions.php:106
+#: sidebar.php:15
+msgid "Sidebar"
+msgstr ""
+
+#: functions.php:108
+msgid "Legacy sidebar widget area."
+msgstr ""
+
+#: functions.php:254
+#: inc/shortcodes.php:666
+#: views/admin/routines.php:133
+#: views/admin/routines.php:165
+#: views/admin/subjects.php:67
+msgid "Teacher"
+msgstr ""
+
+#: functions.php:255
+msgid "Accountant"
+msgstr ""
+
+#: functions.php:256
+msgid "Librarian"
+msgstr ""
+
+#: functions.php:370
+msgid "Application submitted successfully!"
+msgstr ""
+
+#: functions.php:389
+msgid "Message sent successfully!"
+msgstr ""
+
+#: functions.php:411
+msgid "Please enter your username and password."
+msgstr ""
+
+#: functions.php:442
+msgid "Invalid username or password."
+msgstr ""
+
+#: functions.php:799
+msgid "Thank you for subscribing!"
+msgstr ""
+
+#: functions.php:801
+msgid "Please enter a valid email address."
+msgstr ""
+
+#: header.php:179
+#: inc/admin-shell.php:507
+msgid "Skip to content"
+msgstr ""
+
+#: header.php:307
+#: header.php:373
+#: inc/admin-pages.php:25
+#: inc/admin-pages.php:26
+#: inc/admin-shell.php:359
+#: inc/admin-shell.php:689
+#: views/admin/dashboard.php:128
+msgid "Dashboard"
+msgstr ""
+
+#: header.php:308
+#: inc/admin-shell.php:626
+#: inc/admin-shell.php:694
+msgid "Log out"
+msgstr ""
+
+#. Template Name of the theme
+#: header.php:310
+#: template-login.php:100
+#: template-portal.php:32
+msgid "Login"
+msgstr ""
+
+#: header.php:311
+msgid "Portal"
+msgstr ""
+
+#: header.php:318
+msgid "Close search"
+msgstr ""
+
+#: header.php:331
+msgid "Close menu"
+msgstr ""
+
+#: inc/admin-pages.php:34
+#: inc/admin-pages.php:35
+#: inc/admin-shell.php:801
+#: template-students.php:15
+#: views/admin/announcements.php:84
+#: views/admin/bulk.php:88
+#: views/admin/bulk.php:105
+#: views/admin/classes.php:54
+#: views/admin/dashboard.php:179
+#: views/admin/reports.php:78
+#: views/admin/roles.php:15
+#: views/admin/software.php:51
+#: views/admin/students.php:58
+msgid "Students"
+msgstr ""
+
+#: inc/admin-pages.php:43
+#: inc/admin-pages.php:44
+#: views/admin/dashboard.php:310
+#: views/admin/student-form.php:225
+msgid "Add Student"
+msgstr ""
+
+#: inc/admin-pages.php:52
+#: inc/admin-pages.php:53
+#: views/admin/announcements.php:85
+#: views/admin/bulk.php:89
+#: views/admin/bulk.php:106
+#: views/admin/dashboard.php:191
+#: views/admin/roles.php:16
+#: views/admin/software.php:52
+#: views/admin/teachers.php:47
+msgid "Teachers"
+msgstr ""
+
+#: inc/admin-pages.php:61
+#: inc/admin-pages.php:62
+#: views/admin/dashboard.php:311
+#: views/admin/teacher-form.php:121
+msgid "Add Teacher"
+msgstr ""
+
+#: inc/admin-pages.php:70
+#: inc/admin-pages.php:71
+#: views/admin/classes.php:33
+msgid "Classes"
+msgstr ""
+
+#: inc/admin-pages.php:79
+#: inc/admin-pages.php:80
+#: views/admin/sections.php:53
+msgid "Sections"
+msgstr ""
+
+#: inc/admin-pages.php:88
+#: inc/admin-pages.php:89
+#: views/admin/subjects.php:44
+#: views/admin/teacher-form.php:111
+#: views/admin/teachers.php:69
+msgid "Subjects"
+msgstr ""
+
+#: inc/admin-pages.php:97
+#: inc/admin-pages.php:98
+#: views/admin/batches.php:50
+msgid "Batches"
+msgstr ""
+
+#: inc/admin-pages.php:106
+#: inc/admin-pages.php:107
+#: views/admin/academic-sessions.php:55
+msgid "Academic Sessions"
+msgstr ""
+
+#: inc/admin-pages.php:115
+#: inc/admin-pages.php:116
+#: inc/admin-shell.php:819
+#: template-portal.php:165
+#: views/admin/bulk.php:91
+#: views/admin/dashboard.php:209
+#: views/admin/help.php:49
+#: views/admin/roles.php:20
+msgid "Attendance"
+msgstr ""
+
+#: inc/admin-pages.php:124
+#: inc/admin-pages.php:125
+#: views/admin/attendance-mark.php:76
+#: views/admin/dashboard.php:312
+msgid "Mark Attendance"
+msgstr ""
+
+#: inc/admin-pages.php:133
+#: inc/admin-pages.php:134
+#: template-portal.php:166
+#: views/admin/exams.php:50
+msgid "Exams"
+msgstr ""
+
+#: inc/admin-pages.php:142
+#: inc/admin-pages.php:143
+#: template-portal.php:159
+msgid "Results"
+msgstr ""
+
+#: inc/admin-pages.php:151
+#: inc/admin-pages.php:152
+#: template-fees.php:16
+#: template-portal.php:167
+#: views/admin/bulk.php:90
+#: views/admin/student-form.php:206
+msgid "Fees"
+msgstr ""
+
+#: inc/admin-pages.php:160
+#: inc/admin-pages.php:161
+msgid "Fee Payments"
+msgstr ""
+
+#: inc/admin-pages.php:169
+#: inc/admin-pages.php:170
+#: views/admin/dashboard.php:81
+#: views/admin/dashboard.php:238
+#: views/admin/expenses.php:68
+#: views/admin/income-statement.php:48
+msgid "Expenses"
+msgstr ""
+
+#: inc/admin-pages.php:178
+#: inc/admin-pages.php:179
+#: views/admin/payroll.php:111
+msgid "Payroll"
+msgstr ""
+
+#: inc/admin-pages.php:187
+#: inc/admin-pages.php:188
+#: views/admin/guardians.php:58
+msgid "Guardians"
+msgstr ""
+
+#: inc/admin-pages.php:196
+#: inc/admin-pages.php:197
+#: template-admission.php:18
+#: template-admissions.php:20
+#: views/admin/admissions.php:26
+#: views/admin/roles.php:19
+msgid "Admissions"
+msgstr ""
+
+#. Template Name of the theme
+#: inc/admin-pages.php:205
+#: inc/admin-pages.php:206
+#: template-transport.php:15
+#: views/admin/fees.php:110
+#: views/admin/roles.php:26
+#: views/admin/salary-structures.php:42
+#: views/admin/transport.php:96
+msgid "Transport"
+msgstr ""
+
+#: inc/admin-pages.php:214
+#: inc/admin-pages.php:215
+#: views/admin/hostels.php:141
+#: views/admin/roles.php:27
+msgid "Hostels"
+msgstr ""
+
+#: inc/admin-pages.php:223
+#: inc/admin-pages.php:224
+#: views/admin/fees.php:110
+#: views/admin/library.php:159
+#: views/admin/roles.php:24
+#: views/admin/settings.php:153
+msgid "Library"
+msgstr ""
+
+#: inc/admin-pages.php:232
+#: inc/admin-pages.php:233
+#: views/admin/sms.php:147
+msgid "SMS"
+msgstr ""
+
+#. Template Name of the theme
+#: inc/admin-pages.php:241
+#: inc/admin-pages.php:242
+#: inc/custom-post-types.php:74
+#: template-notices.php:30
+#: views/admin/notices.php:67
+msgid "Notices"
+msgstr ""
+
+#: inc/admin-pages.php:250
+#: inc/admin-pages.php:251
+#: template-portal.php:169
+#: views/admin/announcements.php:63
+msgid "Announcements"
+msgstr ""
+
+#: inc/admin-pages.php:259
+#: inc/admin-pages.php:260
+#: views/admin/certificates.php:205
+msgid "Certificates"
+msgstr ""
+
+#: inc/admin-pages.php:268
+#: inc/admin-pages.php:269
+#: views/admin/admit-cards.php:73
+msgid "Admit Cards"
+msgstr ""
+
+#: inc/admin-pages.php:277
+#: inc/admin-pages.php:278
+#: views/admin/id-cards.php:68
+msgid "ID Cards"
+msgstr ""
+
+#: inc/admin-pages.php:286
+#: inc/admin-pages.php:287
+#: inc/custom-post-types.php:130
+#: views/admin/testimonials-admin.php:61
+msgid "Testimonials"
+msgstr ""
+
+#. Template Name of the theme
+#: inc/admin-pages.php:295
+#: inc/admin-pages.php:296
+#: views/admin/committee.php:40
+msgid "Committee"
+msgstr ""
+
+#: inc/admin-pages.php:304
+#: inc/admin-pages.php:305
+#: views/admin/dashboard.php:138
+#: views/admin/reports.php:43
+#: views/admin/roles.php:32
+msgid "Reports"
+msgstr ""
+
+#: inc/admin-pages.php:313
+#: inc/admin-pages.php:314
+#: views/admin/users.php:58
+msgid "Users"
+msgstr ""
+
+#: inc/admin-pages.php:322
+#: inc/admin-pages.php:323
+#: views/admin/settings.php:134
+msgid "Settings"
+msgstr ""
+
+#: inc/admin-pages.php:331
+#: inc/admin-pages.php:332
+#: views/admin/payment-gateways.php:286
+#: views/admin/settings.php:256
+msgid "Payment Gateways"
+msgstr ""
+
+#: inc/admin-pages.php:340
+#: inc/admin-pages.php:341
+#: views/admin/payment-sandbox.php:170
+msgid "Payment Sandbox"
+msgstr ""
+
+#: inc/admin-pages.php:350
+#: inc/admin-pages.php:351
+#: views/admin/onboarding.php:59
+msgid "Onboarding"
+msgstr ""
+
+#: inc/admin-pages.php:359
+#: inc/admin-pages.php:360
+#: inc/shortcodes.php:166
+#: inc/shortcodes.php:267
+#: views/admin/documents.php:49
+msgid "Documents"
+msgstr ""
+
+#: inc/admin-pages.php:368
+#: inc/admin-pages.php:369
+#: views/admin/media.php:47
+msgid "Media Library"
+msgstr ""
+
+#: inc/admin-pages.php:377
+#: views/admin/contact-submissions.php:46
+msgid "Contact Submissions"
+msgstr ""
+
+#. Template Name of the theme
+#: inc/admin-pages.php:378
+#: inc/shortcodes.php:163
+msgid "Contact"
+msgstr ""
+
+#: inc/admin-pages.php:386
+#: views/admin/search.php:57
+msgid "Global Search"
+msgstr ""
+
+#: inc/admin-pages.php:395
+#: inc/admin-pages.php:396
+#: views/admin/cms.php:35
+msgid "CMS Pages"
+msgstr ""
+
+#: inc/admin-pages.php:404
+#: inc/admin-pages.php:405
+msgid "Bulk Import/Export"
+msgstr ""
+
+#: inc/admin-pages.php:413
+#: inc/admin-pages.php:414
+#: views/admin/reports-builder.php:67
+msgid "Reports Builder"
+msgstr ""
+
+#: inc/admin-pages.php:422
+#: inc/admin-pages.php:423
+#: views/admin/analytics.php:31
+msgid "Analytics"
+msgstr ""
+
+#: inc/admin-pages.php:431
+#: inc/admin-pages.php:432
+#: views/admin/income-statement.php:33
+msgid "Income Statement"
+msgstr ""
+
+#: inc/admin-pages.php:440
+#: inc/admin-pages.php:441
+#: views/admin/balance-sheet.php:24
+msgid "Balance Sheet"
+msgstr ""
+
+#: inc/admin-pages.php:449
+#: inc/admin-pages.php:450
+#: views/admin/cash-flow.php:33
+msgid "Cash Flow"
+msgstr ""
+
+#: inc/admin-pages.php:458
+#: views/admin/bank-reconciliation.php:50
+msgid "Bank Reconciliation"
+msgstr ""
+
+#: inc/admin-pages.php:459
+msgid "Bank Recon"
+msgstr ""
+
+#: inc/admin-pages.php:467
+#: inc/admin-pages.php:468
+#: views/admin/payslips.php:76
+msgid "Payslips"
+msgstr ""
+
+#: inc/admin-pages.php:476
+#: inc/admin-pages.php:477
+#: views/admin/payroll.php:118
+#: views/admin/salary-structures.php:29
+msgid "Salary Structures"
+msgstr ""
+
+#: inc/admin-pages.php:485
+#: inc/admin-pages.php:486
+#: views/admin/leave-types.php:57
+msgid "Leave Types"
+msgstr ""
+
+#: inc/admin-pages.php:494
+#: inc/admin-pages.php:495
+#: views/admin/leave-requests.php:42
+#: views/admin/payroll.php:119
+#: views/admin/payroll.php:124
+msgid "Leave Requests"
+msgstr ""
+
+#: inc/admin-pages.php:503
+#: inc/admin-pages.php:504
+#: views/admin/staff-attendance.php:59
+msgid "Staff Attendance"
+msgstr ""
+
+#: inc/admin-pages.php:512
+#: inc/admin-pages.php:513
+#: views/admin/refunds.php:62
+msgid "Refunds"
+msgstr ""
+
+#: inc/admin-pages.php:521
+#: inc/admin-pages.php:522
+#: inc/admin-shell.php:673
+#: views/admin/notifications.php:22
+msgid "Notifications"
+msgstr ""
+
+#: inc/admin-pages.php:530
+#: inc/admin-pages.php:531
+#: views/admin/activity.php:18
+msgid "Activity Log"
+msgstr ""
+
+#: inc/admin-pages.php:539
+#: inc/admin-pages.php:540
+#: views/admin/visitor-logs.php:14
+msgid "Visitor Logs"
+msgstr ""
+
+#: inc/admin-pages.php:548
+#: inc/admin-pages.php:549
+#: views/admin/messages.php:60
+msgid "Messages"
+msgstr ""
+
+#: inc/admin-pages.php:557
+#: inc/admin-pages.php:558
+#: views/admin/assignments.php:117
+#: views/admin/transport.php:105
+msgid "Assignments"
+msgstr ""
+
+#: inc/admin-pages.php:566
+#: inc/admin-pages.php:567
+#: views/admin/routines.php:100
+msgid "Class Routines"
+msgstr ""
+
+#: inc/admin-pages.php:575
+#: inc/admin-pages.php:576
+#: views/admin/progress-reports.php:56
+msgid "Progress Reports"
+msgstr ""
+
+#: inc/admin-pages.php:584
+#: views/admin/seat-plans.php:61
+msgid "Exam Seat Plans"
+msgstr ""
+
+#: inc/admin-pages.php:585
+msgid "Seat Plans"
+msgstr ""
+
+#: inc/admin-pages.php:593
+#: inc/admin-pages.php:594
+#: views/admin/library-reports.php:43
+msgid "Library Reports"
+msgstr ""
+
+#: inc/admin-pages.php:602
+#: inc/admin-pages.php:603
+#: inc/admin-shell.php:691
+#: views/admin/profile.php:58
+msgid "My Profile"
+msgstr ""
+
+#: inc/admin-pages.php:611
+#: inc/admin-pages.php:612
+#: views/admin/help.php:110
+msgid "Help & Documentation"
+msgstr ""
+
+#: inc/admin-pages.php:620
+#: inc/admin-pages.php:621
+#: views/admin/backup.php:150
+msgid "Backups"
+msgstr ""
+
+#: inc/admin-pages.php:629
+#: inc/admin-pages.php:630
+msgid "Document Designs"
+msgstr ""
+
+#: inc/admin-pages.php:638
+#: inc/admin-pages.php:639
+#: views/admin/software.php:62
+msgid "About & Software"
+msgstr ""
+
+#: inc/admin-pages.php:947
+msgid "View template not found: "
+msgstr ""
+
+#: inc/admin-shell.php:123
+#: views/admin/settings.php:154
+msgid "CMS Settings"
+msgstr ""
+
+#: inc/admin-shell.php:124
+#: views/admin/settings.php:155
+msgid "Global Labels"
+msgstr ""
+
+#: inc/admin-shell.php:360
+#: template-search.php:61
+#: views/admin/cms.php:47
+#: views/admin/cms.php:73
+msgid "Page"
+msgstr ""
+
+#: inc/admin-shell.php:373
+msgid "Breadcrumb"
+msgstr ""
+
+#: inc/admin-shell.php:522
+msgid "Admin Panel"
+msgstr ""
+
+#: inc/admin-shell.php:530
+msgid "Filter menu…"
+msgstr ""
+
+#: inc/admin-shell.php:535
+msgid "Favorites"
+msgstr ""
+
+#: inc/admin-shell.php:618
+msgid "Install App"
+msgstr ""
+
+#: inc/admin-shell.php:622
+msgid "Dark mode"
+msgstr ""
+
+#: inc/admin-shell.php:635
+msgid "Toggle menu"
+msgstr ""
+
+#: inc/admin-shell.php:649
+msgid "Website"
+msgstr ""
+
+#: inc/admin-shell.php:652
+msgid "Search (Ctrl+K)"
+msgstr ""
+
+#: inc/admin-shell.php:661
+msgid "Pin current page"
+msgstr ""
+
+#: inc/admin-shell.php:665
+msgid "Help"
+msgstr ""
+
+#: inc/admin-shell.php:669
+msgid "Toggle dark mode"
+msgstr ""
+
+#: inc/admin-shell.php:690
+msgid "Setup & Onboarding"
+msgstr ""
+
+#: inc/admin-shell.php:692
+msgid "School Settings"
+msgstr ""
+
+#: inc/admin-shell.php:740
+msgid "Type to search pages or students…"
+msgstr ""
+
+#: inc/admin-shell.php:742
+#: inc/admin-shell.php:756
+#: inc/admin-shell.php:773
+#: views/admin/dashboard.php:157
+msgid "Close"
+msgstr ""
+
+#: inc/admin-shell.php:753
+#: inc/admin-shell.php:791
+msgid "Getting started"
+msgstr ""
+
+#: inc/admin-shell.php:754
+#: inc/admin-shell.php:792
+msgid "A few steps to get your school up and running."
+msgstr ""
+
+#: inc/admin-shell.php:760
+msgid "Jump to a topic"
+msgstr ""
+
+#: inc/admin-shell.php:770
+#: inc/admin-shell.php:776
+msgid "Document preview"
+msgstr ""
+
+#: inc/admin-shell.php:772
+msgid "Print / Download"
+msgstr ""
+
+#: inc/admin-shell.php:794
+msgid "Open School Settings and fill in your school name, address, and contact details."
+msgstr ""
+
+#: inc/admin-shell.php:795
+msgid "Create Academic Sessions, Classes, Sections, and Subjects."
+msgstr ""
+
+#: inc/admin-shell.php:796
+msgid "Add Teachers and Students, then assign them to classes and sections."
+msgstr ""
+
+#: inc/admin-shell.php:797
+msgid "Set up Fees, then collect and manage payments."
+msgstr ""
+
+#: inc/admin-shell.php:802
+msgid "Manage student records and enrollment."
+msgstr ""
+
+#: inc/admin-shell.php:804
+msgid "Add a student under People → Students."
+msgstr ""
+
+#: inc/admin-shell.php:805
+msgid "Assign class, section, batch, and student ID."
+msgstr ""
+
+#: inc/admin-shell.php:806
+msgid "Optionally upload a photo and guardian details."
+msgstr ""
+
+#: inc/admin-shell.php:810
+msgid "Fees & payments"
+msgstr ""
+
+#: inc/admin-shell.php:811
+msgid "Set up fees and track payments."
+msgstr ""
+
+#: inc/admin-shell.php:813
+msgid "Create fee structures under Finance → Fees."
+msgstr ""
+
+#: inc/admin-shell.php:814
+msgid "Record payments, view receipts, and approve pending payments."
+msgstr ""
+
+#: inc/admin-shell.php:815
+msgid "Track expenses and view financial reports."
+msgstr ""
+
+#: inc/admin-shell.php:820
+msgid "Take and review student attendance."
+msgstr ""
+
+#: inc/admin-shell.php:822
+msgid "Open Attendance, pick a class and section."
+msgstr ""
+
+#: inc/admin-shell.php:823
+msgid "Mark present/absent and save the day's attendance."
+msgstr ""
+
+#: inc/admin-shell.php:827
+msgid "Exams & results"
+msgstr ""
+
+#: inc/admin-shell.php:828
+msgid "Create exams and publish results."
+msgstr ""
+
+#: inc/admin-shell.php:830
+msgid "Add an exam under Academics → Exams."
+msgstr ""
+
+#: inc/admin-shell.php:831
+msgid "Enter marks per student, then publish when ready."
+msgstr ""
+
+#: inc/admin-shell.php:835
+msgid "Payroll & HR"
+msgstr ""
+
+#: inc/admin-shell.php:836
+msgid "Salary structures, leaves, and payslips."
+msgstr ""
+
+#: inc/admin-shell.php:838
+msgid "Define salary structures under HR."
+msgstr ""
+
+#: inc/admin-shell.php:839
+msgid "Generate payslips and approve leave requests."
+msgstr ""
+
+#. Template Name of the theme
+#: inc/custom-post-types.php:18
+#: views/admin/news.php:90
+msgid "News"
+msgstr ""
+
+#: inc/custom-post-types.php:19
+msgid "News Item"
+msgstr ""
+
+#: inc/custom-post-types.php:20
+msgid "Add New News"
+msgstr ""
+
+#: inc/custom-post-types.php:21
+#: views/admin/news.php:98
+msgid "Edit News"
+msgstr ""
+
+#: inc/custom-post-types.php:22
+msgid "View News"
+msgstr ""
+
+#: inc/custom-post-types.php:23
+msgid "All News"
+msgstr ""
+
+#: inc/custom-post-types.php:24
+msgid "Search News"
+msgstr ""
+
+#: inc/custom-post-types.php:25
+msgid "No news found"
+msgstr ""
+
+#: inc/custom-post-types.php:26
+msgid "No news found in Trash"
+msgstr ""
+
+#. Template Name of the theme
+#: inc/custom-post-types.php:47
+#: template-portal.php:170
+#: views/admin/events.php:60
+#: views/admin/roles.php:25
+msgid "Events"
+msgstr ""
+
+#: inc/custom-post-types.php:48
+msgid "Event"
+msgstr ""
+
+#: inc/custom-post-types.php:49
+msgid "Add New Event"
+msgstr ""
+
+#: inc/custom-post-types.php:50
+#: views/admin/events.php:68
+msgid "Edit Event"
+msgstr ""
+
+#: inc/custom-post-types.php:51
+msgid "View Event"
+msgstr ""
+
+#: inc/custom-post-types.php:52
+msgid "All Events"
+msgstr ""
+
+#: inc/custom-post-types.php:53
+msgid "Search Events"
+msgstr ""
+
+#: inc/custom-post-types.php:54
+msgid "No events found"
+msgstr ""
+
+#: inc/custom-post-types.php:75
+msgid "Notice"
+msgstr ""
+
+#: inc/custom-post-types.php:76
+#: views/admin/notices.php:75
+msgid "Add New Notice"
+msgstr ""
+
+#: inc/custom-post-types.php:77
+#: views/admin/notices.php:75
+msgid "Edit Notice"
+msgstr ""
+
+#: inc/custom-post-types.php:78
+msgid "View Notice"
+msgstr ""
+
+#: inc/custom-post-types.php:79
+msgid "All Notices"
+msgstr ""
+
+#: inc/custom-post-types.php:80
+msgid "Search Notices"
+msgstr ""
+
+#: inc/custom-post-types.php:81
+msgid "No notices found"
+msgstr ""
+
+#: inc/custom-post-types.php:102
+msgid "Galleries"
+msgstr ""
+
+#: inc/custom-post-types.php:104
+msgid "Add New Gallery"
+msgstr ""
+
+#: inc/custom-post-types.php:105
+msgid "Edit Gallery"
+msgstr ""
+
+#: inc/custom-post-types.php:106
+msgid "View Gallery"
+msgstr ""
+
+#: inc/custom-post-types.php:107
+msgid "All Galleries"
+msgstr ""
+
+#: inc/custom-post-types.php:108
+msgid "Search Galleries"
+msgstr ""
+
+#: inc/custom-post-types.php:109
+msgid "No galleries found"
+msgstr ""
+
+#: inc/custom-post-types.php:131
+msgid "Testimonial"
+msgstr ""
+
+#: inc/custom-post-types.php:132
+msgid "Add New Testimonial"
+msgstr ""
+
+#: inc/custom-post-types.php:133
+#: views/admin/testimonials-admin.php:69
+msgid "Edit Testimonial"
+msgstr ""
+
+#: inc/custom-post-types.php:134
+msgid "View Testimonial"
+msgstr ""
+
+#: inc/custom-post-types.php:135
+msgid "All Testimonials"
+msgstr ""
+
+#: inc/custom-post-types.php:136
+msgid "Search Testimonials"
+msgstr ""
+
+#: inc/custom-post-types.php:137
+msgid "No testimonials found"
+msgstr ""
+
+#: inc/custom-post-types.php:158
+msgid "Committee Members"
+msgstr ""
+
+#: inc/custom-post-types.php:159
+msgid "Committee Member"
+msgstr ""
+
+#: inc/custom-post-types.php:160
+msgid "Add New Member"
+msgstr ""
+
+#: inc/custom-post-types.php:161
+msgid "Edit Member"
+msgstr ""
+
+#: inc/custom-post-types.php:162
+msgid "View Member"
+msgstr ""
+
+#: inc/custom-post-types.php:163
+msgid "All Members"
+msgstr ""
+
+#: inc/custom-post-types.php:164
+msgid "Search Members"
+msgstr ""
+
+#: inc/custom-post-types.php:165
+msgid "No members found"
+msgstr ""
+
+#: inc/custom-post-types.php:186
+msgid "Career"
+msgstr ""
+
+#: inc/custom-post-types.php:187
+msgid "Add New Career"
+msgstr ""
+
+#: inc/custom-post-types.php:188
+msgid "Edit Career"
+msgstr ""
+
+#: inc/custom-post-types.php:189
+msgid "View Career"
+msgstr ""
+
+#: inc/custom-post-types.php:190
+msgid "All Careers"
+msgstr ""
+
+#: inc/custom-post-types.php:191
+msgid "Search Careers"
+msgstr ""
+
+#: inc/custom-post-types.php:192
+msgid "No careers found"
+msgstr ""
+
+#: inc/customizer.php:18
+msgid "Eskoofy Settings"
+msgstr ""
+
+#: inc/customizer.php:27
+msgid "School Information"
+msgstr ""
+
+#: inc/customizer.php:34
+#: views/admin/settings.php:171
+msgid "School Name"
+msgstr ""
+
+#: inc/customizer.php:41
+#: views/admin/settings.php:173
+msgid "Tagline"
+msgstr ""
+
+#: inc/customizer.php:48
+msgid "School Logo"
+msgstr ""
+
+#: inc/customizer.php:54
+#: inc/shortcodes.php:200
+#: inc/shortcodes.php:611
+#: inc/shortcodes.php:821
+#: template-contact.php:80
+#: template-contact.php:122
+#: template-portal.php:179
+#: views/admin/admission-detail.php:116
+#: views/admin/admissions.php:46
+#: views/admin/committee.php:54
+#: views/admin/committee.php:70
+#: views/admin/guardians.php:73
+#: views/admin/settings.php:175
+#: views/admin/student-detail.php:57
+#: views/admin/student-form.php:154
+#: views/admin/students.php:90
+#: views/admin/transport.php:216
+msgid "Phone"
+msgstr ""
+
+#: inc/customizer.php:61
+#: inc/shortcodes.php:199
+#: inc/shortcodes.php:613
+#: inc/shortcodes.php:817
+#: template-contact.php:86
+#: template-contact.php:118
+#: template-portal.php:180
+#: views/admin/admission-detail.php:115
+#: views/admin/admissions.php:45
+#: views/admin/career-applications.php:47
+#: views/admin/committee.php:55
+#: views/admin/committee.php:71
+#: views/admin/contact-submissions.php:56
+#: views/admin/guardians.php:71
+#: views/admin/guardians.php:82
+#: views/admin/settings.php:177
+#: views/admin/staff-directory.php:68
+#: views/admin/student-detail.php:58
+#: views/admin/student-form.php:158
+#: views/admin/teacher-form.php:103
+#: views/admin/teachers.php:67
+#: views/admin/users.php:71
+#: views/admin/users.php:104
+msgid "Email"
+msgstr ""
+
+#: inc/customizer.php:68
+#: inc/shortcodes.php:202
+#: template-contact.php:92
+#: views/admin/admission-detail.php:117
+#: views/admin/hostels.php:159
+#: views/admin/settings.php:179
+#: views/admin/student-detail.php:62
+msgid "Address"
+msgstr ""
+
+#: inc/customizer.php:77
+msgid "Eskoofy Colors"
+msgstr ""
+
+#: inc/customizer.php:84
+#: views/admin/settings.php:189
+msgid "Primary Color"
+msgstr ""
+
+#: inc/customizer.php:90
+msgid "Accent Color"
+msgstr ""
+
+#: inc/customizer.php:96
+msgid "Text Color"
+msgstr ""
+
+#: inc/customizer.php:104
+msgid "Footer Settings"
+msgstr ""
+
+#: inc/customizer.php:111
+msgid "Copyright Text"
+msgstr ""
+
+#: inc/customizer.php:118
+msgid "Facebook URL"
+msgstr ""
+
+#: inc/customizer.php:125
+msgid "Instagram URL"
+msgstr ""
+
+#: inc/customizer.php:132
+msgid "X / Twitter URL"
+msgstr ""
+
+#: inc/customizer.php:139
+msgid "YouTube URL"
+msgstr ""
+
+#: inc/customizer.php:146
+msgid "LinkedIn URL"
+msgstr ""
+
+#: inc/customizer.php:155
+msgid "Homepage Settings"
+msgstr ""
+
+#: inc/customizer.php:162
+msgid "Hero Title"
+msgstr ""
+
+#: inc/customizer.php:169
+msgid "Hero Tagline"
+msgstr ""
+
+#: inc/customizer.php:176
+msgid "CTA Button Text"
+msgstr ""
+
+#: inc/customizer.php:183
+msgid "CTA Button URL"
+msgstr ""
+
+#: inc/customizer.php:200
+msgid "Hero Design"
+msgstr ""
+
+#: inc/customizer.php:204
+msgid "Design 1 — Dark split + notices"
+msgstr ""
+
+#: inc/customizer.php:205
+msgid "Design 2 — Dark centre"
+msgstr ""
+
+#: inc/customizer.php:206
+msgid "Design 3 — Light split"
+msgstr ""
+
+#: inc/customizer.php:207
+msgid "Design 4 — Dark photo"
+msgstr ""
+
+#: inc/customizer.php:208
+msgid "Design 5 — Dark overlay"
+msgstr ""
+
+#: inc/customizer.php:209
+msgid "Design 6 — Gallery carousel"
+msgstr ""
+
+#: inc/customizer.php:216
+msgid "Hero Background Image"
+msgstr ""
+
+#: inc/customizer.php:222
+msgid "Established Year"
+msgstr ""
+
+#: inc/customizer.php:229
+msgid "Awards"
+msgstr ""
+
+#: inc/customizer.php:236
+msgid "Hide sections (comma-separated)"
+msgstr ""
+
+#: inc/customizer.php:237
+msgid "e.g. stats,teachers,committee_members,principal"
+msgstr ""
+
+#: inc/customizer.php:244
+#: views/admin/settings.php:181
+msgid "Currency Symbol"
+msgstr ""
+
+#: inc/demo-content.php:24
+msgid "Demo content is already installed."
+msgstr ""
+
+#: inc/demo-content.php:364
+msgid "Demo content installed."
+msgstr ""
+
+#: inc/demo-content.php:377
+msgid "Permission denied."
+msgstr ""
+
+#: inc/demo-content.php:398
+msgid "Could not detect the site host."
+msgstr ""
+
+#: inc/demo-content.php:415
+msgid "Rewrote .htaccess RewriteBase /client/ to /."
+msgstr ""
+
+#. translators: %s: constant name.
+#: inc/demo-content.php:427
+#, php-format
+msgid "%s in wp-config.php still points to %s - remove the /client segment (or the constant) to fully clear it."
+msgstr ""
+
+#: inc/demo-content.php:436
+#: inc/demo-content.php:439
+msgid "Site URL repaired to the site root."
+msgstr ""
+
+#: inc/front-dashboard.php:387
+#: inc/front-dashboard.php:390
+msgid "Too many requests"
+msgstr ""
+
+#: inc/front-dashboard.php:392
+msgid "Back to dashboard"
+msgstr ""
+
+#: inc/front-dashboard.php:407
+#: inc/front-dashboard.php:410
+msgid "Access denied"
+msgstr ""
+
+#: inc/front-dashboard.php:411
+msgid "Your account does not have permission to use the management dashboard."
+msgstr ""
+
+#: inc/front-dashboard.php:412
+msgid "Back to website"
+msgstr ""
+
+#: inc/payment-gateways.php:178
+msgid "Could not obtain bKash token. Please try again."
+msgstr ""
+
+#: inc/payment-gateways.php:211
+msgid "Redirecting to bKash payment..."
+msgstr ""
+
+#: inc/payment-gateways.php:219
+msgid "bKash payment creation failed."
+msgstr ""
+
+#: inc/payment-gateways.php:317
+msgid "Redirecting to Rocket payment..."
+msgstr ""
+
+#: inc/payment-gateways.php:325
+msgid "Rocket payment creation failed."
+msgstr ""
+
+#: inc/payment-gateways.php:410
+msgid "Redirecting to Nagad payment..."
+msgstr ""
+
+#: inc/payment-gateways.php:410
+msgid "Nagad payment initialization failed."
+msgstr ""
+
+#: inc/payment-gateways.php:488
+msgid "Stripe payment intent created."
+msgstr ""
+
+#: inc/payment-gateways.php:500
+msgid "Stripe payment intent creation failed."
+msgstr ""
+
+#: inc/payment-gateways.php:593
+msgid "PayPal authentication failed."
+msgstr ""
+
+#: inc/payment-gateways.php:638
+msgid "Redirecting to PayPal..."
+msgstr ""
+
+#: inc/payment-gateways.php:646
+msgid "PayPal order creation failed."
+msgstr ""
+
+#: inc/payment-gateways.php:721
+msgid "Redirecting to Paddle checkout..."
+msgstr ""
+
+#: inc/payment-gateways.php:794
+msgid "Please complete the bank transfer and submit proof."
+msgstr ""
+
+#: inc/payment-gateways.php:860
+msgid "UddoktaPay is not configured."
+msgstr ""
+
+#: inc/payment-gateways.php:883
+msgid "Redirecting to UddoktaPay..."
+msgstr ""
+
+#: inc/payment-gateways.php:891
+msgid "UddoktaPay payment creation failed."
+msgstr ""
+
+#: inc/payment-gateways.php:957
+msgid "Opening the test payment sandbox..."
+msgstr ""
+
+#: inc/payment-gateways.php:1085
+msgid "Invalid amount."
+msgstr ""
+
+#: inc/payment-gateways.php:1104
+msgid "is not configured."
+msgstr ""
+
+#: inc/payment-gateways.php:1112
+msgid "Redirecting to the hosted checkout..."
+msgstr ""
+
+#: inc/payment-gateways.php:1312
+msgid "Unknown payment gateway."
+msgstr ""
+
+#: inc/shortcodes.php:32
+#: inc/shortcodes.php:320
+#: inc/shortcodes.php:413
+msgid "Security check failed. Please reload and try again."
+msgstr ""
+
+#: inc/shortcodes.php:49
+#: inc/shortcodes.php:430
+#: inc/shortcodes.php:590
+#: views/admin/student-detail.php:28
+msgid "Student not found."
+msgstr ""
+
+#: inc/shortcodes.php:73
+msgid "Results for"
+msgstr ""
+
+#: inc/shortcodes.php:74
+#: inc/shortcodes.php:455
+#: views/admin/progress-reports.php:73
+msgid "Admission No:"
+msgstr ""
+
+#: inc/shortcodes.php:76
+msgid "No results found."
+msgstr ""
+
+#: inc/shortcodes.php:81
+#: inc/shortcodes.php:120
+#: template-portal.php:209
+#: views/admin/admit-cards.php:84
+#: views/admin/admit-cards.php:106
+#: views/admin/fees.php:110
+#: views/admin/progress-reports.php:84
+#: views/admin/seat-plans.php:73
+#: views/admin/seat-plans.php:91
+#: views/admin/student-detail.php:108
+msgid "Exam"
+msgstr ""
+
+#: inc/shortcodes.php:82
+#: template-portal.php:209
+#: views/admin/assignments.php:183
+#: views/admin/assignments.php:202
+#: views/admin/exams.php:66
+#: views/admin/progress-reports.php:84
+msgid "Marks"
+msgstr ""
+
+#: inc/shortcodes.php:83
+msgid "Passing"
+msgstr ""
+
+#: inc/shortcodes.php:84
+#: inc/shortcodes.php:466
+#: template-portal.php:191
+#: template-portal.php:229
+#: views/admin/admission-detail.php:163
+#: views/admin/admission-detail.php:181
+#: views/admin/admissions.php:47
+#: views/admin/admit-cards.php:108
+#: views/admin/analytics.php:72
+#: views/admin/assignments.php:184
+#: views/admin/attendance.php:55
+#: views/admin/bank-reconciliation.php:73
+#: views/admin/batches.php:90
+#: views/admin/batches.php:112
+#: views/admin/career-applications.php:49
+#: views/admin/certificates.php:239
+#: views/admin/certificates.php:262
+#: views/admin/events.php:80
+#: views/admin/events.php:100
+#: views/admin/exam-form.php:74
+#: views/admin/exams.php:67
+#: views/admin/expense-categories.php:88
+#: views/admin/fee-payments.php:76
+#: views/admin/fees.php:125
+#: views/admin/hostels.php:166
+#: views/admin/id-cards.php:97
+#: views/admin/leave-requests.php:56
+#: views/admin/ledger.php:99
+#: views/admin/library.php:270
+#: views/admin/notification-templates.php:118
+#: views/admin/notifications.php:30
+#: views/admin/onboarding.php:73
+#: views/admin/payment-gateways.php:385
+#: views/admin/payment-sandbox.php:205
+#: views/admin/payroll.php:132
+#: views/admin/payslips.php:117
+#: views/admin/progress-reports.php:84
+#: views/admin/refunds.php:103
+#: views/admin/sections.php:84
+#: views/admin/sms.php:242
+#: views/admin/sms.php:280
+#: views/admin/student-detail.php:61
+#: views/admin/student-detail.php:78
+#: views/admin/student-detail.php:108
+#: views/admin/student-detail.php:140
+#: views/admin/student-form.php:174
+#: views/admin/students.php:91
+msgid "Status"
+msgstr ""
+
+#: inc/shortcodes.php:95
+msgid "Pass"
+msgstr ""
+
+#: inc/shortcodes.php:95
+msgid "Fail"
+msgstr ""
+
+#: inc/shortcodes.php:103
+msgid "Look Up Another"
+msgstr ""
+
+#: inc/shortcodes.php:112
+msgid "Check Your Results"
+msgstr ""
+
+#: inc/shortcodes.php:116
+#: inc/shortcodes.php:547
+#: views/admin/student-form.php:134
+msgid "Admission Number"
+msgstr ""
+
+#: inc/shortcodes.php:122
+msgid "All Exams"
+msgstr ""
+
+#: inc/shortcodes.php:135
+msgid "Look Up"
+msgstr ""
+
+#: inc/shortcodes.php:151
+msgid "Apply for Admission"
+msgstr ""
+
+#: inc/shortcodes.php:162
+#: views/admin/admit-cards.php:105
+#: views/admin/assignments.php:181
+#: views/admin/attendance.php:55
+#: views/admin/certificates.php:218
+#: views/admin/certificates.php:259
+#: views/admin/hostels.php:231
+#: views/admin/hostels.php:275
+#: views/admin/id-cards.php:93
+#: views/admin/library.php:255
+#: views/admin/library.php:270
+#: views/admin/progress-reports.php:60
+#: views/admin/seat-plans.php:95
+#: views/admin/transport.php:115
+#: views/admin/transport.php:149
+msgid "Student"
+msgstr ""
+
+#: inc/shortcodes.php:164
+msgid "Academic"
+msgstr ""
+
+#: inc/shortcodes.php:165
+msgid "Guardian"
+msgstr ""
+
+#: inc/shortcodes.php:167
+#: inc/shortcodes.php:282
+msgid "Review"
+msgstr ""
+
+#: inc/shortcodes.php:174
+#: views/admin/student-form.php:109
+msgid "Student Information"
+msgstr ""
+
+#: inc/shortcodes.php:176
+#: views/admin/teacher-form.php:95
+msgid "First Name"
+msgstr ""
+
+#: inc/shortcodes.php:177
+#: views/admin/teacher-form.php:99
+msgid "Last Name"
+msgstr ""
+
+#: inc/shortcodes.php:180
+#: views/admin/admission-detail.php:113
+msgid "Gender"
+msgstr ""
+
+#: inc/shortcodes.php:182
+msgid "Male"
+msgstr ""
+
+#: inc/shortcodes.php:183
+msgid "Female"
+msgstr ""
+
+#: inc/shortcodes.php:184
+#: views/admin/payment-gateways.php:319
+msgid "Other"
+msgstr ""
+
+#: inc/shortcodes.php:187
+msgid "Date of Birth"
+msgstr ""
+
+#: inc/shortcodes.php:190
+#: inc/shortcodes.php:615
+#: template-portal.php:181
+#: views/admin/student-detail.php:59
+#: views/admin/student-form.php:146
+msgid "Blood Group"
+msgstr ""
+
+#: inc/shortcodes.php:191
+#: inc/shortcodes.php:617
+#: template-portal.php:182
+#: views/admin/student-detail.php:60
+#: views/admin/student-form.php:150
+msgid "Religion"
+msgstr ""
+
+#: inc/shortcodes.php:193
+#: inc/shortcodes.php:209
+#: inc/shortcodes.php:239
+#: inc/shortcodes.php:262
+msgid "Continue"
+msgstr ""
+
+#: inc/shortcodes.php:197
+msgid "Contact Information"
+msgstr ""
+
+#: inc/shortcodes.php:204
+#: views/admin/student-form.php:170
+msgid "City"
+msgstr ""
+
+#: inc/shortcodes.php:205
+msgid "Postal Code"
+msgstr ""
+
+#: inc/shortcodes.php:208
+#: inc/shortcodes.php:238
+#: inc/shortcodes.php:261
+#: inc/shortcodes.php:281
+#: inc/shortcodes.php:291
+msgid "Back"
+msgstr ""
+
+#: inc/shortcodes.php:214
+msgid "Academic Information"
+msgstr ""
+
+#: inc/shortcodes.php:216
+#: views/admin/batches.php:81
+msgid "Academic Session"
+msgstr ""
+
+#: inc/shortcodes.php:218
+#: inc/shortcodes.php:227
+#: views/admin/admit-cards.php:86
+#: views/admin/assignments.php:138
+#: views/admin/assignments.php:147
+#: views/admin/certificates.php:220
+#: views/admin/exam-form.php:50
+#: views/admin/exam-form.php:57
+#: views/admin/expenses.php:90
+#: views/admin/fees.php:101
+#: views/admin/hostels.php:202
+#: views/admin/hostels.php:233
+#: views/admin/hostels.php:242
+#: views/admin/library.php:246
+#: views/admin/library.php:257
+#: views/admin/payslips.php:90
+#: views/admin/progress-reports.php:62
+#: views/admin/refunds.php:76
+#: views/admin/reports-builder.php:73
+#: views/admin/routines.php:117
+#: views/admin/routines.php:126
+#: views/admin/routines.php:135
+#: views/admin/seat-plans.php:75
+#: views/admin/sms.php:220
+#: views/admin/transport.php:117
+#: views/admin/transport.php:126
+msgid "Select"
+msgstr ""
+
+#: inc/shortcodes.php:225
+msgid "Class / Batch"
+msgstr ""
+
+#: inc/shortcodes.php:234
+#: views/admin/admission-detail.php:120
+msgid "Previous School"
+msgstr ""
+
+#: inc/shortcodes.php:235
+msgid "Previous Class"
+msgstr ""
+
+#: inc/shortcodes.php:244
+msgid "Guardian Information"
+msgstr ""
+
+#: inc/shortcodes.php:246
+#: views/admin/admission-detail.php:118
+msgid "Father's Name"
+msgstr ""
+
+#: inc/shortcodes.php:247
+msgid "Father's Phone"
+msgstr ""
+
+#: inc/shortcodes.php:249
+msgid "Father's Occupation"
+msgstr ""
+
+#: inc/shortcodes.php:251
+#: views/admin/admission-detail.php:119
+msgid "Mother's Name"
+msgstr ""
+
+#: inc/shortcodes.php:252
+msgid "Mother's Phone"
+msgstr ""
+
+#: inc/shortcodes.php:254
+msgid "Mother's Occupation"
+msgstr ""
+
+#: inc/shortcodes.php:256
+msgid "Guardian Name (if different)"
+msgstr ""
+
+#: inc/shortcodes.php:257
+msgid "Relation"
+msgstr ""
+
+#: inc/shortcodes.php:259
+msgid "Guardian Phone"
+msgstr ""
+
+#: inc/shortcodes.php:269
+msgid "Student Photo"
+msgstr ""
+
+#: inc/shortcodes.php:273
+msgid "Transfer Certificate (T.C.)"
+msgstr ""
+
+#: inc/shortcodes.php:277
+msgid "Birth Certificate"
+msgstr ""
+
+#: inc/shortcodes.php:287
+msgid "Review & Submit"
+msgstr ""
+
+#: inc/shortcodes.php:288
+msgid "Please review all information before submitting. You can go back to edit any section."
+msgstr ""
+
+#: inc/shortcodes.php:292
+#: template-admission.php:44
+msgid "Submit Application"
+msgstr ""
+
+#: inc/shortcodes.php:310
+msgid "Payment completed successfully. Thank you!"
+msgstr ""
+
+#: inc/shortcodes.php:313
+msgid "Payment was not completed. Please try again."
+msgstr ""
+
+#: inc/shortcodes.php:339
+msgid "Student or fee not found."
+msgstr ""
+
+#: inc/shortcodes.php:346
+msgid "Selected payment method is unavailable. Please try again."
+msgstr ""
+
+#: inc/shortcodes.php:405
+msgid "Payment recorded. Please complete the transfer and submit proof to the office."
+msgstr ""
+
+#: inc/shortcodes.php:454
+msgid "Fee Status for"
+msgstr ""
+
+#: inc/shortcodes.php:457
+msgid "No fee records found."
+msgstr ""
+
+#: inc/shortcodes.php:462
+#: inc/shortcodes.php:511
+#: template-admission.php:134
+#: template-portal.php:229
+#: views/admin/student-detail.php:140
+msgid "Fee"
+msgstr ""
+
+#: inc/shortcodes.php:463
+#: inc/shortcodes.php:519
+#: template-admission.php:136
+#: template-portal.php:229
+#: views/admin/bank-reconciliation.php:71
+#: views/admin/budgets.php:66
+#: views/admin/budgets.php:78
+#: views/admin/expenses.php:97
+#: views/admin/expenses.php:131
+#: views/admin/fee-payments.php:73
+#: views/admin/fee-payments.php:105
+#: views/admin/fees.php:108
+#: views/admin/fees.php:125
+#: views/admin/ledger.php:127
+#: views/admin/ledger.php:146
+#: views/admin/payment-sandbox.php:193
+#: views/admin/payment-sandbox.php:255
+#: views/admin/refunds.php:86
+#: views/admin/refunds.php:101
+#: views/admin/student-detail.php:140
+msgid "Amount"
+msgstr ""
+
+#: inc/shortcodes.php:464
+#: template-portal.php:229
+#: views/admin/leave-types.php:80
+#: views/admin/leave-types.php:91
+#: views/admin/library.php:296
+#: views/admin/student-detail.php:140
+msgid "Paid"
+msgstr ""
+
+#: inc/shortcodes.php:465
+#: template-portal.php:191
+#: template-portal.php:229
+#: views/admin/activity.php:26
+#: views/admin/attendance-mark.php:86
+#: views/admin/bank-reconciliation.php:69
+#: views/admin/career-applications.php:50
+#: views/admin/contact-submissions.php:59
+#: views/admin/documents.php:87
+#: views/admin/expenses.php:84
+#: views/admin/expenses.php:129
+#: views/admin/fee-payments.php:77
+#: views/admin/ledger.php:128
+#: views/admin/ledger.php:143
+#: views/admin/messages.php:103
+#: views/admin/news.php:126
+#: views/admin/notices.php:100
+#: views/admin/notifications.php:29
+#: views/admin/sms.php:244
+#: views/admin/sms.php:284
+#: views/admin/staff-attendance.php:68
+#: views/admin/student-detail.php:78
+#: views/admin/visitor-logs.php:22
+msgid "Date"
+msgstr ""
+
+#: inc/shortcodes.php:506
+msgid "Pay Online"
+msgstr ""
+
+#: inc/shortcodes.php:523
+#: views/admin/expenses.php:107
+msgid "Payment Method"
+msgstr ""
+
+#: inc/shortcodes.php:530
+msgid "Pay Now"
+msgstr ""
+
+#: inc/shortcodes.php:534
+msgid "Check Another"
+msgstr ""
+
+#: inc/shortcodes.php:543
+msgid "Fee Payment Status"
+msgstr ""
+
+#: inc/shortcodes.php:551
+#: views/admin/fees.php:109
+msgid "Fee Type"
+msgstr ""
+
+#: inc/shortcodes.php:563
+msgid "Check Status"
+msgstr ""
+
+#: inc/shortcodes.php:575
+msgid "Student ID not specified."
+msgstr ""
+
+#: inc/shortcodes.php:605
+#: template-portal.php:176
+#: views/admin/student-detail.php:53
+#: views/admin/students.php:87
+msgid "Admission No"
+msgstr ""
+
+#: inc/shortcodes.php:607
+#: template-admission.php:133
+#: template-portal.php:177
+#: views/admin/attendance-mark.php:88
+#: views/admin/attendance.php:55
+#: views/admin/exam-form.php:48
+#: views/admin/exams.php:63
+#: views/admin/fees.php:100
+#: views/admin/fees.php:125
+#: views/admin/id-cards.php:94
+#: views/admin/reports.php:78
+#: views/admin/routines.php:115
+#: views/admin/routines.php:163
+#: views/admin/sections.php:64
+#: views/admin/sections.php:81
+#: views/admin/sms.php:218
+#: views/admin/student-detail.php:54
+#: views/admin/student-form.php:112
+#: views/admin/students.php:88
+msgid "Class"
+msgstr ""
+
+#: inc/shortcodes.php:609
+#: template-portal.php:178
+#: views/admin/student-detail.php:56
+#: views/admin/student-form.php:142
+msgid "Roll Number"
+msgstr ""
+
+#: inc/shortcodes.php:630
+msgid "Class ID not specified."
+msgstr ""
+
+#: inc/shortcodes.php:648
+#: template-contact.php:60
+msgid "Monday"
+msgstr ""
+
+#: inc/shortcodes.php:649
+#: template-contact.php:61
+msgid "Tuesday"
+msgstr ""
+
+#: inc/shortcodes.php:650
+#: template-contact.php:62
+msgid "Wednesday"
+msgstr ""
+
+#: inc/shortcodes.php:651
+#: template-contact.php:63
+msgid "Thursday"
+msgstr ""
+
+#: inc/shortcodes.php:652
+#: template-contact.php:64
+msgid "Friday"
+msgstr ""
+
+#: inc/shortcodes.php:653
+#: template-contact.php:65
+msgid "Saturday"
+msgstr ""
+
+#: inc/shortcodes.php:654
+#: template-contact.php:59
+msgid "Sunday"
+msgstr ""
+
+#: inc/shortcodes.php:660
+msgid "Class Schedule"
+msgstr ""
+
+#: inc/shortcodes.php:664
+#: template-portal.php:250
+#: views/admin/routines.php:142
+#: views/admin/routines.php:162
+msgid "Day"
+msgstr ""
+
+#: inc/shortcodes.php:665
+#: inc/shortcodes.php:825
+#: template-contact.php:127
+#: template-portal.php:209
+#: template-portal.php:250
+#: views/admin/assignments.php:145
+#: views/admin/assignments.php:220
+#: views/admin/contact-submissions.php:57
+#: views/admin/exam-form.php:55
+#: views/admin/exams.php:64
+#: views/admin/messages.php:87
+#: views/admin/messages.php:101
+#: views/admin/notification-templates.php:96
+#: views/admin/notification-templates.php:117
+#: views/admin/progress-reports.php:84
+#: views/admin/routines.php:124
+#: views/admin/routines.php:164
+msgid "Subject"
+msgstr ""
+
+#: inc/shortcodes.php:667
+#: template-portal.php:250
+#: views/admin/routines.php:166
+msgid "Time"
+msgstr ""
+
+#: inc/shortcodes.php:668
+#: template-portal.php:250
+#: views/admin/hostels.php:240
+#: views/admin/hostels.php:256
+#: views/admin/routines.php:151
+#: views/admin/routines.php:167
+#: views/admin/seat-plans.php:92
+msgid "Room"
+msgstr ""
+
+#: inc/shortcodes.php:673
+msgid "No schedule found."
+msgstr ""
+
+#: inc/shortcodes.php:707
+msgid "Latest News"
+msgstr ""
+
+#: inc/shortcodes.php:709
+msgid "No news available."
+msgstr ""
+
+#: inc/shortcodes.php:743
+#: template-portal.php:282
+msgid "No upcoming events."
+msgstr ""
+
+#: inc/shortcodes.php:783
+msgid "No gallery images found."
+msgstr ""
+
+#: inc/shortcodes.php:804
+#: template-contact.php:21
+msgid "Contact Us"
+msgstr ""
+
+#: inc/shortcodes.php:807
+msgid "Thank you for your message. We will get back to you soon."
+msgstr ""
+
+#: inc/shortcodes.php:813
+#: template-contact.php:113
+#: views/admin/academic-sessions.php:67
+#: views/admin/academic-sessions.php:81
+#: views/admin/admission-detail.php:112
+#: views/admin/admissions.php:44
+#: views/admin/attendance-mark.php:112
+#: views/admin/batches.php:63
+#: views/admin/batches.php:107
+#: views/admin/career-applications.php:46
+#: views/admin/certificates.php:304
+#: views/admin/class-form.php:41
+#: views/admin/classes.php:52
+#: views/admin/committee.php:52
+#: views/admin/committee.php:68
+#: views/admin/contact-submissions.php:55
+#: views/admin/document-designs.php:139
+#: views/admin/exams.php:62
+#: views/admin/expense-categories.php:72
+#: views/admin/expense-categories.php:86
+#: views/admin/fees.php:98
+#: views/admin/fees.php:125
+#: views/admin/guardians.php:69
+#: views/admin/guardians.php:81
+#: views/admin/hostels.php:154
+#: views/admin/hostels.php:166
+#: views/admin/leave-types.php:72
+#: views/admin/leave-types.php:89
+#: views/admin/ledger.php:73
+#: views/admin/ledger.php:97
+#: views/admin/library.php:208
+#: views/admin/library.php:214
+#: views/admin/notification-templates.php:95
+#: views/admin/notification-templates.php:116
+#: views/admin/payment-gateways.php:309
+#: views/admin/payment-gateways.php:381
+#: views/admin/results.php:122
+#: views/admin/sections.php:71
+#: views/admin/sms.php:238
+#: views/admin/staff-directory.php:67
+#: views/admin/students.php:86
+#: views/admin/subjects.php:55
+#: views/admin/subjects.php:65
+#: views/admin/teachers.php:66
+#: views/admin/transport.php:251
+#: views/admin/transport.php:278
+#: views/admin/users.php:103
+msgid "Name"
+msgstr ""
+
+#: inc/shortcodes.php:829
+#: template-contact.php:131
+#: views/admin/activity.php:25
+#: views/admin/contact-submissions.php:58
+#: views/admin/messages.php:91
+#: views/admin/notifications.php:27
+#: views/admin/sms.php:231
+msgid "Message"
+msgstr ""
+
+#: inc/shortcodes.php:833
+msgid "Send Message"
+msgstr ""
+
+#: inc/shortcodes.php:853
+msgid "Select Payment Method"
+msgstr ""
+
+#: inc/shortcodes.php:855
+msgid "No payment methods available."
+msgstr ""
+
+#: inc/shortcodes.php:895
+msgid "Bright Students"
+msgstr ""
+
+#: inc/shortcodes.php:897
+msgid "No notable students to display yet."
+msgstr ""
+
+#: inc/shortcodes.php:933
+#, php-format
+msgid "Welcome, %s!"
+msgstr ""
+
+#: inc/shortcodes.php:934
+msgid "Log Out"
+msgstr ""
+
+#: inc/shortcodes.php:943
+#: inc/shortcodes.php:960
+msgid "Sign In"
+msgstr ""
+
+#: inc/shortcodes.php:947
+#: template-login.php:61
+msgid "Username or Email"
+msgstr ""
+
+#: inc/shortcodes.php:951
+#: template-login.php:65
+#: views/admin/cloud-backup.php:130
+#: views/admin/settings.php:331
+#: views/admin/users.php:72
+msgid "Password"
+msgstr ""
+
+#: inc/shortcodes.php:957
+msgid "Remember Me"
+msgstr ""
+
+#: inc/shortcodes.php:962
+msgid "Forgot password?"
+msgstr ""
+
+#: inc/sms-gateway.php:113
+msgid "Twilio credentials are not configured."
+msgstr ""
+
+#: inc/sms-gateway.php:162
+msgid "Vonage credentials are not configured."
+msgstr ""
+
+#: inc/sms-gateway.php:267
+msgid "Unexpected SMS gateway response."
+msgstr ""
+
+#. translators: %d: number of minutes to wait.
+#: inc/throttle.php:121
+#, php-format
+msgid "Too many login attempts. Please wait %d minute(s) and try again."
+msgstr ""
+
+#. translators: %d: number of seconds to wait.
+#: inc/throttle.php:164
+#, php-format
+msgid "Too many changes at once. Please wait %d second(s) and try again."
+msgstr ""
+
+#: inc/widgets.php:15
+msgid "Main Sidebar"
+msgstr ""
+
+#: inc/widgets.php:16
+msgid "Main sidebar widget area."
+msgstr ""
+
+#: inc/widgets.php:19
+msgid "Footer Column 1"
+msgstr ""
+
+#: inc/widgets.php:20
+msgid "First footer widget area."
+msgstr ""
+
+#: inc/widgets.php:23
+msgid "Footer Column 2"
+msgstr ""
+
+#: inc/widgets.php:24
+msgid "Second footer widget area."
+msgstr ""
+
+#: inc/widgets.php:27
+msgid "Footer Column 3"
+msgstr ""
+
+#: inc/widgets.php:28
+msgid "Third footer widget area."
+msgstr ""
+
+#: inc/widgets.php:31
+msgid "Homepage Hero"
+msgstr ""
+
+#: inc/widgets.php:32
+msgid "Front page hero section."
+msgstr ""
+
+#: inc/widgets.php:35
+msgid "Homepage Features"
+msgstr ""
+
+#: inc/widgets.php:36
+msgid "Front page features section."
+msgstr ""
+
+#: index.php:21
+msgid "Nothing found."
+msgstr ""
+
+#. translators: %s: search query
+#: search.php:19
 #, php-format
 msgid "Search results for: %s"
 msgstr ""
 
-#: search.php:40
+#: search.php:59
 msgid "No results found. Try a different search term."
 msgstr ""
 
-#: searchform.php:13
-msgid "Search"
-msgstr ""
-
-#: searchform.php:17
+#: searchform.php:18
 msgid "Search&hellip;"
 msgstr ""
 
-#: functions.php:75
-msgid "Footer widgets"
+#: single-esk_careers.php:20
+#: template-admission.php:167
+msgid "Apply Now"
 msgstr ""
 
-#: functions.php:76
-msgid "Footer widget area."
+#: single-esk_news.php:52
+msgid "Back to News"
+msgstr ""
+
+#. translators: %d: number of minutes
+#: single-esk_news.php:72
+#, php-format
+msgid "%d min read"
+msgstr ""
+
+#: single-esk_news.php:94
+msgid "Share this article"
+msgstr ""
+
+#: single-esk_news.php:107
+msgid "Copied!"
+msgstr ""
+
+#: single-esk_news.php:107
+#: single-esk_news.php:109
+msgid "Copy Link"
+msgstr ""
+
+#: single-esk_news.php:131
+msgid "Related Articles"
+msgstr ""
+
+#: single.php:21
+msgid "Home"
+msgstr ""
+
+#: single.php:23
+#: template-search.php:59
+#: template-search.php:63
+msgid "Post"
+msgstr ""
+
+#: single.php:29
+#: views/admin/library.php:173
+#: views/admin/library.php:185
+#: views/admin/news.php:110
+#: views/admin/notices.php:100
+#: views/admin/testimonials-admin.php:92
+msgid "Author"
+msgstr ""
+
+#: single.php:32
+msgid "Categories"
+msgstr ""
+
+#: single.php:55
+msgid "Tags"
+msgstr ""
+
+#. Template Name of the theme
+#: template-about.php:15
+#: views/admin/settings.php:156
+msgid "About"
+msgstr ""
+
+#: template-about.php:16
+msgid "Learn about our school, mission and history."
+msgstr ""
+
+#. Template Name of the theme
+#: template-academics.php:15
+msgid "Academics"
+msgstr ""
+
+#: template-academics.php:16
+msgid "Curriculum, academic programmes and learning approach."
+msgstr ""
+
+#. Template Name of the theme
+msgid "Admission Page"
+msgstr ""
+
+#: template-admission.php:25
+#: template-admissions.php:21
+msgid "Start your application"
+msgstr ""
+
+#: template-admission.php:45
+msgid "Fill in the online form with student and guardian details."
+msgstr ""
+
+#: template-admission.php:49
+msgid "Document Review"
+msgstr ""
+
+#: template-admission.php:50
+msgid "Upload required documents for verification by our team."
+msgstr ""
+
+#: template-admission.php:54
+msgid "Entrance Test"
+msgstr ""
+
+#: template-admission.php:55
+msgid "Candidates may be called for a written test and interview."
+msgstr ""
+
+#: template-admission.php:59
+msgid "Confirmation"
+msgstr ""
+
+#: template-admission.php:60
+msgid "Pay fees and confirm admission. Welcome to the family!"
+msgstr ""
+
+#: template-admission.php:66
+msgid "What is the minimum age for admission?"
+msgstr ""
+
+#: template-admission.php:67
+msgid "For Play/Nursery, the minimum age is 3 years as of January 1 of the admission year. For KG-1 it is 4 years, and for KG-2 it is 5 years."
+msgstr ""
+
+#: template-admission.php:70
+msgid "Is there an entrance test?"
+msgstr ""
+
+#: template-admission.php:71
+msgid "Yes, students applying for Class 1 and above must take a written entrance test in English, Mathematics, and Bengali. An oral interview may also be conducted."
+msgstr ""
+
+#: template-admission.php:74
+msgid "Can I apply for a scholarship?"
+msgstr ""
+
+#: template-admission.php:75
+msgid "Merit-based and need-based scholarships are available. Please contact the admissions office or fill out the inquiry form on the contact page."
+msgstr ""
+
+#: template-admission.php:85
+msgid "Admissions Open"
+msgstr ""
+
+#: template-admission.php:92
+msgid "Start a new admission application."
+msgstr ""
+
+#: template-admission.php:98
+msgid "Track your submitted application."
+msgstr ""
+
+#: template-admission.php:104
+msgid "For questions, reach the admissions office."
+msgstr ""
+
+#: template-admission.php:105
+#: template-admission.php:187
+#: template-admissions.php:32
+msgid "Contact us"
+msgstr ""
+
+#: template-admission.php:110
+msgid "Admission Process"
+msgstr ""
+
+#: template-admission.php:127
+#: views/admin/fees.php:83
+msgid "Fee Structure"
+msgstr ""
+
+#: template-admission.php:135
+#: views/admin/activity.php:23
+#: views/admin/bank-reconciliation.php:72
+#: views/admin/careers.php:55
+#: views/admin/careers.php:80
+#: views/admin/certificates.php:227
+#: views/admin/certificates.php:260
+#: views/admin/documents.php:85
+#: views/admin/fees.php:125
+#: views/admin/hostels.php:210
+#: views/admin/hostels.php:256
+#: views/admin/leave-requests.php:51
+#: views/admin/ledger.php:74
+#: views/admin/ledger.php:98
+#: views/admin/ledger.php:124
+#: views/admin/ledger.php:145
+#: views/admin/notifications.php:28
+#: views/admin/payment-gateways.php:312
+#: views/admin/payment-gateways.php:383
+#: views/admin/payroll.php:128
+#: views/admin/transport.php:190
+#: views/admin/transport.php:213
+msgid "Type"
+msgstr ""
+
+#: template-admission.php:142
+msgid "General"
+msgstr ""
+
+#: template-admission.php:155
+#: template-admission.php:176
+msgid "Admission FAQs"
+msgstr ""
+
+#: template-admission.php:165
+msgid "Ready to Join Us?"
+msgstr ""
+
+#: template-admission.php:166
+msgid "Take the first step towards quality education. Apply online today."
+msgstr ""
+
+#: template-admission.php:168
+msgid "Contact Admissions Office"
+msgstr ""
+
+#. Template Name of the theme
+msgid "Admissions Apply"
+msgstr ""
+
+#: template-committee.php:33
+msgid "School committee"
+msgstr ""
+
+#: template-contact.php:64
+#: template-contact.php:65
+msgid "Closed"
+msgstr ""
+
+#: template-contact.php:72
+msgid "Thank you!"
+msgstr ""
+
+#: template-contact.php:97
+msgid "Office hours"
+msgstr ""
+
+#: template-contact.php:105
+msgid "Send us a message"
+msgstr ""
+
+#: template-contact.php:134
+msgid "Send message"
+msgstr ""
+
+#: template-contact.php:140
+msgid "Opening hours"
+msgstr ""
+
+#: template-contact.php:155
+msgid "Location on map"
+msgstr ""
+
+#: template-contact.php:168
+msgid "Emergency contacts"
+msgstr ""
+
+#: template-contact.php:182
+msgid "Frequently Asked Questions"
+msgstr ""
+
+#: template-events.php:30
+msgid "School events"
+msgstr ""
+
+#. Template Name of the theme
+msgid "Faculty"
+msgstr ""
+
+#: template-faculty.php:36
+msgid "Teaching staff directory"
+msgstr ""
+
+#. Template Name of the theme
+msgid "Fees Payment"
+msgstr ""
+
+#: template-gallery.php:30
+msgid "Photo gallery"
+msgstr ""
+
+#: template-login.php:24
+msgid "System Login"
+msgstr ""
+
+#: template-login.php:25
+msgid "Sign in to the school management system."
+msgstr ""
+
+#: template-login.php:32
+msgid "Student / Parent portal"
+msgstr ""
+
+#: template-login.php:37
+msgid "You are already signed in."
+msgstr ""
+
+#: template-login.php:40
+msgid "Open dashboard"
+msgstr ""
+
+#: template-login.php:70
+msgid "Remember me"
+msgstr ""
+
+#: template-login.php:87
+msgid "Login is temporarily locked for this account. Please try again in a minute."
+msgstr ""
+
+#. translators: %d: login attempts remaining.
+#: template-login.php:94
+#, php-format
+msgid "%d login attempt(s) remaining before a temporary lockout."
+msgstr ""
+
+#: template-login.php:104
+msgid "Forgot your password?"
+msgstr ""
+
+#. translators: %s: wp-login.php URL for WordPress platform users.
+#: template-login.php:111
+#, php-format
+msgid "WordPress platform users (site administrators) log in %s."
+msgstr ""
+
+#: template-login.php:112
+msgid "here"
+msgstr ""
+
+#: template-news.php:30
+msgid "News & events"
+msgstr ""
+
+#. Template Name of the theme
+msgid "Student / Parent Portal"
+msgstr ""
+
+#: template-portal.php:22
+msgid "Parent / Student portal"
+msgstr ""
+
+#: template-portal.php:63
+msgid "Student Portal"
+msgstr ""
+
+#: template-portal.php:72
+msgid "No student record is linked to your account. Please contact the school office."
+msgstr ""
+
+#: template-portal.php:153
+#: views/admin/attendance-mark.php:111
+#: views/admin/results.php:121
+#: views/admin/students.php:89
+msgid "Roll"
+msgstr ""
+
+#: template-portal.php:158
+msgid "Attendance (30 days)"
+msgstr ""
+
+#: template-portal.php:160
+msgid "Fee Records"
+msgstr ""
+
+#: template-portal.php:164
+msgid "Profile"
+msgstr ""
+
+#: template-portal.php:168
+msgid "Routine"
+msgstr ""
+
+#: template-portal.php:188
+msgid "No attendance records yet."
+msgstr ""
+
+#: template-portal.php:206
+msgid "No published results yet."
+msgstr ""
+
+#: template-portal.php:209
+#: views/admin/assignments.php:185
+#: views/admin/assignments.php:204
+msgid "Grade"
+msgstr ""
+
+#: template-portal.php:226
+msgid "No fee records yet."
+msgstr ""
+
+#: template-portal.php:247
+msgid "No routine published yet."
+msgstr ""
+
+#: template-portal.php:267
+#: views/admin/announcements.php:109
+msgid "No announcements."
+msgstr ""
+
+#. Template Name of the theme
+#: template-privacy.php:15
+msgid "Privacy Policy"
+msgstr ""
+
+#. Template Name of the theme
+msgid "Results Page"
+msgstr ""
+
+#: template-results.php:18
+msgid "Result lookup"
+msgstr ""
+
+#. Template Name of the theme
+msgid "Search Results"
+msgstr ""
+
+#: template-search.php:28
+#: views/admin/search.php:60
+msgid "Search..."
+msgstr ""
+
+#: template-search.php:35
+msgid "Please enter at least 2 characters to search."
+msgstr ""
+
+#: template-search.php:39
+msgid "No results found for"
+msgstr ""
+
+#: template-search.php:51
+msgid "result(s) found for"
+msgstr ""
+
+#. Template Name of the theme
+msgid "Students Life"
+msgstr ""
+
+#: template-students.php:16
+msgid "Student life, resources and activities."
+msgstr ""
+
+#. Template Name of the theme
+#: template-terms.php:15
+msgid "Terms & Conditions"
+msgstr ""
+
+#: template-transport.php:16
+msgid "School bus routes, schedules and transport policies."
+msgstr ""
+
+#: views/admin/academic-sessions.php:32
+msgid "Academic session added."
+msgstr ""
+
+#: views/admin/academic-sessions.php:44
+msgid "Session deleted."
+msgstr ""
+
+#: views/admin/academic-sessions.php:63
+msgid "Add Academic Session"
+msgstr ""
+
+#: views/admin/academic-sessions.php:68
+#: views/admin/academic-sessions.php:82
+#: views/admin/batches.php:67
+#: views/admin/batches.php:108
+#: views/admin/exam-form.php:46
+#: views/admin/fees.php:99
+#: views/admin/fees.php:125
+#: views/admin/ledger.php:72
+#: views/admin/ledger.php:96
+#: views/admin/payment-gateways.php:310
+#: views/admin/payment-gateways.php:382
+#: views/admin/subjects.php:57
+#: views/admin/subjects.php:58
+#: views/admin/subjects.php:66
+#: views/admin/transport.php:255
+#: views/admin/transport.php:279
+msgid "Code"
+msgstr ""
+
+#: views/admin/academic-sessions.php:71
+#: views/admin/batches.php:73
+#: views/admin/exam-form.php:62
+msgid "Start Date"
+msgstr ""
+
+#: views/admin/academic-sessions.php:72
+#: views/admin/batches.php:77
+#: views/admin/exam-form.php:64
+msgid "End Date"
+msgstr ""
+
+#: views/admin/academic-sessions.php:73
+msgid "Set as current session"
+msgstr ""
+
+#: views/admin/academic-sessions.php:75
+msgid "Add Session"
+msgstr ""
+
+#: views/admin/academic-sessions.php:83
+#: views/admin/batches.php:110
+#: views/admin/budgets.php:64
+#: views/admin/events.php:98
+#: views/admin/routines.php:149
+msgid "Start"
+msgstr ""
+
+#: views/admin/academic-sessions.php:84
+#: views/admin/batches.php:111
+#: views/admin/budgets.php:65
+#: views/admin/routines.php:150
+msgid "End"
+msgstr ""
+
+#: views/admin/academic-sessions.php:85
+msgid "Current"
+msgstr ""
+
+#: views/admin/academic-sessions.php:86
+#: views/admin/admission-detail.php:127
+#: views/admin/admission-detail.php:183
+#: views/admin/admissions.php:49
+#: views/admin/announcements.php:105
+#: views/admin/assignments.php:222
+#: views/admin/backup.php:185
+#: views/admin/bank-reconciliation.php:74
+#: views/admin/batches.php:113
+#: views/admin/budgets.php:80
+#: views/admin/career-applications.php:51
+#: views/admin/careers.php:84
+#: views/admin/certificates.php:263
+#: views/admin/certificates.php:317
+#: views/admin/committee.php:73
+#: views/admin/contact-submissions.php:60
+#: views/admin/documents.php:88
+#: views/admin/events.php:101
+#: views/admin/exams.php:68
+#: views/admin/expense-categories.php:89
+#: views/admin/expenses.php:135
+#: views/admin/fee-payments.php:78
+#: views/admin/fees.php:125
+#: views/admin/gallery.php:93
+#: views/admin/guardians.php:83
+#: views/admin/hostels.php:166
+#: views/admin/hostels.php:256
+#: views/admin/hostels.php:275
+#: views/admin/leave-requests.php:57
+#: views/admin/leave-types.php:92
+#: views/admin/library.php:214
+#: views/admin/library.php:270
+#: views/admin/news.php:127
+#: views/admin/notices.php:100
+#: views/admin/notification-templates.php:119
+#: views/admin/payment-gateways.php:389
+#: views/admin/payroll.php:133
+#: views/admin/payslips.php:118
+#: views/admin/refunds.php:104
+#: views/admin/routines.php:168
+#: views/admin/salary-structures.php:49
+#: views/admin/sections.php:85
+#: views/admin/students.php:92
+#: views/admin/subjects.php:68
+#: views/admin/teachers.php:70
+#: views/admin/testimonials-admin.php:96
+#: views/admin/transport.php:153
+#: views/admin/transport.php:217
+#: views/admin/transport.php:282
+#: views/admin/users.php:106
+msgid "Actions"
+msgstr ""
+
+#: views/admin/academic-sessions.php:90
+msgid "No sessions found."
+msgstr ""
+
+#: views/admin/academic-sessions.php:100
+msgid "Delete this session?"
+msgstr ""
+
+#: views/admin/academic-sessions.php:103
+#: views/admin/announcements.php:121
+#: views/admin/assignments.php:237
+#: views/admin/backup.php:198
+#: views/admin/batches.php:131
+#: views/admin/budgets.php:96
+#: views/admin/careers.php:101
+#: views/admin/certificates.php:287
+#: views/admin/certificates.php:332
+#: views/admin/cloud-backup.php:201
+#: views/admin/contact-submissions.php:77
+#: views/admin/documents.php:103
+#: views/admin/events.php:118
+#: views/admin/expense-categories.php:105
+#: views/admin/expenses.php:154
+#: views/admin/fees.php:150
+#: views/admin/gallery.php:110
+#: views/admin/guardians.php:97
+#: views/admin/hostels.php:181
+#: views/admin/leave-types.php:105
+#: views/admin/library.php:227
+#: views/admin/media.php:83
+#: views/admin/news.php:144
+#: views/admin/notices.php:116
+#: views/admin/notification-templates.php:136
+#: views/admin/payment-gateways.php:434
+#: views/admin/routines.php:184
+#: views/admin/salary-structures.php:69
+#: views/admin/sections.php:101
+#: views/admin/students.php:113
+#: views/admin/subjects.php:83
+#: views/admin/teachers.php:88
+#: views/admin/testimonials-admin.php:113
+#: views/admin/transport.php:235
+#: views/admin/transport.php:299
+#: views/admin/users.php:123
+msgid "Delete"
+msgstr ""
+
+#: views/admin/activity.php:22
+msgid "User"
+msgstr ""
+
+#: views/admin/activity.php:24
+#: views/admin/announcements.php:77
+#: views/admin/announcements.php:102
+#: views/admin/assignments.php:132
+#: views/admin/assignments.php:218
+#: views/admin/careers.php:53
+#: views/admin/careers.php:79
+#: views/admin/cms.php:60
+#: views/admin/cms.php:75
+#: views/admin/documents.php:61
+#: views/admin/documents.php:83
+#: views/admin/events.php:75
+#: views/admin/events.php:97
+#: views/admin/gallery.php:74
+#: views/admin/gallery.php:89
+#: views/admin/library.php:172
+#: views/admin/library.php:185
+#: views/admin/media.php:59
+#: views/admin/news.php:105
+#: views/admin/news.php:123
+#: views/admin/notices.php:82
+#: views/admin/notices.php:100
+#: views/admin/notifications.php:26
+msgid "Title"
+msgstr ""
+
+#: views/admin/activity.php:30
+msgid "No activity yet."
+msgstr ""
+
+#: views/admin/admission-detail.php:13
+msgid "No admission specified."
+msgstr ""
+
+#: views/admin/admission-detail.php:19
+msgid "Admission not found."
+msgstr ""
+
+#: views/admin/admission-detail.php:52
+msgid "Admission status updated."
+msgstr ""
+
+#: views/admin/admission-detail.php:72
+msgid "Test scheduled."
+msgstr ""
+
+#: views/admin/admission-detail.php:89
+msgid "Test updated."
+msgstr ""
+
+#: views/admin/admission-detail.php:103
+msgid "Admission Review"
+msgstr ""
+
+#: views/admin/admission-detail.php:109
+msgid "Applicant Details"
+msgstr ""
+
+#: views/admin/admission-detail.php:111
+#: views/admin/admissions.php:43
+msgid "Application #"
+msgstr ""
+
+#: views/admin/admission-detail.php:114
+msgid "DOB"
+msgstr ""
+
+#: views/admin/admission-detail.php:135
+#: views/admin/leave-requests.php:77
+#: views/admin/payroll.php:152
+msgid "Approve"
+msgstr ""
+
+#: views/admin/admission-detail.php:137
+msgid "Reject this application?"
+msgstr ""
+
+#: views/admin/admission-detail.php:138
+#: views/admin/leave-requests.php:82
+#: views/admin/payroll.php:157
+msgid "Reject"
+msgstr ""
+
+#: views/admin/admission-detail.php:141
+msgid "Rejection Reason"
+msgstr ""
+
+#: views/admin/admission-detail.php:148
+msgid "Enroll Student"
+msgstr ""
+
+#: views/admin/admission-detail.php:157
+msgid "Admission Test"
+msgstr ""
+
+#: views/admin/admission-detail.php:161
+msgid "Scheduled At"
+msgstr ""
+
+#: views/admin/admission-detail.php:162
+#: views/admin/admission-detail.php:180
+#: views/admin/admission-detail.php:200
+msgid "Venue"
+msgstr ""
+
+#: views/admin/admission-detail.php:165
+#: views/admin/admission-detail.php:179
+msgid "Scheduled"
+msgstr ""
+
+#: views/admin/admission-detail.php:166
+#: views/admin/exam-form.php:78
+msgid "Completed"
+msgstr ""
+
+#: views/admin/admission-detail.php:167
+msgid "Missed"
+msgstr ""
+
+#: views/admin/admission-detail.php:168
+msgid "Cancelled"
+msgstr ""
+
+#: views/admin/admission-detail.php:171
+#: views/admin/admission-detail.php:182
+#: views/admin/budgets.php:68
+#: views/admin/budgets.php:79
+#: views/admin/payroll.php:204
+msgid "Notes"
+msgstr ""
+
+#: views/admin/admission-detail.php:173
+msgid "Schedule Test"
+msgstr ""
+
+#: views/admin/admission-detail.php:187
+msgid "No tests scheduled."
+msgstr ""
+
+#: views/admin/admission-detail.php:206
+#: views/admin/assignments.php:168
+#: views/admin/career-applications.php:73
+#: views/admin/routines.php:153
+msgid "Update"
+msgstr ""
+
+#: views/admin/admissions.php:32
+msgid "All Statuses"
+msgstr ""
+
+#: views/admin/admissions.php:37
+#: views/admin/attendance.php:50
+#: views/admin/staff-directory.php:59
+#: views/admin/students.php:72
+#: views/admin/users.php:96
+msgid "Filter"
+msgstr ""
+
+#: views/admin/admissions.php:48
+msgid "Applied"
+msgstr ""
+
+#: views/admin/admissions.php:53
+msgid "No admission applications."
+msgstr ""
+
+#: views/admin/admissions.php:63
+#: views/admin/gallery.php:103
+#: views/admin/progress-reports.php:67
+#: views/admin/students.php:108
+msgid "View"
+msgstr ""
+
+#: views/admin/admit-cards.php:53
+#, php-format
+msgid "%d admit cards generated."
+msgstr ""
+
+#: views/admin/admit-cards.php:81
+msgid "Generate Admit Cards"
+msgstr ""
+
+#: views/admin/admit-cards.php:91
+#: views/admin/id-cards.php:79
+msgid "Class (optional)"
+msgstr ""
+
+#: views/admin/admit-cards.php:93
+#: views/admin/attendance.php:45
+#: views/admin/id-cards.php:81
+#: views/admin/students.php:67
+msgid "All Classes"
+msgstr ""
+
+#: views/admin/admit-cards.php:98
+#: views/admin/id-cards.php:86
+#: views/admin/payslips.php:105
+#: views/admin/seat-plans.php:85
+msgid "Generate"
+msgstr ""
+
+#: views/admin/admit-cards.php:104
+#: views/admin/id-cards.php:92
+msgid "Card #"
+msgstr ""
+
+#: views/admin/admit-cards.php:107
+#: views/admin/certificates.php:235
+#: views/admin/certificates.php:261
+#: views/admin/id-cards.php:95
+#: views/admin/library.php:263
+msgid "Issue Date"
+msgstr ""
+
+#: views/admin/admit-cards.php:112
+msgid "No admit cards generated."
+msgstr ""
+
+#: views/admin/analytics.php:36
+msgid "Student Growth (last 12 months)"
+msgstr ""
+
+#: views/admin/analytics.php:38
+#: views/admin/analytics.php:54
+msgid "Month"
+msgstr ""
+
+#: views/admin/analytics.php:38
+msgid "New Students"
+msgstr ""
+
+#: views/admin/analytics.php:41
+#: views/admin/analytics.php:57
+#: views/admin/analytics.php:75
+#: views/admin/reports.php:81
+msgid "No data."
+msgstr ""
+
+#: views/admin/analytics.php:52
+msgid "Fee Collection (last 12 months)"
+msgstr ""
+
+#: views/admin/analytics.php:54
+#: views/admin/fee-payments.php:74
+#: views/admin/student-detail.php:108
+msgid "Total"
+msgstr ""
+
+#: views/admin/analytics.php:70
+msgid "Attendance (last 30 days)"
+msgstr ""
+
+#: views/admin/analytics.php:72
+msgid "Count"
+msgstr ""
+
+#: views/admin/announcements.php:22
+msgid "Announcement added."
+msgstr ""
+
+#: views/admin/announcements.php:41
+msgid "Announcement updated."
+msgstr ""
+
+#: views/admin/announcements.php:49
+msgid "Announcement deleted."
+msgstr ""
+
+#: views/admin/announcements.php:71
+msgid "Edit Announcement"
+msgstr ""
+
+#: views/admin/announcements.php:71
+#: views/admin/announcements.php:93
+msgid "Add Announcement"
+msgstr ""
+
+#: views/admin/announcements.php:78
+msgid "Body"
+msgstr ""
+
+#: views/admin/announcements.php:81
+#: views/admin/announcements.php:103
+#: views/admin/sms.php:239
+msgid "Audience"
+msgstr ""
+
+#: views/admin/announcements.php:86
+#: views/admin/dashboard.php:200
+msgid "Parents"
+msgstr ""
+
+#: views/admin/announcements.php:89
+#: views/admin/announcements.php:104
+#: views/admin/careers.php:68
+#: views/admin/careers.php:83
+#: views/admin/events.php:82
+#: views/admin/gallery.php:79
+#: views/admin/gallery.php:92
+#: views/admin/news.php:113
+#: views/admin/news.php:125
+msgid "Published"
+msgstr ""
+
+#: views/admin/announcements.php:90
+msgid "Starts"
+msgstr ""
+
+#: views/admin/announcements.php:91
+msgid "Ends"
+msgstr ""
+
+#: views/admin/announcements.php:93
+msgid "Update Announcement"
+msgstr ""
+
+#: views/admin/announcements.php:117
+#: views/admin/assignments.php:236
+#: views/admin/certificates.php:328
+#: views/admin/document-designs.php:111
+#: views/admin/events.php:114
+#: views/admin/expense-categories.php:101
+#: views/admin/expenses.php:150
+#: views/admin/fees.php:146
+#: views/admin/gallery.php:106
+#: views/admin/hostels.php:267
+#: views/admin/leave-types.php:104
+#: views/admin/news.php:140
+#: views/admin/notices.php:112
+#: views/admin/notification-templates.php:132
+#: views/admin/payment-gateways.php:430
+#: views/admin/routines.php:183
+#: views/admin/students.php:109
+#: views/admin/teachers.php:84
+#: views/admin/testimonials-admin.php:109
+msgid "Edit"
+msgstr ""
+
+#: views/admin/announcements.php:118
+msgid "Delete this announcement?"
+msgstr ""
+
+#: views/admin/assignments.php:30
+msgid "Assignment saved."
+msgstr ""
+
+#: views/admin/assignments.php:49
+msgid "Assignment updated."
+msgstr ""
+
+#: views/admin/assignments.php:58
+msgid "Assignment deleted."
+msgstr ""
+
+#: views/admin/assignments.php:77
+msgid "Submission graded."
+msgstr ""
+
+#: views/admin/assignments.php:124
+msgid "Edit Assignment"
+msgstr ""
+
+#: views/admin/assignments.php:124
+msgid "New Assignment"
+msgstr ""
+
+#: views/admin/assignments.php:136
+#: views/admin/assignments.php:219
+msgid "Batch"
+msgstr ""
+
+#: views/admin/assignments.php:156
+#: views/admin/library.php:264
+msgid "Due Date"
+msgstr ""
+
+#: views/admin/assignments.php:160
+#: views/admin/exam-form.php:70
+#: views/admin/results.php:116
+msgid "Total Marks"
+msgstr ""
+
+#: views/admin/assignments.php:165
+#: views/admin/bank-reconciliation.php:70
+#: views/admin/batches.php:98
+#: views/admin/careers.php:70
+#: views/admin/documents.php:74
+#: views/admin/events.php:87
+#: views/admin/expense-categories.php:76
+#: views/admin/expense-categories.php:87
+#: views/admin/gallery.php:78
+#: views/admin/hostels.php:160
+#: views/admin/ledger.php:130
+#: views/admin/ledger.php:147
+#: views/admin/library.php:179
+#: views/admin/library.php:209
+#: views/admin/library.php:214
+#: views/admin/payment-gateways.php:361
+msgid "Description"
+msgstr ""
+
+#: views/admin/assignments.php:168
+#: views/admin/cms.php:67
+#: views/admin/leave-types.php:83
+#: views/admin/routines.php:153
+#: views/admin/staff-attendance.php:102
+msgid "Save"
+msgstr ""
+
+#: views/admin/assignments.php:177
+#: views/admin/assignments.php:235
+msgid "Submissions"
+msgstr ""
+
+#: views/admin/assignments.php:178
+msgid "Total marks:"
+msgstr ""
+
+#: views/admin/assignments.php:182
+msgid "Submitted"
+msgstr ""
+
+#: views/admin/assignments.php:189
+#: views/admin/contact-submissions.php:64
+msgid "No submissions yet."
+msgstr ""
+
+#: views/admin/assignments.php:203
+msgid "Feedback"
+msgstr ""
+
+#: views/admin/assignments.php:212
+msgid "Back to assignments"
+msgstr ""
+
+#: views/admin/assignments.php:221
+#: views/admin/library-reports.php:56
+#: views/admin/library.php:270
+msgid "Due"
+msgstr ""
+
+#: views/admin/assignments.php:226
+msgid "No assignments."
+msgstr ""
+
+#: views/admin/attendance-mark.php:52
+msgid "Attendance saved."
+msgstr ""
+
+#: views/admin/attendance-mark.php:90
+#: views/admin/sections.php:66
+#: views/admin/student-form.php:115
+msgid "Select Class"
+msgstr ""
+
+#: views/admin/attendance-mark.php:95
+msgid "Load Students"
+msgstr ""
+
+#: views/admin/attendance-mark.php:105
+msgid "Mark All Present"
+msgstr ""
+
+#: views/admin/attendance-mark.php:106
+msgid "Mark All Absent"
+msgstr ""
+
+#: views/admin/attendance-mark.php:113
+#: views/admin/dashboard.php:263
+#: views/admin/reports.php:65
+#: views/admin/staff-attendance.php:79
+msgid "Present"
+msgstr ""
+
+#: views/admin/attendance-mark.php:114
+#: views/admin/dashboard.php:267
+#: views/admin/reports.php:66
+#: views/admin/staff-attendance.php:80
+msgid "Absent"
+msgstr ""
+
+#: views/admin/attendance-mark.php:115
+#: views/admin/dashboard.php:271
+#: views/admin/staff-attendance.php:81
+msgid "Late"
+msgstr ""
+
+#: views/admin/attendance-mark.php:131
+msgid "Save Attendance"
+msgstr ""
+
+#: views/admin/attendance-mark.php:135
+msgid "No active students found in this class."
+msgstr ""
+
+#: views/admin/attendance.php:38
+msgid "Attendance Records"
+msgstr ""
+
+#: views/admin/attendance.php:58
+msgid "No attendance records for this date."
+msgstr ""
+
+#: views/admin/backup.php:27
+msgid "Could not resolve the uploads directory."
+msgstr ""
+
+#: views/admin/backup.php:31
+msgid "The backup folder is not writable."
+msgstr ""
+
+#: views/admin/backup.php:49
+msgid "Failed to write the backup file."
+msgstr ""
+
+#. translators: 1: row count 2: table count 3: file name
+#: views/admin/backup.php:53
+#, php-format
+msgid "Backup created — %1$d rows across %2$d tables (%3$s)."
+msgstr ""
+
+#: views/admin/backup.php:68
+msgid "Backup deleted."
+msgstr ""
+
+#: views/admin/backup.php:70
+msgid "Could not delete that backup."
+msgstr ""
+
+#: views/admin/backup.php:87
+#: views/admin/backup.php:124
+msgid "That backup file does not exist."
+msgstr ""
+
+#. translators: %d: total restored rows
+#: views/admin/backup.php:117
+#, php-format
+msgid "Backup restored — %d rows imported."
+msgstr ""
+
+#: views/admin/backup.php:121
+msgid "That file is not a valid Eskoofy backup."
+msgstr ""
+
+#: views/admin/backup.php:151
+msgid "Create, restore and upload portable backups."
+msgstr ""
+
+#: views/admin/backup.php:156
+msgid "Local backups"
+msgstr ""
+
+#: views/admin/backup.php:157
+msgid "Cloud backup"
+msgstr ""
+
+#: views/admin/backup.php:173
+msgid "Create backup now"
+msgstr ""
+
+#: views/admin/backup.php:182
+#: views/admin/documents.php:69
+#: views/admin/media.php:67
+msgid "File"
+msgstr ""
+
+#: views/admin/backup.php:183
+#: views/admin/documents.php:86
+msgid "Size"
+msgstr ""
+
+#: views/admin/backup.php:184
+msgid "Modified"
+msgstr ""
+
+#: views/admin/backup.php:196
+#: views/admin/documents.php:102
+msgid "Download"
+msgstr ""
+
+#: views/admin/backup.php:197
+msgid "Restore this backup? Existing data will be overwritten."
+msgstr ""
+
+#: views/admin/backup.php:197
+#: views/admin/cloud-backup.php:196
+msgid "Restore"
+msgstr ""
+
+#: views/admin/backup.php:198
+msgid "Delete this backup file?"
+msgstr ""
+
+#: views/admin/backup.php:207
+msgid "No backups yet"
+msgstr ""
+
+#: views/admin/backup.php:208
+msgid "Create your first backup to get started."
+msgstr ""
+
+#: views/admin/balance-sheet.php:29
+msgid "Assets"
+msgstr ""
+
+#: views/admin/balance-sheet.php:32
+msgid "Cash at Bank"
+msgstr ""
+
+#: views/admin/balance-sheet.php:33
+msgid "Accounts Receivable"
+msgstr ""
+
+#: views/admin/balance-sheet.php:34
+msgid "Total Assets"
+msgstr ""
+
+#: views/admin/balance-sheet.php:41
+msgid "Equity"
+msgstr ""
+
+#: views/admin/balance-sheet.php:44
+msgid "Retained Earnings"
+msgstr ""
+
+#: views/admin/balance-sheet.php:45
+msgid "Total Equity"
+msgstr ""
+
+#: views/admin/bank-reconciliation.php:33
+#, php-format
+msgid "%d bank entries imported."
+msgstr ""
+
+#: views/admin/bank-reconciliation.php:57
+msgid "Import Bank Statement (CSV)"
+msgstr ""
+
+#: views/admin/bank-reconciliation.php:60
+msgid "CSV columns: bank_account, transaction_date, description, amount, type"
+msgstr ""
+
+#: views/admin/bank-reconciliation.php:62
+#: views/admin/bulk.php:113
+#: views/admin/dashboard.php:134
+msgid "Import"
+msgstr ""
+
+#: views/admin/bank-reconciliation.php:68
+#: views/admin/ledger.php:123
+#: views/admin/ledger.php:144
+msgid "Account"
+msgstr ""
+
+#: views/admin/bank-reconciliation.php:78
+msgid "No entries."
+msgstr ""
+
+#: views/admin/bank-reconciliation.php:87
+msgid "Reconciled"
+msgstr ""
+
+#: views/admin/bank-reconciliation.php:87
+msgid "Unreconciled"
+msgstr ""
+
+#: views/admin/bank-reconciliation.php:90
+msgid "Reconcile"
+msgstr ""
+
+#: views/admin/batches.php:23
+msgid "Batch added."
+msgstr ""
+
+#: views/admin/batches.php:34
+msgid "Batch deleted."
+msgstr ""
+
+#: views/admin/batches.php:58
+msgid "Add New Batch"
+msgstr ""
+
+#: views/admin/batches.php:83
+#: views/admin/class-form.php:46
+#: views/admin/ledger.php:82
+#: views/admin/transport.php:135
+#: views/admin/transport.php:265
+msgid "None"
+msgstr ""
+
+#: views/admin/batches.php:92
+#: views/admin/document-designs.php:262
+#: views/admin/expense-categories.php:74
+#: views/admin/expense-categories.php:99
+#: views/admin/ledger.php:110
+#: views/admin/notification-templates.php:104
+#: views/admin/notification-templates.php:130
+#: views/admin/sections.php:96
+#: views/admin/student-form.php:177
+msgid "Active"
+msgstr ""
+
+#: views/admin/batches.php:93
+#: views/admin/expense-categories.php:99
+#: views/admin/ledger.php:110
+#: views/admin/notification-templates.php:130
+#: views/admin/sections.php:96
+#: views/admin/student-form.php:178
+msgid "Inactive"
+msgstr ""
+
+#: views/admin/batches.php:101
+msgid "Add Batch"
+msgstr ""
+
+#: views/admin/batches.php:109
+msgid "Session"
+msgstr ""
+
+#: views/admin/batches.php:117
+msgid "No batches found."
+msgstr ""
+
+#: views/admin/batches.php:128
+msgid "Delete this batch?"
+msgstr ""
+
+#: views/admin/budgets.php:22
+msgid "Budget created."
+msgstr ""
+
+#: views/admin/budgets.php:30
+msgid "Budget deleted."
+msgstr ""
+
+#: views/admin/budgets.php:40
+msgid "Budgets"
+msgstr ""
+
+#: views/admin/budgets.php:48
+#: views/admin/budgets.php:69
+msgid "Add Budget"
+msgstr ""
+
+#: views/admin/budgets.php:53
+msgid "Expense Category"
+msgstr ""
+
+#: views/admin/budgets.php:55
+#: views/admin/budgets.php:88
+msgid "All Categories"
+msgstr ""
+
+#: views/admin/budgets.php:61
+msgid "Period Type"
+msgstr ""
+
+#: views/admin/budgets.php:62
+#: views/admin/fees.php:113
+msgid "Monthly"
+msgstr ""
+
+#: views/admin/budgets.php:62
+#: views/admin/fees.php:113
+msgid "Yearly"
+msgstr ""
+
+#: views/admin/budgets.php:62
+msgid "Custom"
+msgstr ""
+
+#: views/admin/budgets.php:76
+#: views/admin/documents.php:65
+#: views/admin/documents.php:84
+#: views/admin/expenses.php:88
+#: views/admin/expenses.php:130
+#: views/admin/gallery.php:75
+#: views/admin/gallery.php:90
+#: views/admin/news.php:106
+#: views/admin/news.php:124
+msgid "Category"
+msgstr ""
+
+#: views/admin/budgets.php:77
+#: views/admin/payslips.php:112
+msgid "Period"
+msgstr ""
+
+#: views/admin/budgets.php:84
+msgid "No budgets yet."
+msgstr ""
+
+#: views/admin/budgets.php:93
+msgid "Delete this budget?"
+msgstr ""
+
+#: views/admin/bulk.php:64
+#, php-format
+msgid "%d rows imported."
+msgstr ""
+
+#: views/admin/bulk.php:73
+msgid "Bulk Import / Export"
+msgstr ""
+
+#: views/admin/bulk.php:82
+#: views/admin/contact-submissions.php:50
+msgid "Export CSV"
+msgstr ""
+
+#: views/admin/bulk.php:86
+#: views/admin/bulk.php:103
+msgid "Resource"
+msgstr ""
+
+#: views/admin/bulk.php:94
+msgid "Download CSV"
+msgstr ""
+
+#: views/admin/bulk.php:99
+msgid "Import CSV"
+msgstr ""
+
+#: views/admin/bulk.php:110
+msgid "CSV file"
+msgstr ""
+
+#. translators: %d: number of transient rows removed.
+#: views/admin/cache.php:37
+#, php-format
+msgid "Frontend cache cleared. Removed %d cached row(s)."
+msgstr ""
+
+#: views/admin/cache.php:45
+msgid "Clear frontend cache"
+msgstr ""
+
+#: views/admin/cache.php:47
+msgid "Flushes the PHP opcode cache, WordPress object cache, plugin cache, and all Eskoofy transients. Safe to run at any time."
+msgstr ""
+
+#: views/admin/cache.php:60
+msgid "Clear cache"
+msgstr ""
+
+#: views/admin/career-applications.php:22
+msgid "Application status updated."
+msgstr ""
+
+#: views/admin/career-applications.php:37
+msgid "Job Applications"
+msgstr ""
+
+#: views/admin/career-applications.php:48
+msgid "Job"
+msgstr ""
+
+#: views/admin/career-applications.php:55
+msgid "No applications."
+msgstr ""
+
+#: views/admin/careers.php:24
+msgid "Job listing added."
+msgstr ""
+
+#: views/admin/careers.php:32
+msgid "Job listing deleted."
+msgstr ""
+
+#: views/admin/careers.php:49
+msgid "Add Job Listing"
+msgstr ""
+
+#: views/admin/careers.php:57
+msgid "Full Time"
+msgstr ""
+
+#: views/admin/careers.php:58
+msgid "Part Time"
+msgstr ""
+
+#: views/admin/careers.php:59
+msgid "Contract"
+msgstr ""
+
+#: views/admin/careers.php:62
+#: views/admin/careers.php:81
+#: views/admin/events.php:79
+#: views/admin/events.php:99
+msgid "Location"
+msgstr ""
+
+#: views/admin/careers.php:65
+msgid "Salary Min"
+msgstr ""
+
+#: views/admin/careers.php:66
+msgid "Salary Max"
+msgstr ""
+
+#: views/admin/careers.php:67
+#: views/admin/careers.php:82
+msgid "Deadline"
+msgstr ""
+
+#: views/admin/careers.php:71
+msgid "Requirements"
+msgstr ""
+
+#: views/admin/careers.php:72
+msgid "Add Job"
+msgstr ""
+
+#: views/admin/careers.php:76
+msgid "Job Listings"
+msgstr ""
+
+#: views/admin/careers.php:88
+msgid "No job listings."
+msgstr ""
+
+#: views/admin/careers.php:98
+msgid "Delete this listing?"
+msgstr ""
+
+#: views/admin/cash-flow.php:37
+#: views/admin/income-statement.php:37
+#: views/admin/leave-requests.php:52
+#: views/admin/messages.php:100
+#: views/admin/payroll.php:129
+#: views/admin/reports-builder.php:79
+#: views/admin/salary-structures.php:47
+msgid "From"
+msgstr ""
+
+#: views/admin/cash-flow.php:39
+#: views/admin/income-statement.php:39
+#: views/admin/leave-requests.php:53
+#: views/admin/messages.php:78
+#: views/admin/messages.php:100
+#: views/admin/payroll.php:130
+#: views/admin/reports-builder.php:81
+#: views/admin/salary-structures.php:48
+msgid "To"
+msgstr ""
+
+#: views/admin/cash-flow.php:41
+#: views/admin/income-statement.php:41
+msgid "Apply"
+msgstr ""
+
+#: views/admin/cash-flow.php:47
+msgid "Inflows (Fee Payments)"
+msgstr ""
+
+#: views/admin/cash-flow.php:48
+msgid "Outflows (Expenses)"
+msgstr ""
+
+#: views/admin/cash-flow.php:49
+msgid "Net Cash Flow"
+msgstr ""
+
+#: views/admin/certificates.php:60
+msgid "This certifies that"
+msgstr ""
+
+#: views/admin/certificates.php:68
+msgid "Admission No."
+msgstr ""
+
+#: views/admin/certificates.php:74
+msgid "Issued on"
+msgstr ""
+
+#: views/admin/certificates.php:94
+#: views/admin/certificates.php:109
+msgid "Certificate template added."
+msgstr ""
+
+#: views/admin/certificates.php:127
+msgid "Certificate template updated."
+msgstr ""
+
+#: views/admin/certificates.php:135
+msgid "Certificate template deleted."
+msgstr ""
+
+#: views/admin/certificates.php:171
+msgid "Certificate issued."
+msgstr ""
+
+#: views/admin/certificates.php:179
+msgid "Certificate removed."
+msgstr ""
+
+#: views/admin/certificates.php:213
+#: views/admin/certificates.php:251
+msgid "Issue Certificate"
+msgstr ""
+
+#: views/admin/certificates.php:241
+#: views/admin/library-reports.php:55
+msgid "Issued"
+msgstr ""
+
+#: views/admin/certificates.php:242
+#: views/admin/events.php:83
+#: views/admin/news.php:137
+msgid "Draft"
+msgstr ""
+
+#: views/admin/certificates.php:247
+msgid "Header Text"
+msgstr ""
+
+#: views/admin/certificates.php:248
+msgid "Footer Text"
+msgstr ""
+
+#: views/admin/certificates.php:250
+msgid "Body (HTML)"
+msgstr ""
+
+#: views/admin/certificates.php:258
+msgid "No."
+msgstr ""
+
+#: views/admin/certificates.php:270
+msgid "No certificates issued"
+msgstr ""
+
+#: views/admin/certificates.php:271
+msgid "Issue a certificate to a student above."
+msgstr ""
+
+#: views/admin/certificates.php:283
+msgid "Print"
+msgstr ""
+
+#: views/admin/certificates.php:284
+msgid "Remove this certificate?"
+msgstr ""
+
+#: views/admin/certificates.php:298
+msgid "Edit Certificate Template"
+msgstr ""
+
+#: views/admin/certificates.php:298
+msgid "Add Certificate Template"
+msgstr ""
+
+#: views/admin/certificates.php:305
+msgid "Template (HTML)"
+msgstr ""
+
+#: views/admin/certificates.php:306
+#: views/admin/notification-templates.php:105
+msgid "Update Template"
+msgstr ""
+
+#: views/admin/certificates.php:306
+#: views/admin/notification-templates.php:79
+#: views/admin/notification-templates.php:105
+msgid "Add Template"
+msgstr ""
+
+#: views/admin/certificates.php:315
+#: views/admin/document-designs.php:143
+msgid "Template"
+msgstr ""
+
+#: views/admin/certificates.php:316
+msgid "Created"
+msgstr ""
+
+#: views/admin/certificates.php:321
+msgid "No certificate templates."
+msgstr ""
+
+#: views/admin/certificates.php:329
+#: views/admin/notification-templates.php:133
+msgid "Delete this template?"
+msgstr ""
+
+#: views/admin/class-form.php:26
+msgid "Class saved."
+msgstr ""
+
+#: views/admin/class-form.php:35
+msgid "Edit Class"
+msgstr ""
+
+#: views/admin/class-form.php:35
+#: views/admin/classes.php:45
+msgid "Add Class"
+msgstr ""
+
+#: views/admin/class-form.php:43
+msgid "Seating Capacity"
+msgstr ""
+
+#: views/admin/class-form.php:45
+#: views/admin/classes.php:53
+msgid "Class Teacher"
+msgstr ""
+
+#: views/admin/class-form.php:52
+msgid "Save Class"
+msgstr ""
+
+#: views/admin/classes.php:16
+msgid "Class added."
+msgstr ""
+
+#: views/admin/classes.php:41
+msgid "Add New Class"
+msgstr ""
+
+#: views/admin/classes.php:44
+msgid "Class name..."
+msgstr ""
+
+#: views/admin/classes.php:59
+msgid "No classes found."
+msgstr ""
+
+#: views/admin/cloud-backup.php:26
+msgid "Cloud backup settings saved."
+msgstr ""
+
+#: views/admin/cloud-backup.php:56
+msgid "Remote backup deleted."
+msgstr ""
+
+#: views/admin/cloud-backup.php:57
+msgid "The remote file could not be deleted."
+msgstr ""
+
+#: views/admin/cloud-backup.php:63
+msgid "This server (local folder)"
+msgstr ""
+
+#: views/admin/cloud-backup.php:64
+msgid "Google Drive"
+msgstr ""
+
+#: views/admin/cloud-backup.php:65
+msgid "Dropbox"
+msgstr ""
+
+#: views/admin/cloud-backup.php:66
+msgid "4shared"
+msgstr ""
+
+#: views/admin/cloud-backup.php:67
+msgid "Amazon S3 (or compatible)"
+msgstr ""
+
+#: views/admin/cloud-backup.php:81
+msgid "This provider has no complete credential set yet, so uploads are skipped. Fill in the required fields below."
+msgstr ""
+
+#: views/admin/cloud-backup.php:88
+msgid "Provider & schedule"
+msgstr ""
+
+#: views/admin/cloud-backup.php:90
+#: views/admin/sms.php:281
+msgid "Provider"
+msgstr ""
+
+#: views/admin/cloud-backup.php:97
+msgid "Remote folder"
+msgstr ""
+
+#: views/admin/cloud-backup.php:102
+msgid "Interval (minutes)"
+msgstr ""
+
+#: views/admin/cloud-backup.php:106
+msgid "Keep newest files"
+msgstr ""
+
+#: views/admin/cloud-backup.php:114
+msgid "Client ID"
+msgstr ""
+
+#: views/admin/cloud-backup.php:115
+msgid "Client secret"
+msgstr ""
+
+#: views/admin/cloud-backup.php:116
+#: views/admin/cloud-backup.php:124
+msgid "Refresh token"
+msgstr ""
+
+#: views/admin/cloud-backup.php:117
+msgid "Service account email"
+msgstr ""
+
+#: views/admin/cloud-backup.php:118
+msgid "Service account private key"
+msgstr ""
+
+#: views/admin/cloud-backup.php:119
+msgid "OAuth scope (optional)"
+msgstr ""
+
+#: views/admin/cloud-backup.php:122
+msgid "App key"
+msgstr ""
+
+#: views/admin/cloud-backup.php:123
+msgid "App secret"
+msgstr ""
+
+#: views/admin/cloud-backup.php:125
+msgid "Access token (short-lived alternative)"
+msgstr ""
+
+#: views/admin/cloud-backup.php:128
+msgid "API key"
+msgstr ""
+
+#: views/admin/cloud-backup.php:129
+#: views/admin/settings.php:329
+#: views/admin/users.php:70
+#: views/admin/users.php:102
+msgid "Username"
+msgstr ""
+
+#: views/admin/cloud-backup.php:133
+msgid "Endpoint"
+msgstr ""
+
+#: views/admin/cloud-backup.php:134
+msgid "Bucket"
+msgstr ""
+
+#: views/admin/cloud-backup.php:135
+msgid "Access key"
+msgstr ""
+
+#: views/admin/cloud-backup.php:136
+msgid "Secret key"
+msgstr ""
+
+#: views/admin/cloud-backup.php:137
+msgid "Region"
+msgstr ""
+
+#: views/admin/cloud-backup.php:149
+msgid "saved"
+msgstr ""
+
+#: views/admin/cloud-backup.php:153
+msgid "•••••••• (unchanged)"
+msgstr ""
+
+#: views/admin/cloud-backup.php:161
+msgid "Cloud backup enabled"
+msgstr ""
+
+#: views/admin/cloud-backup.php:165
+msgid "Upload automatically on a schedule"
+msgstr ""
+
+#: views/admin/cloud-backup.php:169
+msgid "Save settings"
+msgstr ""
+
+#: views/admin/cloud-backup.php:170
+msgid "Test saved settings"
+msgstr ""
+
+#: views/admin/cloud-backup.php:171
+msgid "Back up now"
+msgstr ""
+
+#: views/admin/cloud-backup.php:178
+msgid "Remote files"
+msgstr ""
+
+#: views/admin/cloud-backup.php:180
+msgid "No files on the provider yet."
+msgstr ""
+
+#: views/admin/cloud-backup.php:196
+msgid "Restore this remote backup? Existing data will be overwritten."
+msgstr ""
+
+#: views/admin/cloud-backup.php:201
+msgid "Delete this remote file?"
+msgstr ""
+
+#: views/admin/cloud-backup.php:211
+#: views/admin/library-reports.php:48
+msgid "History"
+msgstr ""
+
+#: views/admin/cloud-backup.php:213
+msgid "No backup runs yet."
+msgstr ""
+
+#: views/admin/cms.php:25
+msgid "Content saved."
+msgstr ""
+
+#: views/admin/cms.php:42
+msgid "Edit Content"
+msgstr ""
+
+#: views/admin/cms.php:55
+#: views/admin/cms.php:74
+#: views/admin/sections.php:82
+#: views/admin/student-detail.php:55
+#: views/admin/student-form.php:123
+msgid "Section"
+msgstr ""
+
+#: views/admin/cms.php:64
+#: views/admin/news.php:112
+#: views/admin/notices.php:86
+#: views/admin/testimonials-admin.php:81
+msgid "Content"
+msgstr ""
+
+#: views/admin/cms.php:76
+msgid "Updated"
+msgstr ""
+
+#: views/admin/cms.php:80
+msgid "No content yet."
+msgstr ""
+
+#: views/admin/committee.php:23
+msgid "Committee member added."
+msgstr ""
+
+#: views/admin/committee.php:31
+msgid "Member removed."
+msgstr ""
+
+#: views/admin/committee.php:48
+msgid "Add Committee Member"
+msgstr ""
+
+#: views/admin/committee.php:53
+#: views/admin/committee.php:69
+msgid "Designation"
+msgstr ""
+
+#: views/admin/committee.php:58
+msgid "Photo URL"
+msgstr ""
+
+#: views/admin/committee.php:59
+msgid "Sort Order"
+msgstr ""
+
+#: views/admin/committee.php:61
+msgid "Bio"
+msgstr ""
+
+#: views/admin/committee.php:62
+msgid "Add Member"
+msgstr ""
+
+#: views/admin/committee.php:72
+#: views/admin/testimonials-admin.php:79
+msgid "Sort"
+msgstr ""
+
+#: views/admin/committee.php:77
+msgid "No committee members."
+msgstr ""
+
+#: views/admin/committee.php:87
+msgid "Remove this member?"
+msgstr ""
+
+#: views/admin/committee.php:90
+#: views/admin/transport.php:170
+msgid "Remove"
+msgstr ""
+
+#: views/admin/contact-submissions.php:23
+msgid "Submission deleted."
+msgstr ""
+
+#: views/admin/contact-submissions.php:75
+#: views/admin/notifications.php:46
+msgid "Mark Read"
+msgstr ""
+
+#: views/admin/dashboard.php:80
+msgid "Fees collected"
+msgstr ""
+
+#: views/admin/dashboard.php:82
+msgid "Net balance"
+msgstr ""
+
+#: views/admin/dashboard.php:83
+msgid "Pending dues"
+msgstr ""
+
+#: views/admin/dashboard.php:84
+msgid "Upcoming exams"
+msgstr ""
+
+#: views/admin/dashboard.php:85
+msgid "Leave requests"
+msgstr ""
+
+#: views/admin/dashboard.php:97
+msgid "Add school information"
+msgstr ""
+
+#: views/admin/dashboard.php:98
+msgid "Set timezone & locale"
+msgstr ""
+
+#: views/admin/dashboard.php:99
+msgid "Create an academic session"
+msgstr ""
+
+#: views/admin/dashboard.php:100
+msgid "Add classes & batches"
+msgstr ""
+
+#: views/admin/dashboard.php:101
+msgid "Add your teachers"
+msgstr ""
+
+#: views/admin/dashboard.php:102
+msgid "Configure payment"
+msgstr ""
+
+#: views/admin/dashboard.php:129
+#, php-format
+msgid "Welcome back, %s!"
+msgstr ""
+
+#: views/admin/dashboard.php:148
+#, php-format
+msgid "%1$d of %2$d setup steps remaining"
+msgstr ""
+
+#: views/admin/dashboard.php:155
+msgid "Start setup"
+msgstr ""
+
+#: views/admin/dashboard.php:183
+msgid "Active enrollment"
+msgstr ""
+
+#: views/admin/dashboard.php:185
+#, php-format
+msgid "%d pending admissions"
+msgstr ""
+
+#: views/admin/dashboard.php:195
+msgid "Full-time staff"
+msgstr ""
+
+#: views/admin/dashboard.php:204
+msgid "Registered guardians"
+msgstr ""
+
+#: views/admin/dashboard.php:213
+#: views/admin/dashboard.php:291
+msgid "Last 7 days"
+msgstr ""
+
+#: views/admin/dashboard.php:218
+#: views/admin/dashboard.php:237
+msgid "Revenue"
+msgstr ""
+
+#: views/admin/dashboard.php:222
+msgid "Total collected"
+msgstr ""
+
+#: views/admin/dashboard.php:224
+#, php-format
+msgid "%s pending dues"
+msgstr ""
+
+#: views/admin/dashboard.php:232
+msgid "Revenue vs Expenses"
+msgstr ""
+
+#: views/admin/dashboard.php:233
+msgid "Last 12 months"
+msgstr ""
+
+#: views/admin/dashboard.php:257
+msgid "Today's Attendance"
+msgstr ""
+
+#: views/admin/dashboard.php:258
+msgid "Real-time"
+msgstr ""
+
+#: views/admin/dashboard.php:275
+msgid "On leave"
+msgstr ""
+
+#: views/admin/dashboard.php:280
+msgid "Today's rate"
+msgstr ""
+
+#: views/admin/dashboard.php:290
+msgid "Attendance Trend"
+msgstr ""
+
+#: views/admin/dashboard.php:306
+msgid "Quick Actions"
+msgstr ""
+
+#: views/admin/dashboard.php:313
+msgid "Collect Fees"
+msgstr ""
+
+#: views/admin/dashboard.php:314
+msgid "Manage Exams"
+msgstr ""
+
+#: views/admin/dashboard.php:327
+msgid "Workbench"
+msgstr ""
+
+#: views/admin/document-designs.php:28
+msgid "Unknown document type."
+msgstr ""
+
+#: views/admin/document-designs.php:58
+msgid "Document design updated."
+msgstr ""
+
+#: views/admin/document-designs.php:61
+msgid "Document design saved."
+msgstr ""
+
+#: views/admin/document-designs.php:69
+msgid "Document design deleted."
+msgstr ""
+
+#: views/admin/document-designs.php:99
+msgid "Using the shipped default design."
+msgstr ""
+
+#: views/admin/document-designs.php:108
+msgid "Add"
+msgstr ""
+
+#: views/admin/document-designs.php:126
+msgid "Edit design"
+msgstr ""
+
+#: views/admin/document-designs.php:126
+msgid "New design"
+msgstr ""
+
+#: views/admin/document-designs.php:169
+msgid "Theme colours & metrics"
+msgstr ""
+
+#: views/admin/document-designs.php:173
+msgid "Primary"
+msgstr ""
+
+#: views/admin/document-designs.php:174
+msgid "Secondary"
+msgstr ""
+
+#: views/admin/document-designs.php:175
+msgid "Accent"
+msgstr ""
+
+#: views/admin/document-designs.php:176
+#: views/admin/document-designs.php:225
+msgid "Text"
+msgstr ""
+
+#: views/admin/document-designs.php:177
+msgid "Muted"
+msgstr ""
+
+#: views/admin/document-designs.php:178
+msgid "Background"
+msgstr ""
+
+#: views/admin/document-designs.php:179
+msgid "Border"
+msgstr ""
+
+#: views/admin/document-designs.php:190
+msgid "Base font size"
+msgstr ""
+
+#: views/admin/document-designs.php:195
+msgid "Title font size"
+msgstr ""
+
+#: views/admin/document-designs.php:200
+msgid "Border style"
+msgstr ""
+
+#: views/admin/document-designs.php:208
+msgid "Border width"
+msgstr ""
+
+#: views/admin/document-designs.php:213
+msgid "Accent bar"
+msgstr ""
+
+#: views/admin/document-designs.php:222
+msgid "Watermark"
+msgstr ""
+
+#: views/admin/document-designs.php:229
+msgid "Opacity"
+msgstr ""
+
+#: views/admin/document-designs.php:234
+msgid "Rotation"
+msgstr ""
+
+#: views/admin/document-designs.php:239
+msgid "Colour"
+msgstr ""
+
+#: views/admin/document-designs.php:244
+msgid "Position"
+msgstr ""
+
+#: views/admin/document-designs.php:253
+msgid "Custom CSS"
+msgstr ""
+
+#: views/admin/document-designs.php:258
+msgid "Make this the default design for this document type"
+msgstr ""
+
+#: views/admin/document-designs.php:266
+msgid "Save design"
+msgstr ""
+
+#: views/admin/documents.php:29
+msgid "Document uploaded."
+msgstr ""
+
+#: views/admin/documents.php:40
+msgid "Document deleted."
+msgstr ""
+
+#: views/admin/documents.php:56
+msgid "Upload Document"
+msgstr ""
+
+#: views/admin/documents.php:66
+msgid "e.g. Policy, Syllabus"
+msgstr ""
+
+#: views/admin/documents.php:77
+#: views/admin/media.php:71
+msgid "Upload"
+msgstr ""
+
+#: views/admin/documents.php:92
+msgid "No documents yet."
+msgstr ""
+
+#: views/admin/events-calendar.php:40
+msgid "Events Calendar"
+msgstr ""
+
+#: views/admin/events-calendar.php:44
+msgid "Prev"
+msgstr ""
+
+#: views/admin/events-calendar.php:48
+msgid "Manage Events"
+msgstr ""
+
+#: views/admin/events-calendar.php:54
+msgid "Sun"
+msgstr ""
+
+#: views/admin/events-calendar.php:55
+msgid "Mon"
+msgstr ""
+
+#: views/admin/events-calendar.php:56
+msgid "Tue"
+msgstr ""
+
+#: views/admin/events-calendar.php:57
+msgid "Wed"
+msgstr ""
+
+#: views/admin/events-calendar.php:58
+msgid "Thu"
+msgstr ""
+
+#: views/admin/events-calendar.php:59
+msgid "Fri"
+msgstr ""
+
+#: views/admin/events-calendar.php:60
+msgid "Sat"
+msgstr ""
+
+#: views/admin/events.php:21
+msgid "Event added."
+msgstr ""
+
+#: views/admin/events.php:38
+msgid "Event updated."
+msgstr ""
+
+#: views/admin/events.php:46
+msgid "Event removed."
+msgstr ""
+
+#: views/admin/events.php:68
+#: views/admin/events.php:88
+msgid "Add Event"
+msgstr ""
+
+#: views/admin/events.php:76
+msgid "Start date"
+msgstr ""
+
+#: views/admin/events.php:88
+msgid "Update Event"
+msgstr ""
+
+#: views/admin/events.php:105
+msgid "No events."
+msgstr ""
+
+#: views/admin/events.php:115
+msgid "Delete this event?"
+msgstr ""
+
+#: views/admin/exam-form.php:27
+msgid "Exam created."
+msgstr ""
+
+#: views/admin/exam-form.php:37
+msgid "Add New Exam"
+msgstr ""
+
+#: views/admin/exam-form.php:44
+msgid "Exam Name"
+msgstr ""
+
+#: views/admin/exam-form.php:66
+msgid "Start Time"
+msgstr ""
+
+#: views/admin/exam-form.php:68
+msgid "End Time"
+msgstr ""
+
+#: views/admin/exam-form.php:72
+#: views/admin/results.php:117
+msgid "Passing Marks"
+msgstr ""
+
+#: views/admin/exam-form.php:77
+msgid "Ongoing"
+msgstr ""
+
+#: views/admin/exam-form.php:82
+msgid "Create Exam"
+msgstr ""
+
+#: views/admin/exams.php:14
+msgid "Exam results published."
+msgstr ""
+
+#: views/admin/exams.php:22
+msgid "Exam results unpublished."
+msgstr ""
+
+#: views/admin/exams.php:51
+#: views/admin/students.php:59
+#: views/admin/teachers.php:48
+msgid "Add New"
+msgstr ""
+
+#: views/admin/exams.php:65
+msgid "Dates"
+msgstr ""
+
+#: views/admin/exams.php:76
+msgid "No exams yet"
+msgstr ""
+
+#: views/admin/exams.php:77
+msgid "Create your first exam to start recording results."
+msgstr ""
+
+#: views/admin/exams.php:91
+msgid "Publish results?"
+msgstr ""
+
+#: views/admin/exams.php:91
+msgid "Publish"
+msgstr ""
+
+#: views/admin/exams.php:93
+msgid "Unpublish results? Students will no longer see them."
+msgstr ""
+
+#: views/admin/exams.php:93
+msgid "Unpublish"
+msgstr ""
+
+#: views/admin/expense-categories.php:19
+msgid "Expense category added."
+msgstr ""
+
+#: views/admin/expense-categories.php:35
+msgid "Expense category updated."
+msgstr ""
+
+#: views/admin/expense-categories.php:43
+msgid "Expense category deleted."
+msgstr ""
+
+#: views/admin/expense-categories.php:57
+msgid "Expense Categories"
+msgstr ""
+
+#: views/admin/expense-categories.php:65
+msgid "Edit Category"
+msgstr ""
+
+#: views/admin/expense-categories.php:65
+#: views/admin/expense-categories.php:77
+#: views/admin/library.php:210
+msgid "Add Category"
+msgstr ""
+
+#: views/admin/expense-categories.php:73
+msgid "Color"
+msgstr ""
+
+#: views/admin/expense-categories.php:74
+#: views/admin/gallery.php:104
+#: views/admin/help.php:172
+#: views/admin/news.php:137
+#: views/admin/payment-gateways.php:422
+#: views/admin/software.php:21
+msgid "Yes"
+msgstr ""
+
+#: views/admin/expense-categories.php:77
+msgid "Update Category"
+msgstr ""
+
+#: views/admin/expense-categories.php:93
+#: views/admin/library.php:217
+msgid "No categories yet."
+msgstr ""
+
+#: views/admin/expense-categories.php:102
+#: views/admin/library.php:224
+msgid "Delete this category?"
+msgstr ""
+
+#: views/admin/expenses.php:22
+msgid "Expense added."
+msgstr ""
+
+#: views/admin/expenses.php:40
+msgid "Expense updated."
+msgstr ""
+
+#: views/admin/expenses.php:51
+msgid "Expense deleted."
+msgstr ""
+
+#: views/admin/expenses.php:76
+msgid "Edit Expense"
+msgstr ""
+
+#: views/admin/expenses.php:76
+msgid "Add New Expense"
+msgstr ""
+
+#: views/admin/expenses.php:103
+#: views/admin/expenses.php:132
+msgid "Vendor"
+msgstr ""
+
+#: views/admin/expenses.php:109
+msgid "Cash"
+msgstr ""
+
+#: views/admin/expenses.php:110
+#: views/admin/payment-gateways.php:318
+msgid "Bank"
+msgstr ""
+
+#: views/admin/expenses.php:111
+msgid "Cheque"
+msgstr ""
+
+#: views/admin/expenses.php:112
+msgid "Mobile"
+msgstr ""
+
+#: views/admin/expenses.php:116
+#: views/admin/expenses.php:134
+msgid "Note"
+msgstr ""
+
+#: views/admin/expenses.php:120
+msgid "Update Expense"
+msgstr ""
+
+#: views/admin/expenses.php:120
+msgid "Add Expense"
+msgstr ""
+
+#: views/admin/expenses.php:133
+#: views/admin/fee-payments.php:72
+#: views/admin/visitor-logs.php:20
+msgid "Method"
+msgstr ""
+
+#: views/admin/expenses.php:139
+msgid "No expenses found."
+msgstr ""
+
+#: views/admin/expenses.php:151
+msgid "Delete this expense?"
+msgstr ""
+
+#: views/admin/fee-payments.php:20
+msgid "Payment marked as paid."
+msgstr ""
+
+#: views/admin/fee-payments.php:41
+msgid "Refund requested."
+msgstr ""
+
+#: views/admin/fee-payments.php:63
+msgid "Payments"
+msgstr ""
+
+#: views/admin/fee-payments.php:71
+#: views/admin/refunds.php:100
+#: views/admin/student-detail.php:140
+msgid "Invoice"
+msgstr ""
+
+#: views/admin/fee-payments.php:75
+msgid "Refunded"
+msgstr ""
+
+#: views/admin/fee-payments.php:82
+#: views/admin/student-detail.php:143
+msgid "No payment records."
+msgstr ""
+
+#: views/admin/fee-payments.php:99
+#: views/admin/library.php:293
+#: views/admin/payslips.php:135
+msgid "Mark Paid"
+msgstr ""
+
+#: views/admin/fee-payments.php:106
+#: views/admin/leave-requests.php:55
+#: views/admin/refunds.php:90
+#: views/admin/refunds.php:102
+msgid "Reason"
+msgstr ""
+
+#: views/admin/fee-payments.php:107
+msgid "Refund"
+msgstr ""
+
+#: views/admin/fees.php:22
+msgid "Fee created."
+msgstr ""
+
+#: views/admin/fees.php:40
+msgid "Fee updated."
+msgstr ""
+
+#: views/admin/fees.php:51
+msgid "Fee deleted."
+msgstr ""
+
+#: views/admin/fees.php:91
+msgid "Edit Fee"
+msgstr ""
+
+#: views/admin/fees.php:91
+#: views/admin/fees.php:116
+msgid "Add Fee"
+msgstr ""
+
+#: views/admin/fees.php:110
+msgid "Tuition"
+msgstr ""
+
+#: views/admin/fees.php:110
+msgid "Admission"
+msgstr ""
+
+#: views/admin/fees.php:112
+#: views/admin/fees.php:125
+msgid "Frequency"
+msgstr ""
+
+#: views/admin/fees.php:113
+msgid "One Time"
+msgstr ""
+
+#: views/admin/fees.php:116
+msgid "Update Fee"
+msgstr ""
+
+#: views/admin/fees.php:131
+msgid "No fees yet"
+msgstr ""
+
+#: views/admin/fees.php:132
+msgid "Add your first fee structure above to get started."
+msgstr ""
+
+#: views/admin/fees.php:147
+msgid "Delete this fee?"
+msgstr ""
+
+#: views/admin/gallery.php:20
+msgid "Gallery item added."
+msgstr ""
+
+#: views/admin/gallery.php:37
+msgid "Gallery item updated."
+msgstr ""
+
+#: views/admin/gallery.php:45
+msgid "Gallery item removed."
+msgstr ""
+
+#: views/admin/gallery.php:67
+msgid "Edit Gallery Item"
+msgstr ""
+
+#: views/admin/gallery.php:67
+msgid "Add Gallery Item"
+msgstr ""
+
+#: views/admin/gallery.php:77
+#: views/admin/news.php:109
+msgid "Image URL"
+msgstr ""
+
+#: views/admin/gallery.php:80
+msgid "Update Item"
+msgstr ""
+
+#: views/admin/gallery.php:80
+msgid "Add Item"
+msgstr ""
+
+#: views/admin/gallery.php:91
+msgid "Image"
+msgstr ""
+
+#: views/admin/gallery.php:97
+msgid "No gallery items."
+msgstr ""
+
+#: views/admin/gallery.php:104
+#: views/admin/help.php:173
+#: views/admin/payment-gateways.php:424
+#: views/admin/software.php:21
+msgid "No"
+msgstr ""
+
+#: views/admin/gallery.php:107
+msgid "Delete this gallery item?"
+msgstr ""
+
+#: views/admin/guardians.php:29
+msgid "Guardian added."
+msgstr ""
+
+#: views/admin/guardians.php:43
+msgid "Guardian deleted."
+msgstr ""
+
+#: views/admin/guardians.php:66
+msgid "Add New Guardian"
+msgstr ""
+
+#: views/admin/guardians.php:75
+msgid "Add Guardian"
+msgstr ""
+
+#: views/admin/guardians.php:87
+msgid "No guardians found."
+msgstr ""
+
+#: views/admin/guardians.php:94
+msgid "Delete this guardian?"
+msgstr ""
+
+#: views/admin/help.php:12
+msgid "Getting Started"
+msgstr ""
+
+#: views/admin/help.php:13
+msgid "Learn the basics of navigating the school dashboard."
+msgstr ""
+
+#: views/admin/help.php:15
+msgid "Open the Dashboard from the sidebar to see an overview of students, fees, attendance and recent activity."
+msgstr ""
+
+#: views/admin/help.php:16
+msgid "Add your school name, tagline, logo and contact details from Settings."
+msgstr ""
+
+#: views/admin/help.php:17
+msgid "Create classes, sections, subjects and batches before enrolling students."
+msgstr ""
+
+#: views/admin/help.php:18
+msgid "Add students and assign them to a class and section."
+msgstr ""
+
+#: views/admin/help.php:19
+msgid "Set up fees, income and expense categories to start recording finances."
+msgstr ""
+
+#: views/admin/help.php:25
+msgid "Managing Students"
+msgstr ""
+
+#: views/admin/help.php:26
+msgid "Enroll, search and keep student records up to date."
+msgstr ""
+
+#: views/admin/help.php:28
+msgid "Go to Students from the sidebar and click Add Student to create a new record."
+msgstr ""
+
+#: views/admin/help.php:29
+msgid "Use the search box to quickly find a student by name, ID or guardian."
+msgstr ""
+
+#: views/admin/help.php:30
+msgid "Open a student to view their profile, guardians, payments and results."
+msgstr ""
+
+#: views/admin/help.php:31
+msgid "Add guardian contact details so guardians appear in the Guardians page."
+msgstr ""
+
+#: views/admin/help.php:37
+msgid "Managing Teachers"
+msgstr ""
+
+#: views/admin/help.php:38
+msgid "Add staff, assign subjects and track payroll."
+msgstr ""
+
+#: views/admin/help.php:40
+msgid "Open Teachers and click Add Teacher to create a staff record."
+msgstr ""
+
+#: views/admin/help.php:41
+msgid "Assign teachers to subjects and classes from their profile."
+msgstr ""
+
+#: views/admin/help.php:42
+msgid "Record salaries and see totals under Payroll."
+msgstr ""
+
+#: views/admin/help.php:43
+msgid "Track staff attendance from the Staff Attendance page."
+msgstr ""
+
+#: views/admin/help.php:50
+msgid "Mark daily attendance quickly for any class."
+msgstr ""
+
+#: views/admin/help.php:52
+msgid "Pick a class, section and date from the Attendance page."
+msgstr ""
+
+#: views/admin/help.php:53
+msgid "Mark each student present or absent, then save."
+msgstr ""
+
+#: views/admin/help.php:54
+msgid "Review monthly attendance records from the same page."
+msgstr ""
+
+#: views/admin/help.php:60
+msgid "Exams & Results"
+msgstr ""
+
+#: views/admin/help.php:61
+msgid "Create exams and publish results to students."
+msgstr ""
+
+#: views/admin/help.php:63
+msgid "Create an exam with grading options under Exams."
+msgstr ""
+
+#: views/admin/help.php:64
+msgid "Enter marks per student from the gradebook or the exam page."
+msgstr ""
+
+#: views/admin/help.php:65
+msgid "Results are computed automatically with ranks and summaries."
+msgstr ""
+
+#: views/admin/help.php:71
+msgid "Fees & Payments"
+msgstr ""
+
+#: views/admin/help.php:72
+msgid "Collect fees, record expenses and read reports."
+msgstr ""
+
+#: views/admin/help.php:74
+msgid "Define fee structures against fee types in the Fees page."
+msgstr ""
+
+#: views/admin/help.php:75
+msgid "Record payments as they arrive under Fee Payments."
+msgstr ""
+
+#: views/admin/help.php:76
+msgid "Log day-to-day expenses and allocate them to categories."
+msgstr ""
+
+#: views/admin/help.php:77
+msgid "Read Income Statement and Cash Flow reports under Reports."
+msgstr ""
+
+#: views/admin/help.php:83
+msgid "CMS & Public Website"
+msgstr ""
+
+#: views/admin/help.php:84
+msgid "Publish notices, events and gallery photos to the public site."
+msgstr ""
+
+#: views/admin/help.php:86
+msgid "Create pages and posts under CMS to shape the public website."
+msgstr ""
+
+#: views/admin/help.php:87
+msgid "Publish notices and announcements that appear on the homepage."
+msgstr ""
+
+#: views/admin/help.php:88
+msgid "Add events to the calendar and photos to the gallery."
+msgstr ""
+
+#: views/admin/help.php:94
+msgid "Public Website"
+msgstr ""
+
+#: views/admin/help.php:95
+msgid "Manage homepage sections like sliders, testimonials and committees."
+msgstr ""
+
+#: views/admin/help.php:97
+msgid "Homepage sections (slider, teachers, results, contact) are powered by the pages below."
+msgstr ""
+
+#: views/admin/help.php:98
+msgid "Update slider slides from the Gallery or the theme customizer."
+msgstr ""
+
+#: views/admin/help.php:99
+msgid "Testimonials and committee members appear directly on the homepage."
+msgstr ""
+
+#: views/admin/help.php:111
+msgid "Step-by-step guides for every part of the school dashboard."
+msgstr ""
+
+#: views/admin/help.php:118
+msgid "Search the guides…"
+msgstr ""
+
+#: views/admin/help.php:133
+msgid "No guides matched your search. Try a different keyword."
+msgstr ""
+
+#: views/admin/help.php:171
+msgid "Was this helpful?"
+msgstr ""
+
+#: views/admin/hostels.php:22
+msgid "Hostel added."
+msgstr ""
+
+#: views/admin/hostels.php:37
+msgid "Room added."
+msgstr ""
+
+#: views/admin/hostels.php:45
+msgid "Hostel deleted."
+msgstr ""
+
+#: views/admin/hostels.php:61
+msgid "Room updated."
+msgstr ""
+
+#: views/admin/hostels.php:85
+msgid "Student allocated to room."
+msgstr ""
+
+#: views/admin/hostels.php:108
+msgid "Student checked out."
+msgstr ""
+
+#: views/admin/hostels.php:150
+#: views/admin/hostels.php:161
+msgid "Add Hostel"
+msgstr ""
+
+#: views/admin/hostels.php:155
+msgid "Total Rooms"
+msgstr ""
+
+#: views/admin/hostels.php:156
+msgid "Warden Name"
+msgstr ""
+
+#: views/admin/hostels.php:157
+msgid "Warden Phone"
+msgstr ""
+
+#: views/admin/hostels.php:166
+msgid "Rooms"
+msgstr ""
+
+#: views/admin/hostels.php:166
+msgid "Warden"
+msgstr ""
+
+#: views/admin/hostels.php:169
+msgid "No hostels found."
+msgstr ""
+
+#: views/admin/hostels.php:178
+msgid "Delete this hostel?"
+msgstr ""
+
+#: views/admin/hostels.php:193
+msgid "Edit Room"
+msgstr ""
+
+#: views/admin/hostels.php:193
+#: views/admin/hostels.php:219
+msgid "Add Room"
+msgstr ""
+
+#: views/admin/hostels.php:200
+#: views/admin/hostels.php:256
+msgid "Hostel"
+msgstr ""
+
+#: views/admin/hostels.php:208
+#: views/admin/seat-plans.php:81
+msgid "Room Number"
+msgstr ""
+
+#: views/admin/hostels.php:212
+msgid "Single"
+msgstr ""
+
+#: views/admin/hostels.php:213
+msgid "Double"
+msgstr ""
+
+#: views/admin/hostels.php:214
+msgid "Triple"
+msgstr ""
+
+#: views/admin/hostels.php:215
+msgid "Dormitory"
+msgstr ""
+
+#: views/admin/hostels.php:218
+#: views/admin/sections.php:73
+#: views/admin/sections.php:83
+#: views/admin/transport.php:194
+#: views/admin/transport.php:214
+msgid "Capacity"
+msgstr ""
+
+#: views/admin/hostels.php:219
+msgid "Update Room"
+msgstr ""
+
+#: views/admin/hostels.php:227
+msgid "Allocate Student"
+msgstr ""
+
+#: views/admin/hostels.php:250
+#: views/admin/hostels.php:275
+msgid "Check-in"
+msgstr ""
+
+#: views/admin/hostels.php:251
+msgid "Allocate"
+msgstr ""
+
+#: views/admin/hostels.php:256
+msgid "Occupied"
+msgstr ""
+
+#: views/admin/hostels.php:259
+msgid "No rooms."
+msgstr ""
+
+#: views/admin/hostels.php:275
+msgid "Hostel / Room"
+msgstr ""
+
+#: views/admin/hostels.php:278
+msgid "No active allocations."
+msgstr ""
+
+#: views/admin/hostels.php:286
+msgid "Check out this student?"
+msgstr ""
+
+#: views/admin/hostels.php:289
+msgid "Check Out"
+msgstr ""
+
+#: views/admin/id-cards.php:49
+#, php-format
+msgid "%d ID cards generated."
+msgstr ""
+
+#: views/admin/id-cards.php:76
+msgid "Generate ID Cards"
+msgstr ""
+
+#: views/admin/id-cards.php:96
+msgid "Expiry"
+msgstr ""
+
+#: views/admin/id-cards.php:101
+msgid "No ID cards generated."
+msgstr ""
+
+#: views/admin/income-statement.php:47
+msgid "Revenue (Fee Collections)"
+msgstr ""
+
+#: views/admin/income-statement.php:49
+msgid "Net Income"
+msgstr ""
+
+#: views/admin/leave-requests.php:25
+#: views/admin/payroll.php:79
+msgid "Leave request updated."
+msgstr ""
+
+#: views/admin/leave-requests.php:50
+#: views/admin/payroll.php:127
+#: views/admin/payroll.php:174
+#: views/admin/payroll.php:215
+#: views/admin/payslips.php:88
+#: views/admin/payslips.php:111
+#: views/admin/salary-structures.php:38
+#: views/admin/staff-attendance.php:78
+msgid "Staff"
+msgstr ""
+
+#: views/admin/leave-requests.php:54
+#: views/admin/payroll.php:131
+msgid "Days"
+msgstr ""
+
+#: views/admin/leave-requests.php:61
+#: views/admin/payroll.php:137
+msgid "No leave requests."
+msgstr ""
+
+#: views/admin/leave-types.php:32
+msgid "Leave type saved."
+msgstr ""
+
+#: views/admin/leave-types.php:42
+msgid "Leave type deleted."
+msgstr ""
+
+#: views/admin/leave-types.php:64
+msgid "Edit Leave Type"
+msgstr ""
+
+#: views/admin/leave-types.php:64
+msgid "Add Leave Type"
+msgstr ""
+
+#: views/admin/leave-types.php:76
+#: views/admin/leave-types.php:90
+msgid "Days / Year"
+msgstr ""
+
+#: views/admin/leave-types.php:96
+msgid "No leave types."
+msgstr ""
+
+#: views/admin/ledger.php:20
+msgid "Account created."
+msgstr ""
+
+#: views/admin/ledger.php:43
+msgid "Ledger entry recorded."
+msgstr ""
+
+#: views/admin/ledger.php:55
+msgid "Ledger"
+msgstr ""
+
+#: views/admin/ledger.php:62
+msgid "Journal Entries"
+msgstr ""
+
+#: views/admin/ledger.php:63
+msgid "Chart of Accounts"
+msgstr ""
+
+#: views/admin/ledger.php:68
+#: views/admin/ledger.php:89
+msgid "Add Account"
+msgstr ""
+
+#: views/admin/ledger.php:81
+msgid "Parent"
+msgstr ""
+
+#: views/admin/ledger.php:103
+msgid "No accounts yet."
+msgstr ""
+
+#: views/admin/ledger.php:119
+msgid "Record Journal Entry"
+msgstr ""
+
+#: views/admin/ledger.php:125
+msgid "Credit (in)"
+msgstr ""
+
+#: views/admin/ledger.php:125
+msgid "Debit (out)"
+msgstr ""
+
+#: views/admin/ledger.php:136
+msgid "Record Entry"
+msgstr ""
+
+#: views/admin/ledger.php:151
+msgid "No ledger entries yet."
+msgstr ""
+
+#: views/admin/library-reports.php:46
+msgid "Currently Issued"
+msgstr ""
+
+#: views/admin/library-reports.php:47
+msgid "Overdue"
+msgstr ""
+
+#: views/admin/library-reports.php:53
+#: views/admin/library.php:244
+#: views/admin/library.php:270
+msgid "Book"
+msgstr ""
+
+#: views/admin/library-reports.php:54
+msgid "Borrower"
+msgstr ""
+
+#: views/admin/library-reports.php:57
+msgid "Returned"
+msgstr ""
+
+#: views/admin/library-reports.php:61
+msgid "No records."
+msgstr ""
+
+#: views/admin/library.php:17
+msgid "Book category added."
+msgstr ""
+
+#: views/admin/library.php:25
+msgid "Book category deleted."
+msgstr ""
+
+#: views/admin/library.php:42
+msgid "Book added."
+msgstr ""
+
+#: views/admin/library.php:70
+msgid "Book issued."
+msgstr ""
+
+#: views/admin/library.php:101
+msgid "Book returned."
+msgstr ""
+
+#: views/admin/library.php:125
+msgid "Book marked as lost."
+msgstr ""
+
+#: views/admin/library.php:136
+msgid "Fine marked as paid."
+msgstr ""
+
+#: views/admin/library.php:168
+#: views/admin/library.php:180
+msgid "Add Book"
+msgstr ""
+
+#: views/admin/library.php:176
+#: views/admin/library.php:185
+msgid "ISBN"
+msgstr ""
+
+#: views/admin/library.php:177
+msgid "Quantity"
+msgstr ""
+
+#: views/admin/library.php:185
+msgid "Qty"
+msgstr ""
+
+#: views/admin/library.php:185
+msgid "Available"
+msgstr ""
+
+#: views/admin/library.php:188
+msgid "No books found."
+msgstr ""
+
+#: views/admin/library.php:204
+msgid "Book Categories"
+msgstr ""
+
+#: views/admin/library.php:240
+#: views/admin/library.php:265
+msgid "Issue Book"
+msgstr ""
+
+#: views/admin/library.php:270
+msgid "Fine"
+msgstr ""
+
+#: views/admin/library.php:276
+msgid "No book issues"
+msgstr ""
+
+#: views/admin/library.php:277
+msgid "Issue a book to a student to start tracking."
+msgstr ""
+
+#: views/admin/library.php:290
+msgid "Mark this fine as paid?"
+msgstr ""
+
+#: views/admin/library.php:308
+msgid "Return"
+msgstr ""
+
+#: views/admin/library.php:310
+msgid "Mark this book as lost? A replacement fee can be recorded."
+msgstr ""
+
+#: views/admin/library.php:313
+msgid "Lost fee"
+msgstr ""
+
+#: views/admin/library.php:314
+msgid "Mark Lost"
+msgstr ""
+
+#: views/admin/media.php:27
+msgid "Media uploaded."
+msgstr ""
+
+#: views/admin/media.php:38
+msgid "Media deleted."
+msgstr ""
+
+#: views/admin/media.php:54
+msgid "Upload Image"
+msgstr ""
+
+#: views/admin/media.php:63
+msgid "Alt Text"
+msgstr ""
+
+#: views/admin/media.php:77
+msgid "No media yet."
+msgstr ""
+
+#: views/admin/messages.php:26
+msgid "Message sent."
+msgstr ""
+
+#: views/admin/messages.php:67
+msgid "Inbox"
+msgstr ""
+
+#: views/admin/messages.php:68
+#: views/admin/sms.php:241
+msgid "Sent"
+msgstr ""
+
+#: views/admin/messages.php:69
+msgid "Compose"
+msgstr ""
+
+#: views/admin/messages.php:74
+msgid "Compose Message"
+msgstr ""
+
+#: views/admin/messages.php:80
+msgid "Select recipient"
+msgstr ""
+
+#: views/admin/messages.php:94
+msgid "Send"
+msgstr ""
+
+#: views/admin/messages.php:102
+msgid "Preview"
+msgstr ""
+
+#: views/admin/messages.php:107
+msgid "No messages."
+msgstr ""
+
+#: views/admin/news.php:36
+msgid "News item added."
+msgstr ""
+
+#: views/admin/news.php:68
+msgid "News item updated."
+msgstr ""
+
+#: views/admin/news.php:76
+msgid "News item removed."
+msgstr ""
+
+#: views/admin/news.php:98
+#: views/admin/news.php:114
+msgid "Add News"
+msgstr ""
+
+#: views/admin/news.php:114
+msgid "Update News"
+msgstr ""
+
+#: views/admin/news.php:131
+msgid "No news."
+msgstr ""
+
+#: views/admin/news.php:141
+msgid "Delete this news item?"
+msgstr ""
+
+#: views/admin/notices.php:24
+msgid "Notice created."
+msgstr ""
+
+#: views/admin/notices.php:39
+msgid "Notice updated."
+msgstr ""
+
+#: views/admin/notices.php:47
+msgid "Notice deleted."
+msgstr ""
+
+#: views/admin/notices.php:90
+msgid "Pin this notice"
+msgstr ""
+
+#: views/admin/notices.php:92
+msgid "Update Notice"
+msgstr ""
+
+#: views/admin/notices.php:92
+msgid "Publish Notice"
+msgstr ""
+
+#: views/admin/notices.php:103
+msgid "No notices."
+msgstr ""
+
+#: views/admin/notices.php:113
+msgid "Delete this notice?"
+msgstr ""
+
+#: views/admin/notification-preferences.php:32
+msgid "Notification preferences saved."
+msgstr ""
+
+#: views/admin/notification-preferences.php:49
+msgid "Notification Preferences"
+msgstr ""
+
+#: views/admin/notification-preferences.php:56
+msgid "Choose which channels you want to receive for each notification type."
+msgstr ""
+
+#: views/admin/notification-preferences.php:64
+msgid "Notification Type"
+msgstr ""
+
+#: views/admin/notification-preferences.php:86
+msgid "Save Preferences"
+msgstr ""
+
+#: views/admin/notification-templates.php:28
+msgid "Template created."
+msgstr ""
+
+#: views/admin/notification-templates.php:48
+msgid "Template updated."
+msgstr ""
+
+#: views/admin/notification-templates.php:57
+msgid "Template deleted."
+msgstr ""
+
+#: views/admin/notification-templates.php:71
+msgid "Notification Templates"
+msgstr ""
+
+#: views/admin/notification-templates.php:79
+msgid "Edit Template"
+msgstr ""
+
+#: views/admin/notification-templates.php:87
+#: views/admin/notification-templates.php:115
+msgid "Key"
+msgstr ""
+
+#: views/admin/notification-templates.php:97
+msgid "Variables (comma-separated)"
+msgstr ""
+
+#: views/admin/notification-templates.php:99
+msgid "Email Content (HTML)"
+msgstr ""
+
+#: views/admin/notification-templates.php:101
+msgid "SMS Content"
+msgstr ""
+
+#: views/admin/notification-templates.php:102
+msgid "In-App Content"
+msgstr ""
+
+#: views/admin/notification-templates.php:123
+msgid "No templates yet."
+msgstr ""
+
+#: views/admin/notifications.php:34
+msgid "No notifications."
+msgstr ""
+
+#: views/admin/notifications.php:44
+msgid "Read"
+msgstr ""
+
+#: views/admin/onboarding.php:13
+msgid "School name set"
+msgstr ""
+
+#: views/admin/onboarding.php:17
+msgid "School phone set"
+msgstr ""
+
+#: views/admin/onboarding.php:21
+msgid "School email set"
+msgstr ""
+
+#: views/admin/onboarding.php:25
+msgid "Currency set"
+msgstr ""
+
+#: views/admin/onboarding.php:29
+msgid "At least one class created"
+msgstr ""
+
+#: views/admin/onboarding.php:33
+msgid "At least one section created"
+msgstr ""
+
+#: views/admin/onboarding.php:37
+msgid "At least one subject created"
+msgstr ""
+
+#: views/admin/onboarding.php:41
+msgid "Active academic session set"
+msgstr ""
+
+#: views/admin/onboarding.php:45
+msgid "At least one payment gateway active"
+msgstr ""
+
+#: views/admin/onboarding.php:49
+msgid "Site logo set"
+msgstr ""
+
+#: views/admin/onboarding.php:60
+msgid "Track your school setup progress."
+msgstr ""
+
+#: views/admin/onboarding.php:63
+#, php-format
+msgid "Progress: %d%%"
+msgstr ""
+
+#: views/admin/onboarding.php:67
+#, php-format
+msgid "%1$d of %2$d setup steps complete."
+msgstr ""
+
+#: views/admin/onboarding.php:71
+msgid "Setup Checklist"
+msgstr ""
+
+#: views/admin/onboarding.php:73
+msgid "Step"
+msgstr ""
+
+#: views/admin/onboarding.php:80
+msgid "Done"
+msgstr ""
+
+#: views/admin/onboarding.php:82
+msgid "Pending"
+msgstr ""
+
+#: views/admin/payment-gateways.php:218
+#: views/admin/payment-gateways.php:238
+msgid "A gateway with that code already exists."
+msgstr ""
+
+#: views/admin/payment-gateways.php:222
+msgid "Payment gateway created."
+msgstr ""
+
+#: views/admin/payment-gateways.php:225
+msgid "Name and code are required."
+msgstr ""
+
+#: views/admin/payment-gateways.php:250
+msgid "Payment gateway updated."
+msgstr ""
+
+#: views/admin/payment-gateways.php:260
+msgid "Payment gateway deleted."
+msgstr ""
+
+#: views/admin/payment-gateways.php:297
+msgid "Only enabled gateways are offered to payers. Enable the optional gateways here, or add your own with its credentials and checkout endpoints. The table shows each gateway's driver, test mode and configuration status, plus a test payment action that simulates a checkout locally."
+msgstr ""
+
+#: views/admin/payment-gateways.php:301
+msgid "Edit Gateway"
+msgstr ""
+
+#: views/admin/payment-gateways.php:301
+#: views/admin/payment-gateways.php:372
+msgid "Add Gateway"
+msgstr ""
+
+#: views/admin/payment-gateways.php:316
+msgid "Online payment"
+msgstr ""
+
+#: views/admin/payment-gateways.php:317
+msgid "Mobile financial service"
+msgstr ""
+
+#: views/admin/payment-gateways.php:326
+#: views/admin/payment-gateways.php:384
+#: views/admin/payment-sandbox.php:197
+msgid "Currency"
+msgstr ""
+
+#: views/admin/payment-gateways.php:330
+msgid "Sandbox URL"
+msgstr ""
+
+#: views/admin/payment-gateways.php:331
+msgid "Live URL"
+msgstr ""
+
+#: views/admin/payment-gateways.php:335
+#: views/admin/settings.php:292
+msgid "API Key"
+msgstr ""
+
+#: views/admin/payment-gateways.php:336
+msgid "API Secret"
+msgstr ""
+
+#: views/admin/payment-gateways.php:340
+msgid "API Username"
+msgstr ""
+
+#: views/admin/payment-gateways.php:341
+msgid "API Password"
+msgstr ""
+
+#: views/admin/payment-gateways.php:345
+msgid "Callback URL"
+msgstr ""
+
+#: views/admin/payment-gateways.php:346
+msgid "Webhook URL"
+msgstr ""
+
+#: views/admin/payment-gateways.php:350
+msgid "Supported currencies"
+msgstr ""
+
+#: views/admin/payment-gateways.php:351
+msgid "Sort order"
+msgstr ""
+
+#: views/admin/payment-gateways.php:355
+msgid "Advanced options (one key=value per line)"
+msgstr ""
+
+#: views/admin/payment-gateways.php:357
+msgid "Supported keys: checkout_url_template, checkout_method, verify_url, verify_success_path, verify_success_value, refund_url, signature_header."
+msgstr ""
+
+#: views/admin/payment-gateways.php:366
+msgid "Enabled (show to payers)"
+msgstr ""
+
+#: views/admin/payment-gateways.php:367
+msgid "Online (hosted checkout)"
+msgstr ""
+
+#: views/admin/payment-gateways.php:368
+msgid "Has API"
+msgstr ""
+
+#: views/admin/payment-gateways.php:369
+msgid "Sandbox / test mode"
+msgstr ""
+
+#: views/admin/payment-gateways.php:372
+msgid "Update Gateway"
+msgstr ""
+
+#: views/admin/payment-gateways.php:386
+msgid "Test mode"
+msgstr ""
+
+#: views/admin/payment-gateways.php:387
+msgid "Configured"
+msgstr ""
+
+#: views/admin/payment-gateways.php:388
+#: views/admin/sms.php:160
+#: views/admin/transport.php:215
+msgid "Driver"
+msgstr ""
+
+#: views/admin/payment-gateways.php:393
+msgid "No gateways yet."
+msgstr ""
+
+#: views/admin/payment-gateways.php:408
+msgid "Enabled"
+msgstr ""
+
+#: views/admin/payment-gateways.php:410
+msgid "Disabled"
+msgstr ""
+
+#: views/admin/payment-gateways.php:415
+msgid "Sandbox"
+msgstr ""
+
+#: views/admin/payment-gateways.php:417
+msgid "Live"
+msgstr ""
+
+#: views/admin/payment-gateways.php:429
+#: views/admin/payment-sandbox.php:240
+msgid "Run test payment"
+msgstr ""
+
+#: views/admin/payment-gateways.php:431
+msgid "Delete this gateway?"
+msgstr ""
+
+#: views/admin/payment-sandbox.php:32
+msgid "That payment gateway is not available."
+msgstr ""
+
+#: views/admin/payment-sandbox.php:61
+msgid "Could not create the test payment. Try again."
+msgstr ""
+
+#: views/admin/payment-sandbox.php:97
+msgid "The sandbox simulation could not run. Reload the page and try again."
+msgstr ""
+
+#: views/admin/payment-sandbox.php:116
+msgid "Payment reference not found in the sandbox."
+msgstr ""
+
+#: views/admin/payment-sandbox.php:131
+msgid "Test payment cancelled — the payment was not completed."
+msgstr ""
+
+#: views/admin/payment-sandbox.php:132
+msgid "Test payment failed — the payment was marked as failed."
+msgstr ""
+
+#: views/admin/payment-sandbox.php:182
+msgid "Simulate a payment outcome"
+msgstr ""
+
+#: views/admin/payment-sandbox.php:184
+msgid "Free test payment — no money moves and no external service is called. Pick an outcome below to run the payment through the normal verify and status flow."
+msgstr ""
+
+#: views/admin/payment-sandbox.php:189
+msgid "Gateway"
+msgstr ""
+
+#: views/admin/payment-sandbox.php:201
+msgid "Reference"
+msgstr ""
+
+#: views/admin/payment-sandbox.php:210
+msgid "Transaction"
+msgstr ""
+
+#: views/admin/payment-sandbox.php:221
+msgid "Simulate success"
+msgstr ""
+
+#: views/admin/payment-sandbox.php:222
+msgid "Simulate failure"
+msgstr ""
+
+#: views/admin/payment-sandbox.php:227
+msgid "Simulate success marks the payment paid with the transaction id TEST-<reference> and continues to the usual payment-success page. Simulating success again on a paid payment is a no-op. Failure and cancel leave the payment unpaid."
+msgstr ""
+
+#: views/admin/payment-sandbox.php:232
+#: views/admin/payment-sandbox.php:267
+msgid "Back to Payment Gateways"
+msgstr ""
+
+#: views/admin/payment-sandbox.php:236
+msgid "Start a throwaway payment to test a gateway end to end, or pay a fee with the Test / Sandbox gateway to land on this page automatically."
+msgstr ""
+
+#: views/admin/payment-sandbox.php:245
+msgid "Payment Gateway"
+msgstr ""
+
+#: views/admin/payment-sandbox.php:259
+msgid "Create test payment"
+msgstr ""
+
+#: views/admin/payment-sandbox.php:262
+msgid "The payment starts as pending; the next screen lets you simulate success, failure or cancel. Verification always runs through the local test gateway, so no external API is ever contacted."
+msgstr ""
+
+#: views/admin/payroll.php:59
+msgid "Salary structure saved."
+msgstr ""
+
+#: views/admin/payroll.php:169
+msgid "Add / Update Salary Structure"
+msgstr ""
+
+#: views/admin/payroll.php:176
+msgid "Select staff"
+msgstr ""
+
+#: views/admin/payroll.php:183
+#: views/admin/payroll.php:219
+#: views/admin/transport.php:141
+#: views/admin/transport.php:152
+msgid "Effective From"
+msgstr ""
+
+#: views/admin/payroll.php:187
+#: views/admin/payroll.php:220
+msgid "Effective To"
+msgstr ""
+
+#: views/admin/payroll.php:192
+msgid "Basic Salary"
+msgstr ""
+
+#: views/admin/payroll.php:193
+msgid "House Allowance"
+msgstr ""
+
+#: views/admin/payroll.php:194
+msgid "Medical Allowance"
+msgstr ""
+
+#: views/admin/payroll.php:195
+msgid "Transport Allowance"
+msgstr ""
+
+#: views/admin/payroll.php:196
+msgid "Other Allowance"
+msgstr ""
+
+#: views/admin/payroll.php:199
+msgid "Tax Deduction"
+msgstr ""
+
+#: views/admin/payroll.php:200
+msgid "Provident Fund"
+msgstr ""
+
+#: views/admin/payroll.php:201
+msgid "Other Deduction"
+msgstr ""
+
+#: views/admin/payroll.php:207
+msgid "Save Salary Structure"
+msgstr ""
+
+#: views/admin/payroll.php:212
+msgid "Existing Salary Structures"
+msgstr ""
+
+#: views/admin/payroll.php:216
+#: views/admin/payslips.php:113
+#: views/admin/salary-structures.php:39
+msgid "Basic"
+msgstr ""
+
+#: views/admin/payroll.php:217
+#: views/admin/payslips.php:114
+msgid "Allowances"
+msgstr ""
+
+#: views/admin/payroll.php:218
+#: views/admin/payslips.php:115
+msgid "Deductions"
+msgstr ""
+
+#: views/admin/payroll.php:224
+msgid "No salary structures yet."
+msgstr ""
+
+#: views/admin/payslips.php:43
+msgid "Payslip generated."
+msgstr ""
+
+#: views/admin/payslips.php:57
+msgid "Payslip marked as paid."
+msgstr ""
+
+#: views/admin/payslips.php:83
+msgid "Generate Payslip"
+msgstr ""
+
+#: views/admin/payslips.php:97
+msgid "Period Start"
+msgstr ""
+
+#: views/admin/payslips.php:101
+msgid "Period End"
+msgstr ""
+
+#: views/admin/payslips.php:116
+msgid "Net"
+msgstr ""
+
+#: views/admin/payslips.php:122
+msgid "No payslips yet."
+msgstr ""
+
+#: views/admin/profile.php:28
+msgid "That email is already in use by another account."
+msgstr ""
+
+#: views/admin/profile.php:59
+#, php-format
+msgid "Manage your account for %s."
+msgstr ""
+
+#: views/admin/profile.php:65
+msgid "Profile updated successfully."
+msgstr ""
+
+#: views/admin/profile.php:93
+#, php-format
+msgid "Member since %s"
+msgstr ""
+
+#: views/admin/profile.php:100
+msgid "Account Settings"
+msgstr ""
+
+#: views/admin/profile.php:108
+msgid "Display name"
+msgstr ""
+
+#: views/admin/profile.php:112
+msgid "Email address"
+msgstr ""
+
+#: views/admin/profile.php:117
+msgid "Short bio"
+msgstr ""
+
+#: views/admin/profile.php:121
+msgid "New password"
+msgstr ""
+
+#: views/admin/profile.php:123
+msgid "Leave blank to keep your current password."
+msgstr ""
+
+#: views/admin/profile.php:126
+msgid "Save changes"
+msgstr ""
+
+#: views/admin/profile.php:127
+msgid "Advanced WordPress profile settings"
+msgstr ""
+
+#: views/admin/progress-reports.php:75
+#: views/admin/reports-builder.php:76
+msgid "Attendance Summary"
+msgstr ""
+
+#: views/admin/progress-reports.php:82
+msgid "Exam Results"
+msgstr ""
+
+#: views/admin/progress-reports.php:87
+msgid "No results."
+msgstr ""
+
+#: views/admin/refunds.php:26
+msgid "Refund request created."
+msgstr ""
+
+#: views/admin/refunds.php:39
+msgid "Refund processed."
+msgstr ""
+
+#: views/admin/refunds.php:48
+msgid "Refund cancelled."
+msgstr ""
+
+#: views/admin/refunds.php:69
+msgid "New Refund"
+msgstr ""
+
+#: views/admin/refunds.php:74
+#: views/admin/settings.php:150
+msgid "Payment"
+msgstr ""
+
+#: views/admin/refunds.php:94
+msgid "Create Refund"
+msgstr ""
+
+#: views/admin/refunds.php:108
+msgid "No refunds."
+msgstr ""
+
+#: views/admin/refunds.php:118
+msgid "Process"
+msgstr ""
+
+#: views/admin/reports-builder.php:71
+msgid "Report"
+msgstr ""
+
+#: views/admin/reports-builder.php:74
+#: views/admin/reports.php:76
+msgid "Students by Class"
+msgstr ""
+
+#: views/admin/reports-builder.php:75
+msgid "Payments Collected"
+msgstr ""
+
+#: views/admin/reports-builder.php:77
+msgid "Expense Summary"
+msgstr ""
+
+#: views/admin/reports-builder.php:83
+msgid "Run"
+msgstr ""
+
+#: views/admin/reports-builder.php:114
+msgid "No data for this report."
+msgstr ""
+
+#: views/admin/reports.php:48
+msgid "Overview"
+msgstr ""
+
+#: views/admin/reports.php:50
+msgid "Total Students"
+msgstr ""
+
+#: views/admin/reports.php:51
+msgid "Total Teachers"
+msgstr ""
+
+#: views/admin/reports.php:52
+msgid "Total Classes"
+msgstr ""
+
+#: views/admin/reports.php:53
+msgid "Total Fee Collected"
+msgstr ""
+
+#: views/admin/reports.php:54
+msgid "Total Expenses"
+msgstr ""
+
+#: views/admin/reports.php:61
+msgid "Attendance Today"
+msgstr ""
+
+#: views/admin/reports.php:64
+msgid "Total Marked"
+msgstr ""
+
+#: views/admin/reports.php:69
+msgid "No attendance marked today."
+msgstr ""
+
+#: views/admin/results.php:19
+msgid "Invalid exam."
+msgstr ""
+
+#: views/admin/results.php:55
+msgid "Results saved."
+msgstr ""
+
+#: views/admin/results.php:93
+msgid "Enter Results"
+msgstr ""
+
+#: views/admin/results.php:98
+msgid "Select Exam"
+msgstr ""
+
+#: views/admin/results.php:100
+msgid "Choose Exam"
+msgstr ""
+
+#: views/admin/results.php:107
+#: views/admin/staff-attendance.php:70
+msgid "Load"
+msgstr ""
+
+#: views/admin/results.php:123
+msgid "Marks Obtained"
+msgstr ""
+
+#: views/admin/results.php:124
+msgid "Remarks"
+msgstr ""
+
+#: views/admin/results.php:139
+msgid "Save Results"
+msgstr ""
+
+#: views/admin/results.php:143
+msgid "No active students found for this exam."
+msgstr ""
+
+#: views/admin/roles.php:14
+msgid "Dashboard access"
+msgstr ""
+
+#: views/admin/roles.php:17
+msgid "Parents / Guardians"
+msgstr ""
+
+#: views/admin/roles.php:18
+msgid "Classes, Exams, Results, Assignments"
+msgstr ""
+
+#: views/admin/roles.php:21
+msgid "Fees, Payments, Expenses"
+msgstr ""
+
+#: views/admin/roles.php:22
+msgid "Leaves, Payroll"
+msgstr ""
+
+#: views/admin/roles.php:23
+msgid "Admit / ID / Certificates"
+msgstr ""
+
+#: views/admin/roles.php:28
+msgid "SMS / Communications"
+msgstr ""
+
+#: views/admin/roles.php:29
+msgid "Website CMS"
+msgstr ""
+
+#: views/admin/roles.php:30
+msgid "Users & Roles"
+msgstr ""
+
+#: views/admin/roles.php:31
+msgid "Settings / Configuration"
+msgstr ""
+
+#: views/admin/roles.php:46
+msgid "Role permissions saved."
+msgstr ""
+
+#: views/admin/roles.php:56
+msgid "Roles & Permissions"
+msgstr ""
+
+#: views/admin/roles.php:63
+msgid "Grant dashboard capabilities to each WordPress role. The Administrator role always has full access. Only roles with at least one capability can sign in to the management dashboard."
+msgstr ""
+
+#: views/admin/roles.php:71
+#: views/admin/staff-directory.php:69
+#: views/admin/testimonials-admin.php:93
+#: views/admin/users.php:74
+#: views/admin/users.php:105
+msgid "Role"
+msgstr ""
+
+#: views/admin/roles.php:97
+msgid "Save Permissions"
+msgstr ""
+
+#: views/admin/routines.php:32
+msgid "Routine entry saved."
+msgstr ""
+
+#: views/admin/routines.php:60
+msgid "Routine entry updated."
+msgstr ""
+
+#: views/admin/routines.php:70
+msgid "Routine deleted."
+msgstr ""
+
+#: views/admin/routines.php:107
+msgid "Edit Routine Entry"
+msgstr ""
+
+#: views/admin/routines.php:107
+msgid "Add Routine Entry"
+msgstr ""
+
+#: views/admin/routines.php:172
+msgid "No routines yet."
+msgstr ""
+
+#: views/admin/salary-structures.php:15
+msgid "Salary structure deleted."
+msgstr ""
+
+#: views/admin/salary-structures.php:30
+msgid "Add / Edit"
+msgstr ""
+
+#: views/admin/salary-structures.php:40
+msgid "House"
+msgstr ""
+
+#: views/admin/salary-structures.php:41
+msgid "Medical"
+msgstr ""
+
+#: views/admin/salary-structures.php:43
+msgid "Other All."
+msgstr ""
+
+#: views/admin/salary-structures.php:44
+msgid "Tax"
+msgstr ""
+
+#: views/admin/salary-structures.php:45
+msgid "PF"
+msgstr ""
+
+#: views/admin/salary-structures.php:46
+msgid "Other Ded."
+msgstr ""
+
+#: views/admin/salary-structures.php:53
+msgid "No salary structures."
+msgstr ""
+
+#: views/admin/search.php:66
+#, php-format
+msgid "%d results found."
+msgstr ""
+
+#: views/admin/seat-plans.php:42
+#, php-format
+msgid "%d seats generated."
+msgstr ""
+
+#: views/admin/seat-plans.php:68
+msgid "Generate Seat Plan"
+msgstr ""
+
+#: views/admin/seat-plans.php:82
+msgid "Rows"
+msgstr ""
+
+#: views/admin/seat-plans.php:83
+msgid "Cols"
+msgstr ""
+
+#: views/admin/seat-plans.php:93
+msgid "Row"
+msgstr ""
+
+#: views/admin/seat-plans.php:94
+msgid "Column"
+msgstr ""
+
+#: views/admin/seat-plans.php:99
+msgid "No seat plans yet."
+msgstr ""
+
+#: views/admin/sections.php:26
+msgid "Section added."
+msgstr ""
+
+#: views/admin/sections.php:37
+msgid "Section deleted."
+msgstr ""
+
+#: views/admin/sections.php:61
+msgid "Add New Section"
+msgstr ""
+
+#: views/admin/sections.php:72
+msgid "Section name"
+msgstr ""
+
+#: views/admin/sections.php:75
+msgid "Add Section"
+msgstr ""
+
+#: views/admin/sections.php:89
+msgid "No sections found."
+msgstr ""
+
+#: views/admin/sections.php:98
+msgid "Delete this section?"
+msgstr ""
+
+#: views/admin/settings.php:11
+msgid "Navigation: Home"
+msgstr ""
+
+#: views/admin/settings.php:12
+msgid "Navigation: About"
+msgstr ""
+
+#: views/admin/settings.php:13
+msgid "Navigation: Academics"
+msgstr ""
+
+#: views/admin/settings.php:14
+msgid "Navigation: Admissions"
+msgstr ""
+
+#: views/admin/settings.php:15
+msgid "Navigation: News"
+msgstr ""
+
+#: views/admin/settings.php:16
+msgid "Navigation: Gallery"
+msgstr ""
+
+#: views/admin/settings.php:17
+msgid "Navigation: Results"
+msgstr ""
+
+#: views/admin/settings.php:18
+msgid "Navigation: Routine"
+msgstr ""
+
+#: views/admin/settings.php:19
+msgid "Navigation: Contact"
+msgstr ""
+
+#: views/admin/settings.php:20
+msgid "Navigation: Payments"
+msgstr ""
+
+#: views/admin/settings.php:21
+msgid "Navigation: Portal"
+msgstr ""
+
+#: views/admin/settings.php:22
+msgid "Homepage: Eyebrow"
+msgstr ""
+
+#: views/admin/settings.php:23
+msgid "Homepage: Hero headline"
+msgstr ""
+
+#: views/admin/settings.php:24
+msgid "Homepage: Hero subtitle"
+msgstr ""
+
+#: views/admin/settings.php:25
+msgid "Homepage: Primary CTA"
+msgstr ""
+
+#: views/admin/settings.php:26
+msgid "Homepage: Secondary CTA"
+msgstr ""
+
+#: views/admin/settings.php:27
+msgid "Footer: About title"
+msgstr ""
+
+#: views/admin/settings.php:28
+msgid "Footer: Quick links title"
+msgstr ""
+
+#: views/admin/settings.php:29
+msgid "Footer: Contact title"
+msgstr ""
+
+#: views/admin/settings.php:30
+msgid "Footer: Important links title"
+msgstr ""
+
+#: views/admin/settings.php:31
+msgid "Footer: Follow us"
+msgstr ""
+
+#: views/admin/settings.php:32
+msgid "Footer: Legal note"
+msgstr ""
+
+#: views/admin/settings.php:113
+msgid "Settings saved."
+msgstr ""
+
+#: views/admin/settings.php:121
+msgid "Eskoofy Test Email"
+msgstr ""
+
+#: views/admin/settings.php:122
+msgid "This is a test email from your Eskoofy site."
+msgstr ""
+
+#: views/admin/settings.php:124
+msgid "Test email sent."
+msgstr ""
+
+#: views/admin/settings.php:124
+msgid "Failed to send test email."
+msgstr ""
+
+#: views/admin/settings.php:146
+msgid "School Info"
+msgstr ""
+
+#: views/admin/settings.php:147
+msgid "Theme"
+msgstr ""
+
+#: views/admin/settings.php:148
+msgid "Localization"
+msgstr ""
+
+#: views/admin/settings.php:149
+msgid "Social"
+msgstr ""
+
+#: views/admin/settings.php:151
+msgid "Offline / Bank"
+msgstr ""
+
+#: views/admin/settings.php:152
+msgid "Mail"
+msgstr ""
+
+#: views/admin/settings.php:191
+msgid "Font Family"
+msgstr ""
+
+#: views/admin/settings.php:199
+msgid "Default Locale"
+msgstr ""
+
+#: views/admin/settings.php:214
+msgid "Facebook"
+msgstr ""
+
+#: views/admin/settings.php:215
+msgid "Instagram"
+msgstr ""
+
+#: views/admin/settings.php:216
+msgid "X / Twitter"
+msgstr ""
+
+#: views/admin/settings.php:217
+msgid "YouTube"
+msgstr ""
+
+#: views/admin/settings.php:218
+msgid "LinkedIn"
+msgstr ""
+
+#: views/admin/settings.php:226
+msgid "Show in header & footer"
+msgstr ""
+
+#: views/admin/settings.php:240
+msgid "Default Gateway"
+msgstr ""
+
+#: views/admin/settings.php:248
+msgid "Test Mode"
+msgstr ""
+
+#: views/admin/settings.php:249
+msgid "Use sandbox/test mode"
+msgstr ""
+
+#. translators: %s: link to the Payment Gateways screen
+#: views/admin/settings.php:255
+#, php-format
+msgid "Enable gateways, add your own, and set per-gateway API credentials in the %s."
+msgstr ""
+
+#: views/admin/settings.php:288
+msgid "UddoktaPay (Bangladesh)"
+msgstr ""
+
+#: views/admin/settings.php:290
+msgid "Enable UddoktaPay"
+msgstr ""
+
+#: views/admin/settings.php:291
+msgid "Show UddoktaPay at checkout"
+msgstr ""
+
+#: views/admin/settings.php:294
+msgid "Sandbox Base URL"
+msgstr ""
+
+#: views/admin/settings.php:296
+msgid "Live Base URL"
+msgstr ""
+
+#: views/admin/settings.php:298
+msgid "Sandbox mode"
+msgstr ""
+
+#: views/admin/settings.php:299
+msgid "Use UddoktaPay sandbox"
+msgstr ""
+
+#: views/admin/settings.php:301
+msgid "Aggregates bKash, Nagad, Rocket, Upay and bank transfer. Only shown to payers when enabled."
+msgstr ""
+
+#: views/admin/settings.php:307
+msgid "Bank Name"
+msgstr ""
+
+#: views/admin/settings.php:309
+msgid "Account Name"
+msgstr ""
+
+#: views/admin/settings.php:311
+msgid "Account Number"
+msgstr ""
+
+#: views/admin/settings.php:313
+msgid "Branch"
+msgstr ""
+
+#: views/admin/settings.php:315
+msgid "Routing Number"
+msgstr ""
+
+#: views/admin/settings.php:317
+msgid "Instructions"
+msgstr ""
+
+#: views/admin/settings.php:325
+msgid "SMTP Host"
+msgstr ""
+
+#: views/admin/settings.php:327
+msgid "SMTP Port"
+msgstr ""
+
+#: views/admin/settings.php:333
+msgid "Encryption"
+msgstr ""
+
+#: views/admin/settings.php:343
+msgid "Send Test Email"
+msgstr ""
+
+#: views/admin/settings.php:344
+msgid "recipient@example.com"
+msgstr ""
+
+#: views/admin/settings.php:345
+msgid "Send Test"
+msgstr ""
+
+#: views/admin/settings.php:351
+msgid "Default Loan Period (days)"
+msgstr ""
+
+#: views/admin/settings.php:353
+msgid "Late Fine Per Day"
+msgstr ""
+
+#: views/admin/settings.php:361
+msgid "Default Terms & Conditions"
+msgstr ""
+
+#: views/admin/settings.php:379
+#, php-format
+msgid "Default: %s"
+msgstr ""
+
+#: views/admin/settings.php:385
+msgid "Leave blank to use the built-in translations. Saved values override the language files site-wide."
+msgstr ""
+
+#: views/admin/settings.php:397
+msgid "Save Settings"
+msgstr ""
+
+#: views/admin/sms.php:25
+msgid "SMS gateway settings saved."
+msgstr ""
+
+#: views/admin/sms.php:39
+msgid "Message is required."
+msgstr ""
+
+#: views/admin/sms.php:59
+msgid "Could not create SMS campaign."
+msgstr ""
+
+#: views/admin/sms.php:108
+msgid "SMS campaign created and delivery started."
+msgstr ""
+
+#: views/admin/sms.php:120
+msgid "SMS campaign delivery started."
+msgstr ""
+
+#: views/admin/sms.php:122
+msgid "Campaign not found."
+msgstr ""
+
+#: views/admin/sms.php:155
+msgid "Delivery Gateway"
+msgstr ""
+
+#: views/admin/sms.php:162
+msgid "Log (preview)"
+msgstr ""
+
+#: views/admin/sms.php:168
+msgid "Twilio Account SID"
+msgstr ""
+
+#: views/admin/sms.php:172
+msgid "Twilio Auth Token"
+msgstr ""
+
+#: views/admin/sms.php:176
+msgid "Twilio From Number"
+msgstr ""
+
+#: views/admin/sms.php:182
+msgid "Vonage API Key"
+msgstr ""
+
+#: views/admin/sms.php:186
+msgid "Vonage API Secret"
+msgstr ""
+
+#: views/admin/sms.php:190
+msgid "Vonage From / Sender"
+msgstr ""
+
+#: views/admin/sms.php:194
+msgid "Active Driver"
+msgstr ""
+
+#: views/admin/sms.php:196
+msgid "International delivery via Twilio or Vonage."
+msgstr ""
+
+#: views/admin/sms.php:199
+msgid "Save Gateway"
+msgstr ""
+
+#: views/admin/sms.php:204
+msgid "Compose SMS"
+msgstr ""
+
+#: views/admin/sms.php:208
+msgid "Campaign Name"
+msgstr ""
+
+#: views/admin/sms.php:210
+#: views/admin/sms.php:240
+msgid "Recipients"
+msgstr ""
+
+#: views/admin/sms.php:212
+msgid "All Students"
+msgstr ""
+
+#: views/admin/sms.php:213
+msgid "By Class"
+msgstr ""
+
+#: views/admin/sms.php:214
+msgid "Manual Numbers"
+msgstr ""
+
+#: views/admin/sms.php:227
+msgid "Numbers (comma separated)"
+msgstr ""
+
+#: views/admin/sms.php:232
+msgid "Create & Send Campaign"
+msgstr ""
+
+#: views/admin/sms.php:243
+msgid "Created By"
+msgstr ""
+
+#: views/admin/sms.php:249
+msgid "No SMS campaigns."
+msgstr ""
+
+#: views/admin/sms.php:265
+msgid "Send Now"
+msgstr ""
+
+#: views/admin/sms.php:276
+msgid "Recent Delivery Log"
+msgstr ""
+
+#: views/admin/sms.php:279
+msgid "Recipient"
+msgstr ""
+
+#: views/admin/sms.php:282
+msgid "Message ID"
+msgstr ""
+
+#: views/admin/sms.php:283
+msgid "Error"
+msgstr ""
+
+#: views/admin/software.php:16
+msgid "WordPress"
+msgstr ""
+
+#: views/admin/software.php:18
+#: views/admin/software.php:28
+#: views/admin/software.php:40
+msgid "Version"
+msgstr ""
+
+#: views/admin/software.php:19
+msgid "Site"
+msgstr ""
+
+#: views/admin/software.php:20
+msgid "Locale"
+msgstr ""
+
+#: views/admin/software.php:21
+msgid "Multisite"
+msgstr ""
+
+#: views/admin/software.php:26
+msgid "PHP"
+msgstr ""
+
+#: views/admin/software.php:29
+msgid "Architecture"
+msgstr ""
+
+#: views/admin/software.php:30
+msgid "Memory limit"
+msgstr ""
+
+#: views/admin/software.php:31
+msgid "Max upload"
+msgstr ""
+
+#: views/admin/software.php:32
+msgid "Timezone"
+msgstr ""
+
+#: views/admin/software.php:37
+msgid "Database"
+msgstr ""
+
+#: views/admin/software.php:39
+msgid "Engine"
+msgstr ""
+
+#: views/admin/software.php:39
+msgid "MySQL / MariaDB"
+msgstr ""
+
+#: views/admin/software.php:41
+msgid "Prefix"
+msgstr ""
+
+#: views/admin/software.php:42
+msgid "Collation"
+msgstr ""
+
+#: views/admin/software.php:49
+msgid "Theme version"
+msgstr ""
+
+#: views/admin/software.php:50
+msgid "Data tables"
+msgstr ""
+
+#: views/admin/software.php:63
+msgid "System information for your install of the school management software."
+msgstr ""
+
+#: views/admin/staff-attendance.php:38
+msgid "Staff attendance saved."
+msgstr ""
+
+#: views/admin/staff-attendance.php:82
+msgid "Half Day"
+msgstr ""
+
+#: views/admin/staff-attendance.php:86
+msgid "No staff found."
+msgstr ""
+
+#: views/admin/staff-directory.php:40
+msgid "Staff Directory"
+msgstr ""
+
+#: views/admin/staff-directory.php:50
+msgid "Search staff..."
+msgstr ""
+
+#: views/admin/staff-directory.php:52
+msgid "All staff roles"
+msgstr ""
+
+#: views/admin/staff-directory.php:77
+msgid "No staff found"
+msgstr ""
+
+#: views/admin/staff-directory.php:78
+msgid "Staff are WordPress users with a staff, accountant or librarian role."
+msgstr ""
+
+#: views/admin/student-detail.php:13
+msgid "No student specified."
+msgstr ""
+
+#: views/admin/student-detail.php:63
+#: views/admin/student-form.php:191
+msgid "Parent Name"
+msgstr ""
+
+#: views/admin/student-detail.php:64
+#: views/admin/student-form.php:195
+msgid "Parent Phone"
+msgstr ""
+
+#: views/admin/student-detail.php:81
+msgid "No attendance records."
+msgstr ""
+
+#: views/admin/student-detail.php:108
+msgid "Obtained"
+msgstr ""
+
+#: views/admin/student-detail.php:111
+msgid "No results yet."
+msgstr ""
+
+#: views/admin/student-form.php:77
+msgid "Student updated successfully."
+msgstr ""
+
+#: views/admin/student-form.php:86
+msgid "Student added successfully."
+msgstr ""
+
+#: views/admin/student-form.php:96
+msgid "Edit Student"
+msgstr ""
+
+#: views/admin/student-form.php:96
+msgid "Add New Student"
+msgstr ""
+
+#: views/admin/student-form.php:126
+msgid "Select Section"
+msgstr ""
+
+#: views/admin/student-form.php:138
+msgid "Admission Date"
+msgstr ""
+
+#: views/admin/student-form.php:162
+msgid "Permanent Address"
+msgstr ""
+
+#: views/admin/student-form.php:166
+msgid "Present Address"
+msgstr ""
+
+#: views/admin/student-form.php:179
+msgid "Graduated"
+msgstr ""
+
+#: views/admin/student-form.php:180
+msgid "Transferred"
+msgstr ""
+
+#: views/admin/student-form.php:188
+msgid "Parent/Guardian"
+msgstr ""
+
+#: views/admin/student-form.php:199
+msgid "Parent Email"
+msgstr ""
+
+#: views/admin/student-form.php:209
+msgid "Monthly Fee"
+msgstr ""
+
+#: views/admin/student-form.php:213
+msgid "Transport Fee"
+msgstr ""
+
+#: views/admin/student-form.php:217
+msgid "Discount"
+msgstr ""
+
+#: views/admin/student-form.php:225
+msgid "Update Student"
+msgstr ""
+
+#: views/admin/students.php:51
+msgid "Student removed."
+msgstr ""
+
+#: views/admin/students.php:65
+msgid "Search students..."
+msgstr ""
+
+#: views/admin/students.php:77
+#, php-format
+msgid "Total: %d students"
+msgstr ""
+
+#: views/admin/students.php:97
+msgid "No students found."
+msgstr ""
+
+#: views/admin/students.php:110
+msgid "Delete this student?"
+msgstr ""
+
+#: views/admin/subjects.php:17
+msgid "Subject added."
+msgstr ""
+
+#: views/admin/subjects.php:28
+msgid "Subject deleted."
+msgstr ""
+
+#: views/admin/subjects.php:52
+msgid "Add New Subject"
+msgstr ""
+
+#: views/admin/subjects.php:56
+msgid "Subject name"
+msgstr ""
+
+#: views/admin/subjects.php:59
+msgid "Add Subject"
+msgstr ""
+
+#: views/admin/subjects.php:72
+msgid "No subjects found."
+msgstr ""
+
+#: views/admin/subjects.php:80
+msgid "Delete this subject?"
+msgstr ""
+
+#: views/admin/teacher-form.php:37
+msgid "Teacher updated successfully."
+msgstr ""
+
+#: views/admin/teacher-form.php:58
+msgid "Teacher added successfully."
+msgstr ""
+
+#: views/admin/teacher-form.php:81
+msgid "Edit Teacher"
+msgstr ""
+
+#: views/admin/teacher-form.php:81
+msgid "Add New Teacher"
+msgstr ""
+
+#: views/admin/teacher-form.php:107
+#: views/admin/teachers.php:68
+msgid "Qualification"
+msgstr ""
+
+#: views/admin/teacher-form.php:121
+msgid "Update Teacher"
+msgstr ""
+
+#: views/admin/teachers.php:40
+msgid "Teacher removed."
+msgstr ""
+
+#: views/admin/teachers.php:54
+msgid "Search teachers..."
+msgstr ""
+
+#: views/admin/teachers.php:75
+msgid "No teachers found."
+msgstr ""
+
+#: views/admin/teachers.php:85
+msgid "Delete this teacher?"
+msgstr ""
+
+#: views/admin/testimonials-admin.php:21
+msgid "Testimonial added."
+msgstr ""
+
+#: views/admin/testimonials-admin.php:39
+msgid "Testimonial updated."
+msgstr ""
+
+#: views/admin/testimonials-admin.php:47
+msgid "Testimonial deleted."
+msgstr ""
+
+#: views/admin/testimonials-admin.php:69
+#: views/admin/testimonials-admin.php:83
+msgid "Add Testimonial"
+msgstr ""
+
+#: views/admin/testimonials-admin.php:76
+msgid "Author Name"
+msgstr ""
+
+#: views/admin/testimonials-admin.php:77
+msgid "Designation / Role"
+msgstr ""
+
+#: views/admin/testimonials-admin.php:78
+msgid "Rating (1-5)"
+msgstr ""
+
+#: views/admin/testimonials-admin.php:82
+msgid "Visible on site"
+msgstr ""
+
+#: views/admin/testimonials-admin.php:83
+msgid "Update Testimonial"
+msgstr ""
+
+#: views/admin/testimonials-admin.php:94
+msgid "Rating"
+msgstr ""
+
+#: views/admin/testimonials-admin.php:95
+msgid "Visible"
+msgstr ""
+
+#: views/admin/testimonials-admin.php:100
+msgid "No testimonials."
+msgstr ""
+
+#: views/admin/testimonials-admin.php:110
+msgid "Delete this testimonial?"
+msgstr ""
+
+#: views/admin/tools.php:20
+#: views/admin/tools.php:28
+msgid "Install demo content"
+msgstr ""
+
+#: views/admin/tools.php:22
+msgid "Seeds the same \"Example School\" demo content as the Laravel app: school settings, homepage CMS rows, 30 teachers, 5 notices, 15 events, 8 galleries, 14 classes, students, announcements, fees, subjects, exams, testimonials, payments, expenses and attendances."
+msgstr ""
+
+#: views/admin/tools.php:24
+msgid "Status: demo content is already installed."
+msgstr ""
+
+#: views/admin/tools.php:24
+msgid "Status: not installed yet."
+msgstr ""
+
+#: views/admin/tools.php:34
+#: views/admin/tools.php:41
+msgid "Repair site URL"
+msgstr ""
+
+#: views/admin/tools.php:36
+msgid "If the site ever redirects to a /client/ path, this pins the WordPress home/siteurl options back to the current site root."
+msgstr ""
+
+#: views/admin/transport.php:21
+msgid "Vehicle added."
+msgstr ""
+
+#: views/admin/transport.php:35
+msgid "Route added."
+msgstr ""
+
+#: views/admin/transport.php:48
+msgid "Item deleted."
+msgstr ""
+
+#: views/admin/transport.php:67
+msgid "Student assigned to route."
+msgstr ""
+
+#: views/admin/transport.php:103
+msgid "Vehicles"
+msgstr ""
+
+#: views/admin/transport.php:104
+msgid "Routes"
+msgstr ""
+
+#: views/admin/transport.php:110
+msgid "Assign Student to Route"
+msgstr ""
+
+#: views/admin/transport.php:124
+#: views/admin/transport.php:150
+msgid "Route"
+msgstr ""
+
+#: views/admin/transport.php:133
+#: views/admin/transport.php:151
+msgid "Stop"
+msgstr ""
+
+#: views/admin/transport.php:143
+msgid "Assign"
+msgstr ""
+
+#: views/admin/transport.php:157
+msgid "No assignments yet."
+msgstr ""
+
+#: views/admin/transport.php:166
+msgid "Remove this assignment?"
+msgstr ""
+
+#: views/admin/transport.php:181
+#: views/admin/transport.php:206
+msgid "Add Vehicle"
+msgstr ""
+
+#: views/admin/transport.php:186
+#: views/admin/transport.php:212
+msgid "Number"
+msgstr ""
+
+#: views/admin/transport.php:191
+msgid "Bus / Van"
+msgstr ""
+
+#: views/admin/transport.php:198
+msgid "Driver Name"
+msgstr ""
+
+#: views/admin/transport.php:202
+msgid "Driver Phone"
+msgstr ""
+
+#: views/admin/transport.php:221
+msgid "No vehicles found."
+msgstr ""
+
+#: views/admin/transport.php:231
+msgid "Delete this vehicle?"
+msgstr ""
+
+#: views/admin/transport.php:246
+#: views/admin/transport.php:272
+msgid "Add Route"
+msgstr ""
+
+#: views/admin/transport.php:259
+#: views/admin/transport.php:280
+msgid "Fare"
+msgstr ""
+
+#: views/admin/transport.php:263
+#: views/admin/transport.php:281
+msgid "Vehicle"
+msgstr ""
+
+#: views/admin/transport.php:286
+msgid "No routes found."
+msgstr ""
+
+#: views/admin/transport.php:295
+msgid "Delete this route?"
+msgstr ""
+
+#: views/admin/users.php:22
+msgid "User created."
+msgstr ""
+
+#: views/admin/users.php:37
+msgid "User deleted."
+msgstr ""
+
+#: views/admin/users.php:66
+msgid "Add New User"
+msgstr ""
+
+#: views/admin/users.php:72
+msgid "Auto-generated if empty"
+msgstr ""
+
+#: views/admin/users.php:82
+msgid "Add User"
+msgstr ""
+
+#: views/admin/users.php:89
+msgid "Filter by role:"
+msgstr ""
+
+#: views/admin/users.php:91
+msgid "All Roles"
+msgstr ""
+
+#: views/admin/users.php:110
+msgid "No users found."
+msgstr ""
+
+#: views/admin/users.php:120
+msgid "Delete this user?"
+msgstr ""
+
+#: views/admin/visitor-logs.php:18
+msgid "IP"
+msgstr ""
+
+#: views/admin/visitor-logs.php:19
+msgid "URL"
+msgstr ""
+
+#: views/admin/visitor-logs.php:21
+msgid "User Agent"
+msgstr ""
+
+#: views/admin/visitor-logs.php:26
+msgid "No logs yet."
 msgstr ""

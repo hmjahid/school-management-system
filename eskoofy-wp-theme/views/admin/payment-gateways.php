@@ -62,6 +62,96 @@ foreach ( $esk_international as $esk_code => $esk_meta ) {
 }
 
 /**
+ * Credential-free test/sandbox gateway — active by default (it never charges
+ * money, so it is always safe to offer at checkout).
+ */
+$esk_exists = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$esk_table} WHERE code = %s LIMIT 1", 'test_gateway' ) );
+if ( ! $esk_exists ) {
+	$wpdb->insert(
+		$esk_table,
+		array(
+			'name'                 => 'Test / Sandbox',
+			'code'                 => 'test_gateway',
+			'type'                 => 'online_payment',
+			'is_active'            => 1,
+			'is_online'            => 1,
+			'has_api'              => 0,
+			'test_mode'            => 1,
+			'callback_url'         => rest_url( 'esk/v1/payments/callback/test_gateway' ),
+			'webhook_url'          => rest_url( 'esk/v1/payments/callback/test_gateway' ),
+			'description'          => 'Credential-free sandbox gateway: simulates payment outcomes without contacting any external service.',
+			'currency'             => 'BDT',
+			'supported_currencies' => 'BDT',
+			'extra_attributes'     => wp_json_encode( array() ),
+			'sort_order'           => 99,
+			'created_at'           => current_time( 'mysql' ),
+			'updated_at'           => current_time( 'mysql' ),
+		)
+	);
+}
+
+/**
+ * Bangladeshi hosted gateways seeded disabled (same pattern as the
+ * international ones above): an admin enables one and fills in its
+ * credentials when ready, so existing installs see no change until then.
+ *
+ * The URLs below are DRAFT placeholders — verify them against the official
+ * gateway documentation before going live. Checkout and verify endpoints are
+ * carried in extra_attributes (GenericHosted contract); `{base_url}` resolves
+ * to sandbox_url / live_url according to the gateway's test mode.
+ */
+$esk_bd = array(
+	// code => array( name, sandbox_url, live_url, sort_order ).
+	'shurjopay'  => array( 'ShurjoPay', 'https://sandbox.shurjopay.io/', 'https://payment.shurjohub.com/', 40 ), // DRAFT URLs — verify before use.
+	'portwallet' => array( 'PortWallet', 'https://sandbox.portwallet.com/cloud-payment/', '', 41 ),
+	'cellfin'    => array( 'Cellfin', 'https://sandbox.cellfin.io', '', 42 ),
+	'purse'      => array( 'Purse', 'https://sandbox.purse.com.bd', '', 43 ),
+	'cashby'     => array( 'Cashby', 'https://sandbox.cashby.com.bd', '', 44 ),
+	'upay'       => array( 'UPay', 'https://sandbox.upay.ltd', '', 45 ),
+	'mycash'     => array( 'MyCash', 'https://sandbox.mycash.com.bd', '', 46 ),
+	'payer'      => array( 'Payer', 'https://sandbox.payer.com.bd', '', 47 ),
+);
+
+foreach ( $esk_bd as $esk_code => $esk_meta ) {
+	$esk_exists = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$esk_table} WHERE code = %s LIMIT 1", $esk_code ) );
+	if ( $esk_exists ) {
+		continue;
+	}
+	$wpdb->insert(
+		$esk_table,
+		array(
+			'name'                 => $esk_meta[0],
+			'code'                 => $esk_code,
+			'type'                 => 'online_payment',
+			'is_active'            => 0,
+			'is_online'            => 1,
+			'has_api'              => 1,
+			'test_mode'            => 1,
+			'sandbox_url'          => $esk_meta[1],
+			'live_url'             => $esk_meta[2],
+			'callback_url'         => rest_url( 'esk/v1/payments/callback/' . $esk_code ),
+			'webhook_url'          => rest_url( 'esk/v1/payments/callback/' . $esk_code ),
+			'description'          => $esk_meta[0] . ' — Bangladeshi hosted checkout (draft sandbox endpoint).',
+			'currency'             => 'BDT',
+			'supported_currencies' => 'BDT',
+			'extra_attributes'     => wp_json_encode(
+				array(
+					'checkout_method'       => 'GET',
+					'checkout_url_template' => '{base_url}/?amount={amount}&currency={currency}&reference={reference}&invoice={invoice}&callback={callback}&cancel={cancel}&api_key={api_key}',
+					'verify_url'            => rtrim( $esk_meta[1], '/' ),
+					'verify_success_path'   => 'status',
+					'verify_success_value'  => 'COMPLETED',
+					'signature_header'      => 'X-Webhook-Signature',
+				)
+			),
+			'sort_order'           => $esk_meta[3],
+			'created_at'           => current_time( 'mysql' ),
+			'updated_at'           => current_time( 'mysql' ),
+		)
+	);
+}
+
+/**
  * Build the row payload from the submitted form.
  *
  * @return array<string,mixed>
@@ -204,7 +294,7 @@ $esk_val = static fn ( string $key, string $default = '' ): string => (string) (
 	<?php endif; ?>
 
 	<p class="description" style="margin-bottom:1rem;">
-		<?php esc_html_e( 'Only enabled gateways are offered to payers. Enable the international gateways here, or add your own with its credentials and checkout endpoints.', 'eskoofy' ); ?>
+		<?php esc_html_e( 'Only enabled gateways are offered to payers. Enable the optional gateways here, or add your own with its credentials and checkout endpoints. The table shows each gateway\'s driver, test mode and configuration status, plus a test payment action that simulates a checkout locally.', 'eskoofy' ); ?>
 	</p>
 
 	<div class="esk-card esk-form-card" style="margin-bottom:1.5rem;">
@@ -293,13 +383,21 @@ $esk_val = static fn ( string $key, string $default = '' ): string => (string) (
 			<th><?php esc_html_e( 'Type', 'eskoofy' ); ?></th>
 			<th><?php esc_html_e( 'Currency', 'eskoofy' ); ?></th>
 			<th><?php esc_html_e( 'Status', 'eskoofy' ); ?></th>
+			<th><?php esc_html_e( 'Test mode', 'eskoofy' ); ?></th>
+			<th><?php esc_html_e( 'Configured', 'eskoofy' ); ?></th>
+			<th><?php esc_html_e( 'Driver', 'eskoofy' ); ?></th>
 			<th><?php esc_html_e( 'Actions', 'eskoofy' ); ?></th>
 		</tr></thead>
 		<tbody>
 			<?php if ( empty( $esk_rows ) ) : ?>
-				<tr><td colspan="6"><?php esc_html_e( 'No gateways yet.', 'eskoofy' ); ?></td></tr>
+				<tr><td colspan="9"><?php esc_html_e( 'No gateways yet.', 'eskoofy' ); ?></td></tr>
 			<?php else : ?>
 				<?php foreach ( $esk_rows as $esk_row ) : ?>
+					<?php
+					$esk_driver      = function_exists( 'esk_get_payment_gateway' ) ? esk_get_payment_gateway( $esk_row->code ) : null;
+					$esk_configured  = $esk_driver ? $esk_driver->is_configured() : false;
+					$esk_driver_name = $esk_driver ? $esk_driver->driver_name() : '-';
+					?>
 					<tr>
 						<td><strong><?php echo esc_html( $esk_row->name ); ?></strong></td>
 						<td><code><?php echo esc_html( $esk_row->code ); ?></code></td>
@@ -313,6 +411,22 @@ $esk_val = static fn ( string $key, string $default = '' ): string => (string) (
 							<?php endif; ?>
 						</td>
 						<td>
+							<?php if ( (int) $esk_row->test_mode ) : ?>
+								<span class="esk-badge esk-badge-pending"><?php esc_html_e( 'Sandbox', 'eskoofy' ); ?></span>
+							<?php else : ?>
+								<span class="esk-badge esk-badge-active"><?php esc_html_e( 'Live', 'eskoofy' ); ?></span>
+							<?php endif; ?>
+						</td>
+						<td>
+							<?php if ( $esk_configured ) : ?>
+								<span class="esk-badge esk-badge-active"><?php esc_html_e( 'Yes', 'eskoofy' ); ?></span>
+							<?php else : ?>
+								<span class="esk-badge esk-badge-pending"><?php esc_html_e( 'No', 'eskoofy' ); ?></span>
+							<?php endif; ?>
+						</td>
+						<td><code><?php echo esc_html( $esk_driver_name ); ?></code></td>
+						<td>
+							<a href="<?php echo esc_url( admin_url( 'admin.php?page=esk-payment-sandbox&gateway=' . rawurlencode( (string) $esk_row->code ) ) ); ?>" class="button button-small"><?php esc_html_e( 'Run test payment', 'eskoofy' ); ?></a>
 							<a href="<?php echo esc_url( admin_url( 'admin.php?page=esk-payment-gateways&edit_gateway=' . (int) $esk_row->id ) ); ?>" class="button button-small"><?php esc_html_e( 'Edit', 'eskoofy' ); ?></a>
 							<form method="post" style="display:inline;" onsubmit="return confirm('<?php esc_attr_e( 'Delete this gateway?', 'eskoofy' ); ?>');">
 								<?php wp_nonce_field( 'esk_gateway_delete_' . (int) $esk_row->id ); ?>

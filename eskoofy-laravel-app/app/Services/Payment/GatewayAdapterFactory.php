@@ -20,6 +20,7 @@ class GatewayAdapterFactory
             'nagad' => new NagadGatewayAdapter,
             'rocket' => new RocketGatewayAdapter,
             'uddoktapay' => new UddoktapayGatewayAdapter,
+            'test_gateway' => new TestGatewayAdapter,
             'stripe' => new StripeGatewayAdapter,
             'paypal' => new PaypalGatewayAdapter,
             'paddle' => new PaddleGatewayAdapter,

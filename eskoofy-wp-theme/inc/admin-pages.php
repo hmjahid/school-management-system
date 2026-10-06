@@ -335,6 +335,15 @@ function esk_register_admin_menus(): void {
 		'esk_payment_gateways_page'
 	);
 
+	add_submenu_page(
+		'esk-dashboard',
+		esc_html__( 'Payment Sandbox', 'eskoofy' ),
+		esc_html__( 'Payment Sandbox', 'eskoofy' ),
+		'manage_options',
+		'esk-payment-sandbox',
+		'esk_payment_sandbox_page'
+	);
+
 	// ─── Tools / System submenu ────────────────────────────────
 	add_submenu_page(
 		'esk-dashboard',
@@ -746,6 +755,10 @@ function esk_expense_categories_page(): void {
 
 function esk_payment_gateways_page(): void {
 	esk_render_admin_view( 'payment-gateways' );
+}
+
+function esk_payment_sandbox_page(): void {
+	esk_render_admin_view( 'payment-sandbox' );
 }
 
 function esk_ledger_page(): void {

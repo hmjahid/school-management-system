@@ -15,9 +15,14 @@ import {
   gatewayBaseUrl,
   gatewayConfig,
   getPath,
+  isTestGatewayCode,
+  parseTestGatewaySimulate,
   payloadHash,
+  planTestGateway,
+  testSandboxPath,
   type GatewayRow,
   type StatusClass,
+  type TestGatewaySimulate,
 } from "@/lib/payments/gateways";
 
 /* -------------------------------------------------------------------------- */
@@ -145,6 +150,43 @@ export async function initializePayment(
 ): Promise<InitializeResult> {
   const currency = String(payment.payment_details.currency ?? gateway.currency ?? "BDT");
 
+  const returnUrl = String(
+    options.return_url ?? payment.payment_details.return_url ?? gateway.success_url ?? gateway.callback_url ?? "/",
+  );
+  const cancelUrl = String(options.cancel_url ?? payment.payment_details.cancel_url ?? gateway.cancel_url ?? returnUrl);
+
+  // Test / sandbox gateway: never leaves this host — redirect to our own page.
+  if (isTestGatewayCode(gateway.code)) {
+    const sandboxPath = testSandboxPath(payment.id);
+
+    await prisma.payments.update({
+      where: { id: payment.id },
+      data: {
+        payment_details: JSON.stringify({
+          ...payment.payment_details,
+          currency,
+          return_url: returnUrl,
+          cancel_url: cancelUrl,
+          gateway_reference: payment.invoice_number,
+          gateway_checkout_url: sandboxPath,
+        }),
+        updated_at: new Date(),
+      },
+    });
+
+    return {
+      success: true,
+      gateway: gateway.code,
+      payment_id: payment.id,
+      invoice_number: payment.invoice_number,
+      amount: payment.total_amount,
+      currency,
+      checkout_method: "GET",
+      redirect_url: sandboxPath,
+      payment_details: { payment_url: sandboxPath, reference: payment.invoice_number },
+    };
+  }
+
   if (!gateway.is_online) {
     return {
       success: true,
@@ -165,11 +207,6 @@ export async function initializePayment(
   if (base === "" && String(config.checkout_url_template ?? "") === "") {
     throw new Error(`Payment gateway [${gateway.code}] has no checkout URL configured.`);
   }
-
-  const returnUrl = String(
-    options.return_url ?? payment.payment_details.return_url ?? gateway.success_url ?? gateway.callback_url ?? "/",
-  );
-  const cancelUrl = String(options.cancel_url ?? payment.payment_details.cancel_url ?? gateway.cancel_url ?? returnUrl);
 
   const redirectUrl = buildCheckoutUrl(base, config, {
     amount: payment.total_amount.toFixed(2),
@@ -291,6 +328,10 @@ async function fail(payment: PaymentRecord, data: Record<string, unknown>, actua
 /* -------------------------------------------------------------------------- */
 
 export async function verifyPayment(payment: PaymentRecord, gateway: GatewayRow): Promise<PaymentRecord> {
+  // The test gateway never calls out: its recorded status is authoritative,
+  // so re-verifying a paid payment is a no-op (no side effects, no network).
+  if (isTestGatewayCode(gateway.code)) return payment;
+
   const config = gatewayConfig(gateway);
   const verifyUrl = String(config.verify_url ?? "");
   if (verifyUrl === "") return payment;
@@ -328,6 +369,58 @@ export async function verifyPayment(payment: PaymentRecord, gateway: GatewayRow)
 }
 
 /* -------------------------------------------------------------------------- */
+/* Test / sandbox gateway                                                      */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Apply a simulated outcome to a `test_gateway` payment.
+ *
+ * Success flows through the same paid path as a real gateway (`complete()` →
+ * side effects), with `transaction_id = TEST-<reference>`; failure/cancel use
+ * the product's existing status vocabulary. A payment that is already `paid`
+ * is returned untouched, so re-running the callback stays idempotent.
+ */
+export async function simulateTestGateway(
+  payment: PaymentRecord,
+  gateway: GatewayRow,
+  simulate: TestGatewaySimulate | null,
+): Promise<PaymentRecord> {
+  const plan = planTestGateway(payment, simulate);
+
+  if (plan.action === "complete") {
+    return complete(payment, gateway, {
+      transaction_id: plan.transaction_id,
+      status: plan.status,
+      simulated: true,
+    });
+  }
+
+  if (plan.action === "fail" || plan.action === "cancel") {
+    // `plan.status` is the gateway-level status (FAILED / CANCELLED), stored in
+    // `payment_details.gateway_status`; `payment_status` uses the product's own
+    // lowercase vocabulary (`failed` / `cancelled`), same as `fail()` above.
+    const paymentStatus = plan.action === "fail" ? "failed" : "cancelled";
+    const updated = await prisma.payments.update({
+      where: { id: payment.id },
+      data: {
+        payment_status: paymentStatus,
+        payment_details: JSON.stringify({
+          ...payment.payment_details,
+          gateway_status: plan.status,
+          failure_reason: plan.reason,
+          gateway_response: { simulate: plan.action, status: plan.status },
+          verified_at: new Date().toISOString(),
+        }),
+        updated_at: new Date(),
+      },
+    });
+    return toPaymentRecord(updated as unknown as Record<string, unknown>);
+  }
+
+  return payment;
+}
+
+/* -------------------------------------------------------------------------- */
 /* Callback                                                                    */
 /* -------------------------------------------------------------------------- */
 
@@ -354,6 +447,11 @@ export async function processCallback(gatewayCode: string, data: Record<string, 
   }
 
   if (!payment) throw new Error(`Payment not found for ${gatewayCode} callback.`);
+
+  // Sandbox simulate: the local page posts `simulate=success|failure|cancel`.
+  if (isTestGatewayCode(gateway.code)) {
+    return simulateTestGateway(payment, gateway, parseTestGatewaySimulate(data.simulate));
+  }
 
   return verifyPayment(payment, gateway);
 }

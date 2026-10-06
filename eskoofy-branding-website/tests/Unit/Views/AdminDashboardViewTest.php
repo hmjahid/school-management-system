@@ -9,7 +9,6 @@ use App\Services\Analytics\DateRange;
 use App\Services\Analytics\LicenseService;
 use App\Services\Analytics\RevenueService;
 use App\Services\Catalog;
-use App\Services\VariantResolver;
 use Tests\Support\AggregateDatabaseStub;
 use Tests\TestCase;
 
@@ -69,7 +68,6 @@ class AdminDashboardViewTest extends TestCase
             'licenseByProduct' => $licenses->countsByProduct(),
             'licenseStatuses'  => LicenseService::STATUSES,
             'productCatalog'   => Catalog::all(),
-            'variants'         => VariantResolver::all(),
             'reconciliation'   => $revenue->reconcile($range, $filters),
             'recentPayments'   => [],
             'recentLicenses'   => [],
@@ -270,18 +268,16 @@ class AdminDashboardViewTest extends TestCase
         }
     }
 
-    public function testTheFilterBarExposesEveryProductAndVariant(): void
+    public function testTheFilterBarExposesEveryProduct(): void
     {
         [$html] = $this->render($this->viewData());
 
         foreach (Catalog::keys() as $code) {
             self::assertStringContainsString('value="' . $code . '"', $html);
         }
-        foreach (VariantResolver::all() as $variant) {
-            self::assertStringContainsString('value="' . $variant . '"', $html);
-        }
 
         self::assertStringContainsString('name="range"', $html);
+        self::assertStringNotContainsString('name="variant"', $html);
     }
 
     public function testTheActiveRangePresetIsMarkedAsSelected(): void
@@ -297,8 +293,10 @@ class AdminDashboardViewTest extends TestCase
     {
         [$html] = $this->render($this->viewData('30d', ['product' => 'node', 'variant' => 'bd']));
 
-        // Choosing a new range must not silently drop the product/variant filters.
-        self::assertStringContainsString('range=7d&amp;product=node&amp;variant=bd', $html);
+        // Choosing a new range must not silently drop the product filter, and
+        // the removed variant filter must not leak back into the query string.
+        self::assertStringContainsString('range=7d&amp;product=node', $html);
+        self::assertStringNotContainsString('variant=bd', $html);
     }
 
     public function testClearFiltersAppearsOnlyWhenAFilterIsActive(): void
@@ -315,7 +313,7 @@ class AdminDashboardViewTest extends TestCase
         [$html] = $this->render($this->viewData('30d', ['product' => 'theme', 'variant' => 'int']));
 
         self::assertStringContainsString('value="theme" selected', $html);
-        self::assertStringContainsString('value="int" selected', $html);
+        self::assertStringNotContainsString('value="int" selected', $html);
     }
 
     /**

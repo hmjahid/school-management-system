@@ -405,22 +405,42 @@ read feature-completion-progress.md file and implmenet the balanced/incompleted 
 
 are all completed?
 
+makethe  branding website admin dashboard same as interprise grade admin dashboard with clear and amazing ui ux, graph, scale, trending etc.
 
+find a best way to showcase our bd and int varinat as well as the 4 product varinat clearly without any confusion in the branding website. create a proper plan file first.
 
+not laravel dashboard, only branding website admin dahsborad
 
+what need to do now?
 
+use docker conainer instaed for testing that we build alreday in docker folder
 
-add a system in all 4 products and the brnading website to sandbox/tets payemnt gateways/methods without any cost to mak eensure that they are working/functioning properly
+is the branding admin dashboard ux md file tasks are completed? all int nad bd issue, 4 varinat issue, fixed/
 
-add more bangladeshi payemnt gateways, payemnt aggragtor and same as uddoktapay services in all products and the branding website.
+record in a file whose are completed and whose are not
 
 ensure that any chnages in any vainat or in the branding website, is immediiately effcetd in the develpopment test docker containers.
 
+add a system in all 4 products and the brnading website to sandbox/tests payemnt gateways/methods without any cost to mak eensure that they are working/functioning properly
+
+add more bangladeshi payemnt gateways, payemnt aggragtor and same as uddoktapay services in all products and the branding website.
+
+make branding website header and footer fully resposible in all resposive screens
+
+remove varinat link from the branding website admin dashboard
+
+create a proper prompt file for completing the above tasks and execute the prompt. continue untill finished. donot forget to record features in the features tracking files
+
+
+
+
+make the  branding website admin dashboard same as interprise grade admin dashboard with clear and amazing ui ux, graph, scale, trending etc.
+
 read PAYMENT-SYSTEM-REVIEW.md and PAYMENT-IMPLEMENTATION-PLAN.md files and implement them one by one. ask me at starting every phase before execution 
 
-mak ethe  branding website admin dashboard same as interprise grade admin dashboard with clear an damazing ui ux, graph, scale, trending etc.
 
-find a best way to showcase our bd and int varinat as well as the 4 product varinat clearly without any confusion in the branding website. create a proper plan file first.
+
+
 
 
 
