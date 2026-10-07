@@ -6,12 +6,16 @@ namespace App\Controllers\Admin;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Database;
+use App\Services\Analytics\ActivityFeed;
 use App\Services\Analytics\DateRange;
+use App\Services\Analytics\KpiService;
 use App\Services\Analytics\LicenseService;
 use App\Services\Analytics\RevenueService;
+use App\Services\Analytics\TrafficService;
 use App\Services\Cache;
 use App\Services\Catalog;
 use App\Services\LicenseReminderService;
+use App\Services\ProductMatrix;
 use App\Services\VariantResolver;
 
 class DashboardController extends Controller
@@ -102,6 +106,96 @@ class DashboardController extends Controller
             'SELECT * FROM contact_messages WHERE read_at IS NULL ORDER BY id DESC LIMIT 8'
         );
 
+        // Only the deep-dive widgets below do extra work; the summary numbers
+        // above stay exactly as they were.
+        $kpi = new KpiService($db);
+        $traffic = new TrafficService($db);
+        $feed = new ActivityFeed($db);
+
+        $licensesSpark = $kpi->licensesSeries($range, $filters);
+        $customersSpark = $kpi->customersSeries($range);
+        $activationsSpark = $kpi->activationsSeries($range, $filters);
+        $deactivationsSpark = $kpi->deactivationsSeries($range);
+        $revenueSplit = $kpi->revenueSplit($range, $filters);
+
+        $revenueByVariant = $revenue->byVariant($range);
+        $mrrByProduct = $revenue->mrrByProduct($filters);
+        $gwMix = $revenue->byGateway($range);
+        $topCustomers = $revenue->topCustomers($range, 5, $filters);
+
+        $funnel = $traffic->funnel($range);
+        $countries = $traffic->countries($range);
+        $renewalRisk = $licenses->renewalRisk(6, $filters);
+
+        // Prior-period counts for the KPI deltas.
+        $customersNow = $this->countInRange('customers', 'created_at', $range, $filters);
+        $customersPrev = $this->countInRange('customers', 'created_at', $range->prior(), $filters);
+        $licensesNow = $this->countInRange('licenses', 'created_at', $range, $filters);
+        $licensesPrev = $this->countInRange('licenses', 'created_at', $range->prior(), $filters);
+        $activationsNow = $this->countInRange('license_activations', 'activated_at', $range, $filters);
+        $activationsPrev = $this->countInRange('license_activations', 'activated_at', $range->prior(), $filters);
+
+        $renewalTotal = (int) array_sum(array_column($revenueSplit['new'], 'value'))
+            + (int) array_sum(array_column($revenueSplit['renewal'], 'value'));
+
+        $kpis = [
+            'revenue' => [
+                'current' => $revenueTotals['current'],
+                'delta'   => $revenueTotals['delta_pct'],
+                'spark'   => array_column($revenueTrend, 'value'),
+            ],
+            'customers' => [
+                'current' => $customersNow,
+                'prev'    => $customersPrev,
+                'spark'   => array_column($customersSpark, 'value'),
+            ],
+            'licenses' => [
+                'current' => $licensesNow,
+                'prev'    => $licensesPrev,
+                'spark'   => array_column($licensesSpark, 'value'),
+            ],
+            'activations' => [
+                'current' => $activationsNow,
+                'prev'    => $activationsPrev,
+                'spark'   => array_column($activationsSpark, 'value'),
+            ],
+            'renewals' => [
+                'current' => (int) array_sum(array_column($revenueSplit['renewal'], 'value')),
+                'spark'   => array_column($revenueSplit['renewal'], 'value'),
+            ],
+        ];
+
+        $matrix = Cache::remember(
+            'matrix',
+            'admin:' . md5(json_encode($filters)),
+            static function () use ($db, $licenseByProduct): array {
+                $metrics = [];
+                foreach ($licenseByProduct as $code => $count) {
+                    $metrics[$code] = $count . ' license' . ((int) $count === 1 ? '' : 's');
+                }
+
+                $built = ProductMatrix::build($db, $metrics);
+
+                // Admin cells drill through to the filtered license list (or the
+                // custom-order queue for a combination that is not offered), not
+                // the public product page.
+                foreach ($built['rows'] as &$row) {
+                    foreach (VariantResolver::all() as $variant) {
+                        if (!isset($row['cells'][$variant])) {
+                            continue;
+                        }
+                        $offered = (bool) $row['cells'][$variant]['offered'];
+                        $row['cells'][$variant]['href'] = $offered
+                            ? '/admin/licenses?product=' . rawurlencode((string) $row['code']) . '&variant=' . $variant
+                            : '/admin/custom-requests';
+                    }
+                }
+                unset($row);
+
+                return $built;
+            }
+        );
+
         $this->view('admin.dashboard', [
             'admin'            => Auth::user(),
             'stats'            => $stats,
@@ -117,7 +211,59 @@ class DashboardController extends Controller
             'recentLicenses'   => $recentLicenses,
             'expiringLicenses' => $expiringLicenses,
             'unreadMessages'   => $unreadMessages,
+            'kpis'             => $kpis,
+            'revenueByVariant' => $revenueByVariant,
+            'mrrByProduct'     => $mrrByProduct,
+            'byGateway'        => $gwMix,
+            'funnel'           => $funnel,
+            'countries'        => $countries,
+            'renewalRisk'      => $renewalRisk,
+            'revenueSplit'     => $revenueSplit,
+            'licensesSpark'    => $licensesSpark,
+            'customersSpark'   => $customersSpark,
+            'activationsSpark' => $activationsSpark,
+            'deactivationsSpark' => $deactivationsSpark,
+            'topCustomers'     => $topCustomers,
+            'activityFeed'     => $feed->recent(8),
+            'matrix'           => $matrix,
+            'renewalTotal'     => $renewalTotal,
         ]);
+    }
+
+    /**
+     * Count rows in a date window, honouring the product/variant filters where
+     * the table supports them. Used for KPI period-over-period deltas.
+     *
+     * @param array{product?: ?string, variant?: ?string} $filters
+     */
+    private function countInRange(string $table, string $dateColumn, DateRange $range, array $filters = []): int
+    {
+        $db = Database::getInstance();
+
+        $params = [];
+        $where = [$range->where($dateColumn, $params)];
+
+        if (in_array($table, ['customers', 'licenses'], true)) {
+            $where[] = 'deleted_at IS NULL';
+        }
+
+        if ($table === 'licenses') {
+            if (!empty($filters['product'])) {
+                $where[] = 'product = ?';
+                $params[] = $filters['product'];
+            }
+            if (!empty($filters['variant'])) {
+                $where[] = 'variant = ?';
+                $params[] = $filters['variant'];
+            }
+        }
+
+        $row = $db->fetch(
+            'SELECT COUNT(*) AS c FROM ' . $table . ' WHERE ' . implode(' AND ', $where),
+            $params
+        );
+
+        return (int) ($row['c'] ?? 0);
     }
 
     /**

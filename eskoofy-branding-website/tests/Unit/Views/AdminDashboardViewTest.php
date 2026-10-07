@@ -284,9 +284,11 @@ class AdminDashboardViewTest extends TestCase
     {
         [$html] = $this->render($this->viewData('90d'));
 
-        // The 90d pill must render in the selected (dark) style.
+        // The 90d preset link must be the one marked current, and the hidden
+        // range field must carry the same value so Apply preserves it.
         self::assertStringContainsString('value="90d"', $html);
-        self::assertStringContainsString('bg-slate-900 text-white border-slate-900', $html);
+        self::assertStringContainsString('href="/admin/dashboard?range=90d"', $html);
+        self::assertStringContainsString('aria-current="true"', $html);
     }
 
     public function testRangeLinksPreserveTheActiveFilters(): void
@@ -357,5 +359,37 @@ class AdminDashboardViewTest extends TestCase
         self::assertStringNotContainsString('<script>alert(2)</script>', $html);
         self::assertStringNotContainsString('<img src=x onerror', $html);
         self::assertStringContainsString('&lt;script&gt;', $html);
+    }
+
+    /**
+     * The charts are mounted by `public/js/charts.js` from a JSON attribute, so
+     * a malformed spec would ship as a silently blank panel. Every spec that
+     * renders must be valid JSON.
+     */
+    public function testEveryRenderedChartSpecIsValidJson(): void
+    {
+        [$html] = $this->render($this->viewData());
+
+        self::assertStringContainsString('data-esk-chart="chartjs"', $html);
+
+        preg_match_all('/data-chart-spec="([^"]*)"/', $html, $m);
+        self::assertNotEmpty($m[1], 'no chart specs were rendered');
+
+        foreach ($m[1] as $encoded) {
+            $decoded = json_decode(html_entity_decode($encoded, ENT_QUOTES, 'UTF-8'), true);
+            self::assertIsArray($decoded, 'a chart spec was not valid JSON');
+        }
+    }
+
+    public function testTheDashboardMarksItsChartsAsImagesWithLabels(): void
+    {
+        [$html] = $this->render($this->viewData());
+
+        preg_match_all('/class="esk-chart[^"]*"\s+role="img"\s+aria-label="([^"]+)"/', $html, $m);
+        self::assertNotEmpty($m[1], 'a chart was mounted without an accessible label');
+
+        foreach ($m[1] as $label) {
+            self::assertNotSame('', $label);
+        }
     }
 }

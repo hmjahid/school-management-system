@@ -313,6 +313,97 @@ final class RevenueService
     }
 
     /**
+     * Committed recurring revenue per product, in Catalog order.
+     *
+     * The honest alternative to a fabricated MRR waterfall: it states where the
+     * recurring revenue actually sits instead of inventing new/expansion/churn
+     * movement that the schema cannot reconstruct.
+     *
+     * @param array{product?: ?string, variant?: ?string} $filters
+     * @return array<string, float> product code => MRR in USD
+     */
+    public function mrrByProduct(array $filters = []): array
+    {
+        $params = [];
+        $from   = 'subscriptions s JOIN plans pl ON pl.id = s.plan_id';
+        $where  = ["s.status = 'active'", 'pl.active = 1'];
+
+        if (! empty($filters['product'])) {
+            $where[] = 'pl.product = ?';
+            $params[] = $filters['product'];
+        }
+
+        if (! empty($filters['variant'])) {
+            $from .= ' JOIN licenses lic ON lic.id = s.license_id';
+            $where[] = 'lic.variant = ?';
+            $params[] = $filters['variant'];
+        }
+
+        $rows = $this->db->fetchAll(
+            'SELECT pl.product, pl.price, pl.period FROM ' . $from . ' WHERE ' . implode(' AND ', $where),
+            $params
+        );
+
+        $out = array_fill_keys(\App\Services\Catalog::keys(), 0.0);
+        foreach ($rows as $row) {
+            $price = (float) ($row['price'] ?? 0);
+            $mrr = in_array(strtolower((string) ($row['period'] ?? 'monthly')), ['yearly', 'annual'], true)
+                ? $price / 12
+                : $price;
+
+            $code = (string) ($row['product'] ?? '');
+            if (isset($out[$code])) {
+                $out[$code] += $mrr;
+            }
+        }
+
+        foreach ($out as $code => $value) {
+            $out[$code] = round($value, 2);
+        }
+
+        return $out;
+    }
+
+    /**
+     * Top customers by lifetime value collected inside the window.
+     *
+     * @param array{product?: ?string, variant?: ?string} $filters
+     * @return list<array<string, mixed>>
+     */
+    public function topCustomers(DateRange $range, int $limit = 5, array $filters = []): array
+    {
+        $limit = max(1, min(20, $limit));
+        $joined = ! empty($filters['product']);
+        $from   = $joined
+            ? 'payments p JOIN plans pl ON pl.id = p.plan_id JOIN customers c ON c.id = p.customer_id'
+            : 'payments p JOIN customers c ON c.id = p.customer_id';
+        $q = 'p.';
+
+        $params = [];
+        $where  = [$q . "status = 'paid'", $q . 'paid_at IS NOT NULL', $range->where($q . 'paid_at', $params)];
+
+        if ($joined) {
+            $where[] = 'pl.product = ?';
+            $params[] = $filters['product'];
+        }
+        if (! empty($filters['variant'])) {
+            $where[] = $q . 'variant = ?';
+            $params[] = $filters['variant'];
+        }
+
+        return $this->db->fetchAll(
+            'SELECT c.id, c.name, c.email, COUNT(*) AS payments,
+                    COALESCE(SUM(' . $this->usdExpression($q . 'amount', $q . 'currency') . '), 0) AS ltv
+               FROM ' . $from . '
+              WHERE ' . implode(' AND ', $where) . '
+              GROUP BY c.id, c.name, c.email
+              ORDER BY ltv DESC
+              LIMIT ' . $limit,
+            $params
+        );
+    }
+
+    /**
      * Gateway mix for the window — which payment methods actually carry revenue.
      *
      * @return array<string, float>

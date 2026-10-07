@@ -431,10 +431,12 @@ remove varinat link from the branding website admin dashboard
 
 create a proper prompt file for completing the above tasks and execute the prompt. continue untill finished. donot forget to record features in the features tracking files
 
+make the  branding website admin dashboard same as interprise grade admin dashboard with clear and amazing ui ux, graph, scale, trending etc. continue untill finished
 
 
 
-make the  branding website admin dashboard same as interprise grade admin dashboard with clear and amazing ui ux, graph, scale, trending etc.
+
+
 
 read PAYMENT-SYSTEM-REVIEW.md and PAYMENT-IMPLEMENTATION-PLAN.md files and implement them one by one. ask me at starting every phase before execution 
 

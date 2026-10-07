@@ -241,8 +241,9 @@ body {
 }
 
 .esk-stat-spark {
-    height: 2.25rem;
+    height: 2.5rem;
     margin: 0 -0.25rem;
+    overflow: hidden;
 }
 
 /* Delta chips — direction is carried by an arrow glyph as well as colour,
@@ -277,7 +278,7 @@ body {
     font-weight: 700;
     letter-spacing: 0.02em;
     color: #fff;
-    background: var(--pill-color, var(--text-muted));
+    background: var(--pill, var(--pill-color, var(--text-muted)));
     white-space: nowrap;
 }
 
@@ -698,4 +699,490 @@ body {
     .esk-sidebar, .esk-topbar, .esk-palette-backdrop { display: none !important; }
     .esk-content { max-width: none; padding: 0; }
     body { background: #fff; color: #000; }
+}
+
+/* ============================================================ controls ==== */
+
+.esk-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.875rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    background: var(--brand);
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background var(--motion-fast), border-color var(--motion-fast), color var(--motion-fast), transform var(--motion-fast);
+}
+
+.esk-btn:hover { transform: translateY(-1px); }
+.esk-btn:active { transform: translateY(0); }
+
+.esk-btn--sm { padding: 0.3125rem 0.625rem; font-size: 0.75rem; }
+
+.esk-btn--ghost {
+    background: var(--surface);
+    border-color: var(--border-strong);
+    color: var(--text-muted);
+}
+.esk-btn--ghost:hover { color: var(--brand); border-color: var(--brand); }
+
+.esk-btn--subtle {
+    background: color-mix(in srgb, var(--brand) 12%, transparent);
+    color: var(--brand);
+}
+
+/* A group of related actions in a panel header. */
+.esk-panel-actions { display: inline-flex; align-items: center; gap: 0.5rem; }
+
+/* Segmented control: the range presets and the theme toggle. */
+.esk-seg {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    max-width: 100%;
+    padding: 0.1875rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--surface-2);
+}
+
+/* A long preset strip (Today … All time) wraps on narrow screens instead of
+   forcing the page to scroll sideways. */
+.esk-seg--wrap {
+    flex-wrap: wrap;
+    border-radius: var(--radius-sm);
+}
+
+.esk-seg-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.3125rem 0.625rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+    transition: background var(--motion-fast), color var(--motion-fast);
+}
+
+.esk-seg-item:hover { color: var(--text); }
+
+.esk-seg-item[aria-current='true'],
+.esk-seg-item[aria-pressed='true'] {
+    background: var(--surface);
+    color: var(--brand);
+    box-shadow: var(--shadow-1);
+}
+
+/* Form controls read from tokens so they survive dark mode. */
+.esk-select,
+.esk-input {
+    appearance: none;
+    padding: 0.4375rem 0.625rem;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.8125rem;
+    line-height: 1.3;
+}
+
+.esk-select { padding-right: 1.75rem; background-image: linear-gradient(45deg, transparent 50%, var(--text-subtle) 50%), linear-gradient(135deg, var(--text-subtle) 50%, transparent 50%); background-position: calc(100% - 14px) 52%, calc(100% - 9px) 52%; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
+
+.esk-label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-subtle);
+}
+
+/* ============================================================== shell ==== */
+
+.esk-shell { display: flex; min-height: 100vh; }
+
+/* On desktop the fixed sidebar needs reserved space in the flow. */
+@media (min-width: 768px) {
+    .esk-main { margin-left: 16.5rem; }
+    [data-rail='true'] .esk-sidebar { width: 4.5rem; }
+    [data-rail='true'] .esk-main { margin-left: 4.5rem; }
+    [data-rail='true'] .esk-sidebar-label,
+    [data-rail='true'] .esk-sidebar-meta { display: none; }
+    [data-rail='true'] .esk-nav-group-label {
+        display: block;
+        height: 1px;
+        margin: 0.75rem 0.5rem;
+        padding: 0;
+        background: var(--sidebar-border);
+        overflow: hidden;
+        text-indent: -999px;
+    }
+    [data-rail='true'] .esk-nav-link { justify-content: center; }
+    [data-rail='true'] .esk-sidebar-brand { justify-content: center; }
+}
+
+.esk-sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 1.25rem 1.5rem;
+    color: #fff;
+}
+
+.esk-sidebar-foot {
+    border-top: 1px solid var(--sidebar-border);
+    padding: 1rem 1.5rem;
+    font-size: 0.8125rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.esk-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: rgb(2 6 23 / 0.6);
+    backdrop-filter: blur(2px);
+}
+
+@media (min-width: 768px) {
+    .esk-backdrop { display: none !important; }
+}
+
+/* ============================================================= topbar ==== */
+
+.esk-topbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 4rem;
+    flex-wrap: wrap;
+    padding: 0.5rem 1rem;
+}
+
+@media (min-width: 1024px) {
+    .esk-topbar { flex-wrap: nowrap; padding-inline: 1.5rem; }
+}
+
+.esk-topbar-title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+}
+
+.esk-topbar-spacer { flex: 1 1 auto; }
+
+.esk-search-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4375rem 0.75rem;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-pill);
+    background: var(--surface-2);
+    color: var(--text-subtle);
+    font-size: 0.8125rem;
+    cursor: pointer;
+    transition: border-color var(--motion-fast), color var(--motion-fast);
+}
+
+.esk-search-trigger:hover { border-color: var(--brand); color: var(--text); }
+
+.esk-icon-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color var(--motion-fast), border-color var(--motion-fast), background var(--motion-fast);
+}
+
+.esk-icon-btn:hover { color: var(--brand); border-color: var(--brand); }
+
+.esk-icon-btn[aria-pressed='true'] { color: var(--brand); border-color: var(--brand); background: color-mix(in srgb, var(--brand) 10%, transparent); }
+
+/* Notification bell — native disclosure so it is keyboard-complete for free. */
+.esk-menu { position: relative; }
+.esk-menu > summary { list-style: none; cursor: pointer; }
+.esk-menu > summary::-webkit-details-marker { display: none; }
+.esk-menu-panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.5rem);
+    z-index: 60;
+    width: min(22rem, calc(100vw - 2rem));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow-2);
+    overflow: hidden;
+}
+
+.esk-menu-title { padding: 0.75rem 1rem 0.25rem; font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-subtle); }
+.esk-menu-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem 1rem; font-size: 0.8125rem; color: var(--text); }
+.esk-menu-row:hover { background: var(--surface-2); }
+.esk-menu-count { margin-left: auto; font-weight: 700; color: var(--brand); font-variant-numeric: tabular-nums; }
+
+.esk-bell-dot {
+    position: absolute;
+    top: 0.35rem;
+    right: 0.35rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: var(--danger);
+    box-shadow: 0 0 0 2px var(--surface);
+}
+
+/* ======================================================= stat card add ==== */
+
+.esk-stat-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.esk-stat-spark { position: relative; }
+
+.esk-stat-icon--success { color: var(--success); }
+.esk-stat-icon--warning { color: var(--warning); }
+.esk-stat-icon--danger { color: var(--danger); }
+.esk-stat-icon--muted { color: var(--text-muted); }
+.esk-stat-icon--brand { color: var(--brand); }
+
+.esk-stat-foot-note {
+    font-size: 0.6875rem;
+    color: var(--text-subtle);
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ============================================================== panels ==== */
+
+.esk-panel--flush .esk-panel-body,
+.esk-panel-body.esk-panel--flush { padding: 0; }
+.esk-panel--pad .esk-panel-body { padding: 1.25rem; }
+
+/* Headers and alert rows may carry long titles next to actions; let them wrap
+   rather than push the page wider than the viewport. */
+.esk-panel-head { flex-wrap: wrap; }
+.esk-panel-head > * { min-width: 0; }
+.esk-alert { flex-wrap: wrap; }
+.esk-alert > * { min-width: 0; }
+
+.esk-chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+    margin-top: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* ============================================================== alerts ==== */
+
+.esk-alert-strip { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; }
+.esk-alert-strip:empty { display: none; }
+
+.esk-alert {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 0.8125rem;
+}
+
+.esk-alert--danger  { border-color: color-mix(in srgb, var(--danger) 40%, transparent);  background: var(--danger-bg);  color: var(--danger); }
+.esk-alert--warning { border-color: color-mix(in srgb, var(--warning) 40%, transparent); background: var(--warning-bg); color: var(--warning); }
+.esk-alert--info    { border-color: color-mix(in srgb, var(--info) 40%, transparent);    background: var(--info-bg);    color: var(--info); }
+.esk-alert--success { border-color: color-mix(in srgb, var(--success) 40%, transparent); background: var(--success-bg); color: var(--success); }
+
+.esk-alert-title { font-weight: 700; }
+.esk-alert-body { opacity: 0.85; }
+.esk-alert-link { margin-left: auto; font-weight: 700; color: inherit; text-decoration: underline; white-space: nowrap; }
+
+/* ================================================================ feed ==== */
+
+.esk-feed { display: flex; flex-direction: column; }
+
+.esk-feed-item {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.625rem 1.25rem 0.625rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+}
+.esk-feed-item:last-child { border-bottom: 0; }
+
+.esk-feed-icon {
+    display: grid;
+    place-items: center;
+    width: 1.875rem;
+    height: 1.875rem;
+    flex-shrink: 0;
+    border-radius: var(--radius-pill);
+    background: var(--surface-3);
+    color: var(--text-muted);
+}
+.esk-feed-icon--success { color: var(--success); background: var(--success-bg); }
+.esk-feed-icon--warning { color: var(--warning); background: var(--warning-bg); }
+.esk-feed-icon--danger  { color: var(--danger);  background: var(--danger-bg); }
+.esk-feed-icon--info    { color: var(--info);    background: var(--info-bg); }
+
+.esk-feed-text { min-width: 0; font-size: 0.8125rem; color: var(--text); }
+.esk-feed-meta { font-size: 0.6875rem; color: var(--text-subtle); }
+
+/* Urgency rows (expiring soon, top customers). */
+.esk-list-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.625rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+}
+.esk-list-row:last-child { border-bottom: 0; }
+.esk-list-row:hover { background: var(--surface-2); }
+
+/* A clickable row inside a data table. */
+.esk-table tbody tr[data-href] { cursor: pointer; }
+
+/* ================================================== product x variant ==== */
+
+/*
+ * The Product x Variant matrix. Rows are PRODUCTS (rounded pill, product brand
+ * colour). Columns are VARIANTS (square-corner chip with a diagonal hatch).
+ * The two axes are deliberately orthogonal so they can never be confused.
+ */
+.esk-matrix-legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; font-size: 0.8125rem; color: var(--text-muted); }
+.esk-matrix-legend-item { display: inline-flex; align-items: center; gap: 0.5rem; }
+
+.esk-legend-axis {
+    display: inline-block;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #fff;
+    background: var(--brand);
+    border-radius: 999px;
+    padding: 0.125rem 0.5rem;
+}
+
+.esk-legend-axis--variant {
+    color: var(--text);
+    background: transparent;
+    border: 1px solid var(--border-strong);
+    border-radius: 3px;
+}
+
+.esk-matrix-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+}
+
+.esk-matrix-corner { display: flex; align-items: center; gap: 0.375rem; padding: 0.75rem; }
+.esk-matrix-corner-glyph { color: var(--text-subtle); font-size: 0.75rem; }
+
+.esk-matrix-rowlabel { display: flex; flex-direction: column; gap: 0.25rem; padding: 0.875rem 0.75rem; }
+.esk-matrix-rowmeta { font-size: 0.75rem; color: var(--text-muted); }
+.esk-matrix-metric,
+.esk-matrix-cell-metric { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); }
+
+.esk-variant-chip { border: 1px solid var(--border-strong); }
+
+/* Declared after .esk-variant-chip on purpose so the header radius/border win. */
+.esk-matrix-head {
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+}
+
+/* The gateway list under a variant header is longer than one line; let it wrap
+   rather than clip it against the chip's nowrap rule. */
+.esk-matrix-head,
+.esk-matrix-head .esk-variant-chip-label,
+.esk-matrix-head .esk-variant-chip-gateways {
+    white-space: normal;
+}
+
+.esk-variant-chip--bd { --chip-color: var(--v-bd); }
+.esk-variant-chip--int { --chip-color: var(--v-int); }
+
+.esk-variant-chip-label { display: block; font-size: 0.8125rem; font-weight: 700; color: var(--text); }
+.esk-variant-chip-gateways { display: block; font-size: 0.6875rem; color: var(--text-subtle); margin-top: 0.125rem; }
+
+.esk-matrix-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1875rem;
+    padding: 0.875rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+}
+
+a.esk-matrix-cell { transition: border-color var(--motion-fast), box-shadow var(--motion), transform var(--motion); }
+a.esk-matrix-cell:hover { border-color: var(--pill, var(--brand)); box-shadow: var(--shadow-2); transform: translateY(-1px); }
+.esk-matrix-cell--highlight { border-color: var(--pill, var(--brand)); box-shadow: 0 0 0 2px var(--pill, var(--brand)); }
+.esk-matrix-cell--empty {
+    border-style: dashed;
+    background-image: repeating-linear-gradient(45deg, var(--surface-2) 0 8px, var(--surface-3) 8px 16px);
+}
+
+.esk-matrix-cell-price { font-size: 1.0625rem; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
+.esk-matrix-cell-plan { font-size: 0.75rem; color: var(--text-subtle); }
+.esk-matrix-cell-dash { font-size: 1.0625rem; font-weight: 800; color: var(--text-subtle); }
+.esk-matrix-cell-cta { font-size: 0.75rem; font-weight: 600; color: var(--brand); margin-top: 0.1875rem; }
+.esk-matrix-footnote { font-size: 0.75rem; color: var(--text-subtle); }
+
+@media (max-width: 1023px) {
+    .esk-matrix-grid { grid-template-columns: 1fr; }
+    .esk-matrix-corner { display: none; }
+}
+
+/* Quick-action strip: one dark bar of the top tasks. */
+.esk-quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    background: var(--sidebar-bg);
+    color: #fff;
+}
+
+.esk-quick-actions .esk-btn--ghost {
+    background: rgb(255 255 255 / 0.08);
+    border-color: rgb(255 255 255 / 0.14);
+    color: #e2e8f0;
+}
+.esk-quick-actions .esk-btn--ghost:hover { color: #fff; border-color: rgb(255 255 255 / 0.4); }
+
+/* ========================================================== responsive ==== */
+
+@media (max-width: 639px) {
+    .esk-hide-sm { display: none !important; }
 }

@@ -39,8 +39,18 @@
             : 'light';
     }
 
+    // The server default (appearance.dark_default), stamped on <html> by the
+    // layout. Without this, a first-time visitor with no stored preference would
+    // always fall back to the OS setting and the admin's configured default
+    // would be silently ignored.
+    function defaultPref() {
+        return root.getAttribute('data-theme-default') || 'system';
+    }
+
     function effectiveTheme(pref) {
-        return pref === 'system' || !pref ? systemTheme() : pref;
+        var chosen = (pref === null || pref === undefined || pref === '') ? defaultPref() : pref;
+
+        return chosen === 'system' ? systemTheme() : chosen;
     }
 
     function applyTheme(pref) {
@@ -75,7 +85,7 @@
         }
 
         function sync() {
-            var pref = readStoredTheme() || 'system';
+            var pref = readStoredTheme() || defaultPref();
             Array.prototype.forEach.call(buttons, function (b) {
                 b.setAttribute('aria-pressed', String(b.getAttribute('data-theme-set') === pref));
             });

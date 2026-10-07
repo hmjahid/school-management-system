@@ -351,6 +351,69 @@ final class LicenseService
     }
 
     /**
+     * Renewal-risk heatmap: active licenses expiring per product over the next
+     * `$months`, so a cluster of renewals in one month is visible before it
+     * arrives. Every product and every month is present, including zeros — a
+     * missing cell would read as "no risk" rather than "no data".
+     *
+     * @param array{product?: ?string, variant?: ?string} $filters
+     * @return array{labels: list<string>, keys: list<string>, series: list<array{name: string, data: list<int>}>}
+     */
+    public function renewalRisk(int $months = 6, array $filters = []): array
+    {
+        $months = max(1, min(12, $months));
+
+        $params = [];
+        $where = [
+            'l.deleted_at IS NULL',
+            "l.status = 'active'",
+            'l.expires_at BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL ' . $months . ' MONTH)',
+        ];
+
+        if (!empty($filters['product'])) {
+            $where[] = 'l.product = ?';
+            $params[] = $filters['product'];
+        }
+        if (!empty($filters['variant'])) {
+            $where[] = 'l.variant = ?';
+            $params[] = $filters['variant'];
+        }
+
+        $rows = $this->db->fetchAll(
+            "SELECT l.product, DATE_FORMAT(l.expires_at, '%Y-%m') AS ym, COUNT(*) AS c
+               FROM licenses l
+              WHERE " . implode(' AND ', $where) . '
+              GROUP BY l.product, ym',
+            $params
+        );
+
+        $labels = [];
+        $keys = [];
+        $cursor = new \DateTimeImmutable('first day of this month');
+        for ($i = 0; $i < $months; $i++) {
+            $labels[] = $cursor->format('M y');
+            $keys[] = $cursor->format('Y-m');
+            $cursor = $cursor->modify('+1 month');
+        }
+
+        $index = [];
+        foreach ($rows as $row) {
+            $index[(string) $row['product']][(string) $row['ym']] = (int) $row['c'];
+        }
+
+        $series = [];
+        foreach (Catalog::keys() as $code) {
+            $data = [];
+            foreach ($keys as $key) {
+                $data[] = $index[$code][$key] ?? 0;
+            }
+            $series[] = ['name' => Catalog::label($code), 'data' => $data];
+        }
+
+        return ['labels' => $labels, 'keys' => $keys, 'series' => $series];
+    }
+
+    /**
      * Labels + colours for a derived status value, with a safe fallback for
      * unexpected data rather than a blank pill.
      *

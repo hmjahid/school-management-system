@@ -94,6 +94,11 @@ $router->group('/admin', function (App\Core\Router $router): void {
     $router->get('', AdminDashboard::class, 'index');
     $router->get('/dashboard', AdminDashboard::class, 'index');
 
+    $router->get('/palette', \App\Controllers\Admin\PaletteController::class, 'index');
+
+    // Analytics is the dashboard's deep-dive view; same widgets, same read models.
+    $router->get('/analytics', AdminDashboard::class, 'index');
+
     $router->get('/customers', CustomerController::class, 'index');
     $router->get('/customers/{id}', CustomerController::class, 'show');
     $router->post('/customers/{id}', CustomerController::class, 'update');
