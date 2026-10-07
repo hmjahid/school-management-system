@@ -172,10 +172,188 @@
                 if (window.ESKCharts) {
                     window.ESKCharts.resizeAll();
                 }
+                if (window.ESKSidebarScrollbar) {
+                    window.ESKSidebarScrollbar.update();
+                }
             });
 
             syncRail();
         }
+    }
+
+    /* ------------------------------------------------ custom scrollbar --- */
+
+    /*
+     * Enterprise scrollbar indicator for the sidebar nav column.
+     *
+     * The nav keeps native scrolling (wheel, keys, touch momentum); this only
+     * adds a token-styled thumb you can read at a glance and drag. The thumb
+     * is decorative (aria-hidden in the markup) — it never becomes a focus
+     * stop or a role="scrollbar" widget.
+     *
+     * Sizing: the track spans the nav column; the thumb covers the fraction
+     * of content that is visible, placed at the scroll offset.
+     * Reveal: appears on scroll/hover/drag, fades after 600 ms idle.
+     * Hidden entirely when the content fits, and on coarse pointers (native
+     * overlay scrollbars already live there).
+     */
+    function setUpSidebarScrollbar() {
+        var nav = document.querySelector('.esk-sidebar-nav');
+        var bar = document.querySelector('[data-sidebar-scrollbar]');
+        var thumb = bar ? bar.querySelector('[data-sidebar-thumb]') : null;
+        if (!nav || !bar || !thumb) {
+            return;
+        }
+
+        if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
+            return;
+        }
+
+        var MIN_THUMB = 28; // px — a thumb you can actually grab
+        var IDLE_MS = 600;
+        var idleTimer = null;
+        var hovering = false;
+        var dragging = false;
+        var updateQueued = false;
+        var dragStartY = 0;
+        var dragStartScroll = 0;
+
+        function metrics() {
+            var track = nav.clientHeight;
+            var maxScroll = nav.scrollHeight - track;
+
+            return {
+                track: track,
+                maxScroll: maxScroll,
+                ratio: track / Math.max(1, nav.scrollHeight)
+            };
+        }
+
+        // Size + place the thumb; also the only place that decides whether
+        // the indicator exists at all. Never renders when content fits.
+        function update() {
+            updateQueued = false;
+            var m = metrics();
+
+            if (m.maxScroll <= 1) {
+                bar.hidden = true;
+                nav.setAttribute('data-esk-scroll', 'false');
+                return;
+            }
+
+            bar.hidden = false;
+            nav.setAttribute('data-esk-scroll', 'true');
+
+            var h = Math.max(MIN_THUMB, Math.round(m.track * m.ratio));
+            var usable = Math.max(0, m.track - h);
+            var top = (nav.scrollTop / m.maxScroll) * usable;
+
+            thumb.style.height = h + 'px';
+            thumb.style.top = Math.max(0, Math.min(usable, top)) + 'px';
+        }
+
+        function scheduleUpdate() {
+            if (updateQueued) {
+                return;
+            }
+            updateQueued = true;
+            if (window.requestAnimationFrame) {
+                window.requestAnimationFrame(update);
+            } else {
+                window.setTimeout(update, 16);
+            }
+        }
+
+        function reveal() {
+            bar.setAttribute('data-visible', 'true');
+            if (idleTimer) {
+                window.clearTimeout(idleTimer);
+            }
+            if (!hovering && !dragging) {
+                idleTimer = window.setTimeout(function () {
+                    bar.setAttribute('data-visible', 'false');
+                }, IDLE_MS);
+            }
+        }
+
+        nav.addEventListener(
+            'scroll',
+            function () {
+                scheduleUpdate();
+                reveal();
+            },
+            { passive: true }
+        );
+
+        // New badges, rail collapse/expand and window resizes all change the
+        // nav's box; keep the thumb honest. (The mobile drawer slides the
+        // sidebar without resizing it, so nothing to do there.)
+        if (window.ResizeObserver) {
+            new ResizeObserver(scheduleUpdate).observe(nav);
+        } else {
+            window.addEventListener('resize', scheduleUpdate);
+        }
+
+        // Hovering the column keeps the indicator from fading mid-inspection.
+        nav.addEventListener('pointerenter', function () {
+            hovering = true;
+            reveal();
+        });
+        nav.addEventListener('pointerleave', function () {
+            hovering = false;
+            reveal();
+        });
+
+        thumb.addEventListener('pointerdown', function (e) {
+            if (e.button !== undefined && e.button !== 0) {
+                return;
+            }
+            e.preventDefault();
+            dragging = true;
+            dragStartY = e.clientY;
+            dragStartScroll = nav.scrollTop;
+            bar.setAttribute('data-dragging', 'true');
+            bar.setAttribute('data-visible', 'true');
+            if (idleTimer) {
+                window.clearTimeout(idleTimer);
+            }
+            if (thumb.setPointerCapture) {
+                try {
+                    thumb.setPointerCapture(e.pointerId);
+                } catch (err) {
+                    /* capture is best-effort */
+                }
+            }
+        });
+
+        thumb.addEventListener('pointermove', function (e) {
+            if (!dragging) {
+                return;
+            }
+            var m = metrics();
+            var usable = Math.max(1, m.track - thumb.offsetHeight);
+            nav.scrollTop = dragStartScroll + ((e.clientY - dragStartY) * m.maxScroll) / usable;
+            scheduleUpdate();
+        });
+
+        function endDrag() {
+            if (!dragging) {
+                return;
+            }
+            dragging = false;
+            bar.setAttribute('data-dragging', 'false');
+            reveal();
+        }
+
+        thumb.addEventListener('pointerup', endDrag);
+        thumb.addEventListener('pointercancel', endDrag);
+        thumb.addEventListener('lostpointercapture', endDrag);
+
+        update();
+
+        // Exposed for the rail toggle below and for smoke-testing; the
+        // ResizeObserver covers most resizes on its own.
+        window.ESKSidebarScrollbar = { update: scheduleUpdate };
     }
 
     /* ------------------------------------------------------- range picker --- */
@@ -443,6 +621,7 @@
         applyTheme(readStoredTheme());
         setUpThemeToggle();
         setUpSidebar();
+        setUpSidebarScrollbar();
         setUpRangePicker();
         setUpPalette();
         setUpLazyCharts();

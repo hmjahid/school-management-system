@@ -79,6 +79,66 @@ final class TrafficService
      */
     public function countries(DateRange $range, int $limit = 6): array
     {
+        $all = $this->countryCounts($range);
+
+        $out = [];
+        $i = 0;
+        foreach ($all as $country => $visits) {
+            if ($i++ < $limit) {
+                $out[$country] = $visits;
+            } else {
+                $out['Other'] = ($out['Other'] ?? 0) + $visits;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Top countries by visits in the window, with the prior window alongside
+     * for a delta — the dashboard's "what's trending" rows.
+     *
+     * @return list<array{country: string, visits: int, prior: int, delta_pct: float|null}>
+     */
+    public function topCountries(DateRange $range, int $limit = 3): array
+    {
+        $limit = max(1, min(10, $limit));
+
+        $current = $this->countryCounts($range);
+        if ($current === []) {
+            return [];
+        }
+
+        $prior = $this->countryCounts($range->prior());
+
+        $out = [];
+        $i = 0;
+        foreach ($current as $country => $visits) {
+            if ($i++ >= $limit) {
+                break;
+            }
+
+            $prev = (int) ($prior[$country] ?? 0);
+
+            $out[] = [
+                'country'   => (string) $country,
+                'visits'    => (int) $visits,
+                'prior'     => $prev,
+                'delta_pct' => $prev > 0 ? round(((($visits - $prev) / $prev) * 100), 1) : null,
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * Raw visitor counts per country, descending, bots excluded. An empty
+     * country collapses into "Unknown" rather than a blank legend entry.
+     *
+     * @return array<string, int> country => visits, descending
+     */
+    private function countryCounts(DateRange $range): array
+    {
         $params = [];
 
         $rows = $this->db->fetchAll(
@@ -91,13 +151,8 @@ final class TrafficService
         );
 
         $out = [];
-        foreach ($rows as $i => $row) {
-            $country = (string) ($row['country'] ?? 'Unknown');
-            if ($i < $limit) {
-                $out[$country] = (int) $row['c'];
-            } else {
-                $out['Other'] = ($out['Other'] ?? 0) + (int) $row['c'];
-            }
+        foreach ($rows as $row) {
+            $out[(string) ($row['country'] ?? 'Unknown')] = (int) ($row['c'] ?? 0);
         }
 
         return $out;

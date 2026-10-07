@@ -141,3 +141,25 @@ Two decisions worth remembering:
 ## Known caveat
 
 - The DB currently holds synthetic edge-case seed data (mixed currencies, expired/suspended/cancelled licenses, a soft-deleted row, retired plan, payment gaps) used for verification. Reset to clean seed before shipping.
+
+## Shipped — enterprise admin dashboard (Phases 3 + 4 + 6)
+
+Landing work checked against `docs/prompts/branding-admin-enterprise-dashboard-prompt.md` (all six sections) on 2026-10-08. `composer test`: **456 tests / 1883 assertions green**; `php -l` clean across the edited tree.
+
+**§1 Nav IA — single source of truth.** `app/Services/Nav.php` drives the sidebar *and* the Ctrl+K palette. Regrouped to 6 groups / 24 items (`Dashboard`, `Customers & inbox`, `Storefront`, `Content`, `Vigilance`, `Account`). Badges capped at `99+` at the data level (`Nav::items()`); the expiring-licenses dot is `License::countExpiringSoon(30)`-driven. Sidebar/palette group labels move into the PHP labels, not into `lang/` slugs.
+
+**§2 Shell polish.** Fixed-width 276px sidebar with right border in both themes; `data-nav-label` tooltips (topbar + sidebar) live in the layout, styled in `admin.css` with a reduced-motion guard.
+
+**§3 Sidebar UX.** `setUpSidebarScrollbar()` in `public/js/admin.js`: 6px overlay scroller, 28px-min drag thumb, 600ms idle fade, ResizeObserver + rAF update, coarse-pointer skip; wired into boot and the rail toggle (`window.ESKSidebarScrollbar.update()`). Rail mode adds `data-esk-scroll` tooltips via `::after` and repositions the attention dot.
+
+**§4 Dashboard.** Rebuilt `views/admin/dashboard.php`:
+- Hero KPI grid (`.esk-stat--hero`, revenue tile spans 2, compact `money_short()` feet).
+- Trending row: `RevenueService::topPlans()` + `fastestGrowingGateway()` and `TrafficService::topCountries()` — each fetches the current window and the prior one and emits `delta_pct ∈ [0,100] | null` (`null` = no prior data, never a fake 0.0). Cached in the `'revenue'`/`'traffic'` groups (TTL 300/600) keyed on range + filters.
+- ARR gauge (radial) driven by a new `analytics.arr_target` setting (numeric, validated `SettingsController`, `Settings::$defaults`).
+- Fresh-install onboarding checklist swaps out the empty-chart sea.
+- Section re-order (MRR into orders, activity into the heatmap row) + panel footer actions (Manage → / Map → / Configure →).
+- `num_short()` / `money_short()` in `helpers.php`; `charts.js` compacts axis ticks for `currency`/`compact` specs while tooltips stay full precision.
+
+**§5 Tokens + micro-interactions.** Panel hover lift (`.esk-panel`, fine-pointer only, lands flush into the existing `translateY` active state), hero/trending/onboarding styles ~ tokens `--motion-fast`/`--motion`; cache-bust bumped to `admin.css?v=8`, `admin.js?v=3`, `charts.js?v=3`.
+
+**§6 Tests.** 13 new: `TrafficServiceTest` (top-countries delta carry / no-prior-fallback / empty), `RevenueServiceTest` (plan ranking + deltas, limit bound to current window only, new-plan degradation, gateway gainer / busy-when-no-growth / null), `AdminDashboardViewTest` (hero+trending render with valid chart specs, ARR gauge present-vs-degraded, fresh-install onboarding with the empty panels gone). `AggregateDatabaseStub` gained one-shot `onOnce()` rules — the current/prior windows are textually identical SQL (DateRange changes only bound params), so the current window is scripted as consumed-once and the prior falls through to the permanent rule.

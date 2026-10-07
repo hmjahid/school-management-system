@@ -27,6 +27,11 @@
                 <label class="block text-xs font-medium mb-0.5">Node.js variant</label>
                 <input name="products_dashboards_node" value="<?= htmlspecialchars((string) ($settings['products.dashboards.node'] ?? '')) ?>" placeholder="http://localhost:3000/dashboard" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
             </div>
+            <div class="mt-4 pt-4 border-t border-slate-100">
+                <label class="block text-sm font-semibold mb-1">ARR target</label>
+                <p class="text-xs text-slate-400 mb-2">Annual recurring revenue goal — drawn as the radial gauge on the admin dashboard. Leave blank to show plain MRR/ARR instead.</p>
+                <input name="analytics_arr_target" inputmode="numeric" value="<?= htmlspecialchars((string) ($settings['analytics.arr_target'] ?? '')) ?>" placeholder="e.g. 120000" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+            </div>
         </div>
 
         <div class="bg-white rounded-xl border border-slate-200 p-6">

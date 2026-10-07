@@ -112,6 +112,8 @@
         }
 
         var type = spec.type === 'bar' ? 'bar' : 'line';
+        var scales = spec.scales || {};
+        applyCompactTicks(scales, spec.valueFormat || 'number');
         var config = {
             type: type,
             data: {
@@ -167,7 +169,7 @@
                 maintainAspectRatio: false,
                 animation: animate,
                 interaction: { mode: 'index', intersect: false },
-                scales: spec.scales || {},
+                scales: scales,
                 plugins: {
                     tooltip: {
                         callbacks: Object.assign(
@@ -245,6 +247,47 @@
     }
 
     /* ----------------------------------------------------- formatting --- */
+
+    /**
+     * Compact axis labels — dense windows stay readable at a glance while the
+     * tooltip keeps the full value, so no precision is lost, only ink.
+     */
+    function compactNumber(n) {
+        var abs = Math.abs(n);
+        if (abs >= 1e9) {
+            return (n / 1e9).toFixed(abs >= 1e10 ? 0 : 1) + 'B';
+        }
+        if (abs >= 1e6) {
+            return (n / 1e6).toFixed(abs >= 1e7 ? 0 : 1) + 'M';
+        }
+        if (abs >= 1e3) {
+            return (n / 1e3).toFixed(abs >= 1e4 ? 0 : 1) + 'k';
+        }
+        return String(Math.round(n));
+    }
+
+    /**
+     * Attach a compact tick callback to every y scale for value formats that
+     * benefit from it ('currency', 'compact'). Small counts keep the library
+     * default — abbreviating "12" to "12" is just ink.
+     */
+    function applyCompactTicks(scales, format) {
+        if (format !== 'currency' && format !== 'compact') {
+            return;
+        }
+        var abbreviate = function (value) {
+            return format === 'currency' ? '$' + compactNumber(value) : compactNumber(value);
+        };
+
+        Object.keys(scales).forEach(function (key) {
+            if (key !== 'y' && key !== 'y1') {
+                return;
+            }
+            scales[key] = scales[key] || {};
+            scales[key].ticks = scales[key].ticks || {};
+            scales[key].ticks.callback = abbreviate;
+        });
+    }
 
     function formatValue(value, format) {
         var n = Number(value) || 0;

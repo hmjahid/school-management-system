@@ -66,7 +66,7 @@
 
     /* Elevation */
     --shadow-1: 0 1px 2px rgb(15 23 42 / 0.06);
-    --shadow-2: 0 10px 30px -12px rgb(15 23 42 / 0.18);
+    --shadow-2: 0 12px 32px -16px rgb(15 23 42 / 0.16);
     --shadow-focus: 0 0 0 3px color-mix(in srgb, var(--brand) 35%, transparent);
 
     /* Motion */
@@ -79,6 +79,14 @@
     --sidebar-text-muted: #64748b;
     --sidebar-active: #1e293b;
     --sidebar-border: #1e293b;
+
+    /*
+     * Custom scrollbar indicator (sidebar nav). The sidebar is always dark,
+     * so one set of translucent-white tones serves both page themes.
+     */
+    --scrollbar-track: rgb(255 255 255 / 0.04);
+    --scrollbar-thumb: rgb(148 163 184 / 0.45);
+    --scrollbar-thumb-hover: rgb(203 213 225 / 0.8);
 }
 
 [data-theme='dark'] {
@@ -157,6 +165,15 @@ body {
     border: 1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: var(--shadow-1);
+    transition: box-shadow var(--motion-fast), transform var(--motion-fast);
+}
+
+/* Hover lift — 1px only, fine pointers only, so touch never sticks. */
+@media (hover: hover) and (pointer: fine) {
+    .esk-panel:hover {
+        box-shadow: var(--shadow-2);
+        transform: translateY(-1px);
+    }
 }
 
 .esk-panel-head {
@@ -244,6 +261,194 @@ body {
     height: 2.5rem;
     margin: 0 -0.25rem;
     overflow: hidden;
+}
+
+/* Hero KPI — the primary metric gets width, weight and the brand wash, so
+   hierarchy reads before any number is parsed. */
+.esk-stat--hero {
+    background: color-mix(in srgb, var(--brand) 6%, var(--surface));
+    border-color: color-mix(in srgb, var(--brand) 28%, var(--border));
+}
+
+.esk-stat--hero .esk-stat-label {
+    color: color-mix(in srgb, var(--brand) 70%, var(--text-subtle));
+}
+
+.esk-stat--hero .esk-stat-value {
+    font-size: 2.5rem;
+    letter-spacing: -0.02em;
+}
+
+.esk-stat--hero .esk-stat-spark {
+    height: 4rem;
+}
+
+.esk-stat--hero .esk-delta {
+    font-size: 0.8125rem;
+    font-weight: 700;
+}
+
+/* ------------------------------------------------------- trending rows ---- */
+
+.esk-trend-cols {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 1024px) {
+    .esk-trend-cols { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.esk-trend-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-subtle);
+    margin-bottom: 0.5rem;
+}
+
+.esk-trend-link {
+    color: var(--brand);
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 600;
+}
+.esk-trend-link:hover { text-decoration: underline; }
+
+.esk-trend-row {
+    display: block;
+    padding: 0.5rem 0.5rem;
+    margin: 0 -0.5rem;
+    border-radius: var(--radius-sm);
+    transition: background var(--motion-fast);
+}
+
+.esk-trend-row:hover { background: var(--surface-3); }
+
+.esk-trend-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.esk-trend-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.esk-trend-val {
+    flex-shrink: 0;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.esk-trend-track {
+    display: block;
+    height: 0.3125rem;
+    margin-top: 0.375rem;
+    border-radius: 999px;
+    background: var(--surface-3);
+    overflow: hidden;
+}
+
+.esk-trend-bar {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--brand);
+}
+
+.esk-trend-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+}
+
+.esk-trend-foot {
+    font-size: 0.6875rem;
+    color: var(--text-subtle);
+}
+
+.esk-trend-empty {
+    font-size: 0.8125rem;
+    color: var(--text-subtle);
+    padding: 0.75rem 0;
+}
+
+/* ------------------------------------------------------ onboarding ---- */
+
+.esk-onboard {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.esk-onboard-step {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-2);
+    transition: border-color var(--motion-fast), box-shadow var(--motion-fast), transform var(--motion-fast);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .esk-onboard-step:hover {
+        border-color: color-mix(in srgb, var(--brand) 35%, var(--border));
+        box-shadow: var(--shadow-2);
+        transform: translateY(-1px);
+    }
+}
+
+.esk-onboard-num {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--brand) 15%, transparent);
+    color: var(--brand);
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+.esk-onboard-text {
+    display: block;
+    min-width: 0;
+    flex: 1;
+}
+
+.esk-onboard-title {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.esk-onboard-sub {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
 }
 
 /* Delta chips — direction is carried by an arrow glyph as well as colour,
@@ -570,11 +775,81 @@ body {
     transition: transform var(--motion), width var(--motion);
 }
 
+/*
+ * The nav column's custom scrollbar. The wrapper owns the flex slot so the
+ * track can sit beside the scrollport without scrolling away with the
+ * content; the nav itself is the scrollport (height 100% of the wrapper).
+ */
+.esk-sidebar-scrollwrap {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
 .esk-sidebar-nav {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: 0.5rem 0.75rem 1rem;
+}
+
+/*
+ * Hide the native scrollbar only once JS has mounted the custom indicator
+ * (data-esk-scroll). No JavaScript → the native scrollbar stays, so the nav
+ * is never left without any affordance.
+ */
+.esk-sidebar-nav[data-esk-scroll='true'] {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.esk-sidebar-nav[data-esk-scroll='true']::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+/* The indicator: a slim track pinned to the right edge of the nav column. */
+.esk-scrollbar {
+    position: absolute;
+    top: 0;
+    right: 0.1875rem;
+    bottom: 0;
+    z-index: 5;
+    width: 0.3125rem;
+    border-radius: var(--radius-pill);
+    background: var(--scrollbar-track);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    touch-action: none;
+}
+
+.esk-scrollbar[data-visible='true'] { opacity: 1; }
+
+.esk-scrollbar-thumb {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    border-radius: var(--radius-pill);
+    background: var(--scrollbar-thumb);
+    cursor: grab;
+    transition: background var(--motion-fast);
+}
+
+.esk-scrollbar-thumb:hover,
+.esk-scrollbar[data-dragging='true'] .esk-scrollbar-thumb {
+    background: var(--scrollbar-thumb-hover);
+}
+
+.esk-scrollbar[data-dragging='true'] .esk-scrollbar-thumb { cursor: grabbing; }
+
+/* Coarse pointers keep their native overlay scrollbars; the custom
+   indicator never appears there and never intercepts touch scrolling. */
+@media (pointer: coarse) {
+    .esk-scrollbar { display: none !important; }
 }
 
 .esk-nav-group-label {
@@ -601,10 +876,13 @@ body {
 
 .esk-nav-link:hover { background: var(--sidebar-active); color: #fff; }
 
+/* The active pill reads as "you are here" twice: a brand-tinted wash plus
+   the left indicator bar. */
 .esk-nav-link[aria-current='page'] {
-    background: var(--sidebar-active);
+    background: color-mix(in srgb, var(--brand) 18%, var(--sidebar-active));
     color: #fff;
     font-weight: 600;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
 }
 
 /* Active-section indicator bar. */
@@ -615,9 +893,25 @@ body {
     top: 50%;
     translate: 0 -50%;
     width: 3px;
-    height: 1.25rem;
+    height: 1.375rem;
     border-radius: 0 3px 3px 0;
     background: var(--brand);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--brand) 60%, transparent);
+}
+
+/*
+ * Expiring-licenses pin: an inline amber dot in expanded mode, an absolutely
+ * placed dot on the icon in rail mode. Carries meaning only together with
+ * the Licenses row it sits in (title + sr-only text supply the name).
+ */
+.esk-nav-dot {
+    margin-left: auto;
+    width: 0.375rem;
+    height: 0.375rem;
+    flex-shrink: 0;
+    border-radius: var(--radius-pill);
+    background: var(--warning);
+    box-shadow: 0 0 0 2px var(--sidebar-bg);
 }
 
 .esk-nav-badge {
@@ -632,6 +926,36 @@ body {
     color: #fff;
     font-size: 0.625rem;
     font-weight: 700;
+}
+
+/* "Needs attention" roll-up card at the top of the nav. */
+.esk-nav-attention {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--warning) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--warning) 38%, transparent);
+    color: #fcd34d;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.esk-nav-attention:hover {
+    background: color-mix(in srgb, var(--warning) 24%, transparent);
+    color: #fde68a;
+}
+
+.esk-nav-attention-arrow { margin-left: auto; opacity: 0.7; }
+
+/* On the always-dark sidebar the brand focus ring would vanish; a light ring
+   reads clearly in both themes. */
+.esk-sidebar :focus-visible {
+    box-shadow: 0 0 0 3px rgb(255 255 255 / 0.45);
+    border-radius: var(--radius-sm);
 }
 
 .esk-topbar {
@@ -827,6 +1151,50 @@ body {
     }
     [data-rail='true'] .esk-nav-link { justify-content: center; }
     [data-rail='true'] .esk-sidebar-brand { justify-content: center; }
+
+    /* The attention roll-up needs its sentence; the rail only has icons. */
+    [data-rail='true'] .esk-nav-attention { display: none; }
+
+    /* In the rail the dot pins to the icon's corner instead of trailing. */
+    [data-rail='true'] .esk-nav-dot {
+        position: absolute;
+        top: 0.3125rem;
+        right: 0.3125rem;
+        margin-left: 0;
+    }
+
+    /*
+     * Rail tooltips: with labels hidden the icon alone is ambiguous, so
+     * hover/focus reveals the label (plus an unread count, if any). Purely
+     * decorative — the link keeps its accessible name — and it dismisses on
+     * blur/hover-out by itself. Scoped to the sidebar; .esk-nav-link appears
+     * nowhere else.
+     */
+    [data-rail='true'] .esk-sidebar .esk-nav-link::after {
+        content: attr(data-nav-label);
+        position: absolute;
+        left: calc(100% + 0.875rem);
+        top: 50%;
+        translate: 0 -50%;
+        z-index: 80;
+        padding: 0.3125rem 0.625rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--surface);
+        box-shadow: var(--shadow-2);
+        color: var(--text);
+        font-size: 0.75rem;
+        font-weight: 600;
+        white-space: nowrap;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity var(--motion-fast);
+    }
+
+    [data-rail='true'] .esk-sidebar .esk-nav-link:hover::after,
+    [data-rail='true'] .esk-sidebar .esk-nav-link:focus-visible::after {
+        opacity: 1;
+    }
 }
 
 .esk-sidebar-brand {

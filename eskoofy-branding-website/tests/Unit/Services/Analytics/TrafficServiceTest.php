@@ -119,4 +119,62 @@ class TrafficServiceTest extends TestCase
     {
         self::assertSame([], (new TrafficService($this->db))->countries($this->range()));
     }
+
+    // --------------------------------------------------------- trending rows
+
+    /**
+     * topCountries issues two textually identical GROUP BYs (DateRange only
+     * changes the bound params), so the current window is scripted as a
+     * one-shot rule and the prior window falls through to the permanent one.
+     */
+    public function testTopCountriesCarriesThePriorWindowForADelta(): void
+    {
+        $this->db
+            ->onOnce('GROUP BY country', [
+                ['country' => 'Bangladesh', 'c' => 50],
+                ['country' => 'United States', 'c' => 30],
+                ['country' => 'India', 'c' => 20],
+                ['country' => 'Nepal', 'c' => 10],
+            ])
+            ->on('GROUP BY country', [
+                ['country' => 'Bangladesh', 'c' => 25],
+                ['country' => 'United States', 'c' => 36],
+                ['country' => 'India', 'c' => 20],
+            ]);
+
+        $top = (new TrafficService($this->db))->topCountries($this->range(), 3);
+
+        // The limit cuts Nepal; ranking stays descending.
+        self::assertCount(3, $top);
+        self::assertSame(['Bangladesh', 'United States', 'India'], array_column($top, 'country'));
+
+        self::assertSame(50, $top[0]['visits']);
+        self::assertSame(25, $top[0]['prior']);
+        self::assertSame(100.0, $top[0]['delta_pct']);
+
+        // A decline is signed, not clamped to zero.
+        self::assertSame(-16.7, $top[1]['delta_pct']);
+
+        // Flat windows report 0.0 — a real measurement, not "no data".
+        self::assertSame(0.0, $top[2]['delta_pct']);
+    }
+
+    public function testTopCountriesReportsNoDeltaWhenThePriorWindowIsEmpty(): void
+    {
+        // Only the current window is scripted; the prior query matches nothing.
+        $this->db->onOnce('GROUP BY country', [
+            ['country' => 'Germany', 'c' => 120],
+        ]);
+
+        $top = (new TrafficService($this->db))->topCountries($this->range(), 3);
+
+        self::assertCount(1, $top);
+        self::assertSame(0, $top[0]['prior']);
+        self::assertNull($top[0]['delta_pct'], 'no prior data must not read as 0% growth');
+    }
+
+    public function testTopCountriesIsEmptyWhenThereAreNoVisitors(): void
+    {
+        self::assertSame([], (new TrafficService($this->db))->topCountries($this->range()));
+    }
 }

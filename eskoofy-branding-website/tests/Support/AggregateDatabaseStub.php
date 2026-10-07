@@ -30,11 +30,26 @@ final class AggregateDatabaseStub implements DatabaseInterface
     /** @var list<array{needle: string, rows: array}> */
     private array $script = [];
 
+    /** @var list<array{needle: string, rows: array}> consumed on first match */
+    private array $once = [];
+
     private ?array $single = null;
 
     public function on(string $needle, array $rows): self
     {
         $this->script[] = ['needle' => $needle, 'rows' => $rows];
+
+        return $this;
+    }
+
+    /**
+     * Like {@see on()}, but expires after its first match. For current-vs-prior
+     * query pairs whose SQL is textually identical (DateRange only changes the
+     * bound params): script the current window as `onOnce`, the prior as `on`.
+     */
+    public function onOnce(string $needle, array $rows): self
+    {
+        $this->once[] = ['needle' => $needle, 'rows' => $rows];
 
         return $this;
     }
@@ -98,11 +113,20 @@ final class AggregateDatabaseStub implements DatabaseInterface
     public function reset(): void
     {
         $this->queries = [];
+        $this->once = [];
         $this->single = null;
     }
 
     private function match(string $sql): array
     {
+        foreach ($this->once as $i => $rule) {
+            if (str_contains($sql, $rule['needle'])) {
+                array_splice($this->once, $i, 1);
+
+                return $rule['rows'];
+            }
+        }
+
         foreach ($this->script as $rule) {
             if (str_contains($sql, $rule['needle'])) {
                 return $rule['rows'];

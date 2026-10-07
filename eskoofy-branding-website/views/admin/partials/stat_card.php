@@ -15,6 +15,8 @@
  * @var array|null  $statSpark      ChartPayload::spark() spec
  * @var string|null $statHref
  * @var string      $statTone       brand | success | warning | danger | muted
+ * @var bool        $statHero       wide accent tile for the primary metric
+ * @var string      $statSpan       grid span classes (e.g. 'sm:col-span-2')
  */
 $statLabel = $statLabel ?? '';
 $statValue = $statValue ?? '—';
@@ -25,6 +27,8 @@ $statIcon = $statIcon ?? '';
 $statSpark = $statSpark ?? null;
 $statHref = $statHref ?? null;
 $statTone = $statTone ?? 'brand';
+$statHero = (bool) ($statHero ?? false);
+$statSpan = (string) ($statSpan ?? '');
 
 $isLink = $statHref !== null && $statHref !== '';
 $tag = $isLink ? 'a' : 'div';
@@ -46,7 +50,7 @@ if ($statDelta === null) {
     $deltaAria = ($statDelta > 0 ? 'up' : ($statDelta < 0 ? 'down' : 'flat')) . ' ' . abs(round($statDelta, 1)) . ' percent';
 }
 ?>
-<<?= $tag ?> <?= $isLink ? 'href="' . htmlspecialchars($statHref) . '"' : '' ?> class="esk-stat<?= $isLink ? ' esk-stat--link' : '' ?>"<?= $isLink ? '' : ' role="group"' ?>>
+<<?= $tag ?> <?= $isLink ? 'href="' . htmlspecialchars($statHref) . '"' : '' ?> class="esk-stat<?= $isLink ? ' esk-stat--link' : '' ?><?= $statHero ? ' esk-stat--hero' : '' ?><?= $statSpan !== '' ? ' ' . $statSpan : '' ?>"<?= $isLink ? '' : ' role="group"' ?>>
     <div class="esk-stat-head">
         <div class="min-w-0">
             <div class="esk-stat-label"><?= htmlspecialchars($statLabel) ?></div>

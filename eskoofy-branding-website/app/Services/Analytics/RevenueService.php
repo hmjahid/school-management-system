@@ -433,6 +433,131 @@ final class RevenueService
     }
 
     /**
+     * Top plans by collected revenue in the window, with the prior window
+     * alongside for a delta — the dashboard's "what's trending" rows.
+     *
+     * A plan absent from the prior window has no delta (not a fake 0% or a
+     * fake +N%), matching the stat-card convention.
+     *
+     * @param array{product?: ?string, variant?: ?string} $filters
+     * @return list<array{id: int, name: string, product: ?string, collected: float, prior: float|null, delta_pct: float|null}>
+     */
+    public function topPlans(DateRange $range, int $limit = 3, array $filters = []): array
+    {
+        $limit = max(1, min(10, $limit));
+        $current = $this->planTotals($range, $limit, $filters);
+        if ($current === []) {
+            return [];
+        }
+
+        // The prior window is fetched unbounded so a plan outside the prior
+        // top-N still finds its own prior total.
+        $prior = [];
+        foreach ($this->planTotals($range->prior(), null, $filters) as $row) {
+            $prior[(int) $row['id']] = (float) $row['collected'];
+        }
+
+        $out = [];
+        foreach ($current as $row) {
+            $collected = (float) $row['collected'];
+            $prev = $prior[(int) $row['id']] ?? null;
+
+            $out[] = [
+                'id'        => (int) $row['id'],
+                'name'      => (string) ($row['name'] ?? ''),
+                'product'   => isset($row['product']) ? (string) $row['product'] : null,
+                'collected' => round($collected, 2),
+                'prior'     => $prev !== null ? round($prev, 2) : null,
+                'delta_pct' => ($prev !== null && $prev > 0)
+                    ? round((($collected - $prev) / $prev) * 100, 1)
+                    : null,
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * The gateway that grew most against the prior window. With no prior window
+     * to grow from, the busiest gateway is named with no delta — an infinite
+     * "+∞%" would read as growth the data cannot show.
+     *
+     * @return array{gateway: string, current: float, prior: float, delta_pct: float|null}|null
+     */
+    public function fastestGrowingGateway(DateRange $range): ?array
+    {
+        $current = $this->byGateway($range);
+        if ($current === []) {
+            return null;
+        }
+
+        $prior = $this->byGateway($range->prior());
+
+        $best = null;
+        foreach ($current as $gateway => $total) {
+            $prev = (float) ($prior[$gateway] ?? 0);
+            if ($prev <= 0) {
+                continue;
+            }
+
+            $delta = round(((($total - $prev) / $prev) * 100), 1);
+            if ($best === null || $delta > $best['delta_pct']) {
+                $best = [
+                    'gateway'   => (string) $gateway,
+                    'current'   => round((float) $total, 2),
+                    'prior'     => round($prev, 2),
+                    'delta_pct' => $delta,
+                ];
+            }
+        }
+
+        if ($best !== null) {
+            return $best;
+        }
+
+        // byGateway arsorts descending, so the first key is the busiest.
+        $gateway = (string) array_key_first($current);
+
+        return [
+            'gateway'   => $gateway,
+            'current'   => round((float) $current[$gateway], 2),
+            'prior'     => 0.0,
+            'delta_pct' => null,
+        ];
+    }
+
+    /**
+     * Collected revenue grouped by plan, honouring product/variant filters.
+     *
+     * @param array{product?: ?string, variant?: ?string} $filters
+     * @return list<array{id: int|string, name: string, product: ?string, collected: float}>
+     */
+    private function planTotals(DateRange $range, ?int $limit, array $filters): array
+    {
+        $params = [];
+        $where = ["p.status = 'paid'", 'p.paid_at IS NOT NULL', $range->where('p.paid_at', $params)];
+
+        if (! empty($filters['product'])) {
+            $where[] = 'pl.product = ?';
+            $params[] = $filters['product'];
+        }
+        if (! empty($filters['variant'])) {
+            $where[] = 'p.variant = ?';
+            $params[] = $filters['variant'];
+        }
+
+        return $this->db->fetchAll(
+            'SELECT pl.id, pl.name, pl.product,
+                    COALESCE(SUM(' . $this->usdExpression('p.amount', 'p.currency') . '), 0) AS collected
+               FROM payments p JOIN plans pl ON pl.id = p.plan_id
+              WHERE ' . implode(' AND ', $where) . '
+              GROUP BY pl.id, pl.name, pl.product
+              ORDER BY collected DESC' . ($limit !== null ? ' LIMIT ' . $limit : ''),
+            $params
+        );
+    }
+
+    /**
  * Build the FROM + WHERE for a payments aggregate.
  *
  * `payments` carries `variant` directly but has **no** `product` column — the

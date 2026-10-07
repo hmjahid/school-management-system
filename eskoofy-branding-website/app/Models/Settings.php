@@ -43,6 +43,8 @@ class Settings
         'services.deploy_app'    => '250',
         'services.deploy_php_theme' => '150',
         'services.care_monthly'  => '29',
+        // Blank = no dashboard ARR gauge (the card degrades to MRR/ARR).
+        'analytics.arr_target'   => '',
     ];
 
     /** @var array<string, string>|null */

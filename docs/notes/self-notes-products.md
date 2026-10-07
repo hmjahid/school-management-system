@@ -433,12 +433,19 @@ create a proper prompt file for completing the above tasks and execute the promp
 
 make the  branding website admin dashboard same as interprise grade admin dashboard with clear and amazing ui ux, graph, scale, trending etc. continue untill finished
 
+aslo the sidebar and the sidebar scrollbar indicator need to be like enterprise grade admin dashoard. aslo arrange the aidebar items nicely.  cretae a prompt file for implementing this task. do not implement
+
+branding-admin-enterprise-dashboard-prompt.md check this file and review carefully if need addition or substraction
+
+now execute the prompt file
+
 
 
 
 
 
 read PAYMENT-SYSTEM-REVIEW.md and PAYMENT-IMPLEMENTATION-PLAN.md files and implement them one by one. ask me at starting every phase before execution 
+
 
 
 

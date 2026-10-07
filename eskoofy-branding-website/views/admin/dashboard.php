@@ -40,6 +40,8 @@ $topCustomers = $topCustomers ?? [];
 $activityFeed = $activityFeed ?? [];
 $matrix = $matrix ?? [];
 $renewalTotal = $renewalTotal ?? 0;
+$trending = $trending ?? ['plans' => [], 'countries' => [], 'gateway' => null];
+$arrTarget = $arrTarget ?? '';
 
 $icons = [
     'money' => '<path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
@@ -87,6 +89,32 @@ $rangeLink = static function (string $preset) use ($filters): string {
     return '/admin/dashboard?' . http_build_query($query);
 };
 
+/*
+ * Fresh install: no customers, no licenses, no subscriptions, no revenue.
+ * One checklist beats a sea of empty-state panels — the panels come back the
+ * moment real data exists. Keyed off $stats (always passed) so the view can
+ * never go blank from a missing chart payload.
+ */
+$isFreshInstall = (int) ($stats['customers'] ?? 0) === 0
+    && (int) ($stats['licenses'] ?? 0) === 0
+    && (int) ($stats['active_subscriptions'] ?? 0) === 0
+    && (float) ($stats['revenue'] ?? 0) <= 0.0;
+
+// Delta chip for a trending row: class, arrow glyph, signed text. A null
+// prior renders a neutral dash — never a fake 0% or an infinite +∞.
+$trendDelta = static function (?float $delta): array {
+    if ($delta === null) {
+        return ['esk-delta esk-delta--flat', '—', 'no prior data'];
+    }
+    if ($delta > 0) {
+        return ['esk-delta esk-delta--up', '▲', '+' . round($delta, 1) . '%'];
+    }
+    if ($delta < 0) {
+        return ['esk-delta esk-delta--down', '−', abs(round($delta, 1)) . '%'];
+    }
+    return ['esk-delta esk-delta--flat', '■', '0%'];
+};
+
 // Alert strip — only rendered when something needs action.
 $alerts = [];
 $critExpiring = 0;
@@ -132,7 +160,9 @@ if (($reconciliation['status'] ?? 'empty') === 'divergent') {
     <a href="/admin/account" class="esk-btn esk-btn--sm esk-btn--ghost ml-auto">Account</a>
 </div>
 
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4 mb-6">
+<!-- Hero row: the Revenue tile spans wider and carries the accent — hierarchy
+     reads at a glance before any number is parsed. -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-7 gap-4 mb-6">
     <?php
     $revKpi = $kpis['revenue'] ?? ['current' => 0, 'delta' => null, 'spark' => []];
     ?>
@@ -141,15 +171,16 @@ if (($reconciliation['status'] ?? 'empty') === 'divergent') {
         'statDelta' => $revKpi['delta'] ?? null, 'statDeltaLabel' => 'vs prior period',
         'statIcon' => $svg('money', 20), 'statTone' => 'brand',
         'statSpark' => $spark((array) ($revKpi['spark'] ?? []), 'var(--brand)'),
-        'statFoot' => $money((float) ($stats['revenue_this_month'] ?? 0)) . ' this month',
+        'statFoot' => money_short((float) ($stats['revenue_this_month'] ?? 0)) . ' this month',
         'statHref' => '/admin/payments',
+        'statHero' => true, 'statSpan' => 'sm:col-span-2',
     ]); ?>
     <?php \App\Core\View::partial('admin.partials.stat_card', [
         'statLabel' => 'MRR', 'statValue' => $money((float) ($stats['mrr'] ?? 0)),
         'statDelta' => null, 'statDeltaLabel' => '',
         'statIcon' => $svg('repeat', 20), 'statTone' => 'success',
         'statSpark' => null,
-        'statFoot' => 'ARR ' . $money((float) ($stats['arr'] ?? 0)),
+        'statFoot' => 'ARR ' . money_short((float) ($stats['arr'] ?? 0)),
         'statHref' => '/admin/subscriptions',
     ]); ?>
     <?php \App\Core\View::partial('admin.partials.stat_card', [
@@ -227,6 +258,224 @@ if (($reconciliation['status'] ?? 'empty') === 'divergent') {
         <?php endif; ?>
     </div>
 </form>
+
+<?php if ($isFreshInstall): ?>
+    <!-- Fresh install: one checklist instead of a sea of empty-state panels. -->
+    <section class="esk-panel mb-6">
+        <div class="esk-panel-head">
+            <div>
+                <h2 class="esk-panel-title">Get your first license out the door</h2>
+                <p class="esk-panel-sub">This dashboard fills itself the moment sales start — three steps and you are there.</p>
+            </div>
+            <div class="esk-panel-actions">
+                <a href="/admin/licenses/create" class="esk-btn esk-btn--sm">Issue first license</a>
+            </div>
+        </div>
+        <div class="esk-panel-body">
+            <?php \App\Core\View::partial('admin.partials.empty_state', [
+                'emptyTitle' => 'A brand-new Eskoofy',
+                'emptyBody' => 'No licenses, customers, or payments yet. The checklist below is everything between you and a live dashboard.',
+                'emptyIcon' => $svg('key', 22),
+            ]); ?>
+            <ol class="esk-onboard mt-2">
+                <li class="esk-onboard-step">
+                    <span class="esk-onboard-num" aria-hidden="true">1</span>
+                    <span class="esk-onboard-text">
+                        <span class="esk-onboard-title">Issue your first license</span>
+                        <span class="esk-onboard-sub">Activate a customer install — activations land on this page in real time.</span>
+                    </span>
+                    <a href="/admin/licenses/create" class="esk-btn esk-btn--sm">Issue</a>
+                </li>
+                <li class="esk-onboard-step">
+                    <span class="esk-onboard-num" aria-hidden="true">2</span>
+                    <span class="esk-onboard-text">
+                        <span class="esk-onboard-title">Create a plan</span>
+                        <span class="esk-onboard-sub">Price, period, and product — the source of every revenue number here.</span>
+                    </span>
+                    <a href="/admin/plans/create" class="esk-btn esk-btn--sm esk-btn--ghost">New plan</a>
+                </li>
+                <li class="esk-onboard-step">
+                    <span class="esk-onboard-num" aria-hidden="true">3</span>
+                    <span class="esk-onboard-text">
+                        <span class="esk-onboard-title">Configure a gateway</span>
+                        <span class="esk-onboard-sub">Connect your payment provider so paid orders start reconciling against MRR.</span>
+                    </span>
+                    <a href="/admin/gateways" class="esk-btn esk-btn--sm esk-btn--ghost">Gateways</a>
+                </li>
+            </ol>
+        </div>
+    </section>
+<?php else: ?>
+
+<?php
+// Gauge inputs: blank target (or a non-numeric one) degrades to plain
+// MRR/ARR numbers — no arc, no guesswork.
+$arrTargetNum = is_numeric($arrTarget) ? (float) $arrTarget : 0.0;
+$hasArrTarget = $arrTargetNum > 0;
+$mrrVal = (float) ($stats['mrr'] ?? 0);
+$arrVal = (float) ($stats['arr'] ?? 0);
+$trendPlans = (array) ($trending['plans'] ?? []);
+$trendCountries = (array) ($trending['countries'] ?? []);
+$trendGateway = is_array($trending['gateway'] ?? null) ? $trending['gateway'] : null;
+?>
+
+<!-- Trending + gauge: range-aware movers first, then the recurring target. -->
+<div class="grid lg:grid-cols-3 gap-6 mb-6">
+    <section class="esk-panel lg:col-span-2">
+        <div class="esk-panel-head">
+            <div>
+                <h2 class="esk-panel-title">What&rsquo;s trending — <?= htmlspecialchars($range->label()) ?></h2>
+                <p class="esk-panel-sub">Top movers against the prior period, honouring the active filters.</p>
+            </div>
+            <div class="esk-panel-actions">
+                <a href="/admin/analytics" class="esk-btn esk-btn--sm esk-btn--ghost">Analytics →</a>
+            </div>
+        </div>
+        <div class="esk-panel-body">
+            <div class="esk-trend-cols">
+                <div>
+                    <div class="esk-trend-title">
+                        <span>Top plans by sales</span>
+                        <a class="esk-trend-link" href="/admin/plans">All plans</a>
+                    </div>
+                    <?php if ($trendPlans === []): ?>
+                        <p class="esk-trend-empty">No paid sales in this window.</p>
+                    <?php else: ?>
+                        <?php
+                        $tpMax = 0.0;
+                        foreach ($trendPlans as $tpRow) {
+                            $tpMax = max($tpMax, (float) $tpRow['collected']);
+                        }
+                        ?>
+                        <?php foreach ($trendPlans as $tpRow): ?>
+                            <?php
+                            $tpDelta = $trendDelta($tpRow['delta_pct'] !== null ? (float) $tpRow['delta_pct'] : null);
+                            $tpPct = $tpMax > 0 ? max(2, (int) round((float) $tpRow['collected'] / $tpMax * 100)) : 0;
+                            $tpProduct = !empty($tpRow['product']) ? Catalog::label((string) $tpRow['product']) : 'All products';
+                            ?>
+                            <a class="esk-trend-row" href="/admin/plans">
+                                <span class="esk-trend-top">
+                                    <span class="esk-trend-name"><?= htmlspecialchars((string) $tpRow['name']) ?></span>
+                                    <span class="esk-trend-val esk-tabular"><?= money_short((float) $tpRow['collected']) ?></span>
+                                </span>
+                                <span class="esk-trend-track"><span class="esk-trend-bar" style="width:<?= $tpPct ?>%"></span></span>
+                                <span class="esk-trend-meta">
+                                    <span class="<?= $tpDelta[0] ?>">
+                                        <span aria-hidden="true"><?= $tpDelta[1] ?></span> <?= htmlspecialchars($tpDelta[2]) ?>
+                                        <span class="esk-sr-only">vs prior period</span>
+                                    </span>
+                                    <span class="esk-trend-foot"><?= htmlspecialchars($tpProduct) ?></span>
+                                </span>
+                            </a>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+
+                <div>
+                    <div class="esk-trend-title">
+                        <span>Top countries by visitors</span>
+                        <a class="esk-trend-link" href="/admin/visitors">Visitor log</a>
+                    </div>
+                    <?php if ($trendCountries === []): ?>
+                        <p class="esk-trend-empty">No visitor traffic in this window.</p>
+                    <?php else: ?>
+                        <?php
+                        $tcMax = 0;
+                        foreach ($trendCountries as $tcRow) {
+                            $tcMax = max($tcMax, (int) $tcRow['visits']);
+                        }
+                        ?>
+                        <?php foreach ($trendCountries as $tcRow): ?>
+                            <?php
+                            $tcDelta = $trendDelta($tcRow['delta_pct'] !== null ? (float) $tcRow['delta_pct'] : null);
+                            $tcPct = $tcMax > 0 ? max(2, (int) round((int) $tcRow['visits'] / $tcMax * 100)) : 0;
+                            ?>
+                            <a class="esk-trend-row" href="/admin/visitors">
+                                <span class="esk-trend-top">
+                                    <span class="esk-trend-name"><?= htmlspecialchars((string) $tcRow['country']) ?></span>
+                                    <span class="esk-trend-val esk-tabular"><?= num_short((int) $tcRow['visits']) ?></span>
+                                </span>
+                                <span class="esk-trend-track"><span class="esk-trend-bar" style="width:<?= $tcPct ?>%"></span></span>
+                                <span class="esk-trend-meta">
+                                    <span class="<?= $tcDelta[0] ?>">
+                                        <span aria-hidden="true"><?= $tcDelta[1] ?></span> <?= htmlspecialchars($tcDelta[2]) ?>
+                                        <span class="esk-sr-only">vs prior period</span>
+                                    </span>
+                                    <span class="esk-trend-foot">visits</span>
+                                </span>
+                            </a>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+
+                <div>
+                    <div class="esk-trend-title">
+                        <span>Fastest-growing gateway</span>
+                    </div>
+                    <?php if ($trendGateway === null): ?>
+                        <p class="esk-trend-empty">No gateway sales in this window.</p>
+                    <?php else: ?>
+                        <?php $tgDelta = $trendDelta($trendGateway['delta_pct'] !== null ? (float) $trendGateway['delta_pct'] : null); ?>
+                        <a class="esk-trend-row" href="/admin/gateways">
+                            <span class="esk-trend-top">
+                                <span class="esk-trend-name"><?= htmlspecialchars(ucwords(str_replace('_', ' ', (string) $trendGateway['gateway']))) ?></span>
+                                <span class="esk-trend-val esk-tabular"><?= money_short((float) $trendGateway['current']) ?></span>
+                            </span>
+                            <span class="esk-trend-meta">
+                                <span class="<?= $tgDelta[0] ?>">
+                                    <span aria-hidden="true"><?= $tgDelta[1] ?></span> <?= htmlspecialchars($tgDelta[2]) ?>
+                                    <span class="esk-sr-only">vs prior period</span>
+                                </span>
+                                <span class="esk-trend-foot">Manage gateways →</span>
+                            </span>
+                        </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="esk-panel">
+        <div class="esk-panel-head">
+            <div>
+                <h2 class="esk-panel-title"><?= $hasArrTarget ? 'ARR vs target' : 'Recurring revenue' ?></h2>
+                <p class="esk-panel-sub"><?= $hasArrTarget ? 'Annual run rate against the target set in settings.' : 'MRR and ARR at a glance. Set a target in settings to track progress.' ?></p>
+            </div>
+            <div class="esk-panel-actions">
+                <a href="/admin/subscriptions" class="esk-btn esk-btn--sm esk-btn--ghost">Subscriptions</a>
+            </div>
+        </div>
+        <div class="esk-panel-body">
+            <?php if ($hasArrTarget): ?>
+                <?php
+                $arrPct = $arrVal > 0 ? min(100.0, ($arrVal / $arrTargetNum) * 100) : 0.0;
+                $gaugeColor = $arrPct >= 90 ? 'var(--success)' : ($arrPct >= 50 ? 'var(--brand)' : 'var(--warning)');
+                $chart([
+                    'chartLib' => 'apex',
+                    'chartLabel' => sprintf('ARR at %.0f%% of the %s target', $arrPct, $money($arrTargetNum)),
+                    'chartSpec' => ChartPayload::radial(['ARR progress'], [$arrPct], [$gaugeColor], ['height' => 230]),
+                ]);
+                ?>
+            <?php endif; ?>
+            <dl class="grid <?= $hasArrTarget ? 'grid-cols-3' : 'grid-cols-2' ?> gap-3 text-sm mt-4">
+                <div class="flex items-center justify-between rounded-lg border border-edge px-3 py-2">
+                    <dt class="text-ink-muted">MRR</dt>
+                    <dd class="font-semibold esk-tabular"><?= $money($mrrVal) ?></dd>
+                </div>
+                <div class="flex items-center justify-between rounded-lg border border-edge px-3 py-2">
+                    <dt class="text-ink-muted">ARR</dt>
+                    <dd class="font-semibold esk-tabular"><?= $money($arrVal) ?></dd>
+                </div>
+                <?php if ($hasArrTarget): ?>
+                    <div class="flex items-center justify-between rounded-lg border border-edge px-3 py-2">
+                        <dt class="text-ink-muted">Target</dt>
+                        <dd class="font-semibold esk-tabular"><?= $money($arrTargetNum) ?></dd>
+                    </div>
+                <?php endif; ?>
+            </dl>
+        </div>
+    </section>
+</div>
 
 <div class="grid lg:grid-cols-3 gap-6 mb-6">
     <section class="esk-panel lg:col-span-2">
@@ -318,6 +567,7 @@ if (($reconciliation['status'] ?? 'empty') === 'divergent') {
                 <h2 class="esk-panel-title">Licenses by status</h2>
                 <p class="esk-panel-sub">Expiry is derived from the expiry date, not a stored status.</p>
             </div>
+            <a href="/admin/licenses" class="esk-btn esk-btn--sm esk-btn--ghost">Manage →</a>
         </div>
         <div class="esk-panel-body">
             <?php if (array_sum($licenseByStatus) > 0): ?>
@@ -393,6 +643,7 @@ if (($reconciliation['status'] ?? 'empty') === 'divergent') {
                 <h2 class="esk-panel-title">Gateway mix</h2>
                 <p class="esk-panel-sub">Collected revenue by payment method.</p>
             </div>
+            <a href="/admin/gateways" class="esk-btn esk-btn--sm esk-btn--ghost">Configure →</a>
         </div>
         <div class="esk-panel-body">
             <?php if (array_sum($byGateway) > 0): ?>
@@ -499,6 +750,7 @@ if (($reconciliation['status'] ?? 'empty') === 'divergent') {
                 <h2 class="esk-panel-title">Top countries</h2>
                 <p class="esk-panel-sub">Visitor origin, bots excluded.</p>
             </div>
+            <a href="/admin/visitors" class="esk-btn esk-btn--sm esk-btn--ghost">Log →</a>
         </div>
         <div class="esk-panel-body">
             <?php if (array_sum($countries) > 0): ?>
@@ -586,6 +838,49 @@ if (($reconciliation['status'] ?? 'empty') === 'divergent') {
                     'emptyIcon' => $svg('repeat', 22), 'emptyHref' => '/admin/subscriptions', 'emptyCta' => 'Subscriptions',
                 ]); ?>
             <?php endif; ?>
+        </div>
+    </section>
+
+    <section class="esk-panel lg:col-span-2">
+        <div class="esk-panel-head">
+            <div>
+                <h2 class="esk-panel-title">MRR vs collected</h2>
+                <p class="esk-panel-sub">Committed recurring value against money actually collected.</p>
+            </div>
+        </div>
+        <div class="esk-panel-body">
+            <?php
+            $reconTones = [
+                'reconciled'          => 'success',
+                'divergent'           => 'warning',
+                'mrr_without_revenue' => 'warning',
+                'revenue_without_mrr' => 'info',
+                'empty'               => 'muted',
+            ];
+            $reconTone = $reconTones[(string) ($reconciliation['status'] ?? 'empty')] ?? 'muted';
+            ?>
+            <div class="esk-alert esk-alert--<?= $reconTone ?>">
+                <div>
+                    <div class="esk-alert-title"><?= htmlspecialchars(ucfirst(str_replace('_', ' ', (string) ($reconciliation['status'] ?? 'empty')))) ?></div>
+                    <p class="esk-alert-body"><?= htmlspecialchars((string) ($reconciliation['note'] ?? '')) ?></p>
+                    <?php if (($reconciliation['status'] ?? 'empty') !== 'empty'): ?>
+                        <p class="text-xs font-semibold mt-1">
+                            Gap: <?= (($reconciliation['gap'] ?? 0) >= 0 ? '+' : '') . $money((float) ($reconciliation['gap'] ?? 0)) ?>
+                            over <?= htmlspecialchars($range->label()) ?>
+                        </p>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <dl class="mt-4 grid grid-cols-2 gap-4 text-sm">
+                <div class="flex items-center justify-between rounded-lg border border-edge px-3 py-2">
+                    <dt class="text-ink-muted">MRR</dt>
+                    <dd class="font-semibold esk-tabular"><?= $money((float) ($reconciliation['mrr'] ?? 0)) ?></dd>
+                </div>
+                <div class="flex items-center justify-between rounded-lg border border-edge px-3 py-2">
+                    <dt class="text-ink-muted">Collected (window)</dt>
+                    <dd class="font-semibold esk-tabular"><?= $money((float) ($reconciliation['collected_window'] ?? 0)) ?></dd>
+                </div>
+            </dl>
         </div>
     </section>
 </div>
@@ -702,7 +997,7 @@ if (($reconciliation['status'] ?? 'empty') === 'divergent') {
                                 <td><a href="/admin/customers/<?= (int) $c['id'] ?>" class="font-medium hover:underline"><?= htmlspecialchars((string) $c['name']) ?></a></td>
                                 <td class="text-ink-muted"><?= htmlspecialchars((string) ($c['email'] ?? '')) ?></td>
                                 <td class="esk-num esk-tabular"><?= (int) $c['payments'] ?></td>
-                                <td class="esk-num esk-tabular font-semibold"><?= $money((float) $c['ltv']) ?></td>
+                                <td class="esk-num esk-tabular font-semibold"><?= money_short((float) $c['ltv']) ?></td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>
@@ -716,53 +1011,8 @@ if (($reconciliation['status'] ?? 'empty') === 'divergent') {
             <?php endif; ?>
         </div>
     </section>
-</div>
 
-<div class="grid lg:grid-cols-3 gap-6 mb-6">
-    <section class="esk-panel lg:col-span-2">
-        <div class="esk-panel-head">
-            <div>
-                <h2 class="esk-panel-title">MRR vs collected</h2>
-                <p class="esk-panel-sub">Committed recurring value against money actually collected.</p>
-            </div>
-        </div>
-        <div class="esk-panel-body">
-            <?php
-            $reconTones = [
-                'reconciled'          => 'success',
-                'divergent'           => 'warning',
-                'mrr_without_revenue' => 'warning',
-                'revenue_without_mrr' => 'info',
-                'empty'               => 'muted',
-            ];
-            $reconTone = $reconTones[(string) ($reconciliation['status'] ?? 'empty')] ?? 'muted';
-            ?>
-            <div class="esk-alert esk-alert--<?= $reconTone ?>">
-                <div>
-                    <div class="esk-alert-title"><?= htmlspecialchars(ucfirst(str_replace('_', ' ', (string) ($reconciliation['status'] ?? 'empty')))) ?></div>
-                    <p class="esk-alert-body"><?= htmlspecialchars((string) ($reconciliation['note'] ?? '')) ?></p>
-                    <?php if (($reconciliation['status'] ?? 'empty') !== 'empty'): ?>
-                        <p class="text-xs font-semibold mt-1">
-                            Gap: <?= (($reconciliation['gap'] ?? 0) >= 0 ? '+' : '') . $money((float) ($reconciliation['gap'] ?? 0)) ?>
-                            over <?= htmlspecialchars($range->label()) ?>
-                        </p>
-                    <?php endif; ?>
-                </div>
-            </div>
-            <dl class="mt-4 grid grid-cols-2 gap-4 text-sm">
-                <div class="flex items-center justify-between rounded-lg border border-edge px-3 py-2">
-                    <dt class="text-ink-muted">MRR</dt>
-                    <dd class="font-semibold esk-tabular"><?= $money((float) ($reconciliation['mrr'] ?? 0)) ?></dd>
-                </div>
-                <div class="flex items-center justify-between rounded-lg border border-edge px-3 py-2">
-                    <dt class="text-ink-muted">Collected (window)</dt>
-                    <dd class="font-semibold esk-tabular"><?= $money((float) ($reconciliation['collected_window'] ?? 0)) ?></dd>
-                </div>
-            </dl>
-        </div>
-    </section>
-
-    <section class="esk-panel">
+    <section class="esk-panel lg:col-span-3">
         <div class="esk-panel-head">
             <div>
                 <h2 class="esk-panel-title">Recent activity</h2>
@@ -908,3 +1158,4 @@ $fleetConfigured = count(array_filter($fleet, static fn (string $url): bool => $
         </div>
     </div>
 </section>
+<?php endif; /* !$isFreshInstall */ ?>

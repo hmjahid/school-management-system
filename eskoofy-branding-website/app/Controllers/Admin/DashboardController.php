@@ -6,6 +6,7 @@ namespace App\Controllers\Admin;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Database;
+use App\Models\Settings;
 use App\Services\Analytics\ActivityFeed;
 use App\Services\Analytics\DateRange;
 use App\Services\Analytics\KpiService;
@@ -127,6 +128,27 @@ class DashboardController extends Controller
         $countries = $traffic->countries($range);
         $renewalRisk = $licenses->renewalRisk(6, $filters);
 
+        // "What's trending": top plans / countries / fastest-growing gateway,
+        // range- and filter-aware like every other widget, cached under the
+        // same groups and TTLs as their parent aggregates.
+        $trending = [
+            'plans'     => Cache::remember(
+                'revenue',
+                'trending-plans:' . $range->cacheKey() . ':' . md5(json_encode($filters)),
+                static fn (): array => $revenue->topPlans($range, 3, $filters)
+            ),
+            'countries' => Cache::remember(
+                'traffic',
+                'trending-countries:' . $range->cacheKey(),
+                static fn (): array => $traffic->topCountries($range, 3)
+            ),
+            'gateway'   => Cache::remember(
+                'revenue',
+                'trending-gateway:' . $range->cacheKey(),
+                static fn (): array => $revenue->fastestGrowingGateway($range)
+            ),
+        ];
+
         // Prior-period counts for the KPI deltas.
         $customersNow = $this->countInRange('customers', 'created_at', $range, $filters);
         $customersPrev = $this->countInRange('customers', 'created_at', $range->prior(), $filters);
@@ -227,6 +249,9 @@ class DashboardController extends Controller
             'activityFeed'     => $feed->recent(8),
             'matrix'           => $matrix,
             'renewalTotal'     => $renewalTotal,
+            'trending'         => $trending,
+            // Blank by default: the gauge card degrades to plain MRR/ARR.
+            'arrTarget'        => Settings::get('analytics.arr_target', ''),
         ]);
     }
 

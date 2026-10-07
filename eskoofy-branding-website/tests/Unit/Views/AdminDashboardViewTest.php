@@ -392,4 +392,106 @@ class AdminDashboardViewTest extends TestCase
             self::assertNotSame('', $label);
         }
     }
+
+    // ----------------------------------------------------- enterprise §4 panels
+
+    /**
+     * The Revenue tile becomes the hero (wider, accent wash) and the trending
+     * block renders its three columns with compact numbers and signed deltas.
+     */
+    public function testTheHeroRevenueCardAndTrendingPanelRender(): void
+    {
+        $data = $this->viewData();
+        $data['trending'] = [
+            'plans'     => [
+                ['id' => 1, 'name' => 'Pro yearly', 'product' => 'app', 'collected' => 1200.0, 'prior' => 900.0, 'delta_pct' => 33.3],
+            ],
+            'countries' => [
+                ['country' => 'Germany', 'visits' => 120, 'prior' => 60, 'delta_pct' => 100.0],
+            ],
+            'gateway'   => ['gateway' => 'stripe', 'current' => 500.0, 'prior' => 250.0, 'delta_pct' => 100.0],
+        ];
+
+        [$html] = $this->render($data);
+
+        self::assertStringContainsString('esk-stat--hero', $html);
+        self::assertStringContainsString('trending', $html);
+        self::assertStringContainsString('Pro yearly', $html);
+        self::assertStringContainsString('Germany', $html);
+        self::assertStringContainsString('Stripe', $html);
+
+        // Compact feet + dense numbers on the trending rows; deltas signed.
+        self::assertStringContainsString('$1.2k', $html);
+        self::assertStringContainsString('+33.3%', $html);
+        self::assertStringContainsString('120', $html);
+
+        // Every chart spec is still valid JSON with the new panels mounted.
+        preg_match_all('/data-chart-spec="([^"]*)"/', $html, $m);
+        foreach ($m[1] as $encoded) {
+            $decoded = json_decode(html_entity_decode($encoded, ENT_QUOTES, 'UTF-8'), true);
+            self::assertIsArray($decoded, 'a chart spec was not valid JSON with trending mounted');
+        }
+    }
+
+    /**
+     * The ARR gauge is opt-in: with a blank target the card degrades to plain
+     * MRR/ARR numbers; with one it draws the radial arc of progress.
+     */
+    public function testTheArrGaugeRendersWhenATargetIsSetAndDegradesWithout(): void
+    {
+        [$without] = $this->render($this->viewData());
+
+        self::assertStringContainsString('Recurring revenue', $without);
+        self::assertStringNotContainsString('ARR vs target', $without);
+        self::assertStringNotContainsString('ARR progress', $without);
+        self::assertStringContainsString('$17,886', $without, 'mrr/arr degrade path still shows the numbers');
+
+        $data = $this->viewData();
+        $data['arrTarget'] = '120000';
+
+        [$with] = $this->render($data);
+
+        self::assertStringContainsString('ARR vs target', $with);
+        self::assertStringContainsString('ARR progress', $with);
+        self::assertStringContainsString('radialBar', $with);
+        self::assertStringContainsString('Target', $with);
+        self::assertStringContainsString('$120,000', $with);
+    }
+
+    /**
+     * A brand-new store (no customers, licenses, subscriptions or revenue)
+     * swaps the chart panels for one focused onboarding checklist, while the
+     * hero KPIs and quick actions stay.
+     */
+    public function testAFreshInstallShowsTheOnboardingChecklistInsteadOfEmptyPanels(): void
+    {
+        $data = $this->viewData();
+        $data['stats'] = array_merge($data['stats'], [
+            'customers'            => 0,
+            'licenses'             => 0,
+            'active_subscriptions' => 0,
+            'revenue'              => 0,
+            'revenue_this_month'   => 0,
+            'revenue_pending'      => 0,
+            'mrr'                  => 0,
+            'arr'                  => 0,
+        ]);
+
+        [$html] = $this->render($data);
+
+        self::assertStringContainsString('Get your first license out the door', $html);
+        self::assertStringContainsString('esk-onboard', $html);
+        self::assertStringContainsString('Issue your first license', $html);
+        self::assertStringContainsString('Create a plan', $html);
+        self::assertStringContainsString('Configure a gateway', $html);
+
+        // The sea of empty charts is gone…
+        self::assertStringNotContainsString('Collected revenue —', $html);
+        self::assertStringNotContainsString('Renewal-risk heatmap', $html);
+        self::assertStringNotContainsString('What&rsquo;s trending', $html);
+
+        // …but the operational surface is still there.
+        self::assertStringContainsString('Quick actions', $html);
+        self::assertStringContainsString('esk-stat--hero', $html);
+    }
 }

@@ -622,4 +622,117 @@ class RevenueServiceTest extends TestCase
 
         self::assertStringContainsString('LEFT JOIN plans pl ON pl.id = p.plan_id', $this->db->sql());
     }
+
+    // -------------------------------------------------------------- trending
+
+    /**
+     * topPlans issues two textually identical JOINed GROUP BYs (DateRange only
+     * changes the bound params), so the current window is one-shot and the prior
+     * falls through to the permanent rule.
+     */
+    public function testTopPlansRankByCollectedAndCarryAPriorDelta(): void
+    {
+        $this->db
+            ->onOnce('JOIN plans pl', [
+                ['id' => 7, 'name' => 'Pro yearly', 'product' => 'app', 'collected' => '1200.00'],
+                ['id' => 3, 'name' => 'Starter', 'product' => 'app', 'collected' => '400.00'],
+            ])
+            ->on('JOIN plans pl', [
+                ['id' => 7, 'name' => 'Pro yearly', 'product' => 'app', 'collected' => '900.00'],
+                ['id' => 3, 'name' => 'Starter', 'product' => 'app', 'collected' => '400.00'],
+            ]);
+
+        $plans = $this->service->topPlans($this->range('30d'), 3);
+
+        self::assertCount(2, $plans);
+        self::assertSame('Pro yearly', $plans[0]['name']);
+        self::assertSame(1200.0, $plans[0]['collected']);
+        self::assertSame(900.0, $plans[0]['prior']);
+        self::assertSame(33.3, $plans[0]['delta_pct']);
+        self::assertSame(0.0, $plans[1]['delta_pct'], 'a flat plan reads 0%, not null');
+
+        // The prior window must not be clipped by the top-N cut, or a plan that
+        // grew into the current top-3 would be reported as brand-new.
+        self::assertStringNotContainsString('LIMIT 3', $this->db->queries[1]['sql']);
+    }
+
+    public function testTopPlansReportsNoDeltaWhenAPlanIsFirstSeenThisWindow(): void
+    {
+        $this->db->onOnce('JOIN plans pl', [
+            ['id' => 9, 'name' => 'Launch special', 'product' => null, 'collected' => '99.00'],
+        ]);
+
+        $plans = $this->service->topPlans($this->range('30d'), 3);
+
+        self::assertCount(1, $plans);
+        self::assertSame(99.0, $plans[0]['collected']);
+        self::assertNull($plans[0]['prior']);
+        self::assertNull($plans[0]['delta_pct'], 'no prior data must not read as 0% growth');
+        self::assertNull($plans[0]['product'], 'an unattributed plan stays null, not the string "null"');
+    }
+
+    public function testTopPlansIsEmptyWhenNothingSold(): void
+    {
+        self::assertSame([], $this->service->topPlans($this->range('30d')));
+    }
+
+    public function testTopPlansBoundsTheLimitToTheWindowQuery(): void
+    {
+        $this->db->onOnce('JOIN plans pl', [
+            ['id' => 1, 'name' => 'A', 'product' => 'app', 'collected' => '10.00'],
+            ['id' => 2, 'name' => 'B', 'product' => 'app', 'collected' => '8.00'],
+            ['id' => 3, 'name' => 'C', 'product' => 'app', 'collected' => '6.00'],
+        ]);
+
+        $plans = $this->service->topPlans($this->range('30d'), 1);
+
+        // The stub does not emulate LIMIT; the order-by took the top row and the
+        // window SQL itself carries the cap.
+        self::assertSame('A', $plans[0]['name']);
+        self::assertStringContainsString('LIMIT 1', $this->db->queries[0]['sql']);
+        self::assertStringNotContainsString('LIMIT', $this->db->queries[1]['sql'], 'the prior window is unbounded');
+    }
+
+    public function testFastestGrowingGatewayPicksTheBiggestGainer(): void
+    {
+        $this->db
+            ->onOnce('GROUP BY gateway', [
+                ['gateway' => 'stripe', 'total' => '500'],
+                ['gateway' => 'paypal', 'total' => '300'],
+            ])
+            ->on('GROUP BY gateway', [
+                ['gateway' => 'stripe', 'total' => '250'],
+                ['gateway' => 'paypal', 'total' => '300'],
+            ]);
+
+        $best = $this->service->fastestGrowingGateway($this->range('30d'));
+
+        self::assertIsArray($best);
+        self::assertSame('stripe', $best['gateway']);
+        self::assertSame(500.0, $best['current']);
+        self::assertSame(250.0, $best['prior']);
+        self::assertSame(100.0, $best['delta_pct']);
+    }
+
+    public function testFastestGrowingGatewayNamesTheBusiestWhenNothingGrew(): void
+    {
+        // No prior window at all — nothing can grow, so the busiest gateway is
+        // named with a null delta rather than a meaningless +∞%.
+        $this->db->onOnce('GROUP BY gateway', [
+            ['gateway' => 'stripe', 'total' => '500'],
+        ]);
+
+        $best = $this->service->fastestGrowingGateway($this->range('30d'));
+
+        self::assertIsArray($best);
+        self::assertSame('stripe', $best['gateway']);
+        self::assertSame(500.0, $best['current']);
+        self::assertSame(0.0, $best['prior']);
+        self::assertNull($best['delta_pct']);
+    }
+
+    public function testFastestGrowingGatewayIsNullWithNoSales(): void
+    {
+        self::assertNull($this->service->fastestGrowingGateway($this->range('30d')));
+    }
 }

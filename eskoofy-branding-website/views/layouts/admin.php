@@ -74,16 +74,26 @@ $eskSvg = static function (string $name, int $size = 20, string $class = '') use
 
 $eskUnread = (int) \App\Models\ContactMessage::countUnread();
 $eskCustomUnread = (int) \App\Models\CustomRequest::countUnread();
+$eskExpiring = \App\Models\License::countExpiringSoon(30);
 
-$eskNavGroups = \App\Services\Nav::groups(null, ['messages' => $eskUnread, 'custom_requests' => $eskCustomUnread]);
+$eskNavGroups = \App\Services\Nav::groups(null, [
+    'messages'          => $eskUnread,
+    'custom_requests'    => $eskCustomUnread,
+    'expiring_licenses' => $eskExpiring,
+]);
 $eskGroupLabels = [
     'admin.nav.group_overview'  => 'Overview',
     'admin.nav.group_sales'     => 'Sales & licensing',
+    'admin.nav.group_customers' => 'Customers & inbox',
     'admin.nav.group_analytics' => 'Analytics',
-    'admin.nav.group_customers' => 'Customers',
-    'admin.nav.group_content'   => 'Content & inbox',
+    'admin.nav.group_content'   => 'Content',
     'admin.nav.group_system'    => 'System',
 ];
+
+// One glanceable "needs attention" roll-up: unread inbox + custom orders +
+// licenses expiring within 30 days. Rendered at the very top of the nav and
+// linking to the dashboard, whose alert strip explains each item.
+$eskAttention = $eskUnread + $eskCustomUnread + $eskExpiring;
 
 $eskCurrent = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/admin'), PHP_URL_PATH) ?: '/admin';
 $eskQuery = $_GET;
@@ -127,7 +137,7 @@ $eskActiveRange = (string) ($_GET['range'] ?? '30d');
         };
     </script>
 
-    <link rel="stylesheet" href="/css/admin.css?v=6">
+    <link rel="stylesheet" href="/css/admin.css?v=8">
 
     <script>
         // Applied before first paint so dark-mode users never see a light flash.
@@ -145,8 +155,8 @@ $eskActiveRange = (string) ($_GET['range'] ?? '30d');
 
     <script defer src="/vendor/charts/chart.umd.min.js"></script>
     <script defer src="/vendor/charts/apexcharts.min.js"></script>
-    <script defer src="/js/charts.js"></script>
-    <script defer src="/js/admin.js"></script>
+    <script defer src="/js/charts.js?v=3"></script>
+    <script defer src="/js/admin.js?v=3"></script>
 </head>
 <body class="antialiased">
 
@@ -186,49 +196,85 @@ $eskActiveRange = (string) ($_GET['range'] ?? '30d');
             </span>
         </a>
 
-        <nav class="esk-sidebar-nav">
-            <?php foreach ($eskNavGroups as $groupKey => $items): ?>
-                <div class="esk-nav-group-label"><?= htmlspecialchars($eskGroupLabels[$groupKey] ?? 'Menu') ?></div>
-                <ul class="space-y-0.5 mb-1">
-                    <?php foreach ($items as $it): ?>
-                        <li>
-                            <a href="<?= htmlspecialchars((string) $it['href']) ?>"
-                               class="esk-nav-link"
-                               title="<?= htmlspecialchars((string) $it['label']) ?>"
-                               <?= !empty($it['active']) ? 'aria-current="page"' : '' ?>>
-                                <?= $eskSvg((string) $it['icon']) ?>
-                                <span class="esk-sidebar-label flex-1"><?= htmlspecialchars((string) $it['label']) ?></span>
-                                <?php if (!empty($it['badge'])): ?>
-                                    <span class="esk-nav-badge"><?= (int) $it['badge'] ?></span>
-                                <?php endif; ?>
-                            </a>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-                <?php if ($groupKey === 'admin.nav.group_sales'): ?>
-                    <div class="esk-nav-group-label">Quick create</div>
+        <div class="esk-sidebar-scrollwrap">
+            <nav class="esk-sidebar-nav">
+                <?php if ($eskAttention > 0): ?>
+                    <a href="/admin" class="esk-nav-attention" data-nav-label="<?= $eskAttention ?> things need attention">
+                        <?= $eskSvg('bell', 15) ?>
+                        <span class="esk-sidebar-label">
+                            <strong class="esk-tabular"><?= $eskAttention ?></strong> thing<?= $eskAttention === 1 ? '' : 's' ?> need<?= $eskAttention === 1 ? 's' : '' ?> attention
+                        </span>
+                        <span class="esk-nav-attention-arrow" aria-hidden="true">→</span>
+                    </a>
+                <?php endif; ?>
+
+                <?php foreach ($eskNavGroups as $groupKey => $items): ?>
+                    <div class="esk-nav-group-label"><?= htmlspecialchars($eskGroupLabels[$groupKey] ?? 'Menu') ?></div>
                     <ul class="space-y-0.5 mb-1">
-                        <?php foreach (\App\Services\Nav::createActions() as $q): ?>
+                        <?php foreach ($items as $it): ?>
+                            <?php
+                            $eskTooltip = (string) $it['label'];
+                            if (!empty($it['badge'])) {
+                                $eskTooltip .= ' · ' . $it['badge'] . ' unread';
+                            }
+                            ?>
                             <li>
-                                <a href="<?= htmlspecialchars((string) $q['href']) ?>" class="esk-nav-link" title="<?= htmlspecialchars((string) $q['label']) ?>">
-                                    <?= $eskSvg('plus', 16) ?>
-                                    <span class="esk-sidebar-label"><?= htmlspecialchars((string) $q['label']) ?></span>
+                                <a href="<?= htmlspecialchars((string) $it['href']) ?>"
+                                   class="esk-nav-link"
+                                   title="<?= htmlspecialchars((string) $it['label']) ?>"
+                                   data-nav-label="<?= htmlspecialchars($eskTooltip) ?>"
+                                   <?= !empty($it['active']) ? 'aria-current="page"' : '' ?>>
+                                    <?= $eskSvg((string) $it['icon']) ?>
+                                    <span class="esk-sidebar-label flex-1"><?= htmlspecialchars((string) $it['label']) ?></span>
+                                    <?php if (!empty($it['dot'])): ?>
+                                        <span class="esk-nav-dot" title="Licenses expiring soon" aria-hidden="true"></span>
+                                        <span class="esk-sr-only">licenses expiring soon</span>
+                                    <?php endif; ?>
+                                    <?php if (!empty($it['badge'])): ?>
+                                        <span class="esk-nav-badge"><?= htmlspecialchars((string) $it['badge']) ?></span>
+                                    <?php endif; ?>
                                 </a>
                             </li>
                         <?php endforeach; ?>
                     </ul>
-                <?php endif; ?>
-            <?php endforeach; ?>
+                    <?php if ($groupKey === 'admin.nav.group_sales'): ?>
+                        <div class="esk-nav-group-label">Quick create</div>
+                        <ul class="space-y-0.5 mb-1">
+                            <?php foreach (\App\Services\Nav::createActions() as $q): ?>
+                                <li>
+                                    <a href="<?= htmlspecialchars((string) $q['href']) ?>" class="esk-nav-link" title="<?= htmlspecialchars((string) $q['label']) ?>" data-nav-label="<?= htmlspecialchars((string) $q['label']) ?>">
+                                        <?= $eskSvg('plus', 16) ?>
+                                        <span class="esk-sidebar-label"><?= htmlspecialchars((string) $q['label']) ?></span>
+                                    </a>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+                <?php endforeach; ?>
 
-            <a href="/" class="esk-nav-link mt-1" title="View website">
-                <?= $eskSvg('globe') ?>
-                <span class="esk-sidebar-label">View website</span>
-            </a>
-        </nav>
+                <a href="/" class="esk-nav-link mt-1" title="View website" data-nav-label="View website">
+                    <?= $eskSvg('globe') ?>
+                    <span class="esk-sidebar-label">View website</span>
+                </a>
+            </nav>
+
+            <?php /*
+                Custom scrollbar indicator. Purely decorative (aria-hidden):
+                the nav above keeps native scrolling, keyboard and all. JS in
+                public/js/admin.js sizes the thumb, drags it, and auto-reveals
+                it on scroll/hover. `hidden` until JS proves the nav actually
+                scrolls; on coarse pointers it never appears at all.
+                The wrapper exists so the track can sit beside the scrollport
+                without scrolling away with the content.
+             */ ?>
+            <div class="esk-scrollbar" data-sidebar-scrollbar aria-hidden="true" hidden>
+                <div class="esk-scrollbar-thumb" data-sidebar-thumb></div>
+            </div>
+        </div>
 
         <div class="esk-sidebar-foot">
             <div class="esk-sidebar-meta text-slate-400 truncate"><?= htmlspecialchars((string) ($admin['name'] ?? $admin['email'] ?? 'Admin')) ?></div>
-            <a href="/logout" class="esk-nav-link" title="Logout">
+            <a href="/logout" class="esk-nav-link" title="Logout" data-nav-label="Logout">
                 <?= $eskSvg('logout') ?>
                 <span class="esk-sidebar-label">Logout</span>
             </a>
@@ -287,7 +333,7 @@ $eskActiveRange = (string) ($_GET['range'] ?? '30d');
                     <div class="esk-menu-title">Inbox</div>
                     <a class="esk-menu-row" href="/admin/messages"><?= $eskSvg('inbox', 16) ?> Unread messages <span class="esk-menu-count"><?= $eskUnread ?></span></a>
                     <a class="esk-menu-row" href="/admin/custom-requests"><?= $eskSvg('inbox', 16) ?> Custom orders <span class="esk-menu-count"><?= $eskCustomUnread ?></span></a>
-                    <a class="esk-menu-row" href="/admin/licenses?status=expiring"><?= $eskSvg('key', 16) ?> Expiring licenses <span class="esk-menu-count"><?= (int) ($stats['expiring_soon'] ?? 0) ?></span></a>
+                    <a class="esk-menu-row" href="/admin/licenses?status=expiring"><?= $eskSvg('key', 16) ?> Expiring licenses <span class="esk-menu-count"><?= $eskExpiring ?></span></a>
                 </div>
             </details>
 

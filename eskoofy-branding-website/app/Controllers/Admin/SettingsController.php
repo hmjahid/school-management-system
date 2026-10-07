@@ -47,6 +47,11 @@ class SettingsController extends Controller
             'products.dashboards.php'   => trim((string) ($_POST['products_dashboards_php'] ?? '')),
             'products.dashboards.theme' => trim((string) ($_POST['products_dashboards_theme'] ?? '')),
             'products.dashboards.node'  => trim((string) ($_POST['products_dashboards_node'] ?? '')),
+            // Numeric (or blank) only — the dashboard gauge reads it as-is and
+            // degrades to plain MRR/ARR when unset.
+            'analytics.arr_target' => preg_match('/^\d+(\.\d{1,2})?$/', (string) ($_POST['analytics_arr_target'] ?? '')) === 1
+                ? (string) $_POST['analytics_arr_target']
+                : '',
             'appearance.brand_color' => preg_match('/^#[0-9a-fA-F]{6}$/', (string) ($_POST['appearance_brand_color'] ?? ''))
                 ? (string) $_POST['appearance_brand_color']
                 : '#2563eb',

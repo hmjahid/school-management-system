@@ -16,6 +16,10 @@ namespace App\Services;
 final class Nav
 {
     /**
+     * @param array<string, int> $badges live counts: `messages` / `custom_requests`
+     *        become unread badges, `expiring_licenses` pins a dot on the
+     *        Licenses row
+     *
      * @return array<string, array{key: string, items: list<array<string, mixed>>}>
      *         Group title => items. Item keys: label, href, icon, badge, match.
      */
@@ -34,27 +38,27 @@ final class Nav
                 self::item('subscriptions', 'Subscriptions', '/admin/subscriptions', 'repeat', $path, ['/admin/subscriptions']),
                 self::item('packages', 'Packages', '/admin/packages', 'archive', $path, ['/admin/packages']),
                 self::item('gateways', 'Payment gateways', '/admin/gateways', 'card', $path, ['/admin/gateways']),
-                self::item('services', 'Deployment & maintenance', '/admin/services', 'tool', $path, ['/admin/services']),
-            ],
-            'admin.nav.group_analytics' => [
-                self::item('analytics', 'Analytics', '/admin/analytics', 'chart', $path, ['/admin/analytics']),
             ],
             'admin.nav.group_customers' => [
                 self::item('customers', 'All customers', '/admin/customers', 'users', $path, ['/admin/customers']),
+                self::item('messages', 'Messages', '/admin/messages', 'inbox', $path, ['/admin/messages']),
+                self::item('custom_requests', 'Custom orders', '/admin/custom-requests', 'inbox', $path, ['/admin/custom-requests']),
+            ],
+            'admin.nav.group_analytics' => [
+                self::item('analytics', 'Analytics', '/admin/analytics', 'chart', $path, ['/admin/analytics']),
+                self::item('visitors', 'Visitor log', '/admin/visitors', 'eye', $path, ['/admin/visitors']),
             ],
             'admin.nav.group_content' => [
                 self::item('pages', 'Pages', '/admin/pages', 'layout', $path, ['/admin/pages']),
                 self::item('posts', 'Blog posts', '/admin/posts', 'file', $path, ['/admin/posts']),
                 self::item('post_categories', 'Post categories', '/admin/post-categories', 'tag', $path, ['/admin/post-categories']),
-                self::item('custom_requests', 'Custom orders', '/admin/custom-requests', 'inbox', $path, ['/admin/custom-requests']),
-                self::item('messages', 'Messages', '/admin/messages', 'inbox', $path, ['/admin/messages']),
             ],
             'admin.nav.group_system' => [
-                self::item('visitors', 'Visitor log', '/admin/visitors', 'eye', $path, ['/admin/visitors']),
-                self::item('activities', 'Activity log', '/admin/activities', 'activity', $path, ['/admin/activities']),
+                self::item('services', 'Deployment & maintenance', '/admin/services', 'tool', $path, ['/admin/services']),
                 self::item('email_templates', 'Email templates', '/admin/email-templates', 'file', $path, ['/admin/email-templates']),
                 self::item('client_documents', 'Client documents', '/admin/client-documents', 'file', $path, ['/admin/client-documents']),
                 self::item('push_notifications', 'Push notifications', '/admin/push-notifications', 'inbox', $path, ['/admin/push-notifications']),
+                self::item('activities', 'Activity log', '/admin/activities', 'activity', $path, ['/admin/activities']),
                 self::item('cache', 'Clear cache', '/admin/cache', 'sliders', $path, ['/admin/cache']),
                 self::item('backup', 'Backups', '/admin/backup', 'archive', $path, ['/admin/backup', '/admin/cloud-backup']),
                 self::item('settings', 'Settings', '/admin/settings', 'sliders', $path, ['/admin/settings']),
@@ -62,7 +66,9 @@ final class Nav
             ],
         ];
 
-        // Attach live unread badges.
+        // Attach live unread badges. A huge count is capped at "99+" — the
+        // badge is a glanceable nudge, not a precise tally; the page behind it
+        // carries the real number.
         $badgeMap = [
             'messages'        => (int) ($badges['messages'] ?? 0),
             'custom_requests' => (int) ($badges['custom_requests'] ?? 0),
@@ -71,11 +77,22 @@ final class Nav
         foreach ($groups as &$items) {
             foreach ($items as $i => $item) {
                 if (($badgeMap[$item['key']] ?? 0) > 0) {
-                    $items[$i]['badge'] = $badgeMap[$item['key']];
+                    $items[$i]['badge'] = $badgeMap[$item['key']] > 99 ? '99+' : $badgeMap[$item['key']];
                 }
             }
         }
         unset($items);
+
+        // The expiring-licenses pin: a small amber dot on the Licenses row,
+        // driven by the same 30-day predicate as the dashboard stat, so the
+        // sidebar can never claim action is needed when the dashboard doesn't.
+        if ((int) ($badges['expiring_licenses'] ?? 0) > 0) {
+            foreach ($groups['admin.nav.group_sales'] as $i => $item) {
+                if ($item['key'] === 'licenses') {
+                    $groups['admin.nav.group_sales'][$i]['dot'] = true;
+                }
+            }
+        }
 
         return $groups;
     }
